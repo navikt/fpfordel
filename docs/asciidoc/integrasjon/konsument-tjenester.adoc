@@ -1,0 +1,82 @@
+= Konsumenttjenester
+
+Oversikt over konsumerende tjenester.
+
+.Tjenesteoversikt
+|===
+|Kortnavn | System | Alias |Link til beskrivelsen|Beskrivelse
+
+|Arbeidsfordeling
+|norg2
+|virksomhet:Arbeidsfordeling_v1
+|https://confluence.adeo.no/display/SDFS/tjeneste_v3%3Avirksomhet%3AArbeidsfordeling_v1[Beskrivelse]
+|*finnBehandlendeEnhetListe* Operasjon for å finne en liste med behandlende enheter knyttet til kriterier for arbeidsfordeling.
+
+|Aktoer
+|aktoerid
+|Aktoer_v2
+|https://confluence.adeo.no/display/SDFS/tjeneste_v3%3Avirksomhet%3AAktoer_v2[Beskrivelse]
+|*hentAktørIdForPersonIdent:* Beskrivelse finnes ikke i confluence
+
+|Person
+|TPS
+|virksomhet:Person_v3
+|https://confluence.adeo.no/display/SDFS/tjeneste_v3%3Avirksomhet%3APerson_v3[Beskrivelse]
+|*hentGeografiskTilknytning:* Operasjonen returnerer geografisk tilknytning, diskresjonskode og navn på en ident som det spørres på. Operasjonen er tiltenkt brukt i ruting øyemed.
+
+
+|Journal
+|JOARK
+|Journal_v2
+|https://confluence.adeo.no/display/SDFS/tjeneste_v3%3Avirksomhet%3AJournal_v2[Beskrivelse]
+|*HentDokument:* Brukes for å hente ut dokument fra journal (JOARK). Brukes både for strukturerte dokumenter (XML) og andre.
+
+
+|InngaaendeJournal
+|JOARK
+|InngaaendeJournal_v1
+|https://confluence.adeo.no/display/SDFS/tjeneste_v3%3Avirksomhet%3AInngaaendeJournal_v1[Beskrivelse]
+//Confluence viser navn som HentInngaaendeJournalpost men riktig methode navn er hentJournalpost
+|*HentJournalpost:* Operasjonen returnerer et Journalpost objekt basert på journalpostId med alle tilhørende SaksRelasjon-, JournalpostDokumentInfoRelasjon-, Bruker-, DokumentInfo-, og Fildetaljer-objekter. For Journalposter med hoveddokument og vedlegg, vil det finnes flere JournalpostDokumentInfoRelasjon objekter.JournalpostDokumentInfoRelasjon objektene sorteres i forkant av at de returneres med følgende prioritering: Objektet tilknyttet hoveddokumentet først, deretter objektene tilknyttet vedlegg sortert på datoen vedleggene er opprettet, med tidligst opprettet dato først i listen.
+*UtledJournalfoeringsbehov:* Operasjonen tilbyr funksjonalitet for å utlede hvilken informasjon som er nødvendig for å ferdigstille en inngående journalpost.
+
+
+|BehandleInngaaendeJournal
+|JOARK
+|BehandleInngaaendeJournal_v1
+|https://confluence.adeo.no/display/SDFS/tjeneste_v3%3Avirksomhet%3ABehandleInngaaendeJournal_v1[Beskrivelse]
+|*ferdigstillJournalfoering*
+*oppdaterJournalpost*
+
+|Sak
+|GSAK
+|virksomhet:Sak_v1
+|https://confluence.adeo.no/display/SDFS/tjeneste_v3%3Avirksomhet%3ASak_v1[Beskrivelse]
+|*FinnSak:* Brukes for å finne sak i GSak.
+
+|Behandleoppgave
+|GSAK
+|virksomhet:Behandleoppgave_v1
+|https://confluence.adeo.no/pages/viewpage.action?pageId=233382799[Beskrivelse]
+|*OpprettOppgave:* Brukes for å opprette oppgave i Gsak systemet.
+
+|Oppgave
+|GSAK
+|virksomhet:Oppgave_v3
+|https://confluence.adeo.no/display/SDFS/tjeneste_v3%3Avirksomhet%3AOppgave_v3[Beskrivelse]
+|*finnOppgaveListe:* Operasjonen tilbyr å hente en liste med oppgaver basert på noen begrensingskriterier. Man kan hente oppgaver ved å sette forskjellige nøkkelfelter i input. Søket kan videre begrenses med å sette søkefiltre. Det er påkrevd at man setter minst ett av nøkkelfeltene ved kall av tjenesten, men man bør prøve å begrense søket ved hjelp av filterfeltene for å få et mest mulig målrettet søk mot de oppgavene man vil hente. Et mer begrenset søk er også gunstig for ytelsen, da et ubegrenset søk vil kreve prosessering av potensielt svært store mengder data i baksystemet.
+
+|InfotrygdSak
+|INFOTRYGD
+|virksomhet:infotrygdsak_v1
+|https://confluence.adeo.no/pages/viewpage.action?pageId=213064879[Beskrivelse]
+|*FinnSakListe:* Operasjon for å finne en liste med saker hos infotrygd.
+
+|===
+
+include::tps.adoc[leveloffset=+1]
+include::gosys.adoc[leveloffset=+1]
+include::gsak.adoc[leveloffset=+1]
+include::infotrygd.adoc[leveloffset=+1]
+include::joark.adoc[leveloffset=+1]
+include::norg2.adoc[leveloffset=+1]

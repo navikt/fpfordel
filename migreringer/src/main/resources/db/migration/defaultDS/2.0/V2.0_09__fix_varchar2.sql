@@ -1,0 +1,11 @@
+alter table PROSESS_TASK_TYPE modify (FEILHANDTERING_ALGORITME varchar2(20 char));
+alter table KONFIG_VERDI modify (KONFIG_GRUPPE varchar2(100 char));
+alter table PROSESS_TASK modify (TASK_TYPE varchar2(50 char));
+alter table DOKUMENT modify (ARKIV_FILTYPE varchar2(100 char));
+alter table DOKUMENT modify (KL_ARKIV_FILTYPE varchar2(100 char));
+alter table DOKUMENT modify (KL_DOKUMENT_TYPE_ID varchar2(100 char));
+alter table DOKUMENT modify (DOKUMENT_TYPE_ID varchar2(100 char));
+alter table DOKUMENT_METADATA modify (ARKIV_ID varchar2(32 char));
+alter table DOKUMENT_METADATA modify (BRUKER_ID varchar2(19 char));
+alter table DOKUMENT_METADATA modify (FORSENDELSE_STATUS varchar2(12 char));
+alter table DOKUMENT_METADATA modify (SAKSNUMMER varchar2(32 char));

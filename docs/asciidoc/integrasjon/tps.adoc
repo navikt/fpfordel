@@ -1,0 +1,23 @@
+= TPS integrasjon
+
+== Hensikt
+TPS er NAVs grunndataregister for personinformasjon. Registeret består dels av overføringer fra Det sentrale folkeregister (DSF) og dels av opplysninger om den enkelte bruker som etaten selv har registrert. Vedtaksløsningen benytter TPS for å innhente relevante personopplysninger for alle parter involvert i en behandling, samt bestemme behandlende enhet basert på geografisk tilhørighet.
+
+== Hvordan
+TPS Aksepterer aktørId og fødselsnummer som parametere for å finne personer. Innhenting av personopplysninger gjøres på to måter:
+
+=== Førstegangsinnhenting
+Behandlingssteget INREG (Innhent registeropplysninger) håndterer førstegangsoppretting av personopplysningen. Da hentes informasjon om hovedsøker, søkers barn, søkers ektefelle og eventuelt annen part i søknaden.
+
+=== Oppdatering
+Enkelte aksjoner krever at det sjekkes for oppdatering av personopplysning. Her sjekkes det først om personopplysningene er utgåtte, basert på en konfigurerbar verdi. Deretter om søker eller medsøker har endret seg, ved å sammenligne det oppdaterte svaret fra TPS med opplysningene som ligger på behandlingen.
+
+== Lagring
+Tabeller som lagrer personinformasjon:
+
+* Bruker - AktørId og personopplysningmapping
+* Familierelasjon - Representerer relasjoner mellom personopplysninger
+* Opplysning_adresse - Adresseobjekter som hører til personopplysningen
+* Personopplysning - All personopplysningdata som ikke har egne tabeller
+* Valgt_opplysning - Siste valgtOpplysning fra TPS
+* Aktoer_Norsk_ident_Map - AktørId og norsk ident map

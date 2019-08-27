@@ -1,0 +1,2 @@
+INSERT INTO PROSESS_TASK_TYPE (KODE, NAVN, FEIL_MAKS_FORSOEK, FEIL_SEK_MELLOM_FORSOEK, FEILHANDTERING_ALGORITME, BESKRIVELSE, OPPRETTET_AV, OPPRETTET_TID)
+VALUES ('fordeling.slettForsendelse', 'Slett forsendelse etter journalføring', '3', '30', 'DEFAULT', 'Task som sletter forsendelse metadata og dokument etter journalføring', 'VL', to_timestamp('28.07.2019', 'DD.MM.RRRR'));

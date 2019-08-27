@@ -1,0 +1,32 @@
+INSERT INTO PROSESS_TASK_FEILHAND (KODE, NAVN, BESKRIVELSE, OPPRETTET_AV, OPPRETTET_TID)
+VALUES ('DEFAULT', 'Eksponentiell back-off med tak', NULL, 'VL', to_timestamp('10.11.2017', 'DD.MM.RRRR'));
+
+INSERT INTO PROSESS_TASK_FEILHAND (KODE, NAVN, BESKRIVELSE, OPPRETTET_AV, OPPRETTET_TID, INPUT_VARIABEL1, INPUT_VARIABEL2)
+VALUES ('ÅPNINGSTID', 'Åpningstidsbasert feilhåndtering', 'Åpningstidsbasert feilhåndtering. INPUT_VARIABEL1 = åpningstid og INPUT_VARIABEL2 = stengetid', 'VL', to_timestamp('10.11.2017', 'DD.MM.RRRR'), '7', '18');
+
+INSERT INTO PROSESS_TASK_FEILHAND (KODE, NAVN, BESKRIVELSE, OPPRETTET_AV, OPPRETTET_TID)
+VALUES ('TIL_GSAK_BACKOFF', 'Til Gsak ved funksjonell feil', 'Send sak til manuell journalføring hos gsak dersom det oppstår en funksjonell feil. Andre feil håndters som for DEFAULT.', 'VL', to_timestamp('10.11.2017', 'DD.MM.RRRR'));
+
+INSERT INTO PROSESS_TASK_FEILHAND (KODE, NAVN, BESKRIVELSE, OPPRETTET_AV, OPPRETTET_TID, INPUT_VARIABEL1, INPUT_VARIABEL2)
+VALUES ('TIL_GSAK_ÅPNINGSTID', 'Til Gsak ved funksjonell feil', 'Send sak til manuell journalføring hos gsak dersom det oppstår en funksjonell feil. Andre feil håndters som for ÅPNINGSTID.', 'VL', to_timestamp('10.11.2017', 'DD.MM.RRRR'), '7', '18');
+
+INSERT INTO PROSESS_TASK_TYPE (KODE, NAVN, FEIL_MAKS_FORSOEK, FEIL_SEK_MELLOM_FORSOEK, FEILHANDTERING_ALGORITME, BESKRIVELSE, OPPRETTET_AV, OPPRETTET_TID)
+VALUES ('fordeling.opprettSak', 'Oppretter ny sak internt Vedtaksløsningen', '3', '30', 'DEFAULT', NULL, 'VL', to_timestamp('10.11.2017', 'DD.MM.RRRR'));
+
+INSERT INTO PROSESS_TASK_TYPE (KODE, NAVN, FEIL_MAKS_FORSOEK, FEIL_SEK_MELLOM_FORSOEK, FEILHANDTERING_ALGORITME, BESKRIVELSE, OPPRETTET_AV, OPPRETTET_TID)
+VALUES ('integrasjon.gsak.opprettOppgave', 'Oppretter Oppgave i GSak', '1', '30', 'DEFAULT', NULL, 'VL', to_timestamp('28.11.2017', 'DD.MM.RRRR'));
+
+INSERT INTO PROSESS_TASK_TYPE (KODE, NAVN, FEIL_MAKS_FORSOEK, FEIL_SEK_MELLOM_FORSOEK, FEILHANDTERING_ALGORITME, BESKRIVELSE, OPPRETTET_AV, OPPRETTET_TID)
+VALUES ('fordeling.hentFraJoark', 'Henter metadata og xml fra Joark', '3', '30', 'TIL_GSAK_BACKOFF', NULL, 'VL', to_timestamp('28.11.2017', 'DD.MM.RRRR'));
+
+INSERT INTO PROSESS_TASK_TYPE (KODE, NAVN, FEIL_MAKS_FORSOEK, FEIL_SEK_MELLOM_FORSOEK, FEILHANDTERING_ALGORITME, BESKRIVELSE, OPPRETTET_AV, OPPRETTET_TID)
+VALUES ('fordeling.hentOgVurderVLSak', 'Forsøker å finne matchende sak I repo', '3', '30', 'DEFAULT', NULL, 'VL', to_timestamp('28.11.2017', 'DD.MM.RRRR'));
+
+INSERT INTO PROSESS_TASK_TYPE (KODE, NAVN, FEIL_MAKS_FORSOEK, FEIL_SEK_MELLOM_FORSOEK, FEILHANDTERING_ALGORITME, BESKRIVELSE, OPPRETTET_AV, OPPRETTET_TID)
+VALUES ('fordeling.hentOgVurderInfotrygdSak', 'Forsøker å finne matchende sak i GSAK/Infotrygd', '3', '30', 'ÅPNINGSTID', NULL, 'VL', to_timestamp('28.11.2017', 'DD.MM.RRRR'));
+
+INSERT INTO PROSESS_TASK_TYPE (KODE, NAVN, FEIL_MAKS_FORSOEK, FEIL_SEK_MELLOM_FORSOEK, FEILHANDTERING_ALGORITME, BESKRIVELSE, OPPRETTET_AV, OPPRETTET_TID)
+VALUES ('fordeling.tilJournalforing', 'Setter oppgaven klar til journal', '3', '30', 'TIL_GSAK_BACKOFF', NULL, 'VL', to_timestamp('28.11.2017', 'DD.MM.RRRR'));
+
+INSERT INTO PROSESS_TASK_TYPE (KODE, NAVN, FEIL_MAKS_FORSOEK, FEIL_SEK_MELLOM_FORSOEK, FEILHANDTERING_ALGORITME, BESKRIVELSE, OPPRETTET_AV, OPPRETTET_TID)
+VALUES ('fordeling.klargjoering', 'Klar for klargjoring', '3', '60', 'DEFAULT', 'Task som setter oppgaven klar for klargjøring', 'VL', to_timestamp('28.11.2017', 'DD.MM.RRRR'));

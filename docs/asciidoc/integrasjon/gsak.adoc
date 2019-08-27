@@ -1,0 +1,38 @@
+= GSAK integrasjon
+
+== Hensikt
+GSAK er NAVs sentrale system for opprettelse av oppgaver, som forskjellige fagsystemer registrerer saker som kan følges opp av saksbehandler. Når det i Vedtaksløsningen oppstår en manuell oppgave i forbindelse med en Fagsak eller Behandling, så skal det opprettes en oppgave for dette i GSAK. Fra GSAK skal man da bli rutet tilbake til Vedtaksløsningen gjennom hyperlink.
+
+== Hvordan
+
+=== Opprettelse av Sak i GSAK
+Ved mottak av søknad fra DOKMOT skal Vedtaksløsningen opprette sak i GSAK, gitt at VL kan håndtere søknaden. VLs mottak vil først opprette en Fagsak før den knyttes mot GSAK.
+
+.Knytningen mellom GSAKs Sak og VLs Fagsak skjer på følgende måte:
+* VL angir referanse til Fagsak.id ved opprettelse.
+* GSAK returnerer Sak.SakId som lagres på VLs Fagsak.saksnummer.
+
+_Merk: Kommunikasjon mellom VL og GSAK er asynkron. Dvs. at den skjer gjennom ProsessTask som vil kalle GSAK sitt grensesnitt, og dette skjer i etterkant av transaksjonen som oppretter tasken. Ved eventuell feil vil tasken fortsette å prøve etter angitt feilhåndteringsalgoritme. http://foreldrepengerporten.adeo.no/docs/sysdoc/html/index.html#_oppgavebehandling[oppgavebehandling]_
+
+== Lagring
+
+=== Kobling mellom Oppgave i GSAK og Behandling i Vedtaksløsning
+Når VL under Behandling oppretter et Aksjonspunkt, skal dette håndteres manuelt at saksbehandler, og må derfor varsles til GSAK. VL kobler en Behandling til en OppgaveÅrsak gjennom OppgaveBehandlingKobling, og som sendes til GSAK. Eksempler på OppgaveÅrsak er Behandle sak, Registrerere søknad.
+
+Det opprettes maksimum ett innslag av hver type OppgaveÅrsak. GSAK får ikke nye oppgaver hvis samme oppgave forsøkes opprettes flere ganger. Oppgaver skal avsluttes når VL er ferdig med behandlingen (Iverksette vedtak).
+
+.Knytningen mellom GSAKs Oppgave og VLs Behandling skjer på følgende måte:
+* VL angir referanse til Fagsak.id og OppgaveType.kode ved opprettelse.
+* GSAK returnerer Oppgave. OppgaveId som lagres på VLs OppgaveBehandlingKobling.oppgave_id.
+Hyperlink mellom GSAK og Vedtaksløsningen
+Etter at oppgaven er opprettet i GSAK, vil saksbehandler kunne åpne Fagsak/Behandling gjennom link i GSAK (eller rettere sagt GoSys, som er GSAK sitt grafiske grensesnitt).
+
+.Linken fra GSAK refererer til følgende URL i VL:
+[source,xml]
+----
+<context_path>/oppgaveredirect?oppgaveId=<oppgaveId>&sakId=<sakId>
+----
+
+* context_path: iht. konfigurasjon for rotsti til VL
+* oppgaveId: Refererer til GSAK sin oppgaveId, lagret lokalt på OppgaveBehandlingKobling.oppgave_id.
+* sakId: Referer til Fagsak.id (sic). Vanlig integrasjonspatterns tilsier at GSAK refererer til sin egen SakId, som er globalt saksnummer for fagsystemene i NAV. Men dette er ikke tilfelle. De returnerer Fagsak.Id, som ble angitt av VL ved opprettelse av Sak i GSAK.

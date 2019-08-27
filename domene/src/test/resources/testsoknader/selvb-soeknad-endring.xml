@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns8:soeknad xmlns:ns6="urn:no:nav:vedtak:felles:xml:soeknad:svangerskapspenger:v1"
+             xmlns:ns5="urn:no:nav:vedtak:felles:xml:soeknad:engangsstoenad:v3"
+             xmlns:ns8="urn:no:nav:vedtak:felles:xml:soeknad:v3"
+             xmlns:ns7="urn:no:nav:vedtak:felles:xml:soeknad:endringssoeknad:v3"
+             xmlns:ns2="urn:no:nav:vedtak:felles:xml:soeknad:uttak:v3"
+             xmlns:ns4="urn:no:nav:vedtak:felles:xml:soeknad:felles:v3"
+             xmlns:ns3="urn:no:nav:vedtak:felles:xml:soeknad:foreldrepenger:v3">
+    <ns8:mottattDato>2019-04-01</ns8:mottattDato>
+    <ns8:sprakvalg kode="NB"/>
+    <ns8:omYtelse>
+        <ns7:endringssoeknad>
+            <ns7:saksnummer>123</ns7:saksnummer>
+            <ns7:fordeling>
+                <ns2:annenForelderErInformert>true</ns2:annenForelderErInformert>
+                <ns2:perioder xsi:type="ns2:Uttaksperiode" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <ns2:fom>2019-04-23</ns2:fom>
+                    <ns2:tom>2019-04-29</ns2:tom>
+                    <ns2:type kodeverk="UTTAK_PERIODE_TYPE" kode="FEDREKVOTE"/>
+                    <ns2:oenskerSamtidigUttak>false</ns2:oenskerSamtidigUttak>
+                    <ns2:morsAktivitetIPerioden kodeverk="MORS_AKTIVITET" kode="-"/>
+                    <ns2:oenskerFlerbarnsdager>false</ns2:oenskerFlerbarnsdager>
+                    <ns2:samtidigUttakProsent>0.0</ns2:samtidigUttakProsent>
+                </ns2:perioder>
+                <ns2:oenskerKvoteOverfoert kodeverk="OVERFOERING_AARSAK_TYPE" kode="-"/>
+            </ns7:fordeling>
+        </ns7:endringssoeknad>
+    </ns8:omYtelse>
+    <ns8:soeker>
+        <ns4:aktoerId>9000000000002</ns4:aktoerId>
+        <ns4:soeknadsrolle kodeverk="FORELDRE_TYPE" kode="FAR"/>
+    </ns8:soeker>
+</ns8:soeknad>

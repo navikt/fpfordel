@@ -1,0 +1,15 @@
+= Gosys integrasjon
+
+== Hensikten GOSYS-integrasjoner er å understøtte at
+
+* saksbehandler kan manuelt opprette sak
+* saksbehandler kan knytte dokumenter til en sak
+
+== Hvordan vi integrerer
+
+* Vi tilbyr webservice som GOSYS kaller på
+
+== Lagring
+
+* Opprett sak medfører at vi lagrer en sak hos oss (og i GSAK).
+* Knytte dokumenter til sak medfører at vi lagrer dokument til saksbehandlingslageret.

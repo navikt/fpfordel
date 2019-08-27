@@ -1,0 +1,10 @@
+= Konfigurasjon
+
+Klassen KonfigVerdi gir sømløs tilgang til verdier fra system properties eller database.
+Klassen KonfigVerdiProvider står for konvertering fra tekst til Java typer, med typekontroll og feilhåndtering
+
+Konfigurasjonsnøkler benyttet i koden. Konfigurasjonsverdiene vil komme fra FASIT (injisert gjennom System.properties), eller leses fra VL-databasen.
+
+:numbered!:
+include::{generated}/konfig.adoc[]
+:numbered:

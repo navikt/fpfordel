@@ -1,0 +1,124 @@
+
+= Monitorering
+
+== Logging
+
+=== Logging på INFO nivå
+Informasjon som logges her på INFO nivå skal kun inneholde nøkler som ikke er personopplysninger.
+
+INFO kan benyttes til å logge oppstart/stopp av applikasjonen, samt forretningsmessig fremdrift (eks. behandlingssteg). Det bør ikke brukes til å logge tjenestekall (når dette inneholder fulle request/respons dataobjekter)
+
+Informasjon om tilstandstransisjoner (eks. behandlingssteg) eller tjeneste kall skal logges i definerte Choke points i applikasjonen og ikke spres utover forretningskoden.
+
+*Følgende nøkler er whitelistet*
+
+* BehandlingsId
+* FagsakId
+* Saksnummer (GSAK)
+* Oppgave id (GSAK)
+* JournalpostId
+* PDP resultat
+* Prosess task kode og id
+* Behandlingssteg
+* Kodeverk, eks:
+- behandlingssteg
+- aksjonspunkt
+- vurderingspunkt
+- etc
+* Nøkler brukt i utveksling mot andre systemer for korrelering som ikke er knyttet direkte til person: eks. mot Oppdrag system, Dokprod
+
+*Følgende er eksempler personopplysninger som ikke skal logges her*
+
+* Meldinger
+* Aktør id
+* Fødselsnummer
+* Navn
+* Adresse
+* Barn
+* Søknad
+* Foreldre
+
+=== Logging på WARN nivå
+Logging på WARN nivå dekker situasjoner der en feil oppstår, men systemet fortsatt vil fungere. Gjelder også feil på meldinger eller forbigående feil som påvirker enkeltsaker, eller tilgang til grensesnitt som er midlertid utilgjengelig (inklusiv transiente feil mot databasen)
+
+I tillegg til underliggende feilmelding (cause) bør kontekst informasjon som f.eks nøkkelverdier (ref: Applikasjonslogg) eller lignende logges.
+
+=== Logging på ERROR nivå
+Logging på ERROR nivå dekker kritiske feil som oppstår i systemet, som er fatale for videre framdrift. Det kan være konfigurasjonsfeil, fatale databasefeil, eller feil i format på meldinger mottatt eller grensesnitt.
+
+I tillegg til underliggende feilmelding (cause) bør kontekst informasjon som f.eks nøkkelverdier (ref: Applikasjonslogg) eller lignende logges.
+
+Som en syretest på om noe bør logges som ERROR (istdf WARN), sett deg i mottakerens ståsted og vurder om det er en feil det er verdt å vekke noen om natten for, eller om det kan vente til neste forretningsdag.
+
+=== Sporbarhetslogging
+Logging til sporingsloggen gjøres automatisk av løsningen for endepunkter som har tilgangskontoroll, og automatikken dekker de fleste behov rundt dette (Se BeskyttetRessursInterceptor.java).
+
+.Normalt kommer sporingslogg ved å legge på tilgangskontroll slik
+[source,java]
+----
+@BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+public List<FagsakDto> søkFagsaker(/*...*/)
+/*...*/
+----
+
+I tilfellene det er behov for å logge mer enn hva som kommer fra tilgangskontroll-attributtene, må endepunktet logge direkte:
+.Eksempel på ekstra-logging fra et endepunkt
+[source,java]
+----
+String actionType = "read";
+String endepunkt = "/api/eksempel/fagsak";
+Sporingsdata sporingsdata = Sporingsdata.opprett().leggTilId(SporingsloggId.FAGSAK_ID, fagsakId);
+SporingsloggHelper.logSporing(ProsessTaskRestTjeneste.class, sporingsdata, actionType, endepunkt);
+----
+
+I tilfellene det er behov for å logge mer enn hva som kommer fra tilgangskontroll-attributtene, må endepunktet logge direkte:
+
+.Unnta operasjon fra sporingslogg slik
+[source,java]
+----
+@BeskyttetRessurs(action = READ, ressurs = APPLIKASJON, sporingslogg = false)
+public Map<String, Object> hentGruppertKodeliste()
+/*...*/
+----
+Sporingsloggen skal være beskyttet, da den inneholder fødselsnumre.
+
+=== Kontekst informasjon for logging
+Applikasjonen setter MDC verdier for bruker-id og call-id ved inngangen til alle HTTP requests, samt kjøring av Tasks og mottak av meldinger.
+
+Disse verdiene skrives i alle log-innslag, og formidles videre i kall til SOAP-baserte web services.
+
+=== Oppstartsinformasjon
+Applikasjonen logger denne informasjonen (til applikasjonslog) ved oppstart:
+
+* Alle Java system properties (med passord maskert)
+* Alle miljøvariabler (med passord maskert)
+* Resultatene av en selftest
+
+=== Teknisk
+Logging håndteres gjennom logback-rammeverket, som implementer slf4j sitt standard-api. Rammeverket konfigureres gjennom logback.xml som må ligge på classpath. For deployering mot Jboss er dette lagt inn i modul build-config. Loggingen kan overvåkes av sentral ELK-stakk som vist i ELK - miljøversikt
+
+For lokal testkjøring brukes en egen logback.fil, logback-test.xml.
+
+image::https://confluence.adeo.no/rest/gliffy/1.0/embeddedDiagrams/b61c9700-f480-4670-a50e-ed8868c3ced9.png[Logging,opts=interactive,height=337,width=735]
+
+== Overvåkning
+Vedtaksløsningen eksponerer interne REST-ressurser for overvåkning. Disse er:
+
+=== Selftest
+/fpfordel/internal/selftest
+
+Støtter AURAs konsept om Selftest, og denne statusen kan sjekkes i FASIT. Sjekker at applikasjonens webserver er oppe, og at den kan nå:
+
+* databasen
+* alle web services som applikasjonen bruker
+* alle meldingskøer som applikasjonen bruker
+* OpenAM ISSO
+
+URLen leverer JSON til REST-klienter.
+
+URLen kan også brukes fra nettleser, og vil da levere HTML. Hvis man legger til URL parameter json=true, så vil den levere pretty-printed JSON til nettleser.
+
+=== Metrikker
+/fpfordel/internal/metrics
+
+Støtter AURAs konsept om Monitorering (SLAM) - (*S*entralisert *L*øsning for *A*pplikasjons*m*etrikker/monitorering). Siden måler responstiden for REST-forespørslene. Kan brukes av verktøy som Grafana for å monitorere ytelse.

@@ -1,0 +1,20 @@
+= Norg2 integrasjon
+
+== Hensikt
+NORG2 inneholder informasjon om:
+
+* NAV-enheter og tilknyttede fagsystembrukere.
+* Arbeidsfordeling knyttet til NAV-enheter. Dvs hvilke enheter som kan ta oppfølgning av hvilke type saker.
+
+Vedtaksløsningen bruker NORG2 tjenesten Arbeidsfordeling_V1 til å finne riktig behandlende NAV enhet for behandlinger i VL, basert på behandlingstema, brukers geografiske tilknytning og eventuell diskresjonskode.
+
+== Hvordan
+Arbeidsfordeling_V1 er en Webservice basert på SOAP. Input og output er beskrevet i tjenestekatalogen her: https://confluence.adeo.no/pages/viewpage.action?pageId=223076038[tjeneste_v3:virksomhet:Arbeidsfordeling_v1 (2018-HL0)]
+
+Tjenesten kalles synkront fra den interne VL-tjenesten EnhetsTjeneste.
+
+== Annet
+Lenke til dokumentasjon av tjeneste:
+https://confluence.adeo.no/display/SDFS/tjeneste_v3%3Avirksomhet%3AArbeidsfordeling_v1[tjeneste_v3:virksomhet:Arbeidsfordeling_v1]
+
+

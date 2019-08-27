@@ -1,0 +1,2 @@
+INSERT INTO PROSESS_TASK_TYPE (KODE, NAVN, FEIL_MAKS_FORSOEK, FEIL_SEK_MELLOM_FORSOEK, FEILHANDTERING_ALGORITME, BESKRIVELSE, OPPRETTET_AV, OPPRETTET_TID)
+VALUES ('vedlikehold.scheduler', 'Planlagte oppgaver', '3', '30', 'DEFAULT', 'Task som utfører daglig vedlikehold', 'VL', to_timestamp('13.01.2019', 'DD.MM.RRRR'));

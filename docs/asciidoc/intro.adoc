@@ -1,0 +1,15 @@
+= Intro
+Dette dokumentet inneholder auto-generert systemdokumentasjon for fpfordel.
+
+== Format
+Dokumentasjonen genereres til http://asciidoctor.org/[Asciidoc] format, som så kan prosesseres vha. valgt template til HTML, PDF, eller annet. Asciidoc er et markup format lagd for å kunne generere dokumentasjon, bøker, presentasjoner og mer. Det benyttes bla. Git, Spring, Jboss, og forfattere og forleggere.
+
+NB: Pass på å sette encoding til UTF-8 dersom det legges til egne sider i dokumentasjonen ('*.adoc').  Merk at Windows setter ikke dette default for nye filer.
+
+== Toolchain
+Følgende verktøy benyttes til å trekke ut struktur fra kodebasen og generere dokumentasjonen:
+
+* Javadoc for å tolke java kildekode og kommentarer, inkludert custom http://docs.oracle.com/javase/8/docs/technotes/guides/javadoc/doclet/overview.html[Doclets] for å trekke ut bestemte deler av strukturer av Java kode og Database
+* https://github.com/Swagger2Markup/swagger2markup[Swagger2Markup] for å generere dokumentasjon av REST baserte tjenester
+* React-docgen + React-asciidoc-generator for å generere React dokumentasjon.
+

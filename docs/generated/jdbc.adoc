@@ -1,0 +1,519 @@
+
+== Tabeller
+
+=== DOKUMENT
+....
+<MISSING DOCUMENTATION>
+....
+
+
+[options="header", cols="5h,10h,5,10,5,15,30,20"]
+|===
+|#|Navn|Type|Default|Nullable|Constraint|Comment|Key
+|1|ID|NUMBER||||Primærnøkkel|PK
+|2|FORSENDELSE_ID|RAW||X||Unik ID for forsendelsen|
+|3|DOKUMENT_TYPE_ID|VARCHAR2||X||Kodeverdi for innkommende dokument type|
+|4|CLOB|CLOB||X||Innkommende dokument|
+|5|HOVED_DOKUMENT|CHAR||X||Er dette hoveddokument? (J/N)|
+|6|CONTENT_TYPE|VARCHAR2||X||type innhold|
+|7|OPPRETTET_AV|VARCHAR2|'VL'||||
+|8|OPPRETTET_TID|TIMESTAMP(3)|systimestamp||||
+|9|ENDRET_AV|VARCHAR2||X|||
+|10|ENDRET_TID|TIMESTAMP(3)||X|||
+|11|KL_DOKUMENT_TYPE_ID|VARCHAR2|'DOKUMENT_TYPE_ID'|X|||
+|===
+
+
+=== DOKUMENT_METADATA
+....
+<MISSING DOCUMENTATION>
+....
+
+
+[options="header", cols="5h,10h,5,10,5,15,30,20"]
+|===
+|#|Navn|Type|Default|Nullable|Constraint|Comment|Key
+|1|ID|NUMBER||||Primærnøkkel|PK
+|2|FORSENDELSE_ID|RAW||X||Unik ID for forsendelsen|
+|3|BRUKER_ID|VARCHAR2||X||ID til avsenderen av et dokument|
+|4|SAKSNUMMER|VARCHAR2||X||ID til fagsak et dokument knyttes mot|
+|5|ARKIV_ID|VARCHAR2||X||ID til dokumentet i JOARK|
+|6|OPPRETTET_AV|VARCHAR2|'VL'||||
+|7|OPPRETTET_TID|TIMESTAMP(3)|systimestamp||||
+|8|ENDRET_AV|VARCHAR2||X|||
+|9|ENDRET_TID|TIMESTAMP(3)||X|||
+|10|FORSENDELSE_STATUS|VARCHAR2||X||Status på dokumentforsendelse|
+|===
+
+
+=== KODELISTE
+....
+Inneholder lister av koder for alle Kodeverk som benyttes i applikasjonen.  Både offisielle (synkronisert fra sentralt hold i Nav) såvel som interne Kodeverk.  Offisielle koder skiller seg ut ved at nav_offisiell_kode er populert. Følgelig vil gyldig_tom/fom, navn, språk og beskrivelse lastes ned fra Kodeverkklienten eller annen kilde sentralt
+....
+
+
+[options="header", cols="5h,10h,5,10,5,15,30,20"]
+|===
+|#|Navn|Type|Default|Nullable|Constraint|Comment|Key
+|1|ID|NUMBER||||Primary Key|PK
+|2|KODEVERK|VARCHAR2||||(PK) og FK - kodeverk|
+|3|KODE|VARCHAR2||||(PK) Unik kode innenfor kodeverk. Denne koden er alltid brukt internt|
+|4|OFFISIELL_KODE|VARCHAR2||X||(Optional) Offisiell kode hos kodeverkeier. Denne kan avvike fra kode der systemet har egne koder. Kan brukes til å veksle inn kode i offisiell kode når det trengs for integrasjon med andre systemer|
+|5|NAVN|VARCHAR2||X||Navn på Kodeverket. Offsielt navn synkes dersom Offsiell kode er satt|
+|6|BESKRIVELSE|VARCHAR2||X||Beskrivelse av koden|
+|7|SPRAK|VARCHAR2|'NB'|X||Språk Kodeverket er definert for, default NB (norsk bokmål). Bruker ISO 639-1 standard men med store bokstaver siden det representert slik i NAVs offisielle Kodeverk|
+|8|GYLDIG_FOM|DATE|sysdate|||Dato Kodeverket er gyldig fra og med|
+|9|GYLDIG_TOM|DATE|to_date('31.12.9999', 'dd.mm.yyyy')|||Dato Kodeverket er gyldig til og med|
+|10|OPPRETTET_AV|VARCHAR2|'VL'||||
+|11|OPPRETTET_TID|TIMESTAMP(3)|systimestamp||||
+|12|ENDRET_AV|VARCHAR2||X|||
+|13|ENDRET_TID|TIMESTAMP(3)||X|||
+|14|EKSTRA_DATA|VARCHAR2||X||(Optional) Tilleggsdata brukt av kodeverket.  Format er kodeverk spesifikt - eks. kan være tekst, json, key-value, etc.|
+|===
+
+
+=== KODEVERK
+....
+Registrerte kodeverk. Representerer grupperinger av koder
+....
+
+
+[options="header", cols="5h,10h,5,10,5,15,30,20"]
+|===
+|#|Navn|Type|Default|Nullable|Constraint|Comment|Key
+|1|KODE|VARCHAR2||||PK - definerer kodeverk|PK
+|2|KODEVERK_EIER|VARCHAR2|'VL'|||Offisielt kodeverk eier (kode)|
+|3|KODEVERK_EIER_REF|VARCHAR2||X||Offisielt kodeverk referanse (url)|
+|4|KODEVERK_EIER_VER|VARCHAR2||X||Offisielt kodeverk versjon|
+|5|KODEVERK_EIER_NAVN|VARCHAR2||X||Offisielt kodeverk navn|
+|6|KODEVERK_SYNK_NYE|CHAR|'J'|||Om nye koder fra kodeverkeier skal legges til ved oppdatering.|
+|7|KODEVERK_SYNK_EKSISTERENDE|CHAR|'J'|||Om eksisterende koder fra kodeverkeier skal endres ved oppdatering.|
+|8|NAVN|VARCHAR2||||Navn på kodeverk|
+|9|BESKRIVELSE|VARCHAR2||X||Beskrivelse av kodeverk|
+|10|OPPRETTET_AV|VARCHAR2|'VL'||||
+|11|OPPRETTET_TID|TIMESTAMP(3)|systimestamp||||
+|12|ENDRET_AV|VARCHAR2||X|||
+|13|ENDRET_TID|TIMESTAMP(3)||X|||
+|14|SAMMENSATT|VARCHAR2|'N'|X||Skiller mellom sammensatt kodeverk og enkel kodeliste|
+|===
+
+
+=== KONFIG_VERDI
+....
+Angir konfigurerbare verdier med kode, eventuelt tilhørende gruppe.
+....
+
+
+[options="header", cols="5h,10h,5,10,5,15,30,20"]
+|===
+|#|Navn|Type|Default|Nullable|Constraint|Comment|Key
+|1|ID|NUMBER||||Primary Key|PK
+|2|KONFIG_KODE|VARCHAR2||||Angir kode som identifiserer en konfigurerbar verdi.|
+|3|KONFIG_GRUPPE|VARCHAR2||||Angir gruppe en konfigurerbar verdi kode tilhører (hvis noen - kan også spesifiseres som INGEN).|
+|4|KONFIG_VERDI|VARCHAR2||X||Angir verdi|
+|5|GYLDIG_FOM|DATE|sysdate|||Gydlig fra-og-med dato|
+|6|GYLDIG_TOM|DATE|to_date('31.12.9999', 'dd.mm.yyyy')|||Gydlig til-og-med dato|
+|7|OPPRETTET_AV|VARCHAR2|'VL'||||
+|8|OPPRETTET_TID|TIMESTAMP(3)|systimestamp||||
+|9|ENDRET_AV|VARCHAR2||X|||
+|10|ENDRET_TID|TIMESTAMP(3)||X|||
+|11|KL_KONFIG_VERDI_GRUPPE|VARCHAR2|'KONFIG_VERDI_GRUPPE'||||
+|===
+
+
+=== KONFIG_VERDI_KODE
+....
+Angir unik kode for en konfigurerbar verdi for validering og utlisting av tilgjengelige koder.
+....
+
+
+[options="header", cols="5h,10h,5,10,5,15,30,20"]
+|===
+|#|Navn|Type|Default|Nullable|Constraint|Comment|Key
+|1|KODE|VARCHAR2||||Primary Key|PK
+|2|KONFIG_GRUPPE|VARCHAR2|'INGEN'|||Angir gruppe en konfigurerbar verdi kode tilhører (hvis noen - kan også spesifiseres som INGEN).|PK
+|3|NAVN|VARCHAR2||||Angir et visningsnavn|
+|4|KONFIG_TYPE|VARCHAR2||||Type angivelse for koden|
+|5|BESKRIVELSE|VARCHAR2||X||Beskrivelse av formÃ¥let den konfigurerbare verdien|
+|6|OPPRETTET_AV|VARCHAR2|'VL'||||
+|7|OPPRETTET_TID|TIMESTAMP(3)|systimestamp||||
+|8|ENDRET_AV|VARCHAR2||X|||
+|9|ENDRET_TID|TIMESTAMP(3)||X|||
+|10|KL_KONFIG_VERDI_GRUPPE|VARCHAR2|'KONFIG_VERDI_GRUPPE'|||Referanse til KODEVERK-kolonnen i KODELISTE-tabellen|
+|11|KL_KONFIG_VERDI_TYPE|VARCHAR2|'KONFIG_VERDI_TYPE'|||Referanse til KODEVERK-kolonnen i KODELISTE-tabellen|
+|===
+
+
+=== PROSESS_TASK
+....
+<MISSING DOCUMENTATION>
+....
+
+
+[options="header", cols="5h,10h,5,10,5,15,30,20"]
+|===
+|#|Navn|Type|Default|Nullable|Constraint|Comment|Key
+|1|ID|NUMBER|||||PK
+|2|TASK_TYPE|VARCHAR2|||||
+|3|PRIORITET|NUMBER|0||||
+|4|STATUS|VARCHAR2|'KLAR'||||
+|5|TASK_PARAMETERE|VARCHAR2||X|||
+|6|TASK_PAYLOAD|CLOB||X|||
+|7|TASK_GRUPPE|VARCHAR2||X|||
+|8|TASK_SEKVENS|VARCHAR2|'1'||||
+|9|NESTE_KJOERING_ETTER|TIMESTAMP(0)|current_timestamp|X|||
+|10|FEILEDE_FORSOEK|NUMBER|0|X|||
+|11|SISTE_KJOERING_TS|TIMESTAMP(6)||X|||
+|12|SISTE_KJOERING_FEIL_KODE|VARCHAR2||X|||
+|13|SISTE_KJOERING_FEIL_TEKST|CLOB||X|||
+|14|SISTE_KJOERING_SERVER|VARCHAR2||X|||
+|15|VERSJON|NUMBER|0||||
+|===
+
+
+=== PROSESS_TASK_FEILHAND
+....
+Kodetabell for feilhåndterings-metoder. For eksempel antall ganger å prøve på nytt og til hvilke tidspunkt
+....
+
+
+[options="header", cols="5h,10h,5,10,5,15,30,20"]
+|===
+|#|Navn|Type|Default|Nullable|Constraint|Comment|Key
+|1|KODE|VARCHAR2||||Kodeverk Primary Key|PK
+|2|NAVN|VARCHAR2||||Lesbart navn på type feilhåndtering brukt i prosesstask|
+|3|BESKRIVELSE|VARCHAR2||X||Utdypende beskrivelse av koden|
+|4|OPPRETTET_AV|VARCHAR2|'VL'||||
+|5|OPPRETTET_TID|TIMESTAMP(3)|systimestamp||||
+|6|ENDRET_AV|VARCHAR2||X|||
+|7|ENDRET_TID|TIMESTAMP(3)||X|||
+|8|INPUT_VARIABEL1|NUMBER||X|||
+|9|INPUT_VARIABEL2|NUMBER||X|||
+|===
+
+
+=== PROSESS_TASK_TYPE
+....
+Kodetabell for typer prosesser med beskrivelse og informasjon om hvilken feilhåndteringen som skal benyttes
+....
+
+
+[options="header", cols="5h,10h,5,10,5,15,30,20"]
+|===
+|#|Navn|Type|Default|Nullable|Constraint|Comment|Key
+|1|KODE|VARCHAR2||||Kodeverk Primary Key|PK
+|2|NAVN|VARCHAR2||X||Lesbart navn på prosesstasktype|
+|3|FEIL_MAKS_FORSOEK|NUMBER|1|||MISSING COLUMN COMMENT|
+|4|FEIL_SEK_MELLOM_FORSOEK|NUMBER|30|||MISSING COLUMN COMMENT|
+|5|FEILHANDTERING_ALGORITME|VARCHAR2|'DEFAULT'|X||FK: PROSESS_TASK_FEILHAND|
+|6|BESKRIVELSE|VARCHAR2||X||Utdypende beskrivelse av koden|
+|7|OPPRETTET_AV|VARCHAR2|'VL'||||
+|8|OPPRETTET_TID|TIMESTAMP(3)|systimestamp||||
+|9|ENDRET_AV|VARCHAR2||X|||
+|10|ENDRET_TID|TIMESTAMP(3)||X|||
+|===
+
+
+=== SCHEMA_VERSION
+....
+<MISSING DOCUMENTATION>
+....
+
+
+[options="header", cols="5h,10h,5,10,5,15,30,20"]
+|===
+|#|Navn|Type|Default|Nullable|Constraint|Comment|Key
+|1|INSTALLED_RANK|NUMBER|||||PK
+|2|VERSION|VARCHAR2||X|||
+|3|DESCRIPTION|VARCHAR2|||||
+|4|TYPE|VARCHAR2|||||
+|5|SCRIPT|VARCHAR2|||||
+|6|CHECKSUM|NUMBER||X|||
+|7|INSTALLED_BY|VARCHAR2|||||
+|8|INSTALLED_ON|TIMESTAMP(6)|CURRENT_TIMESTAMP||||
+|9|EXECUTION_TIME|NUMBER|||||
+|10|SUCCESS|NUMBER|||||
+|===
+
+
+== Kodeverk
+
+=== KODELISTE
+....
+Inneholder lister av koder for alle Kodeverk som benyttes i applikasjonen.  Både offisielle (synkronisert fra sentralt hold i Nav) såvel som interne Kodeverk.  Offisielle koder skiller seg ut ved at nav_offisiell_kode er populert. Følgelig vil gyldig_tom/fom, navn, språk og beskrivelse lastes ned fra Kodeverkklienten eller annen kilde sentralt
+....
+
+
+[options="header", cols="0,0,0,0,0,0,0,0,0,0h"]
+|===
+|KODEVERK|KODE|OFFISIELL_KODE|NAVN|BESKRIVELSE|SPRAK|GYLDIG_FOM|GYLDIG_TOM|EKSTRA_DATA|ID
+|BEHANDLING_TEMA|ENGST_FODS|ab0050|Engangsstønad ved fødsel||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1000000
+|BEHANDLING_TEMA|ENGST_ADOP|ab0027|Engangsstønad ved adopsjon||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1000050
+|BEHANDLING_TEMA|-||Ikke definert|Ikke definert|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1000100
+|BEHANDLING_TEMA|ENGST|ab0327|Engangsstønad||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1000150
+|BEHANDLING_TEMA|FORP_ADOP|ab0072|Foreldrepenger ved adopsjon||NB|2017-12-07 00:00:00.0|9999-12-31 00:00:00.0||1000200
+|BEHANDLING_TEMA|FORP_FODS|ab0047|Foreldrepenger ved fødsel||NB|2017-12-07 00:00:00.0|9999-12-31 00:00:00.0||1000250
+|BEHANDLING_TEMA|FORP|ab0326|Foreldrepenger||NB|2017-12-07 00:00:00.0|9999-12-31 00:00:00.0||1000300
+|TEMA|FOR_SVA|FOR|Foreldre- og svangerskapspenger|Foreldre- og svangerskapspenger|NB|2017-05-01 00:00:00.0|9999-12-31 00:00:00.0||1000350
+|TEMA|-||Ikke definert|Ikke definert|NB|2017-05-01 00:00:00.0|9999-12-31 00:00:00.0||1000400
+|DOKUMENT_TYPE_ID|SØKNAD_ENGANGSSTØNAD_FØDSEL|I000003|Søknad om engangsstønad ved fødsel|Søknad om engangsstønad ved fødsel|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1000450
+|DOKUMENT_TYPE_ID|SØKNAD_ENGANGSSTØNAD_ADOPSJON|I000004|Søknad om engangsstønad ved adopsjon|Søknad om engangsstønad ved adopsjon|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1000500
+|DOKUMENT_TYPE_ID|DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL|I000041|Dokumentasjon av termin eller fødsel|Dokumentasjon av termindato (lev. kun av mor), fødsel eller dato for omsorgsovertakelse|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1000550
+|DOKUMENT_TYPE_ID|DOKUMENTASJON_AV_OMSORGSOVERTAKELSE|I000042|Dokumentasjon av omsorgsovertakelse|Dokumentasjon av dato for overtakelse av omsorg|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1000600
+|DOKUMENT_TYPE_ID|-||Ikke definert|Ikke definert|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1000650
+|DOKUMENT_TYPE_ID|BRUKEROPPLASTET_DOKUMENTASJON|I000047|Brukeropplastet dokumentasjon|Brukeropplastet dokumentasjon|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1000700
+|DOKUMENT_TYPE_ID|KLAGE_DOKUMENT|I000027|Klage|Klage/anke|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1000750
+|DOKUMENT_TYPE_ID|KVITTERING_DOKUMENTINNSENDING|I000046|Kvittering dokumentinnsending|Kvittering dokumentinnsending|NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1000800
+|DOKUMENT_TYPE_ID|BEKREFTELSE_VENTET_FØDSELSDATO|I000062|Bekreftelse på ventet fødselsdato|Bekreftelse på ventet fødselsdato|NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1000850
+|DOKUMENT_TYPE_ID|LEGEERKLÆRING|I000023|Legeerklæring||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1000900
+|DOKUMENT_TYPE_ID|GJELDSBREV_GRUPPE_1|I000024|Gjeldsbrev gruppe 1||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1000950
+|DOKUMENT_TYPE_ID|BEKREFTELSE_FRA_ARBEIDSGIVER|I000065|Bekreftelse fra arbeidsgiver||NB|2017-05-24 00:00:00.0|9999-12-31 00:00:00.0||1001000
+|DOKUMENT_TYPE_ID|KOPI_VOGNKORT|I000021|Kopi av vognkort||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1001050
+|DOKUMENT_TYPE_ID|KOPI_SKATTEMELDING|I000066|Kopi av likningsattest eller selvangivelse||NB|2017-05-24 00:00:00.0|9999-12-31 00:00:00.0||1001100
+|DOKUMENT_TYPE_ID|KOPI_FØRERKORT|I000022|Kopi av førerkort||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1001150
+|DOKUMENT_TYPE_ID|BREV_UTLAND|I000028|Brev - utland||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1001200
+|DOKUMENT_TYPE_ID|GJELDSBREV_GRUPPE_2|I000025|Gjeldsbrev gruppe 2||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1001250
+|DOKUMENT_TYPE_ID|INNTEKTSOPPLYSNINGER|I000026|Inntektsopplysninger for arbeidstaker som skal ha sykepenger, foreldrepenger, svangerskapspenger, pleie-/opplæringspenger||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1001300
+|DOKUMENT_TYPE_ID|ANNET|I000060|Annet||NB|2017-05-24 00:00:00.0|9999-12-31 00:00:00.0||1001350
+|DOKUMENT_TYPE_ID|FØDSELSATTEST|I000063|Fødselsattest||NB|2017-05-24 00:00:00.0|9999-12-31 00:00:00.0||1001400
+|DOKUMENT_TYPE_ID|ELEVDOKUMENTASJON_LÆRESTED|I000064|Elevdokumentasjon fra lærested||NB|2017-05-24 00:00:00.0|9999-12-31 00:00:00.0||1001450
+|DOKUMENT_TYPE_ID|KOPI_VERGEATTEST|I000020|Kopi av verge- eller hjelpeverge attest||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1001500
+|DOKUMENT_TYPE_ID|BEKREFTELSE_FRA_STUDIESTED|I000061|Bekreftelse fra studiested/skole||NB|2017-05-24 00:00:00.0|9999-12-31 00:00:00.0||1001550
+|DOKUMENT_TYPE_ID|ETTERSENDT_SØKNAD_TILPASSNING_BIL|I500010|Ettersendelse til søknad om spesialutstyr og- tilpassing til bil||NB|2017-08-16 00:00:00.0|9999-12-31 00:00:00.0||1001600
+|DOKUMENT_TYPE_ID|TREKKOPPLYSNINGER_ETTERSENDT|I500057|Ettersendelse til trekkopplysninger for arbeidstaker som skal ha: sykepenger, foreldrepenger, svangerskapspenger, pleie-/opplæringspenger og omsorgspenger||NB|2017-08-16 00:00:00.0|9999-12-31 00:00:00.0||1001650
+|DOKUMENT_TYPE_ID|ANNET_SKJEMA_UTLAND_IKKE_NAV|I000029|Annet skjema (ikke NAV-skjema) - utland||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1001700
+|DOKUMENT_TYPE_ID|OPPPDRAGSKONTRAKT|I000034|Oppdragskontrakt||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1001750
+|DOKUMENT_TYPE_ID|LØNNS_OG_TREKKOPPGAVE|I000035|Lønns- og trekkoppgave||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1001800
+|DOKUMENT_TYPE_ID|OPPHOLDSOPPLYSNINGER|I001000|Oppholdsopplysninger||NB|2017-04-26 00:00:00.0|9999-12-31 00:00:00.0||1001850
+|DOKUMENT_TYPE_ID|RESULTATREGNSKAP|I000032|Resultatregnskap||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1001900
+|DOKUMENT_TYPE_ID|LØNNSLIPP|I000033|Lønnsslipp||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1001950
+|DOKUMENT_TYPE_ID|DOK_MORS_UTDANNING_ARBEID_SYKDOM|I000038|Dokumentasjon av mors utdanning, arbeid eller sykdom||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1002000
+|DOKUMENT_TYPE_ID|DOK_MILITÆR_SIVIL_TJENESTE|I000039|Dokumentasjon av militær- eller siviltjeneste||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1002050
+|DOKUMENT_TYPE_ID|DOK_FERIE|I000036|Dokumentasjon av ferie||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1002100
+|DOKUMENT_TYPE_ID|DOK_INNLEGGELSE|I000037|Dokumentasjon av innleggelse i helseinstitusjon||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1002150
+|DOKUMENT_TYPE_ID|NÆRINGSOPPGAVE|I000030|Næringsoppgave||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1002200
+|DOKUMENT_TYPE_ID|PERSONINNTEKTSKJEMA|I000031|Personinntektsskjema||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1002250
+|DOKUMENT_TYPE_ID|I500027|I500027|Ettersendelse til klage/anke||NB|2017-08-16 00:00:00.0|9999-12-31 00:00:00.0||1002300
+|DOKUMENT_TYPE_ID|BESKRIVELSE_FUNKSJONSNEDSETTELSE|I000045|Beskrivelse av funksjonsnedsettelse||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1002350
+|DOKUMENT_TYPE_ID|SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG|I000001|Søknad om svangerskapspenger til selvstendig næringsdrivende og frilanser||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1002400
+|DOKUMENT_TYPE_ID|SØKNAD_FORELDREPENGER_ADOPSJON|I000002|Søknad om foreldrepenger, mødrekvote eller fedrekvote ved adopsjon||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1002450
+|DOKUMENT_TYPE_ID|DOK_ARBEIDSFORHOLD|I000043|Dokumentasjon av arbeidsforhold||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1002500
+|DOKUMENT_TYPE_ID|DOK_ETTERLØNN|I000044|Dokumentasjon av etterlønn/sluttvederlag||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1002550
+|DOKUMENT_TYPE_ID|ANNET_SKJEMA_IKKE_NAV|I000049|Annet skjema (ikke NAV-skjema)||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1002600
+|DOKUMENT_TYPE_ID|SØKNAD_FORELDREPENGER_FØDSEL|I000005|Søknad om foreldrepenger, mødrekvote eller fedrekvote ved fødsel||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1002650
+|DOKUMENT_TYPE_ID|FLEKSIBELT_UTTAK_FORELDREPENGER|I000006|Utsettelse eller gradert uttak av foreldrepenger (fleksibelt uttak)||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1002700
+|DOKUMENT_TYPE_ID|BREV|I000048|Brev||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1002750
+|DOKUMENT_TYPE_ID|DOK_ASYL_DATO|I000040|Dokumentasjon av dato for asyl||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1002800
+|DOKUMENT_TYPE_ID|SØKNAD_REISEUTGIFT_BIL|I000009|Søknad om refusjon av reiseutgifter til bil||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1002850
+|DOKUMENT_TYPE_ID|INNTEKTSOPPLYSNING_SELVSTENDIG|I000007|Inntektsopplysninger om selvstendig næringsdrivende og/eller frilansere som skal ha foreldrepenger eller svangerskapspenger||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1002900
+|DOKUMENT_TYPE_ID|SØKNAD_SKAFFE_BIL|I000008|Søknad om stønad til anskaffelse av motorkjøretøy||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1002950
+|DOKUMENT_TYPE_ID|DOK_UTGIFT_BARNEPASS|I000056|Dokumentasjon av utgifter til stell og pass av barn||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1003000
+|DOKUMENT_TYPE_ID|TILLEGGSJKJEMA_BIL|I000012|Tilleggskjema for bil||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1003050
+|DOKUMENT_TYPE_ID|TREKKOPPLYSNING_ARBEIDSTAKER|I000057|Trekkopplysninger for arbeidstaker som skal ha: sykepenger, foreldrepenger, svangerskapspenger, pleie-/opplæringspenger og omsorgspenger||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1003100
+|DOKUMENT_TYPE_ID|BEKREFTELSE_OPPMØTE|I000013|Bekreftelse på oppmøte||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1003150
+|DOKUMENT_TYPE_ID|DOK_UTBETALING_FRA_ARBEIDSGIVER|I000054|Dokumentasjon av utbetalinger eller goder fra arbeidsgiver||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1003200
+|DOKUMENT_TYPE_ID|SØKNAD_TILPASSNING_BIL|I000010|Søknad om spesialutstyr og -tilpassing til bil||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1003250
+|DOKUMENT_TYPE_ID|BEKREFTELSE_OPPHOLDSTILLATELSE|I000055|Bekreftelse på oppholdstillatelse||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1003300
+|DOKUMENT_TYPE_ID|LEGEERKLÆRING_EVNE_KJØRE_BIL|I000011|Legeerklæring om søkerens evne til å føre motorkjøretøy og om behovet for ekstra transport på grunn av funksjonshemmingen||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1003350
+|DOKUMENT_TYPE_ID|DOK_INNTEKT|I000016|Dokumentasjon av inntekt||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1003400
+|DOKUMENT_TYPE_ID|DOK_UTGIFT_REISE|I000017|Dokumentasjon av reiseutgifter||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1003450
+|DOKUMENT_TYPE_ID|DOK_ANDRE_YTELSE|I000058|Dokumentasjon av andre ytelser||NB|2017-05-24 00:00:00.0|9999-12-31 00:00:00.0||1003500
+|DOKUMENT_TYPE_ID|DOK_BEHOV_LEDSAGER|I000014|Dokumentasjon av behov for ledsager||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1003550
+|DOKUMENT_TYPE_ID|TIMELISTER|I000059|Timelister||NB|2017-05-24 00:00:00.0|9999-12-31 00:00:00.0||1003600
+|DOKUMENT_TYPE_ID|DOK_BEHOV_TRANSPORTMIDDEL|I000015|Dokumentasjon av behov for dyrere transportmiddel||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1003650
+|DOKUMENT_TYPE_ID|SKJEMA_OPPLYSNING_INNTEKT|I000052|Inntektsopplysningsskjema||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1003700
+|DOKUMENT_TYPE_ID|ETTERSENDT_FORELDREPENGER_ENDRING_SØKNAD|I500050|Ettersendelse til søknad om endring av uttak av foreldrepenger eller overføring av kvote||NB|2017-08-16 00:00:00.0|9999-12-31 00:00:00.0||1003750
+|DOKUMENT_TYPE_ID|DOK_ANDRE_UTBETALINGER|I000053|Dokumentasjon av andre utbetalinger||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1003800
+|DOKUMENT_TYPE_ID|FORELDREPENGER_ENDRING_SØKNAD|I000050|Søknad om endring av uttak av foreldrepenger eller overføring av kvote||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1003850
+|DOKUMENT_TYPE_ID|BEKREFTELSE_DELTAR_KVALIFISERINGSPROGRAM|I000051|Bekreftelse på deltakelse i kvalifiseringsprogrammet||NB|2017-04-25 00:00:00.0|9999-12-31 00:00:00.0||1003900
+|DOKUMENT_TYPE_ID|ETTERSENDT_SØKNAD_FORELDREPENGER_ADOPSJON|I500002|Ettersendelse til søknad om foreldrepenger, mødrekvote eller fedrekvote ved adopsjon||NB|2017-08-16 00:00:00.0|9999-12-31 00:00:00.0||1003950
+|DOKUMENT_TYPE_ID|ETTERSENDT_SØKNAD_ENGANGSSTØNAD_FØDSEL|I500003|Ettersendelse til søknad om engangsstønad ved fødsel||NB|2017-08-16 00:00:00.0|9999-12-31 00:00:00.0||1004000
+|DOKUMENT_TYPE_ID|ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG|I500001|Ettersendelse til søknad om svangerskapspenger til selvstendig næringsdrivende og frilanser||NB|2017-08-16 00:00:00.0|9999-12-31 00:00:00.0||1004050
+|DOKUMENT_TYPE_ID|ETTERSENDT_FLEKSIBELT_UTTAK_FORELDREPENGER|I500006|Ettersendelse til utsettelse eller gradert uttak av foreldrepenger (fleksibelt uttak)||NB|2017-08-16 00:00:00.0|9999-12-31 00:00:00.0||1004100
+|DOKUMENT_TYPE_ID|ETTERSENDT_SØKNAD_ENGANGSSTØNAD_ADOPSJON|I500004|Ettersendelse til søknad om engangsstønad ved adopsjon||NB|2017-08-16 00:00:00.0|9999-12-31 00:00:00.0||1004150
+|DOKUMENT_TYPE_ID|SPESIALISTERKLÆRING|I000018|Spesialisterklæring||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1004200
+|DOKUMENT_TYPE_ID|ETTERSENDT_SØKNAD_FORELDREPENGER_FØDSEL|I500005|Ettersendelse til søknad om foreldrepenger, mødrekvote eller fedrekvote ved fødsel||NB|2017-08-16 00:00:00.0|9999-12-31 00:00:00.0||1004250
+|DOKUMENT_TYPE_ID|DOK_VEIFORHOLD|I000019|Dokumentasjon av veiforhold||NB|2017-03-22 00:00:00.0|9999-12-31 00:00:00.0||1004300
+|DOKUMENT_TYPE_ID|ETTERSENDT_SØKNAD_SKAFFE_BIL|I500008|Ettersendelse til søknad om stønad til anskaffelse av motorkjøretøy||NB|2017-08-16 00:00:00.0|9999-12-31 00:00:00.0||1004350
+|DOKUMENT_TYPE_ID|ETTERSENDT_SØKNAD_REISEUTGIFT_BIL|I500009|Ettersendelse til søknad om refusjon av reiseutgifter til bil||NB|2017-08-16 00:00:00.0|9999-12-31 00:00:00.0||1004400
+|ARKIV_FILTYPE|PDF|PDF|PDF|Filtype PDF|NB|2006-07-01 00:00:00.0|9999-12-31 00:00:00.0||1004450
+|ARKIV_FILTYPE|PDFA|PDFA|PDFA|Filtype PDFA|NB|2006-07-01 00:00:00.0|9999-12-31 00:00:00.0||1004500
+|ARKIV_FILTYPE|XML|XML|XML|Filtype XML|NB|2006-07-01 00:00:00.0|9999-12-31 00:00:00.0||1004550
+|ARKIV_FILTYPE|AFP|AFP|AFP|Filtype AFP|NB|2006-07-01 00:00:00.0|9999-12-31 00:00:00.0||1004600
+|ARKIV_FILTYPE|AXML|AXML|AXML|Filtype AXML|NB|2017-07-06 00:00:00.0|9999-12-31 00:00:00.0||1004650
+|ARKIV_FILTYPE|DLF|DLF|DLF|Filtype DLF|NB|2006-07-01 00:00:00.0|9999-12-31 00:00:00.0||1004700
+|ARKIV_FILTYPE|DOC|DOC|DOC|Filtype DOC|NB|2006-07-01 00:00:00.0|9999-12-31 00:00:00.0||1004750
+|ARKIV_FILTYPE|DOCX|DOCX|DOCX|Filtype DOCX|NB|2006-07-01 00:00:00.0|9999-12-31 00:00:00.0||1004800
+|ARKIV_FILTYPE|JPEG|JPEG|JPEG|Filtype JPEG|NB|2006-07-01 00:00:00.0|9999-12-31 00:00:00.0||1004850
+|ARKIV_FILTYPE|RTF|RTF|RTF|Filtype RTF|NB|2006-07-01 00:00:00.0|9999-12-31 00:00:00.0||1004900
+|ARKIV_FILTYPE|TIFF|TIFF|TIFF|Filtype TIFF|NB|2006-07-01 00:00:00.0|9999-12-31 00:00:00.0||1004950
+|ARKIV_FILTYPE|XLS|XLS|XLS|Filtype XLS|NB|2006-07-01 00:00:00.0|9999-12-31 00:00:00.0||1005000
+|ARKIV_FILTYPE|XLSX|XLSX|XLSX|Filtype XLSX|NB|2006-07-01 00:00:00.0|9999-12-31 00:00:00.0||1005050
+|ARKIV_FILTYPE|-||Ikke definert|Ikke definert|NB|2006-07-01 00:00:00.0|9999-12-31 00:00:00.0||1005100
+|KONFIG_VERDI_TYPE|BOOLEAN||Boolske verdier|Støtter J(a) / N(ei) flagg|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1005150
+|KONFIG_VERDI_TYPE|PERIOD||Periode verdier|ISO 8601 Periode verdier.  Eks. P10M (10 måneder), P1D (1 dag)|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1005200
+|KONFIG_VERDI_TYPE|DURATION||Periode verdier|ISO 8601 Duration (tid) verdier.  Eks. PT1H (1 time), PT1M (1 minutt)|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1005250
+|KONFIG_VERDI_TYPE|INTEGER||Heltall|Heltallsverdier (positiv/negativ)|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1005300
+|KONFIG_VERDI_TYPE|STRING||Streng verdier||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1005350
+|KONFIG_VERDI_TYPE|URI||Uniform Resource Identifier|URI for å angi id til en ressurs|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1005400
+|KONFIG_VERDI_GRUPPE|INGEN||-|Ingen gruppe definert (default).  Brukes istdf. NULL siden dette inngår i en Primary Key. Koder som ikke er del av en gruppe må alltid være unike.|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1005450
+|DOKUMENT_KATEGORI|KLGA|KA|Klage eller anke|Klage eller anke|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1005500
+|DOKUMENT_KATEGORI|ITSKJ|IS|Ikke tolkbart skjema|Ikke tolkbart skjema|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1005550
+|DOKUMENT_KATEGORI|SOKN|SOK|Søknad|Søknad|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1005600
+|DOKUMENT_KATEGORI|ESKJ|ES|Elektronisk skjema|Elektronisk skjema|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1005650
+|DOKUMENT_KATEGORI|BRV|B|Brev|Brev|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1005700
+|DOKUMENT_KATEGORI|EDIALOG|ELEKTRONISK_DIALOG|Elektronisk dialog|Elektronisk dialog|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1005750
+|DOKUMENT_KATEGORI|FNOT|FORVALTNINGSNOTAT|Forvaltningsnotat|Forvaltningsnotat|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1005800
+|DOKUMENT_KATEGORI|IBRV|IB|Informasjonsbrev|Informasjonsbrev|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1005850
+|DOKUMENT_KATEGORI|KONVEARK|KD|Konvertert fra elektronisk arkiv|Konvertert fra elektronisk arkiv|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1005900
+|DOKUMENT_KATEGORI|KONVSYS|KS|Konverterte data fra system|Konverterte data fra system|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1005950
+|DOKUMENT_KATEGORI|PUBEOS|PUBL_BLANKETT_EOS|Publikumsblankett EØS|Publikumsblankett EØS|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1006000
+|DOKUMENT_KATEGORI|SEDOK|SED|Strukturert elektronisk dokument - EU/EØS|Strukturert elektronisk dokument - EU/EØS|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1006050
+|DOKUMENT_KATEGORI|TSKJ|TS|Tolkbart skjema|Tolkbart skjema|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1006100
+|DOKUMENT_KATEGORI|VBRV|VB|Vedtaksbrev|Vedtaksbrev|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1006150
+|DOKUMENT_KATEGORI|-||Ikke definert|Ikke definert|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1006200
+|FAGSYSTEM|ARENA|AO01|Arena|Arena|NB|2010-02-13 00:00:00.0|9999-12-31 00:00:00.0||1006250
+|FAGSYSTEM|GRISEN|AO11|Grisen|Grisen|NB|2011-01-27 00:00:00.0|9999-12-31 00:00:00.0||1006300
+|FAGSYSTEM|GOSYS|FS22|Gosys|Gosys|NB|2009-04-25 00:00:00.0|9999-12-31 00:00:00.0||1006350
+|FAGSYSTEM|INFOTRYGD|IT01|Infotrygd|Infotrygd|NB|2010-02-13 00:00:00.0|9999-12-31 00:00:00.0||1006400
+|FAGSYSTEM|HJE_HEL_ORT|OEBS|Hjelpemidler, Helsetjenester og Ort. Hjelpemidler|Hjelpemidler, Helsetjenester og Ort. Hjelpemidler|NB|2010-02-13 00:00:00.0|9999-12-31 00:00:00.0||1006450
+|FAGSYSTEM|PESYS|PP01|Pesys|Pesys|NB|2011-12-10 00:00:00.0|9999-12-31 00:00:00.0||1006500
+|FAGSYSTEM|VENTELONN|V2|Ventelønn|Ventelønn|NB|2010-02-13 00:00:00.0|9999-12-31 00:00:00.0||1006550
+|FAGSYSTEM|UNNTAK|UFM|Unntak|Unntak|NB|2010-01-01 00:00:00.0|9999-12-31 00:00:00.0||1006600
+|FAGSYSTEM|FPSAK|FS36|Vedtaksløsning Foreldrepenger|Vedtaksløsning Foreldrepenger|NB|2017-06-28 00:00:00.0|9999-12-31 00:00:00.0||1006650
+|FAGSYSTEM|-||Ikke definert|Ikke definert|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1006700
+|MOTTAK_KANAL|ALTINN|ALTINN|Altinn|Altinn|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1006750
+|MOTTAK_KANAL|EIA|EIA|EIA|EIA|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1006800
+|MOTTAK_KANAL|EKST_OPPS|EKST_OPPS|Eksternt oppslag|Eksternt oppslag|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1006850
+|MOTTAK_KANAL|NAV_NO|NAV_NO|Ditt NAV|Ditt NAV|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1006900
+|MOTTAK_KANAL|SKAN_NETS|SKAN_NETS|Skanning Nets|Skanning Nets|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1006950
+|MOTTAK_KANAL|SKAN_PEN|SKAN_PEN|Skanning Pensjon|Skanning Pensjon|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1007000
+|MOTTAK_KANAL|-||Ikke definert|Ikke definert|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1007050
+|MOTTAK_KANAL|EESSI|EESSI|EESSI|EESSI|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1007100
+|MOTTAK_KANAL|PSELV|PSELV|PSELV|PSELV|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1007150
+|MOTTAK_KANAL|E_POST|E_POST|E-post|E-post|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1007200
+|MOTTAK_KANAL|NETS_PB1400|NETS_PB1400|NETS - postboks 1400|NETS - postboks 1400|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1007250
+|MOTTAK_KANAL|NETS_PB1405|NETS_PB1405|NETS - postboks 1405|NETS - postboks 1405|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1007300
+|MOTTAK_KANAL|NETS_PB1406|NETS_PB1406|NETS - postboks 1406|NETS - postboks 1406|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1007350
+|MOTTAK_KANAL|NETS_PB1407|NETS_PB1407|NETS - postboks 1407|NETS - postboks 1407|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1007400
+|MOTTAK_KANAL|NETS_PB1408|NETS_PB1408|NETS - postboks 1408|NETS - postboks 1408|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1007450
+|MOTTAK_KANAL|NETS_PB1411|NETS_PB1411|NETS - postboks 1411|NETS - postboks 1411|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1007500
+|MOTTAK_KANAL|NETS_PB1412|NETS_PB1412|NETS - postboks 1412|NETS - postboks 1412|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1007550
+|MOTTAK_KANAL|NETS_PB1413|NETS_PB1413|NETS - postboks 1413|NETS - postboks 1413|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1007600
+|MOTTAK_KANAL|NETS_PB1423|NETS_PB1423|NETS - postboks 1423|NETS - postboks 1423|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1007650
+|MOTTAK_KANAL|NETS_PB1431|NETS_PB1431|NETS - postboks 1431|NETS - postboks 1431|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1007700
+|MOTTAK_KANAL|NETS_PB1441|NETS_PB1441|NETS - postboks 1441|NETS - postboks 1441|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1007750
+|VARIANT_FORMAT|PROD|PRODUKSJON|Produksjonsformat|Produksjonsformat|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1007800
+|VARIANT_FORMAT|ARKIV|ARKIV|Arkivformat|Arkivformat|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1007850
+|VARIANT_FORMAT|SKANM|SKANNING_META|Skanning metadata|Skanning metadata|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1007900
+|VARIANT_FORMAT|BREVB|BREVBESTILLING|Brevbestilling data|Brevbestilling data|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1007950
+|VARIANT_FORMAT|ORIG|ORIGINAL|Originalformat|Originalformat|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1008000
+|VARIANT_FORMAT|FULL|FULLVERSJON|Versjon med infotekster|Versjon med infotekster|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1008050
+|VARIANT_FORMAT|SLADD|SLADDET|Sladdet format|Sladdet format|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1008100
+|VARIANT_FORMAT|PRDLF|PRODUKSJON_DLF|Produksjonsformat DLF|Produksjonsformat DLF|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1008150
+|VARIANT_FORMAT|-||Ikke definert|Ikke definert|NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1008200
+|RELATERT_YTELSE_TEMA|FA||Foreldrepenger||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1008250
+|RELATERT_YTELSE_TEMA|SP||Sykepenger||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1008300
+|RELATERT_YTELSE_TEMA|EF||Enslig forsørger||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1008350
+|RELATERT_YTELSE_TEMA|AA|Arbeidsavklaringspenger|Arbeidsavklaringspenger||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1008400
+|RELATERT_YTELSE_TEMA|DAGP|Dagpenger|Dagpenger||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1008450
+|RELATERT_YTELSE_BEH_TEMA|FØ||Foreldrepenger fødsel||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1008500
+|RELATERT_YTELSE_BEH_TEMA|AP||Foreldrepenger adopsjon||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1008550
+|RELATERT_YTELSE_BEH_TEMA|SV||Svangerskapspenger||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1008600
+|RELATERT_YTELSE_BEH_TEMA|AE||Adopsjon engangsstønad||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1008650
+|RELATERT_YTELSE_BEH_TEMA|FE||Fødsel engangsstønad||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1008700
+|RELATERT_YTELSE_BEH_TEMA|FU||Foreldrepenger fødsel, utland||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1008750
+|RELATERT_YTELSE_BEH_TEMA|RS||forsikr.risiko sykefravær||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1008800
+|RELATERT_YTELSE_BEH_TEMA|RT||reisetilskudd||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1008850
+|RELATERT_YTELSE_BEH_TEMA|SP||sykepenger||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1008900
+|RELATERT_YTELSE_BEH_TEMA|SU||sykepenger utenlandsopphold||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1008950
+|RELATERT_YTELSE_BEH_TEMA|BT||stønad til barnetilsyn||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1009000
+|RELATERT_YTELSE_BEH_TEMA|FL||tilskudd til flytting||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1009050
+|RELATERT_YTELSE_BEH_TEMA|OG||overgangsstønad||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1009100
+|RELATERT_YTELSE_BEH_TEMA|UT||skolepenger||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1009150
+|RELATERT_YTELSE_BEH_TEMA|AAP|Arbeidsavklaringspenger|Arbeidsavklaringspenger||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1009200
+|RELATERT_YTELSE_BEH_TEMA|DAGO|Ordinære dagpenger|Ordinære dagpenger||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1009250
+|RELATERT_YTELSE_BEH_TEMA|PERM|Dagpenger under permitteringer|Dagpenger under permitteringer||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1009300
+|RELATERT_YTELSE_BEH_TEMA|FISK|Dagp. v/perm fra fiskeindustri|Dagp. v/perm fra fiskeindustri||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1009350
+|RELATERT_YTELSE_BEH_TEMA|LONN|Lønnsgarantimidler - dagpenger|Lønnsgarantimidler - dagpenger||NB|2000-01-01 00:00:00.0|9999-12-31 00:00:00.0||1009400
+|DOKUMENT_TYPE_ID|INNTEKTSMELDING|I000067|Opplysninger for å behandle krav om blant annet foreldrepenger||NB|2017-12-01 00:00:00.0|9999-12-31 00:00:00.0||1009450
+|===
+
+
+=== KODEVERK
+....
+Registrerte kodeverk. Representerer grupperinger av koder
+....
+
+
+[options="header", cols="0,0,0,0,0,0,0,0,0,0h"]
+|===
+|KODEVERK_EIER|KODEVERK_EIER_REF|KODEVERK_EIER_VER|KODEVERK_EIER_NAVN|KODEVERK_SYNK_NYE|KODEVERK_SYNK_EKSISTERENDE|NAVN|BESKRIVELSE|SAMMENSATT|KODE
+|Kodeverkforvaltning|http://nav.no/kodeverk/Kodeverk/Behandlingstema|9|Behandlingstema|N|N|Behandlingstema|NAV Behandlingstema|N|BEHANDLING_TEMA
+|Kodeverkforvaltning|http://nav.no/kodeverk/Kodeverk/Tema|2|Tema|N|N|Tema|NAV Tema|N|TEMA
+|Kodeverkforvaltning|http://nav.no/kodeverk/Kodeverk/DokumentTypeId-er|2|DokumentTypeId-er|J|N|DokumentTypeId-er|Typen til et mottatt dokument. Dette er et subset av DokumentTyper; inngÃ¥ende dokumenter, for eksempel sÃ¸knad, terminbekreftelse o.l|N|DOKUMENT_TYPE_ID
+|Kodeverkforvaltning|http://nav.no/kodeverk/Kodeverk/Arkivfiltyper|3|Arkivfiltyper|N|N|Arkivfiltyper|NAV Arkivfiltyper|N|ARKIV_FILTYPE
+|VL||||N|N|KonfigVerdiGruppe|Angir en gruppe konfigurerbare verdier tilhører. Det åpner for å kunne ha lister og Maps av konfigurerbare verdier|N|KONFIG_VERDI_GRUPPE
+|VL||||N|N|KonfigVerdiType|Angir type den konfigurerbare verdien er av slik at dette kan brukes til validering og fremstilling.|N|KONFIG_VERDI_TYPE
+|Kodeverkforvaltning|http://nav.no/kodeverk/Kodeverk/Dokumentkategorier|1|Dokumentkategorier|N|N|Dokumentkategorier|NAV Dokumentkategorier|N|DOKUMENT_KATEGORI
+|GSak|||Fagsystemer|N|N|Fagsystemer|NAV Fagsystemer|N|FAGSYSTEM
+|Kodeverkforvaltning|http://nav.no/kodeverk/Kodeverk/Mottakskanaler|1|Mottakskanaler|N|N|Mottakskanaler|NAV Mottakskanaler|N|MOTTAK_KANAL
+|Kodeverkforvaltning|http://nav.no/kodeverk/Kodeverk/Variantformater|1|Variantformater|N|N|Variantformater|NAV Variantformater|N|VARIANT_FORMAT
+|Arena||||N|N|RelatertYtelseTema|Kodeverk for tema på relaterte ytelser.|N|RELATERT_YTELSE_TEMA
+|Arena||||N|N|RelatertYtelseBehandlingTema|Kodeverk for behandlingstema på relaterte ytelser|N|RELATERT_YTELSE_BEH_TEMA
+|===
+
+
+=== KONFIG_VERDI_KODE
+....
+Angir unik kode for en konfigurerbar verdi for validering og utlisting av tilgjengelige koder.
+....
+
+
+[options="header", cols="0,0,0,0,0,0h,0h"]
+|===
+|NAVN|KONFIG_TYPE|BESKRIVELSE|KL_KONFIG_VERDI_GRUPPE|KL_KONFIG_VERDI_TYPE|KODE|KONFIG_GRUPPE
+|Tidsperiode i mnd for saker i infotrygd|INTEGER|Tidsperiode for sjekk av saker mot infotrygd. Oppgitt i måneder|KONFIG_VERDI_GRUPPE|KONFIG_VERDI_TYPE|infotrygd.sak.gyldig.periode|INGEN
+|EnhetsId til bruk for fordelingsoppgaver|STRING|EnhetsId til bruk for fordelingsoppgaver|KONFIG_VERDI_GRUPPE|KONFIG_VERDI_TYPE|gsak.ehentsid.fordelingsoppgaver|INGEN
+|Max diff på startdato på dok og infotrygdsak|INTEGER|Akseptert differanse ved sjekk av startdato på inntektsmelding mot infotrygdsaker. Oppgitt i dager|KONFIG_VERDI_GRUPPE|KONFIG_VERDI_TYPE|infotrygd.inntektsmelding.startdato.akseptert.diff|INGEN
+|Startdato inntektsmelding for journalføring|STRING|Startdato for inntektsmelding f.o.m hvilket journalføring gjøres gjennom VL|KONFIG_VERDI_GRUPPE|KONFIG_VERDI_TYPE|inntektsmelding.foreldrepenger.startdato|INGEN
+|===
+
+
+=== PROSESS_TASK_FEILHAND
+....
+Kodetabell for feilhåndterings-metoder. For eksempel antall ganger å prøve på nytt og til hvilke tidspunkt
+....
+
+
+[options="header", cols="0,0,0,0,0h"]
+|===
+|NAVN|BESKRIVELSE|INPUT_VARIABEL1|INPUT_VARIABEL2|KODE
+|Eksponentiell back-off med tak||||DEFAULT
+|Åpningstidsbasert feilhåndtering|Åpningstidsbasert feilhåndtering. INPUT_VARIABEL1 = åpningstid og INPUT_VARIABEL2 = stengetid|7|18|ÅPNINGSTID
+|Til Gsak ved funksjonell feil|Send sak til manuell journalføring hos gsak dersom det oppstår en funksjonell feil. Andre feil håndters som for DEFAULT.|||TIL_GSAK_BACKOFF
+|Til Gsak ved funksjonell feil|Send sak til manuell journalføring hos gsak dersom det oppstår en funksjonell feil. Andre feil håndters som for ÅPNINGSTID.|7|18|TIL_GSAK_ÅPNINGSTID
+|===
+
+
+=== PROSESS_TASK_TYPE
+....
+Kodetabell for typer prosesser med beskrivelse og informasjon om hvilken feilhåndteringen som skal benyttes
+....
+
+
+[options="header", cols="0,0,0,0,0,0h"]
+|===
+|NAVN|FEIL_MAKS_FORSOEK|FEIL_SEK_MELLOM_FORSOEK|FEILHANDTERING_ALGORITME|BESKRIVELSE|KODE
+|Oppretter ny sak internt Vedtaksløsningen|3|30|DEFAULT||fordeling.opprettSak
+|Oppretter Oppgave i GSak|1|30|DEFAULT||integrasjon.gsak.opprettOppgave
+|Henter metadata og xml fra Joark|3|30|TIL_GSAK_BACKOFF||fordeling.hentFraJoark
+|Forsøker å finne matchende sak I repo|3|30|DEFAULT||fordeling.hentOgVurderVLSak
+|Forsøker å finne matchende sak i GSAK/Infotrygd|3|30|ÅPNINGSTID||fordeling.hentOgVurderInfotrygdSak
+|Setter oppgaven klar til journal|3|30|TIL_GSAK_BACKOFF||fordeling.tilJournalforing
+|Klar for klargjoring|3|60|DEFAULT|Task som setter oppgaven klar for klargjøring|fordeling.klargjoering
+|Behandle dokumentforsendelse|3|30|DEFAULT|Task som fordeler dokumentforsendelse|fordeling.behandleDokumentForsendelse
+|===
+
+
+

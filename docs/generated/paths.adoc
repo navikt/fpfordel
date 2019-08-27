@@ -1,0 +1,330 @@
+
+[[_paths]]
+== Resources
+
+[[_dokumentforsendelse_resource]]
+=== Dokumentforsendelse
+
+<<<
+
+[[_uploadfile]]
+==== Innsending av en dokumentforsendelse
+....
+POST /dokumentforsendelse
+....
+
+
+===== Description
+Denne kan ikke kalles fra Swagger
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^4"]
+|===
+|Type|Name|Schema
+|**Body**|**body** +
+__optional__|<<_multipartinput,MultipartInput>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^4"]
+|===
+|HTTP Code|Schema
+|**200**|No Content
+|===
+
+
+===== Consumes
+
+* `multipart/mixed`
+
+
+===== Produces
+
+* `application/json`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/dokumentforsendelse
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "preamble" : "string",
+  "parts" : [ {
+    "headers" : {
+      "string" : [ "string" ]
+    },
+    "mediaType" : {
+      "type" : "string",
+      "subtype" : "string",
+      "parameters" : {
+        "string" : "string"
+      },
+      "wildcardSubtype" : true,
+      "wildcardType" : true
+    },
+    "bodyAsString" : "string",
+    "contentTypeFromMessage" : true
+  } ]
+}
+----
+
+
+<<<
+
+[[_finnstatusinformasjon]]
+==== Finner status på prosessering av mottatt dokumentforsendelse
+....
+GET /dokumentforsendelse/status
+....
+
+
+===== Description
+Format: "8-4-4-4-12" eksempel "48F6E1CF-C5D8-4355-8E8C-B75494703959"
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Query**|**forsendelseId** +
+__required__|forsendelseId|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|Status og Periode|<<_forsendelsestatusdto,ForsendelseStatusDto>>
+|**303**|See Other|No Content
+|===
+
+
+===== Produces
+
+* `application/json`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/dokumentforsendelse/status
+----
+
+
+====== Request query
+[source,json]
+----
+{
+  "forsendelseId" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "forsendelseStatus" : "string",
+  "pollInterval" : "string",
+  "journalpostId" : "string",
+  "saksnummer" : "string"
+}
+----
+
+
+[[_mottak_resource]]
+=== Mottak
+
+<<<
+
+[[_mottatynnmeldingfratesthub]]
+==== POST /mottak/melding
+[CAUTION]
+====
+operation.deprecated
+====
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**default**|successful operation|No Content
+|===
+
+
+===== Produces
+
+* `application/json`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/mottak/melding
+----
+
+
+[[_nais_resource]]
+=== Nais
+
+<<<
+
+[[_isalive]]
+==== GET /isAlive
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**default**|successful operation|No Content
+|===
+
+
+===== Produces
+
+* `text/plain`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/isAlive
+----
+
+
+<<<
+
+[[_isready]]
+==== GET /isReady
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**default**|successful operation|No Content
+|===
+
+
+===== Produces
+
+* `text/plain`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/isReady
+----
+
+
+<<<
+
+[[_prestop]]
+==== GET /preStop
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**default**|successful operation|No Content
+|===
+
+
+===== Produces
+
+* `text/plain`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/preStop
+----
+
+
+[[_selftest_resource]]
+=== Selftest
+
+<<<
+
+[[_doselftest]]
+==== GET /selftest
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^4"]
+|===
+|Type|Name|Schema
+|**Header**|**Content-Type** +
+__optional__|string
+|**Query**|**json** +
+__optional__|boolean
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**default**|successful operation|No Content
+|===
+
+
+===== Produces
+
+* `text/html`
+* `application/json`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/selftest
+----
+
+
+====== Request header
+[source,json]
+----
+"string"
+----
+
+
+====== Request query
+[source,json]
+----
+{
+  "json" : true
+}
+----
+
+
+

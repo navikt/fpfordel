@@ -1,0 +1,25 @@
+= Aktør integrasjon
+
+== Hensikt
+<<TODO>>
+
+== Hvordan
+<<TODO>>
+
+
+
+|===
+|tjeneste|operasjon|Link til beskrivelsen|Beskrivelse
+
+|Aktoer_v2|hentAktørIdForPersonIdent|confluence lenk|<<Beskrevelse>>
+|Aktoer_v2|hentPersonIdentForAktørId|confluence lenk|<<Beskrevelse>>
+|Aktoer_v2|hentAktørIdForPersonIdentSet|confluence lenk|<<Beskrevelse>>
+
+|===
+
+
+
+
+
+
+

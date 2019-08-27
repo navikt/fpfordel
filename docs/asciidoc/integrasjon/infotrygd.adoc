@@ -1,0 +1,20 @@
+= Infotrygd integrasjon
+
+== Hensikt
+Infotrygd er NAVs informasjontjeneste for alle opplysninger om trygd. Tjenesten gir informasjon om alle ytelser en person mottar eller har mottatt gjennom NAV. Vedtaksløsningen benytter Infotrygd for å innhente relevante ytelser for søker og eventuell annen forelder, slik at saksbehandler kan vurdere om disse ytelsene kan påvirke behandlingen av søknaden.
+
+== Hvordan
+Kommunikasjonen med Infotrygd foregår mot den synkrone web servicen InfotrygdSak_v1:FinnSakListe og utføres som en del av steget som innhenter registeropplysninger. Integrasjonen er synkron og vil avbryte gjeldende prosess hvis den feiler.
+
+VL kaller Infotrygd for søkers fødselsnummer og en konfigurerbar periode tilbake i tid (som per dags dato er 10 måneder). Infotrygd responderer med en liste av saker som ligger i Infotrygd på gitt personnummer og innenfor gitt periode. Denne responsen lagres i XML-format.
+
+Responsen prosesseres og lagres deretter strukturert i en egen tabell for videre bruk.
+
+Infotrygd kalles på nytt når registeropplysninger oppdateres, for eksempel når en behandling gjennopptas fra vent, hvis det er mer enn en dag siden opplysningene sist ble innhentet.
+
+== Lagring
+Responsen fra tjenesten lagres i tabellen SAKSOPPLYSNING_DOKUMENT i VL-databasen i XML-format. Den prosesserte responsen lagres i BEHANDLING_REL_YTELSER.
+
+== Annet
+Lenke til dokumentasjon av tjeneste:
+https://confluence.adeo.no/pages/viewpage.action?pageId=213064879[tjeneste_v3:virksomhet:InfotrygdSak_v1 (2018-HL0)]

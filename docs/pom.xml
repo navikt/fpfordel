@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>no.nav.foreldrepenger.fordel</groupId>
+		<artifactId>fpfordel</artifactId>
+		<version>${revision}${sha1}${changelist}</version>
+	</parent>
+
+	<artifactId>docs</artifactId>
+	<name>fordel :: Docs</name>
+	<packaging>jar</packaging>
+
+	<dependencies>
+		<dependency>
+			<groupId>no.nav.foreldrepenger.fordel</groupId>
+			<artifactId>webapp</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.xml.stream</groupId>
+					<artifactId>stax-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>no.nav.foreldrepenger.fordel</groupId>
+			<artifactId>migreringer</artifactId>
+			<type>test-jar</type>
+		</dependency>
+		<dependency>
+			<groupId>no.nav.foreldrepenger.felles</groupId>
+			<artifactId>felles-feil</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.github.swagger2markup</groupId>
+			<artifactId>markup-document-builder</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+
+	</dependencies>
+
+	<profiles>
+		<!-- Generer systemdokumentasjon Kan kjoeres separat som : 'mvn test -P sysdoc -pl docs' fra root. Lager Asciidoc output, samt tranformerer Asciidoc til HTML Output 
+			legges under generated/ katalog . Deretter kan det sjekkes inn. Krever at ./docs module er bygd slik at applikasjonsspesifikke doclets inkluderes her. -->
+		<profile>
+			<id>sysdoc</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<configuration>
+							<test>SysdocletRun</test>
+						</configuration>
+					</plugin>
+					<plugin>
+						<!-- Generer HTML output fra sysdoc -->
+						<groupId>org.asciidoctor</groupId>
+						<artifactId>asciidoctor-maven-plugin</artifactId>
+						<inherited>false</inherited>
+						<configuration>
+							<sourceDirectory>${asciidoctor.input.directory}</sourceDirectory>
+							<sourceDocumentName>index.adoc</sourceDocumentName>
+							<attributes>
+								<doctype>book</doctype>
+								<toc>left</toc>
+								<toclevels>3</toclevels>
+								<sectnums>true</sectnums>
+								<numbered />
+								<hardbreaks />
+								<sectlinks />
+								<sectanchors />
+								<generated>${generated.asciidoc.directory}</generated>
+								<revnumber>${project.version}</revnumber>
+								<revdate>${maven.build.timestamp}</revdate>
+								<organization>${project.organization.name}</organization>
+							</attributes>
+						</configuration>
+						<!-- Since each execution can only handle one backend, run separate executions for each desired output type -->
+						<executions>
+							<execution>
+								<id>do-output-html</id>
+								<phase>test</phase>
+								<goals>
+									<goal>process-asciidoc</goal>
+								</goals>
+								<configuration>
+									<backend>html5</backend>
+									<outputDirectory>${asciidoctor.html.output.directory}</outputDirectory>
+									<attributes>
+										<sectnums>true</sectnums>
+										<revnumber>${project.version}</revnumber>
+										<revdate>${maven.build.timestamp}</revdate>
+										<organization>${project.organization.name}</organization>
+									</attributes>
+								</configuration>
+							</execution>
+
+						</executions>
+					</plugin>
+
+				</plugins>
+
+			</build>
+
+			<properties>
+				<asciidoctor.input.directory>${project.basedir}/asciidoc</asciidoctor.input.directory>
+				<generated.asciidoc.directory>${project.basedir}/generated</generated.asciidoc.directory>
+				<asciidoctor.html.output.directory>${project.basedir}/generated/html</asciidoctor.html.output.directory>
+			</properties>
+		</profile>
+	</profiles>
+
+</project>

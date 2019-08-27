@@ -1,0 +1,2 @@
+INSERT INTO PROSESS_TASK_TYPE (KODE, NAVN, FEIL_MAKS_FORSOEK, FEIL_SEK_MELLOM_FORSOEK, FEILHANDTERING_ALGORITME, BESKRIVELSE, OPPRETTET_AV, OPPRETTET_TID)
+VALUES ('fordeling.svangerskapspenger', 'Håndter svangerskapspenger', '3', '30', 'DEFAULT', 'Task som håndterer dokumenter for svangerskapspenger', 'VL', to_timestamp('08.03.2018', 'DD.MM.RRRR'));

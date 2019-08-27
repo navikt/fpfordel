@@ -1,0 +1,49 @@
+= Joark integrasjon
+
+== Hensikt
+Joark er NAVs journalarkiv.  Vedtaksløsningen benytter Joark tjenestene Journal_V2, BehandleinngaaendeJournal_V1 og InngaaendeJournal_V1 til å hente metadata om innkommende søknadsdokumenter og vedlegg, og til å journalføre dokumenter når de behandles i VL.
+
+== Hvordan
+Input og outputverdier for tjenestene er beskrevet i tjenestekatalogen.
+
+Journal_V2: https://confluence.adeo.no/display/SDFS/tjeneste_v3%3Avirksomhet%3AJournal_v2[tjeneste_v3:virksomhet:Journal_v2]
+
+BehandleinngaaendeJournal_V1 : https://confluence.adeo.no/display/SDFS/tjeneste_v3%3Avirksomhet%3ABehandleInngaaendeJournal_v1[tjeneste_v3:virksomhet:BehandleInngaaendeJournal_v1]
+
+InngaaendeJournal_V1: https://confluence.adeo.no/display/SDFS/tjeneste_v3%3Avirksomhet%3AInngaaendeJournal_v1[tjeneste_v3:virksomhet:InngaaendeJournal_v1]
+
+=== BehandleDokumentService - oppdaterOgFerdigstillJournalfoering
+Saksbehandler gjør en manuell knytning av en forsendelse til en eksisterende eller ny sak i vedtaksløsningen. Følgende kall brukes mot Joark:
+
+|===
+|tjeneste|operasjon|Beskrivelse
+
+|InngaaendeJournal_V1|hentJournalpost|Brukes for å finne metadata for hoveddokumentet. Hvis hoveddokument er av status Endelig, så sendes journalposten til ferdigstilling ved å kalle TilJournalføring, som er tilsvarende TilJournalføringTask, bare synkront.
+|Journal_V2|hentDokument|Henter opp xml av hovedokumentet og sender det videre til klargjøringVL. Xml-dokumentet. KlargjøringVL Dokumentet lagres i saksopplysning_dokument-tabellen og sendes videre til HåndterMottattDokumentTask. Dette skjer synkront
+|===
+
+=== Ved mottak av dokument
+Ved mottak av dokument, så sender dokmot en JMS-melding til VL. VL oppretter en HentDataFraJoarkTask, som håndterer strukturerte og ustrukturerte dokumenter.
+
+*HentDataFraJoarkTask*
+Asynkron prosesstask for å hente ned metadata og søknadsxml fra Joark før den sendes videre til neste steg i behandlingen. Følgende kall brukes mot Joark:
+
+|===
+|tjeneste| operasjon| Beskrivelse
+
+|InngaaendeJournal_V1| hentJournalpost| Brukes for å finne metadata for hoveddokument
+|Journal_V2| hentDokument| Henter opp xml av hovedokumentet og sender det videre til klargjøringVL. Xml-dokumentet. Dokumentet lagres i saksopplysning_dokument-tabellen og sendes videre til HåndterMottattDokumentTask
+|===
+
+*TilJournalføringTask*
+Sjekker om journalposten har mangler for å ferdiigstille journalføring, retter opp i manglene og ferdigstiller hvis mulig. Følgende kall brukes mot Joark:
+
+|===
+|tjeneste| operasjon| Beskrivelse
+
+|InngaaendeJournal_V1| utledJournalfoeringsbehov| Sjekker om journalposten har mangler
+|BehandleinngaaendeJournal_V1| oppdaterJournalpost	Oppdaterer journalposten med manglende
+|BehandleinngaaendeJournal_V1| ferdigstillJournalfoering| Journal ferdigstilles.
+|===
+
+

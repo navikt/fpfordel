@@ -1,0 +1,7 @@
+= Applikasjon
+
+include::applikasjonsarkitektur.adoc[leveloffset=+1]
+include::integrasjon/integrasjoner.adoc[leveloffset=+1]
+include::sikkerhet.adoc[leveloffset=+1]
+include::monitorering.adoc[leveloffset=+1]
+

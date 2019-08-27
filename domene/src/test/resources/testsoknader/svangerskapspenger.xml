@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns3:soeknad xmlns:ns6="urn:no:nav:vedtak:felles:xml:soeknad:endringssoeknad:v3" xmlns:ns5="urn:no:nav:vedtak:felles:xml:soeknad:foreldrepenger:v3" xmlns:ns8="urn:no:nav:vedtak:felles:xml:soeknad:engangsstoenad:v3" xmlns:ns7="urn:no:nav:vedtak:felles:xml:soeknad:uttak:v3" xmlns:ns2="urn:no:nav:vedtak:felles:xml:soeknad:felles:v3" xmlns:ns4="urn:no:nav:vedtak:felles:xml:soeknad:svangerskapspenger:v1" xmlns:ns3="urn:no:nav:vedtak:felles:xml:soeknad:v3">
+	<ns3:mottattDato>2019-04-10</ns3:mottattDato>
+	<ns3:paakrevdeVedlegg>
+		<ns2:id>A16722</ns2:id>
+		<ns2:innsendingstype kodeverk="INNSENDINGSVALG" kode="LASTET_OPP"/>
+		<ns2:skjemanummer>I000007</ns2:skjemanummer>
+		<ns2:tilleggsinformasjon>Placeholder mens paakrevet</ns2:tilleggsinformasjon>
+	</ns3:paakrevdeVedlegg>
+	<ns3:sprakvalg kode="NB"/>
+	<ns3:omYtelse>
+		<ns4:svangerskapspenger>
+			<ns4:termindato>2019-04-19</ns4:termindato>
+			<ns4:medlemskap>
+				<ns2:iNorgeVedFoedselstidspunkt>true</ns2:iNorgeVedFoedselstidspunkt>
+				<ns2:boddINorgeSiste12Mnd>true</ns2:boddINorgeSiste12Mnd>
+				<ns2:borINorgeNeste12Mnd>true</ns2:borINorgeNeste12Mnd>
+				<ns2:oppholdUtlandet>
+					<ns2:periode>
+						<ns2:fom>2018-01-01</ns2:fom>
+						<ns2:tom>2019-04-10</ns2:tom>
+					</ns2:periode>
+					<ns2:land kodeverk="LANDKODER" kode="NOR"/>
+				</ns2:oppholdUtlandet>
+				<ns2:oppholdUtlandet>
+					<ns2:periode>
+						<ns2:fom>2019-04-11</ns2:fom>
+						<ns2:tom>2020-01-01</ns2:tom>
+					</ns2:periode>
+					<ns2:land kodeverk="LANDKODER" kode="NOR"/>
+				</ns2:oppholdUtlandet>
+			</ns4:medlemskap>
+			<ns4:opptjening/>
+			<ns4:tilretteleggingListe>
+				<ns4:tilrettelegging>
+					<ns4:ingenTilrettelegging>
+						<ns4:slutteArbeidFom>2019-04-09</ns4:slutteArbeidFom>
+					</ns4:ingenTilrettelegging>
+					<ns4:arbeidsforhold xsi:type="ns4:PrivatArbeidsgiver" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+						<ns4:identifikator>123456789</ns4:identifikator>
+					</ns4:arbeidsforhold>
+					<ns4:behovForTilretteleggingFom>2019-04-01</ns4:behovForTilretteleggingFom>
+					<ns4:vedlegg>A16722</ns4:vedlegg>
+				</ns4:tilrettelegging>
+			</ns4:tilretteleggingListe>
+		</ns4:svangerskapspenger>
+	</ns3:omYtelse>
+	<ns3:soeker>
+		<ns2:aktoerId>1000104134079</ns2:aktoerId>
+		<ns2:soeknadsrolle kode="IKKE_RELEVANT"/>
+	</ns3:soeker>
+</ns3:soeknad>

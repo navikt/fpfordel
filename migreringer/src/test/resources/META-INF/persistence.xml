@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+
+    <!-- Hibernate persistence unit. -->
+    <persistence-unit name="pu-default" transaction-type="RESOURCE_LOCAL">
+       <provider>no.nav.vedtak.felles.jpa.VLPersistenceUnitProvider</provider>
+        <non-jta-data-source>jdbc/defaultDS</non-jta-data-source>
+
+        <properties>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.Oracle12cDialect" />
+            <property name="hibernate.connection.autocommit" value="false" />
+            <property name="hibernate.jdbc.use_get_generated_keys" value="true" />
+            <property name="org.hibernate.flushMode" value="COMMIT" />
+        </properties>
+    </persistence-unit>
+
+</persistence>
+
