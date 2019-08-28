@@ -6,6 +6,7 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverk.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
@@ -70,8 +71,9 @@ public class FagsakRestKlientImpl implements FagsakRestKlient {
         boolean strukturertSøknad = dataWrapper.erStrukturertDokument().orElse(Boolean.FALSE);
         DokumentTypeId dokumentTypeId = dataWrapper.getDokumentTypeId().map(id -> kodeverkRepository.finn(DokumentTypeId.class, id)).orElse(DokumentTypeId.UDEFINERT);
         DokumentKategori dokumentKategori = dataWrapper.getDokumentKategori().map(kat -> kodeverkRepository.finn(DokumentKategori.class, kat)).orElse(DokumentKategori.UDEFINERT);
+        String behandlingTemaString = BehandlingTema.UDEFINERT.equals(dataWrapper.getBehandlingTema()) ? dataWrapper.getBehandlingTema().getKode() : dataWrapper.getBehandlingTema().getOffisiellKode();
 
-        VurderFagsystemDto dto = new VurderFagsystemDto(dataWrapper.getArkivId(), strukturertSøknad, aktørId, dataWrapper.getBehandlingTema().getOffisiellKode());
+        VurderFagsystemDto dto = new VurderFagsystemDto(dataWrapper.getArkivId(), strukturertSøknad, aktørId, behandlingTemaString);
         dto.setAdopsjonsBarnFodselsdatoer(dataWrapper.getAdopsjonsbarnFodselsdatoer());
         dataWrapper.getBarnTermindato().ifPresent(dto::setBarnTermindato);
         dataWrapper.getBarnFodselsdato().ifPresent(dto::setBarnFodselsdato);
