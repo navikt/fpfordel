@@ -33,12 +33,9 @@ public class KlargjørForVLTjeneste {
 
     public void klargjørForVL(String xml, String saksnummer, String arkivId, DokumentTypeId dokumenttypeId, LocalDateTime forsendelseMottatt,
                               BehandlingTema behandlingsTema, UUID forsendelseId, DokumentKategori dokumentKategori, String journalFørendeEnhet) {
-        String behandlingsTemaOffisiellKode = null;
+        String behandlingTemaString = behandlingsTema == null || BehandlingTema.UDEFINERT.equals(behandlingsTema) ? BehandlingTema.UDEFINERT.getKode() : behandlingsTema.getOffisiellKode();
         String dokumentTypeIdOffisiellKode = null;
         String dokumentKategoriOffisiellKode = null;
-        if (behandlingsTema != null) {
-            behandlingsTemaOffisiellKode = behandlingsTema.getOffisiellKode();
-        }
         if (dokumenttypeId != null) {
             dokumentTypeIdOffisiellKode = dokumenttypeId.getOffisiellKode();
         }
@@ -47,7 +44,7 @@ public class KlargjørForVLTjeneste {
         }
         fagsakRestKlient.knyttSakOgJournalpost(new JournalpostKnyttningDto(saksnummer, arkivId));
 
-        JournalpostMottakDto journalpostMottakDto = new JournalpostMottakDto(saksnummer, arkivId, behandlingsTemaOffisiellKode, dokumentTypeIdOffisiellKode, forsendelseMottatt, xml);
+        JournalpostMottakDto journalpostMottakDto = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString, dokumentTypeIdOffisiellKode, forsendelseMottatt, xml);
         journalpostMottakDto.setForsendelseId(forsendelseId);
         journalpostMottakDto.setDokumentKategoriOffisiellKode(dokumentKategoriOffisiellKode);
         journalpostMottakDto.setJournalForendeEnhet(journalFørendeEnhet);
