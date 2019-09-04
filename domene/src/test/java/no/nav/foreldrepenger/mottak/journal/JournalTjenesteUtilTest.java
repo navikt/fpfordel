@@ -135,7 +135,7 @@ public class JournalTjenesteUtilTest {
         List<Dokument> vedleggListe = new ArrayList<>();
         vedleggListe.add(lagDokument(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL, ArkivFilType.PDFA, false));
         vedleggListe.add(lagDokument(DokumentTypeId.ANNET, ArkivFilType.PDFA, false));
-        vedleggListe.add(lagDokument(DokumentTypeId.ANNET, ArkivFilType.PDFA, false));
+        vedleggListe.add(lagDokumentMedBeskrivelse(DokumentTypeId.ANNET, ArkivFilType.PDFA, false, "Farskap"));
 
         List<DokumentInfoVedlegg> resultat = tjenesteUtil.konverterTilDokumentInfoVedlegg(vedleggListe, false, true);
         assertThat(resultat).hasSize(3);
@@ -146,6 +146,10 @@ public class JournalTjenesteUtilTest {
         assertThat(resultat.get(1).getTittel()).isEqualTo(kodeverkRepository.finn(DokumentTypeId.class, DokumentTypeId.ANNET).getNavn());
         assertThat(resultat.get(1).getDokumentTypeId()).isEqualTo(kodeverkRepository.finn(DokumentTypeId.class, DokumentTypeId.ANNET).getOffisiellKode());
         assertThat(resultat.get(1).getDokumentVariant()).hasSize(1);
+
+        assertThat(resultat.get(2).getTittel()).isEqualTo("Farskap");
+        assertThat(resultat.get(2).getDokumentTypeId()).isEqualTo(kodeverkRepository.finn(DokumentTypeId.class, DokumentTypeId.ANNET).getOffisiellKode());
+        assertThat(resultat.get(2).getDokumentVariant()).hasSize(1);
     }
 
 
@@ -253,5 +257,9 @@ public class JournalTjenesteUtilTest {
 
     private Dokument lagDokument(DokumentTypeId dokTypeId, ArkivFilType arkivFilType, Boolean hoveddok) {
         return DokumentforsendelseTestUtil.lagDokument(FORSENDELSE_ID, dokTypeId, arkivFilType, hoveddok);
+    }
+
+    private Dokument lagDokumentMedBeskrivelse(DokumentTypeId dokTypeId, ArkivFilType arkivFilType, Boolean hoveddok, String beskrivelse) {
+        return DokumentforsendelseTestUtil.lagDokumentBeskrivelse(FORSENDELSE_ID, dokTypeId, arkivFilType, hoveddok, beskrivelse);
     }
 }

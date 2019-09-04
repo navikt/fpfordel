@@ -117,7 +117,7 @@ public class TilJournalføringTjenesteTest {
 
         DokumentMetadata metadata = DokumentforsendelseTestUtil.lagMetadata(forsendelseId, SAK_ID);
         List<Dokument> dokumenter = DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, SØKNAD_FORELDREPENGER_FØDSEL);
-        dokumenter.add(DokumentforsendelseTestUtil.lagDokument(forsendelseId, ANNET, ArkivFilType.PDFA, false));
+        dokumenter.add(DokumentforsendelseTestUtil.lagDokumentBeskrivelse(forsendelseId, ANNET, ArkivFilType.PDFA, false, "Farskap"));
 
         when(mockDokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(metadata);
         when(mockDokumentRepository.hentDokumenter(any(UUID.class))).thenReturn(dokumenter);

@@ -36,6 +36,16 @@ public class DokumentforsendelseTestUtil {
                 .build();
     }
 
+    public static Dokument lagDokumentBeskrivelse(UUID forsendelseId, DokumentTypeId dokumentTypeId, ArkivFilType arkivFilType, boolean erHoveddokument, String beskrivelse) {
+        return Dokument.builder()
+                .setForsendelseId(forsendelseId)
+                .setDokumentInnhold(BLOB, arkivFilType)
+                .setHovedDokument(erHoveddokument)
+                .setDokumentTypeId(dokumentTypeId)
+                .setBeskrivelse(beskrivelse)
+                .build();
+    }
+
     public static List<Dokument> lagHoveddokumentMedXmlOgPdf(UUID forsendelseId, DokumentTypeId dokumentTypeId) {
         List<Dokument> dokumenter = new ArrayList<>();
         dokumenter.add(lagDokument(forsendelseId, dokumentTypeId, ArkivFilType.XML, true));

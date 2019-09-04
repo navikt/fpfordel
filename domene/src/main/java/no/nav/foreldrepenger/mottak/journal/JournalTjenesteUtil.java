@@ -36,7 +36,7 @@ import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Variantformat
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.meldinger.HentJournalpostResponse;
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 
-public class JournalTjenesteUtil {
+class JournalTjenesteUtil {
 
     private KodeverkRepository kodeverkRepository;
 
@@ -49,11 +49,11 @@ public class JournalTjenesteUtil {
         journaltilstandPrjournaltilstandJaxb.put(Journaltilstand.ENDELIG, JournalMetadata.Journaltilstand.ENDELIG);
     }
 
-    public JournalTjenesteUtil(KodeverkRepository kodeverkRepository) {
+    JournalTjenesteUtil(KodeverkRepository kodeverkRepository) {
         this.kodeverkRepository = kodeverkRepository;
     }
 
-    public DokumentforsendelseResponse konverterTilDokumentforsendelseResponse(MottaInngaaendeForsendelseResponse inngåendeForsendelseResponse) {
+    DokumentforsendelseResponse konverterTilDokumentforsendelseResponse(MottaInngaaendeForsendelseResponse inngåendeForsendelseResponse) {
         return DokumentforsendelseResponse.builder()
                 .medJournalpostId(inngåendeForsendelseResponse.getJournalpostId())
                 .medJournalTilstand(JournalTilstand.fromValue(inngåendeForsendelseResponse.getJournalTilstand().value()))
@@ -61,7 +61,7 @@ public class JournalTjenesteUtil {
                 .build();
     }
 
-    public DokumentInfoHoveddokument konverterTilDokumentInfoHoveddokument(List<Dokument> hoveddokument) {
+    DokumentInfoHoveddokument konverterTilDokumentInfoHoveddokument(List<Dokument> hoveddokument) {
         DokumentInfoHoveddokument info = new DokumentInfoHoveddokument();
         if (!hoveddokument.isEmpty()) {
             List<DokumentVariant> dokVariant = new ArrayList<>();
@@ -82,24 +82,34 @@ public class JournalTjenesteUtil {
         return info;
     }
 
-    public List<DokumentInfoVedlegg> konverterTilDokumentInfoVedlegg(List<Dokument> vedlegg, Boolean harHoveddokument, Boolean endelig) {
+    List<DokumentInfoVedlegg> konverterTilDokumentInfoVedlegg(List<Dokument> vedlegg, boolean harHoveddokument, boolean endelig) {
         List<DokumentInfoVedlegg> infoList = new ArrayList<>();
-        Boolean settTittelAnnet = endelig;
-
         long antallAnnet = vedlegg.stream().map(Dokument::getDokumentTypeId).filter(DokumentTypeId.ANNET::equals).count();
-
-        if (!harHoveddokument && vedlegg.size() == antallAnnet) {
-            settTittelAnnet = antallAnnet > 0;
-        }
+        boolean krevTittel = !harHoveddokument && vedlegg.size() == antallAnnet;
 
         for (Dokument dokument : vedlegg) {
-            infoList.add(getDokumentInfoVedlegg(dokument, settTittelAnnet));
+            infoList.add(getDokumentInfoVedlegg(dokument, endelig, krevTittel));
         }
 
         return infoList;
     }
 
-    public JournalPostMangler konverterTilJournalmangler(JournalpostMangler journalpostMangler) {
+    String tittelFraDokument(Dokument dokument, boolean endelig, boolean kreverTittel) {
+        DokumentTypeId fraDokument = DokumentTypeId.UDEFINERT.equals(dokument.getDokumentTypeId()) ? DokumentTypeId.ANNET : dokument.getDokumentTypeId();
+        DokumentTypeId dokumentTypeId = kodeverkRepository.finn(DokumentTypeId.class, fraDokument);
+        String dokumentTypeTittel = dokumentTypeId.getNavn();
+        if (DokumentTypeId.ANNET.equals(dokumentTypeId)) {
+            // Brukers beskrivelse hvis ulikt "Annet"
+            if (dokument.getBeskrivelse() != null && !dokumentTypeTittel.equals(dokument.getBeskrivelse())) {
+                return dokument.getBeskrivelse();
+            }
+            // Ikke sett tittel hvis midlertidig. SBH gjør det fra Gosys
+            return endelig || kreverTittel ? dokumentTypeTittel : null;
+        }
+        return kreverTittel ? dokumentTypeTittel : null;
+    }
+
+    JournalPostMangler konverterTilJournalmangler(JournalpostMangler journalpostMangler) {
         JournalPostMangler mangler = new JournalPostMangler();
         mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.ARKIVSAK, journalpostMangler.getArkivSak() == Journalfoeringsbehov.MANGLER);
         mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.AVSENDERID, journalpostMangler.getAvsenderId() == Journalfoeringsbehov.MANGLER);
@@ -114,7 +124,7 @@ public class JournalTjenesteUtil {
         return mangler;
     }
 
-    public List<JournalMetadata<DokumentTypeId>> konverterTilMetadata(String journalpostId, HentJournalpostResponse response) {
+    List<JournalMetadata<DokumentTypeId>> konverterTilMetadata(String journalpostId, HentJournalpostResponse response) {
         InngaaendeJournalpost journalpost = response.getInngaaendeJournalpost();
 
         List<JournalMetadata<DokumentTypeId>> metadataList = new ArrayList<>();
@@ -128,7 +138,8 @@ public class JournalTjenesteUtil {
         return metadataList;
     }
 
-    private DokumentInfoVedlegg getDokumentInfoVedlegg(Dokument dokument, Boolean settTittelAnnet) {
+    private DokumentInfoVedlegg getDokumentInfoVedlegg(Dokument dokument, boolean endelig, boolean krevTittel) {
+        DokumentTypeId dokumentTypeId = kodeverkRepository.finn(DokumentTypeId.class, dokument.getDokumentTypeId());
         DokumentInfoVedlegg info = new DokumentInfoVedlegg();
         List<DokumentVariant> dokumentVariantList = new ArrayList<>();
         DokumentVariant dokVariant = new DokumentVariant();
@@ -138,10 +149,8 @@ public class JournalTjenesteUtil {
         dokVariant.setVariantFormat(DokumentVariant.VariantFormat.ARKIV);
         dokumentVariantList.add(dokVariant);
 
-        if (settTittelAnnet && DokumentTypeId.ANNET.equals(dokument.getDokumentTypeId())) {
-            info.setTittel(kodeverkRepository.finn(DokumentTypeId.class, DokumentTypeId.ANNET).getNavn());
-        }
-        info.setDokumentTypeId(kodeverkRepository.finn(DokumentTypeId.class, dokument.getDokumentTypeId()).getOffisiellKode());
+        info.setTittel(tittelFraDokument(dokument, endelig, krevTittel));
+        info.setDokumentTypeId(dokumentTypeId.getOffisiellKode());
         info.setDokumentVariant(dokumentVariantList);
 
         return info;

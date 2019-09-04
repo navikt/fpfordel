@@ -59,10 +59,13 @@ public class DokumentRepositoryImplTest {
         repo.lagre(xmlSøknad);
         Dokument pdfSøknad = dokument(FORSENDELSE_ID, ArkivFilType.PDFA);
         repo.lagre(pdfSøknad);
+        Dokument vedlegg = dokumentAnnet(FORSENDELSE_ID, ArkivFilType.PDFA);
+        repo.lagre(vedlegg);
 
         List<Dokument> dokuments = repo.hentDokumenter(FORSENDELSE_ID);
         assertThat(dokuments)
-                .containsExactlyInAnyOrder(xmlSøknad, pdfSøknad);
+                .containsExactlyInAnyOrder(xmlSøknad, pdfSøknad, vedlegg);
+        assertThat(dokuments.get(2).getBeskrivelse()).isNotNull();
     }
 
     @Test
@@ -133,5 +136,9 @@ public class DokumentRepositoryImplTest {
 
     private Dokument dokument(UUID forsendelseId, ArkivFilType arkivFilType) {
         return DokumentforsendelseTestUtil.lagDokument(forsendelseId, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL, arkivFilType, true);
+    }
+
+    private Dokument dokumentAnnet(UUID forsendelseId, ArkivFilType arkivFilType) {
+        return DokumentforsendelseTestUtil.lagDokumentBeskrivelse(forsendelseId, DokumentTypeId.ANNET, arkivFilType, true, "Farskap");
     }
 }
