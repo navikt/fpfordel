@@ -270,8 +270,7 @@ public class JournalTjenesteImpl implements JournalTjeneste {
         forsendelseInformasjon.setMottaksKanal(kodeverkRepository.finn(MottakKanal.class, MottakKanal.NAV_NO).getOffisiellKode());
         forsendelseInformasjon.setTittel(dokumentforsendelseRequest.getTittel());
         if (forsendelseInformasjon.getTittel() == null && !dokumentforsendelseRequest.getHoveddokument().isEmpty()) {
-            DokumentTypeId dokumentTypeId = dokumentforsendelseRequest.getHoveddokument().get(0).getDokumentTypeId();
-            forsendelseInformasjon.setTittel(kodeverkRepository.finn(DokumentTypeId.class, dokumentTypeId.getKode()).getNavn());
+            forsendelseInformasjon.setTittel(journalTjenesteUtil.tittelFraDokument(dokumentforsendelseRequest.getHoveddokument().get(0), dokumentforsendelseRequest.getForsøkEndeligJF(), true));
         } else {
             JournalFeil.FACTORY.kunneIkkeUtledeForsendelseTittel(forsendelseId);
         }

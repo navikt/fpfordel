@@ -53,6 +53,9 @@ public class Dokument extends BaseEntitet {
     @JoinColumnOrFormula(formula = @JoinFormula(referencedColumnName = "kodeverk", value = "'" + ArkivFilType.DISCRIMINATOR + "'"))
     private ArkivFilType arkivFilType;
 
+    @Column(name = "BESKRIVELSE")
+    private String beskrivelse;
+
     private Dokument() {
     }
 
@@ -87,6 +90,8 @@ public class Dokument extends BaseEntitet {
         return arkivFilType;
     }
 
+    public String getBeskrivelse() { return beskrivelse; }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -98,6 +103,7 @@ public class Dokument extends BaseEntitet {
         private Boolean hovedDokument;
         private UUID forsendelseId;
         private ArkivFilType arkivFilType;
+        private String beskrivelse;
 
 
         public Dokument.Builder setDokumentTypeId(DokumentTypeId dokumentTypeId) {
@@ -116,6 +122,15 @@ public class Dokument extends BaseEntitet {
             return this;
         }
 
+        public Dokument.Builder setBeskrivelse(String beskrivelse) {
+            if (beskrivelse != null && beskrivelse.length() > 150) {
+                this.beskrivelse = beskrivelse.substring(0, 149);
+            } else {
+                this.beskrivelse = beskrivelse;
+            }
+            return this;
+        }
+
         public Dokument.Builder setHovedDokument(boolean hovedDokument) {
             this.hovedDokument = hovedDokument;
             return this;
@@ -129,6 +144,7 @@ public class Dokument extends BaseEntitet {
             dokument.blob = blob;
             dokument.hovedDokument = hovedDokument;
             dokument.arkivFilType = arkivFilType;
+            dokument.beskrivelse = beskrivelse;
             return dokument;
         }
 

@@ -233,7 +233,7 @@ public class DokumentforsendelseRestTjenesteTest {
     private InputPart mockBasicInputPart(Optional<String> contentId, String contentDispositionName) {
         InputPart part = mock(InputPart.class);
         MultivaluedMap<String, String> map = new MultivaluedMapImpl<>();
-        map.put("Content-Disposition", Arrays.asList("attachment; name=\"" + contentDispositionName + "\""));
+        map.put("Content-Disposition", Arrays.asList("attachment; name=\"" + contentDispositionName + "\"; filename=\"" + "Farskap\""));
         contentId.ifPresent(id -> map.put("Content-ID", Arrays.asList(id)));
         when(part.getHeaders()).thenReturn(map);
         return part;

@@ -231,16 +231,16 @@ public class DokumentforsendelseRestTjeneste {
             throw DokumentforsendelseRestTjenesteFeil.FACTORY.manglerInformasjonIMetadata(contentId).toException();
         }
 
-        if (DokumentTypeId.ANNET.equals(filMetadata.getDokumentTypeId())) {
-            String filename = getDirective(inputPart.getHeaders(), CONTENT_DISPOSITION, "filename");
-            if (filename!=null) {
-                log.info("Mottatt vedlegg av type ANNET med filename {}", filename);
-            }
+        String partFilename = getDirective(inputPart.getHeaders(), CONTENT_DISPOSITION, "filename");
+        String finalFilename = partFilename != null ? partFilename.strip() : partFilename;
+        if (finalFilename != null && DokumentTypeId.ANNET.equals(filMetadata.getDokumentTypeId())) {
+            log.info("Mottatt vedlegg av type ANNET med filename {}", partFilename);
         }
 
         Dokument.Builder builder = Dokument.builder()
                 .setForsendelseId(dokumentforsendelse.getForsendelsesId())
                 .setHovedDokument(hovedDokument)
+                .setBeskrivelse(finalFilename)
                 .setDokumentTypeId(filMetadata.getDokumentTypeId());
         try {
             if (MediaType.APPLICATION_XML_TYPE.isCompatible(inputPart.getMediaType())) {

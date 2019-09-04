@@ -45,6 +45,7 @@ public class DokumentforsendelseRequestTest {
         List<Dokument> vedleggListe = new ArrayList<>();
         vedleggListe.add(lagDokument(DokumentTypeId.INNTEKTSMELDING, ArkivFilType.PDFA, false));
         vedleggListe.add(lagDokument(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL, ArkivFilType.PDFA, false));
+        vedleggListe.add(lagDokumentMedbeskrivelse(DokumentTypeId.ANNET, ArkivFilType.PDFA, false, "Farskap"));
 
         DokumentforsendelseRequest request = DokumentforsendelseRequest.builder()
                 .medBruker("bruker")
@@ -61,6 +62,10 @@ public class DokumentforsendelseRequestTest {
 
     private Dokument lagDokument(DokumentTypeId dokTypeId, ArkivFilType arkivFilType, Boolean hoveddok) {
         return DokumentforsendelseTestUtil.lagDokument(FORSENDELSE_ID, dokTypeId, arkivFilType, hoveddok);
+    }
+
+    private Dokument lagDokumentMedbeskrivelse(DokumentTypeId dokTypeId, ArkivFilType arkivFilType, Boolean hoveddok, String beskrivelse) {
+        return DokumentforsendelseTestUtil.lagDokumentBeskrivelse(FORSENDELSE_ID, dokTypeId, arkivFilType, hoveddok, beskrivelse);
     }
 
 }
