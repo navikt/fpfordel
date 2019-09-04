@@ -42,6 +42,8 @@ import javax.ws.rs.core.Response;
 import org.apache.http.HttpStatus;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartInput;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -86,6 +88,8 @@ public class DokumentforsendelseRestTjeneste {
 
     private static final ObjectMapper OBJECT_MAPPER = new JacksonJsonConfig().getObjectMapper();
     private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
+
+    private static final Logger log = LoggerFactory.getLogger(DokumentforsendelseRestTjeneste.class);
 
     private KodeverkRepository kodeverkRepository;
     private DokumentforsendelseTjeneste service;
@@ -225,6 +229,13 @@ public class DokumentforsendelseRestTjeneste {
         FilMetadata filMetadata = dokumentforsendelse.håndter(contentId);
         if(filMetadata == null){
             throw DokumentforsendelseRestTjenesteFeil.FACTORY.manglerInformasjonIMetadata(contentId).toException();
+        }
+
+        if (DokumentTypeId.ANNET.equals(filMetadata.getDokumentTypeId())) {
+            String filename = getDirective(inputPart.getHeaders(), CONTENT_DISPOSITION, "filename");
+            if (filename!=null) {
+                log.info("Mottatt vedlegg av type ANNET med filename {}", filename);
+            }
         }
 
         Dokument.Builder builder = Dokument.builder()
