@@ -32,11 +32,19 @@ public class JettyDevServer extends JettyServer {
     private static final String KEYSTORE_PASSW_PROP = "no.nav.modig.security.appcert.password";
     private static final String KEYSTORE_PATH_PROP = "no.nav.modig.security.appcert.keystore";
 
+    private static final String VTP_ARGUMENT = "--vtp";
+    private static boolean vtp;
+
     public JettyDevServer() {
         super(new JettyDevKonfigurasjon());
     }
 
     public static void main(String[] args) throws Exception {
+        for (String arg : args) {
+            if (arg.equals(VTP_ARGUMENT)) {
+                vtp = true;
+            }
+        }
         JettyDevServer devServer = new JettyDevServer();
         devServer.bootStrap();
     }
@@ -71,7 +79,7 @@ public class JettyDevServer extends JettyServer {
     protected void konfigurerMiljø() throws Exception {
         System.setProperty("develop-local", "true");
         PropertiesUtils.lagPropertiesFilFraTemplate();
-        PropertiesUtils.initProperties();
+        PropertiesUtils.initProperties(JettyDevServer.vtp);
     }
 
     @Override
