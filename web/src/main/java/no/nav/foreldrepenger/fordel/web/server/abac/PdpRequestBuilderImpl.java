@@ -8,7 +8,7 @@ import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 
-import no.nav.abac.common.xacml.CommonAttributter;
+import no.nav.abac.xacml.CommonAttributter;
 import no.nav.foreldrepenger.pip.PipRepository;
 import no.nav.vedtak.sikkerhet.abac.AbacAttributtSamling;
 import no.nav.vedtak.sikkerhet.abac.PdpKlient;

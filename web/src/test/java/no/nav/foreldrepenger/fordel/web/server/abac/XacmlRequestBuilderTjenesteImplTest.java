@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.fordel.web.server.abac;
 
-import static no.nav.abac.common.xacml.CommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE;
+import static no.nav.abac.xacml.CommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -20,7 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import no.nav.abac.common.xacml.CommonAttributter;
+import no.nav.abac.xacml.CommonAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;

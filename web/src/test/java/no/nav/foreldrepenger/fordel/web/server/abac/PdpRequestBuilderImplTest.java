@@ -6,12 +6,12 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.UUID;
 
+import no.nav.abac.xacml.CommonAttributter;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
-import no.nav.abac.common.xacml.CommonAttributter;
 import no.nav.foreldrepenger.pip.PipRepository;
 import no.nav.vedtak.sikkerhet.abac.AbacAttributtSamling;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
