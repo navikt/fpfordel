@@ -8,7 +8,7 @@ import javax.annotation.Priority;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Alternative;
 
-import no.nav.abac.common.xacml.CommonAttributter;
+import no.nav.abac.xacml.CommonAttributter;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.pdp.XacmlRequestBuilderTjeneste;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlAttributeSet;
