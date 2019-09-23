@@ -1,2 +1,0 @@
-INSERT INTO PROSESS_TASK_TYPE (KODE, NAVN, FEIL_MAKS_FORSOEK, FEIL_SEK_MELLOM_FORSOEK, FEILHANDTERING_ALGORITME, BESKRIVELSE, OPPRETTET_AV, OPPRETTET_TID)
-VALUES ('fordeling.behandleDokumentForsendelse', 'Behandle dokumentforsendelse', '3', '30', 'DEFAULT', 'Task som fordeler dokumentforsendelse', 'VL', to_timestamp('08.03.2018', 'DD.MM.RRRR'));
