@@ -36,7 +36,6 @@ import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.behandleoppgave.BehandleoppgaveConsumer;
 import no.nav.vedtak.felles.integrasjon.behandleoppgave.BrukerType;
 import no.nav.vedtak.felles.integrasjon.behandleoppgave.FagomradeKode;
-import no.nav.vedtak.felles.integrasjon.behandleoppgave.OppgaveKodeType;
 import no.nav.vedtak.felles.integrasjon.behandleoppgave.PrioritetKode;
 import no.nav.vedtak.felles.integrasjon.behandleoppgave.opprett.OpprettOppgaveRequest;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -64,6 +63,10 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     private static final boolean IKKE_LEST = false;
     private static final Logger log = LoggerFactory.getLogger(OpprettGSakOppgaveTask.class);
     private static final String JFR_OMS = "JFR_OMS";
+    
+    /** Journalføring foreldrepenger - JFR_FOR er ikke dokumentert i tjenestedokumentasjon, men er koden som blir brukt i kodeverk i GSAK. */
+    static final String JFR_FOR = "JFR_FOR";
+    
     private BehandleoppgaveConsumer service;
 
     private EnhetsTjeneste enhetsidTjeneste;
@@ -198,7 +201,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         if (Tema.FORELDRE_OG_SVANGERSKAPSPENGER.equals(tema)) {
             builder.medFagomradeKode(FAGOMRADE_KODE.toString())
                     .medPrioritetKode(PRIORITET_KODE.toString())
-                    .medOppgavetypeKode(OppgaveKodeType.JFR_FOR.toString());
+                    .medOppgavetypeKode(JFR_FOR);
             if (BehandlingTema.gjelderForeldrepenger(behandlingTema) || dokumentTypeId.erForeldrepengerRelatert()) {
                 builder.medUnderkategoriKode("FORELDREPE_FOR");
             } else if (BehandlingTema.gjelderEngangsstønad(behandlingTema) || dokumentTypeId.erEngangsstønadRelatert()) {

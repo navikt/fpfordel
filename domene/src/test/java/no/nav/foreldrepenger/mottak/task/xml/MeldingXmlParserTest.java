@@ -18,27 +18,15 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.junit.Test;
 
-import no.nav.foreldrepenger.mottak.domene.EngangsstønadSøknad;
-import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.vedtak.exception.VLException;
 
 public class MeldingXmlParserTest {
 
     @Test
-    public void skal_hente_ut_namespace_fra_soeknadsskjema_xml() throws Exception {
-        final String s = readFile("testsoknader/foedsel-mor.xml");
+    public void skal_hente_ut_namespace_fra_xml() throws Exception {
+        final String s = readFile("testsoknader/inntektsmelding-far.xml");
 
-        assertThat(retrieveNameSpaceOfXML(s)).isEqualTo("http://nav.no/foreldrepenger/soeknadsskjema/engangsstoenad/v1");
-    }
-
-    @Test
-    public void skal_returnere_representativ_wrapper_klasse_fra_parser() throws Exception {
-        String xml = readFile("testsoknader/foedsel-mor.xml");
-
-        final Object soeknadsskjema = MeldingXmlParser.unmarshallXml(xml);
-
-        assertThat(soeknadsskjema).isInstanceOf(MottattStrukturertDokument.class);
-        assertThat(soeknadsskjema).isInstanceOf(EngangsstønadSøknad.class);
+        assertThat(retrieveNameSpaceOfXML(s)).isEqualTo("http://seres.no/xsd/NAV/Inntektsmelding_M/20180924");
     }
 
     @Test(expected = VLException.class)

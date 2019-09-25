@@ -24,7 +24,7 @@ import javax.persistence.Transient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import no.nav.vedtak.felles.jpa.BaseEntitet;
+import no.nav.foreldrepenger.fordel.BaseEntitet;
 
 /**
  * Et innslag i en liste av koder tilgjengelig for et Kodeverk.

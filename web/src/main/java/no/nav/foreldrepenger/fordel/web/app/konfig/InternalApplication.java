@@ -5,15 +5,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-import com.codahale.metrics.MetricRegistry;
-
-import io.prometheus.client.CollectorRegistry;
-import io.prometheus.client.dropwizard.DropwizardExports;
-import io.prometheus.client.hotspot.DefaultExports;
 import no.nav.foreldrepenger.fordel.web.app.metrics.PrometheusRestService;
 import no.nav.foreldrepenger.fordel.web.app.selftest.HealthCheckRestService;
 import no.nav.foreldrepenger.fordel.web.app.tjenester.SelftestRestTjeneste;
@@ -26,14 +20,6 @@ public class InternalApplication extends Application {
 
     public InternalApplication() {
         // CDI
-    }
-
-    @Inject
-    public void setRegistry(MetricRegistry registry) {
-        //HS QAD siden registry ikke er tilgjengelig når klassen instansieres...
-        DefaultExports.initialize();
-        // Hook the Dropwizard registry into the Prometheus registry
-        CollectorRegistry.defaultRegistry.register(new DropwizardExports(registry));
     }
     
     @Override

@@ -12,8 +12,6 @@ import javax.xml.stream.XMLStreamException;
 import org.xml.sax.SAXException;
 
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
-import no.nav.foreldrepenger.soeknadsskjema.engangsstoenad.SoeknadsskjemaEngangsstoenadContants;
-import no.nav.foreldrepenger.søknad.v1.SøknadConstants;
 import no.nav.vedtak.felles.integrasjon.felles.ws.JaxbHelper;
 import no.seres.xsd.nav.inntektsmelding_m._201809.InntektsmeldingConstants;
 
@@ -26,19 +24,9 @@ public final class MeldingXmlParser {
 
 //        TODO: Legge inn og erstatt eksisterende innslag
 //              slik at søknadsXML blir validert ved parseing.
-        map.put(SøknadConstants.NAMESPACE, (xml) -> JaxbHelper.unmarshalXMLWithStAX(SøknadConstants.JAXB_CLASS,
-                xml,
-                SøknadConstants.ADDITIONAL_CLASSES));
-        map.put(no.nav.foreldrepenger.søknad.v2.SøknadConstants.NAMESPACE, (xml) -> JaxbHelper.unmarshalXMLWithStAX(no.nav.foreldrepenger.søknad.v2.SøknadConstants.JAXB_CLASS,
-                xml,
-                no.nav.foreldrepenger.søknad.v2.SøknadConstants.ADDITIONAL_CLASSES));
         map.put(no.nav.foreldrepenger.søknad.v3.SøknadConstants.NAMESPACE, (xml) -> JaxbHelper.unmarshalXMLWithStAX(no.nav.foreldrepenger.søknad.v3.SøknadConstants.JAXB_CLASS,
                 xml,
                 no.nav.foreldrepenger.søknad.v3.SøknadConstants.ADDITIONAL_CLASSES));
-
-        map.put(SoeknadsskjemaEngangsstoenadContants.NAMESPACE,
-                (xml) -> JaxbHelper.unmarshalAndValidateXMLWithStAX(SoeknadsskjemaEngangsstoenadContants.JAXB_CLASS,
-                        xml, SoeknadsskjemaEngangsstoenadContants.XSD_LOCATION));
 
         map.put(InntektsmeldingConstants.NAMESPACE,
                 (xml) -> JaxbHelper.unmarshalAndValidateXMLWithStAX(InntektsmeldingConstants.JAXB_CLASS, xml,

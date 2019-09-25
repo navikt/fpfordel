@@ -268,18 +268,6 @@
 
 		<!-- Test avhengigheter -->
 		<dependency>
-			<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-			<artifactId>felles-integrasjon-jms</artifactId>
-			<scope>test</scope>
-			<type>test-jar</type>
-		</dependency>
-		<dependency>
-			<groupId>no.nav.foreldrepenger.fordel</groupId>
-			<artifactId>domene</artifactId>
-			<type>test-jar</type>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>no.nav.foreldrepenger.fordel</groupId>
 			<artifactId>migreringer</artifactId>
 			<type>test-jar</type>
@@ -334,28 +322,6 @@
 					<timestampFormat>dd.MM.yyyy HH.mm.ss</timestampFormat>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-enforcer-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>only-allowed-deps</id>
-						<goals>
-							<goal>enforce</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<rules>
-						<bannedDependencies>
-							<searchTransitive>true</searchTransitive>
-							<excludes>
-								<exclude>commons-logging:commons-logging</exclude>
-							</excludes>
-						</bannedDependencies>
-					</rules>
-				</configuration>
-			</plugin>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
@@ -373,34 +339,5 @@
                 </executions>
             </plugin>
 		</plugins>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.codehaus.mojo</groupId>
-										<artifactId>buildnumber-maven-plugin</artifactId>
-										<versionRange>[1.4,)</versionRange>
-										<goals>
-											<goal>create-metadata</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore />
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
 	</build>
 </project>

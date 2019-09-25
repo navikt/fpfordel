@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns2:soeknad xmlns:ns2="urn:no:nav:vedtak:felles:xml:soeknad:v1">
+<ns2:soeknad xmlns:ns2="urn:no:nav:vedtak:felles:xml:soeknad:v3">
     <mottattDato>2018-02-26+01:00</mottattDato>
     <omYtelse xsi:type="ns4:Foreldrepenger" xmlns:ns4="urn:no:nav:vedtak:felles:xml:soeknad:foreldrepenger:v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <annenForelder xsi:type="ns5:UkjentForelder" xmlns:ns5="urn:no:nav:vedtak:felles:xml:soeknad:felles:v1"/>

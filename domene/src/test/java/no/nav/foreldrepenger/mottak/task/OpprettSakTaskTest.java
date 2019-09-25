@@ -41,7 +41,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 public class OpprettSakTaskTest {
 
     public static final String FNR = "03035498000";
-    public static final String AKTØR_ID = "456";
+    public static final String AKTØR_ID = "9000000000002";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -79,7 +79,7 @@ public class OpprettSakTaskTest {
         ProsessTaskData prosessTaskData = new ProsessTaskData(OpprettSakTask.TASKNAME);
         prosessTaskData.setSekvens("1");
 
-        String filename = "testsoknader/foedsel-mor.xml";
+        String filename = "testsoknader/engangsstoenad-termin-soeknad.xml";
         Path path = Paths.get(getClass().getClassLoader().getResource(filename).toURI());
         String xml = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
 
@@ -87,6 +87,7 @@ public class OpprettSakTaskTest {
         ptData.setArkivId("123");
         ptData.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         ptData.setDokumentKategori(DokumentKategori.SØKNAD);
+        ptData.setAktørId(AKTØR_ID);
 
         ptData.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
         final MottattStrukturertDokument<?> soeknadDTO = MeldingXmlParser.unmarshallXml(xml);

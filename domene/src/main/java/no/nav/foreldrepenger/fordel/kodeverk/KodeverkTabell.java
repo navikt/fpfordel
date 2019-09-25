@@ -6,7 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
-import no.nav.vedtak.felles.jpa.BaseEntitet;
+import no.nav.foreldrepenger.fordel.BaseEntitet;
 
 /**
  * Superklasse-entitet for tabeller som fungerer som internt kodeverk/ oppslag/ referansedata.

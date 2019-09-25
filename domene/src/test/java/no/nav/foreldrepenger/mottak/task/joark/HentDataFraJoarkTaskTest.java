@@ -272,7 +272,7 @@ public class HentDataFraJoarkTaskTest {
         JournalMetadata<DokumentTypeId> dokument = joarkTestsupport.lagJournalMetadataStrukturert(DokumentTypeId.INNTEKTSMELDING);
         List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(dokument);
         String xml = joarkTestsupport.readFile("testsoknader/inntektsmelding-svp.xml");
-        JournalDokument jdMock = new JournalDokument(dokument, xml);
+        var jdMock = new JournalDokument<>(dokument, xml);
 
         doReturn(metadata).when(joarkDokumentHåndterer).hentJoarkDokumentMetadata(ARKIV_ID);
         doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(joarkDokumentHåndterer).hentGyldigAktørFraPersonident(any());
