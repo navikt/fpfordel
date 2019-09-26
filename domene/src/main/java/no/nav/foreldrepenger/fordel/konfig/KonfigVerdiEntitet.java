@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.fordel.konfig;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -36,7 +37,7 @@ public class KonfigVerdiEntitet extends BaseEntitet {
     @ManyToOne(optional = false)
     @JoinColumnsOrFormulas({
             @JoinColumnOrFormula(column = @JoinColumn(name = "konfig_gruppe", referencedColumnName = "kode", insertable = false, updatable = false)),
-            @JoinColumnOrFormula(formula = @JoinFormula(referencedColumnName = "kodeverk", value = "'" + KonfigVerdiGruppe.DISCRIMINATOR + "'"))})
+            @JoinColumnOrFormula(formula = @JoinFormula(referencedColumnName = "kodeverk", value = "'" + KonfigVerdiGruppe.DISCRIMINATOR + "'")) })
     private KonfigVerdiGruppe konfigVerdiGruppe = KonfigVerdiGruppe.INGEN_GRUPPE;
 
     /**
@@ -45,13 +46,12 @@ public class KonfigVerdiEntitet extends BaseEntitet {
     @Column(name = "konfig_verdi", insertable = false, updatable = false)
     private String verdi;
 
-
-    @Column(name = "fom")
+    @Column(name = "gyldig_fom")
     private LocalDate fomDato;
 
-    @Column(name = "tom")
+    @Column(name = "gyldig_tom")
     private LocalDate tomDato;
-    
+
     private KonfigVerdiEntitet() {
         // for hibernate
     }
@@ -76,4 +76,25 @@ public class KonfigVerdiEntitet extends BaseEntitet {
         return konfigVerdiGruppe;
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "<kode=" + getKode() + ", gruppe=" + getKodeGruppe() + " [" + fomDato + ", " + tomDato + "]";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        } else if (obj == null || !(obj instanceof KonfigVerdiEntitet)) {
+            return false;
+        }
+        var other = (KonfigVerdiEntitet) obj;
+        return Objects.equals(this.getKode(), other.getKode())
+            && Objects.equals(this.getKodeGruppe(), other.getKodeGruppe());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getKode(), getKodeGruppe());
+    }
 }
