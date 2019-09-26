@@ -56,13 +56,6 @@
                 <artifactId>felles-prosesstask</artifactId>
                 <version>${felles.version}</version>
             </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>felles-integrasjon-jms</artifactId>
-                <version>${felles.version}</version>
-                <type>test-jar</type>
-                <scope>test</scope>
-            </dependency>
 
 			<dependency>
 				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
@@ -93,13 +86,6 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-                <groupId>no.nav.foreldrepenger.fordel</groupId>
-                <artifactId>domene</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
-                <scope>test</scope>
-            </dependency>
-			<dependency>
 				<groupId>no.nav.foreldrepenger.fordel</groupId>
 				<artifactId>migreringer</artifactId>
 				<version>${project.version}</version>
@@ -114,13 +100,6 @@
 				<groupId>no.nav.foreldrepenger.fordel</groupId>
 				<artifactId>webapp</artifactId>
 				<version>${project.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>no.nav.foreldrepenger.kontrakter</groupId>
-				<artifactId>soeknadsskjemaEngangsstoenad-v1</artifactId>
-				<version>2.3_20180507113926_0beea2f</version>
-				<classifier>jaxb</classifier>
 			</dependency>
 
 			<!-- NAV -->
@@ -166,18 +145,8 @@
 				<version>${metrics.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>io.astefanutti.metrics.cdi</groupId>
-				<artifactId>metrics-cdi</artifactId>
-				<version>1.4.0</version>
-			</dependency>
-			<dependency>
 				<groupId>io.dropwizard.metrics</groupId>
 				<artifactId>metrics-healthchecks</artifactId>
-				<version>${metrics.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.dropwizard.metrics</groupId>
-				<artifactId>metrics-annotation</artifactId>
 				<version>${metrics.version}</version>
 			</dependency>
 
@@ -301,13 +270,8 @@
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-clean-plugin</artifactId>
-					<version>3.0.0</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.8.0</version>
+					<version>3.8.1</version>
 					<configuration>
 						<source>${java.version}</source>
 						<target>${java.version}</target>
@@ -317,18 +281,8 @@
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-source-plugin</artifactId>
-					<version>2.0.4</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-deploy-plugin</artifactId>
 					<version>2.8.2</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-enforcer-plugin</artifactId>
-					<version>3.0.0-M2</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -338,27 +292,17 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.0.2</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-war-plugin</artifactId>
-					<version>3.2.0</version>
+					<version>3.1.2</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>2.10.4</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-release-plugin</artifactId>
-					<version>2.5.3</version>
+					<version>3.1.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.22.0</version>
+					<version>2.22.2</version>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
@@ -368,12 +312,12 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-remote-resources-plugin</artifactId>
-					<version>1.5</version>
+					<version>1.6.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>flatten-maven-plugin</artifactId>
-					<version>1.0.1</version>
+					<version>1.1.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.jacoco</groupId>
@@ -409,37 +353,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-enforcer-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>enforce-versions</id>
-						<goals>
-							<goal>enforce</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<rules>
-						<requireJavaVersion>
-							<version>[1.8,)</version>
-						</requireJavaVersion>
-						<requireMavenVersion>
-							<version>[3.5.3,)</version>
-						</requireMavenVersion>
-						<bannedDependencies>
-							<excludes>
-								<exclude>commons-logging:commons-logging</exclude>
-							</excludes>
-						</bannedDependencies>
-						<!-- Kommentert ut, gir problemer med bruk av snapshot avhengigheter - <dependencyConvergence> </dependencyConvergence> -->
-						<!-- Ikke kommenter inn denne. Det brekker muligheten til å bygge bare deler av prosjektet https://issues.apache.org/jira/browse/MENFORCER-189 -> "ReactorModuleConvergence
-							is not compatible with 'advanced' reactor options: -pl, -rf" <reactorModuleConvergence /> -->
-					</rules>
-				</configuration>
-			</plugin>
-
 			<plugin>
 				<artifactId>maven-deploy-plugin</artifactId>
 				<configuration>
@@ -521,9 +434,8 @@
 	</profiles>
 
 	<scm>
-		<connection>scm:git:ssh://git@stash.devillo.no:7999/vedfp/vl-fordel.git</connection>
-		<developerConnection>scm:git:ssh://git@stash.devillo.no:7999/vedfp/vl-fordel.git
-        </developerConnection>
+		<connection>scm:git:ssh://git@github.com:navikt/fpfordel.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com:navikt/fpfordel.git</developerConnection>
 		<url>http://stash.devillo.no/projects/VEDFP/repos/vl-fordel/browse</url>
 	</scm>
 

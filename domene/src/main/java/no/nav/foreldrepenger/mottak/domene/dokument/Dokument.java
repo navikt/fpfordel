@@ -20,9 +20,9 @@ import javax.persistence.Table;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinFormula;
 
+import no.nav.foreldrepenger.fordel.BaseEntitet;
 import no.nav.foreldrepenger.fordel.kodeverk.ArkivFilType;
 import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.vedtak.felles.jpa.BaseEntitet;
 
 @Entity(name = "Dokument")
 @Table(name = "DOKUMENT")

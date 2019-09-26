@@ -40,7 +40,6 @@ import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.JournalTilstand;
 import no.nav.tjeneste.virksomhet.behandleoppgave.v1.meldinger.WSOpprettOppgaveResponse;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.behandleoppgave.BehandleoppgaveConsumer;
-import no.nav.vedtak.felles.integrasjon.behandleoppgave.OppgaveKodeType;
 import no.nav.vedtak.felles.integrasjon.behandleoppgave.opprett.OpprettOppgaveRequest;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -101,7 +100,7 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
         OpprettOppgaveRequest serviceRequest = captor.getValue();
 
         assertEquals(serviceRequest.getBeskrivelse(), beskrivelse);
-        assertThat(serviceRequest.getOppgavetypeKode()).as("Forventer at oppgavekode er journalføring foreldrepenger").isEqualTo(OppgaveKodeType.JFR_FOR.toString());
+        assertThat(serviceRequest.getOppgavetypeKode()).as("Forventer at oppgavekode er journalføring foreldrepenger").isEqualTo(OpprettGSakOppgaveTask.JFR_FOR);
     }
 
     @Test
@@ -126,7 +125,7 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
 
         OpprettOppgaveRequest serviceRequest = captor.getValue();
         assertThat(serviceRequest.getBeskrivelse()).as("Forventer at beskrivelse er fordelingsoppgave når vi ikke har aktørId.").isEqualTo(beskrivelse);
-        assertThat(serviceRequest.getOppgavetypeKode()).as("Forventer at oppgavekode er fordeling foreldrepenger").isEqualTo(OppgaveKodeType.JFR_FOR.toString());
+        assertThat(serviceRequest.getOppgavetypeKode()).as("Forventer at oppgavekode er fordeling foreldrepenger").isEqualTo(OpprettGSakOppgaveTask.JFR_FOR);
         assertThat(serviceRequest.getAnsvarligEnhetId()).as("Forventer journalførende enhet").isEqualTo(enhet);
     }
 

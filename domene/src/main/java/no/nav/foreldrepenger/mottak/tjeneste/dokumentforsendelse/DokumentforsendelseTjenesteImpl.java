@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentFeil;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
-import no.nav.foreldrepenger.mottak.domene.v1.Søknad;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.task.dokumentforsendelse.BehandleDokumentforsendelseTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
@@ -71,12 +70,6 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
         if (dokument.erHovedDokument() && ArkivFilType.XML.equals(dokument.getArkivFilType())) {
             // Sjekker om nødvendige elementer er satt
             MottattStrukturertDokument<?> abstractDto = MeldingXmlParser.unmarshallXml(dokument.getKlartekstDokument());
-            if (Søknad.class.isInstance(abstractDto)) {
-                ((Søknad)abstractDto).sjekkNødvendigeFeltEksisterer(dokument.getForsendelseId());
-            }
-            if (no.nav.foreldrepenger.mottak.domene.v2.Søknad.class.isInstance(abstractDto)) {
-                ((no.nav.foreldrepenger.mottak.domene.v2.Søknad) abstractDto).sjekkNødvendigeFeltEksisterer(dokument.getForsendelseId());
-            }
             if (no.nav.foreldrepenger.mottak.domene.v3.Søknad.class.isInstance(abstractDto)) {
                 ((no.nav.foreldrepenger.mottak.domene.v3.Søknad) abstractDto).sjekkNødvendigeFeltEksisterer(dokument.getForsendelseId());
             }

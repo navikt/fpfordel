@@ -1,9 +1,8 @@
 package no.nav.foreldrepenger.fordel.konfig;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
+import java.time.LocalDate;
+
 import javax.persistence.Column;
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,9 +15,8 @@ import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 
+import no.nav.foreldrepenger.fordel.BaseEntitet;
 import no.nav.foreldrepenger.fordel.kodeverk.KonfigVerdiGruppe;
-import no.nav.vedtak.felles.jpa.BaseEntitet;
-import no.nav.vedtak.felles.jpa.tid.DatoIntervallEntitet;
 
 @Table(name = "KONFIG_VERDI")
 @Entity(name = "KonfigVerdi")
@@ -47,13 +45,13 @@ public class KonfigVerdiEntitet extends BaseEntitet {
     @Column(name = "konfig_verdi", insertable = false, updatable = false)
     private String verdi;
 
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "fomDato", column = @Column(name = "gyldig_fom")),
-            @AttributeOverride(name = "tomDato", column = @Column(name = "gyldig_tom"))
-    })
-    private DatoIntervallEntitet gyldigIntervall;
 
+    @Column(name = "fom")
+    private LocalDate fomDato;
+
+    @Column(name = "tom")
+    private LocalDate tomDato;
+    
     private KonfigVerdiEntitet() {
         // for hibernate
     }
@@ -78,7 +76,4 @@ public class KonfigVerdiEntitet extends BaseEntitet {
         return konfigVerdiGruppe;
     }
 
-    public DatoIntervallEntitet getGyldigIntervall() {
-        return gyldigIntervall;
-    }
 }

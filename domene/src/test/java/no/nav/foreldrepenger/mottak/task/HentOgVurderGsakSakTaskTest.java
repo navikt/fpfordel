@@ -55,7 +55,7 @@ public class HentOgVurderGsakSakTaskTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule();
+    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
     @Rule
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     

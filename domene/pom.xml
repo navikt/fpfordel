@@ -132,22 +132,7 @@
 		</dependency>
 		<dependency>
 			<groupId>no.nav.foreldrepenger.kontrakter</groupId>
-			<artifactId>soeknadsskjemaEngangsstoenad-v1</artifactId>
-			<classifier>jaxb</classifier>
-		</dependency>
-		<dependency>
-			<groupId>no.nav.foreldrepenger.kontrakter</groupId>
 			<artifactId>inntektsmelding-v1</artifactId>
-			<classifier>jaxb</classifier>
-		</dependency>
-		<dependency>
-			<groupId>no.nav.foreldrepenger.kontrakter</groupId>
-			<artifactId>soeknad-v1</artifactId>
-			<classifier>jaxb</classifier>
-		</dependency>
-		<dependency>
-			<groupId>no.nav.foreldrepenger.kontrakter</groupId>
-			<artifactId>soeknad-v2</artifactId>
 			<classifier>jaxb</classifier>
 		</dependency>
 		<dependency>
@@ -166,14 +151,6 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>io.dropwizard.metrics</groupId>
-			<artifactId>metrics-annotation</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.astefanutti.metrics.cdi</groupId>
-			<artifactId>metrics-cdi</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>io.dropwizard.metrics</groupId>
 			<artifactId>metrics-core</artifactId>
@@ -196,28 +173,6 @@
 			<artifactId>felles-sikkerhet-testutilities</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.glassfish.jersey.core</groupId>
-			<artifactId>jersey-common</artifactId>
-			<version>2.24.1</version>
-			<scope>test</scope>
-		</dependency>
 
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>test-jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
 </project>

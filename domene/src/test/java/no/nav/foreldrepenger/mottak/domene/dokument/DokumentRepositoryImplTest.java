@@ -16,14 +16,12 @@ import no.nav.foreldrepenger.fordel.kodeverk.ArkivFilType;
 import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseTestUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
-import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
 public class DokumentRepositoryImplTest {
 
     private static final UUID FORSENDELSE_ID = UUID.randomUUID();
     private static final String ARKIV_ID = "1234";
-    private static final String SAKSNUMMER = "9876";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -41,16 +39,6 @@ public class DokumentRepositoryImplTest {
         assertThat(fraRepo)
                 .isPresent()
                 .hasValue(dokumentMetadata);
-    }
-
-    @Test
-    public void forsendelseId_skal_være_unik_på_dokumentMetadata() {
-        expectedException.expect(TekniskException.class);
-        expectedException.expectMessage("FP-324315");
-
-        DokumentMetadata dokumentMetadata = dokumentMetadata(FORSENDELSE_ID);
-        repo.lagre(dokumentMetadata);
-        repo.lagre(dokumentMetadata(FORSENDELSE_ID));
     }
 
     @Test

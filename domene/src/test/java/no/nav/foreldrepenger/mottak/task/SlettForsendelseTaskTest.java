@@ -7,7 +7,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,7 +22,6 @@ import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepositoryImpl;
 import no.nav.foreldrepenger.fordel.kodeverk.Tema;
-import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -68,7 +66,7 @@ public class SlettForsendelseTaskTest {
     public void test_skalSletteJournalførtForsendelse() {
         MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
 
-        List<Dokument> dokumenter = DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
+        DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
         DokumentMetadata metadata = DokumentforsendelseTestUtil.lagMetadata(forsendelseId, SAKSNUMMER);
         metadata.setArkivId(SAKSNUMMER);
         metadata.setStatus(ForsendelseStatus.GOSYS);
@@ -90,7 +88,7 @@ public class SlettForsendelseTaskTest {
     public void test_skalIkkeSlettePendingForsendelse() {
         MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
 
-        List<Dokument> dokumenter = DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
+        DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
         DokumentMetadata metadata = DokumentforsendelseTestUtil.lagMetadata(forsendelseId, SAKSNUMMER);
         metadata.setStatus(ForsendelseStatus.PENDING);
 
@@ -110,7 +108,7 @@ public class SlettForsendelseTaskTest {
     public void test_skalIkkeSletteForsendelseUtenSaksnummer() {
         MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
 
-        List<Dokument> dokumenter = DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
+        DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
         DokumentMetadata metadata = DokumentforsendelseTestUtil.lagMetadata(forsendelseId, null);
         metadata.setStatus(ForsendelseStatus.FPSAK);
 

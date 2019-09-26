@@ -58,9 +58,6 @@ public class BehandleDokumentforsendelseTaskTest {
     private static final String FIL_SØKNAD_FORP = "selvb-soeknad-forp.xml";
     private static final String FIL_SØKNAD_ENDRING = "selvb-soeknad-endring.xml";
     private static final String FIL_SØKNAD_FORP_UTTAK_FØR_KONFIGVERDI = "selvb-soeknad-forp-uttak-før-konfigverdi.xml";
-    private static final String FIL_FP_ADOPSJON_FØR_KONFIGVERDI = "fp-adopsjon-far.xml";
-    private static final String FIL_FP_ADOPSJON = "fp-adopsjon-mor.xml";
-    private static final String FIL_SVANGERSKAPSPENGER = "svangerskapspenger.xml";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -143,30 +140,6 @@ public class BehandleDokumentforsendelseTaskTest {
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
         assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(MidlJournalføringTask.TASKNAME);
-    }
-
-    @Test
-    public void skalReturnereOpprettGSakOppgaveTaskHvisAdopsjonOvertattFørNyeRegler() {
-        MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
-        inndata.setForsendelseId(FORSENDELSE_ID);
-
-        when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(Optional.of(genDokument(DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON, FIL_FP_ADOPSJON_FØR_KONFIGVERDI, true)));
-        when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(genMetadata(null, AKTØR_ID));
-
-        MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
-        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(MidlJournalføringTask.TASKNAME);
-    }
-
-    @Test
-    public void skalReturnereVLTaskHvisAdopsjonOvertattEtterNyeRegler() {
-        MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
-        inndata.setForsendelseId(FORSENDELSE_ID);
-
-        when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(Optional.of(genDokument(DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON, FIL_FP_ADOPSJON, true)));
-        when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(genMetadata(null, AKTØR_ID));
-
-        MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
-        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(HentOgVurderVLSakTask.TASKNAME);
     }
 
     @Test

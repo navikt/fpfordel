@@ -60,7 +60,6 @@ public class BehandleDokumentServiceTest {
     private static final String SAKSNUMMER = "789";
     private static final String AKTØR_ID = "9000000000002";
     private static final String BRUKER_FNR = "01234567890";
-    private static final String INNHOLD = "Inneholder";
 
     @Rule
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();

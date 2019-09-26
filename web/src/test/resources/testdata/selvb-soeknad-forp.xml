@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<ns5:soeknad xmlns:ns5="urn:no:nav:vedtak:felles:xml:soeknad:v1"
-             xmlns:ns2="urn:no:nav:vedtak:felles:xml:soeknad:felles:v1"
-             xmlns:ns6="urn:no:nav:vedtak:felles:xml:soeknad:foreldrepenger:v1"
-             xmlns:ns7="urn:no:nav:vedtak:felles:xml:soeknad:uttak:v1"
+<ns5:soeknad xmlns:ns5="urn:no:nav:vedtak:felles:xml:soeknad:v3"
+             xmlns:ns2="urn:no:nav:vedtak:felles:xml:soeknad:felles:v3"
+             xmlns:ns6="urn:no:nav:vedtak:felles:xml:soeknad:foreldrepenger:v3"
+             xmlns:ns7="urn:no:nav:vedtak:felles:xml:soeknad:uttak:v3"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <ns5:mottattDato>2019-02-26+01:00</ns5:mottattDato>
     <ns5:omYtelse>
         <ns6:foreldrepenger>
-            <ns6:annenForelder xsi:type="UkjentForelder" xmlns="urn:no:nav:vedtak:felles:xml:soeknad:felles:v1"/>
+            <ns6:annenForelder xsi:type="UkjentForelder" xmlns="urn:no:nav:vedtak:felles:xml:soeknad:felles:v3"/>
             <ns6:rettigheter>
                 <ns2:harAnnenForelderRett>true</ns2:harAnnenForelderRett>
                 <ns2:harOmsorgForBarnetIPeriodene>true</ns2:harOmsorgForBarnetIPeriodene>
                 <ns2:harAleneomsorgForBarnet>false</ns2:harAleneomsorgForBarnet>
             </ns6:rettigheter>
-            <ns6:relasjonTilBarnet xsi:type="Foedsel" xmlns="urn:no:nav:vedtak:felles:xml:soeknad:felles:v1">
+            <ns6:relasjonTilBarnet xsi:type="Foedsel" xmlns="urn:no:nav:vedtak:felles:xml:soeknad:felles:v3">
                 <antallBarn>1</antallBarn>
                 <foedselsdato>2018-01-10+01:00</foedselsdato>
             </ns6:relasjonTilBarnet>
@@ -35,7 +35,7 @@
                 <ns2:borINorgeNeste12Mnd>true</ns2:borINorgeNeste12Mnd>
             </ns6:medlemskap>
             <ns6:opptjening/>
-            <ns6:fordeling xmlns="urn:no:nav:vedtak:felles:xml:soeknad:uttak:v1">
+            <ns6:fordeling xmlns="urn:no:nav:vedtak:felles:xml:soeknad:uttak:v3">
                 <ns7:annenForelderErInformert>true</ns7:annenForelderErInformert>
                 <ns7:perioder xsi:type="Uttaksperiode">
                     <ns7:fom>2019-01-01+01:00</ns7:fom>

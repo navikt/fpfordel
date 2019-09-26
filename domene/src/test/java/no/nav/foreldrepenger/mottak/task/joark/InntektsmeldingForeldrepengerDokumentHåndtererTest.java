@@ -83,17 +83,21 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
 
     @Test
     public void skal_håndtere_dokument_som_har_ikke_en_inntektsmelding() throws Exception {
+        String aktørId = "9000000000002";
         dataWrapper.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
-
-        String xml = joarkTestsupport.readFile("testsoknader/foedsel-mor.xml");
+        dataWrapper.setAktørId(aktørId);
+        
+        when(håndterer.hentGyldigAktørFraMetadata(any())).thenReturn(Optional.of(aktørId));
+        
+        String xml = joarkTestsupport.readFile("testsoknader/engangsstoenad-termin-soeknad.xml");
         JournalDokument<DokumentTypeId> journalDokument = new JournalDokument<>(journalMetadata, xml);
         doReturn(Collections.singletonList(journalMetadata)).when(håndterer).hentJoarkDokumentMetadata(any());
         doReturn(journalDokument).when(håndterer).hentJournalDokument(any());
 
         MottakMeldingDataWrapper wrapper = joarkTaskTestobjekt.doTask(dataWrapper);
 
-        assertThat(wrapper.getAktørId()).hasValue(AKTØR_ID);
+        assertThat(wrapper.getAktørId()).hasValue(aktørId);
         assertThat(wrapper.getProsessTaskData().getTaskType()).isEqualTo(HentOgVurderVLSakTask.TASKNAME);
     }
 
