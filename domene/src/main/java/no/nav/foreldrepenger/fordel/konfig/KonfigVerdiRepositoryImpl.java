@@ -34,7 +34,7 @@ public class KonfigVerdiRepositoryImpl implements KonfigVerdiRepository {
     @Override
     public Optional<KonfigVerdiEntitet> finnVerdiFor(KonfigVerdiGruppe gruppe, String kode, LocalDate dato) {
         TypedQuery<KonfigVerdiEntitet> query = entityManager.createQuery(
-                "SELECT kv from KonfigVerdi AS kv WHERE kv.konfigVerdiGruppe = :gruppe AND kv.konfigVerdiKode.kode =:kode AND :dato between kv.gyldigIntervall.fomDato AND kv.gyldigIntervall.tomDato", //$NON-NLS-1$
+                "SELECT kv from KonfigVerdi AS kv WHERE kv.konfigVerdiGruppe = :gruppe AND kv.konfigVerdiKode.kode =:kode AND :dato between kv.fomDato AND kv.tomDato", //$NON-NLS-1$
                 KonfigVerdiEntitet.class);
         query.setParameter("dato", dato); //$NON-NLS-1$
         query.setParameter("kode", kode); //$NON-NLS-1$
@@ -47,7 +47,7 @@ public class KonfigVerdiRepositoryImpl implements KonfigVerdiRepository {
     @Override
     public List<KonfigVerdiEntitet> finnVerdierFor(KonfigVerdiGruppe gruppe, LocalDate dato) {
         TypedQuery<KonfigVerdiEntitet> query = entityManager.createQuery(
-                "SELECT kv from KonfigVerdi AS kv WHERE kv.konfigVerdiGruppe = :gruppe AND :dato between kv.gyldigIntervall.fomDato AND kv.gyldigIntervall.tomDato", //$NON-NLS-1$
+                "SELECT kv from KonfigVerdi AS kv WHERE kv.konfigVerdiGruppe = :gruppe AND :dato between kv.fomDato AND kv.tomDato", //$NON-NLS-1$
                 KonfigVerdiEntitet.class);
         query.setParameter("dato", dato); //$NON-NLS-1$
         query.setParameter("gruppe", gruppe); //$NON-NLS-1$
@@ -58,7 +58,7 @@ public class KonfigVerdiRepositoryImpl implements KonfigVerdiRepository {
     @Override
     public List<KonfigVerdiEntitet> finnAlleVerdier(LocalDate dato) {
         TypedQuery<KonfigVerdiEntitet> query = entityManager.createQuery(
-                "SELECT kv from KonfigVerdi AS kv WHERE :dato between kv.gyldigIntervall.fomDato AND kv.gyldigIntervall.tomDato", //$NON-NLS-1$
+                "SELECT kv from KonfigVerdi AS kv WHERE :dato between kv.fomDato AND kv.tomDato", //$NON-NLS-1$
                 KonfigVerdiEntitet.class);
         query.setParameter("dato", dato); //$NON-NLS-1$
         query.setHint(QueryHints.HINT_READONLY, "true");//$NON-NLS-1$
