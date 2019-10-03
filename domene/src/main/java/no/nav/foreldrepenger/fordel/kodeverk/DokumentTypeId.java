@@ -44,6 +44,9 @@ public class DokumentTypeId extends Kodeliste {
     // Klage
     public static final DokumentTypeId KLAGE_DOKUMENT = new DokumentTypeId("KLAGE_DOKUMENT"); //$NON-NLS-1$
 
+    // Tilbakekreving
+    public static final DokumentTypeId TILBAKEKREV_UTTALELSE = new DokumentTypeId("TILBAKEKREV_UTTALELSE"); //$NON-NLS-1$
+
     // Uspesifikke dokumenter
     public static final DokumentTypeId DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL = new DokumentTypeId("DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL"); //$NON-NLS-1$
     public static final DokumentTypeId DOKUMENTASJON_AV_OMSORGSOVERTAKELSE = new DokumentTypeId("DOKUMENTASJON_AV_OMSORGSOVERTAKELSE"); //$NON-NLS-1$
