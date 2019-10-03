@@ -56,6 +56,9 @@ public class DokumentTypeId extends Kodeliste {
     // Tilbakekreving
     public static final DokumentTypeId TILBAKEKREV_UTTALELSE = new DokumentTypeId("TILBAKEKREV_UTTALELSE");
 
+    // Tilbakekreving
+    public static final DokumentTypeId TILBAKEKREV_UTTALELSE = new DokumentTypeId("TILBAKEKREV_UTTALELSE"); //$NON-NLS-1$
+
     // Uspesifikke dokumenter
     public static final DokumentTypeId DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL = new DokumentTypeId(
             "DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL");
