@@ -105,7 +105,7 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
 
     @Test
     public void testServiceTask_uten_aktørId_fordelingsoppgave() {
-        String enhet = "4205";
+        String enhet = "4292";
         ProsessTaskData taskData = new ProsessTaskData(TASKNAME);
         taskData.setProperty(TEMA_KEY, Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getKode());
         taskData.setProperty(BEHANDLINGSTEMA_KEY, BehandlingTema.ENGANGSSTØNAD_FØDSEL.getKode());
