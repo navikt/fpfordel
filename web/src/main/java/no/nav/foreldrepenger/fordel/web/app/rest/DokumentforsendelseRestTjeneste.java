@@ -66,6 +66,7 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.Dokumentforsend
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.FilMetadata;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseIdDto;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatusDto;
+import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -349,7 +350,7 @@ public class DokumentforsendelseRestTjeneste {
             }
 
             DokumentforsendelseDto dto = getMetadataDto(inputParts.get(0));
-            return AbacDataAttributter.opprett().leggTilAktørId(dto.getBrukerId());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, dto.getBrukerId());
         }
     }
 }

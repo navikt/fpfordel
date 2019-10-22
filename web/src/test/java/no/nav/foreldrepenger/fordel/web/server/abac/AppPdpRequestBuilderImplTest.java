@@ -6,20 +6,21 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.UUID;
 
-import no.nav.abac.xacml.CommonAttributter;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
+import no.nav.abac.common.xacml.CommonAttributter;
 import no.nav.foreldrepenger.pip.PipRepository;
+import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacAttributtSamling;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 
-public class PdpRequestBuilderImplTest {
+public class AppPdpRequestBuilderImplTest {
     private static final String DUMMY_ID_TOKEN = "dummyheader.dymmypayload.dummysignaturee";
     private static final String AKTØR = "AktørID_1";
     private static final UUID DOKUMENTFORSENDELSE = UUID.randomUUID();
@@ -31,12 +32,12 @@ public class PdpRequestBuilderImplTest {
     private PipRepository pipRepository = Mockito.mock(PipRepository.class);
     //private AktørConsumerMedCache aktørConsumer = Mockito.mock(AktørConsumerMedCache.class);
 
-    private PdpRequestBuilderImpl requestBuilder = new PdpRequestBuilderImpl(pipRepository);
+    private AppPdpRequestBuilderImpl requestBuilder = new AppPdpRequestBuilderImpl(pipRepository);
 
     @Test
     public void skal_legge_aktør_id_og_ikke_fnr_på_request() throws Exception {
         AbacAttributtSamling attributter = byggAbacAttributtSamling();
-        attributter.leggTil(AbacDataAttributter.opprett().leggTilAktørId(AKTØR));
+        attributter.leggTil(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, AKTØR));
 
         PdpRequest request = requestBuilder.lagPdpRequest(attributter);
         assertThat(request.getListOfString(CommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE)).containsOnly(AKTØR);
@@ -46,7 +47,7 @@ public class PdpRequestBuilderImplTest {
     @Test
     public void skal_hente_aktør_id_gitt_forsendelse_id_som_input() {
         AbacAttributtSamling attributter = byggAbacAttributtSamling();
-        attributter.leggTil(AbacDataAttributter.opprett().leggTilDokumentforsendelseId(DOKUMENTFORSENDELSE));
+        attributter.leggTil(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FORSENDELSE_UUID, DOKUMENTFORSENDELSE));
 
         when(pipRepository.hentAktørIdForForsendelser(Collections.singleton(DOKUMENTFORSENDELSE))).thenReturn(Collections.singleton(AKTØR));
 
@@ -57,8 +58,8 @@ public class PdpRequestBuilderImplTest {
     @Test
     public void skal_hente_to_aktør_id_gitt_forsendelse_id_som_input() {
         AbacAttributtSamling attributter = byggAbacAttributtSamling();
-        attributter.leggTil(AbacDataAttributter.opprett().leggTilAktørId(AKTØR + "_A"));
-        attributter.leggTil(AbacDataAttributter.opprett().leggTilDokumentforsendelseId(DOKUMENTFORSENDELSE));
+        attributter.leggTil(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, AKTØR + "_A"));
+        attributter.leggTil(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FORSENDELSE_UUID, DOKUMENTFORSENDELSE));
 
         when(pipRepository.hentAktørIdForForsendelser(Collections.singleton(DOKUMENTFORSENDELSE))).thenReturn(Collections.singleton(AKTØR));
 

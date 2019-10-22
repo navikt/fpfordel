@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.KonfigVerdiTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.TilJournalføringTjeneste;
+import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.binding.BehandleDokumentforsendelseV1;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.binding.OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.binding.OppdaterOgFerdigstillJournalfoeringUgyldigInput;
@@ -260,9 +261,12 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         @Override
         public AbacDataAttributter apply(Object obj) {
             OppdaterOgFerdigstillJournalfoeringRequest req = (OppdaterOgFerdigstillJournalfoeringRequest) obj;
-            return AbacDataAttributter.opprett()
-                    .leggTilSaksnummer(req.getSakId())
-                    .leggTilJournalPostId(req.getJournalpostId(), false);
+            var attributter = AbacDataAttributter.opprett()
+                    .leggTil(AppAbacAttributtType.SAKSNUMMER, req.getSakId());
+            if (req.getJournalpostId() != null) {
+                attributter.leggTil(AppAbacAttributtType.JOURNALPOST_ID, req.getJournalpostId());
+            }
+            return attributter;
         }
     }
 }
