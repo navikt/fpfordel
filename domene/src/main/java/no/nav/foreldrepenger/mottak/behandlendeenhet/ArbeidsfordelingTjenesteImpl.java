@@ -35,7 +35,7 @@ public class ArbeidsfordelingTjenesteImpl implements ArbeidsfordelingTjeneste {
     private static final String TEMA = "FOR"; //FOR = Foreldre- og svangerskapspenger
     private static final String OPPGAVETYPE_JFR = "JFR"; //
     private static final String ENHET_TYPE_FP = "FPY"; // Normale NFP-enheter , uten Viken og spesialenheter
-    private static final String NK_ENHET_ID = "4205";
+    private static final String NK_ENHET_ID = "4292";
 
     private ArbeidsfordelingConsumer consumer;
 

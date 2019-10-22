@@ -14,8 +14,6 @@ public enum AppAbacAttributtType implements AbacAttributtType {
 
     public static AbacAttributtType AKTØR_ID = StandardAbacAttributtType.AKTØR_ID;
 
-    public static AbacAttributtType FNR = StandardAbacAttributtType.FNR;
-
     public static AbacAttributtType JOURNALPOST_ID = StandardAbacAttributtType.JOURNALPOST_ID;
 
     public static AbacAttributtType SAKSNUMMER = StandardAbacAttributtType.SAKSNUMMER;
@@ -24,28 +22,10 @@ public enum AppAbacAttributtType implements AbacAttributtType {
     private final String sporingsloggEksternKode;
     private final boolean valider;
 
-    AppAbacAttributtType() {
-        sporingsloggEksternKode = null;
-        maskerOutput = false;
-        valider = false;
-    }
-
     AppAbacAttributtType(String sporingsloggEksternKode) {
         this.sporingsloggEksternKode = sporingsloggEksternKode;
         this.maskerOutput = false;
         valider = false;
-    }
-
-    AppAbacAttributtType(String sporingsloggEksternKode, boolean maskerOutput) {
-        this.sporingsloggEksternKode = sporingsloggEksternKode;
-        this.maskerOutput = maskerOutput;
-        valider = false;
-    }
-
-    AppAbacAttributtType(String sporingsloggEksternKode, boolean maskerOutput, boolean valider) {
-        this.sporingsloggEksternKode = sporingsloggEksternKode;
-        this.maskerOutput = maskerOutput;
-        this.valider = valider;
     }
 
     @Override
