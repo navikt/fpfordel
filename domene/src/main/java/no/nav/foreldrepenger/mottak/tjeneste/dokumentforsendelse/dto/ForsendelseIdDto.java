@@ -7,6 +7,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
@@ -36,7 +37,7 @@ public class ForsendelseIdDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett().leggTilDokumentforsendelseId(getForsendelseId());
+        return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FORSENDELSE_UUID, getForsendelseId());
     }
 
 }

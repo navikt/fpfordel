@@ -8,8 +8,9 @@ import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 
-import no.nav.abac.xacml.CommonAttributter;
+import no.nav.abac.common.xacml.CommonAttributter;
 import no.nav.foreldrepenger.pip.PipRepository;
+import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacAttributtSamling;
 import no.nav.vedtak.sikkerhet.abac.PdpKlient;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
@@ -21,16 +22,16 @@ import no.nav.vedtak.sikkerhet.abac.PdpRequestBuilder;
 @Dependent
 @Alternative
 @Priority(2)
-public class PdpRequestBuilderImpl implements PdpRequestBuilder {
+public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
     public static final String ABAC_DOMAIN = "foreldrepenger";
     private PipRepository pipRepository;
 
 
-    public PdpRequestBuilderImpl() {
+    public AppPdpRequestBuilderImpl() {
     }
 
     @Inject
-    public PdpRequestBuilderImpl(PipRepository pipRepository) {
+    public AppPdpRequestBuilderImpl(PipRepository pipRepository) {
         this.pipRepository = pipRepository;
     }
 
@@ -49,8 +50,8 @@ public class PdpRequestBuilderImpl implements PdpRequestBuilder {
     }
 
     private Set<String> utledAktørIder(AbacAttributtSamling attributter) {
-        Set<String> aktørIder = new HashSet<>(attributter.getAktørIder());
-        aktørIder.addAll(pipRepository.hentAktørIdForForsendelser(attributter.getDokumentforsendelseIder()));
+        Set<String> aktørIder = new HashSet<>(attributter.getVerdier(AppAbacAttributtType.AKTØR_ID));
+        aktørIder.addAll(pipRepository.hentAktørIdForForsendelser(attributter.getVerdier(AppAbacAttributtType.FORSENDELSE_UUID)));
         return aktørIder;
     }
 }
