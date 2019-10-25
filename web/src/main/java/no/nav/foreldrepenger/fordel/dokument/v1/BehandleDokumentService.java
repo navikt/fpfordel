@@ -165,10 +165,6 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         if (BehandlingTema.UDEFINERT.equals(behandlingTema) && (DokumentTypeId.KLAGE_DOKUMENT.equals(dokumentTypeId) || DokumentKategori.KLAGE_ELLER_ANKE.equals(dokumentKategori))) {
             throw BehandleDokumentServiceFeil.FACTORY.sakUtenAvsluttetBehandling().toException();
         }
-
-        if (Boolean.TRUE.equals(fagsakInfomasjonDto.getHarÅpenSvpBehandlingMedSøknad()) && dokumentTypeId.erSvangerskapspengerRelatert()) {
-            throw BehandleDokumentServiceFeil.FACTORY.kanIkkeJournalføreSvpSøknadPåÅpenBehandling(saksnummer).toException();
-        }
     }
 
     private String hentDokumentSettMetadata(String saksnummer, BehandlingTema behandlingTema, String aktørId, JournalMetadata<DokumentTypeId> journalMetadata, DokumentTypeId dokumentTypeId) {
