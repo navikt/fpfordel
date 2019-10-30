@@ -8,6 +8,8 @@ metadata:
     team: teamforeldrepenger
 spec:
   env:
+  - name: APP_NAME
+    value: fpfordel
   - name: APP_VERSION
     value: RELEASE_VERSION
   - name: APP_TEAM
