@@ -1,0 +1,183 @@
+---
+kind: Application
+apiVersion: nais.io/v1alpha1
+metadata:
+  name: fpfordel
+  namespace: t4
+  labels:
+    team: teamforeldrepenger
+spec:
+  env:
+  - name: NAV_TRUSTSTORE_KEYSTOREALIAS
+    value: na
+  - name: DEFAULTDS_OEMENDPOINT
+    value: /em/cloud/dbaas/pluggabledbplatforminstance/byrequest/2903
+  - name: DEFAULTDS_URL
+    value: jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=d26dbfl020.test.local)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=FPFORDELT4)(INSTANCE_NAME=cctf01)(UR=A)(SERVER=DEDICATED)))
+  - name: DEFAULTDS_USERNAME
+    value: FPFORDEL_T4
+  - name: MQGATEWAY02_HOSTNAME
+    value: d26apvl258.test.local
+  - name: MQGATEWAY02_PORT
+    value: "1412"
+  - name: MQGATEWAY02_NAME
+    value: MTXLSC02
+  - name: FPFORDEL_CHANNEL_QUEUEMANAGER
+    value: mq://d26apvl258.test.local:1412/MTXLSC02
+  - name: MQGATEWAY02_CHANNEL
+    value: T4_FPFORDEL
+  - name: MOTTAK_QUEUE_QUEUENAME
+    value: QA.T4_FPFORDEL.MOTTAK_QUEUE
+  - name: MOTTAK_QUEUE_QUEUEMANAGER
+    value: mq://d26apvl258.test.local:1412/MTXLSC02
+  - name: FPSAK_SAKSINFORMASJON_URL
+    value: https://fpsak-t4.nais.preprod.local/fpsak/api/fordel/fagsak/informasjon
+  - name: FPSAK_OPPRETT_SAK_URL
+    value: https://fpsak-t4.nais.preprod.local/fpsak/api/fordel/fagsak/opprett
+  - name: FPSAK_JOURNALPOSTKNYTTNING_URL
+    value: https://fpsak-t4.nais.preprod.local/fpsak/api/fordel/fagsak/knyttJournalpost
+  - name: FPSAK_VURDERFAGSYSTEM_URL
+    value: https://fpsak-t4.nais.preprod.local/fpsak/api/fordel/vurderFagsystem
+  - name: FPSAK_MOTTAJOURNALPOST_URL
+    value: https://fpsak-t4.nais.preprod.local/fpsak/api/fordel/journalpost
+  - name: FP_STATUSINFORMASJON_URL
+    value: https://fpinfo-t4.nais.preprod.local/fpinfo/api/dokumentforsendelse/status
+  - name: MOTTAINNGAAENDEFORSENDELSE_URL
+    value: https://dokmotinngaaende-t4.nais.preprod.local/rest/mottaInngaaendeForsendelse
+  - name: AKTOER_V2_SECURITYTOKEN
+    value: SAML
+  - name: AKTOER_V2_URL
+    value: https://app-t4.adeo.no/aktoerregister/ws/Aktoer/v2
+  - name: AKTOER_V2_WSDLURL
+    value: http://maven.adeo.no/nexus/content/groups/public/no/nav/tjenester/fim/nav-fim-aktoer-v2-tjenestespesifikasjon/2.0.1/nav-fim-aktoer-v2-tjenestespesifikasjon-2.0.1.zip
+  - name: JOURNAL_V2_SECURITYTOKEN
+    value: SAML
+  - name: JOURNAL_V2_URL
+    value: https://wasapp-t4.adeo.no/joark/Journal/v2
+  - name: JOURNAL_V2_WSDLURL
+    value: http://maven.adeo.no/nexus/content/groups/public/no/nav/tjenester/nav-journal-v2-tjenestespesifikasjon/1.0.3/nav-journal-v2-tjenestespesifikasjon-1.0.3.zip
+  - name: INNGAAENDEJOURNAL_V1_SECURITYTOKEN
+    value: SAML
+  - name: INNGAAENDEJOURNAL_V1_URL
+    value: https://dokarkiv-t4.nais.preprod.local/services/inngaaendejournal/v1
+  - name: INNGAAENDEJOURNAL_V1_DESCRIPTION
+    value: Virksomhetstjeneste for henting av metadata om inngående journalposter.
+  - name: INNGAAENDEJOURNAL_V1_WSDLURL
+    value: http://maven.adeo.no/nexus/service/local/artifact/maven/redirect?a=nav-inngaaendeJournal-v1-tjenestespesifikasjon&e=zip&g=no.nav.tjenester&r=m2internal&v=1.1.3
+  - name: BEHANDLEINNGAAENDEJOURNAL_V1_WSDLURL
+    value: http://maven.adeo.no/nexus/service/local/artifact/maven/redirect?a=nav-behandleInngaaendeJournal-v1-tjenestespesifikasjon&e=zip&g=no.nav.tjenester&r=m2internal&v=1.0.1
+  - name: BEHANDLEINNGAAENDEJOURNAL_V1_SECURITYTOKEN
+    value: SAML
+  - name: BEHANDLEINNGAAENDEJOURNAL_V1_URL
+    value: https://dokarkiv-t4.nais.preprod.local/services/behandleinngaaendejournal/v1
+  - name: BEHANDLEINNGAAENDEJOURNAL_V1_DESCRIPTION
+    value: Virksomhetstjeneste for oppdatering av inngående journalposter.
+  - name: VIRKSOMHET_ARBEIDSFORDELING_V1_SECURITYTOKEN
+    value: SAML
+  - name: ARBEIDSFORDELING_V1_URL
+    value: https://norg2-t4.nais.preprod.local/norg2/ws/Arbeidsfordeling/v1
+  - name: VIRKSOMHET_ARBEIDSFORDELING_V1_WSDLURL
+    value: http://maven.adeo.no/nexus/service/local/artifact/maven/redirect?a=nav-arbeidsfordeling-v1-tjenestespesifikasjon&e=zip&g=no.nav.tjenester&r=m2internal&v=1.1.0
+  - name: VIRKSOMHET_SAK_V1_SECURITYTOKEN
+    value: SAML
+  - name: SAK_V1_URL
+    value: https://wasapp-t4.adeo.no/nav-gsak-ws/SakV1
+  - name: VIRKSOMHET_SAK_V1_WSDLURL
+    value: http://maven.adeo.no/nexus/content/groups/public/no/nav/tjenester/fim/nav-fim-sak-v1-tjenestespesifikasjon/1.0.0/nav-fim-sak-v1-tjenestespesifikasjon-1.0.0.zip
+  - name: VIRKSOMHET_BEHANDLEOPPGAVE_V1_SECURITYTOKEN
+    value: SAML
+  - name: BEHANDLEOPPGAVE_V1_URL
+    value: https://wasapp-t4.adeo.no/nav-gsak-ws/BehandleOppgaveV1
+  - name: VIRKSOMHET_BEHANDLEOPPGAVE_V1_WSDLURL
+    value: http://maven.adeo.no/nexus/content/groups/public/no/nav/sbl/dialogarena/behandleoppgave-v1-tjenestespesifikasjon/1.0.7/behandleoppgave-v1-tjenestespesifikasjon-1.0.7.zip
+  - name: VIRKSOMHET_PERSON_V3_SECURITYTOKEN
+    value: SAML
+  - name: PERSON_V3_URL
+    value: https://wasapp-t4.adeo.no/tpsws/ws/Person/v3
+  - name: VIRKSOMHET_PERSON_V3_WSDLURL
+    value: http://maven.adeo.no/nexus/content/groups/public/no/nav/tjenester/nav-person-v3-tjenestespesifikasjon/3.6.1/nav-person-v3-tjenestespesifikasjon-3.6.1.zip
+  - name: VIRKSOMHET_INFOTRYGDSAK_V1_WSDLURL
+    value: http://maven.adeo.no/nexus/content/groups/public/no/nav/tjenester/nav-infotrygdSak-v1-tjenestespesifikasjon/1.1.1/nav-infotrygdSak-v1-tjenestespesifikasjon-1.1.1.zip
+  - name: VIRKSOMHET_INFOTRYGDSAK_V1_SECURITYTOKEN
+    value: SAML
+  - name: INFOTRYGDSAK_V1_URL
+    value: https://modapp-t4.adeo.no/infotrygd-ws/InfotrygdSak/v1
+  - name: SYSTEMBRUKER_USERNAME
+    value: srvfpfordel
+  - name: OIDC_OPENAM_JWKSURL
+    value: https://isso-t.adeo.no:443/isso/oauth2/connect/jwk_uri
+  - name: OIDC_OPENAM_ISSUERURL
+    value: https://isso-t.adeo.no:443/isso/oauth2
+  - name: OIDC_OPENAM_AGENTNAME
+    value: fpfordel-t4
+  - name: OIDC_OPENAM_HOSTURL
+    value: https://isso-t.adeo.no:443/isso/oauth2
+  - name: OIDC_STS_ISSUER_URL
+    value: https://security-token-service-t4.nais.preprod.local
+  - name: OIDC_STS_JWKS_URL
+    value: https://security-token-service-t4.nais.preprod.local/rest/v1/sts/jwks
+  - name: ABAC_PDP_ENDPOINT_DESCRIPTION
+    value: The XACML JSON Endpoint for evaluating attributes against policies
+  - name: ABAC_PDP_ENDPOINT_URL
+    value: https://wasapp-t4.adeo.no/asm-pdp/authorize
+  - name: SECURITYTOKENSERVICE_URL
+    value: https://sts-t4.test.local/SecurityTokenServiceProvider/
+  - name: LOADBALANCER_FQDN
+    value: fpfordel-t4.nais.preprod.local
+  - name: LOADBALANCER_FPFORDEL_POOLNAME
+    value: nais
+  - name: LOADBALANCER_FPFORDEL_CONTEXTROOTS
+    value: fpfordel
+  - name: OIDC_AAD_B2C_JWKSURL
+    value: https://login.microsoftonline.com/navtestb2c.onmicrosoft.com/discovery/v2.0/keys?p=b2c_1a_idporten_ver1
+  - name: OIDC_AAD_B2C_ISSUERURL
+    value: https://login.microsoftonline.com/d38f25aa-eab8-4c50-9f28-ebf92c1256f2/v2.0/
+  - name: OIDC_AAD_B2C_AGENTNAME
+    value: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
+  - name: OIDC_AAD_B2C_HOSTURL
+    value: https://not.used.in.fss
+  - name: AWS_ACCESS_KEY_ID
+    value: Z77SJ3A4JFETVP6SDB01
+  - name: BUCKET_URL
+    value: http://s3.nais-rook
+  image: repo.adeo.no:5443/fpfordel:RELEASE_VERSION 
+  port: 8080
+  ingresses:
+  - https://fpfordel.nais.preprod.local
+  - https://fpfordel-t4.nais.preprod.local/fpfordel
+  preStopHookPath: /fpfordel/internal/health/preStop
+  #prometheus:
+    #enabled: true
+    #path: /fpfordel/internal/prometheus
+  istio: # Optional.
+    enabled: false # Optional. When true, envoy-proxy sidecar will be injected into pod and https urls envvars will be rewritten
+  logformat: accesslog # Optional. The format of the logs from the container if the logs should be handled differently than plain text or json
+  logtransform: dns_loglevel # Optional. The transformation of the logs, if they should be handled differently than plain text or json
+  webproxy: false # Optional. Expose web proxy configuration to the application using the HTTP_PROXY, HTTPS_PROXY and NO_PROXY environment variables.
+  vault:
+    enabled: true # Optional. If set to true fetch secrets from Secret Service and inject into the pods. todo link to doc.
+  sidecar: true # refresh token
+	
+  liveness:
+    path: /fpfordel/internal/health/isAlive
+    port: 8080
+    initialDelay: 30
+    periodSeconds: 10
+    failureThreshold: 10
+    timeout: 1
+  readiness:
+    path: /fpfordel/internal/health/isReady
+    port: 8080
+    initialDelay: 30
+    timeout: 1
+  replicas:
+    min: 3
+    max: 3
+    cpuThresholdPercentage: 80
+  resources:
+    limits:
+      cpu: 500m
+      memory: 2048Mi
+    requests:
+      cpu: 200m
+      memory: 1024Mi
