@@ -3,7 +3,7 @@ kind: Application
 apiVersion: nais.io/v1alpha1
 metadata:
   name: fpfordel
-  namespace: t4
+  namespace: NAMESPACE_VAL
   labels:
     team: teamforeldrepenger
 spec:
@@ -16,9 +16,10 @@ spec:
     value: teamforeldrepenger
   image: repo.adeo.no:5443/fpfordel:RELEASE_VERSION
   port: 8080
+  team: teamforeldrepenger
   ingresses:
-  - https://fpfordel.nais.preprod.local
-  - https://fpfordel-t4.nais.preprod.local/fpfordel
+  - "INGRESS_URL"
+  #- https://fpfordel.nais.preprod.local
   preStopHookPath: /fpfordel/internal/health/preStop
   #prometheus:
     #enabled: true
