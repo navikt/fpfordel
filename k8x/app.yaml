@@ -1,6 +1,5 @@
----
-kind: Application
 apiVersion: nais.io/v1alpha1
+kind: Application
 metadata:
   name: fpfordel
   namespace: NAMESPACE_VAL
