@@ -19,7 +19,6 @@ spec:
   team: teamforeldrepenger
   ingresses:
   - "INGRESS_URL"
-  #- https://fpfordel.nais.preprod.local
   preStopHookPath: /fpfordel/internal/health/preStop
   #prometheus:
     #enabled: true
