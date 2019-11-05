@@ -34,6 +34,8 @@ spec:
         mountPath: /secrets/serviceuser
       - kvPath: oracle/data/dev/creds/fpfordel_t4-user
         mountPath: /secrets/credentials
+      - kvPath: oracle/data/dev/config/fpfordel_t4
+        mountPath: /secrets/jdbcconfig
   sidecar: true # refresh token
   liveness:
     path: /fpfordel/internal/health/isAlive
