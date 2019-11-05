@@ -19,6 +19,10 @@ spec:
   ingresses:
   - "INGRESS_URL"
   preStopHookPath: /fpfordel/internal/health/preStop
+  - name: DEFAULTDS_URL
+  value: jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=d26dbfl020.test.local)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=FPFORDELT4)(INSTANCE_NAME=cctf01)(UR=A)(SERVER=DEDICATED)))
+  - name: DEFAULTDS_USERNAME
+  value: FPFORDEL_T4
   #prometheus:
     #enabled: true
     #path: /fpfordel/internal/prometheus
