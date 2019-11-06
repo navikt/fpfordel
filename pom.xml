@@ -216,9 +216,9 @@
 
 			<!-- Database -->
 			<dependency>
-				<groupId>com.oracle</groupId>
+				<groupId>com.oracle.ojdbc</groupId>
 				<artifactId>ojdbc8</artifactId>
-				<version>12.2.0.1</version>
+				<version>19.3.0.0</version>
 			</dependency>
 
 		</dependencies>
@@ -226,7 +226,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.oracle</groupId>
+			<groupId>com.oracle.ojdbc</groupId>
 			<artifactId>ojdbc8</artifactId>
 			<scope>test</scope>
 		</dependency>
