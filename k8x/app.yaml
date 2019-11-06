@@ -6,17 +6,6 @@ metadata:
   labels:
     team: teamforeldrepenger
 spec:
-  env:
-  - name: APP_NAME
-    value: fpfordel
-  - name: APP_VERSION
-    value: RELEASE_VERSION
-  - name: APP_TEAM
-    value: teamforeldrepenger
-  - name: DEFAULTDS_URL
-    value: jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=d26dbfl020.test.local)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=FPFORDELT4)(INSTANCE_NAME=cctf01)(UR=A)(SERVER=DEDICATED)))
-  - name: DEFAULTDS_USERNAME
-    value: FPFORDEL_T4
   image: repo.adeo.no:5443/fpfordel:RELEASE_VERSION
   port: 8080
   team: teamforeldrepenger
@@ -32,15 +21,8 @@ spec:
   logtransform: dns_loglevel # Optional. The transformation of the logs, if they should be handled differently than plain text or json
   webproxy: false # Optional. Expose web proxy configuration to the application using the HTTP_PROXY, HTTPS_PROXY and NO_PROXY environment variables.
   vault:
-    enabled: true
-    sidecar: true
-    paths:
-      - kvPath: oracle/data/dev/creds/fpfordel_t4-user
-        mountPath: /secrets/oracle/credentials
-      - kvPath: oracle/data/dev/config/fpfordel_t4
-        mountPath: /secrets/oracle/dbconfig
-      #- kvPath: serviceuser/data/dev/srvfpfordel
-        #mountPath: /secrets/serviceuser
+    enabled: true # Optional. If set to true fetch secrets from Secret Service and inject into the pods. todo link to doc.
+  sidecar: true # refresh token
   liveness:
     path: /fpfordel/internal/health/isAlive
     port: 8080
@@ -64,3 +46,14 @@ spec:
     requests:
       cpu: 200m
       memory: 1024Mi
+  env:
+  - name: APP_NAME
+    value: fpfordel
+  - name: APP_VERSION
+    value: RELEASE_VERSION
+  - name: APP_TEAM
+    value: teamforeldrepenger
+  - name: DEFAULTDS_URL
+    value: jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=d26dbfl020.test.local)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=FPFORDELT4)(INSTANCE_NAME=cctf01)(UR=A)(SERVER=DEDICATED)))
+  - name: DEFAULTDS_USERNAME
+    value: FPFORDEL_T4
