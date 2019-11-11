@@ -26,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
@@ -38,6 +39,7 @@ import no.nav.foreldrepenger.mottak.gsak.api.GsakSak;
 import no.nav.foreldrepenger.mottak.gsak.api.GsakSakTjeneste;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
+import no.nav.foreldrepenger.mottak.infotrygd.rest.RelevantSakSjekker;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -58,16 +60,20 @@ public class HentOgVurderGsakSakTaskTest {
     public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
     @Rule
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    
+
     private KodeverkRepository kodeverkRepository = new KodeverkRepositoryImpl(repoRule.getEntityManager());
-    
+
     @Mock
     Instance<Period> infotrygdSakGyldigPeriodeInstance;
     @Mock
     private Instance<Period> infotrygdAnnenPartGyldigPeriodeInstance;
     private HentOgVurderInfotrygdSakTask task;
     private GsakSakTjeneste mockGsakSakTjeneste;
+    private RelevantSakSjekker relevansSjekker;
     private InfotrygdTjeneste mockInfotrygdTjeneste;
+    private InfotrygdTjeneste mockSVPrestTjeneste;
+    private Unleash mockUnleash;
+
     private AktørConsumerMedCache mockAktørConsumer;
     private List<GsakSak> sakerTom;
     private List<GsakSak> sakerMatchende;
@@ -86,14 +92,19 @@ public class HentOgVurderGsakSakTaskTest {
 
         when(mockAktørConsumer.hentPersonIdentForAktørId(ANNEN_PART_ID)).thenReturn(Optional.of(ANNEN_PART_FNR));
         when(mockAktørConsumer.hentAktørIdForPersonIdent(ANNEN_PART_FNR)).thenReturn(Optional.of(ANNEN_PART_ID));
-
-        task = new HentOgVurderInfotrygdSakTask(mockProsessTaskRepository, kodeverkRepository, mockGsakSakTjeneste, mockInfotrygdTjeneste, mockAktørConsumer, infotrygdSakGyldigPeriodeInstance, infotrygdAnnenPartGyldigPeriodeInstance);
+        relevansSjekker = new RelevantSakSjekker(mockSVPrestTjeneste, mockInfotrygdTjeneste, mockGsakSakTjeneste,
+                mockUnleash);
+        task = new HentOgVurderInfotrygdSakTask(mockProsessTaskRepository, kodeverkRepository,
+                relevansSjekker, mockAktørConsumer, infotrygdSakGyldigPeriodeInstance,
+                infotrygdAnnenPartGyldigPeriodeInstance);
 
         sakerTom = new ArrayList<>();
 
         GsakSak sak1 = new GsakSak(BRUKER_FNR, "id1", Tema.UDEFINERT, Fagsystem.INFOTRYGD);
-        GsakSak sak2 = new GsakSak(BRUKER_FNR, "id2", Tema.FORELDRE_OG_SVANGERSKAPSPENGER, Fagsystem.INFOTRYGD, LocalDate.now().minusMonths(9));
-        GsakSak sak4 = new GsakSak(BRUKER_FNR, "id4", Tema.FORELDRE_OG_SVANGERSKAPSPENGER, Fagsystem.INFOTRYGD, LocalDate.now().minusYears(4));
+        GsakSak sak2 = new GsakSak(BRUKER_FNR, "id2", Tema.FORELDRE_OG_SVANGERSKAPSPENGER, Fagsystem.INFOTRYGD,
+                LocalDate.now().minusMonths(9));
+        GsakSak sak4 = new GsakSak(BRUKER_FNR, "id4", Tema.FORELDRE_OG_SVANGERSKAPSPENGER, Fagsystem.INFOTRYGD,
+                LocalDate.now().minusYears(4));
         sakerMatchende = Arrays.asList(sak1, sak2);
         sakerMatchende2 = Arrays.asList(sak1, sak4);
     }
@@ -148,7 +159,7 @@ public class HentOgVurderGsakSakTaskTest {
     }
 
     @Test
-    public void test_doTask_gammel_infotrygdsak_i_gsak_skip_infotrygd()  {
+    public void test_doTask_gammel_infotrygdsak_i_gsak_skip_infotrygd() {
         when(mockGsakSakTjeneste.finnSaker(any())).thenReturn(sakerMatchende2);
         when(mockInfotrygdTjeneste.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(new ArrayList<>());
 
@@ -180,7 +191,8 @@ public class HentOgVurderGsakSakTaskTest {
 
     @Test
     public void test_validerDatagrunnlag_skal_feile_ved_manglende_temakode_og_behandlingstype() throws Exception {
-        MottakMeldingDataWrapper meldingDataWrapper = new MottakMeldingDataWrapper(kodeverkRepository, new ProsessTaskData(HentOgVurderInfotrygdSakTask.TASKNAME));
+        MottakMeldingDataWrapper meldingDataWrapper = new MottakMeldingDataWrapper(kodeverkRepository,
+                new ProsessTaskData(HentOgVurderInfotrygdSakTask.TASKNAME));
         meldingDataWrapper.setArkivId("123454");
         meldingDataWrapper.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
 

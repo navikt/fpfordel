@@ -27,7 +27,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<felles.version>1.3.0_20191013104401_8528511</felles.version>
+		<felles.version>1.3.0_20191110084008_e9b667a</felles.version>
 
 		<metrics.version>3.2.5</metrics.version>
 		<fp-kontrakter.version>5.0_20191004161700_170954e</fp-kontrakter.version>
@@ -216,9 +216,9 @@
 
 			<!-- Database -->
 			<dependency>
-				<groupId>com.oracle</groupId>
+				<groupId>com.oracle.ojdbc</groupId>
 				<artifactId>ojdbc8</artifactId>
-				<version>12.2.0.1</version>
+				<version>19.3.0.0</version>
 			</dependency>
 
 		</dependencies>
@@ -226,7 +226,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.oracle</groupId>
+			<groupId>com.oracle.ojdbc</groupId>
 			<artifactId>ojdbc8</artifactId>
 			<scope>test</scope>
 		</dependency>

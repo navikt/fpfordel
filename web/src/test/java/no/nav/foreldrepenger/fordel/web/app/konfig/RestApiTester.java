@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.fordel.web.app.konfig;
 
-import io.swagger.jaxrs.listing.ApiListingResource;
-
-import javax.ws.rs.Path;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -11,7 +8,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.ws.rs.Path;
+
 import org.jboss.resteasy.plugins.providers.multipart.MultipartInput;
+
+import io.swagger.jaxrs.listing.ApiListingResource;
 
 public class RestApiTester {
 
@@ -22,7 +23,7 @@ public class RestApiTester {
         for (Class<?> klasse : finnAlleRestTjenester()) {
             for (Method method : klasse.getDeclaredMethods()) {
                 if (Modifier.isPublic(method.getModifiers())) {
-                    if(!erRestMetodeSomErUnntatt(method)) {
+                    if (!erRestMetodeSomErUnntatt(method)) {
                         liste.add(method);
                     }
                 }
@@ -33,15 +34,16 @@ public class RestApiTester {
 
     private static boolean erRestMetodeSomErUnntatt(Method method) {
         boolean unntatt = // Et unntak pr linje
-                (method.getParameterCount() == 1 && MultipartInput.class.isAssignableFrom(method.getParameterTypes()[0]));
+                (method.getParameterCount() == 1
+                        && MultipartInput.class.isAssignableFrom(method.getParameterTypes()[0]));
         return unntatt;
     }
 
     static Collection<Class<?>> finnAlleRestTjenester() {
         ApplicationConfig config = new ApplicationConfig();
         return config.getClasses().stream()
-            .filter(c -> c.getAnnotation(Path.class) != null)
-            .filter(c -> !UNNTATT.contains(c))
-            .collect(Collectors.toList());
+                .filter(c -> c.getAnnotation(Path.class) != null)
+                .filter(c -> !UNNTATT.contains(c))
+                .collect(Collectors.toList());
     }
 }

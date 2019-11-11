@@ -10,8 +10,9 @@ public class BehandlingTema extends Kodeliste {
     public static final String DISCRIMINATOR = "BEHANDLING_TEMA";
 
     /**
-     * Konstanter for å skrive ned kodeverdi. For å hente ut andre data konfigurert, må disse leses fra databasen (eks.
-     * for å hente offisiell kode for et Nav kodeverk).
+     * Konstanter for å skrive ned kodeverdi. For å hente ut andre data konfigurert,
+     * må disse leses fra databasen (eks. for å hente offisiell kode for et Nav
+     * kodeverk).
      */
     public static final BehandlingTema ENGANGSSTØNAD = new BehandlingTema("ENGST"); //$NON-NLS-1$
     public static final BehandlingTema ENGANGSSTØNAD_FØDSEL = new BehandlingTema("ENGST_FODS"); //$NON-NLS-1$
@@ -24,7 +25,8 @@ public class BehandlingTema extends Kodeliste {
     public static final BehandlingTema SVANGERSKAPSPENGER = new BehandlingTema("SVP"); //$NON-NLS-1$
 
     /**
-     * Alle kodeverk må ha en verdi, det kan ikke være null i databasen. Denne koden gjør samme nytten.
+     * Alle kodeverk må ha en verdi, det kan ikke være null i databasen. Denne koden
+     * gjør samme nytten.
      */
     public static final BehandlingTema UDEFINERT = new BehandlingTema("-"); //$NON-NLS-1$
 
@@ -36,16 +38,35 @@ public class BehandlingTema extends Kodeliste {
         super(kode, DISCRIMINATOR);
     }
 
-    public static boolean gjelderEngangsstønad(BehandlingTema behandlingTema) {
-        return ENGANGSSTØNAD_ADOPSJON.equals(behandlingTema) || ENGANGSSTØNAD_FØDSEL.equals(behandlingTema) || ENGANGSSTØNAD.equals(behandlingTema);
+    public boolean gjelderEngangsstønad() {
+        return this.equals(ENGANGSSTØNAD_ADOPSJON) ||
+                this.equals(ENGANGSSTØNAD_FØDSEL) ||
+                this.equals(ENGANGSSTØNAD);
     }
 
-    public static boolean gjelderForeldrepenger(BehandlingTema behandlingTema) {
-        return FORELDREPENGER.equals(behandlingTema) || FORELDREPENGER_FØDSEL.equals(behandlingTema) || FORELDREPENGER_ADOPSJON.equals(behandlingTema);
+    @Deprecated
+    public static boolean gjelderForeldrepenger(BehandlingTema tema) {
+        return tema.gjelderForeldrepenger();
     }
 
-    public static boolean ikkeSpesifikkHendelse(BehandlingTema behandlingTema) {
-        return FORELDREPENGER.equals(behandlingTema) || ENGANGSSTØNAD.equals(behandlingTema) || UDEFINERT.equals(behandlingTema);
+    @Deprecated
+    public static boolean ikkeSpesifikkHendelse(BehandlingTema tema) {
+        return tema.ikkeSpesifikkHendelse();
     }
 
+    public boolean gjelderForeldrepenger() {
+        return this.equals(FORELDREPENGER) ||
+                this.equals(FORELDREPENGER_FØDSEL) ||
+                this.equals(FORELDREPENGER_ADOPSJON);
+    }
+
+    public boolean ikkeSpesifikkHendelse() {
+        return this.equals(FORELDREPENGER)
+                || this.equals(ENGANGSSTØNAD)
+                || this.equals(UDEFINERT);
+    }
+
+    public boolean gjelderSvangerskapspenger() {
+        return this.equals(SVANGERSKAPSPENGER);
+    }
 }
