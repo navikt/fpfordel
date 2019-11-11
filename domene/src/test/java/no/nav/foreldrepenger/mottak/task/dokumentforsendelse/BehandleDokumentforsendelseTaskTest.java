@@ -49,7 +49,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 public class BehandleDokumentforsendelseTaskTest {
 
-    // TODO (Humle): enhetstestene/test XML må oppdateres når vi har reell søknads XML tilgjengelig
+    // TODO (Humle): enhetstestene/test XML må oppdateres når vi har reell søknads
+    // XML tilgjengelig
 
     private static final UUID FORSENDELSE_ID = UUID.randomUUID();
     private static final String AKTØR_ID = "9000000000002";
@@ -77,7 +78,8 @@ public class BehandleDokumentforsendelseTaskTest {
 
     @Before
     public void setup() {
-        fordelDokTask = new BehandleDokumentforsendelseTask(prosessTaskRepository, kodeverkRepository, aktørConsumer, fagsakRestKlient, dokumentRepository, konfigVerdiStartdatoForeldrepenger);
+        fordelDokTask = new BehandleDokumentforsendelseTask(prosessTaskRepository, kodeverkRepository, aktørConsumer,
+                fagsakRestKlient, dokumentRepository, konfigVerdiStartdatoForeldrepenger);
         ptd = new ProsessTaskData(BehandleDokumentforsendelseTask.TASKNAME);
         ptd.setSekvens("1");
 
@@ -109,7 +111,8 @@ public class BehandleDokumentforsendelseTaskTest {
         MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
 
-        when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(Optional.of(genDokument(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL, FIL_SØKNAD_ENGST, true)));
+        when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(
+                Optional.of(genDokument(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL, FIL_SØKNAD_ENGST, true)));
         when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(genMetadata(null, AKTØR_ID));
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
@@ -122,7 +125,8 @@ public class BehandleDokumentforsendelseTaskTest {
         MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
 
-        when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(Optional.of(genDokument(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, FIL_SØKNAD_FORP, true)));
+        when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(
+                Optional.of(genDokument(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, FIL_SØKNAD_FORP, true)));
         when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(genMetadata(null, AKTØR_ID));
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
@@ -135,7 +139,8 @@ public class BehandleDokumentforsendelseTaskTest {
         MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
 
-        when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(Optional.of(genDokument(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, FIL_SØKNAD_FORP_UTTAK_FØR_KONFIGVERDI, true)));
+        when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(Optional.of(
+                genDokument(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, FIL_SØKNAD_FORP_UTTAK_FØR_KONFIGVERDI, true)));
         when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(genMetadata(null, AKTØR_ID));
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
@@ -148,9 +153,11 @@ public class BehandleDokumentforsendelseTaskTest {
         inndata.setForsendelseId(FORSENDELSE_ID);
         inndata.setAktørId(AKTØR_ID);
 
-        when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(Optional.of(genDokument(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, FIL_SØKNAD_FORP, true)));
+        when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(
+                Optional.of(genDokument(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, FIL_SØKNAD_FORP, true)));
         when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(genMetadata("123", AKTØR_ID));
-        when(fagsakRestKlient.finnFagsakInfomasjon(any(SaksnummerDto.class))).thenReturn(genFagsakInformasjon("ab0047"));
+        when(fagsakRestKlient.finnFagsakInfomasjon(any(SaksnummerDto.class)))
+                .thenReturn(genFagsakInformasjon("ab0047"));
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
         assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
@@ -165,10 +172,12 @@ public class BehandleDokumentforsendelseTaskTest {
 
         Dokument dokumentEndring = genDokument(DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD, FIL_SØKNAD_ENDRING, true);
 
-        when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(Optional.of(dokumentEndring));
+        when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any()))
+                .thenReturn(Optional.of(dokumentEndring));
         when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(genMetadata("123", AKTØR_ID));
         when(dokumentRepository.hentDokumenter(any(UUID.class))).thenReturn(Collections.singletonList(dokumentEndring));
-        when(fagsakRestKlient.finnFagsakInfomasjon(any(SaksnummerDto.class))).thenReturn(genFagsakInformasjon("ab0047"));
+        when(fagsakRestKlient.finnFagsakInfomasjon(any(SaksnummerDto.class)))
+                .thenReturn(genFagsakInformasjon("ab0047"));
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
         assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
@@ -184,7 +193,8 @@ public class BehandleDokumentforsendelseTaskTest {
 
         Dokument dokumentEndring = genDokument(DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD, FIL_SØKNAD_ENDRING, true);
 
-        when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(Optional.of(dokumentEndring));
+        when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any()))
+                .thenReturn(Optional.of(dokumentEndring));
         when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(genMetadata("123", AKTØR_ID));
         when(dokumentRepository.hentDokumenter(any(UUID.class))).thenReturn(Collections.singletonList(dokumentEndring));
         when(fagsakRestKlient.finnFagsakInfomasjon(any(SaksnummerDto.class))).thenReturn(Optional.empty());
@@ -203,8 +213,10 @@ public class BehandleDokumentforsendelseTaskTest {
 
         when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(Optional.empty());
         when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(genMetadata("123", AKTØR_ID));
-        when(dokumentRepository.hentDokumenter(any(UUID.class))).thenReturn(Collections.singletonList(genDokument(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL, FIL_SØKNAD_FORP, false)));
-        when(fagsakRestKlient.finnFagsakInfomasjon(any(SaksnummerDto.class))).thenReturn(genFagsakInformasjon("ab0047"));
+        when(dokumentRepository.hentDokumenter(any(UUID.class))).thenReturn(Collections.singletonList(
+                genDokument(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL, FIL_SØKNAD_FORP, false)));
+        when(fagsakRestKlient.finnFagsakInfomasjon(any(SaksnummerDto.class)))
+                .thenReturn(genFagsakInformasjon("ab0047"));
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
         assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
@@ -217,7 +229,8 @@ public class BehandleDokumentforsendelseTaskTest {
         inndata.setForsendelseId(FORSENDELSE_ID);
         inndata.setAktørId(AKTØR_ID);
 
-        when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(Optional.of(genDokument(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, FIL_SØKNAD_FORP, true)));
+        when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(
+                Optional.of(genDokument(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, FIL_SØKNAD_FORP, true)));
         when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(genMetadata("123", AKTØR_ID));
         when(fagsakRestKlient.finnFagsakInfomasjon(any(SaksnummerDto.class))).thenReturn(Optional.empty());
 
@@ -231,9 +244,11 @@ public class BehandleDokumentforsendelseTaskTest {
         inndata.setForsendelseId(FORSENDELSE_ID);
         inndata.setAktørId(AKTØR_ID);
 
-        when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(Optional.of(genDokument(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, FIL_SØKNAD_FORP, true)));
+        when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(
+                Optional.of(genDokument(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, FIL_SØKNAD_FORP, true)));
         when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(genMetadata("123", AKTØR_ID));
-        when(fagsakRestKlient.finnFagsakInfomasjon(any(SaksnummerDto.class))).thenReturn(genFagsakInformasjon("ab0072"));
+        when(fagsakRestKlient.finnFagsakInfomasjon(any(SaksnummerDto.class)))
+                .thenReturn(genFagsakInformasjon("ab0072"));
 
         assertThatThrownBy(() -> kjørMedPreOgPostcondition(inndata))
                 .isInstanceOf(TekniskException.class)

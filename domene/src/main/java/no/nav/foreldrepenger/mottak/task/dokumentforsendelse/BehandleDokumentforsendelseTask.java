@@ -52,16 +52,15 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     private DokumentRepository dokumentRepository;
     private String konfigVerdiStartdatoForeldrepenger;
 
-
     private static final Logger logger = LoggerFactory.getLogger(BehandleDokumentforsendelseTask.class);
 
     @Inject
     public BehandleDokumentforsendelseTask(ProsessTaskRepository prosessTaskRepository,
-                                           KodeverkRepository kodeverkRepository,
-                                           AktørConsumer aktørConsumer,
-                                           FagsakRestKlient fagsakRestKlient,
-                                           DokumentRepository dokumentRepository,
-                                           @KonfigVerdi(value = "foreldrepenger.startdato") String konfigVerdiStartdatoForeldrepenger) {
+            KodeverkRepository kodeverkRepository,
+            AktørConsumer aktørConsumer,
+            FagsakRestKlient fagsakRestKlient,
+            DokumentRepository dokumentRepository,
+            @KonfigVerdi(value = "foreldrepenger.startdato") String konfigVerdiStartdatoForeldrepenger) {
         super(prosessTaskRepository, kodeverkRepository);
         this.aktørConsumer = aktørConsumer;
         this.fagsakRestKlient = fagsakRestKlient;
@@ -72,17 +71,20 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     @Override
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
         if (!dataWrapper.getForsendelseId().isPresent()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME, MottakMeldingDataWrapper.FORSENDELSE_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.FORSENDELSE_ID_KEY, dataWrapper.getId()).toException();
         }
     }
 
     @Override
     public void postcondition(MottakMeldingDataWrapper dataWrapper) {
         if (!dataWrapper.getAktørId().isPresent()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME, MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
         }
         if (dataWrapper.getBehandlingTema() == null) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME, MottakMeldingDataWrapper.BEHANDLINGSTEMA_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.BEHANDLINGSTEMA_KEY, dataWrapper.getId()).toException();
         }
 
         if (TilJournalføringTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())) {
@@ -97,7 +99,8 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     private void postconditionJournalføring(MottakMeldingDataWrapper dataWrapper) {
         if (!dataWrapper.getSaksnummer().isPresent()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME, MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId()).toException();
         }
     }
 
@@ -106,15 +109,19 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
         UUID forsendelseId = dataWrapper.getForsendelseId().get(); // NOSONAR verifisert at finnes i precondition
 
-        Optional<Dokument> hovedDokumentOpt = dokumentRepository.hentUnikDokument(forsendelseId, true, ArkivFilType.XML);
+        Optional<Dokument> hovedDokumentOpt = dokumentRepository.hentUnikDokument(forsendelseId, true,
+                ArkivFilType.XML);
         DokumentMetadata metadata = dokumentRepository.hentEksaktDokumentMetadata(forsendelseId);
 
         AtomicReference<Dokument> dokument = new AtomicReference<>();
         AtomicReference<BehandlingTema> behandlingTema = new AtomicReference<>();
 
         hovedDokumentOpt.ifPresent(dokument::set);
-        behandlingTema.set(HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(dataWrapper.getHarTema() ? dataWrapper.getTema() : null, BehandlingTema.UDEFINERT, hovedDokumentOpt.map(Dokument::getDokumentTypeId).orElse(DokumentTypeId.UDEFINERT)));
-        dataWrapper.setBehandlingTema(kodeverkRepository.finn(BehandlingTema.class, behandlingTema.get()));
+        behandlingTema.set(HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(
+                dataWrapper.getHarTema() ? dataWrapper.getTema() : null, BehandlingTema.UDEFINERT,
+                hovedDokumentOpt.map(Dokument::getDokumentTypeId).orElse(DokumentTypeId.UDEFINERT)));
+        BehandlingTema tema = behandlingTema.get();
+        dataWrapper.setBehandlingTema(kodeverkRepository.finn(BehandlingTema.class, tema));
 
         setFellesWrapperAttributter(dataWrapper, dokument.get(), metadata);
 
@@ -126,42 +133,53 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
                 setFellesWrapperAttributterFraFagsak(dataWrapper, fagInfoOpt.get(), hovedDokumentOpt);
                 return dataWrapper.nesteSteg(TilJournalføringTask.TASKNAME);
             } else {
-                dataWrapper.setSaksnummer(null); // I påvente av at Bris sender korrekt saksnummer for endringssøknader + at de sender GSakNr (isf Infotrygdsaksnummer)
+                dataWrapper.setSaksnummer(null); // I påvente av at Bris sender korrekt saksnummer for endringssøknader
+                                                 // + at de sender GSakNr (isf Infotrygdsaksnummer)
                 return dataWrapper.nesteSteg(MidlJournalføringTask.TASKNAME);
             }
         }
 
-        if (BehandlingTema.SVANGERSKAPSPENGER.equals(behandlingTema.get())) {
+        if (tema.gjelderSvangerskapspenger()) {
             logger.info("SVP dokument med ID {} er mottatt", forsendelseId);
             return dataWrapper.nesteSteg(HentOgVurderVLSakTask.TASKNAME);
         }
 
-        if (BehandlingTema.gjelderEngangsstønad(behandlingTema.get())
-                || (BehandlingTema.gjelderForeldrepenger(behandlingTema.get()) && !sjekkOmSøknadenKreverManuellBehandling(dataWrapper))) {
+        if (tema.gjelderEngangsstønad()
+                || (tema.gjelderForeldrepenger()
+                        && !sjekkOmSøknadenKreverManuellBehandling(dataWrapper))) {
             return dataWrapper.nesteSteg(HentOgVurderVLSakTask.TASKNAME);
         }
         return dataWrapper.nesteSteg(MidlJournalføringTask.TASKNAME);
     }
 
     private void postConditionHentOgVurderVLSakOgOpprettSak(MottakMeldingDataWrapper dataWrapper) {
-        if (OpprettSakTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType()) && !dataWrapper.getForsendelseMottattTidspunkt().isPresent()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME, MottakMeldingDataWrapper.FORSENDELSE_MOTTATT_TIDSPUNKT_KEY, dataWrapper.getId()).toException();
+        if (OpprettSakTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())
+                && !dataWrapper.getForsendelseMottattTidspunkt().isPresent()) {
+            throw MottakMeldingFeil.FACTORY
+                    .prosesstaskPostconditionManglerProperty(TASKNAME,
+                            MottakMeldingDataWrapper.FORSENDELSE_MOTTATT_TIDSPUNKT_KEY, dataWrapper.getId())
+                    .toException();
         }
         if (!dataWrapper.getDokumentTypeId().isPresent()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME, MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY, dataWrapper.getId()).toException();
         }
         if (!dataWrapper.getDokumentKategori().isPresent()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME, MottakMeldingDataWrapper.DOKUMENTKATEGORI_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.DOKUMENTKATEGORI_ID_KEY, dataWrapper.getId()).toException();
         }
         if (!dataWrapper.getPayloadAsString().isPresent()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME, "payload", dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.FACTORY
+                    .prosesstaskPostconditionManglerProperty(TASKNAME, "payload", dataWrapper.getId()).toException();
         }
         if (!dataWrapper.getHarTema()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME, MottakMeldingDataWrapper.TEMA_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.TEMA_KEY, dataWrapper.getId()).toException();
         }
     }
 
-    private void setFellesWrapperAttributter(MottakMeldingDataWrapper dataWrapper, Dokument dokument, DokumentMetadata metadata) {
+    private void setFellesWrapperAttributter(MottakMeldingDataWrapper dataWrapper, Dokument dokument,
+            DokumentMetadata metadata) {
         if (!dataWrapper.getHarTema()) {
             dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         }
@@ -181,15 +199,17 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         }
     }
 
-    private void setFellesWrapperAttributterFraFagsak(MottakMeldingDataWrapper dataWrapper, FagsakInfomasjonDto fagsakInfo, Optional<Dokument> dokumentInput) {
-        BehandlingTema behandlingTemaFraSak = kodeverkRepository.finnForKodeverkEiersKode(BehandlingTema.class, fagsakInfo.getBehandlingstemaOffisiellKode(), BehandlingTema.UDEFINERT);
+    private void setFellesWrapperAttributterFraFagsak(MottakMeldingDataWrapper dataWrapper,
+            FagsakInfomasjonDto fagsakInfo, Optional<Dokument> dokumentInput) {
+        BehandlingTema behandlingTemaFraSak = kodeverkRepository.finnForKodeverkEiersKode(BehandlingTema.class,
+                fagsakInfo.getBehandlingstemaOffisiellKode(), BehandlingTema.UDEFINERT);
 
         if (dokumentInput.isPresent()) {
             Dokument dokument = dokumentInput.get();
             if (!fagsakInfo.getAktørId().equals(dataWrapper.getAktørId().orElse(null))) {
                 throw BehandleDokumentforsendelseFeil.FACTORY.aktørIdMismatch().toException();
             }
-            sjekkForMismatchMellomFagsakOgDokumentInn(dataWrapper, behandlingTemaFraSak, dokument);
+            sjekkForMismatchMellomFagsakOgDokumentInn(dataWrapper.getBehandlingTema(), behandlingTemaFraSak, dokument);
         } else {
             UUID forsendelseId = dataWrapper.getForsendelseId().get(); // NOSONAR
             Dokument dokument = dokumentRepository.hentDokumenter(forsendelseId).stream().findFirst().get();
@@ -202,20 +222,23 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     }
 
-    private void sjekkForMismatchMellomFagsakOgDokumentInn(MottakMeldingDataWrapper dataWrapper, BehandlingTema fagsakTema, Dokument dokument) {
+    private void sjekkForMismatchMellomFagsakOgDokumentInn(BehandlingTema behandlingTema,
+            BehandlingTema fagsakTema, Dokument dokument) {
 
         if (DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD.equals(dokument.getDokumentTypeId())) {
             // Endringssøknad har ingen info om behandlingstema, slik vi kan ikke utlede
-            // et spesifikt tema, så må ha løsere match. Se HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType
-            if (BehandlingTema.gjelderForeldrepenger(dataWrapper.getBehandlingTema())) {
+            // et spesifikt tema, så må ha løsere match. Se
+            // HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType
+            if (behandlingTema.gjelderForeldrepenger()) {
                 return;
             }
-        } else if (fagsakTema.equals(dataWrapper.getBehandlingTema())) {
+        }
+        if (fagsakTema.equals(behandlingTema)) {
             return;
         }
 
         throw BehandleDokumentforsendelseFeil.FACTORY.behandlingTemaMismatch(
-                dataWrapper.getBehandlingTema().getKode(), fagsakTema.getKode()).toException();
+                behandlingTema.getKode(), fagsakTema.getKode()).toException();
     }
 
     private void kopierOgValiderAttributterFraSøknad(MottakMeldingDataWrapper nesteSteg, Dokument dokument) {
@@ -237,10 +260,12 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     }
 
     /**
-     * Startdato i mottatt søknaden er før fastsatt startdato for journalføring gjennom VL
+     * Startdato i mottatt søknaden er før fastsatt startdato for journalføring
+     * gjennom VL
      */
     private boolean sjekkOmSøknadenKreverManuellBehandling(MottakMeldingDataWrapper dataWrapper) {
-        return dataWrapper.getOmsorgsovertakelsedato().orElse(dataWrapper.getFørsteUttaksdag().orElse(Tid.TIDENES_BEGYNNELSE))
+        return dataWrapper.getOmsorgsovertakelsedato()
+                .orElse(dataWrapper.getFørsteUttaksdag().orElse(Tid.TIDENES_BEGYNNELSE))
                 .isBefore(LocalDate.parse(konfigVerdiStartdatoForeldrepenger, DateTimeFormatter.ISO_LOCAL_DATE));
     }
 }

@@ -47,8 +47,8 @@ import no.nav.vedtak.util.FPDateUtil;
 
 /**
  * <p>
- * ProsessTask som oppretter en oppgave i GSAK for manuell behandling av tilfeller som ikke
- * kan håndteres automatisk av vedtaksløsningen.
+ * ProsessTask som oppretter en oppgave i GSAK for manuell behandling av
+ * tilfeller som ikke kan håndteres automatisk av vedtaksløsningen.
  * <p>
  * </p>
  */
@@ -63,10 +63,13 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     private static final boolean IKKE_LEST = false;
     private static final Logger log = LoggerFactory.getLogger(OpprettGSakOppgaveTask.class);
     private static final String JFR_OMS = "JFR_OMS";
-    
-    /** Journalføring foreldrepenger - JFR_FOR er ikke dokumentert i tjenestedokumentasjon, men er koden som blir brukt i kodeverk i GSAK. */
+
+    /**
+     * Journalføring foreldrepenger - JFR_FOR er ikke dokumentert i
+     * tjenestedokumentasjon, men er koden som blir brukt i kodeverk i GSAK.
+     */
     static final String JFR_FOR = "JFR_FOR";
-    
+
     private BehandleoppgaveConsumer service;
 
     private EnhetsTjeneste enhetsidTjeneste;
@@ -76,10 +79,10 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
     @Inject
     public OpprettGSakOppgaveTask(ProsessTaskRepository prosessTaskRepository,
-                                  BehandleoppgaveConsumer service,
-                                  EnhetsTjeneste enhetsidTjeneste,
-                                  KodeverkRepository kodeverkRepository,
-                                  AktørConsumerMedCache aktørConsumer) {
+            BehandleoppgaveConsumer service,
+            EnhetsTjeneste enhetsidTjeneste,
+            KodeverkRepository kodeverkRepository,
+            AktørConsumerMedCache aktørConsumer) {
         this.service = service;
         this.enhetsidTjeneste = enhetsidTjeneste;
         this.kodeverkRepository = kodeverkRepository;
@@ -89,12 +92,14 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        BehandlingTema behandlingTema = finnBehandlingTema(Optional.ofNullable(prosessTaskData.getPropertyValue(BEHANDLINGSTEMA_KEY)));
+        BehandlingTema behandlingTema = finnBehandlingTema(
+                Optional.ofNullable(prosessTaskData.getPropertyValue(BEHANDLINGSTEMA_KEY)));
         DokumentTypeId dokumentTypeId = Optional.ofNullable(prosessTaskData.getPropertyValue(DOKUMENTTYPE_ID_KEY))
                 .map(dt -> kodeverkRepository.finn(DokumentTypeId.class, dt)).orElse(DokumentTypeId.UDEFINERT);
         Tema tema = Optional.ofNullable(prosessTaskData.getPropertyValue(TEMA_KEY))
                 .map(dt -> kodeverkRepository.finn(Tema.class, dt)).orElse(Tema.UDEFINERT);
-        behandlingTema = kodeverkRepository.finn(BehandlingTema.class, HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(tema, behandlingTema, dokumentTypeId));
+        behandlingTema = kodeverkRepository.finn(BehandlingTema.class,
+                HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(tema, behandlingTema, dokumentTypeId));
 
         WSOpprettOppgaveResponse oppgaveResponse = opprettOppgave(prosessTaskData, behandlingTema, dokumentTypeId);
 
@@ -102,7 +107,8 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         log.info("Oppgave opprettet i Gosys med nummer: {}", oppgaveId);
 
         String forsendelseIdString = prosessTaskData.getPropertyValue(FORSENDELSE_ID_KEY);
-        Optional<UUID> forsendelseId = forsendelseIdString == null ? Optional.empty() : Optional.of(UUID.fromString(forsendelseIdString));
+        Optional<UUID> forsendelseId = forsendelseIdString == null ? Optional.empty()
+                : Optional.of(UUID.fromString(forsendelseIdString));
         if (forsendelseId.isPresent()) {
             opprettSletteTask(prosessTaskData);
         }
@@ -110,8 +116,10 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
     private void opprettSletteTask(ProsessTaskData prosessTaskData) {
         ProsessTaskData nesteStegProsessTaskData = new ProsessTaskData(SlettForsendelseTask.TASKNAME);
-        nesteStegProsessTaskData.setNesteKjøringEtter(FPDateUtil.nå().plusMinutes(30)); // Gi selvbetjening tid til å polle ferdig
-        long nesteSekvens = prosessTaskData.getSekvens() == null ? 1L : Long.parseLong(prosessTaskData.getSekvens()) + 1;
+        nesteStegProsessTaskData.setNesteKjøringEtter(FPDateUtil.nå().plusMinutes(30)); // Gi selvbetjening tid til å
+                                                                                        // polle ferdig
+        long nesteSekvens = prosessTaskData.getSekvens() == null ? 1L
+                : Long.parseLong(prosessTaskData.getSekvens()) + 1;
         nesteStegProsessTaskData.setSekvens(Long.toString(nesteSekvens));
         nesteStegProsessTaskData.setProperties(prosessTaskData.getProperties());
         nesteStegProsessTaskData.setPayload(prosessTaskData.getPayload());
@@ -122,8 +130,9 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     private BehandlingTema finnBehandlingTema(Optional<String> kode) {
         BehandlingTema behandlingTema;
         try {
-            behandlingTema = kode.map(k -> kodeverkRepository.finn(BehandlingTema.class, k)).orElse(BehandlingTema.UDEFINERT);
-        } catch (NoResultException e) { //NOSONAR
+            behandlingTema = kode.map(k -> kodeverkRepository.finn(BehandlingTema.class, k))
+                    .orElse(BehandlingTema.UDEFINERT);
+        } catch (NoResultException e) { // NOSONAR
             // Vi skal tåle ukjent behandlingstema
             behandlingTema = BehandlingTema.UDEFINERT;
         }
@@ -131,20 +140,25 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     }
 
     /**
-     * Det er to typer oppgaver som kan sendes til GSAK. Journalføringsoppgave eller fordelingsopgpave.
-     * Fordelingsoppgave er ikke lenger i bruk. EnhetsId til andre oppgaver skal hentes fra ekstern tjeneste.
+     * Det er to typer oppgaver som kan sendes til GSAK. Journalføringsoppgave eller
+     * fordelingsopgpave. Fordelingsoppgave er ikke lenger i bruk. EnhetsId til
+     * andre oppgaver skal hentes fra ekstern tjeneste.
      */
-    private WSOpprettOppgaveResponse opprettOppgave(ProsessTaskData prosessTaskData, BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId) {
+    private WSOpprettOppgaveResponse opprettOppgave(ProsessTaskData prosessTaskData, BehandlingTema behandlingTema,
+            DokumentTypeId dokumentTypeId) {
         final Optional<String> fødselsnr = hentPersonidentifikatorFraTaskData(prosessTaskData.getAktørId());
         final String enhetInput = prosessTaskData.getPropertyValue(JOURNAL_ENHET);
 
         String arkivId = prosessTaskData.getPropertyValue(ARKIV_ID_KEY);
 
-        // Overstyr saker fra NFP+NK, deretter egen logikk hvis fødselsnummer ikke er oppgitt
-        final String enhetId = enhetsidTjeneste.hentFordelingEnhetId(hentUtTema(prosessTaskData), behandlingTema, Optional.ofNullable(enhetInput), fødselsnr);
+        // Overstyr saker fra NFP+NK, deretter egen logikk hvis fødselsnummer ikke er
+        // oppgitt
+        final String enhetId = enhetsidTjeneste.hentFordelingEnhetId(hentUtTema(prosessTaskData), behandlingTema,
+                Optional.ofNullable(enhetInput), fødselsnr);
         final String beskrivelse = lagBeskrivelse(behandlingTema, dokumentTypeId, prosessTaskData);
 
-        OpprettOppgaveRequest request = createRequest(prosessTaskData, enhetId, beskrivelse, behandlingTema, dokumentTypeId, arkivId, fødselsnr);
+        OpprettOppgaveRequest request = createRequest(prosessTaskData, enhetId, beskrivelse, behandlingTema,
+                dokumentTypeId, arkivId, fødselsnr);
 
         return service.opprettOppgave(request);
 
@@ -155,26 +169,30 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
             return BehandlingTema.UDEFINERT.equals(behandlingTema) ? "Journalføring" : behandlingTema.getNavn();
         }
         String beskrivelse = dokumentTypeId.getNavn();
-        if (DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.equals(dokumentTypeId) && data.getPropertyValue(MottakMeldingDataWrapper.FØRSTE_UTTAKSDAG_KEY) != null) {
+        if (DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.equals(dokumentTypeId)
+                && data.getPropertyValue(MottakMeldingDataWrapper.FØRSTE_UTTAKSDAG_KEY) != null) {
             String uttakStart = data.getPropertyValue(MottakMeldingDataWrapper.FØRSTE_UTTAKSDAG_KEY);
             beskrivelse = beskrivelse + " (" + uttakStart + ")";
         }
         if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
             if (data.getPropertyValue(MottakMeldingDataWrapper.INNTEKTSMELDING_YTELSE) != null) {
-                beskrivelse = beskrivelse + " (" + data.getPropertyValue(MottakMeldingDataWrapper.INNTEKTSMELDING_YTELSE) + ")";
+                beskrivelse = beskrivelse + " ("
+                        + data.getPropertyValue(MottakMeldingDataWrapper.INNTEKTSMELDING_YTELSE) + ")";
             }
             if (data.getPropertyValue(MottakMeldingDataWrapper.INNTEKSTMELDING_STARTDATO_KEY) != null) {
-                beskrivelse = beskrivelse + " (" + (data.getPropertyValue(MottakMeldingDataWrapper.INNTEKSTMELDING_STARTDATO_KEY)) + ")";
+                beskrivelse = beskrivelse + " ("
+                        + (data.getPropertyValue(MottakMeldingDataWrapper.INNTEKSTMELDING_STARTDATO_KEY)) + ")";
             }
         }
         return beskrivelse;
     }
 
     private OpprettOppgaveRequest createRequest(ProsessTaskInfo prosessTaskData, String enhetsId, String beskrivelse,
-                                                BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId, String arkivId, Optional<String> fødselsnr) {
+            BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId, String arkivId, Optional<String> fødselsnr) {
         OpprettOppgaveRequest.Builder builder = OpprettOppgaveRequest.builder();
 
-        // Kodeverk fra FGSAK / Gosys. Søk etter ENGANGSST_FOR på confluence og bruk verdier fra regneark (sic)....
+        // Kodeverk fra FGSAK / Gosys. Søk etter ENGANGSST_FOR på confluence og bruk
+        // verdier fra regneark (sic)....
         setFagområdeOgPrioritet(prosessTaskData, builder, behandlingTema, dokumentTypeId);
         if (fødselsnr.isPresent()) {
             builder = builder.medFnr(fødselsnr.get());
@@ -188,7 +206,8 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
                 .medAnsvarligEnhetId(enhetsId)
                 .medDokumentId(arkivId)
                 .medBrukerTypeKode(BrukerType.PERSON)
-                .medMottattDato(hentDatoFraTaskData(prosessTaskData.getPropertyValue(FORSENDELSE_MOTTATT_TIDSPUNKT_KEY)))
+                .medMottattDato(
+                        hentDatoFraTaskData(prosessTaskData.getPropertyValue(FORSENDELSE_MOTTATT_TIDSPUNKT_KEY)))
                 .medAktivFra(FPDateUtil.iDag())
                 .medAktivTil(helgeJustertFrist(FPDateUtil.iDag().plusDays(1L)))
                 .medBeskrivelse(beskrivelse)
@@ -196,17 +215,19 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
                 .build();
     }
 
-    private void setFagområdeOgPrioritet(ProsessTaskInfo info, OpprettOppgaveRequest.Builder builder, BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId) {
+    private void setFagområdeOgPrioritet(ProsessTaskInfo info, OpprettOppgaveRequest.Builder builder,
+            BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId) {
         Tema tema = hentUtTema(info);
         if (Tema.FORELDRE_OG_SVANGERSKAPSPENGER.equals(tema)) {
             builder.medFagomradeKode(FAGOMRADE_KODE.toString())
                     .medPrioritetKode(PRIORITET_KODE.toString())
                     .medOppgavetypeKode(JFR_FOR);
-            if (BehandlingTema.gjelderForeldrepenger(behandlingTema) || dokumentTypeId.erForeldrepengerRelatert()) {
+            if (behandlingTema.gjelderForeldrepenger() || dokumentTypeId.erForeldrepengerRelatert()) {
                 builder.medUnderkategoriKode("FORELDREPE_FOR");
-            } else if (BehandlingTema.gjelderEngangsstønad(behandlingTema) || dokumentTypeId.erEngangsstønadRelatert()) {
+            } else if (behandlingTema.gjelderEngangsstønad() || dokumentTypeId.erEngangsstønadRelatert()) {
                 builder.medUnderkategoriKode("ENGANGSST_FOR");
-            } else if (BehandlingTema.SVANGERSKAPSPENGER.equals(behandlingTema) || dokumentTypeId.erSvangerskapspengerRelatert()) {
+            } else if (behandlingTema.gjelderSvangerskapspenger()
+                    || dokumentTypeId.erSvangerskapspengerRelatert()) {
                 builder.medUnderkategoriKode("SVANGERSKAPSPE_FOR");
             }
         } else if (Tema.OMS.equals(tema)) {
@@ -217,7 +238,8 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     }
 
     private Tema hentUtTema(ProsessTaskInfo info) {
-        return kodeverkRepository.finn(Tema.class, info.getProperties().getProperty(MottakMeldingDataWrapper.TEMA_KEY, "-"));
+        return kodeverkRepository.finn(Tema.class,
+                info.getProperties().getProperty(MottakMeldingDataWrapper.TEMA_KEY, "-"));
     }
 
     // Sett frist til mandag hvis fristen er i helgen.

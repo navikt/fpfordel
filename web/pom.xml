@@ -24,7 +24,7 @@
 			<artifactId>flyway-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.oracle</groupId>
+			<groupId>com.oracle.ojdbc</groupId>
 			<artifactId>ojdbc8</artifactId>
 			<scope>compile</scope>
 		</dependency>
@@ -50,11 +50,6 @@
 			<groupId>no.nav.foreldrepenger.felles</groupId>
 			<artifactId>felles-prosesstask</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-			<artifactId>felles-integrasjon-bom</artifactId>
-		</dependency>
-
 		<dependency>
 			<groupId>no.nav.foreldrepenger.kontrakter</groupId>
 			<artifactId>fordel-v1</artifactId>
