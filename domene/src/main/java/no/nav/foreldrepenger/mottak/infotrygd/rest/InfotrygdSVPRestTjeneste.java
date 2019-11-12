@@ -23,7 +23,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 @SVP
 public class InfotrygdSVPRestTjeneste implements InfotrygdTjeneste {
 
-    private static final String DEFAULT_URI = "http://infotrygd-svangerskapspenger";
+    private static final String DEFAULT_URI = "http://infotrygd-svangerskapspenger.default/saker";
     private static final Logger LOG = LoggerFactory.getLogger(InfotrygdSVPRestTjeneste.class);
 
     private OidcRestClient restClient;
