@@ -163,8 +163,9 @@ public class RelevantSakSjekker {
 
     private List<InfotrygdSak> sammenlignOgSjekk(String fnr, List<InfotrygdSak> restSaker, List<InfotrygdSak> wsSaker) {
         if (!restSaker.containsAll(wsSaker)) {
-            LOGGER.warn("SVP respons mismatch. Fikk {} fra REST {} og {} fra WS", fnr,
-                    restSaker, wsSaker);
+            LOGGER.warn("Forskjellig respons fra WS og REST. Fikk {} fra REST {} og {} fra WS", restSaker, wsSaker);
+        } else {
+            LOGGER.info("Identisk respons fra WS og REST, {} sak(er)", restSaker.size());
         }
         if (unleash.isEnabled(TOGGLE_REST_STYRER)) {
             return restSaker;
