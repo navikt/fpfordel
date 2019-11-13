@@ -85,7 +85,7 @@ public class InfotrygdSak {
 
         return Objects.equals(that.behandlingsTema, this.behandlingsTema) &&
                 Objects.equals(that.iverksatt, this.iverksatt) &&
-                // Objects.equals(that.registrert, this.registrert) &&
+                Objects.equals(that.registrert, this.registrert) &&
                 // Objects.equals(that.sakId, this.sakId) &&
                 Objects.equals(that.tema, this.tema);
     }
