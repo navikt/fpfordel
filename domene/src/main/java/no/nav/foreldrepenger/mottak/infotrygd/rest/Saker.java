@@ -13,18 +13,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Saker {
     private final String info;
     private final List<Sak> saker;
-    private final List<LøpendeSak> åpneSaker;
+    private final List<LøpendeSak> løpendeSaker;
     private final AvsluttedeSaker avsluttedeSaker;
 
     @JsonCreator
     public Saker(
             @JsonProperty("info") String info,
             @JsonProperty("saker") List<Sak> saker,
-            @JsonProperty("åpneSaker") @JsonAlias("apneSakerMedLopendeUtbetaling") List<LøpendeSak> åpneSaker,
+            @JsonProperty("løpendeSaker") @JsonAlias("apneSakerMedLopendeUtbetaling") List<LøpendeSak> løpendeSaker,
             @JsonProperty("avsluttedeSaker") AvsluttedeSaker avsluttedeSaker) {
         this.info = info;
         this.saker = Optional.ofNullable(saker).orElse(emptyList());
-        this.åpneSaker = Optional.ofNullable(åpneSaker).orElse(emptyList());
+        this.løpendeSaker = Optional.ofNullable(løpendeSaker).orElse(emptyList());
         this.avsluttedeSaker = avsluttedeSaker;
     }
 
@@ -36,8 +36,8 @@ public class Saker {
         return saker;
     }
 
-    public List<LøpendeSak> getÅpneSaker() {
-        return åpneSaker;
+    public List<LøpendeSak> getLøpendeSaker() {
+        return løpendeSaker;
     }
 
     public AvsluttedeSaker getAvsluttedeSaker() {
@@ -46,7 +46,7 @@ public class Saker {
 
     @Override
     public int hashCode() {
-        return Objects.hash(saker, åpneSaker, avsluttedeSaker, info);
+        return Objects.hash(saker, løpendeSaker, avsluttedeSaker, info);
     }
 
     @Override
@@ -61,12 +61,12 @@ public class Saker {
         return Objects.equals(that.saker, this.saker) &&
                 Objects.equals(that.avsluttedeSaker, this.avsluttedeSaker) &&
                 Objects.equals(that.info, this.info) &&
-                Objects.equals(that.åpneSaker, this.åpneSaker);
+                Objects.equals(that.løpendeSaker, this.løpendeSaker);
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[info=" + info + ", saker=" + saker + ", åpneSaker=" + åpneSaker
+        return getClass().getSimpleName() + "[info=" + info + ", saker=" + saker + ", løpendeSaker=" + løpendeSaker
                 + ", avsluttedeSaker=" + avsluttedeSaker + "]";
     }
 

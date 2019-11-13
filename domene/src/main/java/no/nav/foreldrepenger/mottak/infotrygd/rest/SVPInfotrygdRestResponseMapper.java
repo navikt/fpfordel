@@ -25,7 +25,7 @@ final class SVPInfotrygdRestResponseMapper {
 
     static List<InfotrygdSak> svpInfotrygdSaker(Saker saker, LocalDate dato) {
         return infotrygdSakerFra(
-                infotrygdSakerFraÅpneSaker(saker.getÅpneSaker(), dato),
+                infotrygdSakerFraLøpendeSaker(saker.getLøpendeSaker(), dato),
                 infotrygdSakerFraAvsluttedeSaker(saker.getAvsluttedeSaker(), dato),
                 infotrygdSakerFraSaker(saker.getSaker(), dato));
     }
@@ -43,7 +43,7 @@ final class SVPInfotrygdRestResponseMapper {
                 .filter(erNyereEnn(fom));
     }
 
-    private static Stream<InfotrygdSak> infotrygdSakerFraÅpneSaker(List<LøpendeSak> åpneSaker, LocalDate dato) {
+    private static Stream<InfotrygdSak> infotrygdSakerFraLøpendeSaker(List<LøpendeSak> åpneSaker, LocalDate dato) {
         return stream(åpneSaker)
                 .map(SVPInfotrygdRestResponseMapper::tilSVPInfotrygdSak)
                 .filter(erNyereEnn(dato));
