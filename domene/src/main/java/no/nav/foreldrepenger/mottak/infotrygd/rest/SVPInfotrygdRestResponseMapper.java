@@ -38,8 +38,8 @@ final class SVPInfotrygdRestResponseMapper {
                 .map(SVPInfotrygdRestResponseMapper::tilSVPInfotrygdSak);
     }
 
-    private static Stream<InfotrygdSak> infotrygdSakerFraLøpendeSaker(List<LøpendeSak> åpneSaker) {
-        return stream(åpneSaker)
+    private static Stream<InfotrygdSak> infotrygdSakerFraLøpendeSaker(List<LøpendeSak> løpendeSaker) {
+        return stream(løpendeSaker)
                 .map(SVPInfotrygdRestResponseMapper::tilSVPInfotrygdSak);
     }
 
