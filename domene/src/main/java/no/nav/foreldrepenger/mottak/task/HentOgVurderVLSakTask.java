@@ -114,7 +114,7 @@ public class HentOgVurderVLSakTask extends WrappedProsessTaskHandler {
     }
 
     private boolean skalBehandlesEtterTidligereRegler(MottakMeldingDataWrapper dataWrapper) {
-        if (konfigVerdiStartdatoForeldrepenger.isAfter(dataWrapper.getOmsorgsovertakelsedato().orElse(Tid.TIDENES_ENDE))) {
+        if (dataWrapper.getOmsorgsovertakelsedato().map(konfigVerdiStartdatoForeldrepenger::isAfter).orElse(Boolean.FALSE)) {
             return true;
         }
         Optional<Boolean> annenPartHarRett = dataWrapper.getAnnenPartHarRett();

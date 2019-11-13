@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.mottak.infotrygd.rest;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static no.nav.foreldrepenger.fordel.kodeverk.Fagsystem.INFOTRYGD;
-import static no.nav.vedtak.konfig.Tid.TIDENES_BEGYNNELSE;
-import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -22,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverk.Tema;
-import no.nav.foreldrepenger.mottak.gsak.api.GsakSak;
 import no.nav.foreldrepenger.mottak.gsak.api.GsakSakTjeneste;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdPersonIkkeFunnetException;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
@@ -76,9 +73,7 @@ public class RelevantSakSjekker {
                 .stream()
                 .filter(sak -> sak.getFagsystem().equals(INFOTRYGD))
                 .filter(sak -> sak.getTema().equals(tema))
-                .filter(relevantGsakTidFilter(fom))
-                .findAny()
-                .isPresent();
+                .anyMatch(sak -> sak.getSistEndret().map(fom::isBefore).orElse(Boolean.TRUE));
     }
 
     private boolean erITSakRelevant(LocalDate fom, String fnr, BehandlingTema tema) {
@@ -106,18 +101,15 @@ public class RelevantSakSjekker {
     }
 
     private boolean erITSakRelevantForFP(LocalDate fom, String fnr) {
-        return finnSakListe(fom, fnr, InfotrygdSak::gjelderForeldrepenger)
-                .stream()
+        return finnSakListe(fom, fnr, InfotrygdSak::gjelderForeldrepenger).stream()
                 .anyMatch(svpFpRelevantTidFilter(fom));
     }
 
     private boolean erITSakRelevantForSVP(LocalDate fom, String fnr) {
         List<InfotrygdSak> restSaker = getInfotrygdSakRest(fom, fnr);
-        var wsSaker = finnSakListe(fom, fnr, InfotrygdSak::gjelderSvangerskapspenger)
-                .stream()
-                .filter(svpFpRelevantTidFilter(fom))
-                .collect(toList());
-        return sammenlignOgSjekk(fnr, restSaker, wsSaker);
+        var wsSaker = finnSakListe(fom, fnr, InfotrygdSak::gjelderSvangerskapspenger);
+        return sammenlignOgSjekk(fnr, restSaker, wsSaker).stream()
+                .anyMatch(svpFpRelevantTidFilter(fom));
     }
 
     private List<InfotrygdSak> getInfotrygdSakRest(LocalDate fom, String fnr) {
@@ -136,11 +128,10 @@ public class RelevantSakSjekker {
 
     private boolean erSvpRelevantIM(LocalDate fom, String fnr) {
         List<InfotrygdSak> restSaker = getInfotrygdSakRest(fom, fnr);
-        var wsSaker = finnSakListe(fom, fnr, InfotrygdSak::gjelderSvangerskapspenger).stream()
-                .filter(svpRelevantIMTidFilter(fom))
-                .collect(toList());
+        var wsSaker = finnSakListe(fom, fnr, InfotrygdSak::gjelderSvangerskapspenger);
 
-        return sammenlignOgSjekk(fnr, restSaker, wsSaker);
+        return sammenlignOgSjekk(fnr, restSaker, wsSaker).stream()
+                .anyMatch(svpFpRelevantTidFilter(fom));
     }
 
     private List<InfotrygdSak> finnSakListe(LocalDate fom, String fnr, Predicate<? super InfotrygdSak> gjelder) {
@@ -156,33 +147,24 @@ public class RelevantSakSjekker {
     }
 
     private static Predicate<? super InfotrygdSak> svpFpRelevantTidFilter(LocalDate fom) {
-        return sak -> sak.getRegistrert().isAfter(fom)
-                || sak.getIverksatt().orElse(TIDENES_BEGYNNELSE).isAfter(fom);
-    }
-
-    private static Predicate<? super InfotrygdSak> svpRelevantIMTidFilter(LocalDate fom) {
-        return sak -> sak.getRegistrert().isAfter(fom)
-                || sak.getIverksatt().orElse(TIDENES_ENDE).isAfter(fom);
-    }
-
-    private static Predicate<? super GsakSak> relevantGsakTidFilter(LocalDate fom) {
-        return sak -> !sak.getSistEndret().isPresent()
-                || sak.getSistEndret().get().isAfter(fom);
+        // Intensjon med FALSE for å unngå treff pga praksis i enheter med informasjonssaker
+        return sak -> fom.isBefore(sak.getRegistrert())
+                || sak.getIverksatt().map(fom::isBefore).orElse(Boolean.FALSE);
     }
 
     private static boolean erMann(String fnr) {
         return Character.getNumericValue(fnr.charAt(8)) % 2 != 0;
     }
 
-    private boolean sammenlignOgSjekk(String fnr, List<InfotrygdSak> restSaker, List<InfotrygdSak> wsSaker) {
+    private List<InfotrygdSak> sammenlignOgSjekk(String fnr, List<InfotrygdSak> restSaker, List<InfotrygdSak> wsSaker) {
         if (!restSaker.containsAll(wsSaker)) {
             LOGGER.warn("SVP respons mismatch. Fikk {} fra REST {} og {} fra WS", fnr,
                     restSaker, wsSaker);
         }
         if (unleash.isEnabled(TOGGLE_REST_STYRER)) {
-            return !restSaker.isEmpty();
+            return restSaker;
         }
-        return !wsSaker.isEmpty();
+        return wsSaker;
     }
 
     private interface Feilene extends DeklarerteFeil {

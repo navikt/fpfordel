@@ -46,7 +46,7 @@ public class InfotrygdSVPRestTjeneste implements InfotrygdTjeneste {
             LOG.info("Slår opp saker fra {}", request);
             var respons = restClient.get(request, Saker.class);
             LOG.info("Fikk saker {}", respons);
-            var saker = svpInfotrygdSaker(respons, fom);
+            var saker = svpInfotrygdSaker(respons);
             LOG.info("Returnerer saker {}", saker);
             return saker;
         } catch (Exception e) {
