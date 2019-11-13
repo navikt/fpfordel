@@ -5,11 +5,9 @@ import static java.util.stream.Stream.concat;
 import static no.nav.foreldrepenger.fordel.kodeverk.RelatertYtelseBehandlingstema.SVANGERSKAPSPENGER_BEHANDLINGSTEMA;
 import static no.nav.foreldrepenger.fordel.kodeverk.RelatertYtelseTema.FORELDREPENGER_TEMA;
 
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
@@ -23,34 +21,26 @@ final class SVPInfotrygdRestResponseMapper {
 
     }
 
-    static List<InfotrygdSak> svpInfotrygdSaker(Saker saker, LocalDate dato) {
+    static List<InfotrygdSak> svpInfotrygdSaker(Saker saker) {
         return infotrygdSakerFra(
-                infotrygdSakerFraLøpendeSaker(saker.getLøpendeSaker(), dato),
-                infotrygdSakerFraAvsluttedeSaker(saker.getAvsluttedeSaker(), dato),
-                infotrygdSakerFraSaker(saker.getSaker(), dato));
+                infotrygdSakerFraLøpendeSaker(saker.getLøpendeSaker()),
+                infotrygdSakerFraAvsluttedeSaker(saker.getAvsluttedeSaker()),
+                infotrygdSakerFraSaker(saker.getSaker()));
     }
 
-    private static Stream<InfotrygdSak> infotrygdSakerFraSaker(List<Sak> saker, LocalDate dato) {
+    private static Stream<InfotrygdSak> infotrygdSakerFraSaker(List<Sak> saker) {
         return stream(saker)
-                .map(SVPInfotrygdRestResponseMapper::tilSVPInfotrygdSak)
-                .filter(erNyereEnn(dato));
+                .map(SVPInfotrygdRestResponseMapper::tilSVPInfotrygdSak);
     }
 
-    private static Stream<InfotrygdSak> infotrygdSakerFraAvsluttedeSaker(AvsluttedeSaker avsluttedeSaker,
-            LocalDate fom) {
+    private static Stream<InfotrygdSak> infotrygdSakerFraAvsluttedeSaker(AvsluttedeSaker avsluttedeSaker) {
         return stream(avsluttedeSaker.getSaker())
-                .map(SVPInfotrygdRestResponseMapper::tilSVPInfotrygdSak)
-                .filter(erNyereEnn(fom));
+                .map(SVPInfotrygdRestResponseMapper::tilSVPInfotrygdSak);
     }
 
-    private static Stream<InfotrygdSak> infotrygdSakerFraLøpendeSaker(List<LøpendeSak> åpneSaker, LocalDate dato) {
+    private static Stream<InfotrygdSak> infotrygdSakerFraLøpendeSaker(List<LøpendeSak> åpneSaker) {
         return stream(åpneSaker)
-                .map(SVPInfotrygdRestResponseMapper::tilSVPInfotrygdSak)
-                .filter(erNyereEnn(dato));
-    }
-
-    private static Predicate<? super InfotrygdSak> erNyereEnn(LocalDate dato) {
-        return f -> f.getIverksatt().isPresent() && f.getIverksatt().get().isAfter(dato);
+                .map(SVPInfotrygdRestResponseMapper::tilSVPInfotrygdSak);
     }
 
     private static InfotrygdSak tilSVPInfotrygdSak(AvsluttetSak sak) {
