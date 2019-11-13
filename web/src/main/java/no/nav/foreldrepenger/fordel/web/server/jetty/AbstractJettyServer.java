@@ -17,6 +17,7 @@ import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.DefaultIdentityService;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.security.jaspi.JaspiAuthenticatorFactory;
+import org.eclipse.jetty.server.AbstractNetworkConnector;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -36,25 +37,25 @@ abstract class AbstractJettyServer {
      * @see AbstractNetworkConnector#getHost()
      * @see org.eclipse.jetty.server.ServerConnector#openAcceptChannel()
      */
-    //TODO : Trenger vi egentlig å sette denne? Spec ser ut til å si at det er eq med null, settes den default til null eller binder den mot et interface?
+    // TODO : Trenger vi egentlig å sette denne? Spec ser ut til å si at det er eq
+    // med null, settes den default til null eller binder den mot et interface?
 
     protected static final String SERVER_HOST = "0.0.0.0";
     /**
      * nedstrippet sett med Jetty configurations for raskere startup.
      */
-    protected static final Configuration[] CONFIGURATIONS = new Configuration[]{
-        new WebInfConfiguration(),
-        new WebXmlConfiguration(),
-        new AnnotationConfiguration(),
-        new EnvConfiguration(),
-        new PlusConfiguration(),
+    protected static final Configuration[] CONFIGURATIONS = new Configuration[] {
+            new WebInfConfiguration(),
+            new WebXmlConfiguration(),
+            new AnnotationConfiguration(),
+            new EnvConfiguration(),
+            new PlusConfiguration(),
     };
     private AppKonfigurasjon appKonfigurasjon;
 
     public AbstractJettyServer(AppKonfigurasjon appKonfigurasjon) {
         this.appKonfigurasjon = appKonfigurasjon;
     }
-
 
     protected void bootStrap() throws Exception {
         konfigurer();
@@ -71,10 +72,11 @@ abstract class AbstractJettyServer {
     protected abstract void konfigurerMiljø() throws Exception; // NOSONAR
 
     protected void konfigurerSikkerhet() {
-        Security.setProperty(AuthConfigFactory.DEFAULT_FACTORY_SECURITY_PROPERTY, AuthConfigFactoryImpl.class.getCanonicalName());
+        Security.setProperty(AuthConfigFactory.DEFAULT_FACTORY_SECURITY_PROPERTY,
+                AuthConfigFactoryImpl.class.getCanonicalName());
 
-        File jaspiConf = new File(System.getProperty("conf", "./conf")+"/jaspi-conf.xml"); // NOSONAR
-        if(!jaspiConf.exists()) {
+        File jaspiConf = new File(System.getProperty("conf", "./conf") + "/jaspi-conf.xml"); // NOSONAR
+        if (!jaspiConf.exists()) {
             throw new IllegalStateException("Missing required file: " + jaspiConf.getAbsolutePath());
         }
         System.setProperty("org.apache.geronimo.jaspic.configurationFile", jaspiConf.getAbsolutePath());
@@ -95,7 +97,7 @@ abstract class AbstractJettyServer {
 
     protected void start(AppKonfigurasjon appKonfigurasjon) throws Exception {
         Server server = new Server(appKonfigurasjon.getServerPort());
-        server.setConnectors(createConnectors(appKonfigurasjon, server).toArray(new Connector[]{}));
+        server.setConnectors(createConnectors(appKonfigurasjon, server).toArray(new Connector[] {}));
         server.setHandler(createContext(appKonfigurasjon));
         server.start();
         server.join();
@@ -104,7 +106,8 @@ abstract class AbstractJettyServer {
     @SuppressWarnings("resource")
     protected List<Connector> createConnectors(AppKonfigurasjon appKonfigurasjon, Server server) {
         List<Connector> connectors = new ArrayList<>();
-        ServerConnector httpConnector = new ServerConnector(server, new HttpConnectionFactory(createHttpConfiguration()));
+        ServerConnector httpConnector = new ServerConnector(server,
+                new HttpConnectionFactory(createHttpConfiguration()));
         httpConnector.setPort(appKonfigurasjon.getServerPort());
         httpConnector.setHost(SERVER_HOST);
         connectors.add(httpConnector);
@@ -116,7 +119,8 @@ abstract class AbstractJettyServer {
         WebAppContext webAppContext = new WebAppContext();
         webAppContext.setParentLoaderPriority(true);
 
-        // må hoppe litt bukk for å hente web.xml fra classpath i stedet for fra filsystem.
+        // må hoppe litt bukk for å hente web.xml fra classpath i stedet for fra
+        // filsystem.
         String descriptor;
         try (var resource = Resource.newClassPathResource("/WEB-INF/web.xml")) {
             descriptor = resource.getURI().toURL().toExternalForm();
@@ -125,18 +129,18 @@ abstract class AbstractJettyServer {
         webAppContext.setBaseResource(createResourceCollection());
         webAppContext.setContextPath(appKonfigurasjon.getContextPath());
         webAppContext.setConfigurations(CONFIGURATIONS);
-        webAppContext.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", "^.*resteasy-.*.jar$|^.*felles-.*.jar$");
+        webAppContext.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern",
+                "^.*resteasy-.*.jar$|^.*felles-.*.jar$");
         webAppContext.setSecurityHandler(createSecurityHandler());
         return webAppContext;
     }
-
 
     protected HttpConfiguration createHttpConfiguration() {
         // Create HTTP Config
         HttpConfiguration httpConfig = new HttpConfiguration();
 
         // Add support for X-Forwarded headers
-        httpConfig.addCustomizer( new org.eclipse.jetty.server.ForwardedRequestCustomizer() );
+        httpConfig.addCustomizer(new org.eclipse.jetty.server.ForwardedRequestCustomizer());
 
         return httpConfig;
 
