@@ -48,7 +48,7 @@ final class SVPInfotrygdRestResponseMapper {
     }
 
     private static InfotrygdSak tilSVPInfotrygdSak(Sak sak) {
-        return new InfotrygdSak(sak.getSaksnummer(), FA, SVP, sak.getIverksatt(), sak.getVedtatt());
+        return new InfotrygdSak(sak.getSaksnummer(), FA, SVP, sak.getIverksatt(), null);
     }
 
     private static InfotrygdSak tilSVPInfotrygdSak(LøpendeSak sak) {
