@@ -116,10 +116,11 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
     private MottakMeldingDataWrapper nesteStegForForeldrepenger(MottakMeldingDataWrapper w) {
         // Her sjekker vi annen part - unngå at løpende fedrekvoter gir manuell
         // journalføring
-        if (erMann(fnrAnnenPart(w))) {
+        String annenPart = fnrAnnenPart(w);
+        if (erMann(annenPart)) {
             return nesteStegOpprettet(w);
         }
-        if (skalMidlertidigJournalføre(w, fnrAnnenPart(w), iDag().minus(infotrygdAnnenPartGyldigPeriode))) {
+        if (skalMidlertidigJournalføre(w, annenPart, iDag().minus(infotrygdAnnenPartGyldigPeriode))) {
             return midlertidigJournalført(w);
         }
         return nesteStegOpprettet(w);
