@@ -13,14 +13,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Saker {
     private final String info;
     private final List<Sak> saker;
-    private final List<ÅpenSak> åpneSaker;
+    private final List<LøpendeSak> åpneSaker;
     private final AvsluttedeSaker avsluttedeSaker;
 
     @JsonCreator
     public Saker(
             @JsonProperty("info") String info,
             @JsonProperty("saker") List<Sak> saker,
-            @JsonProperty("åpneSaker") @JsonAlias("apneSakerMedLopendeUtbetaling") List<ÅpenSak> åpneSaker,
+            @JsonProperty("åpneSaker") @JsonAlias("apneSakerMedLopendeUtbetaling") List<LøpendeSak> åpneSaker,
             @JsonProperty("avsluttedeSaker") AvsluttedeSaker avsluttedeSaker) {
         this.info = info;
         this.saker = Optional.ofNullable(saker).orElse(emptyList());
@@ -36,7 +36,7 @@ public class Saker {
         return saker;
     }
 
-    public List<ÅpenSak> getÅpneSaker() {
+    public List<LøpendeSak> getÅpneSaker() {
         return åpneSaker;
     }
 

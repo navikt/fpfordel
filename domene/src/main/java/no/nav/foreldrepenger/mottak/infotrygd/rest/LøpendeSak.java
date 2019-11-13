@@ -9,13 +9,13 @@ import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ÅpenSak {
+public class LøpendeSak {
 
     private final LocalDate iverksatt;
     private final List<Utbetaling> utbetalinger;
 
     @JsonCreator
-    public ÅpenSak(@JsonProperty("iverksatt") LocalDate iverksatt,
+    public LøpendeSak(@JsonProperty("iverksatt") LocalDate iverksatt,
             @JsonProperty("utbetalinger") List<Utbetaling> utbetalinger) {
         this.iverksatt = iverksatt;
         this.utbetalinger = Optional.ofNullable(utbetalinger).orElse(Collections.emptyList());
@@ -36,13 +36,13 @@ public class ÅpenSak {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof ÅpenSak)) {
+        if (obj == null || !(obj instanceof LøpendeSak)) {
             return false;
         }
         if (this == obj) {
             return true;
         }
-        ÅpenSak that = (ÅpenSak) obj;
+        LøpendeSak that = (LøpendeSak) obj;
         return Objects.equals(that.iverksatt, this.iverksatt) &&
                 Objects.equals(that.utbetalinger, this.utbetalinger);
     }

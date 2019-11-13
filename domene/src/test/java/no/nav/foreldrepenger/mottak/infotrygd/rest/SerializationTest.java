@@ -111,8 +111,8 @@ public class SerializationTest {
         return new Sak(plusDays(n), SakResultat.FB, saksnummer(n), SakStatus.FI, SakType.S, plusDays(1));
     }
 
-    private static ÅpenSak åpenSak(int n) {
-        return new ÅpenSak(plusDays(n), utbetalinger(n));
+    private static LøpendeSak åpenSak(int n) {
+        return new LøpendeSak(plusDays(n), utbetalinger(n));
     }
 
     private static AvsluttedeSaker avsluttedeSaker(int n) {
@@ -137,7 +137,7 @@ public class SerializationTest {
                 .collect(toList());
     }
 
-    private static List<ÅpenSak> åpneSaker(int n) {
+    private static List<LøpendeSak> åpneSaker(int n) {
         return IntStream.range(0, n)
                 .boxed()
                 .map(SerializationTest::åpenSak)
