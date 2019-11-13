@@ -12,6 +12,7 @@ import org.eclipse.jetty.webapp.MetaData;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import no.nav.foreldrepenger.fordel.web.app.konfig.ApplicationConfig;
+import no.nav.foreldrepenger.fordel.web.app.util.ClusterDetector;
 import no.nav.foreldrepenger.fordel.web.server.jetty.DataSourceKonfig.DBConnProp;
 import no.nav.vedtak.isso.IssoApplication;
 
@@ -32,14 +33,17 @@ public class JettyServer extends AbstractJettyServer {
     }
 
     public static void main(String[] args) throws Exception {
-        JettyServer jettyServer;
-        if (args.length > 0) {
-            int serverPort = Integer.parseUnsignedInt(args[0]);
-            jettyServer = new JettyServer(serverPort);
-        } else {
-            jettyServer = new JettyServer();
+        if (!ClusterDetector.isProd()) {
+            System.setProperty("log.level.no.nav.foreldrepenger.fordel", "TRACE");
         }
-        jettyServer.bootStrap();
+        jettyServer(args).bootStrap();
+    }
+
+    private static AbstractJettyServer jettyServer(String[] args) {
+        if (args.length > 0) {
+            return new JettyServer(Integer.parseUnsignedInt(args[0]));
+        }
+        return new JettyServer();
     }
 
     @Override
@@ -69,11 +73,13 @@ public class JettyServer extends AbstractJettyServer {
     }
 
     private void temporært() {
-        // FIXME : PFP-1176 Skriv om i OpenAmIssoHealthCheck og AuthorizationRequestBuilder når Jboss dør
+        // FIXME : PFP-1176 Skriv om i OpenAmIssoHealthCheck og
+        // AuthorizationRequestBuilder når Jboss dør
         if (System.getenv("OIDC_OPENAM_HOSTURL") != null) {
             System.setProperty("OpenIdConnect.issoHost", System.getenv("OIDC_OPENAM_HOSTURL"));
         }
-        // FIXME : PFP-1176 Skriv om i AuthorizationRequestBuilder og IdTokenAndRefreshTokenProvider når Jboss dør
+        // FIXME : PFP-1176 Skriv om i AuthorizationRequestBuilder og
+        // IdTokenAndRefreshTokenProvider når Jboss dør
         if (System.getenv("OIDC_OPENAM_AGENTNAME") != null) {
             System.setProperty("OpenIdConnect.username", System.getenv("OIDC_OPENAM_AGENTNAME"));
         }
@@ -121,9 +127,9 @@ public class JettyServer extends AbstractJettyServer {
         List<Class<?>> appClasses = getWebInfClasses();
 
         List<Resource> resources = appClasses.stream()
-            .map(c -> Resource.newResource(c.getProtectionDomain().getCodeSource().getLocation()))
-            .distinct()
-            .collect(Collectors.toList());
+                .map(c -> Resource.newResource(c.getProtectionDomain().getCodeSource().getLocation()))
+                .distinct()
+                .collect(Collectors.toList());
 
         metaData.setWebInfClassesDirs(resources);
     }
@@ -135,7 +141,7 @@ public class JettyServer extends AbstractJettyServer {
     @Override
     protected ResourceCollection createResourceCollection() throws IOException {
         return new ResourceCollection(
-            Resource.newClassPathResource("/web"));
+                Resource.newClassPathResource("/web"));
     }
 
 }
