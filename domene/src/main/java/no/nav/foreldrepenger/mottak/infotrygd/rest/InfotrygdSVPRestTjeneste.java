@@ -43,11 +43,11 @@ public class InfotrygdSVPRestTjeneste implements InfotrygdTjeneste {
     public List<InfotrygdSak> finnSakListe(String fnr, LocalDate fom) {
         try {
             var request = new URIBuilder(uri).addParameter("fnr", fnr).build();
-            LOG.info("Slår opp saker fra {}", request);
+            LOG.trace("Slår opp saker fra {}", request);
             var respons = restClient.get(request, Saker.class);
-            LOG.info("Fikk saker {}", respons);
+            LOG.trace("Fikk saker {}", respons);
             var saker = svpInfotrygdSaker(respons);
-            LOG.info("Returnerer saker {}", saker);
+            LOG.trace("Returnerer saker {}", saker);
             return saker;
         } catch (Exception e) {
             LOG.warn("Feil ved oppslag mot {}, returnerer ingen saker", uri, e);
