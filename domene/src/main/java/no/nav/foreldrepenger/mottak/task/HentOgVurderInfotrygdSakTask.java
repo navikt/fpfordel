@@ -45,19 +45,19 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
 
     private final TemporalAmount infotrygdSakGyldigPeriode;
     private final TemporalAmount infotrygdAnnenPartGyldigPeriode;
-    private final AktørConsumerMedCache aktørConsumer;
+    private final AktørConsumerMedCache aktør;
     private final RelevantSakSjekker relevansSjekker;
 
     @Inject
     public HentOgVurderInfotrygdSakTask(ProsessTaskRepository prosessTaskRepository,
             KodeverkRepository kodeverkRepository,
             RelevantSakSjekker relevansSjekker,
-            AktørConsumerMedCache aktørConsumer,
+            AktørConsumerMedCache aktør,
             @KonfigVerdi("infotrygd.sak.gyldig.periode") Instance<Period> sakPeriode,
             @KonfigVerdi("infotrygd.annen.part.gyldig.periode") Instance<Period> annenPartPeriode) {
         super(prosessTaskRepository, kodeverkRepository);
         this.relevansSjekker = relevansSjekker;
-        this.aktørConsumer = aktørConsumer;
+        this.aktør = aktør;
         this.infotrygdSakGyldigPeriode = sakPeriode.get();
         this.infotrygdAnnenPartGyldigPeriode = annenPartPeriode.get();
     }
@@ -138,13 +138,13 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
     }
 
     private String fnr(MottakMeldingDataWrapper w) {
-        return aktørConsumer.hentPersonIdentForAktørId(w.getAktørId().get())
+        return aktør.hentPersonIdentForAktørId(w.getAktørId().get())
                 .orElseThrow(() -> MottakMeldingFeil.FACTORY
                         .fantIkkePersonidentForAktørId(TASKNAME, w.getId()).toException());
     }
 
     private String fnrAnnenPart(MottakMeldingDataWrapper w) {
-        return aktørConsumer.hentPersonIdentForAktørId(w.getAnnenPartId().get())
+        return aktør.hentPersonIdentForAktørId(w.getAnnenPartId().get())
                 .orElseThrow(() -> MottakMeldingFeil.FACTORY
                         .fantIkkePersonidentForAktørId(TASKNAME, w.getId()).toException());
     }

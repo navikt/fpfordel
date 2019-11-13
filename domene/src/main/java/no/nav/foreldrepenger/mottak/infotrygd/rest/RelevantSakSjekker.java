@@ -59,13 +59,11 @@ public class RelevantSakSjekker {
     }
 
     public boolean skalMidlertidigJournalføre(LocalDate fom, String fnr, Tema tema, BehandlingTema behandlingTema) {
-        return harGsakSaker(fom, fnr, tema) &&
-                erITSakRelevant(fom, fnr, behandlingTema);
+        return harGsakSaker(fom, fnr, tema) && erITSakRelevant(fom, fnr, behandlingTema);
     }
 
     public boolean skalMidlertidigJournalføreIM(LocalDate fom, String fnr, Tema tema, BehandlingTema behandlingTema) {
-        return harGsakSaker(fom.minus(GSAK_EKSTRA_MND), fnr, tema) &&
-                erITSakRelevantForIM(fnr, behandlingTema, fom);
+        return harGsakSaker(fom.minus(GSAK_EKSTRA_MND), fnr, tema) && erITSakRelevantForIM(fnr, behandlingTema, fom);
     }
 
     private boolean harGsakSaker(LocalDate fom, String fnr, Tema tema) {
@@ -73,7 +71,9 @@ public class RelevantSakSjekker {
                 .stream()
                 .filter(sak -> sak.getFagsystem().equals(INFOTRYGD))
                 .filter(sak -> sak.getTema().equals(tema))
-                .anyMatch(sak -> sak.getSistEndret().map(fom::isBefore).orElse(Boolean.TRUE));
+                .anyMatch(sak -> sak.getSistEndret()
+                        .map(fom::isBefore)
+                        .orElse(true));
     }
 
     private boolean erITSakRelevant(LocalDate fom, String fnr, BehandlingTema tema) {
@@ -101,14 +101,16 @@ public class RelevantSakSjekker {
     }
 
     private boolean erITSakRelevantForFP(LocalDate fom, String fnr) {
-        return finnSakListe(fom, fnr, InfotrygdSak::gjelderForeldrepenger).stream()
+        return finnSakListe(fom, fnr, InfotrygdSak::gjelderForeldrepenger)
+                .stream()
                 .anyMatch(svpFpRelevantTidFilter(fom));
     }
 
     private boolean erITSakRelevantForSVP(LocalDate fom, String fnr) {
         List<InfotrygdSak> restSaker = getInfotrygdSakRest(fom, fnr);
         var wsSaker = finnSakListe(fom, fnr, InfotrygdSak::gjelderSvangerskapspenger);
-        return sammenlignOgSjekk(fnr, restSaker, wsSaker).stream()
+        return sammenlignOgSjekk(fnr, restSaker, wsSaker)
+                .stream()
                 .anyMatch(svpFpRelevantTidFilter(fom));
     }
 
@@ -120,7 +122,8 @@ public class RelevantSakSjekker {
     }
 
     private boolean erFpRelevantForIM(LocalDate fom, String fnr) {
-        return finnSakListe(fom, fnr, InfotrygdSak::gjelderForeldrepenger).stream()
+        return finnSakListe(fom, fnr, InfotrygdSak::gjelderForeldrepenger)
+                .stream()
                 .map(InfotrygdSak::getIverksatt)
                 .flatMap(Optional::stream)
                 .anyMatch(fom::isBefore);
@@ -130,7 +133,8 @@ public class RelevantSakSjekker {
         List<InfotrygdSak> restSaker = getInfotrygdSakRest(fom, fnr);
         var wsSaker = finnSakListe(fom, fnr, InfotrygdSak::gjelderSvangerskapspenger);
 
-        return sammenlignOgSjekk(fnr, restSaker, wsSaker).stream()
+        return sammenlignOgSjekk(fnr, restSaker, wsSaker)
+                .stream()
                 .anyMatch(svpFpRelevantTidFilter(fom));
     }
 
@@ -147,9 +151,10 @@ public class RelevantSakSjekker {
     }
 
     private static Predicate<? super InfotrygdSak> svpFpRelevantTidFilter(LocalDate fom) {
-        // Intensjon med FALSE for å unngå treff pga praksis i enheter med informasjonssaker
+        // Intensjon med FALSE for å unngå treff pga praksis i enheter med
+        // informasjonssaker
         return sak -> fom.isBefore(sak.getRegistrert())
-                || sak.getIverksatt().map(fom::isBefore).orElse(Boolean.FALSE);
+                || sak.getIverksatt().map(fom::isBefore).orElse(false);
     }
 
     private static boolean erMann(String fnr) {
