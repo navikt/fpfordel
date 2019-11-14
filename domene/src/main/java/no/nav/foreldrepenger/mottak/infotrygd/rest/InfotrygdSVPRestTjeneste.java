@@ -45,9 +45,9 @@ public class InfotrygdSVPRestTjeneste implements InfotrygdTjeneste {
             var request = new URIBuilder(uri).addParameter("fnr", fnr).build();
             LOG.trace("Slår opp saker fra {}", request);
             var respons = restClient.get(request, Saker.class);
-            LOG.trace("Fikk saker {}", respons);
+            LOG.info("fpfordel infotrygd rest Fikk saker {}", respons);
             var saker = svpInfotrygdSaker(respons);
-            LOG.trace("Returnerer saker {}", saker);
+            LOG.info("fpfordel infotrygd rest Mappet saker {}", saker);
             return saker;
         } catch (Exception e) {
             LOG.warn("Feil ved oppslag mot {}, returnerer ingen saker", uri, e);
