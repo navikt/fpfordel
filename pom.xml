@@ -122,7 +122,7 @@
                 <!-- Bør flyttes til no.nav.vedtak.felles:felles?-->
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpmime</artifactId>
-                <version>4.5.7</version>
+                <version>4.5.10</version>
             </dependency>
 			<dependency>
 				<groupId>net.logstash.logback</groupId>
