@@ -109,7 +109,7 @@ public class RelevantSakSjekker {
     private boolean erITSakRelevantForSVP(LocalDate fom, String fnr) {
         List<InfotrygdSak> restSaker = getInfotrygdSakRest(fom, fnr);
         var wsSaker = finnSakListe(fom, fnr, InfotrygdSak::gjelderSvangerskapspenger);
-        return sammenlignOgSjekk(fnr, restSaker, wsSaker)
+        return sammenlignOgSjekk(restSaker, wsSaker)
                 .stream()
                 .anyMatch(svpFpRelevantTidFilter(fom));
     }
@@ -133,7 +133,7 @@ public class RelevantSakSjekker {
         List<InfotrygdSak> restSaker = getInfotrygdSakRest(fom, fnr);
         var wsSaker = finnSakListe(fom, fnr, InfotrygdSak::gjelderSvangerskapspenger);
 
-        return sammenlignOgSjekk(fnr, restSaker, wsSaker)
+        return sammenlignOgSjekk(restSaker, wsSaker)
                 .stream()
                 .anyMatch(svpFpRelevantTidFilter(fom));
     }
@@ -161,9 +161,9 @@ public class RelevantSakSjekker {
         return Character.getNumericValue(fnr.charAt(8)) % 2 != 0;
     }
 
-    private List<InfotrygdSak> sammenlignOgSjekk(String fnr, List<InfotrygdSak> restSaker, List<InfotrygdSak> wsSaker) {
+    private List<InfotrygdSak> sammenlignOgSjekk(List<InfotrygdSak> restSaker, List<InfotrygdSak> wsSaker) {
         if (!restSaker.containsAll(wsSaker)) {
-            LOGGER.warn("Forskjellig respons fra WS og REST. Fikk {} fra REST {} og {} fra WS", restSaker, wsSaker);
+            LOGGER.warn("Forskjellig respons fra WS og REST. Fikk {} fra REST og {} fra WS", restSaker, wsSaker);
         } else {
             LOGGER.info("Identisk respons fra WS og REST, {} sak(er)", restSaker.size());
         }
