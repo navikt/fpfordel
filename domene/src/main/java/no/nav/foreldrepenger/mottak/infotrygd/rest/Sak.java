@@ -82,13 +82,17 @@ public class Sak {
 
     @JsonIgnore
     public String getSaksnummer() {
-        return getSakId().getBlokk() + getSakId().getNr();
+        return getSakId().getBlokk() + nrFra(getSakId().getNr());
+    }
+
+    private static String nrFra(int nr) {
+        return nr < 10 ? "0" + nr : String.valueOf(nr);
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[iverksatt=" + iverksatt + ", resultat=" + resultat + ", sakId=" + sakId
-                + ", status=" + status + ", type=" + type + ", vedtatt=" + vedtatt + "]";
+        return getClass().getSimpleName() + "[iverksatt=" + iverksatt + ", resultat=" + resultat + ", saksnummer="
+                + getSaksnummer() + ", status=" + status + ", type=" + type + ", vedtatt=" + vedtatt + "]";
     }
 
 }
