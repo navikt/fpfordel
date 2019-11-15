@@ -6,7 +6,6 @@ import static no.nav.foreldrepenger.fordel.kodeverk.Fagsystem.INFOTRYGD;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -34,7 +33,6 @@ import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 public class RelevantSakSjekker {
     private static final Logger LOGGER = LoggerFactory.getLogger(RelevantSakSjekker.class);
     private static final Period GSAK_EKSTRA_MND = Period.ofMonths(2);
-    private static String TOGGLE_KALLE_REST = "fpfordel.rest.svp.kalltjeneste";
     private static String TOGGLE_REST_STYRER = "fpfordel.rest.svp.presedens";
 
     private InfotrygdTjeneste infotrygd;
@@ -107,18 +105,11 @@ public class RelevantSakSjekker {
     }
 
     private boolean erITSakRelevantForSVP(LocalDate fom, String fnr) {
-        List<InfotrygdSak> restSaker = getInfotrygdSakRest(fom, fnr);
+        List<InfotrygdSak> restSaker = svp.finnSakListe(fnr, fom);
         var wsSaker = finnSakListe(fom, fnr, InfotrygdSak::gjelderSvangerskapspenger);
         return sammenlignOgSjekk(restSaker, wsSaker)
                 .stream()
                 .anyMatch(svpFpRelevantTidFilter(fom));
-    }
-
-    private List<InfotrygdSak> getInfotrygdSakRest(LocalDate fom, String fnr) {
-        if (unleash.isEnabled(TOGGLE_KALLE_REST)) {
-            return svp.finnSakListe(fnr, fom);
-        }
-        return Collections.emptyList();
     }
 
     private boolean erFpRelevantForIM(LocalDate fom, String fnr) {
@@ -130,7 +121,7 @@ public class RelevantSakSjekker {
     }
 
     private boolean erSvpRelevantIM(LocalDate fom, String fnr) {
-        List<InfotrygdSak> restSaker = getInfotrygdSakRest(fom, fnr);
+        List<InfotrygdSak> restSaker = svp.finnSakListe(fnr, fom);
         var wsSaker = finnSakListe(fom, fnr, InfotrygdSak::gjelderSvangerskapspenger);
 
         return sammenlignOgSjekk(restSaker, wsSaker)
