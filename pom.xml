@@ -112,7 +112,7 @@
 			<dependency>
 				<groupId>no.nav.meldinger.virksomhet</groupId>
 				<artifactId>nav-virksomhet-dokumentnotifikasjon-v1-meldingsdefinisjon</artifactId>
-				<version>1.0.2</version>
+				<version>1.2019.01.08-09.21</version>
 				<classifier>jaxb</classifier>
 			</dependency>
 
