@@ -57,11 +57,15 @@ public class RelevantSakSjekker {
     }
 
     public boolean skalMidlertidigJournalføre(LocalDate fom, String fnr, Tema tema, BehandlingTema behandlingTema) {
-        return harGsakSaker(fom, fnr, tema) && erITSakRelevant(fom, fnr, behandlingTema);
+        // TODO skal være gsak, så infotrygd. Rekkefølge midlertidig snudd for loggeformål
+        return behandlingTema.gjelderSvangerskapspenger() ? erITSakRelevant(fom, fnr, behandlingTema) && harGsakSaker(fom, fnr, tema)
+                : harGsakSaker(fom, fnr, tema) && erITSakRelevant(fom, fnr, behandlingTema);
     }
 
     public boolean skalMidlertidigJournalføreIM(LocalDate fom, String fnr, Tema tema, BehandlingTema behandlingTema) {
-        return harGsakSaker(fom.minus(GSAK_EKSTRA_MND), fnr, tema) && erITSakRelevantForIM(fnr, behandlingTema, fom);
+        // TODO skal være gsak, så infotrygd. Rekkefølge midlertidig snudd for loggeformål
+        return behandlingTema.gjelderSvangerskapspenger() ? erITSakRelevantForIM(fnr, behandlingTema, fom) && harGsakSaker(fom.minus(GSAK_EKSTRA_MND), fnr, tema)
+                : harGsakSaker(fom.minus(GSAK_EKSTRA_MND), fnr, tema) && erITSakRelevantForIM(fnr, behandlingTema, fom);
     }
 
     private boolean harGsakSaker(LocalDate fom, String fnr, Tema tema) {
