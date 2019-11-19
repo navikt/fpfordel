@@ -32,13 +32,13 @@ public enum AppAbacAttributtType implements AbacAttributtType {
     public boolean getMaskerOutput() {
         return maskerOutput;
     }
-    
+
     @Override
     public String getSporingsloggKode() {
         return sporingsloggEksternKode;
     }
 
-    @Override
+    // @Override
     public boolean getValider() {
         return valider;
     }

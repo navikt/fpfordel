@@ -23,6 +23,8 @@ import no.nav.foreldrepenger.mottak.gsak.api.GsakSakTjeneste;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdPersonIkkeFunnetException;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
+import no.nav.foreldrepenger.mottak.infotrygd.rest.fp.FP;
+import no.nav.foreldrepenger.mottak.infotrygd.rest.svp.SVP;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
@@ -37,6 +39,8 @@ public class RelevantSakSjekker {
 
     private InfotrygdTjeneste infotrygd;
     private InfotrygdTjeneste svp;
+    private InfotrygdTjeneste fp;
+
     private Unleash unleash;
     private GsakSakTjeneste gsak;
 
@@ -47,25 +51,23 @@ public class RelevantSakSjekker {
     @Inject
     public RelevantSakSjekker(
             @SVP InfotrygdTjeneste svp,
+            @FP InfotrygdTjeneste fp,
             InfotrygdTjeneste infotrygd,
             GsakSakTjeneste gsak,
             Unleash unleash) {
         this.svp = svp;
+        this.fp = fp;
         this.infotrygd = infotrygd;
         this.unleash = unleash;
         this.gsak = gsak;
     }
 
     public boolean skalMidlertidigJournalføre(LocalDate fom, String fnr, Tema tema, BehandlingTema behandlingTema) {
-        // TODO skal være gsak, så infotrygd. Rekkefølge midlertidig snudd for loggeformål
-        return behandlingTema.gjelderSvangerskapspenger() ? erITSakRelevant(fom, fnr, behandlingTema) && harGsakSaker(fom, fnr, tema)
-                : harGsakSaker(fom, fnr, tema) && erITSakRelevant(fom, fnr, behandlingTema);
+        return harGsakSaker(fom, fnr, tema) && erITSakRelevant(fom, fnr, behandlingTema);
     }
 
     public boolean skalMidlertidigJournalføreIM(LocalDate fom, String fnr, Tema tema, BehandlingTema behandlingTema) {
-        // TODO skal være gsak, så infotrygd. Rekkefølge midlertidig snudd for loggeformål
-        return behandlingTema.gjelderSvangerskapspenger() ? erITSakRelevantForIM(fnr, behandlingTema, fom) && harGsakSaker(fom.minus(GSAK_EKSTRA_MND), fnr, tema)
-                : harGsakSaker(fom.minus(GSAK_EKSTRA_MND), fnr, tema) && erITSakRelevantForIM(fnr, behandlingTema, fom);
+        return harGsakSaker(fom.minus(GSAK_EKSTRA_MND), fnr, tema) && erITSakRelevantForIM(fnr, behandlingTema, fom);
     }
 
     private boolean harGsakSaker(LocalDate fom, String fnr, Tema tema) {
@@ -97,19 +99,21 @@ public class RelevantSakSjekker {
             return erFpRelevantForIM(fom, fnr);
         }
         if (tema.gjelderSvangerskapspenger()) {
-            return erSvpRelevantIM(fom, fnr);
+            return erITSakRelevantForSVP(fom, fnr);
         }
         return false;
     }
 
     private boolean erITSakRelevantForFP(LocalDate fom, String fnr) {
-        return finnSakListe(fom, fnr, InfotrygdSak::gjelderForeldrepenger)
+        var restSaker = fp.finnSakListe(fnr, fom);
+        var wsSaker = finnSakListe(fom, fnr, InfotrygdSak::gjelderForeldrepenger);
+        return sammenlignOgSjekk(restSaker, wsSaker)
                 .stream()
                 .anyMatch(svpFpRelevantTidFilter(fom));
     }
 
     private boolean erITSakRelevantForSVP(LocalDate fom, String fnr) {
-        List<InfotrygdSak> restSaker = svp.finnSakListe(fnr, fom);
+        var restSaker = svp.finnSakListe(fnr, fom);
         var wsSaker = finnSakListe(fom, fnr, InfotrygdSak::gjelderSvangerskapspenger);
         return sammenlignOgSjekk(restSaker, wsSaker)
                 .stream()
@@ -117,20 +121,13 @@ public class RelevantSakSjekker {
     }
 
     private boolean erFpRelevantForIM(LocalDate fom, String fnr) {
-        return finnSakListe(fom, fnr, InfotrygdSak::gjelderForeldrepenger)
+        var restSaker = fp.finnSakListe(fnr, fom);
+        var wsSaker = finnSakListe(fom, fnr, InfotrygdSak::gjelderForeldrepenger);
+        return sammenlignOgSjekk(restSaker, wsSaker)
                 .stream()
                 .map(InfotrygdSak::getIverksatt)
                 .flatMap(Optional::stream)
                 .anyMatch(fom::isBefore);
-    }
-
-    private boolean erSvpRelevantIM(LocalDate fom, String fnr) {
-        List<InfotrygdSak> restSaker = svp.finnSakListe(fnr, fom);
-        var wsSaker = finnSakListe(fom, fnr, InfotrygdSak::gjelderSvangerskapspenger);
-
-        return sammenlignOgSjekk(restSaker, wsSaker)
-                .stream()
-                .anyMatch(svpFpRelevantTidFilter(fom));
     }
 
     private List<InfotrygdSak> finnSakListe(LocalDate fom, String fnr, Predicate<? super InfotrygdSak> gjelder) {
@@ -148,8 +145,7 @@ public class RelevantSakSjekker {
     private static Predicate<? super InfotrygdSak> svpFpRelevantTidFilter(LocalDate fom) {
         // Intensjon med FALSE for å unngå treff pga praksis i enheter med
         // informasjonssaker
-        return sak -> fom.isBefore(sak.getRegistrert())
-                || sak.getIverksatt().map(fom::isBefore).orElse(false);
+        return sak -> sak.getIverksatt().map(fom::isBefore).orElse(false) || (sak.getRegistrert() != null && fom.isBefore(sak.getRegistrert()));
     }
 
     private static boolean erMann(String fnr) {
@@ -157,10 +153,10 @@ public class RelevantSakSjekker {
     }
 
     private List<InfotrygdSak> sammenlignOgSjekk(List<InfotrygdSak> restSaker, List<InfotrygdSak> wsSaker) {
-        if (!restSaker.containsAll(wsSaker)) {
-            LOGGER.warn("Forskjellig respons fra WS og REST. Fikk {} fra REST og {} fra WS", restSaker, wsSaker);
+        if (restSaker.containsAll(wsSaker) && wsSaker.containsAll(restSaker)) {
+            LOGGER.info("Identisk respons fra WS og REST, {} sak(er). Fikk {} fra REST og {} fra WS", restSaker.size(), restSaker, wsSaker);
         } else {
-            LOGGER.info("Identisk respons fra WS og REST, {} sak(er)", restSaker.size());
+            LOGGER.warn("Forskjellig respons fra WS og REST. Fikk {} fra REST og {} fra WS", restSaker, wsSaker);
         }
         if (unleash.isEnabled(TOGGLE_REST_STYRER)) {
             return restSaker;

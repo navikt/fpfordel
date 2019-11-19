@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.infotrygd.rest;
+package no.nav.foreldrepenger.mottak.infotrygd.rest.fp;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,6 +10,6 @@ import javax.inject.Qualifier;
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER, ElementType.TYPE })
-public @interface SVP {
+public @interface FP {
 
 }
