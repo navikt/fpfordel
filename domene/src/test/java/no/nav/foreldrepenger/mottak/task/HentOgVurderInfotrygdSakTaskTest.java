@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.Period;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -101,6 +102,8 @@ public class HentOgVurderInfotrygdSakTaskTest {
     @Mock
     private InfotrygdTjeneste svp;
     @Mock
+    private InfotrygdTjeneste fp;
+    @Mock
     private Unleash unleash;
     @Mock
     private Instance<Period> itSakGyldigPeriode;
@@ -133,6 +136,8 @@ public class HentOgVurderInfotrygdSakTaskTest {
     @Test
     public void skal_håndtere_personIkkeFunnet_feil_fra_infotryg() throws Exception {
         var infotrygdSakConsumer = mock(InfotrygdSakConsumer.class);
+        when(fp.finnSakListe(any(), any())).thenReturn(Collections.emptyList());
+        when(svp.finnSakListe(any(), any())).thenReturn(Collections.emptyList());
         when(infotrygdSakConsumer.finnSakListe(any())).thenThrow(FinnSakListePersonIkkeFunnet.class);
         expectGsaker(FNR_ANNEN_PART, gsaker(FNR));
         infotrygd = new InfotrygdTjenesteImpl(infotrygdSakConsumer);
@@ -447,7 +452,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     private HentOgVurderInfotrygdSakTask task() {
         return new HentOgVurderInfotrygdSakTask(prosessTaskRepository,
                 kodeverkRepository,
-                new RelevantSakSjekker(svp, infotrygd, gsak, unleash),
+                new RelevantSakSjekker(svp, fp, infotrygd, gsak, unleash),
                 aktør,
                 itSakGyldigPeriode,
                 itAnnenPartGyldigPeriode);
@@ -486,10 +491,13 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     private void expectIT(String fnr, InfotrygdSak... itsaker) {
         when(infotrygd.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
+        when(svp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
+        when(fp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
     }
 
     private void expectITRest(String fnr, InfotrygdSak... itsaker) {
         when(svp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
+        when(fp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
     }
 
     private void expectGsak(String fnr, GsakSak... gsaker) {
