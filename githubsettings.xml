@@ -1,0 +1,38 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <profiles>
+      <profile>
+          <id>internal-repo</id>
+          <activation>
+              <activeByDefault>true</activeByDefault>
+          </activation>
+          <repositories>
+              <repository>
+                  <id>nexus-internal</id>
+                  <name>NAV internal Nexus</name>
+                  <url>https://repo.adeo.no/repository/maven-public</url>
+              </repository>
+               <repository>
+                    <id>fp-felles</id>
+                    <name>GitHub felles Apache Maven Packages</name>
+                    <url>https://maven.pkg.github.com/navikt/fp-felles/</url>
+                </repository>
+          </repositories>
+          <pluginRepositories>
+              <pluginRepository>
+                  <id>nexus-internal</id>
+                  <name>NAV internal Nexus</name>
+                  <url>https://repo.adeo.no/repository/maven-public</url>
+              </pluginRepository>
+          </pluginRepositories>
+      </profile>
+  </profiles>
+  <servers>
+      <server>
+           <id>fp-felles</id>
+           <username>TODO</username>
+           <password>TODO</password>
+      </server>
+    </servers>
+</settings>
