@@ -1,6 +1,11 @@
 package no.nav.foreldrepenger.fordel.web.server.abac;
 
-import static no.nav.abac.common.xacml.CommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE;
+import static no.nav.foreldrepenger.fordel.web.server.abac.AbacAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY;
+import static no.nav.foreldrepenger.fordel.web.server.abac.AbacAttributter.ENVIRONMENT_FELLES_SAML_TOKEN;
+import static no.nav.foreldrepenger.fordel.web.server.abac.AbacAttributter.RESOURCE_FELLES_DOMENE;
+import static no.nav.foreldrepenger.fordel.web.server.abac.AbacAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE;
+import static no.nav.foreldrepenger.fordel.web.server.abac.AbacAttributter.RESOURCE_FELLES_RESOURCE_TYPE;
+import static no.nav.foreldrepenger.fordel.web.server.abac.AbacAttributter.XACML_1_0_ACTION_ACTION_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -20,7 +25,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import no.nav.abac.common.xacml.CommonAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
@@ -59,7 +63,7 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
         pdpKlient.forespørTilgang(pdpRequest);
 
         JsonObject request = captor.getValue().build();
-        assertThat(request.toString().contains(CommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN)).isTrue();
+        assertThat(request.toString().contains(ENVIRONMENT_FELLES_SAML_TOKEN)).isTrue();
         assertThat(request.toString().contains(RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE)).isTrue();
     }
 
@@ -92,7 +96,7 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
         pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
         pdpKlient.forespørTilgang(pdpRequest);
 
-        assertThat(captor.getValue().build().toString().contains(CommonAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY)).isTrue();
+        assertThat(captor.getValue().build().toString().contains(ENVIRONMENT_FELLES_OIDC_TOKEN_BODY)).isTrue();
     }
 
     @Test
@@ -121,9 +125,9 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
 
     private PdpRequest lagPdpRequest() {
         PdpRequest request = new PdpRequest();
-        request.put(CommonAttributter.RESOURCE_FELLES_DOMENE, "foreldrepenger");
-        request.put(CommonAttributter.XACML_1_0_ACTION_ACTION_ID, BeskyttetRessursActionAttributt.READ.getEksternKode());
-        request.put(CommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE, BeskyttetRessursResourceAttributt.FAGSAK.getEksternKode());
+        request.put(RESOURCE_FELLES_DOMENE, "foreldrepenger");
+        request.put(XACML_1_0_ACTION_ACTION_ID, BeskyttetRessursActionAttributt.READ.getEksternKode());
+        request.put(RESOURCE_FELLES_RESOURCE_TYPE, BeskyttetRessursResourceAttributt.FAGSAK.getEksternKode());
         return request;
     }
 
