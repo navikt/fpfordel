@@ -35,28 +35,28 @@ public final class InfotrygdRestResponseMapper {
 
     private Stream<InfotrygdSak> infotrygdSakerFraSaker(List<Sak> saker) {
         return stream(saker)
-                .map(this::tilSVPInfotrygdSak);
+                .map(this::tilInfotrygdSak);
     }
 
     private Stream<InfotrygdSak> infotrygdSakerFraAvsluttedeSaker(AvsluttedeSaker avsluttedeSaker) {
         return stream(avsluttedeSaker.getSaker())
-                .map(this::tilSVPInfotrygdSak);
+                .map(this::tilInfotrygdSak);
     }
 
     private Stream<InfotrygdSak> infotrygdSakerFraLøpendeSaker(List<LøpendeSak> løpendeSaker) {
         return stream(løpendeSaker)
-                .map(this::tilSVPInfotrygdSak);
+                .map(this::tilInfotrygdSak);
     }
 
-    private InfotrygdSak tilSVPInfotrygdSak(AvsluttetSak sak) {
+    private InfotrygdSak tilInfotrygdSak(AvsluttetSak sak) {
         return new InfotrygdSak(null, FA, behandlingstema, sak.getIverksatt(), null);
     }
 
-    private InfotrygdSak tilSVPInfotrygdSak(Sak sak) {
-        return new InfotrygdSak(sak.getSaksnummer(), FA, behandlingstema, sak.getIverksatt(), null);
+    private InfotrygdSak tilInfotrygdSak(Sak sak) {
+        return new InfotrygdSak(sak.getSaksnummer(), FA, behandlingstema, sak.getIverksatt(), sak.getVedtatt());
     }
 
-    private InfotrygdSak tilSVPInfotrygdSak(LøpendeSak sak) {
+    private InfotrygdSak tilInfotrygdSak(LøpendeSak sak) {
         return new InfotrygdSak(null, FA, behandlingstema, sak.getIverksatt(), null);
     }
 
