@@ -159,12 +159,12 @@
 			<dependency>
 				<groupId>org.jasypt</groupId>
 				<artifactId>jasypt</artifactId>
-				<version>1.9.2</version>
+				<version>1.9.3</version>
 			</dependency>
 			<dependency>
 				<groupId>io.swagger</groupId>
 				<artifactId>swagger-compat-spec-parser</artifactId>
-				<version>1.0.28</version>
+				<version>1.0.48</version>
 			</dependency>
 			<dependency>
 				<groupId>io.javaslang</groupId>
@@ -201,7 +201,7 @@
 			<dependency>
 				<groupId>org.jboss.classfilewriter</groupId>
 				<artifactId>jboss-classfilewriter</artifactId>
-				<version>1.2.3.Final</version>
+				<version>1.2.4.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.javassist</groupId>
