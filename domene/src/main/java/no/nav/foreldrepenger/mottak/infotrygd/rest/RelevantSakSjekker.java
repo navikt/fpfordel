@@ -11,7 +11,6 @@ import java.time.Period;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Predicate;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -37,7 +36,7 @@ import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 
 @ApplicationScoped
 public class RelevantSakSjekker {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RelevantSakSjekker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RelevantSakSjekker.class);
     private static final Period GSAK_EKSTRA_MND = Period.ofMonths(2);
     private static String TOGGLE_REST_STYRER = "fpfordel.rest.svp.presedens";
 
@@ -135,7 +134,7 @@ public class RelevantSakSjekker {
                     .filter(saktype)
                     .collect(toList());
         } catch (InfotrygdPersonIkkeFunnetException e) {
-            Feilene.FACTORY.feilFraInfotrygdSakFordeling(e).log(LOGGER);
+            Feilene.FACTORY.feilFraInfotrygdSakFordeling(e).log(LOG);
         }
         return emptyList();
     }
@@ -153,23 +152,19 @@ public class RelevantSakSjekker {
 
     private List<InfotrygdSak> sammenlign(List<InfotrygdSak> restSaker, List<InfotrygdSak> wsSaker) {
         if (!restSaker.containsAll(wsSaker)) {
-            LOGGER.warn("Forskjellig respons fra WS og REST. Fikk {} fra REST og {} fra WS", restSaker, wsSaker);
-            LOGGER.warn("Elementer som ikke er tilstede i begge reponser er {}", symmetriskDiff(restSaker, wsSaker));
-            LOGGER.warn("Elementer fra REST men ikke fra WS {}", diff(restSaker, wsSaker));
-            LOGGER.warn("Elementer fra WS men ikke fra REST {}", diff(wsSaker, restSaker));
-
+            warn(restSaker, wsSaker);
         } else {
-            LOGGER.info("{} sak(er) med identisk respons fra WS og REST", restSaker.size());
+            LOG.info("{} sak(er) med identisk respons fra WS og REST", restSaker.size());
         }
         return unleash.isEnabled(TOGGLE_REST_STYRER) ? restSaker : wsSaker;
     }
 
-    private static <T> Set<T> symmetriskDiff(List<T> a, List<T> b) {
-        return symmetricDifference(new HashSet<>(a), new HashSet<>(b));
-    }
-
-    private static <T> Set<T> diff(List<T> a, List<T> b) {
-        return difference(new HashSet<>(a), new HashSet<>(b));
+    private static void warn(List<InfotrygdSak> restSaker, List<InfotrygdSak> wsSaker) {
+        LOG.warn("Forskjellig respons fra WS og REST. Fikk {} fra REST og {} fra WS", restSaker, wsSaker);
+        LOG.warn("Elementer som ikke er tilstede i begge reponser er {}",
+                symmetricDifference(new HashSet<>(restSaker), new HashSet<>(wsSaker)));
+        LOG.warn("Elementer fra REST men ikke fra WS {}", difference(new HashSet<>(restSaker), new HashSet<>(wsSaker)));
+        LOG.warn("Elementer fra WS men ikke fra REST {}", difference(new HashSet<>(wsSaker), new HashSet<>(restSaker)));
     }
 
     private interface Feilene extends DeklarerteFeil {
