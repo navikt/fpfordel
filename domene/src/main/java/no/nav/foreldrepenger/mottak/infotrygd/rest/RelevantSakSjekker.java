@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.mottak.infotrygd.rest;
 
+import static com.google.common.collect.Sets.difference;
+import static com.google.common.collect.Sets.symmetricDifference;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static no.nav.foreldrepenger.fordel.kodeverk.Fagsystem.INFOTRYGD;
@@ -17,8 +19,6 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Sets;
 
 import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
@@ -66,15 +66,15 @@ public class RelevantSakSjekker {
         this.gsak = gsak;
     }
 
-    public boolean skalMidlertidigJournalføre(LocalDate fom, String fnr, Tema tema, BehandlingTema behandlingTema) {
-        return harGsakSaker(fom, fnr, tema) && erITSakRelevant(fom, fnr, behandlingTema);
+    public boolean skalMidlertidigJournalføre(String fnr, LocalDate fom, Tema tema, BehandlingTema behandlingTema) {
+        return harGsakSaker(fnr, fom, tema) && erITSakRelevant(fnr, fom, behandlingTema);
     }
 
-    public boolean skalMidlertidigJournalføreIM(LocalDate fom, String fnr, Tema tema, BehandlingTema behandlingTema) {
-        return harGsakSaker(fom.minus(GSAK_EKSTRA_MND), fnr, tema) && erITSakRelevantForIM(fnr, behandlingTema, fom);
+    public boolean skalMidlertidigJournalføreIM(String fnr, LocalDate fom, Tema tema, BehandlingTema behandlingTema) {
+        return harGsakSaker(fnr, fom.minus(GSAK_EKSTRA_MND), tema) && erITSakRelevantForIM(fnr, fom, behandlingTema);
     }
 
-    private boolean harGsakSaker(LocalDate fom, String fnr, Tema tema) {
+    private boolean harGsakSaker(String fnr, LocalDate fom, Tema tema) {
         return gsak.finnSaker(fnr)
                 .stream()
                 .filter(sak -> sak.getFagsystem().equals(INFOTRYGD))
@@ -84,57 +84,57 @@ public class RelevantSakSjekker {
                         .orElse(true));
     }
 
-    private boolean erITSakRelevant(LocalDate fom, String fnr, BehandlingTema tema) {
+    private boolean erITSakRelevant(String fnr, LocalDate fom, BehandlingTema tema) {
 
         if (tema.gjelderForeldrepenger()) {
-            return erITSakRelevantForFP(fom, fnr);
+            return erITSakRelevantForFP(fnr, fom);
         }
         if (tema.gjelderSvangerskapspenger()) {
-            return erITSakRelevantForSVP(fom, fnr);
+            return erITSakRelevantForSVP(fnr, fom);
         }
         return false;
     }
 
-    private boolean erITSakRelevantForIM(String fnr, BehandlingTema tema, LocalDate fom) {
+    private boolean erITSakRelevantForIM(String fnr, LocalDate fom, BehandlingTema tema) {
         if (erMann(fnr)) {
             return true;
         }
         if (tema.gjelderForeldrepenger()) {
-            return erFpRelevantForIM(fom, fnr);
+            return erFpRelevantForIM(fnr, fom);
         }
         if (tema.gjelderSvangerskapspenger()) {
-            return erITSakRelevantForSVP(fom, fnr);
+            return erITSakRelevantForSVP(fnr, fom);
         }
         return false;
     }
 
-    private boolean erITSakRelevantForFP(LocalDate fom, String fnr) {
+    private boolean erITSakRelevantForFP(String fnr, LocalDate fom) {
         var restSaker = fp.finnSakListe(fnr, fom);
-        var wsSaker = finnSakListe(fom, fnr, InfotrygdSak::gjelderForeldrepenger);
-        return sammenlignOgSjekk(restSaker, wsSaker)
+        var wsSaker = finnSakListe(fnr, fom, InfotrygdSak::gjelderForeldrepenger);
+        return sammenlign(restSaker, wsSaker)
                 .stream()
                 .anyMatch(svpFpRelevantTidFilter(fom));
     }
 
-    private boolean erITSakRelevantForSVP(LocalDate fom, String fnr) {
+    private boolean erITSakRelevantForSVP(String fnr, LocalDate fom) {
         var restSaker = svp.finnSakListe(fnr, fom);
-        var wsSaker = finnSakListe(fom, fnr, InfotrygdSak::gjelderSvangerskapspenger);
-        return sammenlignOgSjekk(restSaker, wsSaker)
+        var wsSaker = finnSakListe(fnr, fom, InfotrygdSak::gjelderSvangerskapspenger);
+        return sammenlign(restSaker, wsSaker)
                 .stream()
                 .anyMatch(svpFpRelevantTidFilter(fom));
     }
 
-    private boolean erFpRelevantForIM(LocalDate fom, String fnr) {
+    private boolean erFpRelevantForIM(String fnr, LocalDate fom) {
         var restSaker = fp.finnSakListe(fnr, fom);
-        var wsSaker = finnSakListe(fom, fnr, InfotrygdSak::gjelderForeldrepenger);
-        return sammenlignOgSjekk(restSaker, wsSaker)
+        var wsSaker = finnSakListe(fnr, fom, InfotrygdSak::gjelderForeldrepenger);
+        return sammenlign(restSaker, wsSaker)
                 .stream()
                 .map(InfotrygdSak::getIverksatt)
                 .flatMap(Optional::stream)
                 .anyMatch(fom::isBefore);
     }
 
-    private List<InfotrygdSak> finnSakListe(LocalDate fom, String fnr, Predicate<? super InfotrygdSak> gjelder) {
+    private List<InfotrygdSak> finnSakListe(String fnr, LocalDate fom, Predicate<? super InfotrygdSak> gjelder) {
         try {
             return infotrygd.finnSakListe(fnr, fom)
                     .stream()
@@ -157,7 +157,7 @@ public class RelevantSakSjekker {
         return Character.getNumericValue(fnr.charAt(8)) % 2 != 0;
     }
 
-    private List<InfotrygdSak> sammenlignOgSjekk(List<InfotrygdSak> restSaker, List<InfotrygdSak> wsSaker) {
+    private List<InfotrygdSak> sammenlign(List<InfotrygdSak> restSaker, List<InfotrygdSak> wsSaker) {
         if (!restSaker.containsAll(wsSaker)) {
             LOGGER.warn("Forskjellig respons fra WS og REST. Fikk {} fra REST og {} fra WS", restSaker, wsSaker);
             LOGGER.warn("Elementer som ikke er tilstede i begge reponser er {}", symmetriskDiff(restSaker, wsSaker));
@@ -165,20 +165,17 @@ public class RelevantSakSjekker {
             LOGGER.warn("Elementer fra WS men ikke fra REST {}", diff(wsSaker, restSaker));
 
         } else {
-            LOGGER.info("Identisk respons fra WS og REST, {} sak(er)", restSaker.size());
+            LOGGER.info("{} sak(er) med identisk respons fra WS og REST", restSaker.size());
         }
-        if (unleash.isEnabled(TOGGLE_REST_STYRER)) {
-            return restSaker;
-        }
-        return wsSaker;
+        return unleash.isEnabled(TOGGLE_REST_STYRER) ? restSaker : wsSaker;
     }
 
     private static <T> Set<T> symmetriskDiff(List<T> a, List<T> b) {
-        return Sets.symmetricDifference(new HashSet<>(a), new HashSet<>(b));
+        return symmetricDifference(new HashSet<>(a), new HashSet<>(b));
     }
 
     private static <T> Set<T> diff(List<T> a, List<T> b) {
-        return Sets.difference(new HashSet<>(a), new HashSet<>(b));
+        return difference(new HashSet<>(a), new HashSet<>(b));
     }
 
     private interface Feilene extends DeklarerteFeil {

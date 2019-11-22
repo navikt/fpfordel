@@ -175,11 +175,11 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
     }
 
     private boolean skalMidlertidigJournalføre(MottakMeldingDataWrapper w, String fnr, LocalDate fom) {
-        return relevansSjekker.skalMidlertidigJournalføre(fom, fnr, w.getTema(), w.getBehandlingTema());
+        return relevansSjekker.skalMidlertidigJournalføre(fnr, fom, w.getTema(), w.getBehandlingTema());
     }
 
     private boolean skalMidlertidigJournalføreIM(MottakMeldingDataWrapper w, String fnr, LocalDate fom) {
-        return relevansSjekker.skalMidlertidigJournalføreIM(fom.minus(infotrygdSakGyldigPeriode), fnr, w.getTema(),
+        return relevansSjekker.skalMidlertidigJournalføreIM(fnr, fom.minus(infotrygdSakGyldigPeriode), w.getTema(),
                 w.getBehandlingTema());
     }
 }
