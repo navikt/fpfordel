@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.apache.http.client.utils.URIBuilder;
@@ -34,7 +35,10 @@ public abstract class InfotrygdRESTTjeneste implements InfotrygdTjeneste {
     @Override
     public List<InfotrygdSak> finnSakListe(String fnr, LocalDate fom) {
         try {
-            var request = new URIBuilder(uri).addParameter("fnr", fnr).build();
+            var request = new URIBuilder(uri)
+                    .addParameter("fnr", fnr)
+                    .addParameter("fom", fom(fom))
+                    .build();
             LOG.trace("Slår opp saker fra {} for {}", request, getBehandlingsTema());
             var respons = restClient.get(request, Saker.class);
             LOG.info("fpfordel infotrygd rest {} Fikk saker {}", getBehandlingsTema(), respons);
@@ -45,6 +49,10 @@ public abstract class InfotrygdRESTTjeneste implements InfotrygdTjeneste {
             LOG.warn("Feil ved oppslag mot {}, returnerer ingen saker", uri, e);
             return emptyList();
         }
+    }
+
+    private static String fom(LocalDate fom) {
+        return DateTimeFormatter.ISO_LOCAL_DATE.format(fom);
     }
 
     private String getBehandlingsTema() {
