@@ -163,7 +163,7 @@ public class RelevantSakSjekker {
         HashSet<InfotrygdSak> rest = new HashSet<>(restSaker);
         HashSet<InfotrygdSak> ws = new HashSet<>(wsSaker);
         LOG.warn("Forskjellig respons fra WS og REST. Fikk {} fra REST og {} fra WS", restSaker, wsSaker);
-        LOG.warn("Elementer som ikke er tilstede i begge reponser er {}", symmetricDifference(rest, ws));
+        LOG.warn("Elementer som ikke er tilstede i begge responser er {}", symmetricDifference(rest, ws));
         LOG.warn("Elementer fra REST men ikke fra WS {}", difference(rest, ws));
         LOG.warn("Elementer fra WS men ikke fra REST {}", difference(ws, rest));
     }
