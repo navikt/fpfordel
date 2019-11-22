@@ -160,11 +160,12 @@ public class RelevantSakSjekker {
     }
 
     private static void warn(List<InfotrygdSak> restSaker, List<InfotrygdSak> wsSaker) {
+        HashSet<InfotrygdSak> rest = new HashSet<>(restSaker);
+        HashSet<InfotrygdSak> ws = new HashSet<>(wsSaker);
         LOG.warn("Forskjellig respons fra WS og REST. Fikk {} fra REST og {} fra WS", restSaker, wsSaker);
-        LOG.warn("Elementer som ikke er tilstede i begge reponser er {}",
-                symmetricDifference(new HashSet<>(restSaker), new HashSet<>(wsSaker)));
-        LOG.warn("Elementer fra REST men ikke fra WS {}", difference(new HashSet<>(restSaker), new HashSet<>(wsSaker)));
-        LOG.warn("Elementer fra WS men ikke fra REST {}", difference(new HashSet<>(wsSaker), new HashSet<>(restSaker)));
+        LOG.warn("Elementer som ikke er tilstede i begge reponser er {}", symmetricDifference(rest, ws));
+        LOG.warn("Elementer fra REST men ikke fra WS {}", difference(rest, ws));
+        LOG.warn("Elementer fra WS men ikke fra REST {}", difference(ws, rest));
     }
 
     private interface Feilene extends DeklarerteFeil {
