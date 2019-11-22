@@ -109,36 +109,30 @@ public class RelevantSakSjekker {
     }
 
     private boolean erITSakRelevantForFP(String fnr, LocalDate fom) {
-        var restSaker = fp.finnSakListe(fnr, fom);
-        var wsSaker = finnSakListe(fnr, fom, InfotrygdSak::gjelderForeldrepenger);
-        return sammenlign(restSaker, wsSaker)
+        return sammenlign(fp.finnSakListe(fnr, fom), finnSakListe(fnr, fom, InfotrygdSak::gjelderForeldrepenger))
                 .stream()
                 .anyMatch(svpFpRelevantTidFilter(fom));
     }
 
     private boolean erITSakRelevantForSVP(String fnr, LocalDate fom) {
-        var restSaker = svp.finnSakListe(fnr, fom);
-        var wsSaker = finnSakListe(fnr, fom, InfotrygdSak::gjelderSvangerskapspenger);
-        return sammenlign(restSaker, wsSaker)
+        return sammenlign(svp.finnSakListe(fnr, fom), finnSakListe(fnr, fom, InfotrygdSak::gjelderSvangerskapspenger))
                 .stream()
                 .anyMatch(svpFpRelevantTidFilter(fom));
     }
 
     private boolean erFpRelevantForIM(String fnr, LocalDate fom) {
-        var restSaker = fp.finnSakListe(fnr, fom);
-        var wsSaker = finnSakListe(fnr, fom, InfotrygdSak::gjelderForeldrepenger);
-        return sammenlign(restSaker, wsSaker)
+        return sammenlign(fp.finnSakListe(fnr, fom), finnSakListe(fnr, fom, InfotrygdSak::gjelderForeldrepenger))
                 .stream()
                 .map(InfotrygdSak::getIverksatt)
                 .flatMap(Optional::stream)
                 .anyMatch(fom::isBefore);
     }
 
-    private List<InfotrygdSak> finnSakListe(String fnr, LocalDate fom, Predicate<? super InfotrygdSak> gjelder) {
+    private List<InfotrygdSak> finnSakListe(String fnr, LocalDate fom, Predicate<? super InfotrygdSak> saktype) {
         try {
             return infotrygd.finnSakListe(fnr, fom)
                     .stream()
-                    .filter(gjelder)
+                    .filter(saktype)
                     .collect(toList());
         } catch (InfotrygdPersonIkkeFunnetException e) {
             Feilene.FACTORY.feilFraInfotrygdSakFordeling(e).log(LOGGER);
