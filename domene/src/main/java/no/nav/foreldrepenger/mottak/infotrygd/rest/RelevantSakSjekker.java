@@ -6,8 +6,10 @@ import static no.nav.foreldrepenger.fordel.kodeverk.Fagsystem.INFOTRYGD;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -15,6 +17,8 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Sets;
 
 import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
@@ -145,7 +149,8 @@ public class RelevantSakSjekker {
     private static Predicate<? super InfotrygdSak> svpFpRelevantTidFilter(LocalDate fom) {
         // Intensjon med FALSE for å unngå treff pga praksis i enheter med
         // informasjonssaker
-        return sak -> sak.getIverksatt().map(fom::isBefore).orElse(false) || (sak.getRegistrert() != null && fom.isBefore(sak.getRegistrert()));
+        return sak -> sak.getIverksatt().map(fom::isBefore).orElse(false)
+                || (sak.getRegistrert() != null && fom.isBefore(sak.getRegistrert()));
     }
 
     private static boolean erMann(String fnr) {
@@ -153,15 +158,27 @@ public class RelevantSakSjekker {
     }
 
     private List<InfotrygdSak> sammenlignOgSjekk(List<InfotrygdSak> restSaker, List<InfotrygdSak> wsSaker) {
-        if (restSaker.containsAll(wsSaker) && wsSaker.containsAll(restSaker)) {
-            LOGGER.info("Identisk respons fra WS og REST, {} sak(er). Fikk {} fra REST og {} fra WS", restSaker.size(), restSaker, wsSaker);
-        } else {
+        if (!restSaker.containsAll(wsSaker)) {
             LOGGER.warn("Forskjellig respons fra WS og REST. Fikk {} fra REST og {} fra WS", restSaker, wsSaker);
+            LOGGER.warn("Elementer som ikke er tilstede i begge reponser er {}", symmetriskDiff(restSaker, wsSaker));
+            LOGGER.warn("Elementer fra REST men ikke fra WS {}", diff(restSaker, wsSaker));
+            LOGGER.warn("Elementer fra WS men ikke fra REST {}", diff(wsSaker, restSaker));
+
+        } else {
+            LOGGER.info("Identisk respons fra WS og REST, {} sak(er)", restSaker.size());
         }
         if (unleash.isEnabled(TOGGLE_REST_STYRER)) {
             return restSaker;
         }
         return wsSaker;
+    }
+
+    private static <T> Set<T> symmetriskDiff(List<T> a, List<T> b) {
+        return Sets.symmetricDifference(new HashSet<>(a), new HashSet<>(b));
+    }
+
+    private static <T> Set<T> diff(List<T> a, List<T> b) {
+        return Sets.difference(new HashSet<>(a), new HashSet<>(b));
     }
 
     private interface Feilene extends DeklarerteFeil {
