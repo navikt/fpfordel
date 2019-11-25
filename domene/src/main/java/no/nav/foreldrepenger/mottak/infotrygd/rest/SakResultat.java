@@ -23,6 +23,6 @@ public enum SakResultat {
     TB,
     TH,
     TO,
+    UB,
     Ø;
-
 }
