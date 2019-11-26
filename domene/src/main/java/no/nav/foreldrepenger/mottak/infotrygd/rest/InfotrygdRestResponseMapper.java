@@ -53,7 +53,7 @@ public final class InfotrygdRestResponseMapper {
     }
 
     private InfotrygdSak tilInfotrygdSak(Sak sak) {
-        return new InfotrygdSak(sak.getSaksnummer(), FA, behandlingstema, sak.getIverksatt(), sak.getVedtatt());
+        return new InfotrygdSak(sak.getSaksnummer(), FA, behandlingstema, sak.getIverksatt(), null);
     }
 
     private InfotrygdSak tilInfotrygdSak(LøpendeSak sak) {
