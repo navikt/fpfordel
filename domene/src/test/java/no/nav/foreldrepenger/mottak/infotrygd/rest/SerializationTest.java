@@ -108,7 +108,7 @@ public class SerializationTest {
     }
 
     private static Sak enSak(int n) {
-        return new Sak(plusDays(n), SakResultat.FB, saksnummer(n), SakStatus.FI, SakType.S, plusDays(1));
+        return new Sak(plusDays(n), SakResultat.FB, saksnummer(n), "FI", SakType.S, plusDays(1));
     }
 
     private static LøpendeSak åpenSak(int n) {

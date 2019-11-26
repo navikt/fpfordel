@@ -14,7 +14,7 @@ public class Sak {
     private final LocalDate iverksatt;
     private final SakResultat resultat;
     private final Saksnummer sakId;
-    private final SakStatus status;
+    private final String status;
     private final SakType type;
     private final LocalDate vedtatt;
 
@@ -23,7 +23,7 @@ public class Sak {
             @JsonProperty("iverksatt") LocalDate iverksatt,
             @JsonProperty("resultat") SakResultat resultat,
             @JsonProperty("sakId") Saksnummer sakId,
-            @JsonProperty("status") SakStatus status,
+            @JsonProperty("status") String status,
             @JsonProperty("type") SakType type,
             @JsonProperty("vedtatt") LocalDate vedtatt) {
         this.iverksatt = iverksatt;
@@ -68,7 +68,7 @@ public class Sak {
         return sakId;
     }
 
-    public SakStatus getStatus() {
+    public String getStatus() {
         return status;
     }
 
