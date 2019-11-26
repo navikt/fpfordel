@@ -70,7 +70,7 @@ public class InfotrygdSak {
 
     @Override
     public int hashCode() {
-        return Objects.hash(behandlingsTema, iverksatt, registrert, sakId, tema);
+        return Objects.hash(behandlingsTema, iverksatt, tema);
     }
 
     @Override
