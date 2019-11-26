@@ -92,8 +92,7 @@ public class InfotrygdSak {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[tema=" + tema + ", behandlingsTema=" + behandlingsTema + ", sakId="
-                + sakId + ", iverksatt=" + iverksatt + ", registrert=" + registrert + "]";
+        return getClass().getSimpleName() + "[tema=" + tema + ", behandlingsTema=" + behandlingsTema  + ", iverksatt=" + iverksatt + "]";
     }
 
 }
