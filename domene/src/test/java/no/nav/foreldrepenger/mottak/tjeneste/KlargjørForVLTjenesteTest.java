@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
 import no.nav.foreldrepenger.mottak.klient.DokumentmottakRestKlient;
 import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
+import no.nav.foreldrepenger.mottak.klient.TilbakekrevingRestKlient;
 import no.nav.vedtak.util.FPDateUtil;
 
 public class KlargjørForVLTjenesteTest {
@@ -31,7 +32,8 @@ public class KlargjørForVLTjenesteTest {
     public void setup() {
         mockFagsakRestKlient = mock(FagsakRestKlient.class);
         mockDokumentRestTjeneste = mock(DokumentmottakRestKlient.class);
-        klargjørForVLTjeneste = new KlargjørForVLTjeneste(mockDokumentRestTjeneste, mockFagsakRestKlient);
+        var mockTilbakeRestTjeneste = mock(TilbakekrevingRestKlient.class);
+        klargjørForVLTjeneste = new KlargjørForVLTjeneste(mockDokumentRestTjeneste, mockFagsakRestKlient, mockTilbakeRestTjeneste, null);
     }
 
 
