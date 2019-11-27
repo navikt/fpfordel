@@ -14,7 +14,7 @@ COPY web/target/app.jar /app/
 COPY web/target/lib/*.jar /app/lib/
 
 # Init scripts
-COPY init-scripts/* /init-scripts/
+COPY init-scripts/*.sh /init-scripts/
 
 # Application Start Command
 COPY run-java.sh /
