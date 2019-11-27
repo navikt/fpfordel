@@ -39,11 +39,11 @@ public abstract class InfotrygdRESTTjeneste implements InfotrygdTjeneste {
                     .addParameter("fnr", fnr)
                     .addParameter("fom", fom(fom))
                     .build();
-            LOG.trace("Slår opp saker fra {} for {}", request, getBehandlingsTema());
+            LOG.info("fpfordel infotrygd rest. Slår opp saker fra {} for {}", uri, getBehandlingsTema());
             var respons = restClient.get(request, Saker.class);
-            LOG.info("fpfordel infotrygd rest {} Fikk saker {}", getBehandlingsTema(), respons);
+            LOG.info("fpfordel infotrygd rest {}. Fikk saker {}", getBehandlingsTema(), respons);
             var saker = mapper.map(respons);
-            LOG.info("fpfordel infotrygd rest {} Mappet saker {}", getBehandlingsTema(), saker);
+            LOG.info("fpfordel infotrygd rest {}. Mappet saker {}", getBehandlingsTema(), saker);
             return saker;
         } catch (Exception e) {
             LOG.warn("Feil ved oppslag mot {}, returnerer ingen saker", uri, e);

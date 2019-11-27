@@ -108,26 +108,26 @@ public class RelevantSakSjekker {
     }
 
     private boolean erITSakRelevantForFP(String fnr, LocalDate fom) {
-        return sammenlign(fp.finnSakListe(fnr, fom), finnSakListe(fnr, fom, InfotrygdSak::gjelderForeldrepenger))
+        return sammenlign(fp.finnSakListe(fnr, fom), saker(fnr, fom, InfotrygdSak::gjelderForeldrepenger))
                 .stream()
                 .anyMatch(svpFpRelevantTidFilter(fom));
     }
 
     private boolean erITSakRelevantForSVP(String fnr, LocalDate fom) {
-        return sammenlign(svp.finnSakListe(fnr, fom), finnSakListe(fnr, fom, InfotrygdSak::gjelderSvangerskapspenger))
+        return sammenlign(svp.finnSakListe(fnr, fom), saker(fnr, fom, InfotrygdSak::gjelderSvangerskapspenger))
                 .stream()
                 .anyMatch(svpFpRelevantTidFilter(fom));
     }
 
     private boolean erFpRelevantForIM(String fnr, LocalDate fom) {
-        return sammenlign(fp.finnSakListe(fnr, fom), finnSakListe(fnr, fom, InfotrygdSak::gjelderForeldrepenger))
+        return sammenlign(fp.finnSakListe(fnr, fom), saker(fnr, fom, InfotrygdSak::gjelderForeldrepenger))
                 .stream()
                 .map(InfotrygdSak::getIverksatt)
                 .flatMap(Optional::stream)
                 .anyMatch(fom::isBefore);
     }
 
-    private List<InfotrygdSak> finnSakListe(String fnr, LocalDate fom, Predicate<? super InfotrygdSak> saktype) {
+    private List<InfotrygdSak> saker(String fnr, LocalDate fom, Predicate<? super InfotrygdSak> saktype) {
         try {
             return infotrygd.finnSakListe(fnr, fom)
                     .stream()
@@ -150,7 +150,7 @@ public class RelevantSakSjekker {
         return Character.getNumericValue(fnr.charAt(8)) % 2 != 0;
     }
 
-    private List<InfotrygdSak> sammenlign(List<InfotrygdSak> restSaker, List<InfotrygdSak> wsSaker) {
+    private <T> List<T> sammenlign(List<T> restSaker, List<T> wsSaker) {
         if (!restSaker.containsAll(wsSaker)) {
             warn(restSaker, wsSaker);
         } else {
@@ -159,7 +159,7 @@ public class RelevantSakSjekker {
         return unleash.isEnabled(TOGGLE_REST_STYRER) ? restSaker : wsSaker;
     }
 
-    private static void warn(List<InfotrygdSak> restSaker, List<InfotrygdSak> wsSaker) {
+    private static <T> void warn(List<T> restSaker, List<T> wsSaker) {
         var rest = new HashSet<>(restSaker);
         var ws = new HashSet<>(wsSaker);
         LOG.warn("Forskjellig respons fra WS og REST. Fikk {} fra REST og {} fra WS", restSaker, wsSaker);
