@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -108,27 +109,30 @@ public class RelevantSakSjekker {
     }
 
     private boolean erITSakRelevantForFP(String fnr, LocalDate fom) {
-        return sammenlign(fp.finnSakListe(fnr, fom), saker(fnr, fom, InfotrygdSak::gjelderForeldrepenger))
-                .stream()
+        return sammenlign(restSaker(fp, fnr, fom), wsSaker(fnr, fom, InfotrygdSak::gjelderForeldrepenger))
                 .anyMatch(svpFpRelevantTidFilter(fom));
     }
 
     private boolean erITSakRelevantForSVP(String fnr, LocalDate fom) {
-        return sammenlign(svp.finnSakListe(fnr, fom), saker(fnr, fom, InfotrygdSak::gjelderSvangerskapspenger))
-                .stream()
+        return sammenlign(restSaker(svp, fnr, fom), wsSaker(fnr, fom, InfotrygdSak::gjelderSvangerskapspenger))
                 .anyMatch(svpFpRelevantTidFilter(fom));
     }
 
     private boolean erFpRelevantForIM(String fnr, LocalDate fom) {
-        return sammenlign(fp.finnSakListe(fnr, fom), saker(fnr, fom, InfotrygdSak::gjelderForeldrepenger))
-                .stream()
+        return sammenlign(restSaker(fp, fnr, fom), wsSaker(fnr, fom, InfotrygdSak::gjelderForeldrepenger))
                 .map(InfotrygdSak::getIverksatt)
                 .flatMap(Optional::stream)
                 .anyMatch(fom::isBefore);
     }
 
-    private List<InfotrygdSak> saker(String fnr, LocalDate fom, Predicate<? super InfotrygdSak> saktype) {
+    private List<InfotrygdSak> restSaker(InfotrygdTjeneste t, String fnr, LocalDate fom) {
+        LOG.info("Henter saker fra REST fra {}", fom);
+        return t.finnSakListe(fnr, fom);
+    }
+
+    private List<InfotrygdSak> wsSaker(String fnr, LocalDate fom, Predicate<? super InfotrygdSak> saktype) {
         try {
+            LOG.info("Henter saker fra WS fra {}", fom);
             return infotrygd.finnSakListe(fnr, fom)
                     .stream()
                     .filter(saktype)
@@ -150,13 +154,13 @@ public class RelevantSakSjekker {
         return Character.getNumericValue(fnr.charAt(8)) % 2 != 0;
     }
 
-    private <T> List<T> sammenlign(List<T> restSaker, List<T> wsSaker) {
+    private <T> Stream<T> sammenlign(List<T> restSaker, List<T> wsSaker) {
         if (!restSaker.containsAll(wsSaker)) {
             warn(restSaker, wsSaker);
         } else {
             LOG.info("{} sak(er) med identisk respons fra WS og REST", restSaker.size());
         }
-        return unleash.isEnabled(TOGGLE_REST_STYRER) ? restSaker : wsSaker;
+        return unleash.isEnabled(TOGGLE_REST_STYRER) ? restSaker.stream() : wsSaker.stream();
     }
 
     private static <T> void warn(List<T> restSaker, List<T> wsSaker) {
