@@ -60,6 +60,7 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
         this.aktør = aktør;
         this.infotrygdSakGyldigPeriode = sakPeriode.get();
         this.infotrygdAnnenPartGyldigPeriode = annenPartPeriode.get();
+        LOGGER.info("Konstruert {}", this);
     }
 
     @Override
@@ -181,5 +182,12 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
     private boolean skalMidlertidigJournalføreIM(MottakMeldingDataWrapper w, String fnr, LocalDate fom) {
         return relevansSjekker.skalMidlertidigJournalføreIM(fnr, fom.minus(infotrygdSakGyldigPeriode), w.getTema(),
                 w.getBehandlingTema());
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[infotrygdSakGyldigPeriode=" + infotrygdSakGyldigPeriode
+                + ", infotrygdAnnenPartGyldigPeriode=" + infotrygdAnnenPartGyldigPeriode + ", aktør=" + aktør
+                + ", relevansSjekker=" + relevansSjekker + "]";
     }
 }
