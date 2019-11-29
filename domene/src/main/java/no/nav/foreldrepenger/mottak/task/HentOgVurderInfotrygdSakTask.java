@@ -11,7 +11,6 @@ import java.time.Period;
 import java.time.temporal.TemporalAmount;
 
 import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -26,7 +25,6 @@ import no.nav.foreldrepenger.mottak.infotrygd.rest.RelevantSakSjekker;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.util.FPDateUtil;
 
 /**
@@ -39,27 +37,27 @@ import no.nav.vedtak.util.FPDateUtil;
 @ProsessTask(HentOgVurderInfotrygdSakTask.TASKNAME)
 public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
 
+    /*
+     * Konfigurasjon for hvor langt tilbake i tid man spør Infotrygd om det finnes saker
+     */
+    private static final TemporalAmount infotrygdSakGyldigPeriode = Period.parse("P10M");
+    private static final TemporalAmount infotrygdAnnenPartGyldigPeriode = Period.parse("P18M");
+
     private static final Logger LOGGER = LoggerFactory.getLogger(HentOgVurderInfotrygdSakTask.class);
 
     public static final String TASKNAME = "fordeling.hentOgVurderInfotrygdSak";
 
-    private final TemporalAmount infotrygdSakGyldigPeriode;
-    private final TemporalAmount infotrygdAnnenPartGyldigPeriode;
     private final AktørConsumerMedCache aktør;
     private final RelevantSakSjekker relevansSjekker;
 
     @Inject
     public HentOgVurderInfotrygdSakTask(ProsessTaskRepository prosessTaskRepository,
-            KodeverkRepository kodeverkRepository,
-            RelevantSakSjekker relevansSjekker,
-            AktørConsumerMedCache aktør,
-            @KonfigVerdi("infotrygd.sak.gyldig.periode") Instance<Period> sakPeriode,
-            @KonfigVerdi("infotrygd.annen.part.gyldig.periode") Instance<Period> annenPartPeriode) {
+                                        KodeverkRepository kodeverkRepository,
+                                        RelevantSakSjekker relevansSjekker,
+                                        AktørConsumerMedCache aktør) {
         super(prosessTaskRepository, kodeverkRepository);
         this.relevansSjekker = relevansSjekker;
         this.aktør = aktør;
-        this.infotrygdSakGyldigPeriode = sakPeriode.get();
-        this.infotrygdAnnenPartGyldigPeriode = annenPartPeriode.get();
         LOGGER.info("Konstruert {}", this);
     }
 

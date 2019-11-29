@@ -96,8 +96,8 @@ public class HentOgVurderGsakSakTaskTest {
         when(mockAktørConsumer.hentAktørIdForPersonIdent(ANNEN_PART_FNR)).thenReturn(Optional.of(ANNEN_PART_ID));
         RelevantSakSjekker relevansSjekker = new RelevantSakSjekker(svp, fp, ws, gsak, unleash);
         task = new HentOgVurderInfotrygdSakTask(mockProsessTaskRepository, kodeverkRepository,
-                relevansSjekker, mockAktørConsumer, infotrygdSakGyldigPeriodeInstance,
-                infotrygdAnnenPartGyldigPeriodeInstance);
+                relevansSjekker, mockAktørConsumer
+        );
 
         sakerTom = new ArrayList<>();
 

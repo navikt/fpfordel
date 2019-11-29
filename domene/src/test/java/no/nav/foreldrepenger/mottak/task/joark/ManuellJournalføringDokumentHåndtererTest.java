@@ -65,7 +65,7 @@ public class ManuellJournalføringDokumentHåndtererTest {
         ProsessTaskRepository ptr = mock(ProsessTaskRepository.class);
         håndterer = mock(JoarkDokumentHåndterer.class);
         AktørConsumer aktørConsumer = mock(AktørConsumer.class);
-        joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, kodeverkRepository, aktørConsumer, håndterer, fastsattInntektsmeldingStartdatoFristForManuellBehandling));
+        joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, kodeverkRepository, aktørConsumer, håndterer));
         when(håndterer.hentGyldigAktørFraMetadata(any())).thenReturn(Optional.of(AKTØR_ID));
         when(håndterer.hentGyldigAktørFraPersonident(any())).thenReturn(Optional.of(AKTØR_ID));
         taskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
