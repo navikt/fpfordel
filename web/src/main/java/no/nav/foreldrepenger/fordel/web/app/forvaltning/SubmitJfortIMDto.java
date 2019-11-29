@@ -3,8 +3,7 @@ package no.nav.foreldrepenger.fordel.web.app.forvaltning;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
@@ -12,30 +11,30 @@ import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskIdDto;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
-@ApiModel(value = "Input til prosesstask før submit VL")
+//@ApiModel(value = "Input til prosesstask før submit VL")
 public class SubmitJfortIMDto implements AbacDto {
 
-    @ApiModelProperty(value = "taskID")
+    @Schema // (value = "taskID")
     @NotNull
     @Valid
     private ProsessTaskIdDto prosessTaskIdDto;
-    
-    @ApiModelProperty(value = "saksnummer")
+
+    @Schema // (value = "saksnummer")
     @NotNull
     @Valid
     private SaksnummerDto saksnummerDto;
-    
-    @ApiModelProperty(value = "journalpostID")
+
+    @Schema // (value = "journalpostID")
     @NotNull
     @Valid
     private JournalpostIdDto journalpostIdDto;
 
-
     public SubmitJfortIMDto() { // NOSONAR Input-dto, ingen behov for initialisering
-    	// for Jackson
+        // for Jackson
     }
 
-    public SubmitJfortIMDto(ProsessTaskIdDto prosessTaskIdDto, SaksnummerDto saksnummerDto, JournalpostIdDto journalpostIdDto) {
+    public SubmitJfortIMDto(ProsessTaskIdDto prosessTaskIdDto, SaksnummerDto saksnummerDto,
+            JournalpostIdDto journalpostIdDto) {
         this.prosessTaskIdDto = prosessTaskIdDto;
         this.saksnummerDto = saksnummerDto;
         this.journalpostIdDto = journalpostIdDto;

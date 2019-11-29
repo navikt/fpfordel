@@ -12,10 +12,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import io.swagger.annotations.Api;
 import no.nav.foreldrepenger.fordel.web.app.selftest.SelftestService;
 
-@Api(tags = {"selftest"})
 @Path("/selftest")
 @RequestScoped
 public class SelftestRestTjeneste {
@@ -32,10 +30,10 @@ public class SelftestRestTjeneste {
     }
 
     @GET
-    @Produces({TEXT_HTML, APPLICATION_JSON})
-    public Response doSelftest(@HeaderParam("Content-Type") String contentType, @QueryParam("json") boolean writeJsonAsHtml) {
+    @Produces({ TEXT_HTML, APPLICATION_JSON })
+    public Response doSelftest(@HeaderParam("Content-Type") String contentType,
+            @QueryParam("json") boolean writeJsonAsHtml) {
         return selftestService.doSelftest(contentType, writeJsonAsHtml);
     }
-
 
 }

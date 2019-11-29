@@ -39,7 +39,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import org.apache.http.HttpStatus;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartInput;
 import org.slf4j.Logger;
@@ -47,13 +46,12 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.ResponseHeader;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.fordel.kodeverk.ArkivFilType;
+
 import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeltFeilDto;
@@ -73,7 +71,6 @@ import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
-@Api(tags = {"dokumentforsendelse"})
 @Path(DokumentforsendelseRestTjeneste.SERVICE_PATH)
 @Produces(APPLICATION_JSON)
 @RequestScoped
@@ -103,13 +100,13 @@ public class DokumentforsendelseRestTjeneste {
 
     @Inject
     public DokumentforsendelseRestTjeneste(DokumentforsendelseTjeneste service, KodeverkRepository kodeverkRepository,
-                                           @KonfigVerdi(KEY_FP_STATUSINFORMASJON) URI fpStatusUrl) {
+            @KonfigVerdi(KEY_FP_STATUSINFORMASJON) URI fpStatusUrl) {
         this(kodeverkRepository, service, fpStatusUrl);
-
 
     }
 
-    DokumentforsendelseRestTjeneste(KodeverkRepository kodeverkRepository, DokumentforsendelseTjeneste service, URI fpStatusUrl) {
+    DokumentforsendelseRestTjeneste(KodeverkRepository kodeverkRepository, DokumentforsendelseTjeneste service,
+            URI fpStatusUrl) {
         this.service = service;
         this.kodeverkRepository = kodeverkRepository;
         this.fpStatusUrl = fpStatusUrl;
@@ -117,18 +114,9 @@ public class DokumentforsendelseRestTjeneste {
 
     @POST
     @Consumes("multipart/mixed")
-    @ApiOperation(value = "Innsending av en dokumentforsendelse",
-            notes = "Denne kan ikke kalles fra Swagger")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    code = 200,
-                    responseHeaders = {
-                            @ResponseHeader(
-                                    name = HttpHeaders.LOCATION,
-                                    description = "Link til hvor man kan følge statusen på dokumentforsendelsen"
-                            )},
-                    message = ""
-            ),
+    @Operation(description = "Innsending av en dokumentforsendelse", summary = "Denne kan ikke kalles fra Swagger", responses = {
+            @ApiResponse(responseCode = "200", headers = {
+                    @Header(name = HttpHeaders.LOCATION, description = "Link til hvor man kan følge statusen på dokumentforsendelsen") }),
     })
     @BeskyttetRessurs(action = CREATE, ressurs = FAGSAK)
     public Response uploadFile(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) MultipartInput input) {
@@ -143,34 +131,37 @@ public class DokumentforsendelseRestTjeneste {
         }
         validerDokumentforsendelse(dokumentforsendelse);
 
-        ForsendelseStatusDto forsendelseStatusDto = service.finnStatusinformasjon(dokumentforsendelse.getForsendelsesId());
+        ForsendelseStatusDto forsendelseStatusDto = service
+                .finnStatusinformasjon(dokumentforsendelse.getForsendelsesId());
         switch (forsendelseStatusDto.getForsendelseStatus()) {
-            case FPSAK:
-                return Response.seeOther(lagStatusURI(dokumentforsendelse.getForsendelsesId()))
-                        .entity(forsendelseStatusDto)
-                        .build();
-            case GOSYS:
-                return Response.ok(forsendelseStatusDto).build();
-            case PENDING:
-            default:
-                return Response.accepted()
-                        .location(URI.create(SERVICE_PATH + "/status?forsendelseId=" + dokumentforsendelse.getForsendelsesId()))
-                        .entity(forsendelseStatusDto)
-                        .build();
+        case FPSAK:
+            return Response.seeOther(lagStatusURI(dokumentforsendelse.getForsendelsesId()))
+                    .entity(forsendelseStatusDto)
+                    .build();
+        case GOSYS:
+            return Response.ok(forsendelseStatusDto).build();
+        case PENDING:
+        default:
+            return Response.accepted()
+                    .location(URI
+                            .create(SERVICE_PATH + "/status?forsendelseId=" + dokumentforsendelse.getForsendelsesId()))
+                    .entity(forsendelseStatusDto)
+                    .build();
         }
     }
 
     @GET
     @Path("/status")
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @ApiOperation(value = "Finner status på prosessering av mottatt dokumentforsendelse",
-            notes = "Format: \"8-4-4-4-12\" eksempel \"48F6E1CF-C5D8-4355-8E8C-B75494703959\"")
-    @ApiResponses(
-            value = {
-                    @ApiResponse(code = HttpStatus.SC_OK, message = "Status og Periode", response = ForsendelseStatusDto.class),
-                    @ApiResponse(code = HttpStatus.SC_SEE_OTHER, message = "See Other")
-            })
-    public Response finnStatusinformasjon(@NotNull @QueryParam("forsendelseId") @ApiParam("forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
+    @Operation(description = "Finner status på prosessering av mottatt dokumentforsendelse", summary = "Format: \"8-4-4-4-12\" eksempel \"48F6E1CF-C5D8-4355-8E8C-B75494703959\"", responses = {
+            @ApiResponse(responseCode = "200", description = "Status og Periode"/*
+                                                                                 * , response =
+                                                                                 * ForsendelseStatusDto.class)
+                                                                                 */),
+            @ApiResponse(responseCode = "303", description = "See Other")
+    })
+    public Response finnStatusinformasjon(
+            @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
         UUID forsendelseId;
         try {
             forsendelseId = forsendelseIdDto.getForsendelseId();
@@ -207,28 +198,28 @@ public class DokumentforsendelseRestTjeneste {
         if (name == null) {
             throw DokumentforsendelseRestTjenesteFeil.FACTORY.ukjentPartNavn().toException();
         }
-        
+
         String contentId = inputPart.getHeaders().getFirst(CONTENT_ID);
         if (contentId == null) {
             throw DokumentforsendelseRestTjenesteFeil.FACTORY.manglerHeaderAttributt(CONTENT_ID).toException();
         }
-        
+
         switch (name) {
-            case PART_KEY_HOVEDDOKUMENT:
-                hovedDokument = true;
-                break;
-            case PART_KEY_VEDLEGG:
-                hovedDokument = false;
-                if (!APPLICATION_PDF_TYPE.isCompatible(inputPart.getMediaType())) {
-                    throw DokumentforsendelseRestTjenesteFeil.FACTORY.vedleggErIkkePdf(contentId).toException();
-                }
-                break;
-            default:
-                throw DokumentforsendelseRestTjenesteFeil.FACTORY.ukjentPartNavn().toException();
+        case PART_KEY_HOVEDDOKUMENT:
+            hovedDokument = true;
+            break;
+        case PART_KEY_VEDLEGG:
+            hovedDokument = false;
+            if (!APPLICATION_PDF_TYPE.isCompatible(inputPart.getMediaType())) {
+                throw DokumentforsendelseRestTjenesteFeil.FACTORY.vedleggErIkkePdf(contentId).toException();
+            }
+            break;
+        default:
+            throw DokumentforsendelseRestTjenesteFeil.FACTORY.ukjentPartNavn().toException();
         }
-        
+
         FilMetadata filMetadata = dokumentforsendelse.håndter(contentId);
-        if(filMetadata == null){
+        if (filMetadata == null) {
             throw DokumentforsendelseRestTjenesteFeil.FACTORY.manglerInformasjonIMetadata(contentId).toException();
         }
 
@@ -245,12 +236,15 @@ public class DokumentforsendelseRestTjeneste {
                 .setDokumentTypeId(filMetadata.getDokumentTypeId());
         try {
             if (MediaType.APPLICATION_XML_TYPE.isCompatible(inputPart.getMediaType())) {
-                builder.setDokumentInnhold(inputPart.getBodyAsString().getBytes(Charset.forName("UTF-8")), mapMediatypeTilArkivFilType(inputPart.getMediaType()));
+                builder.setDokumentInnhold(inputPart.getBodyAsString().getBytes(Charset.forName("UTF-8")),
+                        mapMediatypeTilArkivFilType(inputPart.getMediaType()));
             } else {
-                builder.setDokumentInnhold(inputPart.getBody(byte[].class, null), mapMediatypeTilArkivFilType(inputPart.getMediaType()));
+                builder.setDokumentInnhold(inputPart.getBody(byte[].class, null),
+                        mapMediatypeTilArkivFilType(inputPart.getMediaType()));
             }
         } catch (IOException e) {
-            throw DokumentforsendelseRestTjenesteFeil.FACTORY.feiletUnderInnlesningAvInputPart(name, contentId, e).toException();
+            throw DokumentforsendelseRestTjenesteFeil.FACTORY.feiletUnderInnlesningAvInputPart(name, contentId, e)
+                    .toException();
         }
 
         Dokument dokument = builder.build();
@@ -261,7 +255,7 @@ public class DokumentforsendelseRestTjeneste {
         if (!dokumentforsendelse.harHåndtertAlleFiler()) {
             throw DokumentforsendelseRestTjenesteFeil.FACTORY.forventetFlereFilerIForsendelsen().toException();
         }
-        
+
         service.validerDokumentforsendelse(dokumentforsendelse.getForsendelsesId());
     }
 
@@ -271,7 +265,8 @@ public class DokumentforsendelseRestTjeneste {
             throw DokumentforsendelseRestTjenesteFeil.FACTORY.førsteInputPartSkalVæreMetadata().toException();
         }
         if (!APPLICATION_JSON_TYPE.isCompatible(inputPart.getMediaType())) {
-            throw DokumentforsendelseRestTjenesteFeil.FACTORY.metadataPartSkalHaMediaType(APPLICATION_JSON).toException();
+            throw DokumentforsendelseRestTjenesteFeil.FACTORY.metadataPartSkalHaMediaType(APPLICATION_JSON)
+                    .toException();
         }
 
         String body;
@@ -285,7 +280,8 @@ public class DokumentforsendelseRestTjeneste {
         try {
             dokumentforsendelseDto = OBJECT_MAPPER.readValue(body, DokumentforsendelseDto.class);
         } catch (IOException e) {
-            throw DokumentforsendelseRestTjenesteFeil.FACTORY.kunneIkkeParseMetadata(PART_KEY_METADATA, e).toException();
+            throw DokumentforsendelseRestTjenesteFeil.FACTORY.kunneIkkeParseMetadata(PART_KEY_METADATA, e)
+                    .toException();
         }
 
         Set<ConstraintViolation<DokumentforsendelseDto>> violations = VALIDATOR.validate(dokumentforsendelseDto);
@@ -306,7 +302,8 @@ public class DokumentforsendelseRestTjeneste {
         Map<String, FilMetadata> map = new HashMap<>();
         for (FilMetadataDto fmDto : dokumentforsendelseDto.getFiler()) {
             String dokumentTypeId = fmDto.getDokumentTypeId();
-            DokumentTypeId dokumentType = kodeverkRepository.finnForKodeverkEiersKode(DokumentTypeId.class, dokumentTypeId, DokumentTypeId.UDEFINERT);
+            DokumentTypeId dokumentType = kodeverkRepository.finnForKodeverkEiersKode(DokumentTypeId.class,
+                    dokumentTypeId, DokumentTypeId.UDEFINERT);
             FilMetadata fmd = new FilMetadata(fmDto.getContentId(), dokumentType);
             map.put(fmDto.getContentId(), fmd);
         }
@@ -314,7 +311,8 @@ public class DokumentforsendelseRestTjeneste {
         return new Dokumentforsendelse(metadata, map);
     }
 
-    private static String getDirective(MultivaluedMap<String, String> headers, String headerName, String directiveName) {
+    private static String getDirective(MultivaluedMap<String, String> headers, String headerName,
+            String directiveName) {
         String[] directives = new String[0];
         String header = headers.getFirst(headerName);
         if (header != null) {

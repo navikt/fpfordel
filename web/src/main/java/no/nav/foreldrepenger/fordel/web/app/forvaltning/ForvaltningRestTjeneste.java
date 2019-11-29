@@ -15,11 +15,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -35,7 +33,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskIdDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
-@Api(tags = {"Forvaltning"})
 @Path("/forvaltning")
 @RequestScoped
 @Transaction
@@ -50,21 +47,25 @@ public class ForvaltningRestTjeneste {
     }
 
     @Inject
-    public ForvaltningRestTjeneste(ProsessTaskRepository prosessTaskRepository, KodeverkRepository kodeverkRepository, FagsakRestKlient fagsakRestKlient) {
+    public ForvaltningRestTjeneste(ProsessTaskRepository prosessTaskRepository, KodeverkRepository kodeverkRepository,
+            FagsakRestKlient fagsakRestKlient) {
         this.prosessTaskRepository = prosessTaskRepository;
         this.kodeverkRepository = kodeverkRepository;
         this.fagsakRestKlient = fagsakRestKlient;
     }
 
     @POST
-    @ApiOperation(value = "Setter nytt suffix for retry journalføring", notes = ("Setter parametere før retry av task"))
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Nytt suffix satt")})
+    @Operation(description = "Setter nytt suffix for retry journalføring", summary = ("Setter parametere før retry av task"), responses =
+
+    { @ApiResponse(responseCode = "200", description = "Nytt suffix satt") })
+
     @Path("/retry-suffix")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response setRetrySuffix(@ApiParam("Sett kanalreferanse-suffix før restart prosesstask") @NotNull @Valid RetryTaskKanalrefDto dto) {
+    public Response setRetrySuffix(
+            @Parameter(description = "Sett kanalreferanse-suffix før restart prosesstask") @NotNull @Valid RetryTaskKanalrefDto dto) {
         ProsessTaskData data = prosessTaskRepository.finn(dto.getProsessTaskIdDto().getProsessTaskId());
         if (data == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -75,14 +76,17 @@ public class ForvaltningRestTjeneste {
     }
 
     @POST
-    @ApiOperation(value = "Send inntektsmelding til angitt sak (allerede journalført)", notes = ("Bruker eksisterende task til å sende dokument til VL"))
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Inntektsmelding sendt til VL")})
+    @Operation(description = "Send inntektsmelding til angitt sak (allerede journalført)", summary = "Bruker eksisterende task til å sende dokument til VL", responses =
+
+    { @ApiResponse(responseCode = "200", description = "Inntektsmelding sendt til VL") })
+
     @Path("/submit-journalfort-im")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response submitJournalførtInntektsmelding(@ApiParam("Send im til angitt sak") @NotNull @Valid SubmitJfortIMDto dto) {
+    public Response submitJournalførtInntektsmelding(
+            @Parameter(description = "Send im til angitt sak") @NotNull @Valid SubmitJfortIMDto dto) {
         ProsessTaskData data = prosessTaskRepository.finn(dto.getProsessTaskIdDto().getProsessTaskId());
         if (data == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -93,20 +97,22 @@ public class ForvaltningRestTjeneste {
         dataWrapperTil.setSaksnummer(dto.getSaksnummerDto().getSaksnummer());
         dataWrapperTil.setArkivId(dto.getJournalpostIdDto().getJournalpostId());
         dataWrapperTil.setRetryingTask(KlargjorForVLTask.REINNSEND);
-        fagsakRestKlient.knyttSakOgJournalpost(new JournalpostKnyttningDto(dto.getSaksnummerDto(), dto.getJournalpostIdDto()));
+        fagsakRestKlient
+                .knyttSakOgJournalpost(new JournalpostKnyttningDto(dto.getSaksnummerDto(), dto.getJournalpostIdDto()));
         prosessTaskRepository.lagre(dataWrapperTil.getProsessTaskData());
         return Response.ok().build();
     }
 
     @POST
-    @ApiOperation(value = "Send journalpost til angitt sak (ikke journalført)", notes = ("Bruker eksisterende task til å sende dokument til VL"))
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Inntektsmelding sendt til VL")})
+    @Operation(description = "Send journalpost til angitt sak (ikke journalført)", summary = ("Bruker eksisterende task til å sende dokument til VL"), responses = {
+            @ApiResponse(responseCode = "200", description = "Inntektsmelding sendt til VL") })
     @Path("/submit-journalforing-endelig")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response submitJournalpostEndeligKlargjor(@ApiParam("Send im til angitt sak") @NotNull @Valid SubmitJfortIMDto dto) {
+    public Response submitJournalpostEndeligKlargjor(
+            @Parameter(description = "Send im til angitt sak") @NotNull @Valid SubmitJfortIMDto dto) {
         ProsessTaskData data = prosessTaskRepository.finn(dto.getProsessTaskIdDto().getProsessTaskId());
         if (data == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -118,20 +124,22 @@ public class ForvaltningRestTjeneste {
         }
         MottakMeldingDataWrapper dataWrapperTil = dataWrapperFra.nesteSteg(TilJournalføringTask.TASKNAME);
         dataWrapperTil.setSaksnummer(dto.getSaksnummerDto().getSaksnummer());
-        fagsakRestKlient.knyttSakOgJournalpost(new JournalpostKnyttningDto(dto.getSaksnummerDto(), dto.getJournalpostIdDto()));
+        fagsakRestKlient
+                .knyttSakOgJournalpost(new JournalpostKnyttningDto(dto.getSaksnummerDto(), dto.getJournalpostIdDto()));
         prosessTaskRepository.lagre(dataWrapperTil.getProsessTaskData());
         return Response.ok().build();
     }
 
     @POST
-    @ApiOperation(value = "Midlertidig journalfør forsendelse", notes = ("For gsak-oppgaver opprettet uten journalpostid"))
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Forsendelse til midl journalføring")})
+    @Operation(description = "Midlertidig journalfør forsendelse", summary = ("For gsak-oppgaver opprettet uten journalpostid"), responses = {
+            @ApiResponse(responseCode = "200", description = "Forsendelse til midl journalføring") })
     @Path("/midl-journalfor")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response midlJournalførForsendelse(@ApiParam("Task som skal midl journalførs") @NotNull @Valid ProsessTaskIdDto taskId) {
+    public Response midlJournalførForsendelse(
+            @Parameter(description = "Task som skal midl journalførs") @NotNull @Valid ProsessTaskIdDto taskId) {
         ProsessTaskData data = prosessTaskRepository.finn(taskId.getProsessTaskId());
         if (data != null) {
             MottakMeldingDataWrapper dataWrapperFra = new MottakMeldingDataWrapper(kodeverkRepository, data);
@@ -145,10 +153,9 @@ public class ForvaltningRestTjeneste {
     @Path("/autorun")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    @ApiOperation(value = "Start task for å kjøre batchjobs")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Starter batch-scheduler."),
-            @ApiResponse(code = 500, message = "Feilet pga ukjent feil.")
+    @Operation(description = "Start task for å kjøre batchjobs", responses = {
+            @ApiResponse(responseCode = "200", description = "Starter batch-scheduler."),
+            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
     @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
@@ -167,14 +174,14 @@ public class ForvaltningRestTjeneste {
     @Path("/sett-task-ferdig")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    @ApiOperation(value = "Setter prosesstask til status FERDIG")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Task satt til ferdig."),
-            @ApiResponse(code = 500, message = "Feilet pga ukjent feil.")
+    @Operation(description = "Setter prosesstask til status FERDIG", responses = {
+            @ApiResponse(responseCode = "200", description = "Task satt til ferdig."),
+            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
     @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response setTaskFerdig(@ApiParam("Task som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto taskId) {
+    public Response setTaskFerdig(
+            @Parameter(description = "Task som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto taskId) {
         ProsessTaskData data = prosessTaskRepository.finn(taskId.getProsessTaskId());
         if (data != null) {
             data.setStatus(ProsessTaskStatus.FERDIG);
