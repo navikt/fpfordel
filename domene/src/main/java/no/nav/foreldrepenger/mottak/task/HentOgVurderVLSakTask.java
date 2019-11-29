@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.task;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 import javax.enterprise.context.Dependent;
@@ -14,9 +13,9 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
 import no.nav.foreldrepenger.mottak.klient.VurderFagsystemResultat;
+import no.nav.foreldrepenger.mottak.tjeneste.KonfigVerdiTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.konfig.Tid;
 
 /**
@@ -52,11 +51,10 @@ public class HentOgVurderVLSakTask extends WrappedProsessTaskHandler {
     private FagsakRestKlient fagsakRestKlient;
 
     @Inject
-    public HentOgVurderVLSakTask(ProsessTaskRepository prosessTaskRepository, KodeverkRepository kodeverkRepository, FagsakRestKlient fagsakRestKlient,
-                                 @KonfigVerdi(value = "foreldrepenger.startdato") String konfigVerdiStartdatoForeldrepenger) {
+    public HentOgVurderVLSakTask(ProsessTaskRepository prosessTaskRepository, KodeverkRepository kodeverkRepository, FagsakRestKlient fagsakRestKlient) {
         super(prosessTaskRepository, kodeverkRepository);
         this.fagsakRestKlient = fagsakRestKlient;
-        this.konfigVerdiStartdatoForeldrepenger = LocalDate.parse(konfigVerdiStartdatoForeldrepenger, DateTimeFormatter.ISO_LOCAL_DATE);
+        this.konfigVerdiStartdatoForeldrepenger = KonfigVerdiTjeneste.getKonfigVerdiStartdatoForeldrepenger();
     }
 
     @Override

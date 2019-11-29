@@ -79,7 +79,7 @@ public class BehandleDokumentforsendelseTaskTest {
     @Before
     public void setup() {
         fordelDokTask = new BehandleDokumentforsendelseTask(prosessTaskRepository, kodeverkRepository, aktørConsumer,
-                fagsakRestKlient, dokumentRepository, konfigVerdiStartdatoForeldrepenger);
+                fagsakRestKlient, dokumentRepository);
         ptd = new ProsessTaskData(BehandleDokumentforsendelseTask.TASKNAME);
         ptd.setSekvens("1");
 

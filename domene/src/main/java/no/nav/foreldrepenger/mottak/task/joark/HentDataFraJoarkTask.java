@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.mottak.task.joark;
 import static no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste.erStrukturertDokument;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,10 +22,10 @@ import no.nav.foreldrepenger.mottak.journal.JournalDokument;
 import no.nav.foreldrepenger.mottak.journal.JournalMetadata;
 import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
 import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
+import no.nav.foreldrepenger.mottak.tjeneste.KonfigVerdiTjeneste;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.util.FPDateUtil;
 import no.nav.vedtak.util.StringUtils;
@@ -53,13 +52,11 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     @Inject
     public HentDataFraJoarkTask(ProsessTaskRepository prosessTaskRepository, KodeverkRepository kodeverkRepository,
-            AktørConsumer aktørConsumer, JoarkDokumentHåndterer joarkDokumentHåndterer,
-            @KonfigVerdi(value = "foreldrepenger.startdato") String fastsattInntektsmeldingStartdatoFristForManuellBehandling) {
+                                AktørConsumer aktørConsumer, JoarkDokumentHåndterer joarkDokumentHåndterer) {
         super(prosessTaskRepository, kodeverkRepository);
         this.aktørConsumer = aktørConsumer;
         this.joarkDokumentHåndterer = joarkDokumentHåndterer;
-        this.fastsattInntektsmeldingStartdatoFristForManuellBehandling = LocalDate
-                .parse(fastsattInntektsmeldingStartdatoFristForManuellBehandling, DateTimeFormatter.ISO_LOCAL_DATE);
+        this.fastsattInntektsmeldingStartdatoFristForManuellBehandling = KonfigVerdiTjeneste.getKonfigVerdiStartdatoForeldrepenger();
     }
 
     @Override
