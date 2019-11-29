@@ -52,6 +52,7 @@ import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.fordel.kodeverk.ArkivFilType;
 
+
 import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeltFeilDto;
@@ -131,8 +132,7 @@ public class DokumentforsendelseRestTjeneste {
         }
         validerDokumentforsendelse(dokumentforsendelse);
 
-        ForsendelseStatusDto forsendelseStatusDto = service
-                .finnStatusinformasjon(dokumentforsendelse.getForsendelsesId());
+        ForsendelseStatusDto forsendelseStatusDto = service.finnStatusinformasjon(dokumentforsendelse.getForsendelsesId());
         switch (forsendelseStatusDto.getForsendelseStatus()) {
         case FPSAK:
             return Response.seeOther(lagStatusURI(dokumentforsendelse.getForsendelsesId()))
