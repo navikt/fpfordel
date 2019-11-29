@@ -4,7 +4,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,11 +11,10 @@ import javax.ws.rs.Path;
 
 import org.jboss.resteasy.plugins.providers.multipart.MultipartInput;
 
-import io.swagger.jaxrs.listing.ApiListingResource;
-
 public class RestApiTester {
 
-    static final List<Class<?>> UNNTATT = Collections.singletonList(ApiListingResource.class);
+    // static final List<Class<?>> UNNTATT =
+    // Collections.singletonList(ApiListingResource.class);
 
     static Collection<Method> finnAlleRestMetoder() {
         List<Method> liste = new ArrayList<>();
@@ -43,7 +41,7 @@ public class RestApiTester {
         ApplicationConfig config = new ApplicationConfig();
         return config.getClasses().stream()
                 .filter(c -> c.getAnnotation(Path.class) != null)
-                .filter(c -> !UNNTATT.contains(c))
+                // .filter(c -> !UNNTATT.contains(c))
                 .collect(Collectors.toList());
     }
 }
