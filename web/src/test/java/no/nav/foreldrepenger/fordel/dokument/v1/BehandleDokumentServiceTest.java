@@ -43,7 +43,6 @@ import no.nav.foreldrepenger.mottak.journal.JournalMetadata;
 import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
 import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
-import no.nav.foreldrepenger.mottak.tjeneste.KonfigVerdiTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.TilJournalføringTjeneste;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.binding.OppdaterOgFerdigstillJournalfoeringUgyldigInput;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.meldinger.OppdaterOgFerdigstillJournalfoeringRequest;
@@ -72,7 +71,6 @@ public class BehandleDokumentServiceTest {
     private HentDataFraJoarkTjeneste hentDataFraJoarkTjenesteMock;
     private KlargjørForVLTjeneste klargjørForVLTjenesteMock;
     private FagsakRestKlient fagsakRestKlientMock;
-    private KonfigVerdiTjeneste konfigVerdiTjeneste;
     private AktørConsumer aktørConsumer;
 
     private BehandlingTema engangsstønadFødsel;
@@ -111,14 +109,12 @@ public class BehandleDokumentServiceTest {
         tilJournalføringTjenesteMock = mock(TilJournalføringTjeneste.class);
         klargjørForVLTjenesteMock = mock(KlargjørForVLTjeneste.class);
 
-        konfigVerdiTjeneste = mock(KonfigVerdiTjeneste.class);
-        when(konfigVerdiTjeneste.getKonfigVerdiStartdatoForeldrepenger()).thenReturn(LocalDate.of(2019, 1, 1));
         aktørConsumer = mock(AktørConsumer.class);
         when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.empty());
         when(aktørConsumer.hentAktørIdForPersonIdent(BRUKER_FNR)).thenReturn(Optional.of(AKTØR_ID));
 
         behandleDokumentService = new BehandleDokumentService(tilJournalføringTjenesteMock, hentDataFraJoarkTjenesteMock, klargjørForVLTjenesteMock,
-                fagsakRestKlientMock, kodeverkRepository, konfigVerdiTjeneste, aktørConsumer);
+                fagsakRestKlientMock, kodeverkRepository, aktørConsumer);
     }
 
     @Test

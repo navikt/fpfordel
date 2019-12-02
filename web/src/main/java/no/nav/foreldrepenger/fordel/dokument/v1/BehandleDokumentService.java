@@ -75,19 +75,17 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
     private KlargjørForVLTjeneste klargjørForVLTjeneste;
     private FagsakRestKlient fagsakRestKlient;
     private KodeverkRepository kodeverkRepository;
-    private KonfigVerdiTjeneste konfigVerdiTjeneste;
     private AktørConsumer aktørConsumer;
 
     @Inject
     public BehandleDokumentService(TilJournalføringTjeneste tilJournalføringTjeneste, HentDataFraJoarkTjeneste hentDataFraJoarkTjeneste,
                                    KlargjørForVLTjeneste klargjørForVLTjeneste, FagsakRestKlient fagsakRestKlient, KodeverkRepository kodeverkRepository,
-                                   KonfigVerdiTjeneste konfigVerdiTjeneste, AktørConsumer aktørConsumer) {
+                                   AktørConsumer aktørConsumer) {
         this.tilJournalføringTjeneste = tilJournalføringTjeneste;
         this.hentDataFraJoarkTjeneste = hentDataFraJoarkTjeneste;
         this.klargjørForVLTjeneste = klargjørForVLTjeneste;
         this.fagsakRestKlient = fagsakRestKlient;
         this.kodeverkRepository = kodeverkRepository;
-        this.konfigVerdiTjeneste = konfigVerdiTjeneste;
         this.aktørConsumer = aktørConsumer;
     }
 
@@ -240,7 +238,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
                 throw BehandleDokumentServiceFeil.FACTORY.imFeilType().toException();
             }
         }
-        if (BehandlingTema.gjelderForeldrepenger(behandlingTema) && startDato.isBefore(konfigVerdiTjeneste.getKonfigVerdiStartdatoForeldrepenger())) {
+        if (BehandlingTema.gjelderForeldrepenger(behandlingTema) && startDato.isBefore(KonfigVerdiTjeneste.getKonfigVerdiStartdatoForeldrepenger())) {
             throw BehandleDokumentServiceFeil.FACTORY.forTidligUttak().toException();
         }
     }
