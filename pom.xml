@@ -169,6 +169,21 @@
 				<version>1.0.48</version>
 			</dependency>
 			<dependency>
+				<groupId>io.swagger.core.v3</groupId>
+				<artifactId>swagger-jaxrs2</artifactId>
+				<version>2.1.0</version>
+			</dependency>
+			<dependency>
+				<groupId>io.swagger.core.v3</groupId>
+				<artifactId>swagger-core</artifactId>
+				<version>2.1.0</version>
+			</dependency>
+			<dependency>
+				<groupId>io.swagger.core.v3</groupId>
+				<artifactId>swagger-annotations</artifactId>
+				<version>2.1.0</version>
+			</dependency>
+			<dependency>
 				<groupId>io.javaslang</groupId>
 				<artifactId>javaslang</artifactId>
 				<version>2.0.6</version>
