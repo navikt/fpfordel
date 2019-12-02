@@ -71,7 +71,7 @@ spec:
   - name: MQGATEWAY02_HOSTNAME
     value: mqgateway02.hostname
   - name: MQGATEWAY02_PORT
-    value: mqgateway02.port
+    value: "mqgateway02.port"
   - name: MQGATEWAY02_NAME
     value: mqgateway02.name
   - name: FPFORDEL_CHANNEL_QUEUEMANAGER
