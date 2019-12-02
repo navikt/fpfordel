@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.fordel.kodeverk.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.fordel.kodeverk.Tema;
+import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
@@ -33,7 +34,6 @@ import no.nav.foreldrepenger.mottak.task.OpprettSakTask;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
-import no.nav.foreldrepenger.mottak.tjeneste.KonfigVerdiTjeneste;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -49,7 +49,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     private AktørConsumer aktørConsumer;
     private FagsakRestKlient fagsakRestKlient;
     private DokumentRepository dokumentRepository;
-    private LocalDate konfigVerdiStartdatoForeldrepenger;
+    private LocalDate konfigVerdiStartdatoForeldrepenger = KonfigVerdier.ENDRING_BEREGNING_DATO;
 
     private static final Logger logger = LoggerFactory.getLogger(BehandleDokumentforsendelseTask.class);
 
@@ -63,7 +63,6 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         this.aktørConsumer = aktørConsumer;
         this.fagsakRestKlient = fagsakRestKlient;
         this.dokumentRepository = dokumentRepository;
-        this.konfigVerdiStartdatoForeldrepenger = KonfigVerdiTjeneste.getKonfigVerdiStartdatoForeldrepenger();
     }
 
     @Override

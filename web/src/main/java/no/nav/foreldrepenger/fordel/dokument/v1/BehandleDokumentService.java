@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.fordel.kodeverk.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.fordel.kodeverk.Tema;
+import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
@@ -29,7 +30,6 @@ import no.nav.foreldrepenger.mottak.task.KlargjorForVLTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
-import no.nav.foreldrepenger.mottak.tjeneste.KonfigVerdiTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.TilJournalføringTjeneste;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.binding.BehandleDokumentforsendelseV1;
@@ -238,7 +238,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
                 throw BehandleDokumentServiceFeil.FACTORY.imFeilType().toException();
             }
         }
-        if (BehandlingTema.gjelderForeldrepenger(behandlingTema) && startDato.isBefore(KonfigVerdiTjeneste.getKonfigVerdiStartdatoForeldrepenger())) {
+        if (BehandlingTema.gjelderForeldrepenger(behandlingTema) && startDato.isBefore(KonfigVerdier.ENDRING_BEREGNING_DATO)) {
             throw BehandleDokumentServiceFeil.FACTORY.forTidligUttak().toException();
         }
     }

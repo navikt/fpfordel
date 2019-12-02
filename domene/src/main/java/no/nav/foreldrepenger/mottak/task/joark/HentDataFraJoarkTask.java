@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.fordel.kodeverk.Tema;
+import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -22,7 +23,6 @@ import no.nav.foreldrepenger.mottak.journal.JournalDokument;
 import no.nav.foreldrepenger.mottak.journal.JournalMetadata;
 import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
 import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
-import no.nav.foreldrepenger.mottak.tjeneste.KonfigVerdiTjeneste;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -48,7 +48,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     private AktørConsumer aktørConsumer;
     private JoarkDokumentHåndterer joarkDokumentHåndterer;
-    private LocalDate fastsattInntektsmeldingStartdatoFristForManuellBehandling;
+    private LocalDate fastsattInntektsmeldingStartdatoFristForManuellBehandling = KonfigVerdier.ENDRING_BEREGNING_DATO;
 
     @Inject
     public HentDataFraJoarkTask(ProsessTaskRepository prosessTaskRepository, KodeverkRepository kodeverkRepository,
@@ -56,7 +56,6 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         super(prosessTaskRepository, kodeverkRepository);
         this.aktørConsumer = aktørConsumer;
         this.joarkDokumentHåndterer = joarkDokumentHåndterer;
-        this.fastsattInntektsmeldingStartdatoFristForManuellBehandling = KonfigVerdiTjeneste.getKonfigVerdiStartdatoForeldrepenger();
     }
 
     @Override

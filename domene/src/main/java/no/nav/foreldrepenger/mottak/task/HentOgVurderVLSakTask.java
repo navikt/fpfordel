@@ -8,12 +8,12 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
+import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
 import no.nav.foreldrepenger.mottak.klient.VurderFagsystemResultat;
-import no.nav.foreldrepenger.mottak.tjeneste.KonfigVerdiTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
@@ -46,7 +46,7 @@ import no.nav.vedtak.konfig.Tid;
 public class HentOgVurderVLSakTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.hentOgVurderVLSak";
-    private final LocalDate konfigVerdiStartdatoForeldrepenger;
+    private final LocalDate konfigVerdiStartdatoForeldrepenger = KonfigVerdier.ENDRING_BEREGNING_DATO;
 
     private FagsakRestKlient fagsakRestKlient;
 
@@ -54,7 +54,6 @@ public class HentOgVurderVLSakTask extends WrappedProsessTaskHandler {
     public HentOgVurderVLSakTask(ProsessTaskRepository prosessTaskRepository, KodeverkRepository kodeverkRepository, FagsakRestKlient fagsakRestKlient) {
         super(prosessTaskRepository, kodeverkRepository);
         this.fagsakRestKlient = fagsakRestKlient;
-        this.konfigVerdiStartdatoForeldrepenger = KonfigVerdiTjeneste.getKonfigVerdiStartdatoForeldrepenger();
     }
 
     @Override
