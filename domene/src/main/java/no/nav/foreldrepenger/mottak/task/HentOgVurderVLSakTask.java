@@ -54,7 +54,7 @@ public class HentOgVurderVLSakTask extends WrappedProsessTaskHandler {
     public static final String TASKNAME = "fordeling.hentOgVurderVLSak";
     private final LocalDate startDato;
 
-    private FagsakRestKlient fagsakRestKlient;
+    private final FagsakRestKlient fagsakRestKlient;
 
     @Inject
     public HentOgVurderVLSakTask(

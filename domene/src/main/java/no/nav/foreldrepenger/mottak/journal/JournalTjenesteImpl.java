@@ -70,22 +70,21 @@ public class JournalTjenesteImpl implements JournalTjeneste {
     private static final String IDENT_KEY = "ident";
     private static final String PERSON_KEY = "person";
 
-    private JournalConsumer journalConsumer;
-    private InngaaendeJournalConsumer inngaaendeJournalConsumer;
-    private BehandleInngaaendeJournalConsumer behandleInngaaendeJournalConsumer;
-    private MottaInngaaendeForsendelseRestKlient mottaInngaaendeForsendelseKlient;
-    private AktørConsumer aktørConsumer;
-    private KodeverkRepository kodeverkRepository;
-
-    private JournalTjenesteUtil journalTjenesteUtil;
+    private final JournalConsumer journalConsumer;
+    private final InngaaendeJournalConsumer inngaaendeJournalConsumer;
+    private final BehandleInngaaendeJournalConsumer behandleInngaaendeJournalConsumer;
+    private final MottaInngaaendeForsendelseRestKlient mottaInngaaendeForsendelseKlient;
+    private final AktørConsumer aktørConsumer;
+    private final KodeverkRepository kodeverkRepository;
+    private final JournalTjenesteUtil journalTjenesteUtil;
 
     @Inject
     public JournalTjenesteImpl(JournalConsumer journalConsumer,
-                               InngaaendeJournalConsumer inngaaendeJournalConsumer,
-                               BehandleInngaaendeJournalConsumer behandleInngaaendeJournalConsumer,
-                               MottaInngaaendeForsendelseRestKlient mottaInngaaendeForsendelseKlient,
-                               AktørConsumer aktørConsumer,
-                               KodeverkRepository kodeverkRepository) {
+            InngaaendeJournalConsumer inngaaendeJournalConsumer,
+            BehandleInngaaendeJournalConsumer behandleInngaaendeJournalConsumer,
+            MottaInngaaendeForsendelseRestKlient mottaInngaaendeForsendelseKlient,
+            AktørConsumer aktørConsumer,
+            KodeverkRepository kodeverkRepository) {
         this.journalConsumer = journalConsumer;
         this.inngaaendeJournalConsumer = inngaaendeJournalConsumer;
         this.behandleInngaaendeJournalConsumer = behandleInngaaendeJournalConsumer;
@@ -104,7 +103,9 @@ public class JournalTjenesteImpl implements JournalTjeneste {
         journalConsumerRequest.setDokumentId(journalMetadata.getDokumentId());
         journalConsumerRequest.setJournalpostId(journalMetadata.getJournalpostId());
         no.nav.tjeneste.virksomhet.journal.v2.informasjon.Variantformater variantformater = new no.nav.tjeneste.virksomhet.journal.v2.informasjon.Variantformater();
-        String variantFormatOffisiellKode = journalMetadata.getVariantFormat() != null ? journalMetadata.getVariantFormat().getOffisiellKode() : null;
+        String variantFormatOffisiellKode = journalMetadata.getVariantFormat() != null
+                ? journalMetadata.getVariantFormat().getOffisiellKode()
+                : null;
         variantformater.setValue(variantFormatOffisiellKode);
         journalConsumerRequest.setVariantformat(variantformater);
 
@@ -146,11 +147,13 @@ public class JournalTjenesteImpl implements JournalTjeneste {
         UtledJournalfoeringsbehovRequest request = new UtledJournalfoeringsbehovRequest();
         request.setJournalpostId(journalpostId);
         try {
-            UtledJournalfoeringsbehovResponse utledJournalfoeringsbehovResponse = inngaaendeJournalConsumer.utledJournalfoeringsbehov(request);
+            UtledJournalfoeringsbehovResponse utledJournalfoeringsbehovResponse = inngaaendeJournalConsumer
+                    .utledJournalfoeringsbehov(request);
             JournalpostMangler journalfoeringsbehov = utledJournalfoeringsbehovResponse.getJournalfoeringsbehov();
             return journalTjenesteUtil.konverterTilJournalmangler(journalfoeringsbehov);
         } catch (UtledJournalfoeringsbehovSikkerhetsbegrensning e) {
-            throw JournalFeil.FACTORY.journalUtilgjengeligSikkerhetsbegrensning("Utled journalføringsbehov", e).toException();
+            throw JournalFeil.FACTORY.journalUtilgjengeligSikkerhetsbegrensning("Utled journalføringsbehov", e)
+                    .toException();
         } catch (UtledJournalfoeringsbehovUgyldigInput e) {
             throw JournalFeil.FACTORY.utledJournalfoeringsbehovUgyldigInput(e).toException();
         } catch (UtledJournalfoeringsbehovJournalpostKanIkkeBehandles e) {
@@ -229,7 +232,8 @@ public class JournalTjenesteImpl implements JournalTjeneste {
         try {
             behandleInngaaendeJournalConsumer.oppdaterJournalpost(request);
         } catch (OppdaterJournalpostSikkerhetsbegrensning e) {
-            throw JournalFeil.FACTORY.journalUtilgjengeligSikkerhetsbegrensning("Oppdater journalpost", e).toException();
+            throw JournalFeil.FACTORY.journalUtilgjengeligSikkerhetsbegrensning("Oppdater journalpost", e)
+                    .toException();
         } catch (OppdaterJournalpostOppdateringIkkeMulig e) {
             throw JournalFeil.FACTORY.oppdaterJournalpostOppdateringIkkeMulig(e).toException();
         } catch (OppdaterJournalpostUgyldigInput e) {
@@ -242,7 +246,8 @@ public class JournalTjenesteImpl implements JournalTjeneste {
     }
 
     @Override
-    public DokumentforsendelseResponse journalførDokumentforsendelse(DokumentforsendelseRequest dokumentforsendelseRequest) {
+    public DokumentforsendelseResponse journalførDokumentforsendelse(
+            DokumentforsendelseRequest dokumentforsendelseRequest) {
         String forsendelseId = dokumentforsendelseRequest.getForsendelseId();
         MottaInngaaendeForsendelseRequest request = new MottaInngaaendeForsendelseRequest();
         request.setForsokEndeligJF(dokumentforsendelseRequest.getForsøkEndeligJF());
@@ -256,29 +261,36 @@ public class JournalTjenesteImpl implements JournalTjeneste {
         forsendelseInformasjon.setBruker(bruker);
 
         no.nav.dok.tjenester.mottainngaaendeforsendelse.Aktoer avsender = new no.nav.dok.tjenester.mottainngaaendeforsendelse.Aktoer();
-        avsender.setAdditionalProperty(AKTØR_ID_KEY, lagAktørStruktur(dokumentforsendelseRequest.getAvsender().orElse(dokumentforsendelseRequest.getBruker())));
+        avsender.setAdditionalProperty(AKTØR_ID_KEY, lagAktørStruktur(
+                dokumentforsendelseRequest.getAvsender().orElse(dokumentforsendelseRequest.getBruker())));
         forsendelseInformasjon.setAvsender(avsender);
 
-        forsendelseInformasjon.setTema(kodeverkRepository.finn(Tema.class, Tema.FORELDRE_OG_SVANGERSKAPSPENGER).getOffisiellKode());
+        forsendelseInformasjon
+                .setTema(kodeverkRepository.finn(Tema.class, Tema.FORELDRE_OG_SVANGERSKAPSPENGER).getOffisiellKode());
         if (dokumentforsendelseRequest.getRetrySuffix().isPresent()) {
-            forsendelseInformasjon.setKanalReferanseId(forsendelseId + "-" + dokumentforsendelseRequest.getRetrySuffix().get());
+            forsendelseInformasjon
+                    .setKanalReferanseId(forsendelseId + "-" + dokumentforsendelseRequest.getRetrySuffix().get());
         } else {
             forsendelseInformasjon.setKanalReferanseId(forsendelseId);
         }
         forsendelseInformasjon.setForsendelseMottatt(mottatt);
         forsendelseInformasjon.setForsendelseInnsendt(mottatt);
-        forsendelseInformasjon.setMottaksKanal(kodeverkRepository.finn(MottakKanal.class, MottakKanal.NAV_NO).getOffisiellKode());
+        forsendelseInformasjon
+                .setMottaksKanal(kodeverkRepository.finn(MottakKanal.class, MottakKanal.NAV_NO).getOffisiellKode());
         forsendelseInformasjon.setTittel(dokumentforsendelseRequest.getTittel());
         if (forsendelseInformasjon.getTittel() == null && !dokumentforsendelseRequest.getHoveddokument().isEmpty()) {
-            forsendelseInformasjon.setTittel(journalTjenesteUtil.tittelFraDokument(dokumentforsendelseRequest.getHoveddokument().get(0), dokumentforsendelseRequest.getForsøkEndeligJF(), true));
+            forsendelseInformasjon.setTittel(
+                    journalTjenesteUtil.tittelFraDokument(dokumentforsendelseRequest.getHoveddokument().get(0),
+                            dokumentforsendelseRequest.getForsøkEndeligJF(), true));
         } else {
             JournalFeil.FACTORY.kunneIkkeUtledeForsendelseTittel(forsendelseId);
         }
 
         String saksnummer = dokumentforsendelseRequest.getSaksnummer();
-        if(saksnummer != null) {
+        if (saksnummer != null) {
             no.nav.dok.tjenester.mottainngaaendeforsendelse.ArkivSak arkivSak = new no.nav.dok.tjenester.mottainngaaendeforsendelse.ArkivSak();
-            arkivSak.setArkivSakSystem(no.nav.dok.tjenester.mottainngaaendeforsendelse.ArkivSak.ArkivSakSystem.fromValue(Fagsystem.GOSYS.getOffisiellKode()));
+            arkivSak.setArkivSakSystem(no.nav.dok.tjenester.mottainngaaendeforsendelse.ArkivSak.ArkivSakSystem
+                    .fromValue(Fagsystem.GOSYS.getOffisiellKode()));
             arkivSak.setArkivSakId(saksnummer);
             forsendelseInformasjon.setArkivSak(arkivSak);
         }
@@ -286,11 +298,13 @@ public class JournalTjenesteImpl implements JournalTjeneste {
         request.setForsendelseInformasjon(forsendelseInformasjon);
 
         if (!dokumentforsendelseRequest.getHoveddokument().isEmpty()) {
-            request.setDokumentInfoHoveddokument(journalTjenesteUtil.konverterTilDokumentInfoHoveddokument(dokumentforsendelseRequest.getHoveddokument()));
+            request.setDokumentInfoHoveddokument(journalTjenesteUtil
+                    .konverterTilDokumentInfoHoveddokument(dokumentforsendelseRequest.getHoveddokument()));
         }
 
         Boolean harHoveddokument = !dokumentforsendelseRequest.getHoveddokument().isEmpty();
-        request.setDokumentInfoVedlegg(journalTjenesteUtil.konverterTilDokumentInfoVedlegg(dokumentforsendelseRequest.getVedlegg(), harHoveddokument,
+        request.setDokumentInfoVedlegg(journalTjenesteUtil.konverterTilDokumentInfoVedlegg(
+                dokumentforsendelseRequest.getVedlegg(), harHoveddokument,
                 dokumentforsendelseRequest.getForsøkEndeligJF()));
 
         MottaInngaaendeForsendelseResponse response = mottaInngaaendeForsendelseKlient.journalførForsendelse(request);

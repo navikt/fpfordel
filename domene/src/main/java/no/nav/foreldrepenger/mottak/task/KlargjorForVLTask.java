@@ -26,14 +26,14 @@ public class KlargjorForVLTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.klargjoering";
     public static final String REINNSEND = "REINNSEND";
-    private KlargjørForVLTjeneste klargjørForVLTjeneste;
-    private DokumentRepository dokumentRepository;
+    private final KlargjørForVLTjeneste klargjørForVLTjeneste;
+    private final DokumentRepository dokumentRepository;
 
     @Inject
     public KlargjorForVLTask(ProsessTaskRepository prosessTaskRepository,
-                             KodeverkRepository kodeverkRepository,
-                             KlargjørForVLTjeneste klargjørForVLTjeneste,
-                             DokumentRepository dokumentRepository) {
+            KodeverkRepository kodeverkRepository,
+            KlargjørForVLTjeneste klargjørForVLTjeneste,
+            DokumentRepository dokumentRepository) {
         super(prosessTaskRepository, kodeverkRepository);
         this.klargjørForVLTjeneste = klargjørForVLTjeneste;
         this.dokumentRepository = dokumentRepository;
@@ -42,32 +42,45 @@ public class KlargjorForVLTask extends WrappedProsessTaskHandler {
     @Override
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
         if (!dataWrapper.getSaksnummer().isPresent()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME, MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId()).toException();
         }
         if (dataWrapper.getArkivId() == null) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME, MottakMeldingDataWrapper.ARKIV_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.ARKIV_ID_KEY, dataWrapper.getId()).toException();
         }
     }
 
     @Override
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper dataWrapper) {
         String xml = dataWrapper.getPayloadAsString().orElse(null);
-        String saksnummer = dataWrapper.getSaksnummer().orElseThrow(() -> new IllegalStateException("Skulle allerede vært sjekket i precondition(...)"));
+        String saksnummer = dataWrapper.getSaksnummer()
+                .orElseThrow(() -> new IllegalStateException("Skulle allerede vært sjekket i precondition(...)"));
         String arkivId = dataWrapper.getArkivId();
-        DokumentTypeId dokumenttypeId = dataWrapper.getDokumentTypeId().map(dtid -> kodeverkRepository.finn(DokumentTypeId.class, dtid)).orElse(DokumentTypeId.UDEFINERT);
-        DokumentKategori dokumentKategori = dataWrapper.getDokumentKategori().map(kat -> kodeverkRepository.finn(DokumentKategori.class, kat)).orElse(DokumentKategori.UDEFINERT);
+        DokumentTypeId dokumenttypeId = dataWrapper.getDokumentTypeId()
+                .map(dtid -> kodeverkRepository.finn(DokumentTypeId.class, dtid)).orElse(DokumentTypeId.UDEFINERT);
+        DokumentKategori dokumentKategori = dataWrapper.getDokumentKategori()
+                .map(kat -> kodeverkRepository.finn(DokumentKategori.class, kat)).orElse(DokumentKategori.UDEFINERT);
         String journalEnhet = dataWrapper.getJournalførendeEnhet().orElse(null);
         BehandlingTema behandlingsTema = dataWrapper.getBehandlingTema();
         Optional<UUID> forsendelseId = dataWrapper.getForsendelseId();
         boolean erReinnsend = dataWrapper.getRetryingTask().map(REINNSEND::equals).orElse(Boolean.FALSE);
-        if(forsendelseId.isPresent() && !erReinnsend) {
-            dokumentRepository.oppdaterForsendelseMetadata(forsendelseId.get(), arkivId, saksnummer, ForsendelseStatus.FPSAK);
+        if (forsendelseId.isPresent() && !erReinnsend) {
+            dokumentRepository.oppdaterForsendelseMetadata(forsendelseId.get(), arkivId, saksnummer,
+                    ForsendelseStatus.FPSAK);
         }
 
-        klargjørForVLTjeneste.klargjørForVL(xml, saksnummer, arkivId, dokumenttypeId, dataWrapper.getForsendelseMottattTidspunkt().orElse(null), behandlingsTema, dataWrapper.getForsendelseId().orElse(null), dokumentKategori, journalEnhet);
+        klargjørForVLTjeneste.klargjørForVL(xml, saksnummer, arkivId, dokumenttypeId,
+                dataWrapper.getForsendelseMottattTidspunkt().orElse(null), behandlingsTema,
+                dataWrapper.getForsendelseId().orElse(null), dokumentKategori, journalEnhet);
 
-        if(forsendelseId.isPresent() && !erReinnsend) {
-            return dataWrapper.nesteSteg(SlettForsendelseTask.TASKNAME, true, FPDateUtil.nå().plusMinutes(30)); // Gi selvbetjening tid til å polle ferdig
+        if (forsendelseId.isPresent() && !erReinnsend) {
+            return dataWrapper.nesteSteg(SlettForsendelseTask.TASKNAME, true, FPDateUtil.nå().plusMinutes(30)); // Gi
+                                                                                                                // selvbetjening
+                                                                                                                // tid
+                                                                                                                // til å
+                                                                                                                // polle
+                                                                                                                // ferdig
         }
         return null; // Siste steg, fpsak overtar nå
     }

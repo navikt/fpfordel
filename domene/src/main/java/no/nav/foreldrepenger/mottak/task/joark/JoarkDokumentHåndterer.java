@@ -22,8 +22,8 @@ import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
 @Dependent
 class JoarkDokumentHåndterer {
 
-    protected AktørConsumer aktørConsumer;
-    private HentDataFraJoarkTjeneste hentDataFraJoarkTjeneste;
+    protected final AktørConsumer aktørConsumer;
+    private final HentDataFraJoarkTjeneste hentDataFraJoarkTjeneste;
     private JournalDokument<DokumentTypeId> dokumentCached;
 
     @Inject
@@ -40,11 +40,13 @@ class JoarkDokumentHåndterer {
     JournalDokument<DokumentTypeId> hentJournalDokument(List<JournalMetadata<DokumentTypeId>> hoveddokumenter) {
         JournalMetadata<DokumentTypeId> journalMetadata = hentMetadataForStrukturertDokument(hoveddokumenter);
 
-        if (dokumentCached != null && dokumentCached.getMetadata().getDokumentId().equals(journalMetadata.getDokumentId())) {
+        if (dokumentCached != null
+                && dokumentCached.getMetadata().getDokumentId().equals(journalMetadata.getDokumentId())) {
             return dokumentCached;
         }
 
-        Optional<JournalDokument<DokumentTypeId>> dokument = hentDataFraJoarkTjeneste.hentStrukturertJournalDokument(journalMetadata);
+        Optional<JournalDokument<DokumentTypeId>> dokument = hentDataFraJoarkTjeneste
+                .hentStrukturertJournalDokument(journalMetadata);
         if (dokument.isPresent()) {
             dokumentCached = dokument.get();
         } else {

@@ -31,13 +31,13 @@ import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.klient.Arbeidsfordeling
 public class ArbeidsfordelingTjenesteImpl implements ArbeidsfordelingTjeneste {
 
     private static final Logger logger = LoggerFactory.getLogger(ArbeidsfordelingTjenesteImpl.class);
-    private static final String TEMAGRUPPE = "FMLI";//FMLI = Familie
-    private static final String TEMA = "FOR"; //FOR = Foreldre- og svangerskapspenger
+    private static final String TEMAGRUPPE = "FMLI";// FMLI = Familie
+    private static final String TEMA = "FOR"; // FOR = Foreldre- og svangerskapspenger
     private static final String OPPGAVETYPE_JFR = "JFR"; //
     private static final String ENHET_TYPE_FP = "FPY"; // Normale NFP-enheter , uten Viken og spesialenheter
     private static final String NK_ENHET_ID = "4292";
 
-    private ArbeidsfordelingConsumer consumer;
+    private final ArbeidsfordelingConsumer consumer;
 
     @Inject
     public ArbeidsfordelingTjenesteImpl(ArbeidsfordelingConsumer consumer) {
@@ -45,12 +45,15 @@ public class ArbeidsfordelingTjenesteImpl implements ArbeidsfordelingTjeneste {
     }
 
     @Override
-    public String finnBehandlendeEnhetId(String geografiskTilknytning, String diskresjonskode, BehandlingTema behandlingTema, no.nav.foreldrepenger.fordel.kodeverk.Tema tema) {
-        FinnBehandlendeEnhetListeRequest request = lagRequestForHentBehandlendeEnhet(tema, behandlingTema, diskresjonskode, geografiskTilknytning);
+    public String finnBehandlendeEnhetId(String geografiskTilknytning, String diskresjonskode,
+            BehandlingTema behandlingTema, no.nav.foreldrepenger.fordel.kodeverk.Tema tema) {
+        FinnBehandlendeEnhetListeRequest request = lagRequestForHentBehandlendeEnhet(tema, behandlingTema,
+                diskresjonskode, geografiskTilknytning);
 
         try {
             FinnBehandlendeEnhetListeResponse response = consumer.finnBehandlendeEnhetListe(request);
-            Organisasjonsenhet valgtEnhet = validerOgVelgBehandlendeEnhet(geografiskTilknytning, diskresjonskode, behandlingTema, response);
+            Organisasjonsenhet valgtEnhet = validerOgVelgBehandlendeEnhet(geografiskTilknytning, diskresjonskode,
+                    behandlingTema, response);
             return valgtEnhet.getEnhetId();
         } catch (FinnBehandlendeEnhetListeUgyldigInput e) {
             throw ArbeidsfordelingFeil.FACTORY.finnBehandlendeEnhetListeUgyldigInput(e).toException();
@@ -59,7 +62,8 @@ public class ArbeidsfordelingTjenesteImpl implements ArbeidsfordelingTjeneste {
 
     @Override
     public List<String> finnAlleJournalførendeEnhetIdListe(BehandlingTema behandlingTema, boolean medSpesialenheter) {
-        FinnAlleBehandlendeEnheterListeRequest request = lagRequestForHentAlleBehandlendeEnheter(behandlingTema, OPPGAVETYPE_JFR, medSpesialenheter);
+        FinnAlleBehandlendeEnheterListeRequest request = lagRequestForHentAlleBehandlendeEnheter(behandlingTema,
+                OPPGAVETYPE_JFR, medSpesialenheter);
 
         try {
             FinnAlleBehandlendeEnheterListeResponse response = consumer.finnAlleBehandlendeEnheterListe(request);
@@ -69,7 +73,9 @@ public class ArbeidsfordelingTjenesteImpl implements ArbeidsfordelingTjeneste {
         }
     }
 
-    private FinnBehandlendeEnhetListeRequest lagRequestForHentBehandlendeEnhet(no.nav.foreldrepenger.fordel.kodeverk.Tema tema, BehandlingTema behandlingTema, String diskresjonskode, String geografiskTilknytning) {
+    private FinnBehandlendeEnhetListeRequest lagRequestForHentBehandlendeEnhet(
+            no.nav.foreldrepenger.fordel.kodeverk.Tema tema, BehandlingTema behandlingTema, String diskresjonskode,
+            String geografiskTilknytning) {
         FinnBehandlendeEnhetListeRequest request = new FinnBehandlendeEnhetListeRequest();
         ArbeidsfordelingKriterier kriterier = new ArbeidsfordelingKriterier();
 
@@ -98,25 +104,30 @@ public class ArbeidsfordelingTjenesteImpl implements ArbeidsfordelingTjeneste {
     }
 
     private Organisasjonsenhet validerOgVelgBehandlendeEnhet(String geografiskTilknytning, String diskresjonskode,
-                                                             BehandlingTema behandlingTema, FinnBehandlendeEnhetListeResponse response) {
+            BehandlingTema behandlingTema, FinnBehandlendeEnhetListeResponse response) {
         List<Organisasjonsenhet> behandlendeEnheter = response.getBehandlendeEnhetListe();
 
-        //Vi forventer å få én behandlende enhet.
+        // Vi forventer å få én behandlende enhet.
         if (behandlendeEnheter == null || behandlendeEnheter.isEmpty()) {
-            throw ArbeidsfordelingFeil.FACTORY.finnerIkkeBehandlendeEnhet(geografiskTilknytning, diskresjonskode, behandlingTema).toException();
+            throw ArbeidsfordelingFeil.FACTORY
+                    .finnerIkkeBehandlendeEnhet(geografiskTilknytning, diskresjonskode, behandlingTema).toException();
         }
 
-        //Vi forventer å få én behandlende enhet.
+        // Vi forventer å få én behandlende enhet.
         Organisasjonsenhet valgtBehandlendeEnhet = behandlendeEnheter.get(0);
         if (behandlendeEnheter.size() > 1) {
-            List<String> enheter = behandlendeEnheter.stream().map(Organisasjonsenhet::getEnhetId).collect(Collectors.toList());
-            ArbeidsfordelingFeil.FACTORY.fikkFlereBehandlendeEnheter(geografiskTilknytning, diskresjonskode, behandlingTema, enheter,
-                    valgtBehandlendeEnhet.getEnhetId()).log(logger);
+            List<String> enheter = behandlendeEnheter.stream().map(Organisasjonsenhet::getEnhetId)
+                    .collect(Collectors.toList());
+            ArbeidsfordelingFeil.FACTORY
+                    .fikkFlereBehandlendeEnheter(geografiskTilknytning, diskresjonskode, behandlingTema, enheter,
+                            valgtBehandlendeEnhet.getEnhetId())
+                    .log(logger);
         }
         return valgtBehandlendeEnhet;
     }
 
-    private FinnAlleBehandlendeEnheterListeRequest lagRequestForHentAlleBehandlendeEnheter(BehandlingTema behandlingTema, String oppgaveType, boolean alleTyper){
+    private FinnAlleBehandlendeEnheterListeRequest lagRequestForHentAlleBehandlendeEnheter(
+            BehandlingTema behandlingTema, String oppgaveType, boolean alleTyper) {
         FinnAlleBehandlendeEnheterListeRequest request = new FinnAlleBehandlendeEnheterListeRequest();
         ArbeidsfordelingKriterier kriterier = new ArbeidsfordelingKriterier();
 
@@ -148,7 +159,8 @@ public class ArbeidsfordelingTjenesteImpl implements ArbeidsfordelingTjeneste {
         return request;
     }
 
-    private List<String> tilOrganisasjonsEnhetListe(FinnAlleBehandlendeEnheterListeResponse response, BehandlingTema behandlingTema, boolean medKlage){
+    private List<String> tilOrganisasjonsEnhetListe(FinnAlleBehandlendeEnheterListeResponse response,
+            BehandlingTema behandlingTema, boolean medKlage) {
         List<Organisasjonsenhet> responsEnheter = response.getBehandlendeEnhetListe();
 
         if (responsEnheter == null || responsEnheter.isEmpty()) {
@@ -159,7 +171,8 @@ public class ArbeidsfordelingTjenesteImpl implements ArbeidsfordelingTjeneste {
                 .map(Organisasjonsenhet::getEnhetId)
                 .collect(Collectors.toList());
 
-        // TODO(DIAMANT): Midlertidig hardkodet inn for Klageinstans da den ikke kommer med i response fra NORG. Fjern dette når det er på plass.
+        // TODO(DIAMANT): Midlertidig hardkodet inn for Klageinstans da den ikke kommer
+        // med i response fra NORG. Fjern dette når det er på plass.
         if (medKlage) {
             organisasjonsEnhetListe.add(NK_ENHET_ID);
         }

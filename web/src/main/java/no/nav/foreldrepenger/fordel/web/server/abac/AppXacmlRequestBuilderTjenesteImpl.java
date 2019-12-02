@@ -25,9 +25,6 @@ import no.nav.vedtak.util.Tuple;
 @Priority(2)
 public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjeneste {
 
-    public AppXacmlRequestBuilderTjenesteImpl() {
-    }
-
     @Override
     public XacmlRequestBuilder lagXacmlRequestBuilder(PdpRequest pdpRequest) {
         XacmlRequestBuilder xacmlBuilder = new XacmlRequestBuilder();
