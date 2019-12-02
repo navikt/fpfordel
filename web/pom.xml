@@ -129,6 +129,10 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>swagger-ui</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>io.swagger.core.v3</groupId>
 			<artifactId>swagger-core</artifactId>
 		</dependency>
@@ -304,7 +308,11 @@
 				<artifactId>cxf-rt-transports-http-jetty</artifactId>
 				<version>3.3.4</version>
 			</dependency>
-
+			<dependency>
+				<groupId>org.webjars</groupId>
+				<artifactId>swagger-ui</artifactId>
+				<version>3.24.3</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
