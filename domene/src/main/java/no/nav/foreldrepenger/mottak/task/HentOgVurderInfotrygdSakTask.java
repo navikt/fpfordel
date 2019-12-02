@@ -40,8 +40,8 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
     /*
      * Konfigurasjon for hvor langt tilbake i tid man spør Infotrygd om det finnes saker
      */
-    private static final TemporalAmount infotrygdSakGyldigPeriode = Period.parse("P10M");
-    private static final TemporalAmount infotrygdAnnenPartGyldigPeriode = Period.parse("P18M");
+    private static final TemporalAmount infotrygdSakGyldigPeriode = Period.ofMonths(10);
+    private static final TemporalAmount infotrygdAnnenPartGyldigPeriode = Period.ofMonths(18);
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HentOgVurderInfotrygdSakTask.class);
 
