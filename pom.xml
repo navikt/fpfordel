@@ -12,7 +12,7 @@
 		<module>migreringer</module>
 		<module>domene</module>
 		<module>web</module>
-		<module>docs</module>
+<!--		<module>docs</module> -->
 	</modules>
 
 	<properties>
