@@ -67,13 +67,13 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
     static final String ENHET_MANGLER = "EnhetId mangler";
     static final String SAKSNUMMER_UGYLDIG = "SakId (saksnummer) mangler eller er ugyldig";
 
-    private TilJournalføringTjeneste tilJournalføringTjeneste;
-    private HentDataFraJoarkTjeneste hentDataFraJoarkTjeneste;
-    private KlargjørForVLTjeneste klargjørForVLTjeneste;
-    private FagsakRestKlient fagsakRestKlient;
-    private KodeverkRepository kodeverkRepository;
-    private AktørConsumer aktørConsumer;
-    private LocalDate startDato;
+    private final TilJournalføringTjeneste tilJournalføringTjeneste;
+    private final HentDataFraJoarkTjeneste hentDataFraJoarkTjeneste;
+    private final KlargjørForVLTjeneste klargjørForVLTjeneste;
+    private final FagsakRestKlient fagsakRestKlient;
+    private final KodeverkRepository kodeverkRepository;
+    private final AktørConsumer aktørConsumer;
+    private final LocalDate dato;
 
     @Inject
     public BehandleDokumentService(
@@ -82,17 +82,13 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             KlargjørForVLTjeneste klargjørForVLTjeneste, FagsakRestKlient fagsakRestKlient,
             KodeverkRepository kodeverkRepository,
             AktørConsumer aktørConsumer) {
-        this.startDato = startDato;
+        this.dato = startDato;
         this.tilJournalføringTjeneste = tilJournalføringTjeneste;
         this.hentDataFraJoarkTjeneste = hentDataFraJoarkTjeneste;
         this.klargjørForVLTjeneste = klargjørForVLTjeneste;
         this.fagsakRestKlient = fagsakRestKlient;
         this.kodeverkRepository = kodeverkRepository;
         this.aktørConsumer = aktørConsumer;
-    }
-
-    public BehandleDokumentService() {
-        // NOSONAR: for cdi
     }
 
     @Override
@@ -230,7 +226,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             DokumentTypeId dokumentTypeId, String xml) {
         MottattStrukturertDokument<?> mottattDokument = MeldingXmlParser.unmarshallXml(xml);
         if (DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD.equals(dokumentTypeId)
-                && !BehandlingTema.ikkeSpesifikkHendelse(behandlingTema)) {
+                && !behandlingTema.ikkeSpesifikkHendelse()) {
             dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);
         }
         try {
@@ -254,19 +250,19 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
             BehandlingTema behandlingTemaFraIM = kodeverkRepository.finnForKodeverkEiersTermNavn(BehandlingTema.class,
                     imType, BehandlingTema.UDEFINERT);
-            if (BehandlingTema.gjelderForeldrepenger(behandlingTemaFraIM)) {
+            if (behandlingTemaFraIM.gjelderForeldrepenger()) {
                 if (!dataWrapper.getInntektsmeldingStartDato().isPresent()) { // Kommer ingen vei uten startdato
                     throw BehandleDokumentServiceFeil.FACTORY.imUtenStartdato().toException();
-                } else if (!BehandlingTema.gjelderForeldrepenger(behandlingTema)) { // Prøver journalføre på annen
-                                                                                    // fagsak - ytelsetype
+                } else if (!behandlingTema.gjelderForeldrepenger()) { // Prøver journalføre på annen
+                                                                      // fagsak - ytelsetype
                     throw BehandleDokumentServiceFeil.FACTORY.imFeilType().toException();
                 }
             } else if (!behandlingTemaFraIM.equals(behandlingTema)) {
                 throw BehandleDokumentServiceFeil.FACTORY.imFeilType().toException();
             }
         }
-        if (BehandlingTema.gjelderForeldrepenger(behandlingTema)
-                && startDato.isBefore(startDato)) {
+        if (behandlingTema.gjelderForeldrepenger()
+                && startDato.isBefore(dato)) {
             throw BehandleDokumentServiceFeil.FACTORY.forTidligUttak().toException();
         }
     }
