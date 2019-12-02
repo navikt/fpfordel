@@ -453,9 +453,8 @@ public class HentOgVurderInfotrygdSakTaskTest {
         return new HentOgVurderInfotrygdSakTask(prosessTaskRepository,
                 kodeverkRepository,
                 new RelevantSakSjekker(svp, fp, infotrygd, gsak, unleash),
-                aktør,
-                itSakGyldigPeriode,
-                itAnnenPartGyldigPeriode);
+                aktør
+        );
     }
 
     private static List<GsakSak> gsaker(String fnr) {

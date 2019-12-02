@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.mottak.task.joark;
 import static no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste.erStrukturertDokument;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +13,7 @@ import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.fordel.kodeverk.Tema;
+import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.util.FPDateUtil;
 import no.nav.vedtak.util.StringUtils;
@@ -49,17 +48,14 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     private AktørConsumer aktørConsumer;
     private JoarkDokumentHåndterer joarkDokumentHåndterer;
-    private LocalDate fastsattInntektsmeldingStartdatoFristForManuellBehandling;
+    private LocalDate fastsattInntektsmeldingStartdatoFristForManuellBehandling = KonfigVerdier.ENDRING_BEREGNING_DATO;
 
     @Inject
     public HentDataFraJoarkTask(ProsessTaskRepository prosessTaskRepository, KodeverkRepository kodeverkRepository,
-            AktørConsumer aktørConsumer, JoarkDokumentHåndterer joarkDokumentHåndterer,
-            @KonfigVerdi(value = "foreldrepenger.startdato") String fastsattInntektsmeldingStartdatoFristForManuellBehandling) {
+                                AktørConsumer aktørConsumer, JoarkDokumentHåndterer joarkDokumentHåndterer) {
         super(prosessTaskRepository, kodeverkRepository);
         this.aktørConsumer = aktørConsumer;
         this.joarkDokumentHåndterer = joarkDokumentHåndterer;
-        this.fastsattInntektsmeldingStartdatoFristForManuellBehandling = LocalDate
-                .parse(fastsattInntektsmeldingStartdatoFristForManuellBehandling, DateTimeFormatter.ISO_LOCAL_DATE);
     }
 
     @Override

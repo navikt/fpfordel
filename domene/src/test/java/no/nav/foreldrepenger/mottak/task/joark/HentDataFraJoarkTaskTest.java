@@ -66,7 +66,7 @@ public class HentDataFraJoarkTaskTest {
 
         ProsessTaskRepository ptr = mock(ProsessTaskRepository.class);
         joarkDokumentHåndterer = mock(JoarkDokumentHåndterer.class);
-        joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, kodeverkRepository, aktørConsumer, joarkDokumentHåndterer, fastsattInntektsmeldingStartdatoFristForManuellBehandling));
+        joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, kodeverkRepository, aktørConsumer, joarkDokumentHåndterer));
 
         taskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
         taskData.setSekvens("1");

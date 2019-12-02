@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.task.dokumentforsendelse;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -18,6 +17,7 @@ import no.nav.foreldrepenger.fordel.kodeverk.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.fordel.kodeverk.Tema;
+import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
@@ -37,7 +37,6 @@ import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.util.FPDateUtil;
 
@@ -50,22 +49,20 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     private AktørConsumer aktørConsumer;
     private FagsakRestKlient fagsakRestKlient;
     private DokumentRepository dokumentRepository;
-    private String konfigVerdiStartdatoForeldrepenger;
+    private LocalDate konfigVerdiStartdatoForeldrepenger = KonfigVerdier.ENDRING_BEREGNING_DATO;
 
     private static final Logger logger = LoggerFactory.getLogger(BehandleDokumentforsendelseTask.class);
 
     @Inject
     public BehandleDokumentforsendelseTask(ProsessTaskRepository prosessTaskRepository,
-            KodeverkRepository kodeverkRepository,
-            AktørConsumer aktørConsumer,
-            FagsakRestKlient fagsakRestKlient,
-            DokumentRepository dokumentRepository,
-            @KonfigVerdi(value = "foreldrepenger.startdato") String konfigVerdiStartdatoForeldrepenger) {
+                                           KodeverkRepository kodeverkRepository,
+                                           AktørConsumer aktørConsumer,
+                                           FagsakRestKlient fagsakRestKlient,
+                                           DokumentRepository dokumentRepository) {
         super(prosessTaskRepository, kodeverkRepository);
         this.aktørConsumer = aktørConsumer;
         this.fagsakRestKlient = fagsakRestKlient;
         this.dokumentRepository = dokumentRepository;
-        this.konfigVerdiStartdatoForeldrepenger = konfigVerdiStartdatoForeldrepenger;
     }
 
     @Override
@@ -266,6 +263,6 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     private boolean sjekkOmSøknadenKreverManuellBehandling(MottakMeldingDataWrapper dataWrapper) {
         return dataWrapper.getOmsorgsovertakelsedato()
                 .orElse(dataWrapper.getFørsteUttaksdag().orElse(Tid.TIDENES_BEGYNNELSE))
-                .isBefore(LocalDate.parse(konfigVerdiStartdatoForeldrepenger, DateTimeFormatter.ISO_LOCAL_DATE));
+                .isBefore(konfigVerdiStartdatoForeldrepenger);
     }
 }

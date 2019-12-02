@@ -2,13 +2,13 @@ package no.nav.foreldrepenger.mottak.task;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
+import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
 import no.nav.foreldrepenger.mottak.klient.VurderFagsystemResultat;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.konfig.Tid;
 
 /**
@@ -47,16 +46,14 @@ import no.nav.vedtak.konfig.Tid;
 public class HentOgVurderVLSakTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.hentOgVurderVLSak";
-    private final LocalDate konfigVerdiStartdatoForeldrepenger;
+    private final LocalDate konfigVerdiStartdatoForeldrepenger = KonfigVerdier.ENDRING_BEREGNING_DATO;
 
     private FagsakRestKlient fagsakRestKlient;
 
     @Inject
-    public HentOgVurderVLSakTask(ProsessTaskRepository prosessTaskRepository, KodeverkRepository kodeverkRepository, FagsakRestKlient fagsakRestKlient,
-                                 @KonfigVerdi(value = "foreldrepenger.startdato") String konfigVerdiStartdatoForeldrepenger) {
+    public HentOgVurderVLSakTask(ProsessTaskRepository prosessTaskRepository, KodeverkRepository kodeverkRepository, FagsakRestKlient fagsakRestKlient) {
         super(prosessTaskRepository, kodeverkRepository);
         this.fagsakRestKlient = fagsakRestKlient;
-        this.konfigVerdiStartdatoForeldrepenger = LocalDate.parse(konfigVerdiStartdatoForeldrepenger, DateTimeFormatter.ISO_LOCAL_DATE);
     }
 
     @Override
