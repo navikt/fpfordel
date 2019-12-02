@@ -57,7 +57,7 @@ spec:
   - name: APP_NAME
     value: fpfordel
   - name: APP_VERSION
-    value: RELEASE_VERSION
+    value: "RELEASE_VERSION"
   - name: APP_TEAM
     value: teamforeldrepenger
   - name: LOADBALANCER_FPFORDEL_POOLNAME
@@ -111,7 +111,7 @@ spec:
   - name: BEHANDLEOPPGAVE_V1_URL
     value: behandleoppgave.v1.url
   - name: PERSON_V3_URL
-    value:person.v3.url
+    value: person.v3.url
   - name: INFOTRYGDSAK_V1_URL
     value: infotrygdsak.v1.url
   - name: SYSTEMBRUKER_USERNAME
