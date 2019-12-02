@@ -12,8 +12,6 @@ import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
-import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.LoggerFactory;
@@ -170,13 +168,6 @@ public class JettyDevServer extends JettyServer {
     protected List<Class<?>> getWebInfClasses() {
         List<Class<?>> webInfClasses = new ArrayList<>(super.getWebInfClasses());
         return webInfClasses;
-    }
-
-    @Override
-    protected ResourceCollection createResourceCollection() throws IOException {
-        return new ResourceCollection(
-            Resource.newClassPathResource("/web")
-        );
     }
 
 }
