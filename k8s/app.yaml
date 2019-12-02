@@ -22,13 +22,6 @@ spec:
   webproxy: false # Optional. Expose web proxy configuration to the application using the HTTP_PROXY, HTTPS_PROXY and NO_PROXY environment variables.
   vault:
     enabled: true
-    paths:
-      - kvPath: serviceuser/data/dev/srvfpfordel
-        mountPath: /secrets/serviceuser
-      - kvPath: oracle/data/dev/creds/fpfordel_q1-fpfordel_q1
-        mountPath: /secrets/credentials
-      - kvPath: oracle/data/dev/config/fpfordel_q1
-        mountPath: /secrets/config
   sidecar: true # refresh token
   liveness:
     path: /fpfordel/internal/health/isAlive
