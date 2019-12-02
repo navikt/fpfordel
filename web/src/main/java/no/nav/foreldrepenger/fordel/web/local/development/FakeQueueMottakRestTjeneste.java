@@ -14,13 +14,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import io.swagger.annotations.Api;
 import no.nav.foreldrepenger.mottak.queue.MeldingsFordeler;
 import no.nav.foreldrepenger.mottak.queue.MottakAsyncJmsConsumer;
 import no.nav.melding.virksomhet.dokumentnotifikasjon.v1.Forsendelsesinformasjon;
 import no.nav.vedtak.felles.jpa.Transaction;
 
-@Api(tags = {"mottak"}, description = "KUN FOR TEST")
 @Path("/mottak")
 @RequestScoped
 @Transaction
@@ -37,7 +35,7 @@ public class FakeQueueMottakRestTjeneste {
         this.meldingsFordeler = meldingsFordeler;
     }
 
-    /** 
+    /**
      * @deprecated Kun for TEST!
      */
     @POST
@@ -49,7 +47,8 @@ public class FakeQueueMottakRestTjeneste {
         try (Scanner scanner = new Scanner(request.getInputStream(), Charset.defaultCharset().name())) {
             scanner.useDelimiter("\\Z");
             final String dokumentForsendelse = scanner.next();
-            final Forsendelsesinformasjon forsendelsesinformasjon = MottakAsyncJmsConsumer.parseMessage(dokumentForsendelse);
+            final Forsendelsesinformasjon forsendelsesinformasjon = MottakAsyncJmsConsumer
+                    .parseMessage(dokumentForsendelse);
             meldingsFordeler.execute(forsendelsesinformasjon);
         } catch (IOException e) {
             return Response.serverError().entity(e).build();

@@ -6,9 +6,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
-import io.swagger.annotations.Api;
 import no.nav.foreldrepenger.fordel.web.app.tjenester.ApplicationServiceStarter;
-@Api(tags = "health")
+
 @Path("/health")
 @ApplicationScoped
 public class HealthCheckRestService {

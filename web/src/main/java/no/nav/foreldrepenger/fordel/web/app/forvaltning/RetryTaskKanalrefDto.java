@@ -5,25 +5,23 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskIdDto;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
-@ApiModel(value = "Input til prosesstask før restart")
+//@ApiModel(value = "Input til prosesstask før restart")
 public class RetryTaskKanalrefDto implements AbacDto {
 
-    @ApiModelProperty(value = "taskID")
+    @Schema // (value = "taskID")
     @NotNull
     @Valid
     private ProsessTaskIdDto prosessTaskIdDto;
-    @ApiModelProperty(value = "suffix")
+    @Schema // (value = "suffix")
     @NotNull
     @Size(max = 8)
     @Pattern(regexp = "^[a-zA-ZæøåÆØÅ_\\-0-9]*$")
     private String retrySuffix;
-
 
     public RetryTaskKanalrefDto() { // NOSONAR Input-dto, ingen behov for initialisering
     }

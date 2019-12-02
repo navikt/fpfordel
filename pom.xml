@@ -12,7 +12,7 @@
 		<module>migreringer</module>
 		<module>domene</module>
 		<module>web</module>
-		<module>docs</module>
+<!--		<module>docs</module> -->
 	</modules>
 
 	<properties>
@@ -27,8 +27,10 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<felles.version>1.3.1-20191128131650-43905f0</felles.version>
+  <felles.version>1.3.1-20191129111751-1093cf2</felles.version>
 
+		<!--  <felles.version>1.3.1-20191128131650-43905f0</felles.version>
+-->
 		<metrics.version>4.1.1</metrics.version>
 		<fp-kontrakter.version>5.0_20191118071403_3337e08</fp-kontrakter.version>
 
@@ -165,6 +167,21 @@
 				<groupId>io.swagger</groupId>
 				<artifactId>swagger-compat-spec-parser</artifactId>
 				<version>1.0.48</version>
+			</dependency>
+			<dependency>
+				<groupId>io.swagger.core.v3</groupId>
+				<artifactId>swagger-jaxrs2</artifactId>
+				<version>2.1.0</version>
+			</dependency>
+			<dependency>
+				<groupId>io.swagger.core.v3</groupId>
+				<artifactId>swagger-core</artifactId>
+				<version>2.1.0</version>
+			</dependency>
+			<dependency>
+				<groupId>io.swagger.core.v3</groupId>
+				<artifactId>swagger-annotations</artifactId>
+				<version>2.1.0</version>
 			</dependency>
 			<dependency>
 				<groupId>io.javaslang</groupId>
