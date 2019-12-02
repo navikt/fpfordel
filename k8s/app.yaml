@@ -93,10 +93,10 @@ spec:
     value: aktoer.v2.url
   - name: JOURNAL_V2_URL
     value: journal.v2.url
-  - name: INNGAAENDEJOURNAL_V1_URL
+  - name: INNGAAENDE_JOURNAL_V1_URL
     value: inngaaendejournal.v1.url
   - name: BEHANDLEINNGAAENDEJOURNAL_V1_URL
-    value: behandleinngaaendejournal.v1.url
+    value: behandle.inngaaendejournalv1.url
   - name: ARBEIDSFORDELING_V1_URL
     value: arbeidsfordeling.v1.url
   - name: SAK_V1_URL
@@ -106,7 +106,7 @@ spec:
   - name: PERSON_V3_URL
     value: person.v3.url
   - name: INFOTRYGDSAK_V1_URL
-    value: infotrygdsak.v1.url
+    value: infotrygdsakv1.url
   - name: SYSTEMBRUKER_USERNAME
     value: srvfpfordel
   - name: OIDC_OPENAM_JWKSURL
