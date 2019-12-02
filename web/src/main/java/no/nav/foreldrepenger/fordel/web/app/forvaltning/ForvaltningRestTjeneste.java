@@ -55,7 +55,7 @@ public class ForvaltningRestTjeneste {
     }
 
     @POST
-    @Operation(description = "Setter nytt suffix for retry journalføring", summary = ("Setter parametere før retry av task"), responses =
+    @Operation(description = "Setter nytt suffix for retry journalføring", tags = "Forvaltning", summary = ("Setter parametere før retry av task"), responses =
 
     { @ApiResponse(responseCode = "200", description = "Nytt suffix satt") })
 
@@ -76,7 +76,7 @@ public class ForvaltningRestTjeneste {
     }
 
     @POST
-    @Operation(description = "Send inntektsmelding til angitt sak (allerede journalført)", summary = "Bruker eksisterende task til å sende dokument til VL", responses =
+    @Operation(description = "Send inntektsmelding til angitt sak (allerede journalført)", tags = "Forvaltning", summary = "Bruker eksisterende task til å sende dokument til VL", responses =
 
     { @ApiResponse(responseCode = "200", description = "Inntektsmelding sendt til VL") })
 
@@ -104,7 +104,7 @@ public class ForvaltningRestTjeneste {
     }
 
     @POST
-    @Operation(description = "Send journalpost til angitt sak (ikke journalført)", summary = ("Bruker eksisterende task til å sende dokument til VL"), responses = {
+    @Operation(description = "Send journalpost til angitt sak (ikke journalført)", tags = "Forvaltning", summary = ("Bruker eksisterende task til å sende dokument til VL"), responses = {
             @ApiResponse(responseCode = "200", description = "Inntektsmelding sendt til VL") })
     @Path("/submit-journalforing-endelig")
     @Consumes(APPLICATION_JSON)
@@ -131,7 +131,7 @@ public class ForvaltningRestTjeneste {
     }
 
     @POST
-    @Operation(description = "Midlertidig journalfør forsendelse", summary = ("For gsak-oppgaver opprettet uten journalpostid"), responses = {
+    @Operation(description = "Midlertidig journalfør forsendelse", tags = "Forvaltning", summary = ("For gsak-oppgaver opprettet uten journalpostid"), responses = {
             @ApiResponse(responseCode = "200", description = "Forsendelse til midl journalføring") })
     @Path("/midl-journalfor")
     @Consumes(APPLICATION_JSON)
@@ -153,7 +153,7 @@ public class ForvaltningRestTjeneste {
     @Path("/autorun")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    @Operation(description = "Start task for å kjøre batchjobs", responses = {
+    @Operation(description = "Start task for å kjøre batchjobs", tags = "Forvaltning", responses = {
             @ApiResponse(responseCode = "200", description = "Starter batch-scheduler."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
@@ -174,7 +174,7 @@ public class ForvaltningRestTjeneste {
     @Path("/sett-task-ferdig")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    @Operation(description = "Setter prosesstask til status FERDIG", responses = {
+    @Operation(description = "Setter prosesstask til status FERDIG", tags = "Forvaltning", responses = {
             @ApiResponse(responseCode = "200", description = "Task satt til ferdig."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })

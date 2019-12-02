@@ -15,6 +15,14 @@
     <name>Fordel :: Web :: Applikasjon</name>
 
     <dependencies>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-jaxrs2</artifactId>
+        </dependency>
      <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>swagger-ui</artifactId>
