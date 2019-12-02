@@ -71,14 +71,15 @@ public class BehandleDokumentforsendelseTaskTest {
     private AktørConsumer aktørConsumer = mock(AktørConsumer.class);
     private FagsakRestKlient fagsakRestKlient = mock(FagsakRestKlient.class);
     private DokumentRepository dokumentRepository = mock(DokumentRepository.class);
-    private String konfigVerdiStartdatoForeldrepenger = LocalDate.of(2019, 01, 01).toString();
 
     private BehandleDokumentforsendelseTask fordelDokTask;
     private ProsessTaskData ptd;
+    private static final LocalDate START_DATO = LocalDate.of(2019, 1, 1);
 
     @Before
     public void setup() {
-        fordelDokTask = new BehandleDokumentforsendelseTask(prosessTaskRepository, kodeverkRepository, aktørConsumer,
+        fordelDokTask = new BehandleDokumentforsendelseTask(START_DATO, prosessTaskRepository, kodeverkRepository,
+                aktørConsumer,
                 fagsakRestKlient, dokumentRepository);
         ptd = new ProsessTaskData(BehandleDokumentforsendelseTask.TASKNAME);
         ptd.setSekvens("1");

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -58,7 +59,7 @@ public class HentDataFraJoarkTaskTest {
     @Mock
     private AktørConsumer aktørConsumer;
     private JoarkTestsupport joarkTestsupport = new JoarkTestsupport();
-    private String fastsattInntektsmeldingStartdatoFristForManuellBehandling = "2019-01-01";
+    private static final LocalDate START_DATO = LocalDate.of(2019, 1, 1);
 
     @Before
     public void setUp() throws Exception {
@@ -66,7 +67,8 @@ public class HentDataFraJoarkTaskTest {
 
         ProsessTaskRepository ptr = mock(ProsessTaskRepository.class);
         joarkDokumentHåndterer = mock(JoarkDokumentHåndterer.class);
-        joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, kodeverkRepository, aktørConsumer, joarkDokumentHåndterer));
+        joarkTaskTestobjekt = spy(
+                new HentDataFraJoarkTask(START_DATO, ptr, kodeverkRepository, aktørConsumer, joarkDokumentHåndterer));
 
         taskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
         taskData.setSekvens("1");
@@ -89,7 +91,8 @@ public class HentDataFraJoarkTaskTest {
 
     @Test
     public void skal_sende_til_manuell_behandling_ved_manglende_bruker() throws Exception {
-        List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(joarkTestsupport.lagJournalMetadataUstrukturert(Collections.emptyList()));
+        List<JournalMetadata<DokumentTypeId>> metadata = Collections
+                .singletonList(joarkTestsupport.lagJournalMetadataUstrukturert(Collections.emptyList()));
         doReturn(metadata).when(joarkDokumentHåndterer).hentJoarkDokumentMetadata(ARKIV_ID);
         BehandlingTema actualBehandlingTema = BehandlingTema.ENGANGSSTØNAD;
         dataWrapper.setBehandlingTema(actualBehandlingTema);
@@ -103,7 +106,8 @@ public class HentDataFraJoarkTaskTest {
 
     @Test
     public void skal_sende_til_manuell_behandling_ved_flere_bruker() throws Exception {
-        List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(joarkTestsupport.lagJournalMetadataUstrukturert(Arrays.asList(BRUKER_FNR, "12313121")));
+        List<JournalMetadata<DokumentTypeId>> metadata = Collections
+                .singletonList(joarkTestsupport.lagJournalMetadataUstrukturert(Arrays.asList(BRUKER_FNR, "12313121")));
 
         doReturn(metadata).when(joarkDokumentHåndterer).hentJoarkDokumentMetadata(ARKIV_ID);
 
@@ -121,7 +125,8 @@ public class HentDataFraJoarkTaskTest {
     public void skal_sende_til_vl_es_fødsel() throws Exception {
         dataWrapper.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
-        List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(joarkTestsupport.lagJournalMetadataUstrukturert());
+        List<JournalMetadata<DokumentTypeId>> metadata = Collections
+                .singletonList(joarkTestsupport.lagJournalMetadataUstrukturert());
 
         doReturn(metadata).when(joarkDokumentHåndterer).hentJoarkDokumentMetadata(ARKIV_ID);
         doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(joarkDokumentHåndterer).hentGyldigAktørFraMetadata(any());
@@ -135,7 +140,8 @@ public class HentDataFraJoarkTaskTest {
     public void skal_sende_til_vl_es_adopsjon() throws Exception {
         dataWrapper.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_ADOPSJON);
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
-        List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(joarkTestsupport.lagJournalMetadataUstrukturert());
+        List<JournalMetadata<DokumentTypeId>> metadata = Collections
+                .singletonList(joarkTestsupport.lagJournalMetadataUstrukturert());
 
         doReturn(metadata).when(joarkDokumentHåndterer).hentJoarkDokumentMetadata(ARKIV_ID);
         doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(joarkDokumentHåndterer).hentGyldigAktørFraMetadata(any());
@@ -148,13 +154,15 @@ public class HentDataFraJoarkTaskTest {
     public void skal_sende_til_vl_fp_im_2019() throws Exception {
         dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
-        JournalMetadata<DokumentTypeId> dokument = joarkTestsupport.lagJournalMetadataStrukturert(DokumentTypeId.INNTEKTSMELDING);
+        JournalMetadata<DokumentTypeId> dokument = joarkTestsupport
+                .lagJournalMetadataStrukturert(DokumentTypeId.INNTEKTSMELDING);
         List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(dokument);
         String xml = joarkTestsupport.readFile("testsoknader/inntektsmelding-elektronisk-sample.xml");
         JournalDokument<DokumentTypeId> jdMock = new JournalDokument<DokumentTypeId>(dokument, xml);
 
         doReturn(metadata).when(joarkDokumentHåndterer).hentJoarkDokumentMetadata(ARKIV_ID);
-        doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(joarkDokumentHåndterer).hentGyldigAktørFraPersonident(any());
+        doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(joarkDokumentHåndterer)
+                .hentGyldigAktørFraPersonident(any());
         doReturn(jdMock).when(joarkDokumentHåndterer).hentJournalDokument(any());
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
@@ -166,13 +174,15 @@ public class HentDataFraJoarkTaskTest {
     public void skal_sende_til_manuell_fp_im_2018() throws Exception {
         dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
-        JournalMetadata<DokumentTypeId> dokument = joarkTestsupport.lagJournalMetadataStrukturert(DokumentTypeId.INNTEKTSMELDING);
+        JournalMetadata<DokumentTypeId> dokument = joarkTestsupport
+                .lagJournalMetadataStrukturert(DokumentTypeId.INNTEKTSMELDING);
         List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(dokument);
         String xml = joarkTestsupport.readFile("testsoknader/inntektsmelding-manual-sample.xml");
         JournalDokument<DokumentTypeId> jdMock = new JournalDokument<DokumentTypeId>(dokument, xml);
 
         doReturn(metadata).when(joarkDokumentHåndterer).hentJoarkDokumentMetadata(ARKIV_ID);
-        doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(joarkDokumentHåndterer).hentGyldigAktørFraPersonident(any());
+        doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(joarkDokumentHåndterer)
+                .hentGyldigAktørFraPersonident(any());
         doReturn(jdMock).when(joarkDokumentHåndterer).hentJournalDokument(any());
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
@@ -182,7 +192,8 @@ public class HentDataFraJoarkTaskTest {
 
     @Test
     public void skal_sende_til_manuell_behandling_hvis_foreldrepenger_ustrukturert() throws Exception {
-        List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(joarkTestsupport.lagJournalMetadataUstrukturert(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL));
+        List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(
+                joarkTestsupport.lagJournalMetadataUstrukturert(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL));
         doReturn(metadata).when(joarkDokumentHåndterer).hentJoarkDokumentMetadata(ARKIV_ID);
 
         dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);
@@ -194,7 +205,8 @@ public class HentDataFraJoarkTaskTest {
 
     @Test
     public void skal_sende_til_manuell_behandling_hvis_svangerskapspenger_ustrukturert() throws Exception {
-        List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(joarkTestsupport.lagJournalMetadataUstrukturert(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER));
+        List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(
+                joarkTestsupport.lagJournalMetadataUstrukturert(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER));
         doReturn(metadata).when(joarkDokumentHåndterer).hentJoarkDokumentMetadata(ARKIV_ID);
 
         dataWrapper.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
@@ -206,7 +218,8 @@ public class HentDataFraJoarkTaskTest {
 
     @Test
     public void skal_sende_til_manuell_behandling_hvis_behandlingstema_er_undefinert() throws Exception {
-        List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(joarkTestsupport.lagJournalMetadataUstrukturert(DokumentTypeId.UDEFINERT));
+        List<JournalMetadata<DokumentTypeId>> metadata = Collections
+                .singletonList(joarkTestsupport.lagJournalMetadataUstrukturert(DokumentTypeId.UDEFINERT));
         doReturn(metadata).when(joarkDokumentHåndterer).hentJoarkDokumentMetadata(ARKIV_ID);
 
         dataWrapper.setBehandlingTema(BehandlingTema.UDEFINERT);
@@ -218,7 +231,8 @@ public class HentDataFraJoarkTaskTest {
 
     @Test
     public void skal_sende_til_vl_hvis_dokmenttype_kan_håndteres() throws Exception {
-        List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(joarkTestsupport.lagJournalMetadataUstrukturert());
+        List<JournalMetadata<DokumentTypeId>> metadata = Collections
+                .singletonList(joarkTestsupport.lagJournalMetadataUstrukturert());
         doReturn(metadata).when(joarkDokumentHåndterer).hentJoarkDokumentMetadata(ARKIV_ID);
 
         dataWrapper.setBehandlingTema(BehandlingTema.UDEFINERT);
@@ -230,12 +244,14 @@ public class HentDataFraJoarkTaskTest {
 
     @Test
     public void skal_sende_til_manuell_hvis_annet_tema() throws Exception {
-        JournalMetadata<DokumentTypeId> dokument = joarkTestsupport.lagJournalMetadataStrukturert(DokumentTypeId.INNTEKTSMELDING);
+        JournalMetadata<DokumentTypeId> dokument = joarkTestsupport
+                .lagJournalMetadataStrukturert(DokumentTypeId.INNTEKTSMELDING);
         List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(dokument);
         String xml = joarkTestsupport.readFile("testsoknader/inntektsmelding-manual-sample.xml");
         JournalDokument<DokumentTypeId> jdMock = new JournalDokument<DokumentTypeId>(dokument, xml);
         doReturn(metadata).when(joarkDokumentHåndterer).hentJoarkDokumentMetadata(ARKIV_ID);
-        doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(joarkDokumentHåndterer).hentGyldigAktørFraPersonident(any());
+        doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(joarkDokumentHåndterer)
+                .hentGyldigAktørFraPersonident(any());
         doReturn(jdMock).when(joarkDokumentHåndterer).hentJournalDokument(any());
 
         dataWrapper.setBehandlingTema(BehandlingTema.UDEFINERT);
@@ -249,14 +265,16 @@ public class HentDataFraJoarkTaskTest {
     public void skal_sende_inntektsmelding_for_far_til_sjekk_vl() throws Exception {
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);
-        JournalMetadata<DokumentTypeId> dokument = joarkTestsupport.lagJournalMetadataStrukturert(DokumentTypeId.INNTEKTSMELDING);
+        JournalMetadata<DokumentTypeId> dokument = joarkTestsupport
+                .lagJournalMetadataStrukturert(DokumentTypeId.INNTEKTSMELDING);
         List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(dokument);
         String xml = joarkTestsupport.readFile("testsoknader/inntektsmelding-far.xml");
         JournalDokument<DokumentTypeId> jdMock = new JournalDokument<DokumentTypeId>(dokument, xml);
         String fnrPåInntektsmelding = "12345678912";
 
         doReturn(metadata).when(joarkDokumentHåndterer).hentJoarkDokumentMetadata(ARKIV_ID);
-        doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(joarkDokumentHåndterer).hentGyldigAktørFraPersonident(eq(fnrPåInntektsmelding));
+        doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(joarkDokumentHåndterer)
+                .hentGyldigAktørFraPersonident(eq(fnrPåInntektsmelding));
         doReturn(jdMock).when(joarkDokumentHåndterer).hentJournalDokument(any());
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
@@ -269,14 +287,17 @@ public class HentDataFraJoarkTaskTest {
 
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         dataWrapper.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
-        JournalMetadata<DokumentTypeId> dokument = joarkTestsupport.lagJournalMetadataStrukturert(DokumentTypeId.INNTEKTSMELDING);
+        JournalMetadata<DokumentTypeId> dokument = joarkTestsupport
+                .lagJournalMetadataStrukturert(DokumentTypeId.INNTEKTSMELDING);
         List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(dokument);
         String xml = joarkTestsupport.readFile("testsoknader/inntektsmelding-svp.xml");
         var jdMock = new JournalDokument<>(dokument, xml);
 
         doReturn(metadata).when(joarkDokumentHåndterer).hentJoarkDokumentMetadata(ARKIV_ID);
-        doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(joarkDokumentHåndterer).hentGyldigAktørFraPersonident(any());
-        doReturn(Optional.of(JoarkTestsupport.BRUKER_FNR)).when(aktørConsumer).hentPersonIdentForAktørId(eq(JoarkTestsupport.AKTØR_ID));
+        doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(joarkDokumentHåndterer)
+                .hentGyldigAktørFraPersonident(any());
+        doReturn(Optional.of(JoarkTestsupport.BRUKER_FNR)).when(aktørConsumer)
+                .hentPersonIdentForAktørId(eq(JoarkTestsupport.AKTØR_ID));
         doReturn(jdMock).when(joarkDokumentHåndterer).hentJournalDokument(any());
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
@@ -288,15 +309,18 @@ public class HentDataFraJoarkTaskTest {
     public void skal_sende_inntektsmelding_for_far_om_svangerskapspenger_til_manuell_behandling() throws Exception {
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         dataWrapper.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
-        JournalMetadata<DokumentTypeId> dokument = joarkTestsupport.lagJournalMetadataStrukturert(DokumentTypeId.INNTEKTSMELDING);
+        JournalMetadata<DokumentTypeId> dokument = joarkTestsupport
+                .lagJournalMetadataStrukturert(DokumentTypeId.INNTEKTSMELDING);
         List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(dokument);
         String xml = joarkTestsupport.readFile("testsoknader/inntektsmelding-far-svp.xml");
         JournalDokument<DokumentTypeId> jdMock = new JournalDokument<DokumentTypeId>(dokument, xml);
         String fnrPåInntektsmelding = "12345678912";
 
         doReturn(metadata).when(joarkDokumentHåndterer).hentJoarkDokumentMetadata(ARKIV_ID);
-        doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(joarkDokumentHåndterer).hentGyldigAktørFraPersonident(eq(fnrPåInntektsmelding));
-        doReturn(Optional.of(fnrPåInntektsmelding)).when(aktørConsumer).hentPersonIdentForAktørId(eq(JoarkTestsupport.AKTØR_ID));
+        doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(joarkDokumentHåndterer)
+                .hentGyldigAktørFraPersonident(eq(fnrPåInntektsmelding));
+        doReturn(Optional.of(fnrPåInntektsmelding)).when(aktørConsumer)
+                .hentPersonIdentForAktørId(eq(JoarkTestsupport.AKTØR_ID));
         doReturn(jdMock).when(joarkDokumentHåndterer).hentJournalDokument(any());
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);

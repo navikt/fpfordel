@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.fordel.kodeverk.Tema;
-import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -26,6 +25,7 @@ import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.util.FPDateUtil;
 import no.nav.vedtak.util.StringUtils;
@@ -46,16 +46,19 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.hentFraJoark";
 
-    private AktørConsumer aktørConsumer;
-    private JoarkDokumentHåndterer joarkDokumentHåndterer;
-    private LocalDate fastsattInntektsmeldingStartdatoFristForManuellBehandling = KonfigVerdier.ENDRING_BEREGNING_DATO;
+    private final AktørConsumer aktørConsumer;
+    private final JoarkDokumentHåndterer joarkDokumentHåndterer;
+    private final LocalDate startDato;
 
     @Inject
-    public HentDataFraJoarkTask(ProsessTaskRepository prosessTaskRepository, KodeverkRepository kodeverkRepository,
-                                AktørConsumer aktørConsumer, JoarkDokumentHåndterer joarkDokumentHåndterer) {
+    public HentDataFraJoarkTask(
+            @KonfigVerdi(value = "endring.beregning.startdato", defaultVerdi = "2019-01-01") LocalDate startDato,
+            ProsessTaskRepository prosessTaskRepository, KodeverkRepository kodeverkRepository,
+            AktørConsumer aktørConsumer, JoarkDokumentHåndterer joarkDokumentHåndterer) {
         super(prosessTaskRepository, kodeverkRepository);
         this.aktørConsumer = aktørConsumer;
         this.joarkDokumentHåndterer = joarkDokumentHåndterer;
+        this.startDato = startDato;
     }
 
     @Override
@@ -154,7 +157,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     }
 
     private boolean kreverStartdatoForInntektsmeldingenManuellBehandling(MottakMeldingDataWrapper dataWrapper) {
-        LocalDate startDato = dataWrapper.getInntektsmeldingStartDato().orElse(Tid.TIDENES_BEGYNNELSE);
-        return startDato.isBefore(fastsattInntektsmeldingStartdatoFristForManuellBehandling);
+        LocalDate dato = dataWrapper.getInntektsmeldingStartDato().orElse(Tid.TIDENES_BEGYNNELSE);
+        return dato.isBefore(startDato);
     }
 }

@@ -58,7 +58,7 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
     private MottakMeldingDataWrapper dataWrapper;
     private JoarkDokumentHåndterer håndterer;
     private JoarkTestsupport joarkTestsupport = new JoarkTestsupport();
-    private String fastsattInntektsmeldingStartdatoFristForManuellBehandling = "2019-01-01";
+    private static final LocalDate START_DATO = LocalDate.of(2019, 1, 1);
     private JournalMetadata<DokumentTypeId> journalMetadata;
 
     @Before
@@ -69,7 +69,8 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
         ProsessTaskRepository ptr = mock(ProsessTaskRepository.class);
         håndterer = mock(JoarkDokumentHåndterer.class);
         AktørConsumer aktørConsumer = mock(AktørConsumer.class);
-        joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, kodeverkRepository, aktørConsumer, håndterer));
+        joarkTaskTestobjekt = spy(
+                new HentDataFraJoarkTask(START_DATO, ptr, kodeverkRepository, aktørConsumer, håndterer));
         when(håndterer.hentGyldigAktørFraMetadata(any())).thenReturn(Optional.of(AKTØR_ID));
         when(håndterer.hentGyldigAktørFraPersonident(any())).thenReturn(Optional.of(AKTØR_ID));
         taskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
@@ -80,16 +81,15 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
         journalMetadata = joarkTestsupport.lagJournalMetadataStrukturert(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
     }
 
-
     @Test
     public void skal_håndtere_dokument_som_har_ikke_en_inntektsmelding() throws Exception {
         String aktørId = "9000000000002";
         dataWrapper.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         dataWrapper.setAktørId(aktørId);
-        
+
         when(håndterer.hentGyldigAktørFraMetadata(any())).thenReturn(Optional.of(aktørId));
-        
+
         String xml = joarkTestsupport.readFile("testsoknader/engangsstoenad-termin-soeknad.xml");
         JournalDokument<DokumentTypeId> journalDokument = new JournalDokument<>(journalMetadata, xml);
         doReturn(Collections.singletonList(journalMetadata)).when(håndterer).hentJoarkDokumentMetadata(any());
@@ -100,7 +100,6 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
         assertThat(wrapper.getAktørId()).hasValue(aktørId);
         assertThat(wrapper.getProsessTaskData().getTaskType()).isEqualTo(HentOgVurderVLSakTask.TASKNAME);
     }
-
 
     @Test
     public void skalHåndtereIntekksmeldingForeldrepengerManuellJournalføringDokumentHåndterer() throws Exception {
@@ -116,7 +115,6 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
 
         List<JournalMetadata<?>> strukturertJournalMetadataSkanningMetaList = Arrays.asList(journalMetadata);
         doReturn(strukturertJournalMetadataSkanningMetaList).when(håndterer).hentJoarkDokumentMetadata(ARKIV_ID);
-
 
         String xml = joarkTestsupport.readFile("testsoknader/inntektsmelding-manual-sample.xml");
         JournalDokument<DokumentTypeId> journalDokument = new JournalDokument<DokumentTypeId>(journalMetadata, xml);
@@ -176,7 +174,8 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
         List<JournalMetadata<?>> strukturertJournalMetadataSkanningMetaList = Arrays.asList(journalMetadata);
         doReturn(strukturertJournalMetadataSkanningMetaList).when(håndterer).hentJoarkDokumentMetadata(ARKIV_ID);
 
-        String xml = joarkTestsupport.readFile("testsoknader/inntektsmelding-manual-uten-startdato-foreldrepenger-periode-sample.xml");
+        String xml = joarkTestsupport
+                .readFile("testsoknader/inntektsmelding-manual-uten-startdato-foreldrepenger-periode-sample.xml");
         JournalDokument<DokumentTypeId> journalDokument = new JournalDokument<DokumentTypeId>(journalMetadata, xml);
 
         doReturn(journalDokument).when(håndterer).hentJournalDokument(Collections.singletonList(journalMetadata));
@@ -207,7 +206,8 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
         when(håndterer.hentGyldigAktørFraMetadata(any())).thenReturn(Optional.empty());
         when(håndterer.hentGyldigAktørFraPersonident(any())).thenReturn(Optional.empty());
 
-        String xml = joarkTestsupport.readFile("testsoknader/inntektsmelding-manual-uten-startdato-foreldrepenger-periode-sample.xml");
+        String xml = joarkTestsupport
+                .readFile("testsoknader/inntektsmelding-manual-uten-startdato-foreldrepenger-periode-sample.xml");
         JournalDokument<DokumentTypeId> journalDokument = new JournalDokument<DokumentTypeId>(journalMetadata, xml);
 
         doReturn(journalDokument).when(håndterer).hentJournalDokument(Collections.singletonList(journalMetadata));

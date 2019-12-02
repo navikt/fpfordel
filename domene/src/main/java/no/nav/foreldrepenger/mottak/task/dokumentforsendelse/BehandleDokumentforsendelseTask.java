@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.fordel.kodeverk.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.fordel.kodeverk.Tema;
-import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
@@ -37,6 +36,7 @@ import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.util.FPDateUtil;
 
@@ -46,23 +46,26 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.behandleDokumentForsendelse";
 
-    private AktørConsumer aktørConsumer;
-    private FagsakRestKlient fagsakRestKlient;
-    private DokumentRepository dokumentRepository;
-    private LocalDate konfigVerdiStartdatoForeldrepenger = KonfigVerdier.ENDRING_BEREGNING_DATO;
+    private final AktørConsumer aktørConsumer;
+    private final FagsakRestKlient fagsakRestKlient;
+    private final DokumentRepository dokumentRepository;
+    private final LocalDate startDato;
 
     private static final Logger logger = LoggerFactory.getLogger(BehandleDokumentforsendelseTask.class);
 
     @Inject
-    public BehandleDokumentforsendelseTask(ProsessTaskRepository prosessTaskRepository,
-                                           KodeverkRepository kodeverkRepository,
-                                           AktørConsumer aktørConsumer,
-                                           FagsakRestKlient fagsakRestKlient,
-                                           DokumentRepository dokumentRepository) {
+    public BehandleDokumentforsendelseTask(
+            @KonfigVerdi(value = "endring.beregning.startdato", defaultVerdi = "2019-01-01") LocalDate startDato,
+            ProsessTaskRepository prosessTaskRepository,
+            KodeverkRepository kodeverkRepository,
+            AktørConsumer aktørConsumer,
+            FagsakRestKlient fagsakRestKlient,
+            DokumentRepository dokumentRepository) {
         super(prosessTaskRepository, kodeverkRepository);
         this.aktørConsumer = aktørConsumer;
         this.fagsakRestKlient = fagsakRestKlient;
         this.dokumentRepository = dokumentRepository;
+        this.startDato = startDato;
     }
 
     @Override
@@ -263,6 +266,6 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     private boolean sjekkOmSøknadenKreverManuellBehandling(MottakMeldingDataWrapper dataWrapper) {
         return dataWrapper.getOmsorgsovertakelsedato()
                 .orElse(dataWrapper.getFørsteUttaksdag().orElse(Tid.TIDENES_BEGYNNELSE))
-                .isBefore(konfigVerdiStartdatoForeldrepenger);
+                .isBefore(startDato);
     }
 }

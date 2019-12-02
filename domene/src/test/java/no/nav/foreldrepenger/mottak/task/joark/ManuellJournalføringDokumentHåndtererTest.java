@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.task.joark;
 
-
 import static no.nav.foreldrepenger.mottak.task.joark.JoarkTestsupport.AKTØR_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -56,7 +55,7 @@ public class ManuellJournalføringDokumentHåndtererTest {
     private MottakMeldingDataWrapper dataWrapper;
     private JoarkDokumentHåndterer håndterer;
     private JoarkTestsupport joarkTestsupport = new JoarkTestsupport();
-    private String fastsattInntektsmeldingStartdatoFristForManuellBehandling = "2019-01-01";
+    private static final LocalDate START_DATO = LocalDate.of(2019, 1, 1);
 
     @Before
     public void setUp() throws Exception {
@@ -65,7 +64,8 @@ public class ManuellJournalføringDokumentHåndtererTest {
         ProsessTaskRepository ptr = mock(ProsessTaskRepository.class);
         håndterer = mock(JoarkDokumentHåndterer.class);
         AktørConsumer aktørConsumer = mock(AktørConsumer.class);
-        joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, kodeverkRepository, aktørConsumer, håndterer));
+        joarkTaskTestobjekt = spy(
+                new HentDataFraJoarkTask(START_DATO, ptr, kodeverkRepository, aktørConsumer, håndterer));
         when(håndterer.hentGyldigAktørFraMetadata(any())).thenReturn(Optional.of(AKTØR_ID));
         when(håndterer.hentGyldigAktørFraPersonident(any())).thenReturn(Optional.of(AKTØR_ID));
         taskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
@@ -73,7 +73,6 @@ public class ManuellJournalføringDokumentHåndtererTest {
         dataWrapper = new MottakMeldingDataWrapper(kodeverkRepository, taskData);
         dataWrapper.setArkivId(ARKIV_ID);
     }
-
 
     @Test
     public void skalHåndtereManuellJournalføringAvInntektsmelding() throws Exception {
@@ -110,7 +109,8 @@ public class ManuellJournalføringDokumentHåndtererTest {
 
     @Test
     public void skalHåndtereManuellJournalføringMedGyldigFnr() throws Exception {
-        List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(joarkTestsupport.lagJournalMetadataUstrukturert(DokumentTypeId.ANNET));
+        List<JournalMetadata<DokumentTypeId>> metadata = Collections
+                .singletonList(joarkTestsupport.lagJournalMetadataUstrukturert(DokumentTypeId.ANNET));
         doReturn(metadata).when(håndterer).hentJoarkDokumentMetadata(ARKIV_ID);
 
         BehandlingTema actualBehandlingTema = BehandlingTema.ENGANGSSTØNAD_FØDSEL;
@@ -127,7 +127,8 @@ public class ManuellJournalføringDokumentHåndtererTest {
 
     @Test
     public void skalHåndtereManuellJournalføringMedUgyldigFnr() throws Exception {
-        List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(joarkTestsupport.lagJournalMetadataUstrukturert(Collections.singletonList("12789")));
+        List<JournalMetadata<DokumentTypeId>> metadata = Collections
+                .singletonList(joarkTestsupport.lagJournalMetadataUstrukturert(Collections.singletonList("12789")));
         doReturn(metadata).when(håndterer).hentJoarkDokumentMetadata(ARKIV_ID);
         when(håndterer.hentGyldigAktørFraMetadata(any())).thenReturn(Optional.empty());
 
