@@ -5,8 +5,6 @@
       http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd"
                  version="2.1">
 
-    <sequence-generator name="SEQ_KONFIG_VERDI" allocation-size="50" sequence-name="SEQ_KONFIG_VERDI"/>
-
     <entity class="no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata"/>
     <entity class="no.nav.foreldrepenger.mottak.domene.dokument.Dokument"/>
 
