@@ -10,35 +10,22 @@ import no.nav.foreldrepenger.fordel.kodeverk.Tema;
 
 public class GsakSak {
 
-    private String brukerFnr;
-    private String sakId;
-    private Tema tema; // tilsvarer fagområde i GSak
-    private Fagsystem fagsystem;
-    private LocalDate sistEndret;
+    private final String brukerFnr;
+    private final String sakId;
+    private final Tema tema; // tilsvarer fagområde i GSak
+    private final Fagsystem fagsystem;
+    private final LocalDate sistEndret;
 
     public GsakSak(String brukerFnr, String sakId, Tema tema, Fagsystem fagsystem) {
-        requireNonNull(brukerFnr, "brukerFnr er påkrevd.");
-        requireNonNull(sakId, "sakId er påkrevd.");
-        requireNonNull(tema, "tema er påkrevd.");
-        requireNonNull(fagsystem, "fagsystem er påkrevd.");
-
-        this.brukerFnr = brukerFnr;
-        this.sakId = sakId;
-        this.tema = tema;
-        this.fagsystem = fagsystem;
+        this(brukerFnr, sakId, tema, fagsystem, null);
     }
 
     public GsakSak(String brukerFnr, String sakId, Tema tema, Fagsystem fagsystem, LocalDate sistEndret) {
-        requireNonNull(brukerFnr, "brukerFnr er påkrevd.");
-        requireNonNull(sakId, "sakId er påkrevd.");
-        requireNonNull(tema, "tema er påkrevd.");
-        requireNonNull(fagsystem, "fagsystem er påkrevd.");
-
-        this.brukerFnr = brukerFnr;
-        this.sakId = sakId;
-        this.tema = tema;
-        this.fagsystem = fagsystem;
-        this.sistEndret = sistEndret;
+        this.brukerFnr = requireNonNull(brukerFnr, "brukerFnr er påkrevd.");
+        this.sakId = requireNonNull(sakId, "sakId er påkrevd.");
+        this.tema = requireNonNull(tema, "tema er påkrevd.");
+        this.fagsystem = requireNonNull(fagsystem, "fagsystem er påkrevd.");
+        this.sistEndret = null;
     }
 
     public String getBrukerFnr() {
@@ -60,5 +47,10 @@ public class GsakSak {
     public Optional<LocalDate> getSistEndret() {
         return Optional.ofNullable(sistEndret);
     }
-}
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[brukerFnr=" + brukerFnr + ", sakId=" + sakId + ", tema=" + tema
+                + ", fagsystem=" + fagsystem + ", sistEndret=" + sistEndret + "]";
+    }
+}

@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.time.Duration;
 import java.time.Period;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
@@ -30,7 +31,6 @@ public class KonfigVerdiType extends Kodeliste {
     public static final KonfigVerdiType DURATION_TYPE = internOpprett("DURATION", KonfigVerdiType::validerDuration); //$NON-NLS-1$
 
     private KonfigVerdiType() {
-        // for hibernate
     }
 
     private KonfigVerdiType(String kode) {
@@ -46,30 +46,28 @@ public class KonfigVerdiType extends Kodeliste {
     public boolean erGyldigFormat(String verdi) {
         try {
             return valider(verdi);
-        } catch (RuntimeException e) { // NOSONAR
-            return false; // NOSONAR
+        } catch (RuntimeException e) {
+            return false;
         }
     }
 
     public boolean valider(String verdi) {
-        if (verdi == null) {
-            return true; // tillater å sette null
-        }
-        return VALIDER_FUNKSJONER.get(getKode()).test(verdi);
+        return Optional.ofNullable(verdi)
+                .map(v -> VALIDER_FUNKSJONER.get(getKode()).test(v))
+                .orElse(true);
     }
 
-    @SuppressWarnings("unused")
-    static boolean validerString(String str) { // NOSONAR
-        return true; // NOSONAR // gjør ingen sjekk på format p.t.
+    static boolean validerString(String str) {
+        return true;
     }
 
     static boolean validerBoolean(String str) {
-        return "J".equals(str) || "N".equals(str); // NOSONAR - husk begge er gyldige //$NON-NLS-1$ //$NON-NLS-2$
+        return "J".equals(str) || "N".equals(str);
         // booleans!
     }
 
     static boolean validerInteger(String str) {
-        Integer.parseInt(str); // NOSONAR
+        Integer.parseInt(str);
         return true;
     }
 
@@ -83,12 +81,12 @@ public class KonfigVerdiType extends Kodeliste {
     }
 
     static boolean validerPeriod(String str) {
-        Period.parse(str);  // NOSONAR validerer som side-effect
+        Period.parse(str); // NOSONAR validerer som side-effect
         return true;
     }
 
     static boolean validerDuration(String str) {
-        Duration.parse(str);  // NOSONAR validerer som side-effect
+        Duration.parse(str); // NOSONAR validerer som side-effect
         return true;
     }
 

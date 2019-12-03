@@ -40,8 +40,8 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
     /*
      * Konfigurasjon for hvor langt tilbake i tid man spør Infotrygd om det finnes saker
      */
-    private static final TemporalAmount infotrygdSakGyldigPeriode = Period.ofMonths(10);
-    private static final TemporalAmount infotrygdAnnenPartGyldigPeriode = Period.ofMonths(18);
+    private static final TemporalAmount INFOTRYGD_SAK_GYLDIG_PERIODE = Period.ofMonths(10);
+    private static final TemporalAmount INFOTRYGD_ANNENPART_GYLDIG_PERIODE = Period.ofMonths(18);
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HentOgVurderInfotrygdSakTask.class);
 
@@ -106,7 +106,7 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
     }
 
     private MottakMeldingDataWrapper nesteStegForSvangerskapspenger(MottakMeldingDataWrapper w) {
-        if (skalMidlertidigJournalføre(w, fnr(w), iDag().minus(infotrygdSakGyldigPeriode))) {
+        if (skalMidlertidigJournalføre(w, fnr(w), iDag().minus(INFOTRYGD_SAK_GYLDIG_PERIODE))) {
             return midlertidigJournalført(w);
         }
         return nesteStegOpprettet(w);
@@ -119,7 +119,7 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
         if (erMann(annenPart)) {
             return nesteStegOpprettet(w);
         }
-        if (skalMidlertidigJournalføre(w, annenPart, iDag().minus(infotrygdAnnenPartGyldigPeriode))) {
+        if (skalMidlertidigJournalføre(w, annenPart, iDag().minus(INFOTRYGD_ANNENPART_GYLDIG_PERIODE))) {
             return midlertidigJournalført(w);
         }
         return nesteStegOpprettet(w);
@@ -178,14 +178,14 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
     }
 
     private boolean skalMidlertidigJournalføreIM(MottakMeldingDataWrapper w, String fnr, LocalDate fom) {
-        return relevansSjekker.skalMidlertidigJournalføreIM(fnr, fom.minus(infotrygdSakGyldigPeriode), w.getTema(),
+        return relevansSjekker.skalMidlertidigJournalføreIM(fnr, fom.minus(INFOTRYGD_SAK_GYLDIG_PERIODE), w.getTema(),
                 w.getBehandlingTema());
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[infotrygdSakGyldigPeriode=" + infotrygdSakGyldigPeriode
-                + ", infotrygdAnnenPartGyldigPeriode=" + infotrygdAnnenPartGyldigPeriode + ", aktør=" + aktør
+        return getClass().getSimpleName() + "[infotrygdSakGyldigPeriode=" + INFOTRYGD_SAK_GYLDIG_PERIODE
+                + ", infotrygdAnnenPartGyldigPeriode=" + INFOTRYGD_ANNENPART_GYLDIG_PERIODE + ", aktør=" + aktør
                 + ", relevansSjekker=" + relevansSjekker + "]";
     }
 }

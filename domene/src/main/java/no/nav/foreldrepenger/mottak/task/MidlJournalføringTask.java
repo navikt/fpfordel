@@ -20,7 +20,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 /**
- * <p>ProssessTask som utleder journalføringsbehov og forsøker rette opp disse.</p>
+ * <p>
+ * ProssessTask som utleder journalføringsbehov og forsøker rette opp disse.
+ * </p>
  */
 @Dependent
 @ProsessTask(MidlJournalføringTask.TASKNAME)
@@ -28,24 +30,24 @@ public class MidlJournalføringTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.midlJournalforing";
 
-
-    private final TilJournalføringTjeneste journalføringTjeneste;
-    private final DokumentRepository dokumentRepository;
+    private final TilJournalføringTjeneste journalføring;
+    private final DokumentRepository repo;
 
     @Inject
     public MidlJournalføringTask(ProsessTaskRepository prosessTaskRepository,
-                                 TilJournalføringTjeneste journalføringTjeneste,
-                                 KodeverkRepository kodeverkRepository,
-                                 DokumentRepository dokumentRepository) {
+            TilJournalføringTjeneste journalføringTjeneste,
+            KodeverkRepository kodeverkRepository,
+            DokumentRepository repo) {
         super(prosessTaskRepository, kodeverkRepository);
-        this.journalføringTjeneste = journalføringTjeneste;
-        this.dokumentRepository = dokumentRepository;
+        this.journalføring = journalføringTjeneste;
+        this.repo = repo;
     }
 
     @Override
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
         if (!dataWrapper.getAktørId().isPresent()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME, MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
         }
     }
 
@@ -54,10 +56,12 @@ public class MidlJournalføringTask extends WrappedProsessTaskHandler {
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper dataWrapper) {
         Optional<UUID> forsendelseId = dataWrapper.getForsendelseId();
         if (dataWrapper.getArkivId() == null && forsendelseId.isPresent()) { // Vi har ikke journalpostID - journalfør
-            DokumentforsendelseResponse response = journalføringTjeneste.journalførDokumentforsendelse(forsendelseId.get(), dataWrapper.getSaksnummer(), dataWrapper.getAvsenderId(), false, dataWrapper.getRetryingTask());
+            DokumentforsendelseResponse response = journalføring.journalførDokumentforsendelse(forsendelseId.get(),
+                    dataWrapper.getSaksnummer(), dataWrapper.getAvsenderId(), false, dataWrapper.getRetryingTask());
             dataWrapper.setArkivId(response.getJournalpostId());
         }
-        forsendelseId.ifPresent(fid -> dokumentRepository.oppdaterForseldelseMedArkivId(fid, dataWrapper.getArkivId(), ForsendelseStatus.GOSYS));
+        forsendelseId.ifPresent(
+                fid -> repo.oppdaterForseldelseMedArkivId(fid, dataWrapper.getArkivId(), ForsendelseStatus.GOSYS));
         return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
     }
 }

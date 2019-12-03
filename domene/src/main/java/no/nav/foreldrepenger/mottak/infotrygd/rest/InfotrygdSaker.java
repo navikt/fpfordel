@@ -15,20 +15,20 @@ import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 
-public abstract class InfotrygdRESTTjeneste implements InfotrygdTjeneste {
-    private static final Logger LOG = LoggerFactory.getLogger(InfotrygdRESTTjeneste.class);
+public abstract class InfotrygdSaker implements InfotrygdTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(InfotrygdSaker.class);
 
     private OidcRestClient restClient;
     private URI uri;
     private InfotrygdRestResponseMapper mapper;
 
-    public InfotrygdRESTTjeneste(OidcRestClient restClient, URI uri, InfotrygdRestResponseMapper mapper) {
+    public InfotrygdSaker(OidcRestClient restClient, URI uri, InfotrygdRestResponseMapper mapper) {
         this.restClient = restClient;
         this.uri = uri;
         this.mapper = mapper;
     }
 
-    public InfotrygdRESTTjeneste() {
+    public InfotrygdSaker() {
 
     }
 

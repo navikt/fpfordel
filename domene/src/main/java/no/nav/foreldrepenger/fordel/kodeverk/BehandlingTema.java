@@ -22,16 +22,15 @@ public class BehandlingTema extends Kodeliste {
     public static final BehandlingTema FORELDREPENGER_FØDSEL = new BehandlingTema("FORP_FODS"); //$NON-NLS-1$
     public static final BehandlingTema FORELDREPENGER_ADOPSJON = new BehandlingTema("FORP_ADOP"); //$NON-NLS-1$
 
-    public static final BehandlingTema SVANGERSKAPSPENGER = new BehandlingTema("SVP"); //$NON-NLS-1$
+    public static final BehandlingTema SVANGERSKAPSPENGER = new BehandlingTema("SVP");
 
     /**
      * Alle kodeverk må ha en verdi, det kan ikke være null i databasen. Denne koden
      * gjør samme nytten.
      */
-    public static final BehandlingTema UDEFINERT = new BehandlingTema("-"); //$NON-NLS-1$
+    public static final BehandlingTema UDEFINERT = new BehandlingTema("-");
 
     BehandlingTema() {
-        // Hibernate trenger den
     }
 
     private BehandlingTema(String kode) {
@@ -42,16 +41,6 @@ public class BehandlingTema extends Kodeliste {
         return this.equals(ENGANGSSTØNAD_ADOPSJON) ||
                 this.equals(ENGANGSSTØNAD_FØDSEL) ||
                 this.equals(ENGANGSSTØNAD);
-    }
-
-    @Deprecated
-    public static boolean gjelderForeldrepenger(BehandlingTema tema) {
-        return tema.gjelderForeldrepenger();
-    }
-
-    @Deprecated
-    public static boolean ikkeSpesifikkHendelse(BehandlingTema tema) {
-        return tema.ikkeSpesifikkHendelse();
     }
 
     public boolean gjelderForeldrepenger() {

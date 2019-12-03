@@ -22,11 +22,13 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTypeInfo;
 import no.nav.vedtak.util.FPDateUtil;
 
 /**
- * Enkel scheduler for dagens situasjon der man kjører mandag-fredag og det er noe variasjon i parametere.
+ * Enkel scheduler for dagens situasjon der man kjører mandag-fredag og det er
+ * noe variasjon i parametere.
  *
  * Denne vil p.t. planlegge neste instans og sette alle feilete tasks til klar.
  *
- * Den bør utvides med sletting av prosesstasks, dokument og dokument_metadata. Da kan man låne BatchRunner fra fpsak
+ * Den bør utvides med sletting av prosesstasks, dokument og dokument_metadata.
+ * Da kan man låne BatchRunner fra fpsak
  *
  * For månedlige oppgaver - se FC's crom-bibliotek på GitHub for spesifikasjon
  */
@@ -38,17 +40,15 @@ public class VedlikeholdSchedulerTask implements ProsessTaskHandler {
 
     private ProsessTaskRepository prosessTaskRepository;
 
-    private final Set<MonthDay> fasteStengteDager = Set.of(
-        MonthDay.of(1, 1),
-        MonthDay.of(5, 1),
-        MonthDay.of(5, 17),
-        MonthDay.of(12, 25),
-        MonthDay.of(12, 26),
-        MonthDay.of(12, 31)
-    );
+    private static final Set<MonthDay> FASTE_STENGTE_DAGER = Set.of(
+            MonthDay.of(1, 1),
+            MonthDay.of(5, 1),
+            MonthDay.of(5, 17),
+            MonthDay.of(12, 25),
+            MonthDay.of(12, 26),
+            MonthDay.of(12, 31));
 
     VedlikeholdSchedulerTask() {
-        // for CDI proxy
     }
 
     @Inject
@@ -85,7 +85,8 @@ public class VedlikeholdSchedulerTask implements ProsessTaskHandler {
         Map<String, Integer> taskTypesMaxForsøk = new HashMap<>();
         ptdList.stream().map(ProsessTaskData::getTaskType).forEach(tasktype -> {
             if (taskTypesMaxForsøk.get(tasktype) == null) {
-                int forsøk = prosessTaskRepository.finnProsessTaskType(tasktype).map(ProsessTaskTypeInfo::getMaksForsøk).orElse(1);
+                int forsøk = prosessTaskRepository.finnProsessTaskType(tasktype).map(ProsessTaskTypeInfo::getMaksForsøk)
+                        .orElse(1);
                 taskTypesMaxForsøk.put(tasktype, forsøk);
             }
         });
@@ -102,6 +103,6 @@ public class VedlikeholdSchedulerTask implements ProsessTaskHandler {
     }
 
     private boolean erFastInfotrygdStengtDag(LocalDate dato) {
-        return fasteStengteDager.contains(MonthDay.from(dato));
+        return FASTE_STENGTE_DAGER.contains(MonthDay.from(dato));
     }
 }

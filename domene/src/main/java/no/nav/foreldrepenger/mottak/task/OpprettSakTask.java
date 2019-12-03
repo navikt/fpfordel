@@ -21,7 +21,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 /**
  * <p>
- * ProssessTask som oppretter ny sak internt i Vedtaksløsningen (med mindre en sak allerede er opprettet)
+ * ProssessTask som oppretter ny sak internt i Vedtaksløsningen (med mindre en
+ * sak allerede er opprettet)
  * </p>
  */
 @Dependent
@@ -29,14 +30,14 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 public class OpprettSakTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.opprettSak";
-    private static final Logger logger = LoggerFactory.getLogger(OpprettSakTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OpprettSakTask.class);
 
-    private FagsakRestKlient fagsakRestKlient;
+    private final FagsakRestKlient fagsakRestKlient;
 
     @Inject
     public OpprettSakTask(ProsessTaskRepository prosessTaskRepository,
-                          FagsakRestKlient fagsakRestKlient,
-                          KodeverkRepository kodeverkRepository) {
+            FagsakRestKlient fagsakRestKlient,
+            KodeverkRepository kodeverkRepository) {
         super(prosessTaskRepository, kodeverkRepository);
         this.fagsakRestKlient = fagsakRestKlient;
     }
@@ -44,13 +45,16 @@ public class OpprettSakTask extends WrappedProsessTaskHandler {
     @Override
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
         if (!dataWrapper.getDokumentTypeId().isPresent()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME, MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY, dataWrapper.getId()).toException();
         }
         if (!dataWrapper.getDokumentKategori().isPresent()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME, MottakMeldingDataWrapper.DOKUMENTKATEGORI_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.DOKUMENTKATEGORI_ID_KEY, dataWrapper.getId()).toException();
         }
         if (!dataWrapper.getAktørId().isPresent()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME, MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
         }
     }
 
@@ -58,7 +62,8 @@ public class OpprettSakTask extends WrappedProsessTaskHandler {
     public void postcondition(MottakMeldingDataWrapper dataWrapper) {
         if (TilJournalføringTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())) {
             if (!dataWrapper.getSaksnummer().isPresent()) {
-                throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME, MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId()).toException();
+                throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
+                        MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId()).toException();
             }
         }
     }
@@ -69,17 +74,20 @@ public class OpprettSakTask extends WrappedProsessTaskHandler {
             return dataWrapper.nesteSteg(MidlJournalføringTask.TASKNAME);
         }
 
-        // Før vi oppretter sak, må vi sjekke at det ikke er opprettet en sak for det samme tilfellet (noe som kan skje hvis vi får inn flere søknader på samme sak innen "kort tid").
+        // Før vi oppretter sak, må vi sjekke at det ikke er opprettet en sak for det
+        // samme tilfellet (noe som kan skje hvis vi får inn flere søknader på samme sak
+        // innen "kort tid").
         VurderFagsystemResultat vurderFagsystemRespons = fagsakRestKlient.vurderFagsystem(dataWrapper);
 
         if (vurderFagsystemRespons.isManuellVurdering()) { // Dette skal ikke skje på dette stadiet
-            logger.info("vurderFagsystem returnerte uventet fagsystem. Setter saken til manuell journalføring.");
+            LOG.info("vurderFagsystem returnerte uventet fagsystem. Setter saken til manuell journalføring.");
             return dataWrapper.nesteSteg(MidlJournalføringTask.TASKNAME);
         }
 
         vurderFagsystemRespons.getSaksnummer().ifPresent(dataWrapper::setSaksnummer);
         if (!vurderFagsystemRespons.getSaksnummer().isPresent()) {
-            SaksnummerDto saksnummerDto = fagsakRestKlient.opprettSak(new OpprettSakDto(dataWrapper.getArkivId(), dataWrapper.getBehandlingTema().getOffisiellKode(), dataWrapper.getAktørId().get()));
+            SaksnummerDto saksnummerDto = fagsakRestKlient.opprettSak(new OpprettSakDto(dataWrapper.getArkivId(),
+                    dataWrapper.getBehandlingTema().getOffisiellKode(), dataWrapper.getAktørId().get()));
             dataWrapper.setSaksnummer(saksnummerDto.getSaksnummer());
         }
 
@@ -88,6 +96,7 @@ public class OpprettSakTask extends WrappedProsessTaskHandler {
 
     private boolean erKlageEllerAnke(MottakMeldingDataWrapper data) {
         return (DokumentTypeId.KLAGE_DOKUMENT.equals(data.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT))
-                || DokumentKategori.KLAGE_ELLER_ANKE.equals(data.getDokumentKategori().orElse(DokumentKategori.UDEFINERT)));
+                || DokumentKategori.KLAGE_ELLER_ANKE
+                        .equals(data.getDokumentKategori().orElse(DokumentKategori.UDEFINERT)));
     }
 }

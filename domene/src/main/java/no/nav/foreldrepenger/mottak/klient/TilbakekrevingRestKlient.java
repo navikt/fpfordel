@@ -16,16 +16,17 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 public class TilbakekrevingRestKlient {
     private static final String ENDPOINT_KEY = "tilbake_mottaJournalpost.url";
     private static final String DEFAULT_URI = "http://fptilbake.default/fptilbake/api/fordel/journalpost";
-    private static final Logger log = LoggerFactory.getLogger(TilbakekrevingRestKlient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TilbakekrevingRestKlient.class);
 
     private OidcRestClient oidcRestClient;
     private URI endpoint;
 
-    public TilbakekrevingRestKlient() { //NOSONAR: for cdi
+    public TilbakekrevingRestKlient() {
     }
 
     @Inject
-    public TilbakekrevingRestKlient(OidcRestClient oidcRestClient, @KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
+    public TilbakekrevingRestKlient(OidcRestClient oidcRestClient,
+            @KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
         this.oidcRestClient = oidcRestClient;
         this.endpoint = endpoint;
     }
@@ -34,8 +35,7 @@ public class TilbakekrevingRestKlient {
         try {
             oidcRestClient.post(endpoint, journalpostMottakDto);
         } catch (Exception e) {
-            log.warn("Feil ved sending av forsendelse til {}, ukjent feil", endpoint, e);
+            LOG.warn("Feil ved sending av forsendelse til {}, ukjent feil", endpoint, e);
         }
     }
-
 }

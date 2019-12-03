@@ -20,24 +20,30 @@ import no.nav.vedtak.konfig.Tid;
 
 /**
  * <p>
- * ProssessTask som henter ut informasjon fra søknadsskjema og vurderer denne i henhold til følgende kritterier.
+ * ProssessTask som henter ut informasjon fra søknadsskjema og vurderer denne i
+ * henhold til følgende kritterier.
  * </p>
  * <p>
- * En sak er en "passende sak" HVIS aktørID og behandlingstema er likt OG minst en av følgende tilfeller er sanne
+ * En sak er en "passende sak" HVIS aktørID og behandlingstema er likt OG minst
+ * en av følgende tilfeller er sanne
  * <ul>
  * <li>Fødselsdato innen intervall -16 - +4 uker fra termin</li>
  * <li>Fødselsdato matcher innen et visst slingringsmonn</li>
- * <li>Imsorgsovertagelsesdato matcher innen et slingringsmonn OG fødselsdato for barn matcher eksakt</li>
+ * <li>Imsorgsovertagelsesdato matcher innen et slingringsmonn OG fødselsdato
+ * for barn matcher eksakt</li>
  * </ul>
  * </p>
  * <p>
- * For ustrukturerte forsendelser gjelder andre regler; en sak er "passende" HVIS aktørID er lik, OG saken er åpen.
+ * For ustrukturerte forsendelser gjelder andre regler; en sak er "passende"
+ * HVIS aktørID er lik, OG saken er åpen.
  * </p>
  * <p>
- * Hvis det ikke finnes noen åpen sak så kan "passende sak" være en avsluttet sak som er nyere enn 3 måneder.
+ * Hvis det ikke finnes noen åpen sak så kan "passende sak" være en avsluttet
+ * sak som er nyere enn 3 måneder.
  * </p>
  * <p>
- * Hvis det er flere enn en sak som tilfredstiller kriteriene over så foretrekkes den saken som har nyeste behandling.
+ * Hvis det er flere enn en sak som tilfredstiller kriteriene over så
+ * foretrekkes den saken som har nyeste behandling.
  * </p>
  */
 
@@ -48,10 +54,11 @@ public class HentOgVurderVLSakTask extends WrappedProsessTaskHandler {
     public static final String TASKNAME = "fordeling.hentOgVurderVLSak";
     private final LocalDate konfigVerdiStartdatoForeldrepenger = KonfigVerdier.ENDRING_BEREGNING_DATO;
 
-    private FagsakRestKlient fagsakRestKlient;
+    private final FagsakRestKlient fagsakRestKlient;
 
     @Inject
-    public HentOgVurderVLSakTask(ProsessTaskRepository prosessTaskRepository, KodeverkRepository kodeverkRepository, FagsakRestKlient fagsakRestKlient) {
+    public HentOgVurderVLSakTask(ProsessTaskRepository prosessTaskRepository, KodeverkRepository kodeverkRepository,
+            FagsakRestKlient fagsakRestKlient) {
         super(prosessTaskRepository, kodeverkRepository);
         this.fagsakRestKlient = fagsakRestKlient;
     }
@@ -59,28 +66,33 @@ public class HentOgVurderVLSakTask extends WrappedProsessTaskHandler {
     @Override
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
         if (!dataWrapper.getAktørId().isPresent()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME, MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
         }
     }
 
     @Override
     public void postcondition(MottakMeldingDataWrapper dataWrapper) {
         if (!dataWrapper.getAktørId().isPresent()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME, MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
         }
     }
 
     @Override
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper dataWrapper) {
         /*
-         * TODO: Prouksjonserfaring tilsier at man kun oppretter sak automatisk for IM eller søknader - elektronisk eller på papir
-         * Dette fordi man ellers kun får en vurder dokument og ikke kan gjøre noe med mindre det kommer en søknad senere
+         * TODO: Prouksjonserfaring tilsier at man kun oppretter sak automatisk for IM
+         * eller søknader - elektronisk eller på papir Dette fordi man ellers kun får en
+         * vurder dokument og ikke kan gjøre noe med mindre det kommer en søknad senere
          *
-         * Har lagt inn sjekk på dette i vurderfagsystem ,(hente journalpost) - men: fpfordel vet dokumenttypeid og dokumentkategori -
-         * så disse testene kunne like godt vært gjort nedenfor - evt kunne man sendt denne informasjonen til fpsak
+         * Har lagt inn sjekk på dette i vurderfagsystem ,(hente journalpost) - men:
+         * fpfordel vet dokumenttypeid og dokumentkategori - så disse testene kunne like
+         * godt vært gjort nedenfor - evt kunne man sendt denne informasjonen til fpsak
          *
-         * TODO: PFP-1737 Etter noen måneder er ikke logikken om å sjekke infotrygd for ES lenger relevant - bør gå rett til opprett sak.
-         * Dette fordi man kun ser om sakene i Infotrygd er av type ES - vurdering av ES/FP gjøres i aksjonspunkt
+         * TODO: PFP-1737 Etter noen måneder er ikke logikken om å sjekke infotrygd for
+         * ES lenger relevant - bør gå rett til opprett sak. Dette fordi man kun ser om
+         * sakene i Infotrygd er av type ES - vurdering av ES/FP gjøres i aksjonspunkt
          */
 
         VurderFagsystemResultat behandlendeFagsystemDto = fagsakRestKlient.vurderFagsystem(dataWrapper);
@@ -92,9 +104,10 @@ public class HentOgVurderVLSakTask extends WrappedProsessTaskHandler {
             if (ventIntervallOptional.isPresent()) {
                 nesteSteg = dataWrapper.nesteSteg(HentOgVurderVLSakTask.TASKNAME, ventIntervallOptional.get());
             } else {
-                throw new IllegalStateException("Utviklerfeil"); //fix korrekt feilhåndtering
+                throw new IllegalStateException("Utviklerfeil"); // fix korrekt feilhåndtering
             }
-        } else if (behandlendeFagsystemDto.isBehandlesIVedtaksløsningen() && behandlendeFagsystemDto.getSaksnummer().isPresent()) {
+        } else if (behandlendeFagsystemDto.isBehandlesIVedtaksløsningen()
+                && behandlendeFagsystemDto.getSaksnummer().isPresent()) {
             nesteSteg = dataWrapper.nesteSteg(TilJournalføringTask.TASKNAME);
         } else if (skalBehandlesEtterTidligereRegler(dataWrapper)) {
             nesteSteg = dataWrapper.nesteSteg(MidlJournalføringTask.TASKNAME);
@@ -105,18 +118,20 @@ public class HentOgVurderVLSakTask extends WrappedProsessTaskHandler {
         } else if (behandlendeFagsystemDto.isManuellVurdering()) {
             nesteSteg = dataWrapper.nesteSteg(MidlJournalføringTask.TASKNAME);
         } else {
-            throw new IllegalStateException("Utviklerfeil"); //fix korrekt feilhåndtering
+            throw new IllegalStateException("Utviklerfeil"); // fix korrekt feilhåndtering
         }
         return nesteSteg;
     }
 
     private boolean skalBehandlesEtterTidligereRegler(MottakMeldingDataWrapper dataWrapper) {
-        if (dataWrapper.getOmsorgsovertakelsedato().map(konfigVerdiStartdatoForeldrepenger::isAfter).orElse(Boolean.FALSE)) {
+        if (dataWrapper.getOmsorgsovertakelsedato().map(konfigVerdiStartdatoForeldrepenger::isAfter)
+                .orElse(Boolean.FALSE)) {
             return true;
         }
         Optional<Boolean> annenPartHarRett = dataWrapper.getAnnenPartHarRett();
         if (annenPartHarRett.orElse(Boolean.FALSE)) {
-            LocalDate barnFødselsdato = dataWrapper.getBarnFodselsdato().orElse(dataWrapper.getBarnTermindato().orElse(Tid.TIDENES_ENDE));
+            LocalDate barnFødselsdato = dataWrapper.getBarnFodselsdato()
+                    .orElse(dataWrapper.getBarnTermindato().orElse(Tid.TIDENES_ENDE));
             return konfigVerdiStartdatoForeldrepenger.isAfter(barnFødselsdato);
         }
         return false;

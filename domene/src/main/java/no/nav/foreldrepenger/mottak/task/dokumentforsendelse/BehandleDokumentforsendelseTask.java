@@ -46,19 +46,19 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.behandleDokumentForsendelse";
 
-    private AktørConsumer aktørConsumer;
-    private FagsakRestKlient fagsakRestKlient;
-    private DokumentRepository dokumentRepository;
-    private LocalDate konfigVerdiStartdatoForeldrepenger = KonfigVerdier.ENDRING_BEREGNING_DATO;
+    private final AktørConsumer aktørConsumer;
+    private final FagsakRestKlient fagsakRestKlient;
+    private final DokumentRepository dokumentRepository;
+    private static final LocalDate konfigVerdiStartdatoForeldrepenger = KonfigVerdier.ENDRING_BEREGNING_DATO;
 
     private static final Logger logger = LoggerFactory.getLogger(BehandleDokumentforsendelseTask.class);
 
     @Inject
     public BehandleDokumentforsendelseTask(ProsessTaskRepository prosessTaskRepository,
-                                           KodeverkRepository kodeverkRepository,
-                                           AktørConsumer aktørConsumer,
-                                           FagsakRestKlient fagsakRestKlient,
-                                           DokumentRepository dokumentRepository) {
+            KodeverkRepository kodeverkRepository,
+            AktørConsumer aktørConsumer,
+            FagsakRestKlient fagsakRestKlient,
+            DokumentRepository dokumentRepository) {
         super(prosessTaskRepository, kodeverkRepository);
         this.aktørConsumer = aktørConsumer;
         this.fagsakRestKlient = fagsakRestKlient;

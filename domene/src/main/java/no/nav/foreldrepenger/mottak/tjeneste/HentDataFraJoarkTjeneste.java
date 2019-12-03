@@ -33,11 +33,10 @@ public class HentDataFraJoarkTjeneste {
     }
 
     public HentDataFraJoarkTjeneste() {
-        // NOSONAR: for CDI
     }
 
     public Optional<JournalMetadata<DokumentTypeId>> hentHoveddokumentMetadata(String journalpostId) {
-        final List<JournalMetadata<DokumentTypeId>> hoveddokumenter = hentDokumentMetadata(journalpostId);
+        var hoveddokumenter = hentDokumentMetadata(journalpostId);
         if (!hoveddokumenter.isEmpty()) {
             if (erStrukturertDokument(hoveddokumenter)) {
                 return Optional.of(hentMetadataForStrukturertDokument(hoveddokumenter));
@@ -58,22 +57,24 @@ public class HentDataFraJoarkTjeneste {
     }
 
     public List<JournalMetadata<DokumentTypeId>> hentDokumentMetadata(String journalpostId) {
-        final List<JournalMetadata<DokumentTypeId>> journalMetadata = journalTjeneste.hentMetadata(journalpostId);
-
-        return journalMetadata.stream()
+        return journalTjeneste.hentMetadata(journalpostId).stream()
                 .filter(this::erHovedDokument)
                 .collect(Collectors.toList());
     }
 
     public static <T extends DokumentTypeId> JournalMetadata<T> hentMetadataForStrukturertDokument(
             List<JournalMetadata<T>> hoveddokumenter) {
-        return hoveddokumenter.stream().filter(it -> ArkivFilType.XML.equals(it.getArkivFilType())).findFirst().get(); // NOSONAR
+        return hoveddokumenter
+                .stream()
+                .filter(it -> ArkivFilType.XML.equals(it.getArkivFilType())).findFirst().get();
     }
 
     public static <T extends DokumentTypeId> JournalMetadata<T> hentMetadataForUstrukturertDokument(
             List<JournalMetadata<T>> hoveddokumenter) {
-        return hoveddokumenter.stream().filter(it -> VariantFormat.ARKIV.equals(it.getVariantFormat())).findFirst()
-                .get(); // NOSONAR
+        return hoveddokumenter.stream()
+                .filter(it -> VariantFormat.ARKIV.equals(it.getVariantFormat()))
+                .findFirst()
+                .get();
     }
 
     private boolean erHovedDokument(JournalMetadata<? extends DokumentTypeId> metadata) {

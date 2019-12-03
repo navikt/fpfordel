@@ -34,12 +34,11 @@ public class KodeverkRepositoryImpl implements KodeverkRepository {
     private EntityManager entityManager;
 
     KodeverkRepositoryImpl() {
-        // for CDI proxy
     }
 
     @Inject
     public KodeverkRepositoryImpl(@VLPersistenceUnit EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
 
@@ -100,14 +99,14 @@ public class KodeverkRepositoryImpl implements KodeverkRepository {
 
     @Override
     public <V extends Kodeliste> V finnForKodeverkEiersTermNavn(Class<V> cls, String termNavn, V defaultValue) {
-        Objects.requireNonNull(defaultValue, "defaultValue kan ikke være null"); //$NON-NLS-1$
+        Objects.requireNonNull(defaultValue, "defaultValue kan ikke være null");
         V kodeliste;
         CriteriaQuery<V> criteria = createCriteria(cls, "navn", Collections.singletonList(termNavn));
         try {
             kodeliste = entityManager.createQuery(criteria)
                     .setHint(QueryHints.HINT_READONLY, "true")
                     .getSingleResult();
-        } catch (NoResultException e) { // NOSONAR
+        } catch (NoResultException e) {
             kodeliste = finn(cls, defaultValue);
         }
         return kodeliste;
@@ -117,9 +116,10 @@ public class KodeverkRepositoryImpl implements KodeverkRepository {
     public <V extends Kodeliste> List<V> finnForKodeverkEiersKoder(Class<V> cls, String... offisiellKoder) {
         List<String> koderIkkeICache = new ArrayList<>();
         List<V> result = new ArrayList<>();
-        //Traverserer alle koder vi skal finne kodeverk for. Kodene som finnes i cache hentes derfra. De som ikke finnes i cache hentes fra DB.
+        // Traverserer alle koder vi skal finne kodeverk for. Kodene som finnes i cache
+        // hentes derfra. De som ikke finnes i cache hentes fra DB.
         Arrays.stream(offisiellKoder).forEach(kode -> {
-            //For hver kode
+            // For hver kode
             @SuppressWarnings("unchecked")
             V kodeliste = (V) kodelisteCache.get(kode);
             if (kodeliste == null) {
@@ -137,7 +137,7 @@ public class KodeverkRepositoryImpl implements KodeverkRepository {
         List<String> koderIkkeICache = new ArrayList<>();
         List<V> result = new ArrayList<>();
         koder.stream().forEach(kode -> {
-            //For hver kode
+            // For hver kode
             @SuppressWarnings("unchecked")
             V kodeliste = (V) kodelisteCache.get(kode);
             if (kodeliste == null) {

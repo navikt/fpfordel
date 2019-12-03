@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 
 public class ForsendelseStatusDto {
     @NotNull
-    private ForsendelseStatus forsendelseStatus;
+    private final ForsendelseStatus forsendelseStatus;
 
     private Duration pollInterval;
     private String journalpostId;

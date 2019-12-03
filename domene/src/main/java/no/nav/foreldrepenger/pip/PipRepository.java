@@ -28,7 +28,7 @@ public class PipRepository {
 
     @SuppressWarnings("unchecked")
     public Set<String> hentAktørIdForForsendelser(Set<UUID> dokumentforsendelseIder) {
-        Objects.requireNonNull(dokumentforsendelseIder, "dokumentforsendelseIder"); //NOSONAR
+        Objects.requireNonNull(dokumentforsendelseIder, "dokumentforsendelseIder");
 
         if (dokumentforsendelseIder.isEmpty()) {
             return Collections.emptySet();
@@ -38,7 +38,7 @@ public class PipRepository {
                 "from DOKUMENT_METADATA " +
                 "where FORSENDELSE_ID in (:dokumentforsendelseIder)";
 
-        Query query = entityManager.createNativeQuery(sql); //NOSONAR
+        Query query = entityManager.createNativeQuery(sql);
         query.setParameter("dokumentforsendelseIder", dokumentforsendelseIder);
 
         return new HashSet<>(query.getResultList());

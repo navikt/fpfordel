@@ -22,14 +22,14 @@ import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
 @Dependent
 class JoarkDokumentHåndterer {
 
-    protected AktørConsumer aktørConsumer;
-    private HentDataFraJoarkTjeneste hentDataFraJoarkTjeneste;
+    private final AktørConsumer aktør;
+    private final HentDataFraJoarkTjeneste joark;
     private JournalDokument<DokumentTypeId> dokumentCached;
 
     @Inject
-    JoarkDokumentHåndterer(HentDataFraJoarkTjeneste hentDataFraJoarkTjeneste, AktørConsumer aktørConsumer) {
-        this.hentDataFraJoarkTjeneste = hentDataFraJoarkTjeneste;
-        this.aktørConsumer = aktørConsumer;
+    JoarkDokumentHåndterer(HentDataFraJoarkTjeneste joark, AktørConsumer aktør) {
+        this.joark = joark;
+        this.aktør = aktør;
     }
 
     @SuppressWarnings("unchecked")
@@ -40,11 +40,13 @@ class JoarkDokumentHåndterer {
     JournalDokument<DokumentTypeId> hentJournalDokument(List<JournalMetadata<DokumentTypeId>> hoveddokumenter) {
         JournalMetadata<DokumentTypeId> journalMetadata = hentMetadataForStrukturertDokument(hoveddokumenter);
 
-        if (dokumentCached != null && dokumentCached.getMetadata().getDokumentId().equals(journalMetadata.getDokumentId())) {
+        if (dokumentCached != null
+                && dokumentCached.getMetadata().getDokumentId().equals(journalMetadata.getDokumentId())) {
             return dokumentCached;
         }
 
-        Optional<JournalDokument<DokumentTypeId>> dokument = hentDataFraJoarkTjeneste.hentStrukturertJournalDokument(journalMetadata);
+        Optional<JournalDokument<DokumentTypeId>> dokument = joark
+                .hentStrukturertJournalDokument(journalMetadata);
         if (dokument.isPresent()) {
             dokumentCached = dokument.get();
         } else {
@@ -54,7 +56,7 @@ class JoarkDokumentHåndterer {
     }
 
     List<JournalMetadata<DokumentTypeId>> hentJoarkDokumentMetadata(String journalpostId) {
-        return hentDataFraJoarkTjeneste.hentDokumentMetadata(journalpostId);
+        return joark.hentDokumentMetadata(journalpostId);
     }
 
     private Set<String> hentUtAktørerFraMetadata(List<JournalMetadata<DokumentTypeId>> hoveddokumenter) {
@@ -76,11 +78,11 @@ class JoarkDokumentHåndterer {
         if ("".equals(personIdent)) {
             return Optional.empty();
         }
-        return aktørConsumer.hentAktørIdForPersonIdent(personIdent);
+        return aktør.hentAktørIdForPersonIdent(personIdent);
     }
 
     Optional<String> hentGyldigAktørFraPersonident(String personIdent) {
-        return aktørConsumer.hentAktørIdForPersonIdent(personIdent);
+        return aktør.hentAktørIdForPersonIdent(personIdent);
     }
 
 }

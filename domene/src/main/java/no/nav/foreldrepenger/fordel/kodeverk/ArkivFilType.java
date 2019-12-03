@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.fordel.kodeverk;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.DiscriminatorValue;
@@ -27,13 +26,12 @@ public class ArkivFilType extends Kodeliste {
     public static final ArkivFilType XLS = new ArkivFilType("XLS");
     public static final ArkivFilType XLSX = new ArkivFilType("XLSX");
 
-    public static final ArkivFilType UDEFINERT = new ArkivFilType("-"); //$NON-NLS-1$
+    public static final ArkivFilType UDEFINERT = new ArkivFilType("-");
 
     public static final Set<ArkivFilType> KLARTEKST = Collections.unmodifiableSet(getKlartekstSet());
     public static final Set<ArkivFilType> BINÆR = Collections.unmodifiableSet(getBinærSet());
 
     public ArkivFilType() {
-        // For Hibernate
     }
 
     public ArkivFilType(String kode) {
@@ -45,25 +43,10 @@ public class ArkivFilType extends Kodeliste {
     }
 
     private static Set<ArkivFilType> getBinærSet() {
-        Set<ArkivFilType> tmp = new HashSet<>();
-        tmp.add(PDF);
-        tmp.add(PDFA);
-        tmp.add(AFP);
-        tmp.add(AXML);
-        tmp.add(DLF);
-        tmp.add(DOC);
-        tmp.add(DOCX);
-        tmp.add(JPEG);
-        tmp.add(RTF);
-        tmp.add(TIFF);
-        tmp.add(XLS);
-        tmp.add(XLSX);
-        return tmp;
+        return Set.of(PDF, PDFA, AFP, AXML, DLF, DOC, DOCX, JPEG, RTF, TIFF, XLS, XLSX);
     }
 
     private static Set<ArkivFilType> getKlartekstSet() {
-        Set<ArkivFilType> tmp = new HashSet<>();
-        tmp.add(XML);
-        return tmp;
+        return Set.of(XML);
     }
 }

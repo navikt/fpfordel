@@ -8,9 +8,7 @@ import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
  */
 public enum AppAbacAttributtType implements AbacAttributtType {
 
-    FORSENDELSE_UUID("forsendelseUUID"),
-
-    ;
+    FORSENDELSE_UUID("forsendelseUUID");
 
     public static AbacAttributtType AKTØR_ID = StandardAbacAttributtType.AKTØR_ID;
 
@@ -38,7 +36,6 @@ public enum AppAbacAttributtType implements AbacAttributtType {
         return sporingsloggEksternKode;
     }
 
-    // @Override
     public boolean getValider() {
         return valider;
     }

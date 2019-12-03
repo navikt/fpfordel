@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.mottak.behandlendeenhet;
 
 class GeoTilknytning {
-    private String tilknytning;
-    private String diskresjonskode;
+    private final String tilknytning;
+    private final String diskresjonskode;
 
     GeoTilknytning(String geografiskTilknytning, String diskresjonskode) {
         this.tilknytning = geografiskTilknytning;
@@ -10,10 +10,16 @@ class GeoTilknytning {
     }
 
     String getTilknytning() {
-            return tilknytning;
-        }
+        return tilknytning;
+    }
 
     String getDiskresjonskode() {
-            return diskresjonskode;
-        }
+        return diskresjonskode;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[tilknytning=" + tilknytning + ", diskresjonskode=" + diskresjonskode
+                + "]";
+    }
 }

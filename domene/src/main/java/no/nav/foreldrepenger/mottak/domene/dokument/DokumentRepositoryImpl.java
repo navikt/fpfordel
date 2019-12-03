@@ -30,13 +30,11 @@ public class DokumentRepositoryImpl implements DokumentRepository {
     private EntityManager entityManager;
 
     DokumentRepositoryImpl() {
-        //Jepp, dette er det du tror det er!
     }
 
     @Inject
     public DokumentRepositoryImpl(@VLPersistenceUnit EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
-        this.entityManager = entityManager;
+        this.entityManager = Objects.requireNonNull(entityManager);
     }
 
     @Override
@@ -53,7 +51,8 @@ public class DokumentRepositoryImpl implements DokumentRepository {
         } catch (PersistenceException e) {
             Throwable cause = e.getCause();
             if (cause instanceof ConstraintViolationException &&
-                    ((ConstraintViolationException) cause).getConstraintName().contains(DokumentMetadata.UNIQUE_FORSENDELSE_ID_CONSTRAINT)) {
+                    ((ConstraintViolationException) cause).getConstraintName()
+                            .contains(DokumentMetadata.UNIQUE_FORSENDELSE_ID_CONSTRAINT)) {
                 throw DokumentFeil.FACTORY.constraintForsendelseId(dokumentMetadata.getForsendelseId()).toException();
             } else {
                 throw e;
@@ -64,7 +63,8 @@ public class DokumentRepositoryImpl implements DokumentRepository {
     @Override
     public Optional<Dokument> hentUnikDokument(UUID forsendelseId, boolean hovedDokument, ArkivFilType arkivFilType) {
         TypedQuery<Dokument> query = entityManager.createQuery(
-                "from Dokument where forsendelseId = :forsendelseId and hovedDokument = :hovedDokument and arkivFilType = :arkivFilType", Dokument.class)
+                "from Dokument where forsendelseId = :forsendelseId and hovedDokument = :hovedDokument and arkivFilType = :arkivFilType",
+                Dokument.class)
                 .setParameter(FORSENDELSE_ID, forsendelseId)
                 .setParameter(HOVED_DOKUMENT, hovedDokument)
                 .setParameter(ARKIV_FILTYPE, arkivFilType);
@@ -108,7 +108,8 @@ public class DokumentRepositoryImpl implements DokumentRepository {
         query1.setParameter("forsendelseId", forsendelseId); // NOSONAR
         query1.executeUpdate();
 
-        Query query2 = entityManager.createNativeQuery("delete from DOKUMENT_METADATA where FORSENDELSE_ID  = :forsendelseId");
+        Query query2 = entityManager
+                .createNativeQuery("delete from DOKUMENT_METADATA where FORSENDELSE_ID  = :forsendelseId");
         query2.setParameter("forsendelseId", forsendelseId); // NOSONAR
         query2.executeUpdate();
 
@@ -121,7 +122,8 @@ public class DokumentRepositoryImpl implements DokumentRepository {
     }
 
     @Override
-    public void oppdaterForsendelseMetadata(UUID forsendelseId, String arkivId, String saksnummer, ForsendelseStatus status) {
+    public void oppdaterForsendelseMetadata(UUID forsendelseId, String arkivId, String saksnummer,
+            ForsendelseStatus status) {
         DokumentMetadata metadata = hentEksaktDokumentMetadata(forsendelseId);
         metadata.setArkivId(arkivId);
         metadata.setSaksnummer(saksnummer);

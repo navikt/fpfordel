@@ -4,8 +4,6 @@ import static java.util.stream.Collectors.toSet;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -36,24 +34,21 @@ import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 @ApplicationScoped
 public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjeneste {
     public static final MediaType APPLICATION_PDF_TYPE = MediaType.valueOf("application/pdf");
-    private static final Collection<ArkivFilType> PÅKREVDE_HOVEDDOKUMENT_ARKIV_FIL_TYPER = new HashSet<>();
-
-    static {
-        PÅKREVDE_HOVEDDOKUMENT_ARKIV_FIL_TYPER.add(ArkivFilType.XML);
-        PÅKREVDE_HOVEDDOKUMENT_ARKIV_FIL_TYPER.add(ArkivFilType.PDFA);
-    }
+    private static final Set<ArkivFilType> PÅKREVDE_HOVEDDOKUMENT_ARKIV_FIL_TYPER = Set.of(
+            ArkivFilType.XML,
+            ArkivFilType.PDFA);
 
     private DokumentRepository repository;
     private KodeverkRepository kodeverkRepository;
     private ProsessTaskRepository prosessTaskRepository;
     private AktørConsumer aktørConsumer;
 
-    public DokumentforsendelseTjenesteImpl() { // For CDI
+    public DokumentforsendelseTjenesteImpl() {
     }
 
     @Inject
     public DokumentforsendelseTjenesteImpl(DokumentRepository repository, KodeverkRepository kodeverkRepository,
-                                           ProsessTaskRepository prosessTaskRepository, AktørConsumer aktørConsumer) {
+            ProsessTaskRepository prosessTaskRepository, AktørConsumer aktørConsumer) {
         this.repository = repository;
         this.kodeverkRepository = kodeverkRepository;
         this.prosessTaskRepository = prosessTaskRepository;
@@ -71,7 +66,8 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
             // Sjekker om nødvendige elementer er satt
             MottattStrukturertDokument<?> abstractDto = MeldingXmlParser.unmarshallXml(dokument.getKlartekstDokument());
             if (no.nav.foreldrepenger.mottak.domene.v3.Søknad.class.isInstance(abstractDto)) {
-                ((no.nav.foreldrepenger.mottak.domene.v3.Søknad) abstractDto).sjekkNødvendigeFeltEksisterer(dokument.getForsendelseId());
+                ((no.nav.foreldrepenger.mottak.domene.v3.Søknad) abstractDto)
+                        .sjekkNødvendigeFeltEksisterer(dokument.getForsendelseId());
             }
         }
         repository.lagre(dokument);
@@ -97,7 +93,8 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
             return;
         }
         throw DokumentforsendelseTjenesteFeil.FACTORY
-                .hoveddokumentSkalSendesSomToDokumenter(CONTENT_TYPE, APPLICATION_XML, APPLICATION_PDF_TYPE).toException();
+                .hoveddokumentSkalSendesSomToDokumenter(CONTENT_TYPE, APPLICATION_XML, APPLICATION_PDF_TYPE)
+                .toException();
     }
 
     @Override
@@ -149,7 +146,8 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
             return false;
         }
 
-        Set<ArkivFilType> dokumentArkivFilTyper = hoveddokumentene.stream().map(Dokument::getArkivFilType).collect(toSet());
+        Set<ArkivFilType> dokumentArkivFilTyper = hoveddokumentene.stream().map(Dokument::getArkivFilType)
+                .collect(toSet());
         if (dokumentArkivFilTyper.size() != 2) {
             return false;
         }

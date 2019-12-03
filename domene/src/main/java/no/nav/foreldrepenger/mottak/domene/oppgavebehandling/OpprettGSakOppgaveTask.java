@@ -70,12 +70,12 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
      */
     static final String JFR_FOR = "JFR_FOR";
 
-    private BehandleoppgaveConsumer service;
+    private final BehandleoppgaveConsumer service;
 
-    private EnhetsTjeneste enhetsidTjeneste;
-    private KodeverkRepository kodeverkRepository;
-    private AktørConsumerMedCache aktørConsumer;
-    private ProsessTaskRepository prosessTaskRepository;
+    private final EnhetsTjeneste enhetsidTjeneste;
+    private final KodeverkRepository kodeverkRepository;
+    private final AktørConsumerMedCache aktørConsumer;
+    private final ProsessTaskRepository prosessTaskRepository;
 
     @Inject
     public OpprettGSakOppgaveTask(ProsessTaskRepository prosessTaskRepository,

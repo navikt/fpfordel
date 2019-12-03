@@ -29,15 +29,13 @@ public class ForsendelseIdDto implements AbacDto {
     }
 
     @Override
-    public String toString() {
-        return this.getClass().getSimpleName()
-                + "{forsendelseId='" + forsendelseId + '\''
-                + '}';
+    public AbacDataAttributter abacAttributter() {
+        return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FORSENDELSE_UUID, getForsendelseId());
     }
 
     @Override
-    public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FORSENDELSE_UUID, getForsendelseId());
+    public String toString() {
+        return getClass().getSimpleName() + "[forsendelseId=" + forsendelseId + "]";
     }
 
 }

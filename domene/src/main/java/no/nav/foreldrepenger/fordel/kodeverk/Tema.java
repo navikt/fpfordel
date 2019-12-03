@@ -10,19 +10,20 @@ public class Tema extends Kodeliste {
     public static final String DISCRIMINATOR = "TEMA";
 
     /**
-     * Konstanter for å skrive ned kodeverdi. For å hente ut andre data konfigurert, må disse leses fra databasen (eks.
-     * for å hente offisiell kode for et Nav kodeverk).
+     * Konstanter for å skrive ned kodeverdi. For å hente ut andre data konfigurert,
+     * må disse leses fra databasen (eks. for å hente offisiell kode for et Nav
+     * kodeverk).
      */
-    public static final Tema FORELDRE_OG_SVANGERSKAPSPENGER = new Tema("FOR_SVA"); //$NON-NLS-1$
-    public static final Tema OMS = new Tema("OMS"); //$NON-NLS-1$
+    public static final Tema FORELDRE_OG_SVANGERSKAPSPENGER = new Tema("FOR_SVA");
+    public static final Tema OMS = new Tema("OMS");
 
     /**
-     * Alle kodeverk må ha en verdi, det kan ikke være null i databasen. Denne koden gjør samme nytten.
+     * Alle kodeverk må ha en verdi, det kan ikke være null i databasen. Denne koden
+     * gjør samme nytten.
      */
-    public static final Tema UDEFINERT = new Tema("-"); //$NON-NLS-1$
+    public static final Tema UDEFINERT = new Tema("-");
 
     Tema() {
-        // Hibernate trenger den
     }
 
     private Tema(String kode) {

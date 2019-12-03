@@ -17,7 +17,6 @@ public class KonfigVerdiGruppe extends Kodeliste {
     public static final KonfigVerdiGruppe INGEN_GRUPPE = new KonfigVerdiGruppe("INGEN");
 
     private KonfigVerdiGruppe() {
-        // for hibernate
     }
 
     private KonfigVerdiGruppe(String kode) {
@@ -25,8 +24,8 @@ public class KonfigVerdiGruppe extends Kodeliste {
     }
 
     /**
-     * Oppretter en type-safe, men 'tynn' klasse. Kan ikke lagres men kan brukes til oppslag slik at en unngår å sende
-     * String rundt
+     * Oppretter en type-safe, men 'tynn' klasse. Kan ikke lagres men kan brukes til
+     * oppslag slik at en unngår å sende String rundt
      *
      * @param gruppeKode - kode for gruppen
      * @return en 'tynn' gruppe som inneholder bare koden.

@@ -46,13 +46,13 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.hentFraJoark";
 
-    private AktørConsumer aktørConsumer;
-    private JoarkDokumentHåndterer joarkDokumentHåndterer;
-    private LocalDate fastsattInntektsmeldingStartdatoFristForManuellBehandling = KonfigVerdier.ENDRING_BEREGNING_DATO;
+    private final AktørConsumer aktørConsumer;
+    private final JoarkDokumentHåndterer joarkDokumentHåndterer;
+    private final LocalDate fastsattInntektsmeldingStartdatoFristForManuellBehandling = KonfigVerdier.ENDRING_BEREGNING_DATO;
 
     @Inject
     public HentDataFraJoarkTask(ProsessTaskRepository prosessTaskRepository, KodeverkRepository kodeverkRepository,
-                                AktørConsumer aktørConsumer, JoarkDokumentHåndterer joarkDokumentHåndterer) {
+            AktørConsumer aktørConsumer, JoarkDokumentHåndterer joarkDokumentHåndterer) {
         super(prosessTaskRepository, kodeverkRepository);
         this.aktørConsumer = aktørConsumer;
         this.joarkDokumentHåndterer = joarkDokumentHåndterer;

@@ -37,12 +37,12 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
     public static final String TASKNAME = "fordeling.tilJournalforing";
     public static final String JOURNALMANGLER_EXCEPTION_KODE = "FP-453958";
 
-    private static final Logger log = LoggerFactory.getLogger(TilJournalføringTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TilJournalføringTask.class);
 
-    private final TilJournalføringTjeneste journalføringTjeneste;
+    private final TilJournalføringTjeneste journalføring;
     private final EnhetsTjeneste enhetsidTjeneste;
     private final DokumentRepository dokumentRepository;
-    private final AktørConsumerMedCache aktørConsumer;
+    private final AktørConsumerMedCache aktør;
 
     @Inject
     public TilJournalføringTask(ProsessTaskRepository prosessTaskRepository,
@@ -52,10 +52,10 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
                                 DokumentRepository dokumentRepository,
                                 AktørConsumerMedCache aktørConsumer) {
         super(prosessTaskRepository, kodeverkRepository);
-        this.journalføringTjeneste = journalføringTjeneste;
+        this.journalføring = journalføringTjeneste;
         this.enhetsidTjeneste = enhetsidTjeneste;
         this.dokumentRepository = dokumentRepository;
-        this.aktørConsumer = aktørConsumer;
+        this.aktør = aktørConsumer;
     }
 
     @Override
@@ -71,7 +71,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
     @Transaction
     @Override
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper dataWrapper) {
-        Optional<String> fnr = aktørConsumer.hentPersonIdentForAktørId(dataWrapper.getAktørId().get());//NOSONAR
+        Optional<String> fnr = aktør.hentPersonIdentForAktørId(dataWrapper.getAktørId().get());//NOSONAR
         if (!fnr.isPresent()) {
             throw MottakMeldingFeil.FACTORY.fantIkkePersonidentForAktørId(TASKNAME, dataWrapper.getId()).toException();
         }
@@ -79,24 +79,24 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
         if (dataWrapper.getArkivId() == null) {
             UUID forsendelseId = dataWrapper.getForsendelseId().orElseThrow(IllegalStateException::new);
             Boolean forsøkEndeligJF = true;
-            DokumentforsendelseResponse response = journalføringTjeneste.journalførDokumentforsendelse(forsendelseId, dataWrapper.getSaksnummer(), dataWrapper.getAvsenderId(), forsøkEndeligJF, dataWrapper.getRetryingTask());
+            DokumentforsendelseResponse response = journalføring.journalførDokumentforsendelse(forsendelseId, dataWrapper.getSaksnummer(), dataWrapper.getAvsenderId(), forsøkEndeligJF, dataWrapper.getRetryingTask());
             dataWrapper.setArkivId(response.getJournalpostId());
             // Hvis endelig journalføring feiler (fx pga doktype annet), send til manuell journalføring (journalpost er opprettet).
             if (!JournalTilstand.ENDELIG_JOURNALFØRT.equals(response.getJournalTilstand())) {
-                MottakMeldingFeil.FACTORY.feilJournalTilstandForventetTilstandEndelig(response.getJournalTilstand()).log(log);
+                MottakMeldingFeil.FACTORY.feilJournalTilstandForventetTilstandEndelig(response.getJournalTilstand()).log(LOG);
                 dokumentRepository.oppdaterForseldelseMedArkivId(forsendelseId, dataWrapper.getArkivId(), ForsendelseStatus.GOSYS);
                 return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
             }
         } else {
             String innhold = dataWrapper.getDokumentTypeId().map(dtid -> kodeverkRepository.finn(DokumentTypeId.class, dtid)).map(DokumentTypeId::getNavn).orElse("Ukjent innhold");
             try {
-                if (!journalføringTjeneste.tilJournalføring(dataWrapper.getArkivId(), dataWrapper.getSaksnummer().get(), dataWrapper.getAktørId().get(), enhetsId, innhold)) {
+                if (!journalføring.tilJournalføring(dataWrapper.getArkivId(), dataWrapper.getSaksnummer().get(), dataWrapper.getAktørId().get(), enhetsId, innhold)) {
                     return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
                 }
             } catch (IntegrasjonException e) {
                 if (e.getFeil().getKode().equals(JOURNALMANGLER_EXCEPTION_KODE)) {
                     String logMessage = e.getFeil().getKode() + " " + e.getFeil().getFeilmelding();
-                    log.info(logMessage);
+                    LOG.info(logMessage);
                     return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
                 } else {
                     throw e;

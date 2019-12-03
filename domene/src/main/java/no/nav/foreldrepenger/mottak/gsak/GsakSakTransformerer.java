@@ -25,7 +25,6 @@ class GsakSakTransformerer {
     }
 
     GsakSakTransformerer() {
-        // for CDI
     }
 
     List<GsakSak> transformer(String fnr, List<Sak> sakListe) {
@@ -39,7 +38,8 @@ class GsakSakTransformerer {
         String temaOffisiellKode = sak.getFagomraade().getValue();
         Tema tema = kodeverkRepository.finnForKodeverkEiersKode(Tema.class, temaOffisiellKode, Tema.UDEFINERT);
         String fagsystemOffisiellKode = sak.getFagsystem().getValue();
-        Fagsystem fagsystem = kodeverkRepository.finnForKodeverkEiersKode(Fagsystem.class, fagsystemOffisiellKode, Fagsystem.UDEFINERT);
+        Fagsystem fagsystem = kodeverkRepository.finnForKodeverkEiersKode(Fagsystem.class, fagsystemOffisiellKode,
+                Fagsystem.UDEFINERT);
         LocalDate sistEndret = DateUtil.convertToLocalDate(sak.getEndringstidspunkt());
         if (sistEndret == null) {
             sistEndret = DateUtil.convertToLocalDate(sak.getOpprettelsetidspunkt());

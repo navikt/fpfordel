@@ -28,10 +28,14 @@ import org.jboss.jandex.Index;
 import org.jboss.jandex.IndexReader;
 import org.jboss.jandex.Indexer;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/** Henter persistert index (hvis generert) eller genererer index for angitt location (typisk matcher en jar/war fil). */
+/**
+ * Henter persistert index (hvis generert) eller genererer index for angitt
+ * location (typisk matcher en jar/war fil).
+ */
 public class IndexClasses {
-    private static final Logger log = org.slf4j.LoggerFactory.getLogger(IndexClasses.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IndexClasses.class);
 
     private static final ConcurrentMap<URI, IndexClasses> INDEXES = new ConcurrentHashMap<>();
 
@@ -50,7 +54,8 @@ public class IndexClasses {
     public Index getIndex() {
 
         if ("file".equals(scanLocation.getScheme())) {
-            // må regenerere index fra fil system i IDE ved å scanne dir, ellers kan den mulig være utdatert (når kjører Jetty i IDE f.eks)
+            // må regenerere index fra fil system i IDE ved å scanne dir, ellers kan den
+            // mulig være utdatert (når kjører Jetty i IDE f.eks)
             return scanIndexFromFilesystem(scanLocation);
         } else {
             return getPersistedJandexIndex(scanLocation);
@@ -69,7 +74,8 @@ public class IndexClasses {
                         try (InputStream newInputStream = Files.newInputStream(f, StandardOpenOption.READ)) {
                             indexer.index(newInputStream);
                         } catch (IOException e) {
-                            throw new IllegalStateException("Fikk ikke indeksert klasse " + f + ", kan ikke scanne klasser", e);
+                            throw new IllegalStateException(
+                                    "Fikk ikke indeksert klasse " + f + ", kan ikke scanne klasser", e);
                         }
                     }
                 });
@@ -95,26 +101,27 @@ public class IndexClasses {
 
     private URL getJandexIndexUrl(URI location) {
         String uriString = location.toString();
-        List<ClassLoader> classLoaders = Arrays.asList(getClass().getClassLoader(), Thread.currentThread().getContextClassLoader());
+        List<ClassLoader> classLoaders = Arrays.asList(getClass().getClassLoader(),
+                Thread.currentThread().getContextClassLoader());
 
         return classLoaders
-            .stream()
-            .flatMap(cl -> {
-                try {
-                    return Collections.list(cl.getResources("META-INF/" + jandexIndexFileName)).stream();
-                } catch (IOException e2) {
-                    throw new IllegalArgumentException("Kan ikke lese jandex index fil", e2);
-                }
-            })
-            .filter(url -> {
-                try {
-                    return String.valueOf(url.toURI()).startsWith(uriString);
-                } catch (URISyntaxException e1) {
-                    throw new IllegalArgumentException("Kan ikke scanne URI", e1);
-                }
-            })
-            .findFirst()
-            .orElseThrow(() -> new IllegalStateException("Fant ikke jandex index for location=" + location));
+                .stream()
+                .flatMap(cl -> {
+                    try {
+                        return Collections.list(cl.getResources("META-INF/" + jandexIndexFileName)).stream();
+                    } catch (IOException e2) {
+                        throw new IllegalArgumentException("Kan ikke lese jandex index fil", e2);
+                    }
+                })
+                .filter(url -> {
+                    try {
+                        return String.valueOf(url.toURI()).startsWith(uriString);
+                    } catch (URISyntaxException e1) {
+                        throw new IllegalArgumentException("Kan ikke scanne URI", e1);
+                    }
+                })
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Fant ikke jandex index for location=" + location));
     }
 
     public List<Class<?>> getClassesWithAnnotation(Class<?> annotationClass) {
@@ -129,7 +136,7 @@ public class IndexClasses {
                 try {
                     jsonTypes.add(Class.forName(className));
                 } catch (ClassNotFoundException e) {
-                    log.error("Kan ikke finne klasse i Classpath, som funnet i Jandex index", e);// NOSONAR
+                    LOG.error("Kan ikke finne klasse i Classpath, som funnet i Jandex index", e);// NOSONAR
                 }
             }
         }
@@ -144,14 +151,14 @@ public class IndexClasses {
 
     public List<Class<?>> getSubClassesOf(Class<?> class1) {
         List<Class<?>> classes = getIndex().getAllKnownSubclasses(DotName.createSimple(class1.getName()))
-            .stream().map(ci -> {
-                try {
-                    return Class.forName(ci.asClass().name().toString());
-                } catch (ClassNotFoundException e) {
-                    throw new IllegalArgumentException(e);
-                }
-            })
-            .collect(Collectors.toList());
+                .stream().map(ci -> {
+                    try {
+                        return Class.forName(ci.asClass().name().toString());
+                    } catch (ClassNotFoundException e) {
+                        throw new IllegalArgumentException(e);
+                    }
+                })
+                .collect(Collectors.toList());
         return classes;
     }
 
@@ -169,7 +176,7 @@ public class IndexClasses {
                     }
                 }
             } catch (ClassNotFoundException e) {
-                log.error("Kan ikke finne klasse i Classpath, som funnet i Jandex index", e);// NOSONAR
+                LOG.error("Kan ikke finne klasse i Classpath, som funnet i Jandex index", e);// NOSONAR
             }
         }
         return cls;

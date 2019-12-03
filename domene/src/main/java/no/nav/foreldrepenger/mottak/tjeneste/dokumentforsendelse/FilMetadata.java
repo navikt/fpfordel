@@ -3,8 +3,8 @@ package no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse;
 import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
 
 public class FilMetadata {
-    private String contentId;
-    private DokumentTypeId dokumentTypeId;
+    private final String contentId;
+    private final DokumentTypeId dokumentTypeId;
 
     public FilMetadata(String contentId, DokumentTypeId dokumentTypeId) {
         this.contentId = contentId;
@@ -17,5 +17,10 @@ public class FilMetadata {
 
     public DokumentTypeId getDokumentTypeId() {
         return dokumentTypeId;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[contentId=" + contentId + ", dokumentTypeId=" + dokumentTypeId + "]";
     }
 }

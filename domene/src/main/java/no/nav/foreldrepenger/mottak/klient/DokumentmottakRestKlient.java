@@ -16,7 +16,7 @@ public class DokumentmottakRestKlient {
     private OidcRestClient oidcRestClient;
     private URI endpoint;
 
-    public DokumentmottakRestKlient() { //NOSONAR: for cdi
+    public DokumentmottakRestKlient() {
     }
 
     @Inject

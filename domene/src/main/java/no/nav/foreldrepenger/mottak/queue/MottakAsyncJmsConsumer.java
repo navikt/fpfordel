@@ -35,13 +35,12 @@ public class MottakAsyncJmsConsumer extends InternalQueueConsumer {
     private DefaultDatabaseOppePreconditionChecker preconditionChecker;
 
     public MottakAsyncJmsConsumer() {
-        // CDI
     }
 
     @Inject
     public MottakAsyncJmsConsumer(MeldingsFordeler meldingsFordeler,
-                                  DefaultDatabaseOppePreconditionChecker preconditionChecker,
-                                  @Named("mottak") JmsKonfig konfige) {
+            DefaultDatabaseOppePreconditionChecker preconditionChecker,
+            @Named("mottak") JmsKonfig konfige) {
         super(konfige);
         this.meldingsFordeler = meldingsFordeler;
         this.preconditionChecker = preconditionChecker;

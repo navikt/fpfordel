@@ -130,7 +130,8 @@ public class DokumentforsendelseRestTjeneste {
         }
         validerDokumentforsendelse(dokumentforsendelse);
 
-        ForsendelseStatusDto forsendelseStatusDto = service.finnStatusinformasjon(dokumentforsendelse.getForsendelsesId());
+        ForsendelseStatusDto forsendelseStatusDto = service
+                .finnStatusinformasjon(dokumentforsendelse.getForsendelsesId());
         switch (forsendelseStatusDto.getForsendelseStatus()) {
         case FPSAK:
             return Response.seeOther(lagStatusURI(dokumentforsendelse.getForsendelsesId()))
@@ -152,10 +153,7 @@ public class DokumentforsendelseRestTjeneste {
     @Path("/status")
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
     @Operation(description = "Finner status på prosessering av mottatt dokumentforsendelse", tags = "Mottak", summary = "Format: \"8-4-4-4-12\" eksempel \"48F6E1CF-C5D8-4355-8E8C-B75494703959\"", responses = {
-            @ApiResponse(responseCode = "200", description = "Status og Periode"/*
-                                                                                 * , response =
-                                                                                 * ForsendelseStatusDto.class)
-                                                                                 */),
+            @ApiResponse(responseCode = "200", description = "Status og Periode"),
             @ApiResponse(responseCode = "303", description = "See Other")
     })
     public Response finnStatusinformasjon(
@@ -328,11 +326,11 @@ public class DokumentforsendelseRestTjeneste {
     private ArkivFilType mapMediatypeTilArkivFilType(MediaType mediaType) {
         if (mediaType.isCompatible(APPLICATION_PDF_TYPE)) {
             return ArkivFilType.PDFA;
-        } else if (mediaType.isCompatible(MediaType.APPLICATION_XML_TYPE)) {
-            return ArkivFilType.XML;
-        } else {
-            throw DokumentforsendelseRestTjenesteFeil.FACTORY.ulovligFilType(mediaType.getType()).toException();
         }
+        if (mediaType.isCompatible(MediaType.APPLICATION_XML_TYPE)) {
+            return ArkivFilType.XML;
+        }
+        throw DokumentforsendelseRestTjenesteFeil.FACTORY.ulovligFilType(mediaType.getType()).toException();
 
     }
 

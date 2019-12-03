@@ -41,12 +41,11 @@ public class EnhetsTjenesteImpl implements EnhetsTjeneste {
     private List<String> nfpJournalførendeEnheter;
 
     public EnhetsTjenesteImpl() {
-        // For CDI proxy
     }
 
     @Inject
     public EnhetsTjenesteImpl(PersonConsumer personConsumer,
-                              ArbeidsfordelingTjeneste arbeidsfordelingTjeneste) {
+            ArbeidsfordelingTjeneste arbeidsfordelingTjeneste) {
         this.personConsumer = personConsumer;
         this.arbeidsfordelingTjeneste = arbeidsfordelingTjeneste;
     }
@@ -63,11 +62,13 @@ public class EnhetsTjenesteImpl implements EnhetsTjeneste {
             }
         }
 
-        return arbeidsfordelingTjeneste.finnBehandlendeEnhetId(geoTilknytning.getTilknytning(), aktivDiskresjonskode, behandlingTema, tema);
+        return arbeidsfordelingTjeneste.finnBehandlendeEnhetId(geoTilknytning.getTilknytning(), aktivDiskresjonskode,
+                behandlingTema, tema);
     }
 
     @Override
-    public String hentFordelingEnhetId(Tema tema, BehandlingTema behandlingTema, Optional<String> enhetInput, Optional<String> fnr) {
+    public String hentFordelingEnhetId(Tema tema, BehandlingTema behandlingTema, Optional<String> enhetInput,
+            Optional<String> fnr) {
         oppdaterEnhetCache();
         if (enhetInput.isPresent()) {
             for (String oEnhet : alleJournalførendeEnheter) {
@@ -85,8 +86,10 @@ public class EnhetsTjenesteImpl implements EnhetsTjeneste {
 
     private void oppdaterEnhetCache() {
         if (sisteInnhenting.isBefore(FPDateUtil.iDag())) {
-            alleJournalførendeEnheter = arbeidsfordelingTjeneste.finnAlleJournalførendeEnhetIdListe(BehandlingTema.UDEFINERT, true);
-            nfpJournalførendeEnheter = arbeidsfordelingTjeneste.finnAlleJournalførendeEnhetIdListe(BehandlingTema.UDEFINERT, false);
+            alleJournalførendeEnheter = arbeidsfordelingTjeneste
+                    .finnAlleJournalførendeEnhetIdListe(BehandlingTema.UDEFINERT, true);
+            nfpJournalførendeEnheter = arbeidsfordelingTjeneste
+                    .finnAlleJournalførendeEnhetIdListe(BehandlingTema.UDEFINERT, false);
             sisteInnhenting = FPDateUtil.iDag();
         }
     }
@@ -96,7 +99,9 @@ public class EnhetsTjenesteImpl implements EnhetsTjeneste {
         request.setAktoer(lagPersonIdent(fnr));
         try {
             HentGeografiskTilknytningResponse response = personConsumer.hentGeografiskTilknytning(request);
-            String geoTilkn = response.getGeografiskTilknytning() != null ? response.getGeografiskTilknytning().getGeografiskTilknytning() : null;
+            String geoTilkn = response.getGeografiskTilknytning() != null
+                    ? response.getGeografiskTilknytning().getGeografiskTilknytning()
+                    : null;
             String diskKode = response.getDiskresjonskode() != null ? response.getDiskresjonskode().getValue() : null;
             return new GeoTilknytning(geoTilkn, diskKode);
         } catch (HentGeografiskTilknytningSikkerhetsbegrensing e) {
@@ -131,7 +136,8 @@ public class EnhetsTjenesteImpl implements EnhetsTjeneste {
                 .collect(Collectors.toList());
     }
 
-    private GeoTilknytning relasjonTilGeoMedDiskresjonForKode6(no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon familierelasjon) {
+    private GeoTilknytning relasjonTilGeoMedDiskresjonForKode6(
+            no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon familierelasjon) {
         Person person = familierelasjon.getTilPerson();
 
         if (person.getDiskresjonskode() != null && DISKRESJON_K6.equals(person.getDiskresjonskode().getValue())) {
@@ -158,9 +164,9 @@ public class EnhetsTjenesteImpl implements EnhetsTjeneste {
     }
 
     private static boolean erDNr(String fnr) {
-        //D-nummer kan indentifiseres ved at første siffer er 4 større enn hva som finnes i fødselsnumre
+        // D-nummer kan indentifiseres ved at første siffer er 4 større enn hva som
+        // finnes i fødselsnumre
         char førsteTegn = fnr.charAt(0);
         return førsteTegn >= '4' && førsteTegn <= '7';
     }
 }
-

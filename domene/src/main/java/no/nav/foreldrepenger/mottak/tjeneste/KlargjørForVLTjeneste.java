@@ -32,7 +32,8 @@ public class KlargjørForVLTjeneste {
     private Unleash unleash;
 
     @Inject
-    public KlargjørForVLTjeneste(DokumentmottakRestKlient restKlient, FagsakRestKlient fagsakRestKlient, TilbakekrevingRestKlient tilbakekrevingRestKlient, Unleash unleash) {
+    public KlargjørForVLTjeneste(DokumentmottakRestKlient restKlient, FagsakRestKlient fagsakRestKlient,
+            TilbakekrevingRestKlient tilbakekrevingRestKlient, Unleash unleash) {
         this.restKlient = restKlient;
         this.fagsakRestKlient = fagsakRestKlient;
         this.tilbakekrevingRestKlient = tilbakekrevingRestKlient;
@@ -40,12 +41,15 @@ public class KlargjørForVLTjeneste {
     }
 
     public KlargjørForVLTjeneste() {
-        //NOSONAR: gjett hvorfor
     }
 
-    public void klargjørForVL(String xml, String saksnummer, String arkivId, DokumentTypeId dokumenttypeId, LocalDateTime forsendelseMottatt,
-                              BehandlingTema behandlingsTema, UUID forsendelseId, DokumentKategori dokumentKategori, String journalFørendeEnhet) {
-        String behandlingTemaString = behandlingsTema == null || BehandlingTema.UDEFINERT.equals(behandlingsTema) ? BehandlingTema.UDEFINERT.getKode() : behandlingsTema.getOffisiellKode();
+    public void klargjørForVL(String xml, String saksnummer, String arkivId, DokumentTypeId dokumenttypeId,
+            LocalDateTime forsendelseMottatt,
+            BehandlingTema behandlingsTema, UUID forsendelseId, DokumentKategori dokumentKategori,
+            String journalFørendeEnhet) {
+        String behandlingTemaString = behandlingsTema == null || BehandlingTema.UDEFINERT.equals(behandlingsTema)
+                ? BehandlingTema.UDEFINERT.getKode()
+                : behandlingsTema.getOffisiellKode();
         String dokumentTypeIdOffisiellKode = null;
         String dokumentKategoriOffisiellKode = null;
         if (dokumenttypeId != null) {
@@ -56,14 +60,16 @@ public class KlargjørForVLTjeneste {
         }
         fagsakRestKlient.knyttSakOgJournalpost(new JournalpostKnyttningDto(saksnummer, arkivId));
 
-        JournalpostMottakDto journalpostMottakDto = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString, dokumentTypeIdOffisiellKode, forsendelseMottatt, xml);
+        JournalpostMottakDto journalpostMottakDto = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString,
+                dokumentTypeIdOffisiellKode, forsendelseMottatt, xml);
         journalpostMottakDto.setForsendelseId(forsendelseId);
         journalpostMottakDto.setDokumentKategoriOffisiellKode(dokumentKategoriOffisiellKode);
         journalpostMottakDto.setJournalForendeEnhet(journalFørendeEnhet);
         restKlient.send(journalpostMottakDto);
 
         if (unleash != null && unleash.isEnabled(TILBAKE, false)) {
-            JournalpostMottakDto tilbakeMottakDto = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString, dokumentTypeIdOffisiellKode, forsendelseMottatt, null);
+            JournalpostMottakDto tilbakeMottakDto = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString,
+                    dokumentTypeIdOffisiellKode, forsendelseMottatt, null);
             tilbakeMottakDto.setForsendelseId(forsendelseId);
             tilbakeMottakDto.setDokumentKategoriOffisiellKode(dokumentKategoriOffisiellKode);
             tilbakeMottakDto.setJournalForendeEnhet(journalFørendeEnhet);

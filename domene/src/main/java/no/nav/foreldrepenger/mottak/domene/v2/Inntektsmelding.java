@@ -17,7 +17,7 @@ import java.util.function.Function;
 
 public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM> {
 
-    private static final Logger log = LoggerFactory.getLogger(Inntektsmelding.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Inntektsmelding.class);
 
     public Inntektsmelding(InntektsmeldingM skjema) {
         super(skjema);
@@ -46,7 +46,7 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
     public void kopierAktørTilMottakWrapper(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {
         Optional<String> aktørId = aktørIdFinder.apply(getArbeidstakerFnr());
         if (!aktørId.isPresent()) {
-            MeldingKonverteringFeil.FACTORY.finnerIkkeAktørId(this.getClass().getSimpleName()).log(log);
+            MeldingKonverteringFeil.FACTORY.finnerIkkeAktørId(this.getClass().getSimpleName()).log(LOG);
         }
         dataWrapper.setAktørId(aktørId.get());
     }

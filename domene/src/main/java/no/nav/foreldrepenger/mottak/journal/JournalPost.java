@@ -7,13 +7,13 @@ public class JournalPost {
 
     private final String journalpostId;
 
-    protected String innhold;
-    protected String arkivSakId;
-    protected String arkivSakSystem;
-    protected LocalDateTime forsendelseInnsendt;
-    protected String tema;
-    protected String aktørId;
-    protected String avsenderAktørId;
+    private String innhold;
+    private String arkivSakId;
+    private String arkivSakSystem;
+    private LocalDateTime forsendelseInnsendt;
+    private String tema;
+    private String aktørId;
+    private String avsenderAktørId;
 
     public JournalPost(String journalpostId) {
         this.journalpostId = journalpostId;

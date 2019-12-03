@@ -1,4 +1,5 @@
 package no.nav.foreldrepenger.fordel;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -18,13 +19,13 @@ public class BaseEntitet implements Serializable {
     private String opprettetAv;
 
     @Column(name = "opprettet_tid", nullable = false)
-    private LocalDateTime opprettetTidspunkt; // NOSONAR
+    private LocalDateTime opprettetTidspunkt;
 
     @Column(name = "endret_av")
     private String endretAv;
 
     @Column(name = "endret_tid")
-    private LocalDateTime endretTidspunkt; // NOSONAR
+    private LocalDateTime endretTidspunkt;
 
     @PrePersist
     protected void onCreate() {
@@ -53,7 +54,6 @@ public class BaseEntitet implements Serializable {
     public LocalDateTime getEndretTidspunkt() {
         return endretTidspunkt;
     }
-
 
     private static String finnBrukernavn() {
         String brukerident = SubjectHandler.getSubjectHandler().getUid();
