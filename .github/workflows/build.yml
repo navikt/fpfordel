@@ -14,9 +14,9 @@ jobs:
       postgres:
         image: postgres:11.5
         env:
-          POSTGRES_USER: fpabakus_unit
-          POSTGRES_PASSWORD: fpabakus_unit
-          POSTGRES_DB: fpabakus_unit
+          POSTGRES_USER: fpfordel_unit
+          POSTGRES_PASSWORD: fpfordel_unit
+          POSTGRES_DB: fpfordel_unit
         ports:
           - 5432:5432
         # needed because the postgres container does not provide a healthcheck
@@ -59,11 +59,3 @@ jobs:
           docker push $(cat .docker_image):$(cat .docker_tag)
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
-      - name: Deploye til dev
-        uses: navikt/deployment-cli/action@0.4.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          cluster: dev-fss
-          team: teamforeldrepenger
-          resources: .deploy/t4.yaml
