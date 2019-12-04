@@ -31,17 +31,18 @@ public class LoggerUtil {
             configurator.setContext(context);
             context.reset();
             configurator.doConfigure(url(env));
-        } catch (JoranException je) {
+        } catch (JoranException e) {
+            e.printStackTrace();
         }
         StatusPrinter.printInCaseOfErrorsOrWarnings(context);
     }
 
     private static URL url(Environment env) {
-        var resource = newClassPathResource("logback-" + env.clusterName() + ".xml");
-        if (resource.exists()) {
+        var resource = newClassPathResource("./logback-" + env.clusterName() + ".xml");
+        if (resource != null && resource.exists()) {
             return url(resource);
         }
-        return url(newClassPathResource("logback.xml"));
+        return url(newClassPathResource("./logback.xml"));
     }
 
     private static URL url(Resource resource) {
