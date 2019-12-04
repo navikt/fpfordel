@@ -6,9 +6,10 @@ import java.util.Set;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
-
 /**
- * DokumentTypeId er et kodeverk som forvaltes av Kodeverkforvaltning. Det er et subsett av kodeverket DokumentType,  mer spesifikt alle inngående dokumenttyper.
+ * DokumentTypeId er et kodeverk som forvaltes av Kodeverkforvaltning. Det er et
+ * subsett av kodeverket DokumentType, mer spesifikt alle inngående
+ * dokumenttyper.
  */
 @Entity(name = "DokumentTypeId")
 @DiscriminatorValue(DokumentTypeId.DISCRIMINATOR)
@@ -18,19 +19,30 @@ public class DokumentTypeId extends Kodeliste {
 
     // Engangsstønad
     public static final DokumentTypeId SØKNAD_ENGANGSSTØNAD_FØDSEL = new DokumentTypeId("SØKNAD_ENGANGSSTØNAD_FØDSEL"); //$NON-NLS-1$
-    public static final DokumentTypeId SØKNAD_ENGANGSSTØNAD_ADOPSJON = new DokumentTypeId("SØKNAD_ENGANGSSTØNAD_ADOPSJON"); //$NON-NLS-1$
-    public static final DokumentTypeId ETTERSENDT_SØKNAD_ENGANGSSTØNAD_FØDSEL = new DokumentTypeId("ETTERSENDT_SØKNAD_ENGANGSSTØNAD_FØDSEL"); //$NON-NLS-1$
-    public static final DokumentTypeId ETTERSENDT_SØKNAD_ENGANGSSTØNAD_ADOPSJON = new DokumentTypeId("ETTERSENDT_SØKNAD_ENGANGSSTØNAD_ADOPSJON"); //$NON-NLS-1$
+    public static final DokumentTypeId SØKNAD_ENGANGSSTØNAD_ADOPSJON = new DokumentTypeId(
+            "SØKNAD_ENGANGSSTØNAD_ADOPSJON"); //$NON-NLS-1$
+    public static final DokumentTypeId ETTERSENDT_SØKNAD_ENGANGSSTØNAD_FØDSEL = new DokumentTypeId(
+            "ETTERSENDT_SØKNAD_ENGANGSSTØNAD_FØDSEL"); //$NON-NLS-1$
+    public static final DokumentTypeId ETTERSENDT_SØKNAD_ENGANGSSTØNAD_ADOPSJON = new DokumentTypeId(
+            "ETTERSENDT_SØKNAD_ENGANGSSTØNAD_ADOPSJON"); //$NON-NLS-1$
 
     // Foreldrepenger
-    public static final DokumentTypeId SØKNAD_FORELDREPENGER_FØDSEL = new DokumentTypeId("SØKNAD_FORELDREPENGER_FØDSEL"); //$NON-NLS-1$
-    public static final DokumentTypeId SØKNAD_FORELDREPENGER_ADOPSJON = new DokumentTypeId("SØKNAD_FORELDREPENGER_ADOPSJON"); //$NON-NLS-1$
-    public static final DokumentTypeId FORELDREPENGER_ENDRING_SØKNAD = new DokumentTypeId("FORELDREPENGER_ENDRING_SØKNAD"); //$NON-NLS-1$
-    public static final DokumentTypeId FLEKSIBELT_UTTAK_FORELDREPENGER = new DokumentTypeId("FLEKSIBELT_UTTAK_FORELDREPENGER"); //$NON-NLS-1$
-    public static final DokumentTypeId ETTERSENDT_SØKNAD_FORELDREPENGER_ADOPSJON = new DokumentTypeId("ETTERSENDT_SØKNAD_FORELDREPENGER_ADOPSJON"); //$NON-NLS-1$
-    public static final DokumentTypeId ETTERSENDT_SØKNAD_FORELDREPENGER_FØDSEL = new DokumentTypeId("ETTERSENDT_SØKNAD_FORELDREPENGER_FØDSEL"); //$NON-NLS-1$
-    public static final DokumentTypeId ETTERSENDT_FLEKSIBELT_UTTAK_FORELDREPENGER = new DokumentTypeId("ETTERSENDT_SØKNAD_FORELDREPENGER_FØDSEL"); //$NON-NLS-1$
-    public static final DokumentTypeId ETTERSENDT_FORELDREPENGER_ENDRING_SØKNAD = new DokumentTypeId("ETTERSENDT_FORELDREPENGER_ENDRING_SØKNAD"); //$NON-NLS-1$
+    public static final DokumentTypeId SØKNAD_FORELDREPENGER_FØDSEL = new DokumentTypeId(
+            "SØKNAD_FORELDREPENGER_FØDSEL"); //$NON-NLS-1$
+    public static final DokumentTypeId SØKNAD_FORELDREPENGER_ADOPSJON = new DokumentTypeId(
+            "SØKNAD_FORELDREPENGER_ADOPSJON"); //$NON-NLS-1$
+    public static final DokumentTypeId FORELDREPENGER_ENDRING_SØKNAD = new DokumentTypeId(
+            "FORELDREPENGER_ENDRING_SØKNAD"); //$NON-NLS-1$
+    public static final DokumentTypeId FLEKSIBELT_UTTAK_FORELDREPENGER = new DokumentTypeId(
+            "FLEKSIBELT_UTTAK_FORELDREPENGER"); //$NON-NLS-1$
+    public static final DokumentTypeId ETTERSENDT_SØKNAD_FORELDREPENGER_ADOPSJON = new DokumentTypeId(
+            "ETTERSENDT_SØKNAD_FORELDREPENGER_ADOPSJON"); //$NON-NLS-1$
+    public static final DokumentTypeId ETTERSENDT_SØKNAD_FORELDREPENGER_FØDSEL = new DokumentTypeId(
+            "ETTERSENDT_SØKNAD_FORELDREPENGER_FØDSEL"); //$NON-NLS-1$
+    public static final DokumentTypeId ETTERSENDT_FLEKSIBELT_UTTAK_FORELDREPENGER = new DokumentTypeId(
+            "ETTERSENDT_SØKNAD_FORELDREPENGER_FØDSEL"); //$NON-NLS-1$
+    public static final DokumentTypeId ETTERSENDT_FORELDREPENGER_ENDRING_SØKNAD = new DokumentTypeId(
+            "ETTERSENDT_FORELDREPENGER_ENDRING_SØKNAD"); //$NON-NLS-1$
 
     // Svangerskapspenger
     public static final DokumentTypeId SØKNAD_SVANGERSKAPSPENGER = new DokumentTypeId("SØKNAD_SVANGERSKAPSPENGER"); //$NON-NLS-1$
@@ -46,12 +58,13 @@ public class DokumentTypeId extends Kodeliste {
     public static final DokumentTypeId TILBAKEKREV_UTTALELSE = new DokumentTypeId("TILBAKEKREV_UTTALELSE"); //$NON-NLS-1$
 
     // Uspesifikke dokumenter
-    public static final DokumentTypeId DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL = new DokumentTypeId("DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL"); //$NON-NLS-1$
-    public static final DokumentTypeId DOKUMENTASJON_AV_OMSORGSOVERTAKELSE = new DokumentTypeId("DOKUMENTASJON_AV_OMSORGSOVERTAKELSE"); //$NON-NLS-1$
+    public static final DokumentTypeId DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL = new DokumentTypeId(
+            "DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL"); //$NON-NLS-1$
+    public static final DokumentTypeId DOKUMENTASJON_AV_OMSORGSOVERTAKELSE = new DokumentTypeId(
+            "DOKUMENTASJON_AV_OMSORGSOVERTAKELSE"); //$NON-NLS-1$
     public static final DokumentTypeId ANNET = new DokumentTypeId("ANNET"); //$NON-NLS-1$
 
     public static final DokumentTypeId UDEFINERT = new DokumentTypeId("-"); //$NON-NLS-1$
-
 
     private static final Set<DokumentTypeId> ENGANGSSTØNAD_TYPER = Set.of(
             SØKNAD_ENGANGSSTØNAD_FØDSEL,

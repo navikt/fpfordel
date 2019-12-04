@@ -12,12 +12,13 @@ import org.eclipse.jetty.webapp.MetaData;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import no.nav.foreldrepenger.fordel.web.app.konfig.ApplicationConfig;
-import no.nav.foreldrepenger.fordel.web.app.util.ClusterDetector;
+import no.nav.foreldrepenger.fordel.web.app.util.LoggerUtil;
 import no.nav.foreldrepenger.fordel.web.server.jetty.DataSourceKonfig.DBConnProp;
 import no.nav.vedtak.isso.IssoApplication;
 
 public class JettyServer extends AbstractJettyServer {
 
+    private static final String LOGBACK_CONFIGURATION_FILE = "logback.configurationFile";
     private DataSourceKonfig dataSourceKonfig;
 
     public JettyServer() {
@@ -33,9 +34,7 @@ public class JettyServer extends AbstractJettyServer {
     }
 
     public static void main(String[] args) throws Exception {
-        if (!ClusterDetector.isProd()) {
-            System.setProperty("log.level.no.nav.foreldrepenger.fordel", "TRACE");
-        }
+        LoggerUtil.setupLogging();
         jettyServer(args).bootStrap();
     }
 
