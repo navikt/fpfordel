@@ -28,8 +28,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import javax.enterprise.inject.Instance;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -105,16 +103,10 @@ public class HentOgVurderInfotrygdSakTaskTest {
     private InfotrygdTjeneste fp;
     @Mock
     private Unleash unleash;
-    @Mock
-    private Instance<Period> itSakGyldigPeriode;
-    @Mock
-    private Instance<Period> itAnnenPartGyldigPeriode;
 
     @Before
     public void setup() {
         when(unleash.isEnabled(anyString())).thenReturn(true);
-        when(itSakGyldigPeriode.get()).thenReturn(IT_GYLDIG_PERIODE);
-        when(itAnnenPartGyldigPeriode.get()).thenReturn(IT_ANNENPART_GYLDIG_PERIODE);
         expectAktørFnrMappings();
     }
 
@@ -156,9 +148,9 @@ public class HentOgVurderInfotrygdSakTaskTest {
         var g3 = new GsakSak(FNR_BRUKER, "id3", FORELDRE_OG_SVANGERSKAPSPENGER, FPSAK);
         var g4 = new GsakSak(FNR_BRUKER, "id4", FORELDRE_OG_SVANGERSKAPSPENGER, FPSAK);
         expectGsak(FNR_BRUKER, g1, g2, g3, g4);
-        var it1 = new InfotrygdSak("id3", "FA", "FE", now().minusYears(2),
+        var it1 = new InfotrygdSak("id3", "FA", "FØ", now().minusYears(2),
                 now().minusYears(2));
-        var it2 = new InfotrygdSak("id4", "FA", "FØ", null, now().minusMonths(1));
+        var it2 = new InfotrygdSak("id4", "FA", "FØ", now().minusMonths(1), now().minusMonths(1));
         expectIT(FNR_BRUKER, it1, it2);
 
         var w = dataWrapper(AKTØR_BRUKER);
