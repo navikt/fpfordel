@@ -32,7 +32,7 @@ public class LoggerUtil {
         try {
             var url = url(env, logger);
             if (url != null) {
-                logger.info("Rekonfigurerer logging {}", url);
+                logger.info("Rekonfigurerer logging med {}", url);
                 JoranConfigurator configurator = new JoranConfigurator();
                 configurator.setContext(context);
                 context.reset();
@@ -47,11 +47,12 @@ public class LoggerUtil {
     }
 
     private static URL url(Environment env, Logger logger) {
-        var resource = newClassPathResource("logback-" + env.clusterName() + ".xml");
+        String clusterSpesifikk = "logback-" + env.clusterName() + ".xml";
+        var resource = newClassPathResource(clusterSpesifikk);
         if (resource != null && resource.exists()) {
             return url(resource, logger);
         }
-        logger.info("Fant ingen cluster-spesifikk loggekonfigurasjon");
+        logger.info("Fant ingen cluster-spesifikk loggekonfigurasjon {}", clusterSpesifikk);
         return url(newClassPathResource("logback.xml"), logger);
     }
 
