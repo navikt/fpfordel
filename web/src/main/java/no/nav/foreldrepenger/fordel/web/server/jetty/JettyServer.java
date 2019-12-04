@@ -12,7 +12,7 @@ import org.eclipse.jetty.webapp.MetaData;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import no.nav.foreldrepenger.fordel.web.app.konfig.ApplicationConfig;
-import no.nav.foreldrepenger.fordel.web.app.util.ClusterDetector;
+import no.nav.foreldrepenger.fordel.web.app.util.Environment;
 import no.nav.foreldrepenger.fordel.web.server.jetty.DataSourceKonfig.DBConnProp;
 import no.nav.vedtak.isso.IssoApplication;
 
@@ -33,7 +33,8 @@ public class JettyServer extends AbstractJettyServer {
     }
 
     public static void main(String[] args) throws Exception {
-        if (!ClusterDetector.isProd()) {
+        Environment env = Environment.current();
+        if (!env.isProd()) {
             System.setProperty("log.level.no.nav.foreldrepenger.fordel", "TRACE");
         }
         jettyServer(args).bootStrap();
