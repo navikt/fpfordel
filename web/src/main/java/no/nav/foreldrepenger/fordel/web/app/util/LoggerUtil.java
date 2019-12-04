@@ -18,9 +18,10 @@ public class LoggerUtil {
 
     public static void setupLogging() {
         Environment env = Environment.current();
-        if (!env.isProd()) {
-            System.setProperty("log.level.no.nav.foreldrepenger.fordel", "TRACE");
-        }
+        /*
+         * if (!env.isProd()) {
+         * System.setProperty("log.level.no.nav.foreldrepenger.fordel", "TRACE"); }
+         */
         // override default initialization
         configureLogging(env);
     }
@@ -31,10 +32,9 @@ public class LoggerUtil {
         try {
             var url = url(env, logger);
             if (url != null) {
-                logger.info("Rekonfigurerer logging");
+                logger.info("Rekonfigurerer logging {}", url);
                 JoranConfigurator configurator = new JoranConfigurator();
                 configurator.setContext(context);
-                logger.info("URL er {}", url);
                 context.reset();
                 configurator.doConfigure(url);
             } else {

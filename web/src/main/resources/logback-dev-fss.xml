@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<appender name="STDOUT_JSON" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder class="net.logstash.logback.encoder.LogstashEncoder">
+		</encoder>
+	</appender>
+    
+    <appender name="SPORING_LOG" class="com.papertrailapp.logback.Syslog4jAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%m%n%xEx</pattern>
+        </layout>
+
+        <syslogConfig class="org.productivity.java.syslog4j.impl.net.tcp.TCPNetSyslogConfig">
+            <!-- remote system to log to -->
+            <host>audit.nais</host>
+            <!-- remote port to log to -->
+            <port>6514</port>
+            <ident>fpfordel</ident>
+            <!-- max log message length in bytes -->
+            <maxMessageLength>128000</maxMessageLength>
+        </syslogConfig>
+    </appender>
+	<logger name="no.nav" level="${log.level.no.nav:-TRACE}" />
+
+	<!-- skru paa for aa logge all sql statements med parametere -->
+	<logger name="jdbc.sql" level="${log.level.jdbc.sql:-ERROR}" />
+	<logger name="org.hibernate.SQL" level="${log.level.org.hibernate.SQL:-WARN}" />
+	<logger name="com.zaxxer.hikari" level="${log.level.com.zaxxer.hikari:-WARN}" />
+	<logger name="org.hibernate.type" level="${log.level.org.hibernate.type:-WARN}" />
+	<logger name="org.hibernate" level="${log.level.org.hibernate:-WARN}" />
+	<logger name="ch.qos.logback" level="${log.level.ch.qos.logback:-WARN}" />
+	<logger name="org.flywaydb" level="${log.level.org.flywaydb:-INFO}" />
+	<logger name="org.apache" level="${log.level.org.apache:-ERROR}" />
+	<!-- ESSV: genererer en del støy for webservice -->
+	<logger name="org.jboss.weld" level="${log.level.org.jboss.weld:-WARN}" />
+	<logger name="org.jboss.resteasy" level="${log.level.org.jboss.resteasy:-WARN}" />
+
+	<logger name="no.nav.modig" level="${log.level.no.nav.modig:-WARN}" />
+	<!-- denne logger passord på INFO nivå! -->
+	<logger name="no.nav.modig.core.test.PropertySetter"
+		level="${log.level.no.nav.modig.core.test.PropertySetter:-WARN}" />
+
+	<root level="${log.level.root:-WARN}">
+		<appender-ref ref="STDOUT_JSON" />
+	</root>
+    
+    <logger level="INFO" name="sporing" additivity="false">
+        <appender-ref ref="SPORING_LOG" />
+    </logger>
+</configuration>
