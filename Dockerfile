@@ -6,6 +6,7 @@ RUN mkdir /app/lib
 RUN mkdir /app/conf
 
 # Config
+COPY web/target/classes/*.xml /app
 COPY web/target/classes/jetty/jaspi-conf.xml /app/conf/
 
 # Application Container (Jetty)
