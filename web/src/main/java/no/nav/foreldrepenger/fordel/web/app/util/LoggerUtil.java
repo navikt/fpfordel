@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.fordel.web.app.util;
 
+import static com.google.common.io.Resources.getResource;
+
 import java.io.File;
 import java.net.URL;
 
 import org.slf4j.LoggerFactory;
-
-import com.google.common.io.Resources;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
@@ -36,10 +36,10 @@ public class LoggerUtil {
     }
 
     private static URL url(Environment env) {
-        var url = Resources.getResource("logback-" + env.clusterName() + ".xml");
+        var url = getResource("logback-" + env.clusterName() + ".xml");
         if (new File(url.getFile()).exists()) {
             return url;
         }
-        return Resources.getResource("logback.xml");
+        return getResource("logback.xml");
     }
 }
