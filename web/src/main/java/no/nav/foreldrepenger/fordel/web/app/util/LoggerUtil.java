@@ -31,6 +31,7 @@ public class LoggerUtil {
         try {
             var url = url(env, logger);
             if (url != null) {
+                logger.info("Rekonfigurerer logging");
                 JoranConfigurator configurator = new JoranConfigurator();
                 configurator.setContext(context);
                 logger.info("URL er {}", url);
