@@ -1,10 +1,11 @@
 package no.nav.foreldrepenger.fordel.web.app.util;
 
-import static com.google.common.io.Resources.getResource;
+import static org.eclipse.jetty.util.resource.Resource.newClassPathResource;
 
-import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.eclipse.jetty.util.resource.Resource;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.LoggerContext;
@@ -36,10 +37,18 @@ public class LoggerUtil {
     }
 
     private static URL url(Environment env) {
-        var url = getResource("logback-" + env.clusterName() + ".xml");
-        if (new File(url.getFile()).exists()) {
-            return url;
+        var resource = newClassPathResource("logback-" + env.clusterName() + ".xml");
+        if (resource.exists()) {
+            return url(resource);
         }
-        return getResource("logback.xml");
+        return url(newClassPathResource("logback.xml"));
+    }
+
+    private static URL url(Resource resource) {
+        try {
+            return resource.getURI().toURL();
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException("Uventer format på " + resource.getURI());
+        }
     }
 }
