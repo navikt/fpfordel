@@ -29,7 +29,7 @@ public class LoggerUtil {
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
         Logger logger = context.getLogger(LoggerUtil.class);
         try {
-            var url = url(env);
+            var url = url(env, logger);
             if (url != null) {
                 JoranConfigurator configurator = new JoranConfigurator();
                 configurator.setContext(context);
@@ -45,19 +45,21 @@ public class LoggerUtil {
         StatusPrinter.printInCaseOfErrorsOrWarnings(context);
     }
 
-    private static URL url(Environment env) {
-        var resource = newClassPathResource("./logback-" + env.clusterName() + ".xml");
+    private static URL url(Environment env, Logger logger) {
+        var resource = newClassPathResource("logback-" + env.clusterName() + ".xml");
         if (resource != null && resource.exists()) {
-            return url(resource);
+            return url(resource, logger);
         }
-        return url(newClassPathResource("./logback.xml"));
+        logger.info("Fant ingen cluster-spesifikk loggekonfigurasjon");
+        return url(newClassPathResource("logback.xml"), logger);
     }
 
-    private static URL url(Resource resource) {
+    private static URL url(Resource resource, Logger logger) {
         try {
             if (resource != null && resource.exists()) {
                 return resource.getURI().toURL();
             }
+            logger.info("Fant ingen loggekonfigurasjon");
             return null;
         } catch (MalformedURLException e) {
             throw new IllegalStateException("Uventer format på " + resource.getURI());
