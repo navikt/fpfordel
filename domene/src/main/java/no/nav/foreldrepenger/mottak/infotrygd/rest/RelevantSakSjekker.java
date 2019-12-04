@@ -96,9 +96,6 @@ public class RelevantSakSjekker {
     }
 
     private boolean erITSakRelevantForIM(String fnr, LocalDate fom, BehandlingTema tema) {
-        if (erMann(fnr)) {
-            return true;
-        }
         if (tema.gjelderForeldrepenger()) {
             return erFpRelevantForIM(fnr, fom);
         }
