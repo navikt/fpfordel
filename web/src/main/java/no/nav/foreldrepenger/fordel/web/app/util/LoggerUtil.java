@@ -8,6 +8,7 @@ import java.net.URL;
 import org.eclipse.jetty.util.resource.Resource;
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
@@ -26,13 +27,20 @@ public class LoggerUtil {
 
     private static void configureLogging(Environment env) {
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+        Logger logger = context.getLogger(LoggerUtil.class);
         try {
-            JoranConfigurator configurator = new JoranConfigurator();
-            configurator.setContext(context);
-            context.reset();
-            configurator.doConfigure(url(env));
+            var url = url(env);
+            if (url != null) {
+                JoranConfigurator configurator = new JoranConfigurator();
+                configurator.setContext(context);
+                logger.info("URL er {}", url);
+                context.reset();
+                configurator.doConfigure(url);
+            } else {
+                logger.warn("Ingen URL funnet");
+            }
         } catch (JoranException e) {
-            e.printStackTrace();
+            logger.warn("Dette gikk ikke så bra", e);
         }
         StatusPrinter.printInCaseOfErrorsOrWarnings(context);
     }
@@ -47,7 +55,10 @@ public class LoggerUtil {
 
     private static URL url(Resource resource) {
         try {
-            return resource.getURI().toURL();
+            if (resource != null && resource.exists()) {
+                return resource.getURI().toURL();
+            }
+            return null;
         } catch (MalformedURLException e) {
             throw new IllegalStateException("Uventer format på " + resource.getURI());
         }
