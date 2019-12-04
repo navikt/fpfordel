@@ -25,7 +25,6 @@ public class LoggerUtil {
 
     private static void configureLogging(Environment env) {
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-
         try {
             JoranConfigurator configurator = new JoranConfigurator();
             configurator.setContext(context);
@@ -37,10 +36,10 @@ public class LoggerUtil {
     }
 
     private static URL url(Environment env) {
-        var url = Resources.getResource("./conf/logback-" + env.clusterName() + ".xml");
+        var url = Resources.getResource("logback-" + env.clusterName() + ".xml");
         if (new File(url.getFile()).exists()) {
             return url;
         }
-        return Resources.getResource("./conf/logback.xml");
+        return Resources.getResource("logback.xml");
     }
 }
