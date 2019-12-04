@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.fordel.web.server.jetty;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -12,10 +11,8 @@ import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.webapp.MetaData;
 import org.eclipse.jetty.webapp.WebAppContext;
 
-import com.google.common.io.Resources;
-
 import no.nav.foreldrepenger.fordel.web.app.konfig.ApplicationConfig;
-import no.nav.foreldrepenger.fordel.web.app.util.Environment;
+import no.nav.foreldrepenger.fordel.web.app.util.LoggerUtil;
 import no.nav.foreldrepenger.fordel.web.server.jetty.DataSourceKonfig.DBConnProp;
 import no.nav.vedtak.isso.IssoApplication;
 
@@ -37,33 +34,8 @@ public class JettyServer extends AbstractJettyServer {
     }
 
     public static void main(String[] args) throws Exception {
-        setupLogging();
+        LoggerUtil.setupLogging();
         jettyServer(args).bootStrap();
-    }
-
-    private static void setupLogging() {
-        Environment env = Environment.current();
-        if (!env.isProd()) {
-            System.setProperty("log.level.no.nav.foreldrepenger.fordel", "TRACE");
-        }
-
-        File fraFil = new File(Resources.getResource("./conf/logback.xml").getFile());
-        if (fraFil.exists()) {
-            System.out.println("Konfig-fil eksisterer");
-        } else {
-            System.out.println("Konfig-fil eksisterer IKKE");
-        }
-        File fraEnv = new File(Resources.getResource(System.getenv("LOGBACK_CONFIG")).getFile());
-        if (fraEnv.exists()) {
-            System.out.println("Logback Konfig-fil allerede satt");
-        } else {
-            System.out.println("Konfig-fil IKKE allerede satt");
-        }
-        /*
-         * String logbackFallback = System.getenv(LOGBACK_CONFIGURATION_FILE); if
-         * (logbackFallback == null) { System.setProperty(LOGBACK_CONFIGURATION_FILE,
-         * "./conf/logback.xml"); }
-         */
     }
 
     private static AbstractJettyServer jettyServer(String[] args) {

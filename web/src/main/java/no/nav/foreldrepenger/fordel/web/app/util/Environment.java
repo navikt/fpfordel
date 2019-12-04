@@ -30,6 +30,14 @@ public final class Environment {
         return cluster.isProd();
     }
 
+    public String clusterName() {
+        return cluster.clusterName();
+    }
+
+    public String namespace() {
+        return namespace.getNamespace();
+    }
+
     @Override
     public String toString() {
         return getClass().getSimpleName() + "[cluster=" + cluster + ", namespace=" + namespace + "]";
