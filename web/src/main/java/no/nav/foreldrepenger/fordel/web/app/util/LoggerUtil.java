@@ -48,6 +48,7 @@ public class LoggerUtil {
 
     private static URL url(Environment env, Logger logger) {
         String clusterSpesifikk = "logback-" + env.clusterName() + ".xml";
+        logger.info("Prøver cluster-spesifikk loggekonfigurasjon {}", clusterSpesifikk);
         var resource = newClassPathResource(clusterSpesifikk);
         if (resource != null && resource.exists()) {
             return url(resource, logger);
@@ -59,7 +60,9 @@ public class LoggerUtil {
     private static URL url(Resource resource, Logger logger) {
         try {
             if (resource != null && resource.exists()) {
-                return resource.getURI().toURL();
+                URL url = resource.getURI().toURL();
+                logger.info("bruker URL {}", url);
+                return url;
             }
             logger.info("Fant ingen loggekonfigurasjon");
             return null;
