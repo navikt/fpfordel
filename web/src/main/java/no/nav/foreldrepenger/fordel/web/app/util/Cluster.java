@@ -3,29 +3,23 @@ package no.nav.foreldrepenger.fordel.web.app.util;
 import static java.lang.System.getenv;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public enum Cluster {
-    LOCAL("local", "local", false),
-    DEV_FSS_Q1("dev-fss", "q1", false),
-    DEV_FSS_T4("dev-fss", "t4", false),
-    PROD_FSS("prod-fss", "p", true);
+    LOCAL("local", false),
+    DEV_FSS("dev-fss", false),
+    PROD_FSS("prod-fss", true);
 
     private static final Logger LOG = LoggerFactory.getLogger(Cluster.class);
-    private static final String NAIS_CLUSTER_NAME = "NAIS_CLUSTER_NAME";
-    private static final String FASIT_ENVIRONMENT_NAME = "FASIT_ENVIRONMENT_NAME";
 
     private final String naiseratorName;
-    private final String naisdName;
     private final boolean isProd;
 
-    Cluster(String naiseratorName, String naisdName, boolean isProd) {
+    Cluster(String naiseratorName, boolean isProd) {
         this.naiseratorName = naiseratorName;
-        this.naisdName = naisdName;
         this.isProd = isProd;
     }
 
@@ -45,16 +39,9 @@ public enum Cluster {
     }
 
     private boolean isActive() {
-        return Optional.ofNullable(env(NAIS_CLUSTER_NAME))
+        return Optional.ofNullable(env(LoggerUtil.NAIS_CLUSTER_NAME))
                 .filter(naiseratorName::equals)
-                .or(this::naisdName)
                 .isPresent();
-    }
-
-    private Optional<String> naisdName() {
-        return Optional.ofNullable(env(FASIT_ENVIRONMENT_NAME))
-                .filter(Objects::nonNull)
-                .filter(naisdName::equals);
     }
 
     private String env(String key) {
