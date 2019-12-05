@@ -5,7 +5,7 @@ import static java.lang.System.getenv;
 import java.util.Optional;
 
 public class Namespace {
-    private static final String NAIS_NAMESPACE_NAME = "NAIS_NAMESPACE_NAME";
+    private static final String NAIS_NAMESPACE_NAME = "NAIS_NAMESPACE";
 
     private static final String DEFAULT_NAMESPACE = "default";
 
