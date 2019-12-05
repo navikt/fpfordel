@@ -4,8 +4,8 @@ import static org.eclipse.jetty.util.resource.Resource.newClassPathResource;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
 
-import org.eclipse.jetty.util.resource.Resource;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Logger;
@@ -30,15 +30,15 @@ public class LoggerUtil {
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
         Logger logger = context.getLogger(LoggerUtil.class);
         try {
-            var url = url(env, logger);
-            if (url != null) {
-                logger.info("Rekonfigurerer logging med {}", url);
+            var konfig = konfigFra(env, logger);
+            if (konfig != null) {
+                logger.info("Bruker loggekonfigurasjon {}", konfig);
                 JoranConfigurator configurator = new JoranConfigurator();
                 configurator.setContext(context);
                 context.reset();
-                configurator.doConfigure(url);
+                configurator.doConfigure(konfig);
             } else {
-                logger.warn("Ingen URL funnet");
+                logger.warn("Ingen loggekonfigurasjon funnet");
             }
         } catch (JoranException e) {
             logger.warn("Dette gikk ikke så bra", e);
@@ -46,28 +46,23 @@ public class LoggerUtil {
         StatusPrinter.printInCaseOfErrorsOrWarnings(context);
     }
 
-    private static URL url(Environment env, Logger logger) {
-        String clusterSpesifikk = "logback-" + env.clusterName() + ".xml";
-        logger.info("Prøver cluster-spesifikk loggekonfigurasjon {}", clusterSpesifikk);
-        var resource = newClassPathResource(clusterSpesifikk);
-        if (resource != null && resource.exists()) {
-            return url(resource, logger);
-        }
-        logger.info("Fant ingen cluster-spesifikk loggekonfigurasjon {}", clusterSpesifikk);
-        return url(newClassPathResource("logback.xml"), logger);
+    private static URL konfigFra(Environment env, Logger logger) {
+        return Optional.ofNullable(konfigFra("logback-" + env.clusterName() + ".xml", logger))
+                .orElse(konfigFra("logback.xml", logger));
     }
 
-    private static URL url(Resource resource, Logger logger) {
+    private static URL konfigFra(String konfig, Logger logger) {
         try {
+            var resource = newClassPathResource(konfig);
             if (resource != null && resource.exists()) {
                 URL url = resource.getURI().toURL();
-                logger.info("Bruker URL {}", url);
+                logger.info("Bruker loggekonfigurasjon {}", url);
                 return url;
             }
-            logger.info("Fant ingen loggekonfigurasjon");
+            logger.info("Fant ingen loggekonfigurasjon for {}", konfig);
             return null;
         } catch (MalformedURLException e) {
-            throw new IllegalStateException("Uventer format på " + resource.getURI());
+            throw new IllegalStateException("Uventer format på ressurs for " + konfig);
         }
     }
 }
