@@ -40,7 +40,7 @@ public enum Cluster {
     }
 
     private boolean isActive() {
-        return Optional.ofNullable(env(LoggerUtil.NAIS_CLUSTER_NAME))
+        return Optional.ofNullable(env(NAIS_CLUSTER_NAME))
                 .filter(naiseratorName::equals)
                 .isPresent();
     }
