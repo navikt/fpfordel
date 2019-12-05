@@ -21,9 +21,10 @@ public class LoggerUtil {
     }
 
     private static void configureLogging(Environment env) {
-        System.setProperty(NAIS_CLUSTER_NAME, env.clusterName());
         var context = (LoggerContext) LoggerFactory.getILoggerFactory();
         var logger = context.getLogger(LoggerUtil.class);
+        System.setProperty(NAIS_CLUSTER_NAME, env.clusterName());
+        logger.info("Hijacker loggekonfigurasjon {}", env.clusterName());
         try {
             var configurator = new JoranConfigurator();
             configurator.setContext(context);
@@ -37,6 +38,7 @@ public class LoggerUtil {
 
     private static URL konfigFra(String konfig, Logger logger) {
         try {
+            logger.info("Leter etter loggekonfigurasjon {}", konfig);
             var resource = newClassPathResource(konfig);
             if (resource != null && resource.exists()) {
                 URL url = resource.getURI().toURL();
