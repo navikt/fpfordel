@@ -49,15 +49,21 @@ public enum Cluster {
     }
 
     private boolean isActive() {
-        return Optional.ofNullable(getenv(NAIS_CLUSTER_NAME))
+        return Optional.ofNullable(env(NAIS_CLUSTER_NAME))
                 .filter(naiseratorName::equals)
                 .or(this::naisdName)
                 .isPresent();
     }
 
     private Optional<String> naisdName() {
-        return Optional.ofNullable(getenv(FASIT_ENVIRONMENT_NAME))
+        return Optional.ofNullable(env(FASIT_ENVIRONMENT_NAME))
                 .filter(Objects::nonNull)
                 .filter(naisdName::equals);
+    }
+
+    private String env(String key) {
+        var val = getenv(key);
+        LOG.info("{}={}", key, val);
+        return val;
     }
 }
