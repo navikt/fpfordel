@@ -17,13 +17,15 @@ public class LoggerUtil {
     static final String NAIS_CLUSTER_NAME = "NAIS_CLUSTER_NAME";
 
     public static void setupLogging() {
-        configureLogging(Environment.current());
+        Environment env = Environment.current();
+        System.setProperty(NAIS_CLUSTER_NAME, env.clusterName());
+        // configureLogging(env);
+
     }
 
     private static void configureLogging(Environment env) {
         var context = (LoggerContext) LoggerFactory.getILoggerFactory();
         var logger = context.getLogger(LoggerUtil.class);
-        System.setProperty(NAIS_CLUSTER_NAME, env.clusterName());
         logger.info("Hijacker loggekonfigurasjon {}", env.clusterName());
         try {
             var configurator = new JoranConfigurator();

@@ -1,3 +1,3 @@
 <included>
-   <logger name="no.nav" level="info" />
+   <logger name="no.nav.foreldrepenger.fpfordel" level="trace" />
 </included>
