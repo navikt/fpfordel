@@ -15,7 +15,7 @@ public final class Environment {
     }
 
     public static Environment current() {
-        return Environment.of(Cluster.current(), Namespace.current());
+        return of(Cluster.current(), Namespace.current());
     }
 
     public Cluster getCluster() {

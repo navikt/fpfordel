@@ -14,6 +14,7 @@ public enum Cluster {
     PROD_FSS("prod-fss", true);
 
     private static final Logger LOG = LoggerFactory.getLogger(Cluster.class);
+    public static final String NAIS_CLUSTER_NAME = "NAIS_CLUSTER_NAME";
 
     private final String naiseratorName;
     private final boolean isProd;
