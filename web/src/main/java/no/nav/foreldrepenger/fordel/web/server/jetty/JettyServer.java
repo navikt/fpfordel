@@ -18,7 +18,6 @@ import no.nav.vedtak.isso.IssoApplication;
 
 public class JettyServer extends AbstractJettyServer {
 
-    private static final String LOGBACK_CONFIGURATION_FILE = "logback.configurationFile";
     private DataSourceKonfig dataSourceKonfig;
 
     public JettyServer() {

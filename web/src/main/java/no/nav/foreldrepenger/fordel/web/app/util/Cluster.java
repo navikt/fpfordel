@@ -10,22 +10,30 @@ import org.slf4j.LoggerFactory;
 
 public enum Cluster {
     LOCAL("local", false),
-    DEV_FSS("dev-fss", false),
-    PROD_FSS("prod-fss", true);
+    DEV_FSS_Q1("dev-fss", "q1", false),
+    DEV_FSS_T4("dev-fss", "t4", false),
+    PROD_FSS("prod-fss", "p", true);
 
     private static final Logger LOG = LoggerFactory.getLogger(Cluster.class);
     private static final String NAIS_CLUSTER_NAME = "NAIS_CLUSTER_NAME";
+    private static final String FASIT_ENVIRONMENT_NAME = "FASIT_ENVIRONMENT_NAME";
 
-    private final String clusterName;
+    private final String naiseratorName;
+    private final String naisdName;
     private final boolean isProd;
 
-    Cluster(String clusterName, boolean isProd) {
-        this.clusterName = clusterName;
+    Cluster(String naiseratorName, boolean isProd) {
+        this(naiseratorName, null, isProd);
+    }
+
+    Cluster(String naiseratorName, String naisdName, boolean isProd) {
+        this.naiseratorName = naiseratorName;
+        this.naisdName = naisdName;
         this.isProd = isProd;
     }
 
     public String clusterName() {
-        return clusterName;
+        return naiseratorName;
     }
 
     public boolean isProd() {
@@ -36,14 +44,18 @@ public enum Cluster {
         return Arrays.stream(values())
                 .filter(Cluster::isActive)
                 .findFirst()
-                .orElse(Cluster.LOCAL);
+                .orElse(LOCAL);
     }
 
     private boolean isActive() {
-        var aktiv = Optional.ofNullable(getenv(NAIS_CLUSTER_NAME))
-                .filter(clusterName::equals)
+        return Optional.ofNullable(getenv(NAIS_CLUSTER_NAME))
+                .filter(naiseratorName::equals)
+                .or(this::naisdName)
                 .isPresent();
-        return aktiv;
     }
 
+    private Optional<String> naisdName() {
+        return Optional.ofNullable(getenv(FASIT_ENVIRONMENT_NAME))
+                .filter(naisdName::equals);
+    }
 }

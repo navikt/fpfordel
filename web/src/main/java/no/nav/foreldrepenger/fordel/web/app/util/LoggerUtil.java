@@ -61,7 +61,7 @@ public class LoggerUtil {
         try {
             if (resource != null && resource.exists()) {
                 URL url = resource.getURI().toURL();
-                logger.info("bruker URL {}", url);
+                logger.info("Bruker URL {}", url);
                 return url;
             }
             logger.info("Fant ingen loggekonfigurasjon");
