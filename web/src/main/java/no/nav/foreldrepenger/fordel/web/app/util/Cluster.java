@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public enum Cluster {
-    LOCAL("local", false),
+    LOCAL("local", "local", false),
     DEV_FSS_Q1("dev-fss", "q1", false),
     DEV_FSS_T4("dev-fss", "t4", false),
     PROD_FSS("prod-fss", "p", true);
