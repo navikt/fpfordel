@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.fordel.web.app.util;
 import static java.lang.System.getenv;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -56,6 +57,7 @@ public enum Cluster {
 
     private Optional<String> naisdName() {
         return Optional.ofNullable(getenv(FASIT_ENVIRONMENT_NAME))
+                .filter(Objects::nonNull)
                 .filter(naisdName::equals);
     }
 }
