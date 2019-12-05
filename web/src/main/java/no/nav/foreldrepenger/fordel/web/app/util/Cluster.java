@@ -23,10 +23,6 @@ public enum Cluster {
     private final String naisdName;
     private final boolean isProd;
 
-    Cluster(String naiseratorName, boolean isProd) {
-        this(naiseratorName, null, isProd);
-    }
-
     Cluster(String naiseratorName, String naisdName, boolean isProd) {
         this.naiseratorName = naiseratorName;
         this.naisdName = naisdName;
