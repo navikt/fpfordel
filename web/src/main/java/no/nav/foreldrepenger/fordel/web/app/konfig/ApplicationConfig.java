@@ -40,7 +40,7 @@ public class ApplicationConfig extends Application {
 
         oas.info(info)
                 .addServersItem(new Server()
-                        .url("/fpfordel/api"));
+                        .url("/fpfordel"));
         SwaggerConfiguration oasConfig = new SwaggerConfiguration()
                 .openAPI(oas)
                 .prettyPrint(true)
