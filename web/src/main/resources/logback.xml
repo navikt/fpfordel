@@ -48,4 +48,6 @@
     <logger level="INFO" name="sporing" additivity="false">
         <appender-ref ref="SPORING_LOG" />
     </logger>
+    <include optional="true" resource="logback-${NAIS_CLUSTER_NAME}.xml"/>
+    
 </configuration>
