@@ -14,7 +14,7 @@ Dette er løsning for fordeling av søknader (og inntektsmeldinger).
 ### Docker
 
 ```bash
-mvn -B -Dfile.encoding=UTF-8 -DinstallAtEnd=true -DdeployAtEnd=true  -DskipTests clean install
+mvn -B -Dfile.encoding=UTF-8 -DskipTests clean install
 
 docker build -t fpfordel . 
 ```
