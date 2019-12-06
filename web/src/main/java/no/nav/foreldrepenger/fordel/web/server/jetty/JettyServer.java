@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.fordel.web.server.jetty;
 
-import static no.nav.foreldrepenger.fordel.web.app.util.Cluster.NAIS_CLUSTER_NAME;
+import static no.nav.vedtak.util.env.Cluster.NAIS_CLUSTER_NAME;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -14,9 +14,9 @@ import org.eclipse.jetty.webapp.MetaData;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import no.nav.foreldrepenger.fordel.web.app.konfig.ApplicationConfig;
-import no.nav.foreldrepenger.fordel.web.app.util.Environment;
 import no.nav.foreldrepenger.fordel.web.server.jetty.DataSourceKonfig.DBConnProp;
 import no.nav.vedtak.isso.IssoApplication;
+import no.nav.vedtak.util.env.Environment;
 
 public class JettyServer extends AbstractJettyServer {
 
