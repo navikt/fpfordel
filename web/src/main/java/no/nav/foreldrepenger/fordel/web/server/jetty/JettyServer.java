@@ -12,6 +12,8 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.webapp.MetaData;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.web.app.konfig.ApplicationConfig;
 import no.nav.foreldrepenger.fordel.web.server.jetty.DataSourceKonfig.DBConnProp;
@@ -20,7 +22,9 @@ import no.nav.vedtak.util.env.Environment;
 
 public class JettyServer extends AbstractJettyServer {
 
+    private static final Logger LOG = LoggerFactory.getLogger(JettyServer.class);
     private DataSourceKonfig dataSourceKonfig;
+    private static final Environment ENV = Environment.current();
 
     public JettyServer() {
         this(new JettyWebKonfigurasjon());
@@ -36,7 +40,7 @@ public class JettyServer extends AbstractJettyServer {
 
     public static void main(String[] args) throws Exception {
         // for logback import to work
-        System.setProperty(NAIS_CLUSTER_NAME, Environment.current().clusterName());
+        System.setProperty(NAIS_CLUSTER_NAME, ENV.clusterName());
         jettyServer(args).bootStrap();
     }
 
@@ -60,42 +64,54 @@ public class JettyServer extends AbstractJettyServer {
     }
 
     private void loadBalancerFqdnTilLoadBalancerUrl() {
-        if (System.getenv("LOADBALANCER_FQDN") != null) {
-            String loadbalancerFqdn = System.getenv("LOADBALANCER_FQDN");
-            String protocol = (loadbalancerFqdn.startsWith("localhost")) ? "http" : "https";
-            System.setProperty("loadbalancer.url", protocol + "://" + loadbalancerFqdn);
+        String fqdn = System.getenv("LOADBALANCER_FQDN");
+        if (fqdn != null) {
+            LOG.info("Setter loadbalancer url fra {}", fqdn);
+            String protocol = (fqdn.startsWith("localhost")) ? "http" : "https";
+            System.setProperty("loadbalancer.url", protocol + "://" + fqdn);
         }
     }
 
     private void wsMedLTPAmåIgjennomServiceGateway() {
-        if (System.getenv("SERVICEGATEWAY_URL") != null) {
-            System.setProperty("Oppgave_v3.url", System.getenv("SERVICEGATEWAY_URL"));
+        String url = System.getenv("SERVICEGATEWAY_URL");
+        if (url != null) {
+            LOG.info("Setter service gateway url fra {}", url);
+            System.setProperty("Oppgave_v3.url", url);
         }
     }
 
     private void temporært() {
         // FIXME : PFP-1176 Skriv om i OpenAmIssoHealthCheck og
         // AuthorizationRequestBuilder når Jboss dør
-        if (System.getenv("OIDC_OPENAM_HOSTURL") != null) {
-            System.setProperty("OpenIdConnect.issoHost", System.getenv("OIDC_OPENAM_HOSTURL"));
+        String url = System.getenv("OIDC_OPENAM_HOSTURL");
+        if (url != null) {
+            LOG.info("Setter oidc host url fra {}", url);
+            System.setProperty("OpenIdConnect.issoHost", url);
         }
         // FIXME : PFP-1176 Skriv om i AuthorizationRequestBuilder og
         // IdTokenAndRefreshTokenProvider når Jboss dør
-        if (System.getenv("OIDC_OPENAM_AGENTNAME") != null) {
-            System.setProperty("OpenIdConnect.username", System.getenv("OIDC_OPENAM_AGENTNAME"));
+        String agent = System.getenv("OIDC_OPENAM_AGENTNAME");
+        if (agent != null) {
+            LOG.info("Setter agent fra {}", agent);
+            System.setProperty("OpenIdConnect.username", agent);
         }
         // FIXME : PFP-1176 Skriv om i IdTokenAndRefreshTokenProvider når Jboss dør
-        if (System.getenv("OIDC_OPENAM_PASSWORD") != null) {
-            System.setProperty("OpenIdConnect.password", System.getenv("OIDC_OPENAM_PASSWORD"));
+        String pw = System.getenv("OIDC_OPENAM_PASSWORD");
+        if (pw != null) {
+            LOG.info("Setter password");
+            System.setProperty("OpenIdConnect.password", pw);
         }
         // FIXME : PFP-1176 Skriv om i BaseJmsKonfig når Jboss dør
-        if (System.getenv("FPSAK_CHANNEL_NAME") != null) {
-            System.setProperty("mqGateway02.channel", System.getenv("FPSAK_CHANNEL_NAME"));
+        String cn = System.getenv("FPSAK_CHANNEL_NAME");
+        if (cn != null) {
+            LOG.info("Setter channel fra {}", cn);
+            System.setProperty("mqGateway02.channel", cn);
         }
     }
 
     @Override
     protected void konfigurerJndi() throws Exception {
+        // What?
         new EnvEntry("jdbc/defaultDS", dataSourceKonfig.getDefaultDatasource().getDatasource());
         konfigurerJms();
     }

@@ -36,13 +36,12 @@ public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTj
         actionAttributeSet.addAttribute(XACML_1_0_ACTION_ACTION_ID, pdpRequest.getString(XACML_1_0_ACTION_ACTION_ID));
         xacmlBuilder.addActionAttributeSet(actionAttributeSet);
 
-        List<Tuple<String, String>> identer = hentIdenter(pdpRequest, RESOURCE_FELLES_PERSON_FNR,
-                RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE);
+        var identer = hentIdenter(pdpRequest, RESOURCE_FELLES_PERSON_FNR, RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE);
 
         if (identer.isEmpty()) {
             xacmlBuilder.addResourceAttributeSet(byggRessursAttributter(pdpRequest, null));
         } else {
-            for (Tuple<String, String> ident : identer) {
+            for (var ident : identer) {
                 xacmlBuilder.addResourceAttributeSet(byggRessursAttributter(pdpRequest, ident));
             }
         }
@@ -50,7 +49,7 @@ public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTj
     }
 
     private XacmlAttributeSet byggRessursAttributter(PdpRequest pdpRequest, Tuple<String, String> ident) {
-        XacmlAttributeSet resourceAttributeSet = new XacmlAttributeSet();
+        var resourceAttributeSet = new XacmlAttributeSet();
         resourceAttributeSet.addAttribute(RESOURCE_FELLES_DOMENE,
                 pdpRequest.getString(RESOURCE_FELLES_DOMENE));
         resourceAttributeSet.addAttribute(RESOURCE_FELLES_RESOURCE_TYPE,
@@ -64,7 +63,8 @@ public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTj
     private List<Tuple<String, String>> hentIdenter(PdpRequest pdpRequest, String... identNøkler) {
         List<Tuple<String, String>> identer = new ArrayList<>();
         for (String key : identNøkler) {
-            identer.addAll(pdpRequest.getListOfString(key).stream().map(it -> new Tuple<>(key, it))
+            identer.addAll(pdpRequest.getListOfString(key).stream()
+                    .map(it -> new Tuple<>(key, it))
                     .collect(Collectors.toList()));
         }
         return identer;

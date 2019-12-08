@@ -21,9 +21,9 @@ public class PrometheusRestService {
 
         final Writer writer = new StringWriter();
         try {
-            TextFormater.write004(writer, CollectorRegistry.defaultRegistry.metricFamilySamples());
+            TextFormatter.write004(writer, CollectorRegistry.defaultRegistry.metricFamilySamples());
             return Response.ok().encoding("UTF-8").entity(writer.toString())
-                    .header("content-type", TextFormater.CONTENT_TYPE_004).build();
+                    .header("content-type", TextFormatter.CONTENT_TYPE_004).build();
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }

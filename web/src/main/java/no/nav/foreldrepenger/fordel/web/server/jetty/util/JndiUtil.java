@@ -39,7 +39,7 @@ public final class JndiUtil {
     private static Context getOrCreateSubcontext(Name name, Context ctx, int i) throws NamingException {
         try {
             return ctx.createSubcontext(name.get(i));
-        } catch (NameAlreadyBoundException ignoreAndContinue) { // NOSONAR
+        } catch (NameAlreadyBoundException ignoreAndContinue) {
             return (Context) ctx.lookup(name.get(i));
         }
     }

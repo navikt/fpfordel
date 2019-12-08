@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DatabaseScript {
-    private static final Logger log = LoggerFactory.getLogger(DatabaseScript.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DatabaseScript.class);
 
     private final DataSource dataSource;
     private final boolean cleanOnException;
@@ -28,10 +28,10 @@ public class DatabaseScript {
 
         try {
             flyway.migrate();
-        } catch (FlywayException e) {  // NOSONAR
+        } catch (FlywayException e) {
             // prøv en gang til
-            if(cleanOnException) {
-                log.warn("Failed migration. Cleaning and retrying", e);
+            if (cleanOnException) {
+                LOG.warn("Failed migration. Cleaning and retrying", e);
                 flyway.clean();
                 flyway.migrate();
             } else {

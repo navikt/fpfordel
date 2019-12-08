@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.fordel.web.app.konfig;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -21,16 +19,9 @@ public class InternalApplication extends Application {
     public InternalApplication() {
         // CDI
     }
-    
+
     @Override
     public Set<Class<?>> getClasses() {
-
-        Set<Class<?>> classes = new HashSet<>();
-
-        classes.add(PrometheusRestService.class);
-        classes.add(HealthCheckRestService.class);
-        classes.add(SelftestRestTjeneste.class);
-
-        return Collections.unmodifiableSet(classes);
+        return Set.of(PrometheusRestService.class, HealthCheckRestService.class, SelftestRestTjeneste.class);
     }
 }

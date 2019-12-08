@@ -121,11 +121,11 @@ public class DokumentforsendelseRestTjeneste {
     public Response uploadFile(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) MultipartInput input) {
         List<InputPart> inputParts = input.getParts();
         if (inputParts.size() < 2) {
-            throw new IllegalArgumentException("At least two parts");
+            throw new IllegalArgumentException("Må ha minst to deler,fikk " + inputParts.size());
         }
 
         Dokumentforsendelse dokumentforsendelse = nyDokumentforsendelse(inputParts.remove(0));
-        for (InputPart inputPart : inputParts) {
+        for (var inputPart : inputParts) {
             lagreDokument(dokumentforsendelse, inputPart);
         }
         validerDokumentforsendelse(dokumentforsendelse);

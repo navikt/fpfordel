@@ -20,7 +20,7 @@ import no.nav.vedtak.log.util.LoggerUtils;
 @ApplicationScoped
 class AppStartupInfoLogger {
 
-    private static final Logger logger = LoggerFactory.getLogger(AppStartupInfoLogger.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AppStartupInfoLogger.class);
 
     private Selftests selftests;
 
@@ -99,7 +99,7 @@ class AppStartupInfoLogger {
     }
 
     private void log(String msg, Object... args) {
-        logger.info(msg, args); //NOSONAR
+        LOG.info(msg, args); //NOSONAR
     }
 
     private void log(HealthCheck.Result result) {
@@ -110,7 +110,7 @@ class AppStartupInfoLogger {
                     (String) result.getDetails().get(ExtHealthCheck.DETAIL_ENDPOINT),
                     (String) result.getDetails().get(ExtHealthCheck.DETAIL_RESPONSE_TIME),
                     result.getMessage()
-            ).log(logger);
+            ).log(LOG);
         } else {
             OppstartFeil.FACTORY.selftestStatus(
                     getStatus(result.isHealthy()),
@@ -118,7 +118,7 @@ class AppStartupInfoLogger {
                     null,
                     null,
                     result.getMessage()
-            ).log(logger);
+            ).log(LOG);
         }
     }
 

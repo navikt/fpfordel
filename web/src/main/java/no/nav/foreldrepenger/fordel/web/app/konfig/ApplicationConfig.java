@@ -30,7 +30,6 @@ public class ApplicationConfig extends Application {
     public static final String API_URI = "/api";
 
     public ApplicationConfig() {
-        OpenAPI beanConfig = new OpenAPI();
 
         OpenAPI oas = new OpenAPI();
         Info info = new Info()

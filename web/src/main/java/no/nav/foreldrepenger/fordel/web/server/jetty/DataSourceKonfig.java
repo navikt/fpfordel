@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.fordel.web.server.jetty;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -19,8 +18,7 @@ class DataSourceKonfig {
 
     DataSourceKonfig() {
         defaultDatasource = new DBConnProp(createDatasource("defaultDS"), MIGRATIONS_LOCATION + "defaultDS");
-        dataSources = Arrays.asList(
-            defaultDatasource);
+        dataSources = List.of(defaultDatasource);
     }
 
     private DataSource createDatasource(String dataSourceName) {
@@ -50,8 +48,8 @@ class DataSourceKonfig {
     }
 
     static final class DBConnProp {
-        private DataSource datasource;
-        private String migrationScripts;
+        private final DataSource datasource;
+        private final String migrationScripts;
 
         public DBConnProp(DataSource datasource, String migrationScripts) {
             this.datasource = datasource;

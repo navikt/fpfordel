@@ -63,10 +63,9 @@ public class ForvaltningRestTjeneste {
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response setRetrySuffix(
             @Parameter(description = "Sett kanalreferanse-suffix før restart prosesstask") @NotNull @Valid RetryTaskKanalrefDto dto) {
-        ProsessTaskData data = prosessTaskRepository.finn(dto.getProsessTaskIdDto().getProsessTaskId());
+        var data = prosessTaskRepository.finn(dto.getProsessTaskIdDto().getProsessTaskId());
         if (data == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
@@ -84,10 +83,9 @@ public class ForvaltningRestTjeneste {
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response submitJournalførtInntektsmelding(
             @Parameter(description = "Send im til angitt sak") @NotNull @Valid SubmitJfortIMDto dto) {
-        ProsessTaskData data = prosessTaskRepository.finn(dto.getProsessTaskIdDto().getProsessTaskId());
+        var data = prosessTaskRepository.finn(dto.getProsessTaskIdDto().getProsessTaskId());
         if (data == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
@@ -110,19 +108,18 @@ public class ForvaltningRestTjeneste {
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response submitJournalpostEndeligKlargjor(
             @Parameter(description = "Send im til angitt sak") @NotNull @Valid SubmitJfortIMDto dto) {
-        ProsessTaskData data = prosessTaskRepository.finn(dto.getProsessTaskIdDto().getProsessTaskId());
+        var data = prosessTaskRepository.finn(dto.getProsessTaskIdDto().getProsessTaskId());
         if (data == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         data.setCallIdFraEksisterende();
-        MottakMeldingDataWrapper dataWrapperFra = new MottakMeldingDataWrapper(kodeverkRepository, data);
+        var dataWrapperFra = new MottakMeldingDataWrapper(kodeverkRepository, data);
         if (!dataWrapperFra.getArkivId().equals(dto.getJournalpostIdDto().getJournalpostId())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        MottakMeldingDataWrapper dataWrapperTil = dataWrapperFra.nesteSteg(TilJournalføringTask.TASKNAME);
+        var dataWrapperTil = dataWrapperFra.nesteSteg(TilJournalføringTask.TASKNAME);
         dataWrapperTil.setSaksnummer(dto.getSaksnummerDto().getSaksnummer());
         fagsakRestKlient
                 .knyttSakOgJournalpost(new JournalpostKnyttningDto(dto.getSaksnummerDto(), dto.getJournalpostIdDto()));
@@ -137,13 +134,12 @@ public class ForvaltningRestTjeneste {
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response midlJournalførForsendelse(
             @Parameter(description = "Task som skal midl journalførs") @NotNull @Valid ProsessTaskIdDto taskId) {
-        ProsessTaskData data = prosessTaskRepository.finn(taskId.getProsessTaskId());
+        var data = prosessTaskRepository.finn(taskId.getProsessTaskId());
         if (data != null) {
-            MottakMeldingDataWrapper dataWrapperFra = new MottakMeldingDataWrapper(kodeverkRepository, data);
-            MottakMeldingDataWrapper dataWrapperTil = dataWrapperFra.nesteSteg(MidlJournalføringTask.TASKNAME);
+            var dataWrapperFra = new MottakMeldingDataWrapper(kodeverkRepository, data);
+            var dataWrapperTil = dataWrapperFra.nesteSteg(MidlJournalføringTask.TASKNAME);
             prosessTaskRepository.lagre(dataWrapperTil.getProsessTaskData());
         }
         return Response.ok().build();
@@ -158,7 +154,6 @@ public class ForvaltningRestTjeneste {
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
     @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response autoRunBatch() {
         boolean eksisterende = prosessTaskRepository.finnIkkeStartet().stream()
                 .map(ProsessTaskData::getTaskType)
@@ -179,10 +174,9 @@ public class ForvaltningRestTjeneste {
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
     @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response setTaskFerdig(
             @Parameter(description = "Task som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto taskId) {
-        ProsessTaskData data = prosessTaskRepository.finn(taskId.getProsessTaskId());
+        var data = prosessTaskRepository.finn(taskId.getProsessTaskId());
         if (data != null) {
             data.setStatus(ProsessTaskStatus.FERDIG);
             data.setSisteFeil(null);

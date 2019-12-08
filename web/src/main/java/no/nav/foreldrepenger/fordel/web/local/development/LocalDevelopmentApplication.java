@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.fordel.web.local.development;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.ws.rs.ApplicationPath;
@@ -14,9 +13,6 @@ public class LocalDevelopmentApplication extends Application {
     // :(
     @Override
     public Set<Class<?>> getClasses() {
-        Set<Class<?>> classes = new HashSet<>();
-        classes.add(FakeQueueMottakRestTjeneste.class);
-        classes.add(SwaggerSerializers.class);
-        return classes;
+        return Set.of(FakeQueueMottakRestTjeneste.class, SwaggerSerializers.class);
     }
 }
