@@ -83,7 +83,7 @@ public class DokumentforsendelseRestTjenesteTest {
 
         assertThatThrownBy(() -> tjeneste.uploadFile(input))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("At least two parts");
+                .hasMessage("Må ha minst to deler,fikk 0");
     }
 
 
