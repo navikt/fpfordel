@@ -27,7 +27,7 @@ jobs:
         shell: bash
         run: |
           echo "Building $(echo $GITHUB_SHA | cut -c1-7)"
-          mvn  --settings ./.m2/settings.xml package
+          mvn  --settings ./githubsettings.xml package
           echo "Built artifacts"
  
   dockerize:
