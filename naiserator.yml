@@ -1,0 +1,42 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: fpfordel
+{{#if namespace}}
+  namespace: {{namespace}}
+{{else}}
+  namespace: default
+{{/if}} 
+  labels:
+    team: {{team}}
+spec:
+  image: {{image}}
+  port: 8080
+  replicas:
+      min: 2
+      max: 2
+      cpuThresholdPercentage: 50  
+  liveness:
+      path: /fpfordel/internal/health/isAlive
+      initialDelay: 60
+  readiness:
+      path: /fpfordel/internal/health/isReady
+      initialDelay: 60  
+  prometheus:
+      enabled: true
+      path: /fpfordel/internal/prometheus
+  replicas:
+      min: 2
+      max: 2
+      cpuThresholdPercentage: 50
+  ingresses:
+  {{#each ingresses as |url|}}
+    - {{url}}
+  {{/each}}
+  resources:
+      limits:
+        cpu: 1500m
+        memory: 3072Mi
+      requests:
+        cpu: 250m
+        memory: 1536Mi  

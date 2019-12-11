@@ -1,0 +1,5 @@
+app: fpfordel
+namespace: t4
+team: teamforeldrepenger
+ingresses:
+  -  "https://fpfordel-t4.nais.preprod.local"
