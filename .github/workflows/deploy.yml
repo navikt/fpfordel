@@ -13,7 +13,7 @@ jobs:
     name: Compile
     env:
         GITHUB_USERNAME: x-access-token
-        GITHUB_PASSWORD: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+        GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -29,7 +29,7 @@ jobs:
       - name: Compile
         shell: bash
         run: |
-          echo "Token $GITHUB_PASSWORD"
+          echo $GITHUB_PASSWORD
           echo "Building $(echo $GITHUB_SHA | cut -c1-7)"
           mvn  --settings ./githubsettings.xml package
           echo "Built artifacts"
