@@ -29,6 +29,7 @@ jobs:
       - name: Compile
         shell: bash
         run: |
+          echo "Token $GITHUB_PASSWORD"
           echo "Building $(echo $GITHUB_SHA | cut -c1-7)"
           mvn  --settings ./githubsettings.xml package
           echo "Built artifacts"
