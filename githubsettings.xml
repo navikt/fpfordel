@@ -55,7 +55,7 @@
   </server>
 <server>
      <id>fp-felles</id>
-     <username>${env.GITHUB_USERNAME}</password>
+     <username>${env.GITHUB_USERNAME}</username>
      <password>${env.GITHUB_ACCESS_TOKEN}</password>
  </server>
 </servers>
