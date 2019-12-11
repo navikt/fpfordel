@@ -29,7 +29,7 @@ jobs:
       - name: Compile
         shell: bash
         run: |
-          echo $GITHUB_PASSWORD
+          echo $IMAGE
           echo "Building $(echo $GITHUB_SHA | cut -c1-7)"
           mvn  --settings ./githubsettings.xml package
           echo "Built artifacts"
@@ -42,7 +42,7 @@ jobs:
     - uses: actions/checkout@v1
     - name: Build and publish Docker image
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         docker build --tag ${IMAGE} .
         docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
