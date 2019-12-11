@@ -23,11 +23,6 @@
                   <name>Maven central</name>
                   <url>https://repo.maven.apache.org/maven2/</url>
               </repository>
-              <repository>
-                  <id>nexus-internal</id>
-                  <name>NAV internal Nexus</name>
-                  <url>https://repo.adeo.no/repository/maven-public</url>
-              </repository>
                <repository>
                     <id>fp-felles</id>
                     <name>GitHub felles Apache Maven Packages</name>
@@ -39,11 +34,6 @@
                   <id>central</id>
                   <name>Maven central</name>
                   <url>https://repo.maven.apache.org/maven2/</url>
-              </pluginRepository>
-              <pluginRepository>
-                  <id>nexus-internal</id>
-                  <name>NAV internal Nexus</name>
-                  <url>https://repo.adeo.no/repository/maven-public</url>
               </pluginRepository>
           </pluginRepositories>
       </profile>
