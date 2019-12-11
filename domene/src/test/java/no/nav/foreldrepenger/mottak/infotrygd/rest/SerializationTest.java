@@ -123,6 +123,10 @@ public class SerializationTest {
         return new AvsluttetSak(plusDays(n), plusDays(n + 1), utbetalinger(n));
     }
 
+    private static IkkeStartetSak enIkkeStartetSak(int n) {
+        return new IkkeStartetSak(plusDays(n), plusDays(n + 1));
+    }
+
     private static List<AvsluttetSak> alleAvsluttedeSaker(int n) {
         return IntStream.range(0, n)
                 .boxed()
@@ -151,6 +155,13 @@ public class SerializationTest {
                 .collect(toList());
     }
 
+    private static List<IkkeStartetSak> ikkeStartedeSaker(int n) {
+        return IntStream.range(0, n)
+                .boxed()
+                .map(SerializationTest::enIkkeStartetSak)
+                .collect(toList());
+    }
+
     private static Utbetaling utbetaling(int n) {
         return new Utbetaling(80, plusDays(n), plusDays(n + 1));
     }
@@ -160,7 +171,7 @@ public class SerializationTest {
     }
 
     private static Saker sakRespons(int n) {
-        return new Saker("hello", saker(n), åpneSaker(n), avsluttedeSaker(n));
+        return new Saker("hello", saker(n), åpneSaker(n), avsluttedeSaker(n), ikkeStartedeSaker(n));
     }
 
     String jsonFra(String fil) throws Exception {
