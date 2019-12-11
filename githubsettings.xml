@@ -66,6 +66,5 @@
      <username>x-access-token</username>
      <password>${secrets.GITHUB_TOKEN}</password>
  </server>
-    </servers>
 </servers>
 </settings>
