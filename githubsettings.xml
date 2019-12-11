@@ -1,22 +1,76 @@
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+<mirrors>
+<!--
+    <mirror>
+      <id>nexus-internal</id>
+      <name>NAV Central</name>
+      <url>https://repo.adeo.no/repository/maven-public</url>
+      <mirrorOf>central</mirrorOf>
+    </mirror>
+-->
+  </mirrors>
   <profiles>
       <profile>
-          <id>github</id>
+          <id>internal-repo</id>
           <activation>
               <activeByDefault>true</activeByDefault>
           </activation>
           <repositories>
+              <repository>
+                  <id>central</id>
+                  <name>Maven central</name>
+                  <url>https://repo.maven.apache.org/maven2/</url>
+              </repository>
+              <repository>
+                  <id>nexus-internal</id>
+                  <name>NAV internal Nexus</name>
+                  <url>https://repo.adeo.no/repository/maven-public</url>
+              </repository>
                <repository>
                     <id>fp-felles</id>
                     <name>GitHub felles Apache Maven Packages</name>
                     <url>https://maven.pkg.github.com/navikt/fp-felles/</url>
                 </repository>
           </repositories>
+          <pluginRepositories>
+              <pluginRepository>
+                  <id>central</id>
+                  <name>Maven central</name>
+                  <url>https://repo.maven.apache.org/maven2/</url>
+              </pluginRepository>
+              <pluginRepository>
+                  <id>nexus-internal</id>
+                  <name>NAV internal Nexus</name>
+                  <url>https://repo.adeo.no/repository/maven-public</url>
+              </pluginRepository>
+          </pluginRepositories>
       </profile>
   </profiles>
   <servers>
+   <server>
+   <id>nexus-internal</id>
+   <configuration>
+    <httpConfiguration>
+      <all>
+        <connectionTimeout>5000</connectionTimeout>
+        <readTimeout>5000</readTimeout>
+      </all>
+    </httpConfiguration>
+  </configuration>
+  </server>
+   <server>
+   <id>central</id>
+   <configuration>
+    <httpConfiguration>
+      <all>
+        <connectionTimeout>5000</connectionTimeout>
+        <readTimeout>5000</readTimeout>
+      </all>
+    </httpConfiguration>
+  </configuration>
+  </server>
       <server>
            <id>fp-felles</id>
            <username>x-access-token</username>
