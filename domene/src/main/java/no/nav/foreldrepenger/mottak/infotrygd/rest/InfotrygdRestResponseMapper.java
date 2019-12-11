@@ -28,9 +28,15 @@ public final class InfotrygdRestResponseMapper {
 
     public List<InfotrygdSak> map(Saker saker) {
         return infotrygdSakerFra(
+                infotrygdSakerFraIkkeStartedeSaker(saker.getIkkeStartedeSaker()),
                 infotrygdSakerFraLøpendeSaker(saker.getLøpendeSaker()),
                 infotrygdSakerFraAvsluttedeSaker(saker.getAvsluttedeSaker()),
                 infotrygdSakerFraSaker(saker.getSaker()));
+    }
+
+    private Stream<InfotrygdSak> infotrygdSakerFraIkkeStartedeSaker(List<IkkeStartetSak> ikkeStartedeSaker) {
+        return stream(ikkeStartedeSaker)
+                .map(this::tilInfotrygdSak);
     }
 
     private Stream<InfotrygdSak> infotrygdSakerFraSaker(List<Sak> saker) {
@@ -52,6 +58,10 @@ public final class InfotrygdRestResponseMapper {
         return new InfotrygdSak(null, FA, behandlingstema, sak.getIverksatt(), null);
     }
 
+    private InfotrygdSak tilInfotrygdSak(IkkeStartetSak sak) {
+        return new InfotrygdSak(null, FA, behandlingstema, sak.getIverksatt(), sak.getRegistrert());
+    }
+
     private InfotrygdSak tilInfotrygdSak(Sak sak) {
         return new InfotrygdSak(sak.getSaksnummer(), FA, behandlingstema, sak.getIverksatt(), sak.getVedtatt());
     }
@@ -66,8 +76,9 @@ public final class InfotrygdRestResponseMapper {
                 .stream();
     }
 
-    private static <T> List<T> infotrygdSakerFra(Stream<T> s1, Stream<T> s2, Stream<T> s3) {
-        return concat(s1, concat(s2, s3))
+    private static <T extends InfotrygdSak> List<T> infotrygdSakerFra(Stream<T> s1, Stream<T> s2, Stream<T> s3,
+            Stream<T> s4) {
+        return concat(s1, concat(s2, concat(s3, s4)))
                 .collect(toList());
     }
 
