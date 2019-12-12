@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import org.junit.Rule;
@@ -28,6 +29,10 @@ public class PipRepositoryTest {
     private String brukerId2 = "Dummy 2";
     private UUID forsendelseId = UUID.randomUUID();
     private UUID forsendelseId2 = UUID.randomUUID();
+
+    static {
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
+    }
 
     @Test
     public void en_aktørId_for_en_forsendelse() {

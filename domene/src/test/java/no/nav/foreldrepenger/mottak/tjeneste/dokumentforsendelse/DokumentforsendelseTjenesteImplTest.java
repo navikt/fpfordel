@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import org.junit.AfterClass;
@@ -50,6 +51,10 @@ public class DokumentforsendelseTjenesteImplTest {
 
     private static final UUID ID = UUID.randomUUID();
 
+    static {
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
+    }
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -64,14 +69,14 @@ public class DokumentforsendelseTjenesteImplTest {
     @Mock
     private AktørConsumer aktørConsumerMock;
 
-
     private DokumentforsendelseTjenesteImpl tjeneste;
 
     private static Class<? extends SubjectHandler> orgSubjectHandler;
 
     @BeforeClass
     public static void setupClass() {
-        String subjectHandlerImplementationClassName = System.getProperty("no.nav.modig.core.context.subjectHandlerImplementationClass");
+        String subjectHandlerImplementationClassName = System
+                .getProperty("no.nav.modig.core.context.subjectHandlerImplementationClass");
         if (subjectHandlerImplementationClassName != null) {
             orgSubjectHandler = SubjectHandler.getSubjectHandler().getClass();
         }
@@ -79,7 +84,8 @@ public class DokumentforsendelseTjenesteImplTest {
 
     @Before
     public void setUp() {
-        tjeneste = new DokumentforsendelseTjenesteImpl(dokumentRepositoryMock, kodeverkRepository, prosessTaskRepositoryMock, aktørConsumerMock);
+        tjeneste = new DokumentforsendelseTjenesteImpl(dokumentRepositoryMock, kodeverkRepository,
+                prosessTaskRepositoryMock, aktørConsumerMock);
 
         SubjectHandlerUtils.useSubjectHandler(StaticSubjectHandler.class);
     }
@@ -138,7 +144,8 @@ public class DokumentforsendelseTjenesteImplTest {
                 .setForsendelseMottatt(LocalDateTime.now())
                 .build();
         when(dokumentRepositoryMock.hentEksaktDokumentMetadata(any())).thenReturn(metadata);
-        when(dokumentRepositoryMock.hentDokumenter(any())).thenReturn(asList(createDokument(ArkivFilType.PDFA, true), createDokument(ArkivFilType.XML, true)));
+        when(dokumentRepositoryMock.hentDokumenter(any()))
+                .thenReturn(asList(createDokument(ArkivFilType.PDFA, true), createDokument(ArkivFilType.XML, true)));
 
         tjeneste.validerDokumentforsendelse(forsendelseId);
 
@@ -146,15 +153,16 @@ public class DokumentforsendelseTjenesteImplTest {
         verify(prosessTaskRepositoryMock).lagre(prosessTaskCaptor.capture());
         ProsessTaskData capturedProssessTaskData = prosessTaskCaptor.getValue();
         assertThat(capturedProssessTaskData).isNotNull();
-        assertThat(capturedProssessTaskData.getPropertyValue(MottakMeldingDataWrapper.FORSENDELSE_ID_KEY)).isEqualTo(forsendelseId.toString());
+        assertThat(capturedProssessTaskData.getPropertyValue(MottakMeldingDataWrapper.FORSENDELSE_ID_KEY))
+                .isEqualTo(forsendelseId.toString());
         assertThat(capturedProssessTaskData.getPropertyValue(MottakMeldingDataWrapper.AVSENDER_ID_KEY)).isNull();
     }
-
 
     @Test
     public void validerDokumentforsendelse__skal_sette_avsender_id_fra_subjecthandler_når_forskjellig_fra_bruker_id() {
         String aktørIdForIdent = "123";
-        when(aktørConsumerMock.hentAktørIdForPersonIdent("StaticSubjectHandlerUserId")).thenReturn(Optional.of(aktørIdForIdent));
+        when(aktørConsumerMock.hentAktørIdForPersonIdent("StaticSubjectHandlerUserId"))
+                .thenReturn(Optional.of(aktørIdForIdent));
         UUID forsendelseId = UUID.randomUUID();
         DokumentMetadata metadata = DokumentMetadata.builder()
                 .setForsendelseId(forsendelseId)
@@ -163,93 +171,113 @@ public class DokumentforsendelseTjenesteImplTest {
                 .setForsendelseMottatt(LocalDateTime.now())
                 .build();
         when(dokumentRepositoryMock.hentEksaktDokumentMetadata(any())).thenReturn(metadata);
-        when(dokumentRepositoryMock.hentDokumenter(any())).thenReturn(asList(createDokument(ArkivFilType.PDFA, true), createDokument(ArkivFilType.XML, true)));
+        when(dokumentRepositoryMock.hentDokumenter(any()))
+                .thenReturn(asList(createDokument(ArkivFilType.PDFA, true), createDokument(ArkivFilType.XML, true)));
 
         tjeneste.validerDokumentforsendelse(forsendelseId);
 
         ArgumentCaptor<ProsessTaskData> prosessTaskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskRepositoryMock).lagre(prosessTaskCaptor.capture());
         ProsessTaskData capturedProssessTaskData = prosessTaskCaptor.getValue();
-        assertThat(capturedProssessTaskData.getPropertyValue(MottakMeldingDataWrapper.AVSENDER_ID_KEY)).isEqualTo(aktørIdForIdent);
+        assertThat(capturedProssessTaskData.getPropertyValue(MottakMeldingDataWrapper.AVSENDER_ID_KEY))
+                .isEqualTo(aktørIdForIdent);
 
     }
 
     @Test
     public void korrektAntallOgTyper__ett_hoveddokument_er_feil() {
-        Set<Dokument> hoveddokumenter = new HashSet<Dokument>() {{
-            add(createDokument(ArkivFilType.XML, true));
-        }};
+        Set<Dokument> hoveddokumenter = new HashSet<Dokument>() {
+            {
+                add(createDokument(ArkivFilType.XML, true));
+            }
+        };
         assertThat(tjeneste.korrektAntallOgTyper(hoveddokumenter)).isFalse();
     }
 
     @Test
     public void korrektAntallOgTyper__tre_hoveddokument_er_feil() {
-        Set<Dokument> hoveddokumenter = new HashSet<Dokument>() {{
-            add(createDokument(ArkivFilType.XML, true));
-            add(createDokument(ArkivFilType.PDFA, true));
-            add(createDokument(ArkivFilType.XML, true));
-        }};
+        Set<Dokument> hoveddokumenter = new HashSet<Dokument>() {
+            {
+                add(createDokument(ArkivFilType.XML, true));
+                add(createDokument(ArkivFilType.PDFA, true));
+                add(createDokument(ArkivFilType.XML, true));
+            }
+        };
         assertThat(tjeneste.korrektAntallOgTyper(hoveddokumenter)).isFalse();
     }
 
     @Test
     public void korrektAntallOgTyper__to_xml_hoveddokument_er_feil() {
-        Set<Dokument> hoveddokumenter = new HashSet<Dokument>() {{
-            add(createDokument(ArkivFilType.XML, true));
-            add(createDokument(ArkivFilType.XML, true));
-        }};
+        Set<Dokument> hoveddokumenter = new HashSet<Dokument>() {
+            {
+                add(createDokument(ArkivFilType.XML, true));
+                add(createDokument(ArkivFilType.XML, true));
+            }
+        };
         assertThat(tjeneste.korrektAntallOgTyper(hoveddokumenter)).isFalse();
     }
 
     @Test
     public void korrektAntallOgTyper__to_pdf_hoveddokument_er_feil() {
-        Set<Dokument> hoveddokumenter = new HashSet<Dokument>() {{
-            add(createDokument(ArkivFilType.PDFA, true));
-            add(createDokument(ArkivFilType.PDFA, true));
-        }};
+        Set<Dokument> hoveddokumenter = new HashSet<Dokument>() {
+            {
+                add(createDokument(ArkivFilType.PDFA, true));
+                add(createDokument(ArkivFilType.PDFA, true));
+            }
+        };
         assertThat(tjeneste.korrektAntallOgTyper(hoveddokumenter)).isFalse();
     }
 
     @Test
     public void korrektAntallOgTyper__ett_xml_og_ett_jpeg_hoveddokument_er_feil() {
-        Set<Dokument> hoveddokumenter = new HashSet<Dokument>() {{
-            add(createDokument(ArkivFilType.XML, true));
-            add(createDokument(ArkivFilType.JPEG, true));
-        }};
+        Set<Dokument> hoveddokumenter = new HashSet<Dokument>() {
+            {
+                add(createDokument(ArkivFilType.XML, true));
+                add(createDokument(ArkivFilType.JPEG, true));
+            }
+        };
         assertThat(tjeneste.korrektAntallOgTyper(hoveddokumenter)).isFalse();
     }
 
     @Test
     public void korrektAntallOgTyper__ett_xml_og_ett_pdf_hoveddokument_er_OK() {
-        Set<Dokument> hoveddokumenter = new HashSet<Dokument>() {{
-            add(createDokument(ArkivFilType.XML, true));
-            add(createDokument(ArkivFilType.PDFA, true));
-        }};
+        Set<Dokument> hoveddokumenter = new HashSet<Dokument>() {
+            {
+                add(createDokument(ArkivFilType.XML, true));
+                add(createDokument(ArkivFilType.PDFA, true));
+            }
+        };
         assertThat(tjeneste.korrektAntallOgTyper(hoveddokumenter)).isTrue();
     }
 
     @Test
     public void dokumentforsendelse_status_pending() {
         ForsendelseIdDto forsendelseIdDto = lagForsendelseIdDto();
-        when(dokumentRepositoryMock.hentUnikDokumentMetadata(any(UUID.class))).thenReturn(Optional.of(byggDokumentMetadata(null, null, ForsendelseStatus.PENDING)));
+        when(dokumentRepositoryMock.hentUnikDokumentMetadata(any(UUID.class)))
+                .thenReturn(Optional.of(byggDokumentMetadata(null, null, ForsendelseStatus.PENDING)));
 
-        assertThat(tjeneste.finnStatusinformasjon(forsendelseIdDto.getForsendelseId()).getForsendelseStatus()).isEqualByComparingTo(ForsendelseStatus.PENDING);
+        assertThat(tjeneste.finnStatusinformasjon(forsendelseIdDto.getForsendelseId()).getForsendelseStatus())
+                .isEqualByComparingTo(ForsendelseStatus.PENDING);
     }
 
     @Test
     public void dokumentforsendelse_status_gosys() {
         ForsendelseIdDto forsendelseIdDto = lagForsendelseIdDto();
-        when(dokumentRepositoryMock.hentUnikDokumentMetadata(any(UUID.class))).thenReturn(Optional.of(byggDokumentMetadata("1", null, ForsendelseStatus.GOSYS)));
+        when(dokumentRepositoryMock.hentUnikDokumentMetadata(any(UUID.class)))
+                .thenReturn(Optional.of(byggDokumentMetadata("1", null, ForsendelseStatus.GOSYS)));
 
-        assertThat(tjeneste.finnStatusinformasjon(forsendelseIdDto.getForsendelseId()).getForsendelseStatus()).isEqualByComparingTo(ForsendelseStatus.GOSYS);
+        assertThat(tjeneste.finnStatusinformasjon(forsendelseIdDto.getForsendelseId()).getForsendelseStatus())
+                .isEqualByComparingTo(ForsendelseStatus.GOSYS);
     }
 
     @Test
     public void dokumentforsendelse_status_fpsak() {
         ForsendelseIdDto forsendelseIdDto = lagForsendelseIdDto();
-        when(dokumentRepositoryMock.hentUnikDokumentMetadata(any(UUID.class))).thenReturn(Optional.of(byggDokumentMetadata("1", "1", ForsendelseStatus.FPSAK)));
+        when(dokumentRepositoryMock.hentUnikDokumentMetadata(any(UUID.class)))
+                .thenReturn(Optional.of(byggDokumentMetadata("1", "1", ForsendelseStatus.FPSAK)));
 
-        assertThat(tjeneste.finnStatusinformasjon(forsendelseIdDto.getForsendelseId()).getForsendelseStatus()).isEqualByComparingTo(ForsendelseStatus.FPSAK);
+        assertThat(tjeneste.finnStatusinformasjon(forsendelseIdDto.getForsendelseId()).getForsendelseStatus())
+                .isEqualByComparingTo(ForsendelseStatus.FPSAK);
     }
 
     @Test
