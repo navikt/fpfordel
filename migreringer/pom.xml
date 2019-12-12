@@ -41,9 +41,6 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <environmentVariables>
-                        <TZ>GMT+1</TZ>
-                    </environmentVariables>
                     <mainClass>no.nav.foreldrepenger.fordel.dbstoette.Databaseskjemainitialisering</mainClass>
                     <classpathScope>test</classpathScope>
                     <cleanupDaemonThreads>false</cleanupDaemonThreads>
