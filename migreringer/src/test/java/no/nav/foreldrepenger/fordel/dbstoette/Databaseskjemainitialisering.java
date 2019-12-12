@@ -31,7 +31,9 @@ public final class Databaseskjemainitialisering {
     private static final Pattern placeholderPattern = Pattern.compile("\\$\\{(.*)\\}");
 
     public static void main(String[] args) {
-        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Stockholm"));
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
+        System.setProperty("user.timezone", "+00:00");
+        System.setProperty("oracle.jdbc.timezoneAsRegion", "false");
         migrerUnittestSkjemaer();
     }
 
