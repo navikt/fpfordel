@@ -106,13 +106,19 @@
 				<version>1.0.0</version>
 				<classifier>jaxws</classifier>
 			</dependency>
+            <!--  
 			<dependency>
 				<groupId>no.nav.meldinger.virksomhet</groupId>
 				<artifactId>nav-virksomhet-dokumentnotifikasjon-v1-meldingsdefinisjon</artifactId>
 				<version>1.0.2</version>
 				<classifier>jaxb</classifier>
 			</dependency>
-
+            -->
+            <dependency>
+                <groupId>no.nav.tjenestespesifikasjoner</groupId>
+                <artifactId>nav-virksomhet-dokumentnotifikasjon-v1-meldingsdefinisjon</artifactId>
+                <version>1.2019.09.25-00.21-49b69f0625e0</version>
+            </dependency>
 			<!-- EKSTRA TEST AVHENGIGHETER FOR LOKAL WEBSERVER -->
 			<!-- NB: Definer scope der det brukes, ikke her. -->
 			 <dependency>
