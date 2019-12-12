@@ -32,8 +32,8 @@ public final class Databaseskjemainitialisering {
 
     public static void main(String[] args) {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
-        System.setProperty("user.timezone", "+00:00");
-        System.setProperty("oracle.jdbc.timezoneAsRegion", "false");
+        // System.setProperty("user.timezone", "+00:00");
+        // System.setProperty("oracle.jdbc.timezoneAsRegion", "false");
         migrerUnittestSkjemaer();
     }
 

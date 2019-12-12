@@ -1,6 +1,6 @@
 -- alternativt log på via sqldeveloper el.
 -- set default timezone
--- alter database set TIME_ZONE='+00:00';
+alter database set TIME_ZONE='Europe/Oslo';
 -- skru av soeppelboette
 alter system set recyclebin=OFF DEFERRED;
 alter profile default limit password_life_time unlimited;
