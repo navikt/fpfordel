@@ -4,11 +4,20 @@ on:
   push:
     branches:
       - master 
+      
+      docker.pkg.github.com/navikt/vtp/foreldrepenger-oracle:latest
 
 env:
   IMAGE: docker.pkg.github.com/${{ github.repository }}/fpfordel:${{ github.sha }}
 
 jobs:
+
+  services:
+      oracle:
+        image: foreldrepenger-oracle:latest
+        ports:
+          - 1521:1521
+
   compile:
     name: Compile
     runs-on: ubuntu-latest
