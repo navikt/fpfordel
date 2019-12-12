@@ -7,6 +7,8 @@ on:
       
 env:
   IMAGE: docker.pkg.github.com/${{ github.repository }}/fpfordel:${{ github.sha }}
+  GITHUB_USERNAME: x-access-token
+  GITHUB_PASSWORD: ${{ secrets.GPR }}
 
 jobs:
 
@@ -17,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       oracle:
-        image: navikt/vtp/foreldrepenger-oracle
+        image: docker.pkg.github.com/navikt/vtp/foreldrepenger-oracle
         ports:
           - 1521:1521
     steps:
