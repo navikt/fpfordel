@@ -35,7 +35,7 @@ jobs:
         run: |
           echo $IMAGE
           docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD  docker.pkg.github.com
-          docker pull https://docker.pkg.github.com/navikt/vtp/foreldrepenger-oracle
+          docker pull docker.pkg.github.com/navikt/vtp/foreldrepenger-oracle
           echo "Building $(echo $GITHUB_SHA | cut -c1-7)"
           mvn --settings .github/workflows/.m2/settings.xml clean install
           echo "Built artifacts"
