@@ -5,8 +5,9 @@
     <jaxb:bindings schemaLocation="v1.xsd" node="/xsd:schema">
         <jaxb:schemaBindings>
             <jaxb:nameXmlTransform>
+            <!--
                 <jaxb:typeName prefix="XML"/>
-                <jaxb:elementName prefix="XML"/>
+                <jaxb:elementName prefix="XML"/> -->
             </jaxb:nameXmlTransform>
         </jaxb:schemaBindings>
     </jaxb:bindings>
