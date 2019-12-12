@@ -364,7 +364,7 @@
         </pluginManagement>
         <finalName>app</finalName>
         <plugins>
-
+<!--
             <plugin>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-codegen-plugin</artifactId>
@@ -397,7 +397,7 @@
                     </execution>
                 </executions>
             </plugin>
-
+-->
 
 
 
