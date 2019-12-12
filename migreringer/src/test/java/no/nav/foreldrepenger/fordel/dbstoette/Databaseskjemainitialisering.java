@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -30,6 +31,7 @@ public final class Databaseskjemainitialisering {
     private static final Pattern placeholderPattern = Pattern.compile("\\$\\{(.*)\\}");
 
     public static void main(String[] args) {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         migrerUnittestSkjemaer();
     }
 
@@ -84,7 +86,8 @@ public final class Databaseskjemainitialisering {
         }
     }
 
-    public static void settSchemaPlaceholder(List<DBConnectionProperties> connectionProperties) throws FileNotFoundException {
+    public static void settSchemaPlaceholder(List<DBConnectionProperties> connectionProperties)
+            throws FileNotFoundException {
         for (DBConnectionProperties dbcp : connectionProperties) {
             Matcher matcher = placeholderPattern.matcher(dbcp.getSchema());
             if (matcher.matches()) {
