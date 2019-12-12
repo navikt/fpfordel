@@ -10,15 +10,16 @@ env:
 
 jobs:
 
-  services:
-      oracle:
-        image: foreldrepenger-oracle:latest
-        ports:
-          - 1521:1521
+  
 
   compile:
     name: Compile
     runs-on: ubuntu-latest
+    services:
+      oracle:
+        image: foreldrepenger-oracle:latest
+        ports:
+          - 1521:1521
     steps:
       - uses: actions/checkout@v1
       - uses: actions/cache@v1
