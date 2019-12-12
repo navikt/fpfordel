@@ -9,7 +9,6 @@ env:
   IMAGE: docker.pkg.github.com/${{ github.repository }}/fpfordel:${{ github.sha }}
   DOCKER_LOGIN: x-access-token
   DOCKER_PASSWORD: ${{ secrets.GPR }}
-
 jobs:
 
   
@@ -17,11 +16,6 @@ jobs:
   compile:
     name: Compile
     runs-on: ubuntu-latest
-    services:
-      oracle:
-        image: docker.pkg.github.com/navikt/vtp/foreldrepenger-oracle
-        ports:
-          - 1521:1521
     steps:
       - uses: actions/checkout@v1
       - uses: actions/cache@v1
@@ -40,6 +34,8 @@ jobs:
         shell: bash
         run: |
           echo $IMAGE
+          docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD  docker.pkg.github.com
+          docker pull navikt/vtp/foreldrepenger-oracle
           echo "Building $(echo $GITHUB_SHA | cut -c1-7)"
           mvn --settings .github/workflows/.m2/settings.xml clean install
           echo "Built artifacts"
