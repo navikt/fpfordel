@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       oracle:
-        image: docker.pkg.github.com/navikt/vtp/foreldrepenger-oracle
+        image: navikt/vtp/foreldrepenger-oracle
         ports:
           - 1521:1521
     steps:
