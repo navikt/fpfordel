@@ -327,9 +327,11 @@
                         </goals>
                         <configuration>
                             <defaultOptions>
+                            <!--  
                                 <extraargs>
                                     <extraarg>-xjc-Xfluent-api</extraarg>
                                 </extraargs>
+                                -->
                             </defaultOptions>
                             <wsdlOptions>
                                 <wsdlOption>
@@ -337,10 +339,12 @@
                                     <bindingFiles>
                                         <bindingFile>${wsdl.directory}/behandledokumentforsendelse/bindings.xml</bindingFile>
                                     </bindingFiles>
+                                    <!-- 
                                     <extraargs>
                                         <extraarg>-xjc-XhashCode</extraarg>
                                         <extraarg>-xjc-Xequals</extraarg>
                                     </extraargs>
+                                     -->
                                 </wsdlOption>
                             </wsdlOptions>
                         </configuration>
