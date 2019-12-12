@@ -14,6 +14,10 @@
     <packaging>jar</packaging>
     <name>Fordel :: Web :: Applikasjon</name>
     <properties>
+        <cxf-xjc-boolean.version>3.1.0</cxf-xjc-boolean.version>
+        <jaxb-fluent-api.version>2.1.8</jaxb-fluent-api.version>
+        <cxf.version>3.1.6</cxf.version>
+        <org.jvnet.jaxb2.version>0.11.1</org.jvnet.jaxb2.version>
         <wsdl.directory>src/main/wsdl</wsdl.directory>
     </properties>
     <dependencies>
@@ -287,6 +291,13 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
+            <version>${org.jvnet.jaxb2.version}</version>
+
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>
@@ -312,6 +323,45 @@
     </dependencyManagement>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.cxf</groupId>
+                    <artifactId>cxf-codegen-plugin</artifactId>
+                    <version>${cxf.version}</version>
+                    <executions>
+                        <execution>
+                            <id>wsdl-to-java</id>
+                            <phase>generate-sources</phase>
+                            <goals>
+                                <goal>wsdl2java</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>net.java.dev.jaxb2-commons</groupId>
+                            <artifactId>jaxb-fluent-api</artifactId>
+                            <version>${jaxb-fluent-api.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.jvnet.jaxb2_commons</groupId>
+                            <artifactId>jaxb2-basics</artifactId>
+                            <version>${org.jvnet.jaxb2.version}</version>
+                        </dependency>
+                        <!-- <dependency> <groupId>no.nav.tjenestespesifikasjoner</groupId> 
+                            <artifactId>jaxb-adapters</artifactId> <version>${project.version}</version> 
+                            </dependency> <dependency> <groupId>joda-time</groupId> <artifactId>joda-time</artifactId> 
+                            <version>${joda-time.version}</version> </dependency> -->
+                        <dependency>
+                            <groupId>org.apache.cxf.xjcplugins</groupId>
+                            <artifactId>cxf-xjc-boolean</artifactId>
+                            <version>${cxf-xjc-boolean.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <finalName>app</finalName>
         <plugins>
 
@@ -327,11 +377,9 @@
                         </goals>
                         <configuration>
                             <defaultOptions>
-                            <!--  
                                 <extraargs>
                                     <extraarg>-xjc-Xfluent-api</extraarg>
                                 </extraargs>
-                                -->
                             </defaultOptions>
                             <wsdlOptions>
                                 <wsdlOption>
@@ -339,12 +387,10 @@
                                     <bindingFiles>
                                         <bindingFile>${wsdl.directory}/behandledokumentforsendelse/bindings.xml</bindingFile>
                                     </bindingFiles>
-                                    <!-- 
                                     <extraargs>
                                         <extraarg>-xjc-XhashCode</extraarg>
                                         <extraarg>-xjc-Xequals</extraarg>
                                     </extraargs>
-                                     -->
                                 </wsdlOption>
                             </wsdlOptions>
                         </configuration>
