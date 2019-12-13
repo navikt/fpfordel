@@ -40,7 +40,7 @@ jobs:
       - name: Compile
         run: |
           echo "Building artifacts $(echo $GITHUB_SHA | cut -c1-7)"
-          mvn --quiet --settings .github/workflows/.m2/settings.xml clean deploy
+          mvn --quiet --settings .github/workflows/.m2/settings.xml clean install
           echo "Deployed artifacts"
       - name: Sette Docker- navn og tag
         env:
