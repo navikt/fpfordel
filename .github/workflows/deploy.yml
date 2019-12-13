@@ -37,7 +37,10 @@ jobs:
         run: |
           echo "Bygger artifakt $(echo $GITHUB_SHA | cut -c1-7)"
           mvn --quiet clean deploy --batch-mode --settings .github/workflows/.m2/settings.xml -Dregistry=https://maven.pkg.github.com/navikt -Dtoken=$GITHUB_PASSWORD
-          echo "Bygget artifakt"    
+          echo "Bygget artifakt"
+        env:
+          GITHUB_USERNAME: x-access-token
+          GITHUB_PASSWORD: ${{ secrets.GPR }}  
       - name: Sette Docker navn og tag
         run: |
           echo $IMAGE > .docker_image
