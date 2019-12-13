@@ -40,7 +40,38 @@ jobs:
       - name: Compile
         run: |
           echo "Building artifacts $(echo $GITHUB_SHA | cut -c1-7)"
-          mvn --quiet --settings .github/workflows/.m2/settings.xml clean install
+          mvn --quiet --settings .github/workflows/.m2/settings.xml -Dmaven.wagon.http.pool=false --file pom.xml -Dchangelist= -Dsha1=-$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7) -Dfile.encoding=UTF-8 -DinstallAtEnd=true -DdeployAtEnd=true
+          echo "Deployed artifacts"
+        env:
+          GITHUB_USERNAME: x-access-token
+          GITHUB_PASSWORD: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+          DATASOURCE_HOST: localhost
+          DATASOURCE_PORT: ${{ job.services.postgres.ports[5432] }} # get randomly assigned published port
+
+      - name: Sette Docker- navn og tag
+        env:
+          DOCKER_IMAGE: docker.pkg.github.com/${{ github.repository }}/fpabakus
+        run: |
+          echo $DOCKER_IMAGE > .docker_image
+          echo "$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7)" > .docker_tag
+      - name: Bygge Docker image
+        run: docker build . --pull -t $(cat .docker_image):$(cat .docker_tag)
+      - name: Laste opp Docker image
+        run: |
+          echo "$GITHUB_ACCESS_TOKEN" | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
+          docker push $(cat .docker_image):$(cat .docker_tag)
+          docker tag $(cat .docker_image):$(cat .docker_tag) $(cat .docker_image):latest
+          docker push $(cat .docker_image):latest
+          echo ::set-env name=IMAGE::$(cat .docker_image):$(cat .docker_tag)
+        env:
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+      - name: Deploye til dev
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.DEPLOY_KEY }}
+          CLUSTER: dev-fss
+          RESOURCE: .deploy/t4.yaml
+          
           echo "Deployed artifacts"
       - name: Sette Docker- navn og tag
         env:
