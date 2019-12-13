@@ -34,33 +34,35 @@ jobs:
           sleep 60 
           docker cp initdb.sql `docker ps | tail -1 | awk  '{ print $1}'`:/initdb.sql
           docker exec -e ORACLE_SID=XE -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe `docker ps | tail -1 | awk  '{ print $1}'` /u01/app/oracle/product/11.2.0/xe/bin/sqlplus system/oracle @initdb.sql
-   
-      - name: Bygg, tag og push
-        run: |
-          echo "$Bygger artifakt $(echo $GITHUB_SHA | cut -c1-7)"
-          mvn --quiet clean install --batch-mode --settings .github/workflows/.m2/settings.xml -Dchangelist= -Dsha1=-$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7) 
-          echo "Bygget artifakt"
-        env:
-          GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.GHA }}  
-      - name: Bygg og last opp Docker image
-        run: |
-          echo "$GITHUB_ACCESS_TOKEN" | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
-          echo $DOCKER_IMAGE > .docker_image
-          echo "$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7)" > .docker_tag
-          docker build . --pull -t $(cat .docker_image):$(cat .docker_tag)
-          docker push $(cat .docker_image):$(cat .docker_tag)
-          docker tag $(cat .docker_image):$(cat .docker_tag) $(cat .docker_image):latest
-          docker push $(cat .docker_image):latest
-          echo ::set-env name=IMAGE::$(cat .docker_image):$(cat .docker_tag)
-        env:
-          GITHUB_ACCESS_TOKEN: ${{ secrets.GHA }}
-      - name: Deploy til dev-fss t4
-        uses: nais/deploy/actions/deploy@v1 
-        env:
-          DRY_RUN: false
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: dev-fss
-          RESOURCE: naiserator.yml
-          PRINT_PAYLOAD: true
-          VARS: dev-fss-t4.json
+          echo "Bygger $(echo $GITHUB_SHA | cut -c1-7)"
+          mvn --quiet --settings .github/workflows/.m2/settings.xml clean install
+          echo "Built artifacts"
+ 
+  dockerize:
+    needs: compile
+    name: Build and push Docker container
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build and publish Docker image
+      env:
+        GITHUB_TOKEN: ${{ secrets.GPR }}
+      run: |
+        docker build --tag ${IMAGE} .
+        docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
+        docker push ${IMAGE}
+
+  deploy:
+    name: Deploy to NAIS
+    needs: dockerize
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: nais/deploy/actions/deploy@v1
+      env:
+        PRINT_PAYLOAD: true
+        APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+        CLUSTER: dev-fss
+        RESOURCE: naiserator.yml
+        VARS: dev-fss-t4.yml
