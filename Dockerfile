@@ -5,8 +5,6 @@ ENV APPD_ENABLED=true
 RUN mkdir lib
 RUN mkdir conf
 RUN mkdir webapp
-RUN dir web/target/classes
-
 
 # Config
 COPY web/target/classes/jetty/jaspi-conf.xml conf/
