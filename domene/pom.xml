@@ -13,7 +13,7 @@
     <artifactId>domene</artifactId>
     <name>Fordel :: Domene</name>
     <properties>
-        <jaxb2-maven-plugin.version>1.5</jaxb2-maven-plugin.version>
+        <jaxb2-maven-plugin.version>2.5.0</jaxb2-maven-plugin.version>
         <jaxb2-value-constructor.version>3.0</jaxb2-value-constructor.version>
     </properties>
     <dependencies>
