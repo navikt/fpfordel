@@ -4,6 +4,8 @@ ENV APPD_ENABLED=true
 
 RUN mkdir /app/lib
 RUN mkdir /app/conf
+RUN dir .
+
 
 # Config
 #COPY web/target/classes/*.xml /app/
