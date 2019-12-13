@@ -310,85 +310,10 @@
     <build>
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>org.apache.cxf</groupId>
-                    <artifactId>cxf-codegen-plugin</artifactId>
-                    <version>${cxf.version}</version>
-                    <configuration />
-
-                    <executions>
-                        <execution>
-                            <id>wsdl-to-java</id>
-                            <phase>generate-sources</phase>
-                            <goals>
-                                <goal>wsdl2java</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <dependencies>
-                        <dependency>
-                            <groupId>net.java.dev.jaxb2-commons</groupId>
-                            <artifactId>jaxb-fluent-api</artifactId>
-                            <version>${jaxb-fluent-api.version}</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.jvnet.jaxb2_commons</groupId>
-                            <artifactId>jaxb2-basics</artifactId>
-                            <version>${org.jvnet.jaxb2.version}</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>no.nav.tjenestespesifikasjoner</groupId>
-                            <artifactId>jaxb-adapters</artifactId>
-                            <version>1.2019.09.25-00.21-49b69f0625e0</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.cxf.xjcplugins</groupId>
-                            <artifactId>cxf-xjc-boolean</artifactId>
-                            <version>${cxf-xjc-boolean.version}</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
             </plugins>
         </pluginManagement>
         <finalName>app</finalName>
         <plugins>
-            <plugin>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-codegen-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>wsdl-to-java</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>wsdl2java</goal>
-                        </goals>
-                        <configuration>
-                            <defaultOptions>
-                                <extraargs>
-                                        
-                                    <extraarg>-verbose</extraarg>
-                                    <extraarg>-xjc-Xfluent-api</extraarg>
-                                </extraargs>
-                            </defaultOptions>
-                            <wsdlOptions>
-                                <wsdlOption>
-                                    <wsdl>${wsdl.directory}/no/nav/tjeneste/virksomhet/behandleDokumentforsendelse/v1/Binding.wsdl</wsdl>
-                                    <bindingFiles>
-                                        <bindingFile>${wsdl.directory}/behandledokumentforsendelse/bindings.xml</bindingFile>
-                                    </bindingFiles>
-                                    <extraargs>
-                                        <extraarg>-xjc-XhashCode</extraarg>
-                                        <extraarg>-xjc-Xequals</extraarg>
-                                    </extraargs>
-                                </wsdlOption>
-                            </wsdlOptions>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>

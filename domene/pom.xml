@@ -135,13 +135,13 @@
         </dependency>
 
         <!-- NAV -->
-  
+ <!-- 
         <dependency>
             <groupId>no.nav.meldinger.virksomhet</groupId>
             <artifactId>nav-virksomhet-dokumentnotifikasjon-v1-meldingsdefinisjon</artifactId>
             <classifier>jaxb</classifier>
         </dependency>
-   <!--    
+       
          <dependency> <groupId>no.nav.tjenestespesifikasjoner</groupId> 
             <artifactId>nav-virksomhet-dokumentnotifikasjon-v1-meldingsdefinisjon</artifactId> 
             </dependency> -->
@@ -184,6 +184,34 @@
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxb2-maven-plugin</artifactId>
+                <version>${jaxb2-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>xjc</id>
+                        <goals>
+                            <goal>xjc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <extension>true</extension>
+                    <arguments>-Xvalue-constructor</arguments>
+                    <bindingDirectory>src/main/wsdl/</bindingDirectory>
+                    <schemaDirectory>
+                        src/main/wsdl
+                    </schemaDirectory>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jvnet.jaxb2_commons</groupId>
+                        <artifactId>jaxb2-value-constructor</artifactId>
+                        <version>${jaxb2-value-constructor.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
         </plugins>
     </build>
 </project>
