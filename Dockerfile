@@ -17,4 +17,4 @@ COPY web/target/app.jar .
 COPY web/target/lib/*.jar ./
 
 ENV JAVA_OPTS="-Xmx1024m -Xms128m \
-    -Djava.security.egd=file:/dev/urandom 
+    -Djava.security.egd=file:/dev/urandom
