@@ -17,7 +17,7 @@ import javax.xml.stream.XMLStreamException;
 import org.xml.sax.SAXException;
 
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
-import no.nav.melding.virksomhet.dokumentnotifikasjon.v1.Forsendelsesinformasjon;
+import no.nav.melding.virksomhet.dokumentnotifikasjon.v1.XMLForsendelsesinformasjon;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
@@ -55,7 +55,7 @@ public class MottakAsyncJmsConsumer extends InternalQueueConsumer {
     public void handle(Message message) throws JMSException {
         if (message instanceof TextMessage) {
             String messageText = ((TextMessage) message).getText();
-            Forsendelsesinformasjon forsendelsesinfo = parseMessage(messageText);
+            XMLForsendelsesinformasjon forsendelsesinfo = parseMessage(messageText);
             meldingsFordeler.execute(forsendelsesinfo);
         } else {
             FeilFactory.create(Feilene.class).ikkestøttetMessage(message.getClass()).log(log);
@@ -67,11 +67,11 @@ public class MottakAsyncJmsConsumer extends InternalQueueConsumer {
         Feil ikkestøttetMessage(Class<? extends Message> klasse);
     }
 
-    public static Forsendelsesinformasjon parseMessage(String messageText) {
+    public static XMLForsendelsesinformasjon parseMessage(String messageText) {
 
-        Forsendelsesinformasjon forsendelsesinfo;
+        XMLForsendelsesinformasjon forsendelsesinfo;
         try {
-            forsendelsesinfo = JaxbHelper.unmarshalAndValidateXMLWithStAX(Forsendelsesinformasjon.class, messageText,
+            forsendelsesinfo = JaxbHelper.unmarshalAndValidateXMLWithStAX(XMLForsendelsesinformasjon.class, messageText,
                     "xsd/dokumentnotifikasjon/dokumentnotifikasjon-v1.xsd");
         } catch (JAXBException e) {
             throw MottakMeldingFeil.FACTORY.uventetFeilVedProsesseringAvForsendelsesInfoXMLMedJaxb(e).toException();

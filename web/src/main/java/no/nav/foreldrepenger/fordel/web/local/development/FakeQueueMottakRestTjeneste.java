@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
 
 import no.nav.foreldrepenger.mottak.queue.MeldingsFordeler;
 import no.nav.foreldrepenger.mottak.queue.MottakAsyncJmsConsumer;
-import no.nav.melding.virksomhet.dokumentnotifikasjon.v1.Forsendelsesinformasjon;
+import no.nav.melding.virksomhet.dokumentnotifikasjon.v1.XMLForsendelsesinformasjon;
 import no.nav.vedtak.felles.jpa.Transaction;
 
 @Path("/mottak")
@@ -47,7 +47,7 @@ public class FakeQueueMottakRestTjeneste {
         try (Scanner scanner = new Scanner(request.getInputStream(), Charset.defaultCharset().name())) {
             scanner.useDelimiter("\\Z");
             final String dokumentForsendelse = scanner.next();
-            final Forsendelsesinformasjon forsendelsesinformasjon = MottakAsyncJmsConsumer
+            final XMLForsendelsesinformasjon forsendelsesinformasjon = MottakAsyncJmsConsumer
                     .parseMessage(dokumentForsendelse);
             meldingsFordeler.execute(forsendelsesinformasjon);
         } catch (IOException e) {
