@@ -365,6 +365,7 @@
                         <configuration>
                             <defaultOptions>
                                 <extraargs>
+                                    <extraarg>-verbose</extraarg>
                                     <extraarg>-xjc-Xfluent-api</extraarg>
                                 </extraargs>
                             </defaultOptions>
@@ -375,6 +376,7 @@
                                         <bindingFile>${wsdl.directory}/behandledokumentforsendelse/bindings.xml</bindingFile>
                                     </bindingFiles>
                                     <extraargs>
+                                        <extraarg>-verbose</extraarg>
                                         <extraarg>-xjc-XhashCode</extraarg>
                                         <extraarg>-xjc-Xequals</extraarg>
                                     </extraargs>
