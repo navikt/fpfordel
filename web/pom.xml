@@ -14,7 +14,6 @@
     <packaging>jar</packaging>
     <name>Fordel :: Web :: Applikasjon</name>
     <properties>
-        <felles.version>1.3.1-20191206111422-3a1aed3</felles.version>
         <cxf-xjc-boolean.version>3.1.0</cxf-xjc-boolean.version>
         <jaxb-fluent-api.version>2.1.8</jaxb-fluent-api.version>
         <cxf.version>3.3.0</cxf.version>
@@ -60,9 +59,9 @@
             <artifactId>migreringer</artifactId>
             <scope>compile</scope>
         </dependency>
-        <!-- <dependency> <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId> 
-            <artifactId>kodeverk-klient</artifactId> </dependency> -->
-        <!-- Foreldrepengeprosjektet -->
+         <dependency> <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId> 
+            <artifactId>kodeverk-klient</artifactId> </dependency> 
+        <!-- Foreldrepengeprosjektet  -->
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-prosesstask</artifactId>
