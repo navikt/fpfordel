@@ -34,7 +34,6 @@
             <artifactId>swagger-ui</artifactId>
             <version>3.24.3</version>
         </dependency>
-        <!-- Database håndtering -->
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
@@ -48,7 +47,6 @@
             <artifactId>ojdbc8</artifactId>
         </dependency>
 
-        <!-- Reaktor -->
         <dependency>
             <groupId>no.nav.foreldrepenger.fordel</groupId>
             <artifactId>domene</artifactId>
@@ -61,7 +59,6 @@
         </dependency>
          <dependency> <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId> 
             <artifactId>kodeverk-klient</artifactId> </dependency> 
-        <!-- Foreldrepengeprosjektet  -->
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-prosesstask</artifactId>
@@ -93,7 +90,6 @@
             <artifactId>felles-util</artifactId>
         </dependency>
 
-        <!-- REST + WebService -->
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>felles-integrasjon-rest</artifactId>
@@ -116,7 +112,6 @@
             </exclusions>
         </dependency>
 
-        <!-- CDI -->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
@@ -126,13 +121,11 @@
             <artifactId>weld-servlet-core</artifactId>
         </dependency>
 
-        <!-- For Status side -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
 
-        <!-- Validering -->
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
@@ -146,7 +139,6 @@
             <artifactId>javax.el</artifactId>
         </dependency>
 
-        <!-- Server -->
         <dependency>
             <groupId>org.picketbox</groupId>
             <artifactId>picketbox</artifactId>
@@ -199,7 +191,6 @@
             <artifactId>cxf-rt-transports-http-jetty</artifactId>
         </dependency>
 
-        <!-- Metrics, logging, helse- og healthchecks -->
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-servlets</artifactId>
@@ -208,25 +199,21 @@
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-healthchecks</artifactId>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/io.prometheus/simpleclient_dropwizard -->
         <dependency>
             <groupId>io.prometheus</groupId>
             <artifactId>simpleclient_dropwizard</artifactId>
             <version>0.8.0</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/io.prometheus/simpleclient -->
         <dependency>
             <groupId>io.prometheus</groupId>
             <artifactId>simpleclient</artifactId>
             <version>0.8.0</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/io.prometheus/simpleclient_hotspot -->
         <dependency>
             <groupId>io.prometheus</groupId>
             <artifactId>simpleclient_hotspot</artifactId>
             <version>0.8.0</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/io.prometheus/simpleclient_common -->
         <dependency>
             <groupId>io.prometheus</groupId>
             <artifactId>simpleclient_common</artifactId>
@@ -241,8 +228,6 @@
             <groupId>com.papertrailapp</groupId>
             <artifactId>logback-syslog4j</artifactId>
         </dependency>
-
-        <!-- Java10 -->
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
@@ -268,7 +253,6 @@
             <artifactId>saaj-impl</artifactId>
         </dependency>
 
-        <!-- Annet -->
         <dependency>
             <groupId>org.owasp.encoder</groupId>
             <artifactId>encoder</artifactId>
@@ -280,7 +264,6 @@
         </dependency>
 
 
-        <!-- Test avhengigheter -->
         <dependency>
             <groupId>no.nav.foreldrepenger.fordel</groupId>
             <artifactId>migreringer</artifactId>
