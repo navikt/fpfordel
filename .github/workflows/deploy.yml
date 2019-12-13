@@ -38,8 +38,6 @@ jobs:
           docker exec -e ORACLE_SID=XE -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe `docker ps | tail -1 | awk  '{ print $1}'` /u01/app/oracle/product/11.2.0/xe/bin/sqlplus system/oracle @initdb.sql
           echo "Bygger $(echo $GITHUB_SHA | cut -c1-7)"
           mvn --quiet --settings .github/workflows/.m2/settings.xml clean install
-          ls -l
-          ls -lR web
           echo "Built artifacts"
  
   dockerize:
