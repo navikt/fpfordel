@@ -79,6 +79,11 @@
             <artifactId>nav-behandleDokumentforsendelse-v1-tjenestespesifikasjon</artifactId>
             <classifier>jaxws</classifier>
         </dependency>
+        <dependency>
+            <groupId>no.nav.tjenestespesifikasjoner</groupId>
+            <artifactId>behandledokumentforsendelse-v1-tjenestespesifikasjon</artifactId>
+            <version>1.2019.09.25-00.21-49b69f0625e0</version>
+        </dependency>
         <!-- Server Provided Libraries. Transitive avhengigheter som ikke 
             burde vært her da de trekkes inn av server. -->
         <dependency>
@@ -309,8 +314,8 @@
 
     <build>
         <pluginManagement>
-            <plugins>
-            </plugins>
+            <plugins />
+
         </pluginManagement>
         <finalName>app</finalName>
         <plugins>
