@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.TimeZone;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -45,6 +46,10 @@ import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
 
 public class BehandleDokumentServiceTest {
+
+    static {
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
+    }
 
     private BehandleDokumentService behandleDokumentService;
 
