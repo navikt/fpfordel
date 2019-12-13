@@ -103,17 +103,18 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- NAV -->
-            <dependency>
-                <groupId>no.nav.tjenestespesifikasjoner</groupId>
-                <artifactId>behandledokumentforsendelse-v1-tjenestespesifikasjon</artifactId>
-                <version>${tjenestespesifikasjon.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.tjenestespesifikasjoner</groupId>
-                <artifactId>nav-virksomhet-dokumentnotifikasjon-v1-meldingsdefinisjon</artifactId>
-                <version>${tjenestespesifikasjon.version}</version>
-            </dependency>
+			<!-- NAV -->
+			<dependency>
+				<groupId>no.nav.tjenestespesifikasjoner</groupId>
+				<artifactId>behandledokumentforsendelse-v1-tjenestespesifikasjon</artifactId>
+				<version>1.2019.11.15-14.51-ee264fbf814c</version>
+			</dependency>
+			<dependency>
+				<groupId>no.nav.tjenestespesifikasjoner</groupId>
+				<artifactId>nav-virksomhet-dokumentnotifikasjon-v1-meldingsdefinisjon</artifactId>
+				<version>1.2019.11.15-14.51-ee264fbf814c</version>
+			</dependency>
+
                 <!-- EKSTRA TEST AVHENGIGHETER FOR LOKAL WEBSERVER -->
             <!-- NB: Definer scope der det brukes, ikke her. -->
             <dependency>
