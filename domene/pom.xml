@@ -135,13 +135,13 @@
         </dependency>
 
         <!-- NAV -->
- <!-- 
+  
         <dependency>
             <groupId>no.nav.meldinger.virksomhet</groupId>
             <artifactId>nav-virksomhet-dokumentnotifikasjon-v1-meldingsdefinisjon</artifactId>
             <classifier>jaxb</classifier>
         </dependency>
-       
+   <!--    
          <dependency> <groupId>no.nav.tjenestespesifikasjoner</groupId> 
             <artifactId>nav-virksomhet-dokumentnotifikasjon-v1-meldingsdefinisjon</artifactId> 
             </dependency> -->
