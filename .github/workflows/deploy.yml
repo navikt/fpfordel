@@ -42,8 +42,8 @@ jobs:
           docker exec -e ORACLE_SID=XE -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe `docker ps | tail -1 | awk  '{ print $1}'` /u01/app/oracle/product/11.2.0/xe/bin/sqlplus system/oracle @initdb.sql
       - name: Compile
         run: |
-          echo "Bygger artifakt $(echo $GITHUB_SHA | cut -c1-7)"
-          mvn --quiet clean deploy --batch-mode --settings .github/workflows/.m2/settings.xml -Dregistry=https://maven.pkg.github.com/navikt -Dtoken=$GITHUB_PASSWORD
+          echo "$GITHUB_USERNAME $GITHUB_PASSWORD Bygger artifakt $(echo $GITHUB_SHA | cut -c1-7)"
+          mvn --quiet clean compile --batch-mode --settings .github/workflows/.m2/settings.xml 
           echo "Bygget artifakt"
         env:
           GITHUB_USERNAME: x-access-token
