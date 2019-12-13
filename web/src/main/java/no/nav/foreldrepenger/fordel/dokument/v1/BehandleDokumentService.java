@@ -31,12 +31,12 @@ import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.TilJournalføringTjeneste;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
-import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.binding.BehandleDokumentforsendelseV1;
-import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.binding.OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet;
-import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.binding.OppdaterOgFerdigstillJournalfoeringUgyldigInput;
-import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.feil.JournalpostIkkeFunnet;
-import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.feil.UgyldigInput;
-import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.meldinger.OppdaterOgFerdigstillJournalfoeringRequest;
+import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.BehandleDokumentforsendelseV1;
+import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet;
+import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.OppdaterOgFerdigstillJournalfoeringUgyldigInput;
+import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.feil.WSJournalpostIkkeFunnet;
+import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.feil.WSUgyldigInput;
+import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.meldinger.WSOppdaterOgFerdigstillJournalfoeringRequest;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
@@ -102,7 +102,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
     @Transaction
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, ressurs = BeskyttetRessursResourceAttributt.FAGSAK)
     public void oppdaterOgFerdigstillJournalfoering(
-            @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) OppdaterOgFerdigstillJournalfoeringRequest request)
+            @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) WSOppdaterOgFerdigstillJournalfoeringRequest request)
             throws OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet,
             OppdaterOgFerdigstillJournalfoeringUgyldigInput {
 
@@ -159,7 +159,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         Optional<JournalMetadata<DokumentTypeId>> optJournalMetadata = hentDataFraJoarkTjeneste
                 .hentHoveddokumentMetadata(arkivId);
         if (optJournalMetadata.isEmpty()) {
-            JournalpostIkkeFunnet journalpostIkkeFunnet = new JournalpostIkkeFunnet();
+            WSJournalpostIkkeFunnet journalpostIkkeFunnet = new WSJournalpostIkkeFunnet();
             journalpostIkkeFunnet.setFeilmelding("Finner ikke journalpost med id " + arkivId);
             journalpostIkkeFunnet.setFeilaarsak("Finner ikke journalpost");
             throw new OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet(journalpostIkkeFunnet.getFeilmelding(),
@@ -195,21 +195,21 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
     private void validerSaksnummer(String saksnummer) throws OppdaterOgFerdigstillJournalfoeringUgyldigInput {
         if (erNullEllerTom(saksnummer)) {
-            UgyldigInput ugyldigInput = lagUgyldigInput(SAKSNUMMER_UGYLDIG);
+            WSUgyldigInput ugyldigInput = lagUgyldigInput(SAKSNUMMER_UGYLDIG);
             throw new OppdaterOgFerdigstillJournalfoeringUgyldigInput(ugyldigInput.getFeilmelding(), ugyldigInput);
         }
     }
 
     private void validerArkivId(String arkivId) throws OppdaterOgFerdigstillJournalfoeringUgyldigInput {
         if (erNullEllerTom(arkivId)) {
-            UgyldigInput ugyldigInput = lagUgyldigInput(JOURNALPOST_MANGLER);
+            WSUgyldigInput ugyldigInput = lagUgyldigInput(JOURNALPOST_MANGLER);
             throw new OppdaterOgFerdigstillJournalfoeringUgyldigInput(ugyldigInput.getFeilmelding(), ugyldigInput);
         }
     }
 
     private void validerEnhetId(String enhetId) throws OppdaterOgFerdigstillJournalfoeringUgyldigInput {
         if (enhetId == null) {
-            UgyldigInput ugyldigInput = lagUgyldigInput(ENHET_MANGLER);
+            WSUgyldigInput ugyldigInput = lagUgyldigInput(ENHET_MANGLER);
             throw new OppdaterOgFerdigstillJournalfoeringUgyldigInput(ugyldigInput.getFeilmelding(), ugyldigInput);
         }
     }
@@ -262,8 +262,8 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         }
     }
 
-    private UgyldigInput lagUgyldigInput(String melding) {
-        UgyldigInput faultInfo = new UgyldigInput();
+    private WSUgyldigInput lagUgyldigInput(String melding) {
+        WSUgyldigInput faultInfo = new WSUgyldigInput();
         faultInfo.setFeilmelding(melding);
         faultInfo.setFeilaarsak("Ugyldig input");
         return faultInfo;
@@ -273,7 +273,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
         @Override
         public AbacDataAttributter apply(Object obj) {
-            OppdaterOgFerdigstillJournalfoeringRequest req = (OppdaterOgFerdigstillJournalfoeringRequest) obj;
+            WSOppdaterOgFerdigstillJournalfoeringRequest req = (WSOppdaterOgFerdigstillJournalfoeringRequest) obj;
             var attributter = AbacDataAttributter.opprett()
                     .leggTil(AppAbacAttributtType.SAKSNUMMER, req.getSakId());
             if (req.getJournalpostId() != null) {
