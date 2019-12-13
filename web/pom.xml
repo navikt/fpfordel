@@ -376,7 +376,6 @@
                                         <bindingFile>${wsdl.directory}/behandledokumentforsendelse/bindings.xml</bindingFile>
                                     </bindingFiles>
                                     <extraargs>
-                                        <extraarg>-verbose</extraarg>
                                         <extraarg>-xjc-XhashCode</extraarg>
                                         <extraarg>-xjc-Xequals</extraarg>
                                     </extraargs>
