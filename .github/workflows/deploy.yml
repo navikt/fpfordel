@@ -43,7 +43,7 @@ jobs:
       - name: Compile
         run: |
           echo "Bygger artifakt $(echo $GITHUB_SHA | cut -c1-7)"
-          mvn --quiet clean deploy --batch-mode --settings .github/workflows/.m2/settings.xml -Dmaven.wagon.http.pool=false --file pom.xml -Dchangelist= -Dsha1=-$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7) -Dfile.encoding=UTF-8 -DinstallAtEnd=true -DdeployAtEnd=true
+          mvn --quiet clean deploy --batch-mode --settings .github/workflows/.m2/settings.xml -Dregistry=https://maven.pkg.github.com/navikt -Dtoken=$GITHUB_PASSWORD
           echo "Bygget artifakt"    
       - name: Sette Docker navn og tag
         run: |
