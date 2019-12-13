@@ -466,9 +466,9 @@
         <url>https://github.com/navikt/fpfordel</url>
     </scm>
 
-    <distributionManagement>
+	<distributionManagement>
         <repository>
-            <id>fpfordel</id>
+            <id>github</id>
             <name>Github navikt Maven Packages</name>
             <url>https://maven.pkg.github.com/navikt/fpfordel</url>
         </repository>
