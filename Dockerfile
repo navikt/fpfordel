@@ -6,8 +6,6 @@ ENV APP_NAME=fpfordel
 RUN mkdir lib
 RUN mkdir conf
 RUN mkdir webapp
-RUN dir web/target/classes
-
 
 # Config
 COPY web/target/classes/jetty/jaspi-conf.xml conf/

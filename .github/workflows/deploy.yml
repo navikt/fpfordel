@@ -5,8 +5,14 @@ on:
     branches:
       - gha 
 env:
+<<<<<<< HEAD
   DOCKER_IMAGE: docker.pkg.github.com/${{ github.repository }}/fpfordel
          
+=======
+  IMAGE: docker.pkg.github.com/${{ github.repository }}/fpfordel:${{ github.sha }}
+  GITHUB_USERNAME: x-access-token
+  GITHUB_PASSWORD: ${{ secrets.GPR }}
+>>>>>>> fix dockerfile
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,12 +28,8 @@ jobs:
         with:
           java-version: 1.11
       - name: Hent oracle image
-        env:
-          GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.GPR }}
         shell: bash
         run: |
-          docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD  docker.pkg.github.com
           echo "Starter Oracle image"
           docker run -d -p 1521:1521 --name oracle-xe -e ORACLE_DISABLE_ASYNCH_IO=true wnameless/oracle-xe-11g-r2
       - name: Vent 60 sekunder på Oracle oppstart
@@ -40,17 +42,12 @@ jobs:
           docker exec -e ORACLE_SID=XE -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe `docker ps | tail -1 | awk  '{ print $1}'` /u01/app/oracle/product/11.2.0/xe/bin/sqlplus system/oracle @initdb.sql
       - name: Compile
         run: |
-          echo "Building artifacts $(echo $GITHUB_SHA | cut -c1-7)"
-          mvn --quiet clean install --batch-mode --settings .github/workflows/.m2/settings.xml -Dmaven.wagon.http.pool=false --file pom.xml -Dchangelist= -Dsha1=-$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7) -Dfile.encoding=UTF-8 -DinstallAtEnd=true -DdeployAtEnd=false
-          echo "Deployed artifacts"
-        env:
-          GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.GPR }}  
-      - name: Sette Docker- navn og tag
-        env:
-          DOCKER_IMAGE: docker.pkg.github.com/${{ github.repository }}/fpfordel
+          echo "Bygger artifakt $(echo $GITHUB_SHA | cut -c1-7)"
+          mvn --quiet clean deploy --batch-mode --settings .github/workflows/.m2/settings.xml -Dmaven.wagon.http.pool=false --file pom.xml -Dchangelist= -Dsha1=-$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7) -Dfile.encoding=UTF-8 -DinstallAtEnd=true -DdeployAtEnd=true
+          echo "Bygget artifakt"    
+      - name: Sette Docker navn og tag
         run: |
-          echo $DOCKER_IMAGE > .docker_image
+          echo $IMAGE > .docker_image
           echo "$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7)" > .docker_tag
       - name: Bygge Docker image
-        run: docker build . --pull -t $(cat .docker_image):$(cat .docker_tag)
+        run: docker build . --pull -t $IMAGE:$(cat .docker_tag)
