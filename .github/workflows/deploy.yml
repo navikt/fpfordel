@@ -5,14 +5,9 @@ on:
     branches:
       - gha 
 env:
-<<<<<<< HEAD
-  DOCKER_IMAGE: docker.pkg.github.com/${{ github.repository }}/fpfordel
-         
-=======
   IMAGE: docker.pkg.github.com/${{ github.repository }}/fpfordel:${{ github.sha }}
   GITHUB_USERNAME: x-access-token
   GITHUB_PASSWORD: ${{ secrets.GPR }}
->>>>>>> fix dockerfile
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -42,12 +37,12 @@ jobs:
           docker exec -e ORACLE_SID=XE -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe `docker ps | tail -1 | awk  '{ print $1}'` /u01/app/oracle/product/11.2.0/xe/bin/sqlplus system/oracle @initdb.sql
       - name: Compile
         run: |
-          echo "$GITHUB_USERNAME $GITHUB_PASSWORD Bygger artifakt $(echo $GITHUB_SHA | cut -c1-7)"
+          echo "$Bygger artifakt $(echo $GITHUB_SHA | cut -c1-7)"
           mvn --quiet clean deploy --batch-mode --settings .github/workflows/.m2/settings.xml 
           echo "Bygget artifakt"
         env:
           GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.GPR }}  
+          GITHUB_PASSWORD: ${{ secrets.GIHUB_ACCESS_TOKEN }}  
       - name: Sette Docker navn og tag
         run: |
           echo $IMAGE > .docker_image
