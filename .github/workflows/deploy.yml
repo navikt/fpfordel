@@ -22,7 +22,7 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 1.11
-      - name: Hent oracle image
+      - name: Hent Oracle image
         shell: bash
         run: |
           echo "Starter Oracle image"
@@ -35,6 +35,10 @@ jobs:
           sleep 60 
           docker cp initdb.sql `docker ps | tail -1 | awk  '{ print $1}'`:/initdb.sql
           docker exec -e ORACLE_SID=XE -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe `docker ps | tail -1 | awk  '{ print $1}'` /u01/app/oracle/product/11.2.0/xe/bin/sqlplus system/oracle @initdb.sql
+      - name: Vent 50 sekunder på Oracle oppstart
+        shell: bash
+        run: |
+          sleep 50  
       - name: Compile
         run: |
           echo "$Bygger artifakt $(echo $GITHUB_SHA | cut -c1-7)"
