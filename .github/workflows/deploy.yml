@@ -52,3 +52,12 @@ jobs:
           echo "$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7)" > .docker_tag
       - name: Bygge Docker image
         run: docker build . --pull -t $(cat .docker_image):$(cat .docker_tag)
+      - name: Laste opp Docker image
+        run: |
+          echo "$GITHUB_ACCESS_TOKEN" | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
+          docker push $(cat .docker_image):$(cat .docker_tag)
+          docker tag $(cat .docker_image):$(cat .docker_tag) $(cat .docker_image):latest
+          docker push $(cat .docker_image):latest
+          echo ::set-env name=IMAGE::$(cat .docker_image):$(cat .docker_tag)
+        env:
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GHA }}
