@@ -84,7 +84,7 @@ public class SerializationTest {
     }
 
     private static void test(Object object) throws IOException {
-        test(object, true);
+        test(object, false);
     }
 
     private static void test(Object object, boolean log) throws IOException {
