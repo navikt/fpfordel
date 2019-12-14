@@ -32,7 +32,7 @@ jobs:
         run: |
           echo "Venter på oppstart av Oracle"
           docker ps
-          sleep 50 
+          sleep 60 
           docker cp initdb.sql `docker ps | tail -1 | awk  '{ print $1}'`:/initdb.sql
           docker exec -e ORACLE_SID=XE -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe `docker ps | tail -1 | awk  '{ print $1}'` /u01/app/oracle/product/11.2.0/xe/bin/sqlplus system/oracle @initdb.sql
    
