@@ -13,6 +13,4 @@ COPY web/target/classes/jetty/jaspi-conf.xml conf/
 # Application Container (Jetty)
 COPY web/target/app.jar .
 COPY web/target/lib/*.jar ./
-
-ENV JAVA_OPTS="-Xmx1024m -Xms128m \
-    -Djava.security.egd=file:/dev/urandom
+ENV JAVA_OPTS="-Xmx1024m -Xms128m -Djava.security.egd=file:/dev/urandom"
