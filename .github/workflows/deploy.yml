@@ -43,7 +43,7 @@ jobs:
           GITHUB_PASSWORD: ${{ secrets.GHA }}  
       - name: Sette Docker navn og tag
         env:
-          DOCKER_IMAGE: docker.pkg.github.com/${{ github.repository }}/fpinfo
+          DOCKER_IMAGE: docker.pkg.github.com/${{ github.repository }}/fpfordel
         run: |
           echo $DOCKER_IMAGE > .docker_image
           echo "$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7)" > .docker_tag
