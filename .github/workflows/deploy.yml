@@ -36,7 +36,7 @@ jobs:
       - name: Compile
         run: |
           echo "$GITHUB_USERNAME $GITHUB_PASSWORD Bygger artifakt $(echo $GITHUB_SHA | cut -c1-7)"
-          mvn --quiet clean install --batch-mode --settings .github/workflows/.m2/settings.xml 
+          mvn --quiet clean deploy --batch-mode --settings .github/workflows/.m2/settings.xml 
           echo "Bygget artifakt"
         env:
           GITHUB_USERNAME: x-access-token
