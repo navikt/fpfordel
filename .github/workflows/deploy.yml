@@ -27,18 +27,15 @@ jobs:
         run: |
           echo "Starter Oracle image"
           docker run -d -p 1521:1521 --name oracle-xe -e ORACLE_DISABLE_ASYNCH_IO=true wnameless/oracle-xe-11g-r2
-      - name: Vent 60 sekunder på Oracle oppstart
+      - name: Vent 50 sekunder på Oracle oppstart
         shell: bash
         run: |
           echo "Venter på oppstart av Oracle"
           docker ps
-          sleep 60 
+          sleep 50 
           docker cp initdb.sql `docker ps | tail -1 | awk  '{ print $1}'`:/initdb.sql
           docker exec -e ORACLE_SID=XE -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe `docker ps | tail -1 | awk  '{ print $1}'` /u01/app/oracle/product/11.2.0/xe/bin/sqlplus system/oracle @initdb.sql
-      - name: Vent 50 sekunder på Oracle oppstart
-        shell: bash
-        run: |
-          sleep 50  
+   
       - name: Compile
         run: |
           echo "$Bygger artifakt $(echo $GITHUB_SHA | cut -c1-7)"
