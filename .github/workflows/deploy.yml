@@ -45,7 +45,7 @@ jobs:
         env:
           DOCKER_IMAGE: docker.pkg.github.com/${{ github.repository }}/fpinfo
         run: |
-          echo $IMAGE > .docker_image
+          echo $DOCKER_IMAGE > .docker_image
           echo "$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7)" > .docker_tag
       - name: Bygge Docker image
         run: docker build . --pull -t $IMAGE:$(cat .docker_tag)
