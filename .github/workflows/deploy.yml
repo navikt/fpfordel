@@ -32,7 +32,7 @@ jobs:
       - name: Compile
         run: |
           echo "$Bygger artifakt $(echo $GITHUB_SHA | cut -c1-7)"
-          mvn --quiet clean deploy --batch-mode --settings .github/workflows/.m2/settings.xml 
+          mvn --quiet clean install --batch-mode --settings .github/workflows/.m2/settings.xml 
           echo "Bygget artifakt"
         env:
           GITHUB_USERNAME: x-access-token
