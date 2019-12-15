@@ -25,7 +25,7 @@
 
         <java.version>11</java.version>
         <argLine>-Xms256m -Dfile.encoding=UTF-8 -Dlog.level.no.nav=WARN</argLine> <!-- default argLine for surefire-plugin -->
-        <jacoco.skip>true</jacoco.skip> 
+        <jacoco.skip>true</jacoco.skip> <!-- default skip coverage -->
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -103,21 +103,19 @@
                 <version>${project.version}</version>
             </dependency>
 
-			<!-- NAV -->
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>behandledokumentforsendelse-v1-tjenestespesifikasjon</artifactId>
-				<version>1.2019.11.15-14.51-ee264fbf814c</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>nav-virksomhet-dokumentnotifikasjon-v1-meldingsdefinisjon</artifactId>
-				<version>1.2019.11.15-14.51-ee264fbf814c</version>
-			</dependency>
-
-                <!-- EKSTRA TEST AVHENGIGHETER FOR LOKAL WEBSERVER -->
-            <!-- NB: Definer scope der det brukes, ikke her. -->
+            <!-- NAV -->
             <dependency>
+                <groupId>no.nav.tjenestespesifikasjoner</groupId>
+                <artifactId>behandledokumentforsendelse-v1-tjenestespesifikasjon</artifactId>
+                <version>1.2019.11.15-14.51-ee264fbf814c</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.tjenestespesifikasjoner</groupId>
+                <artifactId>nav-virksomhet-dokumentnotifikasjon-v1-meldingsdefinisjon</artifactId>
+                <version>1.2019.11.15-14.51-ee264fbf814c</version>
+            </dependency>
+            <dependency>
+                <!-- Bør flyttes til no.nav.vedtak.felles:felles? -->
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpmime</artifactId>
                 <version>4.5.10</version>
@@ -199,6 +197,7 @@
                 <artifactId>assertj-core</artifactId>
                 <version>3.14.0</version>
             </dependency>
+<<<<<<< HEAD
 
             <dependency>
                 <groupId>org.glassfish.jaxb</groupId>
@@ -228,6 +227,48 @@
                 <version>2.1.4</version>
             </dependency>
 
+=======
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>5.5.2</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.vintage</groupId>
+                <artifactId>junit-vintage-engine</artifactId>
+                <version>5.5.2</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <version>2.4.0-b180830.0438</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>2.4.0-b180830.0359</version>
+            </dependency>
+
+            <!-- Java11 -->
+            <dependency>
+                <groupId>org.jboss.classfilewriter</groupId>
+                <artifactId>jboss-classfilewriter</artifactId>
+                <version>1.2.4.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>3.26.0-GA</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.santuario</groupId>
+                <artifactId>xmlsec</artifactId>
+                <version>2.1.4</version>
+            </dependency>
+
+>>>>>>> junit 5 med vintage engine
             <!-- Database -->
             <dependency>
                 <groupId>com.oracle.ojdbc</groupId>
@@ -242,14 +283,20 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
+<<<<<<< HEAD
             <version>${junit5.version}</version>
             <scope>test</scope>
+=======
+>>>>>>> junit 5 med vintage engine
         </dependency>
         <dependency>
             <groupId>org.junit.vintage</groupId>
             <artifactId>junit-vintage-engine</artifactId>
+<<<<<<< HEAD
             <version>${junit5.version}</version>
             <scope>test</scope>
+=======
+>>>>>>> junit 5 med vintage engine
         </dependency>
         <dependency>
             <groupId>com.oracle.ojdbc</groupId>
@@ -460,13 +507,13 @@
 
     </profiles>
 
-	<scm>
-		<connection>scm:git:ssh://git@github.com:navikt/fpfordel.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com:navikt/fpfordel.git</developerConnection>
-		<url>https://github.com/navikt/fpfordel</url>
-	</scm>
+    <scm>
+        <connection>scm:git:ssh://git@github.com:navikt/fpfordel.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:navikt/fpfordel.git</developerConnection>
+        <url>https://github.com/navikt/fpfordel</url>
+    </scm>
 
-	<distributionManagement>
+    <distributionManagement>
         <repository>
             <id>fpfordel</id>
             <name>Github navikt Maven Packages</name>
