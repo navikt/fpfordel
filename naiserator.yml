@@ -33,23 +33,14 @@ spec:
     max: 2
     cpuThresholdPercentage: 80
   resources:
-    limits:
-      cpu: 500m
-      memory: 2048Mi
-    requests:
-      cpu: 200m
-      memory: 1024Mi
-  vault:
-    enabled: true
-    paths:
-    - kvPath: {{oraclekv}}
-      mountPath: /var/run/secrets/nais.io/defaultDS
-    - kvPath: {{serviceuserkv}}
-      mountPath: /var/run/secrets/nais.io/srvfpfordel
-    - kvPath: /kv/{{cluster}}/fss/fpfordel/{{namespace}}
-      mountPath: /var/run/secrets/nais.io/vault
+      limits:
+        cpu: 1500m
+        memory: 3072Mi
+      requests:
+        cpu: 250m
+        memory: 1536Mi 
   env: 
-{{#each env}}
+  {{#each env}}
    - name: {{@key}}
      value: "{{this}}"
-{{/each}}    
+  {{/each}}        
