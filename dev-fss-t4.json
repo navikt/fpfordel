@@ -2,6 +2,12 @@
   "namespace" : "t4",
   "ingresses": ["https://fpfordel-t4.nais.preprod.local/fpfordel"],
   "env": {
-    "infotrygdsakv1_url": "https://modapp-t4.adeo.no/infotrygd-ws/InfotrygdSak/v1",
+    "defaultds_url": "jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=d26dbfl020.test.local)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=FPFORDELT4)(INSTANCE_NAME=cctf01)(UR=A)(SERVER=DEDICATED)))",
+    "defaultds_username": "FPFORDEL_T4",
+    "infotrygdsakv1_url": "https://modapp-t4.adeo.no/infotrygd-ws/InfotrygdSak/v1"
+    "mqgateway02_hostname" : "d26apvl258.test.local",
+    "mqgateway02_port": "1412",
+    "mqgateway02_name": "MTXLSC02",
+    "mqgateway02_channel": "T4_FPFORDEL"
    }
 }
