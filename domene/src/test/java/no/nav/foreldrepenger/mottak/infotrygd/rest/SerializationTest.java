@@ -71,7 +71,7 @@ public class SerializationTest {
     }
 
     private void testJson(String json, Class<?> clazz) throws Exception {
-        testJson(json, clazz, true);
+        testJson(json, clazz, false);
     }
 
     private void testJson(String json, Class<?> clazz, boolean log) throws Exception {
