@@ -45,9 +45,11 @@ jobs:
           GITHUB_PASSWORD: ${{ secrets.GHA }}  
       - name: Bygg og last opp Docker image
         run: |
-          echo "Bygger ${IMAGE} for ${GITHUB_REPOSITORY}"
-          docker build  --tag ${IMAGE} .
-          docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_ACCESS_TOKEN} 
-          docker push ${IMAGE}
+          echo $IMAGE > .docker_image
+          echo "$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7)" > .docker_tag
+          docker push $(cat .docker_image):$(cat .docker_tag)
+          docker tag $(cat .docker_image):$(cat .docker_tag) $(cat .docker_image):latest
+          docker push $(cat .docker_image):latest
+          echo ::set-env name=IMAGE::$(cat .docker_image):$(cat .docker_tag)
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.GHA }}
