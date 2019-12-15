@@ -1,8 +1,7 @@
 {
   "namespace" : "t4",
+  "ingresses": ["https://fpfordel-t4.nais.preprod.local/fpfordel"],
   "env": {
     "infotrygdsakv1.url": "https://modapp-t4.adeo.no/infotrygd-ws/InfotrygdSak/v1",
-    "ingresses": 
-        ["https://fpfordel-t4.nais.preprod.local/fpfordel"]
-  }
+   }
 }
