@@ -14,7 +14,6 @@
     <name>Fordel :: Domene</name>
     <properties>
         <jaxb2-maven-plugin.version>1.5</jaxb2-maven-plugin.version>
-        <jaxb2-value-constructor.version>3.0</jaxb2-value-constructor.version>
     </properties>
     <dependencies>
         <dependency>
@@ -172,36 +171,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jaxb2-maven-plugin</artifactId>
-                <version>${jaxb2-maven-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>xjc</id>
-                        <goals>
-                            <goal>xjc</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <extension>true</extension>
-                    <arguments>-Xvalue-constructor</arguments>
-                    <bindingDirectory>src/main/wsdl/</bindingDirectory>
-                    <schemaDirectory>
-                        src/main/wsdl
-                    </schemaDirectory>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.jvnet.jaxb2_commons</groupId>
-                        <artifactId>jaxb2-value-constructor</artifactId>
-                        <version>${jaxb2-value-constructor.version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-        </plugins>
-    </build>
 </project>

@@ -307,10 +307,6 @@
     </dependencyManagement>
 
     <build>
-        <pluginManagement>
-            <plugins />
-
-        </pluginManagement>
         <finalName>app</finalName>
         <plugins>
             <plugin>
