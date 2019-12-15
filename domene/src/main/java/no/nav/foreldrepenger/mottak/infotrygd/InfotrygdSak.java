@@ -1,14 +1,12 @@
 package no.nav.foreldrepenger.mottak.infotrygd;
 
-import static no.nav.foreldrepenger.fordel.kodeverk.RelatertYtelseTema.ENSLIG_FORSORGER_TEMA;
-import static no.nav.foreldrepenger.fordel.kodeverk.RelatertYtelseTema.FORELDREPENGER_TEMA;
-import static no.nav.foreldrepenger.fordel.kodeverk.RelatertYtelseTema.SYKEPENGER_TEMA;
+import static no.nav.foreldrepenger.fordel.kodeverdi.RelatertYtelseTema.FORELDREPENGER_TEMA;
 
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.fordel.kodeverk.RelatertYtelseBehandlingstema;
+import no.nav.foreldrepenger.fordel.kodeverdi.RelatertYtelseBehandlingstema;
 
 public class InfotrygdSak {
     private final String tema;
@@ -45,10 +43,6 @@ public class InfotrygdSak {
         return registrert;
     }
 
-    public boolean gjelderEnsligForsorger() {
-        return ENSLIG_FORSORGER_TEMA.getKode().equals(tema);
-    }
-
     public boolean gjelderForeldrepenger() {
         return FORELDREPENGER_TEMA.getKode().equals(tema)
                 && RelatertYtelseBehandlingstema.erGjelderForeldrepenger(behandlingsTema);
@@ -57,10 +51,6 @@ public class InfotrygdSak {
     public boolean gjelderSvangerskapspenger() {
         return FORELDREPENGER_TEMA.getKode().equals(tema)
                 && RelatertYtelseBehandlingstema.erGjelderSvangerskapspenger(behandlingsTema);
-    }
-
-    public boolean gjelderSykepenger() {
-        return SYKEPENGER_TEMA.getKode().equals(tema);
     }
 
     public boolean gjelderEngangsstonad() {

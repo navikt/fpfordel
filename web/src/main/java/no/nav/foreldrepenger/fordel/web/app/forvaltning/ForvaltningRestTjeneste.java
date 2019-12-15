@@ -18,7 +18,6 @@ import javax.ws.rs.core.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
@@ -39,7 +38,6 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 public class ForvaltningRestTjeneste {
 
     private ProsessTaskRepository prosessTaskRepository;
-    private KodeverkRepository kodeverkRepository;
     FagsakRestKlient fagsakRestKlient;
 
     public ForvaltningRestTjeneste() {
@@ -47,10 +45,9 @@ public class ForvaltningRestTjeneste {
     }
 
     @Inject
-    public ForvaltningRestTjeneste(ProsessTaskRepository prosessTaskRepository, KodeverkRepository kodeverkRepository,
+    public ForvaltningRestTjeneste(ProsessTaskRepository prosessTaskRepository,
             FagsakRestKlient fagsakRestKlient) {
         this.prosessTaskRepository = prosessTaskRepository;
-        this.kodeverkRepository = kodeverkRepository;
         this.fagsakRestKlient = fagsakRestKlient;
     }
 
@@ -90,7 +87,7 @@ public class ForvaltningRestTjeneste {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         data.setCallIdFraEksisterende();
-        MottakMeldingDataWrapper dataWrapperFra = new MottakMeldingDataWrapper(kodeverkRepository, data);
+        MottakMeldingDataWrapper dataWrapperFra = new MottakMeldingDataWrapper(data);
         MottakMeldingDataWrapper dataWrapperTil = dataWrapperFra.nesteSteg(KlargjorForVLTask.TASKNAME);
         dataWrapperTil.setSaksnummer(dto.getSaksnummerDto().getSaksnummer());
         dataWrapperTil.setArkivId(dto.getJournalpostIdDto().getJournalpostId());
@@ -115,7 +112,7 @@ public class ForvaltningRestTjeneste {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         data.setCallIdFraEksisterende();
-        var dataWrapperFra = new MottakMeldingDataWrapper(kodeverkRepository, data);
+        var dataWrapperFra = new MottakMeldingDataWrapper(data);
         if (!dataWrapperFra.getArkivId().equals(dto.getJournalpostIdDto().getJournalpostId())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
@@ -138,7 +135,7 @@ public class ForvaltningRestTjeneste {
             @Parameter(description = "Task som skal midl journalførs") @NotNull @Valid ProsessTaskIdDto taskId) {
         var data = prosessTaskRepository.finn(taskId.getProsessTaskId());
         if (data != null) {
-            var dataWrapperFra = new MottakMeldingDataWrapper(kodeverkRepository, data);
+            var dataWrapperFra = new MottakMeldingDataWrapper(data);
             var dataWrapperTil = dataWrapperFra.nesteSteg(MidlJournalføringTask.TASKNAME);
             prosessTaskRepository.lagre(dataWrapperTil.getProsessTaskData());
         }

@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.mottak.journal;
 
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 
 public class JournalDokument<T extends DokumentTypeId> {
 

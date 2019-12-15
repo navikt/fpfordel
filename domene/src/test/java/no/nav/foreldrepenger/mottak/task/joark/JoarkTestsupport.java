@@ -11,11 +11,10 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
-import no.nav.foreldrepenger.fordel.kodeverk.ArkivFilType;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentKategori;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.MottakKanal;
-import no.nav.foreldrepenger.fordel.kodeverk.VariantFormat;
+import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.VariantFormat;
 import no.nav.foreldrepenger.mottak.journal.JournalMetadata;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -41,7 +40,6 @@ class JoarkTestsupport {
         builder.medJournalpostId(ARKIV_ID);
         builder.medDokumentId(DOKUMENT_ID);
         builder.medVariantFormat(variantFormat);
-        builder.medMottakKanal(MottakKanal.EIA);
         builder.medDokumentType(dokumentTypeId);
         builder.medDokumentKategori(DOKUMENT_KATEGORI);
         builder.medArkivFilType(arkivfilType);

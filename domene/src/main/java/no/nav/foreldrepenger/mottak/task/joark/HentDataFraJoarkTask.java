@@ -9,10 +9,9 @@ import java.util.Optional;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.Tema;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
@@ -51,9 +50,9 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     private final LocalDate fastsattInntektsmeldingStartdatoFristForManuellBehandling = KonfigVerdier.ENDRING_BEREGNING_DATO;
 
     @Inject
-    public HentDataFraJoarkTask(ProsessTaskRepository prosessTaskRepository, KodeverkRepository kodeverkRepository,
+    public HentDataFraJoarkTask(ProsessTaskRepository prosessTaskRepository,
             AktørConsumer aktørConsumer, JoarkDokumentHåndterer joarkDokumentHåndterer) {
-        super(prosessTaskRepository, kodeverkRepository);
+        super(prosessTaskRepository);
         this.aktørConsumer = aktørConsumer;
         this.joarkDokumentHåndterer = joarkDokumentHåndterer;
     }
@@ -69,7 +68,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     @Override
     public void postcondition(MottakMeldingDataWrapper dataWrapper) {
         if (!OpprettGSakOppgaveTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())
-                && !dataWrapper.getAktørId().isPresent()) {
+                && dataWrapper.getAktørId().isEmpty()) {
             throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
                     MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
         }
@@ -85,11 +84,10 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
         // Legg til task-parametere fra innkommende journalpost
         DokumentTypeId dokumentTypeId = HentDataFraJoarkTjeneste.hentDokumentTypeId(hoveddokumenter);
-        dataWrapper.setDokumentTypeId(kodeverkRepository.finn(DokumentTypeId.class, dokumentTypeId));
-        dataWrapper.setDokumentKategori(HentDataFraJoarkTjeneste.hentDokumentKategori(hoveddokumenter));
-        dataWrapper.setBehandlingTema(kodeverkRepository.finn(BehandlingTema.class,
-                HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(dataWrapper.getTema(),
-                        dataWrapper.getBehandlingTema(), dokumentTypeId)));
+        dataWrapper.setDokumentTypeId(dokumentTypeId);
+        HentDataFraJoarkTjeneste.hentDokumentKategori(hoveddokumenter).ifPresent(dataWrapper::setDokumentKategori);
+        dataWrapper.setBehandlingTema(HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(
+                dataWrapper.getTema(), dataWrapper.getBehandlingTema(), dokumentTypeId));
         dataWrapper.setForsendelseMottattTidspunkt(
                 HentDataFraJoarkTjeneste.hentForsendelseMottattTidspunkt(hoveddokumenter));
         HentDataFraJoarkTjeneste.hentJournalførendeEnhet(hoveddokumenter)
@@ -104,7 +102,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
                     .unmarshallXMLDokument(journalDokument.getXml());
             mottattDokument.kopierTilMottakWrapper(dataWrapper, joarkDokumentHåndterer::hentGyldigAktørFraPersonident);
             dataWrapper.setPayload(journalDokument.getXml());
-            if (!(dataWrapper.getForsendelseMottattTidspunkt().isPresent())) {
+            if (dataWrapper.getForsendelseMottattTidspunkt().isEmpty()) {
                 dataWrapper.setForsendelseMottattTidspunkt(FPDateUtil.nå());
             }
         }
@@ -113,7 +111,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
 
-        if (dokumentTypeId.erInntektsmelding()) {
+        if (DokumentTypeId.erInntektsmelding(dokumentTypeId)) {
             return håndterInntektsmelding(dataWrapper);
         }
 
@@ -123,20 +121,19 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     private MottakMeldingDataWrapper håndterInntektsmelding(MottakMeldingDataWrapper dataWrapper) {
         Optional<String> imYtelse = dataWrapper.getInntektsmeldingYtelse();
-        if (!imYtelse.isPresent()) {
+        if (imYtelse.isEmpty()) {
             throw MottakMeldingFeil.FACTORY.manglerYtelsePåInntektsmelding().toException();
         }
-        BehandlingTema behandlingTemaFraIM = kodeverkRepository.finnForKodeverkEiersTermNavn(BehandlingTema.class,
-                imYtelse.get(), BehandlingTema.UDEFINERT);
+        BehandlingTema behandlingTemaFraIM =BehandlingTema.fraTermNavn(imYtelse.get());
 
         dataWrapper.setInntektsmeldingYtelse(imYtelse.get());
         dataWrapper.setBehandlingTema(behandlingTemaFraIM);
 
-        if (behandlingTemaFraIM.gjelderForeldrepenger()) {
+        if (BehandlingTema.gjelderForeldrepenger(behandlingTemaFraIM)) {
             return kreverStartdatoForInntektsmeldingenManuellBehandling(dataWrapper)
                     ? dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME)
                     : dataWrapper.nesteSteg(HentOgVurderVLSakTask.TASKNAME);
-        } else if (behandlingTemaFraIM.gjelderSvangerskapspenger()) {
+        } else if (BehandlingTema.gjelderSvangerskapspenger(behandlingTemaFraIM)) {
             return sjekkOmInntektsmeldingGjelderMann(dataWrapper)
                     ? dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME)
                     : dataWrapper.nesteSteg(HentOgVurderVLSakTask.TASKNAME);

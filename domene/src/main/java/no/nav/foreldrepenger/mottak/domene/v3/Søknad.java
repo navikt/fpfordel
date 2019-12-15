@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBElement;
 
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.domene.MeldingKonverteringFeil;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;

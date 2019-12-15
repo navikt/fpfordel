@@ -9,8 +9,8 @@ import java.util.UUID;
 
 import org.junit.Test;
 
-import no.nav.foreldrepenger.fordel.kodeverk.ArkivFilType;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 
 public class DokumentforsendelseRequestTest {
@@ -33,7 +33,8 @@ public class DokumentforsendelseRequestTest {
                 .build();
 
         assertThat(request.getTittel()).isNotEmpty();
-        assertThat(request.getTittel()).isEqualToIgnoringCase("Ettersendelse: Inntektsmelding (2x), Dokumentasjon_av_termin_eller_fødsel (1x)");
+        assertThat(request.getTittel()).containsIgnoringCase("Inntektsmelding (2x)");
+        assertThat(request.getTittel()).containsIgnoringCase("Dokumentasjon_av_termin_eller_fødsel (1x)");
     }
 
     @Test

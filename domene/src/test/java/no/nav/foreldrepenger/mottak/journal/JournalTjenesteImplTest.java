@@ -22,11 +22,8 @@ import org.mockito.ArgumentCaptor;
 import no.nav.dok.tjenester.mottainngaaendeforsendelse.ForsendelseInformasjon;
 import no.nav.dok.tjenester.mottainngaaendeforsendelse.MottaInngaaendeForsendelseRequest;
 import no.nav.dok.tjenester.mottainngaaendeforsendelse.MottaInngaaendeForsendelseResponse;
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.fordel.kodeverk.ArkivFilType;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepositoryImpl;
+import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseRequest;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseResponse;
@@ -82,10 +79,6 @@ public class JournalTjenesteImplTest {
     private static final String DOKUMENT_ID = "1234";
     private static final UUID FORSENDELSE_ID = UUID.randomUUID();
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private KodeverkRepository kodeverkRepository = new KodeverkRepositoryImpl(repoRule.getEntityManager());
-
     private JournalTjeneste journalTjeneste; // tjenesten som testes;
 
     @Rule
@@ -99,12 +92,11 @@ public class JournalTjenesteImplTest {
 
     @Before
     public void setUp() throws Exception {
-        journalTjeneste = new JournalTjenesteImpl(journalConsumerMock,
+        journalTjeneste = new JournalTjeneste(journalConsumerMock,
                 inngaaendeMock,
                 behandleInngaaendeMock,
                 inngaaendeForsendelseKlient,
-                aktørConsumerMock,
-                kodeverkRepository);
+                aktørConsumerMock);
     }
 
     @Test

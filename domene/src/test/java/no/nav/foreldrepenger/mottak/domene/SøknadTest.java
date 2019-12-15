@@ -5,15 +5,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepositoryImpl;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.domene.v3.Søknad;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.vedtak.exception.FunksjonellException;
@@ -43,10 +41,6 @@ public class SøknadTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private KodeverkRepository kodeverkRepository = new KodeverkRepositoryImpl(repoRule.getEntityManager());
-
     Soeknad søknad;
     Bruker bruker;
     AktørConsumer aktørConsumer;
@@ -61,7 +55,7 @@ public class SøknadTest {
         søknad.setSoeker(bruker);
         søknad.setMottattDato(LocalDate.of(2018, 3, 8));
         aktørConsumer = mock(AktørConsumer.class);
-        test = new MottakMeldingDataWrapper(kodeverkRepository, new ProsessTaskData("TEST"));
+        test = new MottakMeldingDataWrapper(new ProsessTaskData("TEST"));
         test.setAktørId(AKTØR_ID);
         søknadXmlWrapper = (Søknad) MottattStrukturertDokument.toXmlWrapper(søknad);
     }

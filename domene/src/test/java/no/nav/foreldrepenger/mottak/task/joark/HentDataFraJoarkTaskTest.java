@@ -22,12 +22,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepositoryImpl;
-import no.nav.foreldrepenger.fordel.kodeverk.Tema;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.JournalDokument;
@@ -46,10 +43,6 @@ public class HentDataFraJoarkTaskTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private KodeverkRepository kodeverkRepository = new KodeverkRepositoryImpl(repoRule.getEntityManager());
-
     private ProsessTaskData taskData;
     private HentDataFraJoarkTask joarkTaskTestobjekt;
     private MottakMeldingDataWrapper dataWrapper;
@@ -58,7 +51,6 @@ public class HentDataFraJoarkTaskTest {
     @Mock
     private AktørConsumer aktørConsumer;
     private JoarkTestsupport joarkTestsupport = new JoarkTestsupport();
-    private String fastsattInntektsmeldingStartdatoFristForManuellBehandling = "2019-01-01";
 
     @Before
     public void setUp() throws Exception {
@@ -66,11 +58,11 @@ public class HentDataFraJoarkTaskTest {
 
         ProsessTaskRepository ptr = mock(ProsessTaskRepository.class);
         joarkDokumentHåndterer = mock(JoarkDokumentHåndterer.class);
-        joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, kodeverkRepository, aktørConsumer, joarkDokumentHåndterer));
+        joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, aktørConsumer, joarkDokumentHåndterer));
 
         taskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
         taskData.setSekvens("1");
-        dataWrapper = new MottakMeldingDataWrapper(kodeverkRepository, taskData);
+        dataWrapper = new MottakMeldingDataWrapper(taskData);
         dataWrapper.setArkivId(ARKIV_ID);
     }
 

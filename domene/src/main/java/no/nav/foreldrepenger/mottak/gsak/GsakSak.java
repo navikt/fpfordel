@@ -1,12 +1,12 @@
-package no.nav.foreldrepenger.mottak.gsak.api;
+package no.nav.foreldrepenger.mottak.gsak;
 
 import static java.util.Objects.requireNonNull;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.fordel.kodeverk.Fagsystem;
-import no.nav.foreldrepenger.fordel.kodeverk.Tema;
+import no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 
 public class GsakSak {
 

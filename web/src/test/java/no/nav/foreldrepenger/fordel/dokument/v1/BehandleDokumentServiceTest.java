@@ -20,22 +20,17 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
 
-import org.hamcrest.core.IsInstanceOf;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentMatchers;
 
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.fordel.kodeverk.ArkivFilType;
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentKategori;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepositoryImpl;
-import no.nav.foreldrepenger.fordel.kodeverk.MottakKanal;
-import no.nav.foreldrepenger.fordel.kodeverk.VariantFormat;
+import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.VariantFormat;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.journal.JournalDokument;
@@ -61,10 +56,6 @@ public class BehandleDokumentServiceTest {
     private static final String BRUKER_FNR = "01234567890";
 
     @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private KodeverkRepository kodeverkRepository = new KodeverkRepositoryImpl(repoRule.getEntityManager());
-
-    @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
     private TilJournalføringTjeneste tilJournalføringTjenesteMock;
@@ -84,13 +75,13 @@ public class BehandleDokumentServiceTest {
     @SuppressWarnings("unchecked")
     @Before
     public void setUp() {
-        engangsstønadFødsel = kodeverkRepository.finn(BehandlingTema.class, BehandlingTema.ENGANGSSTØNAD_FØDSEL);
-        foreldrepengerFødsel = kodeverkRepository.finn(BehandlingTema.class, BehandlingTema.FORELDREPENGER_FØDSEL);
-        foreldrepengerAdopsjon = kodeverkRepository.finn(BehandlingTema.class, BehandlingTema.FORELDREPENGER_ADOPSJON);
-        engangsstønad = kodeverkRepository.finn(BehandlingTema.class, BehandlingTema.ENGANGSSTØNAD);
-        foreldrepenger = kodeverkRepository.finn(BehandlingTema.class, BehandlingTema.FORELDREPENGER);
-        DokumentTypeId dokumentTypeId = kodeverkRepository.finn(DokumentTypeId.class, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
-        navnDokumentTypeId = dokumentTypeId.getNavn();
+        engangsstønadFødsel = BehandlingTema.ENGANGSSTØNAD_FØDSEL;
+        foreldrepengerFødsel = BehandlingTema.FORELDREPENGER_FØDSEL;
+        foreldrepengerAdopsjon = BehandlingTema.FORELDREPENGER_ADOPSJON;
+        engangsstønad = BehandlingTema.ENGANGSSTØNAD;
+        foreldrepenger = BehandlingTema.FORELDREPENGER;
+        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
+        navnDokumentTypeId = dokumentTypeId.getTermNavn();
 
         fagsakRestKlientMock = mock(FagsakRestKlient.class);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
@@ -114,12 +105,12 @@ public class BehandleDokumentServiceTest {
         when(aktørConsumer.hentAktørIdForPersonIdent(BRUKER_FNR)).thenReturn(Optional.of(AKTØR_ID));
 
         behandleDokumentService = new BehandleDokumentService(tilJournalføringTjenesteMock, hentDataFraJoarkTjenesteMock, klargjørForVLTjenesteMock,
-                fagsakRestKlientMock, kodeverkRepository, aktørConsumer);
+                fagsakRestKlientMock, aktørConsumer);
     }
 
     @Test
     public void skalValiderePåkrevdInput_enhetId() throws Exception {
-        expectedException.expectCause(IsInstanceOf.instanceOf(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class));
+        expectedException.expect(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class);
         expectedException.expectMessage(BehandleDokumentService.ENHET_MANGLER);
 
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(null, JOURNALPOST_ID, SAKSNUMMER);
@@ -128,7 +119,7 @@ public class BehandleDokumentServiceTest {
 
     @Test
     public void skalValiderePåkrevdInput_journalpostId() throws Exception {
-        expectedException.expectCause(IsInstanceOf.instanceOf(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class));
+        expectedException.expect(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class);
         expectedException.expectMessage(BehandleDokumentService.JOURNALPOST_MANGLER);
 
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, null, SAKSNUMMER);
@@ -137,7 +128,7 @@ public class BehandleDokumentServiceTest {
 
     @Test
     public void skalValiderePåkrevdInput_saksnummer() throws Exception {
-        expectedException.expectCause(IsInstanceOf.instanceOf(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class));
+        expectedException.expect(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class);
         expectedException.expectMessage(BehandleDokumentService.SAKSNUMMER_UGYLDIG);
 
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, null);
@@ -160,10 +151,10 @@ public class BehandleDokumentServiceTest {
 
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
-                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, kodeverkRepository.finn(BehandlingTema.class, BehandlingTema.UDEFINERT).getOffisiellKode(), false)));
+                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, BehandlingTema.UDEFINERT.getOffisiellKode(), false)));
 
         when(journalMetadata.getDokumentTypeId()).thenReturn(DokumentTypeId.KLAGE_DOKUMENT);
-        when(journalMetadata.getDokumentKategori()).thenReturn(DokumentKategori.KLAGE_ELLER_ANKE);
+        when(journalMetadata.getDokumentKategori()).thenReturn(Optional.of(DokumentKategori.KLAGE_ELLER_ANKE));
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
     }
 
@@ -173,7 +164,7 @@ public class BehandleDokumentServiceTest {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
 
         when(journalMetadata.getDokumentTypeId()).thenReturn(DokumentTypeId.KLAGE_DOKUMENT);
-        when(journalMetadata.getDokumentKategori()).thenReturn(DokumentKategori.KLAGE_ELLER_ANKE);
+        when(journalMetadata.getDokumentKategori()).thenReturn(Optional.of(DokumentKategori.KLAGE_ELLER_ANKE));
         when(tilJournalføringTjenesteMock.tilJournalføring(any(), any(), any(), any(), any())).thenReturn(true);
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
@@ -200,7 +191,7 @@ public class BehandleDokumentServiceTest {
     public void skalTillateJournalførinAvInntektsmeldingForeldrepender() throws Exception {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         when(tilJournalføringTjenesteMock.tilJournalføring(any(), any(), any(), any(), any())).thenReturn(true);
-        DokumentTypeId dokumentTypeId = kodeverkRepository.finn(DokumentTypeId.class, DokumentTypeId.INNTEKTSMELDING);
+        DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepengerFødsel.getOffisiellKode(), false)));
@@ -213,7 +204,7 @@ public class BehandleDokumentServiceTest {
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID, dokumentTypeId.getNavn());
+        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID, dokumentTypeId.getTermNavn());
         verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(), eq(foreldrepengerFødsel), any(), any(), any());
     }
 
@@ -221,7 +212,7 @@ public class BehandleDokumentServiceTest {
     public void skalIkkeTillateJournalførinAvInntektsmeldingSvangerskapspenger() throws Exception {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
 
-        DokumentTypeId dokumentTypeId = kodeverkRepository.finn(DokumentTypeId.class, DokumentTypeId.INNTEKTSMELDING);
+        DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepengerFødsel.getOffisiellKode(), false)));
@@ -239,7 +230,7 @@ public class BehandleDokumentServiceTest {
     public void skalIkkeTillateJournalførinAvSøknadMedUttakFørGrense() throws Exception {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
 
-        DokumentTypeId dokumentTypeId = kodeverkRepository.finn(DokumentTypeId.class, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
+        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode(), false)));
@@ -262,7 +253,7 @@ public class BehandleDokumentServiceTest {
     public void skalIkkeTillateJournalførinAvSøknadMedOmsorgFørGrense() throws Exception {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
 
-        DokumentTypeId dokumentTypeId = kodeverkRepository.finn(DokumentTypeId.class, DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON);
+        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON;
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode(), false)));
@@ -285,7 +276,7 @@ public class BehandleDokumentServiceTest {
     public void skalTillateJournalførinAvSøknadMedUttakEtterGrense() throws Exception {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         when(tilJournalføringTjenesteMock.tilJournalføring(any(), any(), any(), any(), any())).thenReturn(true);
-        DokumentTypeId dokumentTypeId = kodeverkRepository.finn(DokumentTypeId.class, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
+        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode(), false)));
@@ -298,7 +289,7 @@ public class BehandleDokumentServiceTest {
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID, dokumentTypeId.getNavn());
+        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID, dokumentTypeId.getTermNavn());
         verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(), eq(foreldrepengerFødsel), any(), any(), any());
     }
 
@@ -306,7 +297,7 @@ public class BehandleDokumentServiceTest {
     public void skalTillateJournalførinAvSøknadMedOmsorgEtterGrense() throws Exception {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         when(tilJournalføringTjenesteMock.tilJournalføring(any(), any(), any(), any(), any())).thenReturn(true);
-        DokumentTypeId dokumentTypeId = kodeverkRepository.finn(DokumentTypeId.class, DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON);
+        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON;
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode(), false)));
@@ -319,7 +310,7 @@ public class BehandleDokumentServiceTest {
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID, dokumentTypeId.getNavn());
+        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID, dokumentTypeId.getTermNavn());
         verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(), eq(foreldrepengerAdopsjon), any(), any(), any());
     }
 
@@ -327,7 +318,7 @@ public class BehandleDokumentServiceTest {
     public void skalTillateJournalførinAvEndringsSøknadMedAnnetSaksnummer() throws Exception {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         when(tilJournalføringTjenesteMock.tilJournalføring(any(), any(), any(), any(), any())).thenReturn(true);
-        DokumentTypeId dokumentTypeId = kodeverkRepository.finn(DokumentTypeId.class, DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD);
+        DokumentTypeId dokumentTypeId = DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD;
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode(), false)));
@@ -340,7 +331,7 @@ public class BehandleDokumentServiceTest {
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID, dokumentTypeId.getNavn());
+        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID, dokumentTypeId.getTermNavn());
         verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(), eq(foreldrepenger), any(), any(), any());
     }
 
@@ -368,7 +359,6 @@ public class BehandleDokumentServiceTest {
         builder.medJournalpostId(JOURNALPOST_ID);
         builder.medDokumentId(ENHETID);
         builder.medVariantFormat(VariantFormat.FULLVERSJON);
-        builder.medMottakKanal(MottakKanal.EIA);
         builder.medDokumentType(dokumentTypeId);
         builder.medDokumentKategori(DokumentKategori.UDEFINERT);
         builder.medArkivFilType(ArkivFilType.XML);

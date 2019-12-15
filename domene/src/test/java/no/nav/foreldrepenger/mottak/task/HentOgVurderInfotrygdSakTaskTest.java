@@ -2,18 +2,18 @@ package no.nav.foreldrepenger.mottak.task;
 
 import static java.time.LocalDate.now;
 import static java.util.Collections.emptyList;
-import static no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema.ENGANGSSTØNAD_FØDSEL;
-import static no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema.FORELDREPENGER;
-import static no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema.FORELDREPENGER_FØDSEL;
-import static no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema.SVANGERSKAPSPENGER;
-import static no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD;
-import static no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId.INNTEKTSMELDING;
-import static no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
-import static no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
-import static no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER;
-import static no.nav.foreldrepenger.fordel.kodeverk.Fagsystem.FPSAK;
-import static no.nav.foreldrepenger.fordel.kodeverk.Fagsystem.INFOTRYGD;
-import static no.nav.foreldrepenger.fordel.kodeverk.Tema.FORELDRE_OG_SVANGERSKAPSPENGER;
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.ENGANGSSTØNAD_FØDSEL;
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.FORELDREPENGER;
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.FORELDREPENGER_FØDSEL;
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.SVANGERSKAPSPENGER;
+import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD;
+import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.INNTEKTSMELDING;
+import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
+import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
+import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER;
+import static no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem.FPSAK;
+import static no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem.INFOTRYGD;
+import static no.nav.foreldrepenger.fordel.kodeverdi.Tema.FORELDRE_OG_SVANGERSKAPSPENGER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -22,7 +22,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.Period;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -38,14 +37,11 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import no.finn.unleash.Unleash;
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepositoryImpl;
-import no.nav.foreldrepenger.fordel.kodeverk.Tema;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.gsak.api.GsakSak;
-import no.nav.foreldrepenger.mottak.gsak.api.GsakSakTjeneste;
+import no.nav.foreldrepenger.mottak.gsak.GsakSak;
+import no.nav.foreldrepenger.mottak.gsak.GsakSakTjeneste;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdFeil;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
@@ -63,8 +59,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 public class HentOgVurderInfotrygdSakTaskTest {
     private static final String FNR = "06016921295";
-    private static final Period IT_GYLDIG_PERIODE = Period.ofMonths(10);
-    private static final Period IT_ANNENPART_GYLDIG_PERIODE = Period.ofMonths(18);
 
     private static final String AKTØR_BRUKER = "1";
     private static final String AKTØR_ANNEN_PART = "124";
@@ -82,10 +76,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private KodeverkRepository kodeverkRepository = new KodeverkRepositoryImpl(repoRule.getEntityManager());
 
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
@@ -428,7 +418,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     private MottakMeldingDataWrapper dataWrapper(String aktørBruker) {
-        var w = new MottakMeldingDataWrapper(kodeverkRepository, taskData());
+        var w = new MottakMeldingDataWrapper(taskData());
         w.setAktørId(aktørBruker);
         w.setTema(FORELDRE_OG_SVANGERSKAPSPENGER);
         return w;
@@ -443,7 +433,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     private HentOgVurderInfotrygdSakTask task() {
         return new HentOgVurderInfotrygdSakTask(prosessTaskRepository,
-                kodeverkRepository,
                 new RelevantSakSjekker(svp, fp, infotrygd, gsak, unleash),
                 aktør
         );

@@ -20,17 +20,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepositoryImpl;
-import no.nav.foreldrepenger.fordel.kodeverk.Tema;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
@@ -47,10 +43,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 public class OpprettGSakOppgaveTjenesteTaskTest {
 
     private static final String SAKSNUMMER = "9876543";
-
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private KodeverkRepository kodeverkRepository = new KodeverkRepositoryImpl(repoRule.getEntityManager());
 
     private ProsessTaskRepository prosessTaskRepository;
     private BehandleoppgaveConsumer mockService;
@@ -70,7 +62,7 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
         enhetsidTjeneste = mock(EnhetsTjeneste.class);
         dokumentRepository = mock(DokumentRepository.class);
         when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), any(), any())).thenReturn(fordelingsOppgaveEnhetsId);
-        task = new OpprettGSakOppgaveTask(prosessTaskRepository, mockService, enhetsidTjeneste, kodeverkRepository, aktørConsumer);
+        task = new OpprettGSakOppgaveTask(prosessTaskRepository, mockService, enhetsidTjeneste, aktørConsumer);
     }
 
     @Test
@@ -88,7 +80,7 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
         WSOpprettOppgaveResponse mockResponse = new WSOpprettOppgaveResponse();
         mockResponse.setOppgaveId("MOCK");
 
-        String beskrivelse = kodeverkRepository.finn(DokumentTypeId.class, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL).getNavn();
+        String beskrivelse = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getTermNavn();
 
         ArgumentCaptor<OpprettOppgaveRequest> captor = ArgumentCaptor.forClass(OpprettOppgaveRequest.class);
 
@@ -111,7 +103,7 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
         taskData.setProperty(BEHANDLINGSTEMA_KEY, BehandlingTema.ENGANGSSTØNAD_FØDSEL.getKode());
         taskData.setProperty(DOKUMENTTYPE_ID_KEY, DokumentTypeId.UDEFINERT.getKode());
         taskData.setProperty(JOURNAL_ENHET, enhet);
-        String beskrivelse = kodeverkRepository.finn(BehandlingTema.class, BehandlingTema.ENGANGSSTØNAD_FØDSEL).getNavn();
+        String beskrivelse = BehandlingTema.ENGANGSSTØNAD_FØDSEL.getTermNavn();
 
         WSOpprettOppgaveResponse mockResponse = new WSOpprettOppgaveResponse();
         mockResponse.setOppgaveId("MOCK");
@@ -148,7 +140,7 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
 
         WSOpprettOppgaveResponse mockResponse = new WSOpprettOppgaveResponse();
         mockResponse.setOppgaveId("MOCK");
-        String beskrivelse = kodeverkRepository.finn(DokumentTypeId.class, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL).getNavn();
+        String beskrivelse = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.getTermNavn();
 
         ArgumentCaptor<OpprettOppgaveRequest> captor = ArgumentCaptor.forClass(OpprettOppgaveRequest.class);
 

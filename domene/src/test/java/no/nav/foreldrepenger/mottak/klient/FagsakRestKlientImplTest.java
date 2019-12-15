@@ -11,15 +11,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepositoryImpl;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
@@ -32,11 +28,7 @@ public class FagsakRestKlientImplTest {
     @Mock
     private OidcRestClient oidcRestClient;
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private KodeverkRepository kodeverkRepository = new KodeverkRepositoryImpl(repoRule.getEntityManager());
-
-    private FagsakRestKlientImpl fagsakRestKlientImpl;
+    private FagsakRestKlient fagsakRestKlient;
 
     @Test
     public void testInternMapping() {
@@ -53,13 +45,13 @@ public class FagsakRestKlientImplTest {
         LocalDateTime nå = FPDateUtil.nå();
 
         oidcRestClient = mock(OidcRestClient.class);
-        fagsakRestKlientImpl = new FagsakRestKlientImpl(oidcRestClient, kodeverkRepository, null, null, null, null);
+        fagsakRestKlient = new FagsakRestKlient(oidcRestClient, null, null, null, null);
         ArgumentCaptor<VurderFagsystemDto> captor = ArgumentCaptor.forClass(VurderFagsystemDto.class);
         when(oidcRestClient.post(any(), captor.capture(), any())).thenReturn(null);
 
         ProsessTaskData data = new ProsessTaskData(HentOgVurderVLSakTask.TASKNAME);
         data.setSekvens("1");
-        MottakMeldingDataWrapper dataWrapper = new MottakMeldingDataWrapper(kodeverkRepository, data);
+        MottakMeldingDataWrapper dataWrapper = new MottakMeldingDataWrapper(data);
         dataWrapper.setAktørId(aktørId);
         dataWrapper.setBarnTermindato(termindato);
         dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);
@@ -76,7 +68,7 @@ public class FagsakRestKlientImplTest {
         dataWrapper.setInntekstmeldingStartdato(fødselsdato);
         dataWrapper.setForsendelseMottattTidspunkt(nå);
 
-        fagsakRestKlientImpl.vurderFagsystem(dataWrapper);
+        fagsakRestKlient.vurderFagsystem(dataWrapper);
         VurderFagsystemDto dto = captor.getValue();
 
         assertThat(dto.getAktørId()).isEqualTo(aktørId);
@@ -87,7 +79,7 @@ public class FagsakRestKlientImplTest {
         assertThat(dto.getOmsorgsovertakelsedato()).isEqualTo(Optional.of(omsorgsovertagelsesDato));
         assertThat(dto.getÅrsakInnsendingInntektsmelding()).isEqualTo(Optional.of(årsakInntektsmelding));
         assertThat(dto.getAnnenPart()).isEqualTo(Optional.of(annenPartId));
-        assertThat(dto.getBehandlingstemaOffisiellKode()).isEqualTo(kodeverkRepository.finn(BehandlingTema.class, BehandlingTema.FORELDREPENGER_ADOPSJON.getKode()).getOffisiellKode());
+        assertThat(dto.getBehandlingstemaOffisiellKode()).isEqualTo(BehandlingTema.FORELDREPENGER_ADOPSJON.getOffisiellKode());
         assertThat(dto.getVirksomhetsnummer()).isEqualTo(Optional.of(virksomhetsnummer));
         assertThat(dto.getArbeidsforholdsid()).isEqualTo(Optional.of(arbeidsforholdsid));
         assertThat(dto.getStartDatoForeldrepengerInntektsmelding()).isEqualTo(Optional.of(fødselsdato));

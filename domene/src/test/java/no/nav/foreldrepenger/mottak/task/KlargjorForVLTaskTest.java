@@ -9,15 +9,11 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepositoryImpl;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
@@ -31,10 +27,6 @@ public class KlargjorForVLTaskTest {
 
     private static final String ARKIV_ID = "234567";
     private static final String SAKSNUMMER = "234567";
-
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private KodeverkRepository kodeverkRepository = new KodeverkRepositoryImpl(repoRule.getEntityManager());
 
     private KlargjorForVLTask task;
     private ProsessTaskData ptd;
@@ -56,7 +48,7 @@ public class KlargjorForVLTaskTest {
         klargjørForVLTjeneste = mock(KlargjørForVLTjeneste.class);
         dokumentRepository = mock(DokumentRepository.class);
         forsendelseId = UUID.randomUUID();
-        task = new KlargjorForVLTask(prosessTaskRepositoryMock, kodeverkRepository, klargjørForVLTjeneste, dokumentRepository);
+        task = new KlargjorForVLTask(prosessTaskRepositoryMock, klargjørForVLTjeneste, dokumentRepository);
         ptd = new ProsessTaskData(KlargjorForVLTask.TASKNAME);
         ptd.setSekvens("1");
 
@@ -64,7 +56,7 @@ public class KlargjorForVLTaskTest {
 
     @Test
     public void test_utfør_mangler_precondition() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
         Exception fangetFeil = null;
         try {
             toTaskWithPrecondition(data);
@@ -78,7 +70,7 @@ public class KlargjorForVLTaskTest {
     @Test
     public void test_utfor_klargjor_uten_xml_i_payload() {
 
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
         data.setArkivId(ARKIV_ID);
         data.setSaksnummer(SAKSNUMMER);
         data.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_ADOPSJON);
@@ -96,7 +88,7 @@ public class KlargjorForVLTaskTest {
 
     @Test
     public void test_utfor_klargjor_med_alle_nodvendige_data() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
         data.setArkivId(ARKIV_ID);
         data.setSaksnummer(SAKSNUMMER);
         data.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_ADOPSJON);
@@ -114,7 +106,7 @@ public class KlargjorForVLTaskTest {
 
     @Test
     public void test_oppdater_metadata_hvis_forsendelseId_er_satt() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
         data.setArkivId(ARKIV_ID);
         data.setSaksnummer(SAKSNUMMER);
         data.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_ADOPSJON);
@@ -133,7 +125,7 @@ public class KlargjorForVLTaskTest {
 
     @Test
     public void test_avsluuter_hvis_forsendelseId_ikke_satt() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
         data.setArkivId(ARKIV_ID);
         data.setSaksnummer(SAKSNUMMER);
         data.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_ADOPSJON);

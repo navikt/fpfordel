@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse;
 
 import static java.util.Arrays.asList;
-import static no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
+import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.contains;
@@ -26,10 +26,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.fordel.kodeverk.ArkivFilType;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepositoryImpl;
+import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
@@ -58,10 +55,6 @@ public class DokumentforsendelseTjenesteImplTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private KodeverkRepository kodeverkRepository = new KodeverkRepositoryImpl(repoRule.getEntityManager());
-
     @Mock
     private DokumentRepository dokumentRepositoryMock;
     @Mock
@@ -84,7 +77,7 @@ public class DokumentforsendelseTjenesteImplTest {
 
     @Before
     public void setUp() {
-        tjeneste = new DokumentforsendelseTjenesteImpl(dokumentRepositoryMock, kodeverkRepository,
+        tjeneste = new DokumentforsendelseTjenesteImpl(dokumentRepositoryMock,
                 prosessTaskRepositoryMock, aktørConsumerMock);
 
         SubjectHandlerUtils.useSubjectHandler(StaticSubjectHandler.class);

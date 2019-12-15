@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.task;
 
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.vedtak.exception.IntegrasjonException;
@@ -16,12 +15,10 @@ import no.nav.vedtak.util.FPDateUtil;
 abstract class OverførTilGsakFeilhåndteringsalgoritme extends SimpelFeilhåndteringsalgoritme {
 
     private ProsessTaskRepository prosessTaskRepository;
-    private final KodeverkRepository kodeverkRepository;
 
-    public OverførTilGsakFeilhåndteringsalgoritme(ForsinkelseStrategi forsinkelseStrategi, ProsessTaskRepository prosessTaskRepository, KodeverkRepository kodeverkRepository) {
+    public OverførTilGsakFeilhåndteringsalgoritme(ForsinkelseStrategi forsinkelseStrategi, ProsessTaskRepository prosessTaskRepository) {
         super(forsinkelseStrategi);
         this.prosessTaskRepository = prosessTaskRepository;
-        this.kodeverkRepository = kodeverkRepository;
     }
 
     @Override
@@ -35,7 +32,7 @@ abstract class OverførTilGsakFeilhåndteringsalgoritme extends SimpelFeilhåndt
     @Override
     public Feil hendelserNårIkkeKjøresPåNytt(Exception exception, ProsessTaskData prosessTaskData) {
         if (exception instanceof IntegrasjonException) {
-            MottakMeldingDataWrapper wrapper = new MottakMeldingDataWrapper(kodeverkRepository, prosessTaskData);
+            MottakMeldingDataWrapper wrapper = new MottakMeldingDataWrapper(prosessTaskData);
             MottakMeldingDataWrapper nesteSteg;
             if (wrapper.getArkivId() == null) {
                 nesteSteg = wrapper.nesteSteg(MidlJournalføringTask.TASKNAME, false, FPDateUtil.nå());

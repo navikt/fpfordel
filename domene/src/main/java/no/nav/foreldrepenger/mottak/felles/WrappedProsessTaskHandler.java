@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.felles;
 
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -8,16 +7,14 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler {
 
     protected ProsessTaskRepository prosessTaskRepository;
-    protected KodeverkRepository kodeverkRepository;
 
-    public WrappedProsessTaskHandler(ProsessTaskRepository prosessTaskRepository, KodeverkRepository kodeverkRepository) {
+    public WrappedProsessTaskHandler(ProsessTaskRepository prosessTaskRepository) {
         this.prosessTaskRepository = prosessTaskRepository;
-        this.kodeverkRepository = kodeverkRepository;
     }
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        MottakMeldingDataWrapper dataWrapper = new MottakMeldingDataWrapper(kodeverkRepository, prosessTaskData);
+        MottakMeldingDataWrapper dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
         precondition(dataWrapper);
 
         MottakMeldingDataWrapper prosessTaskDataNesteMedDataFraInput = doTask(dataWrapper);

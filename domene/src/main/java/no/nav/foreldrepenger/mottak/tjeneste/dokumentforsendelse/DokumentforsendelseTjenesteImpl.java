@@ -14,8 +14,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
 
-import no.nav.foreldrepenger.fordel.kodeverk.ArkivFilType;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
+import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentFeil;
@@ -39,7 +38,6 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
             ArkivFilType.PDFA);
 
     private DokumentRepository repository;
-    private KodeverkRepository kodeverkRepository;
     private ProsessTaskRepository prosessTaskRepository;
     private AktørConsumer aktørConsumer;
 
@@ -47,10 +45,9 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
     }
 
     @Inject
-    public DokumentforsendelseTjenesteImpl(DokumentRepository repository, KodeverkRepository kodeverkRepository,
+    public DokumentforsendelseTjenesteImpl(DokumentRepository repository,
             ProsessTaskRepository prosessTaskRepository, AktørConsumer aktørConsumer) {
         this.repository = repository;
-        this.kodeverkRepository = kodeverkRepository;
         this.prosessTaskRepository = prosessTaskRepository;
         this.aktørConsumer = aktørConsumer;
     }
@@ -119,8 +116,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
     private void opprettProsessTask(UUID forsendelseId, Optional<String> avsenderId) {
         ProsessTaskData prosessTaskData = new ProsessTaskData(BehandleDokumentforsendelseTask.TASKNAME);
         prosessTaskData.setCallIdFraEksisterende();
-        MottakMeldingDataWrapper dataWrapper = new MottakMeldingDataWrapper(kodeverkRepository,
-                prosessTaskData);
+        MottakMeldingDataWrapper dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
         dataWrapper.setForsendelseId(forsendelseId);
         avsenderId.ifPresent(dataWrapper::setAvsenderId);
 

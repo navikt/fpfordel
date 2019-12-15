@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse;
 
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 
 public class FilMetadata {
     private final String contentId;

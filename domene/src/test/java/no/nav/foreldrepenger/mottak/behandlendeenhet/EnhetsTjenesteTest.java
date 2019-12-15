@@ -14,8 +14,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverk.Tema;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentGeografiskTilknytningPersonIkkeFunnet;
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentGeografiskTilknytningSikkerhetsbegrensing;
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonPersonIkkeFunnet;
@@ -30,7 +30,7 @@ import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
 
-public class EnhetsTjenesteImplTest {
+public class EnhetsTjenesteTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
@@ -39,7 +39,7 @@ public class EnhetsTjenesteImplTest {
     private String fordelingsOppgaveEnhetsId = "4825";
     public static final String GEOGRAFISK_TILKNYTNING = "test";
     public static final String DISKRESJONSKODE = "diskresjonskode";
-    private EnhetsTjenesteImpl enhetsTjeneste; // objektet vi tester
+    private EnhetsTjeneste enhetsTjeneste; // objektet vi tester
     private ArbeidsfordelingTjeneste arbeidsfordelingTjeneste;
     private PersonConsumer personConsumer;
     private HentPersonResponse hentPersonResponse = new HentPersonResponse();;
@@ -52,7 +52,7 @@ public class EnhetsTjenesteImplTest {
         arbeidsfordelingTjeneste = mock(ArbeidsfordelingTjeneste.class);
         when(arbeidsfordelingTjeneste.finnAlleJournalførendeEnhetIdListe(any(BehandlingTema.class), anyBoolean())).thenReturn(Collections.singletonList(fordelingsOppgaveEnhetsId));
 
-        enhetsTjeneste = new EnhetsTjenesteImpl(personConsumer, arbeidsfordelingTjeneste);
+        enhetsTjeneste = new EnhetsTjeneste(personConsumer, arbeidsfordelingTjeneste);
     }
 
     @Test

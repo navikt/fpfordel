@@ -20,12 +20,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentKategori;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepositoryImpl;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
@@ -46,9 +43,6 @@ public class OpprettSakTaskTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private KodeverkRepository kodeverkRepository = new KodeverkRepositoryImpl(repoRule.getEntityManager());
 
     @Mock
     private ProsessTaskRepository prosessTaskRepositoryMock;
@@ -70,7 +64,7 @@ public class OpprettSakTaskTest {
         VurderFagsystemResultat vurderFagsystemRespons = new VurderFagsystemResultat();
         vurderFagsystemRespons.setBehandlesIVedtaksløsningen(true);
         when(fagsakRestKlient.vurderFagsystem(any())).thenReturn(vurderFagsystemRespons);
-        task = new OpprettSakTask(prosessTaskRepositoryMock, fagsakRestKlient, kodeverkRepository);
+        task = new OpprettSakTask(prosessTaskRepositoryMock, fagsakRestKlient);
     }
 
     @Test
@@ -83,7 +77,7 @@ public class OpprettSakTaskTest {
         Path path = Paths.get(getClass().getClassLoader().getResource(filename).toURI());
         String xml = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
 
-        MottakMeldingDataWrapper ptData = new MottakMeldingDataWrapper(kodeverkRepository, prosessTaskData);
+        MottakMeldingDataWrapper ptData = new MottakMeldingDataWrapper(prosessTaskData);
         ptData.setArkivId("123");
         ptData.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         ptData.setDokumentKategori(DokumentKategori.SØKNAD);
@@ -108,7 +102,7 @@ public class OpprettSakTaskTest {
         ProsessTaskData prosessTaskData = new ProsessTaskData(OpprettSakTask.TASKNAME);
         prosessTaskData.setSekvens("1");
 
-        MottakMeldingDataWrapper ptData = new MottakMeldingDataWrapper(kodeverkRepository, prosessTaskData);
+        MottakMeldingDataWrapper ptData = new MottakMeldingDataWrapper(prosessTaskData);
         ptData.setArkivId("123");
         ptData.setAktørId(AKTØR_ID);
 
@@ -136,7 +130,7 @@ public class OpprettSakTaskTest {
         ProsessTaskData innData = new ProsessTaskData(OpprettSakTask.TASKNAME);
         innData.setSekvens("1");
 
-        MottakMeldingDataWrapper ptData = new MottakMeldingDataWrapper(kodeverkRepository, innData);
+        MottakMeldingDataWrapper ptData = new MottakMeldingDataWrapper(innData);
 
         ptData.setArkivId("123");
         ptData.setAktørId(AKTØR_ID);
@@ -153,7 +147,7 @@ public class OpprettSakTaskTest {
         ProsessTaskData innData = new ProsessTaskData(OpprettSakTask.TASKNAME);
         innData.setSekvens("1");
 
-        MottakMeldingDataWrapper ptData = new MottakMeldingDataWrapper(kodeverkRepository, innData);
+        MottakMeldingDataWrapper ptData = new MottakMeldingDataWrapper(innData);
 
         ptData.setAktørId(AKTØR_ID);
         ptData.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
@@ -167,7 +161,7 @@ public class OpprettSakTaskTest {
 
     @Test
     public void test_validerDatagrunnlag_skal_feile_ved_manglende_personId() throws Exception {
-        MottakMeldingDataWrapper meldingDataWrapper = new MottakMeldingDataWrapper(kodeverkRepository, new ProsessTaskData(OpprettSakTask.TASKNAME));
+        MottakMeldingDataWrapper meldingDataWrapper = new MottakMeldingDataWrapper(new ProsessTaskData(OpprettSakTask.TASKNAME));
 
         expectedException.expect(TekniskException.class);
 
@@ -176,7 +170,7 @@ public class OpprettSakTaskTest {
 
     @Test
     public void test_validerDatagrunnlag_skal_feile_ved_manglende_behandlingstema() throws Exception {
-        MottakMeldingDataWrapper meldingDataWrapper = new MottakMeldingDataWrapper(kodeverkRepository, new ProsessTaskData(OpprettSakTask.TASKNAME));
+        MottakMeldingDataWrapper meldingDataWrapper = new MottakMeldingDataWrapper(new ProsessTaskData(OpprettSakTask.TASKNAME));
         meldingDataWrapper.setAktørId("123");
 
         expectedException.expect(TekniskException.class);
@@ -187,7 +181,7 @@ public class OpprettSakTaskTest {
     @Test
     public void test_validerDatagrunnlag_uten_feil() throws Exception {
         ProsessTaskData prosessTaskData = new ProsessTaskData(OpprettSakTask.TASKNAME);
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, prosessTaskData);
+        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(prosessTaskData);
 
         data.setArkivId("123");
         data.setAktørId(AKTØR_ID);
@@ -208,7 +202,7 @@ public class OpprettSakTaskTest {
 
         ProsessTaskData prosessTaskData = new ProsessTaskData(OpprettSakTask.TASKNAME);
         prosessTaskData.setSekvens("1");
-        MottakMeldingDataWrapper ptData = new MottakMeldingDataWrapper(kodeverkRepository, prosessTaskData);
+        MottakMeldingDataWrapper ptData = new MottakMeldingDataWrapper(prosessTaskData);
         ptData.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         ptData.setDokumentKategori(DokumentKategori.SØKNAD);
         ptData.setAktørId("1");
@@ -229,7 +223,7 @@ public class OpprettSakTaskTest {
         Path path = Paths.get(getClass().getClassLoader().getResource(filename).toURI());
         String xml = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
 
-        MottakMeldingDataWrapper ptData = new MottakMeldingDataWrapper(kodeverkRepository, prosessTaskData);
+        MottakMeldingDataWrapper ptData = new MottakMeldingDataWrapper(prosessTaskData);
         ptData.setArkivId("123");
         ptData.setAktørId("1000104134079");
         ptData.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
@@ -259,7 +253,7 @@ public class OpprettSakTaskTest {
         Path path = Paths.get(getClass().getClassLoader().getResource(filename).toURI());
         String xml = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
 
-        MottakMeldingDataWrapper ptData = new MottakMeldingDataWrapper(kodeverkRepository, prosessTaskData);
+        MottakMeldingDataWrapper ptData = new MottakMeldingDataWrapper(prosessTaskData);
         ptData.setArkivId("123");
         ptData.setAktørId("1000104134079");
         ptData.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);

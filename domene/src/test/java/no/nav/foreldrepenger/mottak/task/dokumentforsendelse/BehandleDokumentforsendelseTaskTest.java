@@ -15,7 +15,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
@@ -26,12 +25,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.fordel.kodeverk.ArkivFilType;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepositoryImpl;
-import no.nav.foreldrepenger.fordel.kodeverk.Tema;
+import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
@@ -63,22 +59,17 @@ public class BehandleDokumentforsendelseTaskTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private KodeverkRepository kodeverkRepository = new KodeverkRepositoryImpl(repoRule.getEntityManager());
-
     private ProsessTaskRepository prosessTaskRepository = mock(ProsessTaskRepository.class);
     private AktørConsumer aktørConsumer = mock(AktørConsumer.class);
     private FagsakRestKlient fagsakRestKlient = mock(FagsakRestKlient.class);
     private DokumentRepository dokumentRepository = mock(DokumentRepository.class);
-    private String konfigVerdiStartdatoForeldrepenger = LocalDate.of(2019, 01, 01).toString();
 
     private BehandleDokumentforsendelseTask fordelDokTask;
     private ProsessTaskData ptd;
 
     @Before
     public void setup() {
-        fordelDokTask = new BehandleDokumentforsendelseTask(prosessTaskRepository, kodeverkRepository, aktørConsumer,
+        fordelDokTask = new BehandleDokumentforsendelseTask(prosessTaskRepository, aktørConsumer,
                 fagsakRestKlient, dokumentRepository);
         ptd = new ProsessTaskData(BehandleDokumentforsendelseTask.TASKNAME);
         ptd.setSekvens("1");
@@ -88,7 +79,7 @@ public class BehandleDokumentforsendelseTaskTest {
 
     @Test
     public void testAvPrecondition() {
-        MottakMeldingDataWrapper innData = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper innData = new MottakMeldingDataWrapper(ptd);
 
         expectedException.expect(TekniskException.class);
         expectedException.expectMessage("FP-941984");
@@ -98,7 +89,7 @@ public class BehandleDokumentforsendelseTaskTest {
 
     @Test
     public void testAvPostCondition() {
-        MottakMeldingDataWrapper utData = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper utData = new MottakMeldingDataWrapper(ptd);
 
         expectedException.expect(TekniskException.class);
         expectedException.expectMessage("FP-638068");
@@ -108,7 +99,7 @@ public class BehandleDokumentforsendelseTaskTest {
 
     @Test
     public void skalReturnereWrapperMedNesteTaskHentOgVurderVLSak() {
-        MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
 
         when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(
@@ -122,7 +113,7 @@ public class BehandleDokumentforsendelseTaskTest {
 
     @Test
     public void skalReturnereHentOgVurderVLSakTask() {
-        MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
 
         when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(
@@ -136,7 +127,7 @@ public class BehandleDokumentforsendelseTaskTest {
 
     @Test
     public void skalReturnereOpprettGSakOppgaveTaskHvisSøknadDatoForForeldrependerStartDato() {
-        MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
 
         when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(Optional.of(
@@ -149,7 +140,7 @@ public class BehandleDokumentforsendelseTaskTest {
 
     @Test
     public void skalSendeTilJournalføringHvisSaksnummerFinnesPåMetadataOgIVL() {
-        MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
         inndata.setAktørId(AKTØR_ID);
 
@@ -165,7 +156,7 @@ public class BehandleDokumentforsendelseTaskTest {
 
     @Test
     public void skalsendEndringssøknadMedSaksnummeriVLTilJournalføring() {
-        MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
         inndata.setAktørId(AKTØR_ID);
         inndata.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
@@ -186,7 +177,7 @@ public class BehandleDokumentforsendelseTaskTest {
 
     @Test
     public void skalsendEndringssøknadUtenSaksnummeriVLTilGosys() {
-        MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
         inndata.setAktørId(AKTØR_ID);
         inndata.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
@@ -206,7 +197,7 @@ public class BehandleDokumentforsendelseTaskTest {
 
     @Test
     public void skalEttersendtVedleggTilJournalføring() {
-        MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
         inndata.setAktørId(AKTØR_ID);
         inndata.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
@@ -225,7 +216,7 @@ public class BehandleDokumentforsendelseTaskTest {
 
     @Test
     public void skalSendeTilOpprettOppgaveHvisSaksnummerFinnesPåMetadataMenIkkeIVL() {
-        MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
         inndata.setAktørId(AKTØR_ID);
 
@@ -240,7 +231,7 @@ public class BehandleDokumentforsendelseTaskTest {
 
     @Test
     public void skalFeileHvisBehandlingstemaIkkeMatcher() {
-        MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
         inndata.setAktørId(AKTØR_ID);
 
