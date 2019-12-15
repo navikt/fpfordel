@@ -92,6 +92,6 @@ loadbalancer:
 aws:
    access:
       key:
-         id: *********
+         id: '*********'
 bucket:
    url: http://s3.nais-rook
