@@ -45,6 +45,7 @@ jobs:
           GITHUB_PASSWORD: ${{ secrets.GHA }}  
       - name: Bygg og last opp Docker image
         run: |
+          echo "$GITHUB_ACCESS_TOKEN" | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
           echo $DOCKER_IMAGE > .docker_image
           echo "$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7)" > .docker_tag
           docker build . --pull -t $(cat .docker_image):$(cat .docker_tag)
