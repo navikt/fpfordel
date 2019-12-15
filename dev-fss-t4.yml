@@ -1,4 +1,4 @@
-# namespace: t4
+namespace: t4
 ingresses:
   - https://fpfordel-t4.nais.preprod.local/fpfordel
   
@@ -72,7 +72,7 @@ oidc:
        issuerurl: https://login.microsoftonline.com/d38f25aa-eab8-4c50-9f28-ebf92c1256f2/v2.0/
        agentname: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
        hosturl: https://not.used.in.fss
-   openam:
+      openam:
      jwksurl: https://isso-t.adeo.no:443/isso/oauth2/connect/jwk_uri
      issuerurl: https://isso-t.adeo.no:443/isso/oauth2
      agentname: fpfordel-t4
