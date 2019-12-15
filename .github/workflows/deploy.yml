@@ -45,9 +45,9 @@ jobs:
           GITHUB_PASSWORD: ${{ secrets.GHA }}  
       - name: Bygg og last opp Docker image
         run: |
-          echo "Bygger ${IMAGE} for ${GITHUB_REPOSITORY}"
-          docker --debug build --tag ${IMAGE} .
+          echo "Bygger ${IMAGE}:${GITHUB_SHA} for ${GITHUB_REPOSITORY}"
+          docker --debug build --tag ${GITHUB_SHA} .
           docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_ACCESS_TOKEN} 
-          docker --debug push ${IMAGE}
+          docker --debug push ${IMAGE}:${GITHUB_SHA}
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.GHA }}
