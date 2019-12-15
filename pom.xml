@@ -25,7 +25,7 @@
 
         <java.version>11</java.version>
         <argLine>-Xms256m -Dfile.encoding=UTF-8 -Dlog.level.no.nav=WARN</argLine> <!-- default argLine for surefire-plugin -->
-        <jacoco.skip>true</jacoco.skip> <!-- default skip coverage -->
+        <jacoco.skip>true</jacoco.skip> 
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -107,15 +107,14 @@
             <dependency>
                 <groupId>no.nav.tjenestespesifikasjoner</groupId>
                 <artifactId>behandledokumentforsendelse-v1-tjenestespesifikasjon</artifactId>
-                <version>1.2019.11.15-14.51-ee264fbf814c</version>
+                <version>${tjenestespesifikasjon.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.tjenestespesifikasjoner</groupId>
                 <artifactId>nav-virksomhet-dokumentnotifikasjon-v1-meldingsdefinisjon</artifactId>
-                <version>1.2019.11.15-14.51-ee264fbf814c</version>
+                <version>${tjenestespesifikasjon.version}</version>
             </dependency>
             <dependency>
-                <!-- Bør flyttes til no.nav.vedtak.felles:felles? -->
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpmime</artifactId>
                 <version>4.5.10</version>
@@ -197,7 +196,6 @@
                 <artifactId>assertj-core</artifactId>
                 <version>3.14.0</version>
             </dependency>
-<<<<<<< HEAD
 
             <dependency>
                 <groupId>org.glassfish.jaxb</groupId>
@@ -240,6 +238,9 @@
                 <version>5.5.2</version>
                 <scope>test</scope>
             </dependency>
+=======
+
+>>>>>>> pom cleanup
             <dependency>
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-runtime</artifactId>
@@ -283,20 +284,14 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-<<<<<<< HEAD
             <version>${junit5.version}</version>
             <scope>test</scope>
-=======
->>>>>>> junit 5 med vintage engine
         </dependency>
         <dependency>
             <groupId>org.junit.vintage</groupId>
             <artifactId>junit-vintage-engine</artifactId>
-<<<<<<< HEAD
             <version>${junit5.version}</version>
             <scope>test</scope>
-=======
->>>>>>> junit 5 med vintage engine
         </dependency>
         <dependency>
             <groupId>com.oracle.ojdbc</groupId>
