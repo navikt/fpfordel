@@ -47,6 +47,7 @@ jobs:
         run: |
           echo $IMAGE > .docker_image
           echo "$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7)" > .docker_tag
+          docker build . --pull -t $(cat .docker_image):$(cat .docker_tag)
           docker push $(cat .docker_image):$(cat .docker_tag)
           docker tag $(cat .docker_image):$(cat .docker_tag) $(cat .docker_image):latest
           docker push $(cat .docker_image):latest
