@@ -57,8 +57,7 @@ behandleoppgave:
 person:
    v3:
       url: https://wasapp-t4.adeo.no/tpsws/ws/Person/v3
-infotrygdsakv1:
-   url: https://modapp-t4.adeo.no/infotrygd-ws/InfotrygdSak/v1
+infotrygdsakv1.url: https://modapp-t4.adeo.no/infotrygd-ws/InfotrygdSak/v1
 systembruker:
    username: srvfpfordel
 oidc:
