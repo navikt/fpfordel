@@ -40,7 +40,6 @@ spec:
         cpu: 250m
         memory: 1536Mi 
   env: 
-   - {{infotrygdsakv1.url}}
   {{#each env}}
    - name: {{@key}}
      value: "{{this}}"
