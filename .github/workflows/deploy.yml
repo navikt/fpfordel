@@ -55,3 +55,8 @@ jobs:
           echo ::set-env name=IMAGE::$(cat .docker_image):$(cat .docker_tag)
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.GHA }}
+      - name: Deploy til dev
+        run: echo "Deployer ${IMAGE} til dev snart"
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-fss
