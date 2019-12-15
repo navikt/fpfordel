@@ -46,7 +46,7 @@ jobs:
       - name: Bygg og last opp Docker image
         run: |
           echo "Bygger ${IMAGE} for ${GITHUB_REPOSITORY}"
-          docker build  --debug --tag ${IMAGE} .
+          docker --debug build --tag ${IMAGE} .
           docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_ACCESS_TOKEN} 
           docker --debug push ${IMAGE}
         env:
