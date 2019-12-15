@@ -5,7 +5,7 @@
     "defaultds_url": "jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=d26dbfl020.test.local)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=FPFORDELT4)(INSTANCE_NAME=cctf01)(UR=A)(SERVER=DEDICATED)))",
     "defaultds_username": "FPFORDEL_T4",
     "fpfordel_channel_queuemanager": "mq://d26apvl258.test.local:1412/MTXLSC02", 
-    "infotrygdsakv1_url": "https://modapp-t4.adeo.no/infotrygd-ws/InfotrygdSak/v1"
+    "infotrygdsakv1_url": "https://modapp-t4.adeo.no/infotrygd-ws/InfotrygdSak/v1",
     "mottak_queue_queuename": "QA.T4_FPFORDEL.MOTTAK_QUEUE",   
     "mottak_queue_queuemanager": "mq://d26apvl258.test.local:1412/MTXLSC02",
     "mqgateway02_hostname" : "d26apvl258.test.local",   
