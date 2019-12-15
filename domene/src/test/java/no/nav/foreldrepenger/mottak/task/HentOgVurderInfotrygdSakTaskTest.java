@@ -316,7 +316,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
         doAndAssertOpprettet(w);
     }
 
-    @Test
     public void neste_steg_skal_throw_exception_hvis_annen_part_er_ikke_funnet() throws Exception {
 
         expectGsaker(FNR_ANNEN_PART, gsaker(FNR_ANNEN_PART));
@@ -326,12 +325,10 @@ public class HentOgVurderInfotrygdSakTaskTest {
         var w = dataWrapper(AKTØR_BRUKER);
         w.setBehandlingTema(FORELDREPENGER);
         w.setDokumentTypeId(SØKNAD_FORELDREPENGER_FØDSEL);
-
-        expect(TekniskException.class, "FP-941984");
         doWithPrecondition(w);
     }
 
-    @Test
+    @Test(expected = VLException.class)
     public void skal_throw_exception_hvis_ukjent_behandlings_tema() throws Exception {
         expectGsaker(FNR_ANNEN_PART, gsaker(FNR_ANNEN_PART));
 
@@ -342,8 +339,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
         w.setBehandlingTema(BehandlingTema.UDEFINERT);
         w.setDokumentTypeId(SØKNAD_FORELDREPENGER_FØDSEL);
         w.setInntekstmeldingStartdato(now());
-
-        expect(VLException.class, "FP-286143");
         doWithPrecondition(w);
     }
 
@@ -399,11 +394,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     private MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper wrapper) {
         return task().doTask(wrapper);
-    }
-
-    private void expect(Class<? extends Throwable> clazz, String msg) {
-        expectedException.expect(clazz);
-        expectedException.expectMessage(msg);
     }
 
     private void expectAktørFnrMappings() {
