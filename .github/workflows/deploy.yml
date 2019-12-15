@@ -46,7 +46,7 @@ jobs:
       - name: Bygg og last opp Docker image
         run: |
           docker build --tag ${IMAGE} .
-          echo "$GITHUB_ACCESS_TOKEN" | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
+          docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_ACCESS_TOKEN} 
           docker push ${IMAGE}
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.GHA }}
