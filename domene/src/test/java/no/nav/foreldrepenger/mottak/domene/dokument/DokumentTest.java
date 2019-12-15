@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.mottak.domene.dokument;
 
-import static no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
+import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.charset.Charset;
@@ -11,7 +11,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import no.nav.foreldrepenger.fordel.kodeverk.ArkivFilType;
+import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 
 public class DokumentTest {
 

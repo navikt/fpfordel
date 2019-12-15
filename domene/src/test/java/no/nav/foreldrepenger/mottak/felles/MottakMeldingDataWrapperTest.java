@@ -11,12 +11,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepositoryImpl;
-import no.nav.foreldrepenger.fordel.kodeverk.Tema;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 public class MottakMeldingDataWrapperTest {
@@ -28,10 +25,6 @@ public class MottakMeldingDataWrapperTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private KodeverkRepository kodeverkRepository = new KodeverkRepositoryImpl(repoRule.getEntityManager());
-
     private ProsessTaskData eksisterendeData;
     private MottakMeldingDataWrapper wrapper;
 
@@ -39,7 +32,7 @@ public class MottakMeldingDataWrapperTest {
     public void setUp() {
         eksisterendeData = new ProsessTaskData(PROSESSTASK_STEG1);
         eksisterendeData.setSekvens("1");
-        wrapper = new MottakMeldingDataWrapper(kodeverkRepository, eksisterendeData);
+        wrapper = new MottakMeldingDataWrapper(eksisterendeData);
     }
 
     @Test
@@ -133,7 +126,7 @@ public class MottakMeldingDataWrapperTest {
     public void test_skal_gi_prosess_task_id() throws Exception {
 
         eksisterendeData.setId(1377L);
-        MottakMeldingDataWrapper wrapper = new MottakMeldingDataWrapper(kodeverkRepository, eksisterendeData);
+        MottakMeldingDataWrapper wrapper = new MottakMeldingDataWrapper(eksisterendeData);
 
         assertThat(wrapper.getId()).isEqualTo(1377L);
     }
@@ -142,7 +135,7 @@ public class MottakMeldingDataWrapperTest {
     public void test_skal_gi_null_prosess_task_id_for_log() throws Exception {
 
         eksisterendeData.setId(null);
-        MottakMeldingDataWrapper wrapper = new MottakMeldingDataWrapper(kodeverkRepository, eksisterendeData);
+        MottakMeldingDataWrapper wrapper = new MottakMeldingDataWrapper(eksisterendeData);
 
         assertThat(wrapper.getId()).isNull();
     }
@@ -185,7 +178,7 @@ public class MottakMeldingDataWrapperTest {
     @Test
     public void skal_kaste_illegalstate_hvis_inntektsmelding_startdato_inneholder_flere_datoer() {
         eksisterendeData.setProperty(MottakMeldingDataWrapper.INNTEKSTMELDING_STARTDATO_KEY, "1234;1234");
-        MottakMeldingDataWrapper wrapper = new MottakMeldingDataWrapper(kodeverkRepository, eksisterendeData);
+        MottakMeldingDataWrapper wrapper = new MottakMeldingDataWrapper(eksisterendeData);
 
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("Inneholder flere startdatoer.");

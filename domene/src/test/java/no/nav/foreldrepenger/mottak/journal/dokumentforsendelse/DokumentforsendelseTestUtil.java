@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import no.nav.foreldrepenger.fordel.kodeverk.ArkivFilType;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 

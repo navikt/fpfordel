@@ -16,12 +16,9 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepositoryImpl;
-import no.nav.foreldrepenger.fordel.kodeverk.Tema;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
@@ -42,10 +39,6 @@ public class MidlJournalføringTaskTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private KodeverkRepository kodeverkRepository = new KodeverkRepositoryImpl(repoRule.getEntityManager());
-
     @Mock
     private ProsessTaskRepository prosessTaskRepositoryMock;
     @Mock
@@ -70,7 +63,7 @@ public class MidlJournalføringTaskTest {
 
         TilJournalføringTjeneste tilJournalføringTjeneste = new TilJournalføringTjeneste(journalTjenesteMock, dokumentRepositoryMock);
 
-        task = new MidlJournalføringTask(prosessTaskRepositoryMock, tilJournalføringTjeneste, kodeverkRepository, dokumentRepositoryMock);
+        task = new MidlJournalføringTask(prosessTaskRepositoryMock, tilJournalføringTjeneste, dokumentRepositoryMock);
 
         ptd = new ProsessTaskData(TilJournalføringTask.TASKNAME);
         ptd.setSekvens("1");
@@ -81,7 +74,7 @@ public class MidlJournalføringTaskTest {
 
     @Test
     public void test_skalVedJournalføringAvDokumentForsendelseFåJournalTilstandEndeligJournalført() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
 
         List<Dokument> dokumenter = DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
 

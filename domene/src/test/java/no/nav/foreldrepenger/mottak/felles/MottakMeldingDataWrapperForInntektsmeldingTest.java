@@ -6,21 +6,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepositoryImpl;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 public class MottakMeldingDataWrapperForInntektsmeldingTest {
 
     private static final String PROSESSTASK_STEG1 = "prosesstask.steg1";
-
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private KodeverkRepository kodeverkRepository = new KodeverkRepositoryImpl(repoRule.getEntityManager());
 
     private ProsessTaskData eksisterendeData;
 
@@ -31,7 +23,7 @@ public class MottakMeldingDataWrapperForInntektsmeldingTest {
         eksisterendeData = new ProsessTaskData(PROSESSTASK_STEG1);
         eksisterendeData.setSekvens("1");
 
-        testObjekt = new MottakMeldingDataWrapper(kodeverkRepository, eksisterendeData);
+        testObjekt = new MottakMeldingDataWrapper(eksisterendeData);
     }
 
     @Test

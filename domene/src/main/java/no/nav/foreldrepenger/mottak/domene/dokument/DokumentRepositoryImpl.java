@@ -17,7 +17,7 @@ import javax.persistence.TypedQuery;
 
 import org.hibernate.exception.ConstraintViolationException;
 
-import no.nav.foreldrepenger.fordel.kodeverk.ArkivFilType;
+import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 

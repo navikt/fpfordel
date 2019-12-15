@@ -6,7 +6,6 @@ import java.util.UUID;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -31,9 +30,8 @@ public class SlettForsendelseTask extends WrappedProsessTaskHandler {
 
     @Inject
     public SlettForsendelseTask(ProsessTaskRepository prosessTaskRepository,
-                                KodeverkRepository kodeverkRepository,
                                 DokumentRepository dokumentRepository) {
-        super(prosessTaskRepository, kodeverkRepository);
+        super(prosessTaskRepository);
         this.dokumentRepository = dokumentRepository;
     }
 

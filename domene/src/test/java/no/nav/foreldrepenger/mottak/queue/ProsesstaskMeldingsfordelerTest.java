@@ -10,10 +10,8 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverk.Fagsystem;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepositoryImpl;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem;
 import no.nav.melding.virksomhet.dokumentnotifikasjon.v1.Behandlingstema;
 import no.nav.melding.virksomhet.dokumentnotifikasjon.v1.Forsendelsesinformasjon;
 import no.nav.melding.virksomhet.dokumentnotifikasjon.v1.Tema;
@@ -26,7 +24,6 @@ import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
 public class ProsesstaskMeldingsfordelerTest {
     private ProsessTaskRepository prosessTaskRepository;
-    private KodeverkRepository kodeverkRepository;
     private ProsesstaskMeldingsfordeler meldingsFordeler;
 
     @Rule
@@ -35,20 +32,19 @@ public class ProsesstaskMeldingsfordelerTest {
     @Before
     public void setup() throws SQLException {
         prosessTaskRepository = new ProsessTaskRepositoryImpl(repoRule.getEntityManager(), null);
-        kodeverkRepository = new KodeverkRepositoryImpl(repoRule.getEntityManager());
-        meldingsFordeler = new ProsesstaskMeldingsfordeler(prosessTaskRepository, kodeverkRepository);
+        meldingsFordeler = new ProsesstaskMeldingsfordeler(prosessTaskRepository);
     }
 
     @Test
     public void testSoknadEngangstonadOppretterKorrektTask() {
         Forsendelsesinformasjon input = new Forsendelsesinformasjon();
-        BehandlingTema behandlingTemaKodeliste = kodeverkRepository.finn(BehandlingTema.class, BehandlingTema.ENGANGSSTØNAD_ADOPSJON);
+        BehandlingTema behandlingTemaKodeliste = BehandlingTema.ENGANGSSTØNAD_ADOPSJON;
         String offisiellKode = behandlingTemaKodeliste.getOffisiellKode();
         Behandlingstema behandlingstema = new Behandlingstema();
         behandlingstema.setValue(offisiellKode);
         input.setBehandlingstema(behandlingstema);
         input.setArkivId("12345");
-        input.setArkivsystem(Fagsystem.GOSYS.getOffisiellKode());
+        input.setArkivsystem(Fagsystem.GOSYS.getKode());
         Tema tema = new Tema();
         tema.setValue("FOR");
         input.setTema(tema);
@@ -71,7 +67,7 @@ public class ProsesstaskMeldingsfordelerTest {
         Behandlingstema behandlingstema = new Behandlingstema();
         behandlingstema.setValue("UgyldigTema");
         input.setArkivId("12345");
-        input.setArkivsystem(Fagsystem.GOSYS.getOffisiellKode());
+        input.setArkivsystem(Fagsystem.GOSYS.getKode());
         input.setBehandlingstema(behandlingstema);
         Tema tema = new Tema();
         tema.setValue("FOR");
@@ -91,7 +87,7 @@ public class ProsesstaskMeldingsfordelerTest {
     public void testDokumentUtenBehandlingsTemaSendesLikevelTilNesteSteg() {
         Forsendelsesinformasjon input = new Forsendelsesinformasjon();
         input.setArkivId("12345");
-        input.setArkivsystem(Fagsystem.GOSYS.getOffisiellKode());
+        input.setArkivsystem(Fagsystem.GOSYS.getKode());
         Tema tema = new Tema();
         tema.setValue("FOR");
         input.setTema(tema);

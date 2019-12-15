@@ -11,7 +11,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.fordel.kodeverk.Fagsystem;
+import no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
@@ -100,7 +100,7 @@ public class TilJournalføringTjeneste {
             switch (mangel) {
             case ARKIVSAK:
                 journalPost.setArkivSakId(sakId);
-                journalPost.setArkivSakSystem(Fagsystem.GOSYS.getOffisiellKode());
+                journalPost.setArkivSakSystem(Fagsystem.GOSYS.getKode());
                 journalføringsbehov.rettetMangel(mangel);
                 break;
             case AVSENDERID:

@@ -4,12 +4,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import no.nav.foreldrepenger.fordel.kodeverk.ArkivFilType;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentKategori;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.MottakKanal;
-import no.nav.foreldrepenger.fordel.kodeverk.VariantFormat;
+import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.VariantFormat;
 
 public class JournalMetadata<T extends DokumentTypeId> {
 
@@ -22,7 +22,6 @@ public class JournalMetadata<T extends DokumentTypeId> {
     private String journalpostId;
     private String dokumentId;
     private VariantFormat variantFormat;
-    private MottakKanal mottakKanal;
     private Journaltilstand journaltilstand;
     private T dokumentTypeId;
     private DokumentKategori dokumentKategori;
@@ -54,16 +53,12 @@ public class JournalMetadata<T extends DokumentTypeId> {
         return variantFormat;
     }
 
-    public MottakKanal getMottakKanal() {
-        return mottakKanal;
-    }
-
     public T getDokumentTypeId() {
         return dokumentTypeId;
     }
 
-    public DokumentKategori getDokumentKategori() {
-        return dokumentKategori;
+    public Optional<DokumentKategori> getDokumentKategori() {
+        return Optional.ofNullable(dokumentKategori);
     }
 
     public ArkivFilType getArkivFilType() {
@@ -105,7 +100,6 @@ public class JournalMetadata<T extends DokumentTypeId> {
         private String journalpostId;
         private String dokumentId;
         private VariantFormat variantFormat;
-        private MottakKanal mottakKanal;
         private T dokumentTypeId;
         private DokumentKategori dokumentKategori;
         private ArkivFilType arkivFilType;
@@ -129,11 +123,6 @@ public class JournalMetadata<T extends DokumentTypeId> {
 
         public Builder<T> medVariantFormat(VariantFormat variantFormat) {
             this.variantFormat = variantFormat;
-            return this;
-        }
-
-        public Builder<T> medMottakKanal(MottakKanal mottakKanal) {
-            this.mottakKanal = mottakKanal;
             return this;
         }
 
@@ -193,7 +182,6 @@ public class JournalMetadata<T extends DokumentTypeId> {
             jmd.journalpostId = this.journalpostId;
             jmd.dokumentId = this.dokumentId;
             jmd.variantFormat = this.variantFormat;
-            jmd.mottakKanal = this.mottakKanal;
             jmd.dokumentTypeId = this.dokumentTypeId;
             jmd.dokumentKategori = this.dokumentKategori;
             jmd.arkivFilType = this.arkivFilType;

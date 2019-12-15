@@ -1,46 +1,45 @@
 package no.nav.foreldrepenger.mottak.gsak;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.mottak.gsak.api.GsakSak;
-import no.nav.foreldrepenger.mottak.gsak.api.GsakSakAdapter;
+import no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.tjeneste.virksomhet.sak.v1.binding.FinnSakForMangeForekomster;
 import no.nav.tjeneste.virksomhet.sak.v1.binding.FinnSakUgyldigInput;
 import no.nav.tjeneste.virksomhet.sak.v1.informasjon.Aktoer;
 import no.nav.tjeneste.virksomhet.sak.v1.informasjon.Person;
+import no.nav.tjeneste.virksomhet.sak.v1.informasjon.Sak;
 import no.nav.tjeneste.virksomhet.sak.v1.meldinger.FinnSakRequest;
 import no.nav.tjeneste.virksomhet.sak.v1.meldinger.FinnSakResponse;
+import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 import no.nav.vedtak.felles.integrasjon.sak.SakConsumer;
 import no.nav.vedtak.felles.integrasjon.sak.SakSelftestConsumer;
 
 @ApplicationScoped
-class GsakSakAdapterImpl implements GsakSakAdapter {
+public class GsakSakTjeneste {
 
     private SakConsumer sakConsumer;
     private SakSelftestConsumer sakSelftestConsumer;
-    private GsakSakTransformerer oversetter;
 
-    public GsakSakAdapterImpl() {
+    public GsakSakTjeneste() {
     }
 
     @Inject
-    public GsakSakAdapterImpl(SakConsumer sakConsumer,
-                              SakSelftestConsumer sakSelftestConsumer,
-                              GsakSakTransformerer oversetter) {
+    public GsakSakTjeneste(SakConsumer sakConsumer,
+                           SakSelftestConsumer sakSelftestConsumer) {
         this.sakConsumer = sakConsumer;
         this.sakSelftestConsumer = sakSelftestConsumer;
-        this.oversetter = oversetter;
     }
 
-    @Override
     public void ping() {
         sakSelftestConsumer.ping();
     }
 
-    @Override
     public List<GsakSak> finnSaker(String fnr) {
 
         FinnSakRequest request = new FinnSakRequest();
@@ -57,6 +56,24 @@ class GsakSakAdapterImpl implements GsakSakAdapter {
             throw GsakSakFeil.FACTORY.ugyldigInput(e).toException();
         }
 
-        return oversetter.transformer(fnr, response.getSakListe());
+        return transformer(fnr, response.getSakListe());
+    }
+
+    private List<GsakSak> transformer(String fnr, List<Sak> sakListe) {
+        return sakListe
+                .stream()
+                .map(sak -> tilGsak(fnr, sak))
+                .collect(Collectors.toList());
+    }
+
+    private GsakSak tilGsak(String fnr, Sak sak) {
+        Tema tema = Tema.fraOffisiellKode(sak.getFagomraade().getValue());
+        String fagsystemOffisiellKode = sak.getFagsystem().getValue();
+        Fagsystem fagsystem = Fagsystem.fraKodeDefaultUdefinert(fagsystemOffisiellKode);
+        LocalDate sistEndret = DateUtil.convertToLocalDate(sak.getEndringstidspunkt());
+        if (sistEndret == null) {
+            sistEndret = DateUtil.convertToLocalDate(sak.getOpprettelsetidspunkt());
+        }
+        return new GsakSak(fnr, sak.getSakId(), tema, fagsystem, sistEndret);
     }
 }

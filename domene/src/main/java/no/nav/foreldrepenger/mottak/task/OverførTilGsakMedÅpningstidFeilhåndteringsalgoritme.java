@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.mottak.task;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.impl.feilhåndtering.ÅpningstidForsinkelseStrategi;
 
@@ -11,8 +10,8 @@ import no.nav.vedtak.felles.prosesstask.impl.feilhåndtering.ÅpningstidForsinke
 public class OverførTilGsakMedÅpningstidFeilhåndteringsalgoritme extends OverførTilGsakFeilhåndteringsalgoritme {
 
     @Inject
-    public OverførTilGsakMedÅpningstidFeilhåndteringsalgoritme(ProsessTaskRepository prosessTaskRepository, KodeverkRepository kodeverkRepository) {
-        super(new ÅpningstidForsinkelseStrategi(), prosessTaskRepository, kodeverkRepository);
+    public OverførTilGsakMedÅpningstidFeilhåndteringsalgoritme(ProsessTaskRepository prosessTaskRepository) {
+        super(new ÅpningstidForsinkelseStrategi(), prosessTaskRepository);
     }
 
     @Override

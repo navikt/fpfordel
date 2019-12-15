@@ -8,21 +8,16 @@ import java.util.List;
 import java.util.UUID;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
 import no.nav.dok.tjenester.mottainngaaendeforsendelse.DokumentInfoHoveddokument;
 import no.nav.dok.tjenester.mottainngaaendeforsendelse.DokumentInfoVedlegg;
 import no.nav.dok.tjenester.mottainngaaendeforsendelse.DokumentVariant;
 import no.nav.dok.tjenester.mottainngaaendeforsendelse.MottaInngaaendeForsendelseResponse;
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.fordel.kodeverk.ArkivFilType;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentKategori;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepositoryImpl;
-import no.nav.foreldrepenger.fordel.kodeverk.MottakKanal;
-import no.nav.foreldrepenger.fordel.kodeverk.VariantFormat;
+import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.VariantFormat;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseResponse;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseTestUtil;
@@ -60,15 +55,11 @@ public class JournalTjenesteUtilTest {
         DOKUMENT_ID_LISTE.add("256");
     }
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private KodeverkRepository kodeverkRepository = new KodeverkRepositoryImpl(repoRule.getEntityManager());
-
     private JournalTjenesteUtil tjenesteUtil;
 
     @Before
     public void setup() {
-        tjenesteUtil = new JournalTjenesteUtil(kodeverkRepository);
+        tjenesteUtil = new JournalTjenesteUtil();
     }
 
     @Test
@@ -93,7 +84,7 @@ public class JournalTjenesteUtilTest {
         DokumentInfoHoveddokument resultat = tjenesteUtil.konverterTilDokumentInfoHoveddokument(hoveddokument);
 
         assertThat(resultat).isNotNull();
-        assertThat(resultat.getDokumentTypeId()).isEqualTo(kodeverkRepository.finn(DokumentTypeId.class, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL).getOffisiellKode());
+        assertThat(resultat.getDokumentTypeId()).isEqualTo(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.getOffisiellKode());
         assertThat(resultat.getDokumentVariant()).hasSize(2);
 
         DokumentVariant xmlVar = resultat.getDokumentVariant().get(0);
@@ -116,14 +107,14 @@ public class JournalTjenesteUtilTest {
         List<DokumentInfoVedlegg> resultat = tjenesteUtil.konverterTilDokumentInfoVedlegg(vedleggListe, false, false);
         assertThat(resultat).hasSize(2);
         assertThat(resultat.get(0).getTittel()).isNullOrEmpty();
-        assertThat(resultat.get(0).getDokumentTypeId()).isEqualTo(kodeverkRepository.finn(DokumentTypeId.class, DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL).getOffisiellKode());
+        assertThat(resultat.get(0).getDokumentTypeId()).isEqualTo(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL.getOffisiellKode());
         assertThat(resultat.get(0).getDokumentVariant()).hasSize(1);
         assertThat(resultat.get(0).getDokumentVariant().get(0).getArkivFilType()).isEqualByComparingTo(DokumentVariant.ArkivFilType.PDFA);
         assertThat(resultat.get(0).getDokumentVariant().get(0).getVariantFormat()).isEqualByComparingTo(DokumentVariant.VariantFormat.ARKIV);
         assertThat(resultat.get(0).getDokumentVariant().get(0).getDokument()).isNotNull();
 
         assertThat(resultat.get(1).getTittel()).isNullOrEmpty();
-        assertThat(resultat.get(1).getDokumentTypeId()).isEqualTo(kodeverkRepository.finn(DokumentTypeId.class, DokumentTypeId.ANNET).getOffisiellKode());
+        assertThat(resultat.get(1).getDokumentTypeId()).isEqualTo(DokumentTypeId.ANNET.getOffisiellKode());
         assertThat(resultat.get(1).getDokumentVariant()).hasSize(1);
         assertThat(resultat.get(1).getDokumentVariant().get(0).getArkivFilType()).isEqualByComparingTo(DokumentVariant.ArkivFilType.PDFA);
         assertThat(resultat.get(1).getDokumentVariant().get(0).getVariantFormat()).isEqualByComparingTo(DokumentVariant.VariantFormat.ARKIV);
@@ -140,15 +131,15 @@ public class JournalTjenesteUtilTest {
         List<DokumentInfoVedlegg> resultat = tjenesteUtil.konverterTilDokumentInfoVedlegg(vedleggListe, false, true);
         assertThat(resultat).hasSize(3);
         assertThat(resultat.get(0).getTittel()).isNullOrEmpty();
-        assertThat(resultat.get(0).getDokumentTypeId()).isEqualTo(kodeverkRepository.finn(DokumentTypeId.class, DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL).getOffisiellKode());
+        assertThat(resultat.get(0).getDokumentTypeId()).isEqualTo(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL.getOffisiellKode());
         assertThat(resultat.get(0).getDokumentVariant()).hasSize(1);
 
-        assertThat(resultat.get(1).getTittel()).isEqualTo(kodeverkRepository.finn(DokumentTypeId.class, DokumentTypeId.ANNET).getNavn());
-        assertThat(resultat.get(1).getDokumentTypeId()).isEqualTo(kodeverkRepository.finn(DokumentTypeId.class, DokumentTypeId.ANNET).getOffisiellKode());
+        assertThat(resultat.get(1).getTittel()).isEqualTo(DokumentTypeId.ANNET.getTermNavn());
+        assertThat(resultat.get(1).getDokumentTypeId()).isEqualTo(DokumentTypeId.ANNET.getOffisiellKode());
         assertThat(resultat.get(1).getDokumentVariant()).hasSize(1);
 
         assertThat(resultat.get(2).getTittel()).isEqualTo("Farskap");
-        assertThat(resultat.get(2).getDokumentTypeId()).isEqualTo(kodeverkRepository.finn(DokumentTypeId.class, DokumentTypeId.ANNET).getOffisiellKode());
+        assertThat(resultat.get(2).getDokumentTypeId()).isEqualTo(DokumentTypeId.ANNET.getOffisiellKode());
         assertThat(resultat.get(2).getDokumentVariant()).hasSize(1);
     }
 
@@ -211,13 +202,12 @@ public class JournalTjenesteUtilTest {
         JournalMetadata<DokumentTypeId> metadata = result.get(1);
         assertThat(metadata.getDokumentTypeId()).isEqualTo(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
         assertThat(metadata.getKanalReferanseId()).isEqualTo(KANAL_REFERANSE);
-        assertThat(metadata.getMottakKanal()).isEqualTo(MottakKanal.NAV_NO);
         assertThat(metadata.getForsendelseMottatt()).isEqualTo(FORSENDELSE_MOTTATT);
         assertThat(metadata.getArkivFilType()).isEqualTo(ArkivFilType.PDFA);
         assertThat(metadata.getDokumentId()).isEqualTo(DOKUMENT_ID);
         assertThat(metadata.getBrukerIdentListe()).contains(FNR);
         assertThat(metadata.getVariantFormat()).isEqualTo(VariantFormat.SLADDET);
-        assertThat(metadata.getDokumentKategori()).isEqualTo(DokumentKategori.ELEKTRONISK_SKJEMA);
+        assertThat(metadata.getDokumentKategori().orElse(DokumentKategori.UDEFINERT)).isEqualTo(DokumentKategori.ELEKTRONISK_SKJEMA);
     }
 
     private InngaaendeJournalpost lagInngåendeJournalPost() {

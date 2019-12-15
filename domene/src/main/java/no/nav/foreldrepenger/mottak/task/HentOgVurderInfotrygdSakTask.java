@@ -16,8 +16,8 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
@@ -52,10 +52,9 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
 
     @Inject
     public HentOgVurderInfotrygdSakTask(ProsessTaskRepository prosessTaskRepository,
-                                        KodeverkRepository kodeverkRepository,
                                         RelevantSakSjekker relevansSjekker,
                                         AktørConsumerMedCache aktør) {
-        super(prosessTaskRepository, kodeverkRepository);
+        super(prosessTaskRepository);
         this.relevansSjekker = relevansSjekker;
         this.aktør = aktør;
         LOGGER.info("Konstruert {}", this);
@@ -102,7 +101,7 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
         if (gjelderSvangerskapspenger(w)) {
             return nesteStegForSvangerskapspenger(w);
         }
-        throw MottakMeldingFeil.FACTORY.ukjentBehandlingstema(w.getBehandlingTema()).toException();
+        throw MottakMeldingFeil.FACTORY.ukjentBehandlingstema(w.getBehandlingTema().getKode()).toException();
     }
 
     private MottakMeldingDataWrapper nesteStegForSvangerskapspenger(MottakMeldingDataWrapper w) {
@@ -126,15 +125,15 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
     }
 
     private static boolean gjelderSvangerskapspenger(MottakMeldingDataWrapper w) {
-        return w.getBehandlingTema().gjelderSvangerskapspenger();
+        return BehandlingTema.gjelderSvangerskapspenger(w.getBehandlingTema());
     }
 
     private static boolean gjelderForeldrepenger(MottakMeldingDataWrapper w) {
-        return w.getBehandlingTema().gjelderForeldrepenger();
+        return BehandlingTema.gjelderForeldrepenger(w.getBehandlingTema());
     }
 
     private static boolean gjelderEngangsstønad(MottakMeldingDataWrapper w) {
-        return w.getBehandlingTema().gjelderEngangsstønad();
+        return BehandlingTema.gjelderEngangsstønad(w.getBehandlingTema());
     }
 
     private String fnr(MottakMeldingDataWrapper w) {

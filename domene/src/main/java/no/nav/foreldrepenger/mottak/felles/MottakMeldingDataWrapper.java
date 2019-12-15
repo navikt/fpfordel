@@ -12,14 +12,10 @@ import java.util.Properties;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.persistence.NoResultException;
-
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentKategori;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.Kodeliste;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.Tema;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.util.FPDateUtil;
 
@@ -57,10 +53,8 @@ public class MottakMeldingDataWrapper {
     public static final String TYPE_ENDRING = "inntektsmelding.aarsak.til.innsending";
 
     private final ProsessTaskData prosessTaskData;
-    private final KodeverkRepository kodeverkRepository;
 
-    public MottakMeldingDataWrapper(KodeverkRepository kodeverkRepository, ProsessTaskData eksisterendeData) {
-        this.kodeverkRepository = kodeverkRepository;
+    public MottakMeldingDataWrapper(ProsessTaskData eksisterendeData) {
         this.prosessTaskData = eksisterendeData;
     }
 
@@ -83,7 +77,7 @@ public class MottakMeldingDataWrapper {
         }
         nesteStegProsessTaskData.setSekvens(sekvensnummer);
 
-        MottakMeldingDataWrapper neste = new MottakMeldingDataWrapper(this.kodeverkRepository, nesteStegProsessTaskData);
+        MottakMeldingDataWrapper neste = new MottakMeldingDataWrapper(nesteStegProsessTaskData);
         neste.copyData(this);
         return neste;
     }
@@ -119,7 +113,10 @@ public class MottakMeldingDataWrapper {
     }
 
     public BehandlingTema getBehandlingTema() {
-        return fetchKodeverk(BehandlingTema.class, prosessTaskData.getPropertyValue(BEHANDLINGSTEMA_KEY)).orElseThrow(IllegalStateException::new);
+        if (BehandlingTema.kodeMap().get(prosessTaskData.getPropertyValue(BEHANDLINGSTEMA_KEY)) == null) {
+            throw new IllegalStateException("Ugyldig kode for BehandlingTema");
+        }
+        return BehandlingTema.fraKodeDefaultUdefinert(prosessTaskData.getPropertyValue(BEHANDLINGSTEMA_KEY));
     }
 
     public void setBehandlingTema(BehandlingTema behandlingTema) {
@@ -127,7 +124,10 @@ public class MottakMeldingDataWrapper {
     }
 
     public Tema getTema() {
-        return fetchKodeverk(Tema.class, prosessTaskData.getPropertyValue(TEMA_KEY)).orElseThrow(IllegalStateException::new);
+        if (Tema.kodeMap().get(prosessTaskData.getPropertyValue(TEMA_KEY)) == null) {
+            throw new IllegalStateException("Ugyldig kode for Tema");
+        }
+        return Tema.fraKodeDefaultUdefinert(prosessTaskData.getPropertyValue(TEMA_KEY));
     }
 
     public boolean getHarTema() {
@@ -156,7 +156,7 @@ public class MottakMeldingDataWrapper {
 
     public Optional<DokumentTypeId> getDokumentTypeId() {
         String prop = prosessTaskData.getPropertyValue(DOKUMENTTYPE_ID_KEY);
-        return prop == null ? Optional.empty() : fetchKodeverk(DokumentTypeId.class, prop);
+        return prop == null ? Optional.empty() : Optional.of(DokumentTypeId.fraKodeDefaultUdefinert(prop));
     }
 
     public void setDokumentTypeId(DokumentTypeId dokumentTypeId) {
@@ -164,11 +164,12 @@ public class MottakMeldingDataWrapper {
     }
 
     public Optional<DokumentKategori> getDokumentKategori() {
-        return fetchKodeverk(DokumentKategori.class, prosessTaskData.getPropertyValue(DOKUMENTKATEGORI_ID_KEY));
+        String prop = prosessTaskData.getPropertyValue(DOKUMENTKATEGORI_ID_KEY);
+        return prop == null ? Optional.empty() : Optional.of(DokumentKategori.fraKodeDefaultUdefinert(prop));
     }
 
-    public void setDokumentKategori(DokumentKategori dokumentType) {
-        prosessTaskData.setProperty(DOKUMENTKATEGORI_ID_KEY, dokumentType.getKode());
+    public void setDokumentKategori(DokumentKategori dokumentKategori) {
+        prosessTaskData.setProperty(DOKUMENTKATEGORI_ID_KEY, dokumentKategori.getKode());
     }
 
     public final LocalDate getForsendelseMottatt() {
@@ -327,17 +328,6 @@ public class MottakMeldingDataWrapper {
             return Optional.of(LocalDate.parse(property));
         }
         return Optional.empty();
-    }
-
-    private <T extends Kodeliste> Optional<T> fetchKodeverk(Class<T> kodeverk, String kode) {
-        if(kode==null) {
-            return Optional.empty();
-        }
-        try {
-            return Optional.ofNullable(this.kodeverkRepository.finn(kodeverk, kode));
-        } catch (NoResultException ignored) { // NOSONAR
-            return Optional.empty();
-        }
     }
 
     public Optional<UUID> getForsendelseId() {

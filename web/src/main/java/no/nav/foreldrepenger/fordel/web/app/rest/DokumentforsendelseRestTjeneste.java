@@ -50,9 +50,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import no.nav.foreldrepenger.fordel.kodeverk.ArkivFilType;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
+import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeltFeilDto;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.Valideringsfeil;
 import no.nav.foreldrepenger.fordel.web.app.jackson.JacksonJsonConfig;
@@ -88,7 +87,6 @@ public class DokumentforsendelseRestTjeneste {
 
     private static final Logger log = LoggerFactory.getLogger(DokumentforsendelseRestTjeneste.class);
 
-    private KodeverkRepository kodeverkRepository;
     private DokumentforsendelseTjeneste service;
 
     private static final String KEY_FP_STATUSINFORMASJON = "fp.statusinformasjon.url";
@@ -98,16 +96,9 @@ public class DokumentforsendelseRestTjeneste {
     }
 
     @Inject
-    public DokumentforsendelseRestTjeneste(DokumentforsendelseTjeneste service, KodeverkRepository kodeverkRepository,
+    public DokumentforsendelseRestTjeneste(DokumentforsendelseTjeneste service,
             @KonfigVerdi(KEY_FP_STATUSINFORMASJON) URI fpStatusUrl) {
-        this(kodeverkRepository, service, fpStatusUrl);
-
-    }
-
-    DokumentforsendelseRestTjeneste(KodeverkRepository kodeverkRepository, DokumentforsendelseTjeneste service,
-            URI fpStatusUrl) {
         this.service = service;
-        this.kodeverkRepository = kodeverkRepository;
         this.fpStatusUrl = fpStatusUrl;
     }
 
@@ -298,8 +289,7 @@ public class DokumentforsendelseRestTjeneste {
         Map<String, FilMetadata> map = new HashMap<>();
         for (FilMetadataDto fmDto : dokumentforsendelseDto.getFiler()) {
             String dokumentTypeId = fmDto.getDokumentTypeId();
-            DokumentTypeId dokumentType = kodeverkRepository.finnForKodeverkEiersKode(DokumentTypeId.class,
-                    dokumentTypeId, DokumentTypeId.UDEFINERT);
+            DokumentTypeId dokumentType = DokumentTypeId.fraOffisiellKode(dokumentTypeId);
             FilMetadata fmd = new FilMetadata(fmDto.getContentId(), dokumentType);
             map.put(fmDto.getContentId(), fmd);
         }

@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import javax.xml.bind.JAXBException;
 
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.JournalTilstand;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
@@ -59,7 +58,7 @@ public interface MottakMeldingFeil extends DeklarerteFeil {
     Feil manglerSaksnummerForJournalføring(UUID forsendelseId);
 
     @TekniskFeil(feilkode = "FP-286143", feilmelding = "Ukjent behandlingstema {%s}", logLevel = WARN)
-    Feil ukjentBehandlingstema(BehandlingTema behandlingTema);
+    Feil ukjentBehandlingstema(String behandlingTema);
 
     @TekniskFeil(feilkode = "FP-429673", feilmelding = "Mangler Ytelse på Innteksmelding", logLevel = WARN)
     Feil manglerYtelsePåInntektsmelding();

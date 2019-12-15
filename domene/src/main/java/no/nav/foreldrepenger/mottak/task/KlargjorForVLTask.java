@@ -6,10 +6,9 @@ import java.util.UUID;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentKategori;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
@@ -31,10 +30,9 @@ public class KlargjorForVLTask extends WrappedProsessTaskHandler {
 
     @Inject
     public KlargjorForVLTask(ProsessTaskRepository prosessTaskRepository,
-            KodeverkRepository kodeverkRepository,
             KlargjørForVLTjeneste klargjørForVLTjeneste,
             DokumentRepository dokumentRepository) {
-        super(prosessTaskRepository, kodeverkRepository);
+        super(prosessTaskRepository);
         this.klargjørForVLTjeneste = klargjørForVLTjeneste;
         this.dokumentRepository = dokumentRepository;
     }
@@ -57,10 +55,8 @@ public class KlargjorForVLTask extends WrappedProsessTaskHandler {
         String saksnummer = dataWrapper.getSaksnummer()
                 .orElseThrow(() -> new IllegalStateException("Skulle allerede vært sjekket i precondition(...)"));
         String arkivId = dataWrapper.getArkivId();
-        DokumentTypeId dokumenttypeId = dataWrapper.getDokumentTypeId()
-                .map(dtid -> kodeverkRepository.finn(DokumentTypeId.class, dtid)).orElse(DokumentTypeId.UDEFINERT);
-        DokumentKategori dokumentKategori = dataWrapper.getDokumentKategori()
-                .map(kat -> kodeverkRepository.finn(DokumentKategori.class, kat)).orElse(DokumentKategori.UDEFINERT);
+        DokumentTypeId dokumenttypeId = dataWrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT);
+        DokumentKategori dokumentKategori = dataWrapper.getDokumentKategori().orElse(DokumentKategori.UDEFINERT);
         String journalEnhet = dataWrapper.getJournalførendeEnhet().orElse(null);
         BehandlingTema behandlingsTema = dataWrapper.getBehandlingTema();
         Optional<UUID> forsendelseId = dataWrapper.getForsendelseId();

@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verify;
 import org.junit.Before;
 import org.junit.Test;
 
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -19,19 +18,18 @@ public class WrappedProsessTaskHandlerTest {
     private ProsessTaskRepository mockProsessTaskRepository;
     private ProsessTaskData prosessTaskData;
     private MottakMeldingDataWrapper returnedDataWrapper;
-    private KodeverkRepository kodeverkRepository = mock(KodeverkRepository.class);
 
     @Before
     public void setup() {
         mockProsessTaskRepository = mock(ProsessTaskRepository.class);
-        wrappedProsessTaskHandler = new MyWrappedProsessTaskHandler(mockProsessTaskRepository, kodeverkRepository);
+        wrappedProsessTaskHandler = new MyWrappedProsessTaskHandler(mockProsessTaskRepository);
         prosessTaskData = new ProsessTaskData("type");
         returnedDataWrapper = null;
     }
 
     @Test
     public void test_doTask_returnedWrapper() {
-        returnedDataWrapper = new MottakMeldingDataWrapper(kodeverkRepository, prosessTaskData);
+        returnedDataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
 
         wrappedProsessTaskHandler.doTask(prosessTaskData);
 
@@ -49,8 +47,8 @@ public class WrappedProsessTaskHandlerTest {
 
     private class MyWrappedProsessTaskHandler extends WrappedProsessTaskHandler {
 
-        public MyWrappedProsessTaskHandler(ProsessTaskRepository prosessTaskRepository, KodeverkRepository kodeverkRepository) {
-            super(prosessTaskRepository, kodeverkRepository);
+        MyWrappedProsessTaskHandler(ProsessTaskRepository prosessTaskRepository) {
+            super(prosessTaskRepository);
         }
 
         @Override

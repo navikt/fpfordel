@@ -16,12 +16,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepositoryImpl;
-import no.nav.foreldrepenger.fordel.kodeverk.Tema;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -36,10 +33,6 @@ public class SlettForsendelseTaskTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-    
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private KodeverkRepository kodeverkRepository = new KodeverkRepositoryImpl(repoRule.getEntityManager());
 
     @Mock
     private ProsessTaskRepository prosessTaskRepositoryMock;
@@ -56,7 +49,7 @@ public class SlettForsendelseTaskTest {
         prosessTaskRepositoryMock = mock(ProsessTaskRepository.class);
         dokumentRepositoryMock = mock(DokumentRepository.class);
 
-        task = new SlettForsendelseTask(prosessTaskRepositoryMock, kodeverkRepository, dokumentRepositoryMock);
+        task = new SlettForsendelseTask(prosessTaskRepositoryMock, dokumentRepositoryMock);
 
         ptd = new ProsessTaskData(SlettForsendelseTask.TASKNAME);
         ptd.setSekvens("1");
@@ -64,7 +57,7 @@ public class SlettForsendelseTaskTest {
 
     @Test
     public void test_skalSletteJournalførtForsendelse() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
 
         DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
         DokumentMetadata metadata = DokumentforsendelseTestUtil.lagMetadata(forsendelseId, SAKSNUMMER);
@@ -86,7 +79,7 @@ public class SlettForsendelseTaskTest {
 
     @Test
     public void test_skalIkkeSlettePendingForsendelse() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
 
         DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
         DokumentMetadata metadata = DokumentforsendelseTestUtil.lagMetadata(forsendelseId, SAKSNUMMER);
@@ -106,7 +99,7 @@ public class SlettForsendelseTaskTest {
 
     @Test
     public void test_skalIkkeSletteForsendelseUtenSaksnummer() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
 
         DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
         DokumentMetadata metadata = DokumentforsendelseTestUtil.lagMetadata(forsendelseId, null);

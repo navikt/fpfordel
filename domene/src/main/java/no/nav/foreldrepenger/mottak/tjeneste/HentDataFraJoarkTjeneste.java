@@ -10,12 +10,12 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.fordel.kodeverk.ArkivFilType;
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentKategori;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.Tema;
-import no.nav.foreldrepenger.fordel.kodeverk.VariantFormat;
+import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.fordel.kodeverdi.VariantFormat;
 import no.nav.foreldrepenger.mottak.journal.JournalDokument;
 import no.nav.foreldrepenger.mottak.journal.JournalMetadata;
 import no.nav.foreldrepenger.mottak.journal.JournalTjeneste;
@@ -116,9 +116,9 @@ public class HentDataFraJoarkTjeneste {
                 .map(JournalMetadata::getDokumentTypeId).findFirst().orElse(DokumentTypeId.UDEFINERT);
     }
 
-    public static DokumentKategori hentDokumentKategori(List<JournalMetadata<DokumentTypeId>> hovedDokumenter) {
+    public static Optional<DokumentKategori> hentDokumentKategori(List<JournalMetadata<DokumentTypeId>> hovedDokumenter) {
         return hovedDokumenter.stream().filter(JournalMetadata::getErHoveddokument)
-                .map(JournalMetadata::getDokumentKategori).findFirst().orElse(DokumentKategori.UDEFINERT);
+                .map(JournalMetadata::getDokumentKategori).flatMap(Optional::stream).findFirst();
     }
 
     public static Optional<String> hentJournalførendeEnhet(List<JournalMetadata<DokumentTypeId>> hovedDokumenter) {
@@ -131,22 +131,22 @@ public class HentDataFraJoarkTjeneste {
         if (behandlingTema == null) {
             behandlingTema = BehandlingTema.UDEFINERT;
         }
-        if (!Tema.OMS.equals(tema) && behandlingTema.ikkeSpesifikkHendelse()) {
-            if (dokumentTypeId.erForeldrepengerRelatert()) {
+        if (!Tema.OMS.equals(tema) && BehandlingTema.ikkeSpesifikkHendelse(behandlingTema)) {
+            if (DokumentTypeId.erForeldrepengerRelatert(dokumentTypeId)) {
                 behandlingTema = BehandlingTema.FORELDREPENGER;
                 if (DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.equals(dokumentTypeId)) {
                     behandlingTema = BehandlingTema.FORELDREPENGER_FØDSEL;
                 } else if (DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON.equals(dokumentTypeId)) {
                     behandlingTema = BehandlingTema.FORELDREPENGER_ADOPSJON;
                 }
-            } else if (dokumentTypeId.erEngangsstønadRelatert()) {
+            } else if (DokumentTypeId.erEngangsstønadRelatert(dokumentTypeId)) {
                 behandlingTema = BehandlingTema.ENGANGSSTØNAD;
                 if (DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.equals(dokumentTypeId)) {
                     behandlingTema = BehandlingTema.ENGANGSSTØNAD_FØDSEL;
                 } else if (DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON.equals(dokumentTypeId)) {
                     behandlingTema = BehandlingTema.ENGANGSSTØNAD_ADOPSJON;
                 }
-            } else if (dokumentTypeId.erSvangerskapspengerRelatert()) {
+            } else if (DokumentTypeId.erSvangerskapspengerRelatert(dokumentTypeId)) {
                 behandlingTema = BehandlingTema.SVANGERSKAPSPENGER;
             }
         }

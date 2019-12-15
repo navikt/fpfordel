@@ -7,22 +7,18 @@ import java.util.Objects;
 import java.util.UUID;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.JoinColumnOrFormula;
-import org.hibernate.annotations.JoinFormula;
-
 import no.nav.foreldrepenger.fordel.BaseEntitet;
-import no.nav.foreldrepenger.fordel.kodeverk.ArkivFilType;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 
 @Entity(name = "Dokument")
 @Table(name = "DOKUMENT")
@@ -36,9 +32,8 @@ public class Dokument extends BaseEntitet {
     @Column(name = "FORSENDELSE_ID")
     private UUID forsendelseId;
 
-    @ManyToOne(optional = false)
-    @JoinColumnOrFormula(column = @JoinColumn(name = "dokument_type_id", referencedColumnName = "kode", nullable = false))
-    @JoinColumnOrFormula(formula = @JoinFormula(referencedColumnName = "kodeverk", value = "'" + DokumentTypeId.DISCRIMINATOR + "'"))
+    @Convert(converter = DokumentTypeId.KodeverdiConverter.class)
+    @Column(name="dokument_type_id", nullable = false)
     private DokumentTypeId dokumentTypeId = DokumentTypeId.UDEFINERT;
 
     @Lob
@@ -48,10 +43,9 @@ public class Dokument extends BaseEntitet {
     @Column(name = "HOVED_DOKUMENT")
     private Boolean hovedDokument;
 
-    @ManyToOne
-    @JoinColumnOrFormula(column = @JoinColumn(name = "arkiv_filtype", referencedColumnName = "kode", nullable = false))
-    @JoinColumnOrFormula(formula = @JoinFormula(referencedColumnName = "kodeverk", value = "'" + ArkivFilType.DISCRIMINATOR + "'"))
-    private ArkivFilType arkivFilType;
+    @Convert(converter = ArkivFilType.KodeverdiConverter.class)
+    @Column(name="arkiv_filtype", nullable = false)
+    private ArkivFilType arkivFilType = ArkivFilType.UDEFINERT;
 
     @Column(name = "BESKRIVELSE")
     private String beskrivelse;

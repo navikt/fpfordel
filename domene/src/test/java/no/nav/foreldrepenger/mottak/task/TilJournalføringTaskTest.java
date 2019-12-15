@@ -20,13 +20,10 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.Fagsystem;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepositoryImpl;
-import no.nav.foreldrepenger.fordel.kodeverk.Tema;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
@@ -50,19 +47,16 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 public class TilJournalføringTaskTest {
     private static final String ARKIV_ID = "234567";
-    private static final String ARKIV_SAK_SYSTEM = Fagsystem.GOSYS.getOffisiellKode();
+    private static final String ARKIV_SAK_SYSTEM = Fagsystem.GOSYS.getKode();
     private static final String SAKSNUMMER = "9876543";
     private static final String AKTØR_ID = "1234";
     private static final String BRUKER_FNR = "3011981234";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+
     @Mock
     private ProsessTaskRepository prosessTaskRepositoryMock;
-
-    private KodeverkRepository kodeverkRepository = new KodeverkRepositoryImpl(repoRule.getEntityManager());
 
     @Mock
     private JournalTjeneste journalTjenesteMock;
@@ -90,7 +84,7 @@ public class TilJournalføringTaskTest {
 
         TilJournalføringTjeneste tilJournalføringTjeneste = new TilJournalføringTjeneste(journalTjenesteMock, dokumentRepositoryMock);
 
-        task = new TilJournalføringTask(prosessTaskRepositoryMock, tilJournalføringTjeneste, enhetsTjenesteMock, kodeverkRepository, dokumentRepositoryMock, aktørConsumerMock);
+        task = new TilJournalføringTask(prosessTaskRepositoryMock, tilJournalføringTjeneste, enhetsTjenesteMock, dokumentRepositoryMock, aktørConsumerMock);
 
         ptd = new ProsessTaskData(TilJournalføringTask.TASKNAME);
         ptd.setSekvens("1");
@@ -101,7 +95,7 @@ public class TilJournalføringTaskTest {
 
     @Test
     public void skal_teste_precondition() throws Exception {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
 
         try {
             task.precondition(data);
@@ -132,7 +126,7 @@ public class TilJournalføringTaskTest {
     @Test
     public void test_utfor_uten_mangler() throws Exception {
 
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
         data.setArkivId(ARKIV_ID);
         data.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         data.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
@@ -152,7 +146,7 @@ public class TilJournalføringTaskTest {
 
     @Test
     public void test_mangler_arkivsak() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
         data.setArkivId(ARKIV_ID);
         data.setSaksnummer(SAKSNUMMER);
         data.setAktørId(AKTØR_ID);
@@ -179,7 +173,7 @@ public class TilJournalføringTaskTest {
 
     @Test
     public void test_mangler_journalforing_gir_mangel_exception() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
         data.setArkivId(ARKIV_ID);
         data.setSaksnummer(SAKSNUMMER);
         data.setAktørId(AKTØR_ID);
@@ -205,7 +199,7 @@ public class TilJournalføringTaskTest {
 
     @Test
     public void test_mangler_ting_som_ikke_kan_rettes() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
         data.setArkivId(ARKIV_ID);
         data.setSaksnummer(SAKSNUMMER);
         data.setAktørId(AKTØR_ID);
@@ -228,7 +222,7 @@ public class TilJournalføringTaskTest {
     @Test(expected = IntegrasjonException.class)
     public void skal_ved_funksjonell_feil_i_utledJournalføringsbehov_kaste_integrasjonException_noe_som_trigger_feilhåndterer_til_å_gå_til_manuell_behandling() {
 
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
         data.setArkivId(ARKIV_ID);
         data.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         data.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
@@ -243,7 +237,7 @@ public class TilJournalføringTaskTest {
 
     @Test(expected = IntegrasjonException.class)
     public void skal_ved_funksjonell_feil_i_oppdaterJournalpost_kaste_integrasjonException_noe_som_trigger_feilhåndterer_til_å_gå_til_manuell_behandling() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
         data.setArkivId(ARKIV_ID);
         data.setSaksnummer("123");
         data.setAktørId(AKTØR_ID);
@@ -262,7 +256,7 @@ public class TilJournalføringTaskTest {
     @Test(expected = IntegrasjonException.class)
     public void skal_ved_funksjonell_feil_i_ferdigstillJournalføring_kaste_integrasjonException_noe_som_trigger_feilhåndterer_til_å_gå_til_manuell_behandling() {
 
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
         data.setArkivId(ARKIV_ID);
         data.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         data.setSaksnummer("123");
@@ -284,7 +278,7 @@ public class TilJournalføringTaskTest {
     @Test
     public void test_validerDatagrunnlag_uten_feil() throws Exception {
         ProsessTaskData prosessTaskData = ptd;
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, prosessTaskData);
+        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(prosessTaskData);
 
         data.setSaksnummer("saksnummer");
         data.setAktørId(AKTØR_ID);
@@ -293,7 +287,7 @@ public class TilJournalføringTaskTest {
 
     @Test
     public void test_skalVedJournalføringAvDokumentForsendelseFåJournalTilstandEndeligJournalført() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
 
         List<Dokument> dokumenter = DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
 
@@ -323,7 +317,7 @@ public class TilJournalføringTaskTest {
 
     @Test
     public void test_skalKasteTekniskExceptionNårJournalTilstandIkkeErEndelig() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(kodeverkRepository, ptd);
+        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
 
         List<Dokument> dokumenter = DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
 

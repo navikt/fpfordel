@@ -13,12 +13,10 @@ import no.nav.dok.tjenester.mottainngaaendeforsendelse.DokumentInfoHoveddokument
 import no.nav.dok.tjenester.mottainngaaendeforsendelse.DokumentInfoVedlegg;
 import no.nav.dok.tjenester.mottainngaaendeforsendelse.DokumentVariant;
 import no.nav.dok.tjenester.mottainngaaendeforsendelse.MottaInngaaendeForsendelseResponse;
-import no.nav.foreldrepenger.fordel.kodeverk.ArkivFilType;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentKategori;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.MottakKanal;
-import no.nav.foreldrepenger.fordel.kodeverk.VariantFormat;
+import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.VariantFormat;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseResponse;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.JournalTilstand;
@@ -31,14 +29,11 @@ import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.InngaaendeJou
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Journalfoeringsbehov;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.JournalpostMangler;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Journaltilstand;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Mottakskanaler;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Variantformater;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.meldinger.HentJournalpostResponse;
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 
 class JournalTjenesteUtil {
-
-    private KodeverkRepository kodeverkRepository;
 
     private static Map<Journaltilstand, JournalMetadata.Journaltilstand> journaltilstandPrjournaltilstandJaxb;
 
@@ -49,8 +44,7 @@ class JournalTjenesteUtil {
         journaltilstandPrjournaltilstandJaxb.put(Journaltilstand.ENDELIG, JournalMetadata.Journaltilstand.ENDELIG);
     }
 
-    JournalTjenesteUtil(KodeverkRepository kodeverkRepository) {
-        this.kodeverkRepository = kodeverkRepository;
+    JournalTjenesteUtil() {
     }
 
     DokumentforsendelseResponse konverterTilDokumentforsendelseResponse(MottaInngaaendeForsendelseResponse inngåendeForsendelseResponse) {
@@ -77,7 +71,7 @@ class JournalTjenesteUtil {
                 dokVariant.add(variant);
             }
             info.setDokumentVariant(dokVariant);
-            info.setDokumentTypeId(kodeverkRepository.finn(DokumentTypeId.class, hoveddokument.get(0).getDokumentTypeId()).getOffisiellKode());
+            info.setDokumentTypeId(hoveddokument.get(0).getDokumentTypeId().getOffisiellKode());
         }
         return info;
     }
@@ -95,9 +89,8 @@ class JournalTjenesteUtil {
     }
 
     String tittelFraDokument(Dokument dokument, boolean endelig, boolean kreverTittel) {
-        DokumentTypeId fraDokument = DokumentTypeId.UDEFINERT.equals(dokument.getDokumentTypeId()) ? DokumentTypeId.ANNET : dokument.getDokumentTypeId();
-        DokumentTypeId dokumentTypeId = kodeverkRepository.finn(DokumentTypeId.class, fraDokument);
-        String dokumentTypeTittel = dokumentTypeId.getNavn();
+        DokumentTypeId dokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokument.getDokumentTypeId()) ? DokumentTypeId.ANNET : dokument.getDokumentTypeId();
+        String dokumentTypeTittel = dokumentTypeId.getTermNavn();
         if (DokumentTypeId.ANNET.equals(dokumentTypeId)) {
             // Brukers beskrivelse hvis ulikt "Annet"
             if (dokument.getBeskrivelse() != null && !dokumentTypeTittel.equals(dokument.getBeskrivelse())) {
@@ -139,7 +132,7 @@ class JournalTjenesteUtil {
     }
 
     private DokumentInfoVedlegg getDokumentInfoVedlegg(Dokument dokument, boolean endelig, boolean krevTittel) {
-        DokumentTypeId dokumentTypeId = kodeverkRepository.finn(DokumentTypeId.class, dokument.getDokumentTypeId());
+        DokumentTypeId dokumentTypeId = dokument.getDokumentTypeId();
         DokumentInfoVedlegg info = new DokumentInfoVedlegg();
         List<DokumentVariant> dokumentVariantList = new ArrayList<>();
         DokumentVariant dokVariant = new DokumentVariant();
@@ -159,7 +152,6 @@ class JournalTjenesteUtil {
     private void populerMetadataListe(String journalpostId, InngaaendeJournalpost journalpost,
                                       Dokumentinformasjon dokumentinfo, boolean erHoveddokument,
                                       List<JournalMetadata<DokumentTypeId>> metadataList) {
-        MottakKanal mottakKanal = getMottakKanal(journalpost);
 
         Journaltilstand journaltilstandJaxb = journalpost.getJournaltilstand();
         JournalMetadata.Journaltilstand journaltilstand = journaltilstandJaxb != null ? journaltilstandPrjournaltilstandJaxb.get(journaltilstandJaxb) : null;
@@ -173,7 +165,7 @@ class JournalTjenesteUtil {
 
         final String dokumentId = dokumentinfo.getDokumentId();
         final DokumentTypeId dokumentTypeId = getDokumentTypeId(dokumentinfo);
-        final DokumentKategori dokumentKategori = getDokumentKategori(dokumentinfo);
+        final Optional<DokumentKategori> dokumentKategori = getDokumentKategori(dokumentinfo);
 
         List<String> brukerIdentList = brukerListe.stream().filter((a) -> {
             // instanceof OK - eksternt grensesnitt
@@ -188,9 +180,8 @@ class JournalTjenesteUtil {
             builder.medJournalpostId(journalpostId);
             builder.medDokumentId(dokumentId);
             builder.medVariantFormat(variantFormat);
-            builder.medMottakKanal(mottakKanal);
             builder.medDokumentType(dokumentTypeId);
-            builder.medDokumentKategori(dokumentKategori);
+            dokumentKategori.ifPresent(builder::medDokumentKategori);
             builder.medArkivFilType(arkivFilType);
             builder.medJournaltilstand(journaltilstand);
             builder.medErHoveddokument(erHoveddokument);
@@ -205,34 +196,24 @@ class JournalTjenesteUtil {
         }
     }
 
-    private MottakKanal getMottakKanal(no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.InngaaendeJournalpost journalpost) {
-        MottakKanal mottakKanal = null;
-        Mottakskanaler mottakskanalJaxb = journalpost.getMottakskanal();
-        if (mottakskanalJaxb != null && mottakskanalJaxb.getValue() != null) {
-            String offisiellKode = mottakskanalJaxb.getValue();
-            mottakKanal = kodeverkRepository.finnForKodeverkEiersKode(MottakKanal.class, offisiellKode);
-        }
-        return mottakKanal;
-    }
-
     private DokumentTypeId getDokumentTypeId(Dokumentinformasjon dokumentinfo) {
         DokumentTypeId dokumentTypeId = null;
         DokumenttypeIder dokumenttypeJaxb = dokumentinfo.getDokumenttypeId();
         if (dokumenttypeJaxb != null && dokumenttypeJaxb.getValue() != null) {
             final String offisiellKode = dokumenttypeJaxb.getValue();
-            dokumentTypeId = kodeverkRepository.finnForKodeverkEiersKode(DokumentTypeId.class, offisiellKode, DokumentTypeId.UDEFINERT);
+            dokumentTypeId = DokumentTypeId.fraOffisiellKode(offisiellKode);
         }
         return dokumentTypeId;
     }
 
-    private DokumentKategori getDokumentKategori(Dokumentinformasjon dokumentinfo) {
-        DokumentKategori dokumentKategori = null;
+    private Optional<DokumentKategori> getDokumentKategori(Dokumentinformasjon dokumentinfo) {
+        DokumentKategori dokumentKategori = DokumentKategori.UDEFINERT;
         Dokumentkategorier dokumentkategoriJaxb = dokumentinfo.getDokumentkategori();
         if (dokumentkategoriJaxb != null && dokumentkategoriJaxb.getValue() != null) {
             String offisiellKode = dokumentkategoriJaxb.getValue();
-            dokumentKategori = kodeverkRepository.finnForKodeverkEiersKode(DokumentKategori.class, offisiellKode);
+            dokumentKategori = DokumentKategori.fraOffisiellKode(offisiellKode);
         }
-        return dokumentKategori;
+        return DokumentKategori.UDEFINERT.equals(dokumentKategori) ? Optional.empty() : Optional.of(dokumentKategori);
     }
 
     private VariantFormat getVariantFormat(Dokumentinnhold dokumentinnhold) {
@@ -240,7 +221,7 @@ class JournalTjenesteUtil {
         Variantformater variantformatJaxb = dokumentinnhold.getVariantformat();
         if (variantformatJaxb != null && variantformatJaxb.getValue() != null) {
             String offisiellKode = variantformatJaxb.getValue();
-            variantFormat = kodeverkRepository.finnForKodeverkEiersKode(VariantFormat.class, offisiellKode);
+            variantFormat = VariantFormat.fraKodeDefaultUdefinert(offisiellKode);
         }
         return variantFormat;
     }
@@ -250,7 +231,7 @@ class JournalTjenesteUtil {
         Arkivfiltyper arkivfiltypeJaxb = dokumentinnhold.getArkivfiltype();
         if (arkivfiltypeJaxb != null && arkivfiltypeJaxb.getValue() != null) {
             String offisiellKode = arkivfiltypeJaxb.getValue();
-            arkivFilType = kodeverkRepository.finnForKodeverkEiersKode(ArkivFilType.class, offisiellKode);
+            arkivFilType = ArkivFilType.fraKodeDefaultUdefinert(offisiellKode);
         }
         return arkivFilType;
     }

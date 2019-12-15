@@ -4,7 +4,7 @@ import static com.google.common.collect.Sets.difference;
 import static com.google.common.collect.Sets.symmetricDifference;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
-import static no.nav.foreldrepenger.fordel.kodeverk.Fagsystem.INFOTRYGD;
+import static no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem.INFOTRYGD;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -21,9 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.finn.unleash.Unleash;
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverk.Tema;
-import no.nav.foreldrepenger.mottak.gsak.api.GsakSakTjeneste;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.mottak.gsak.GsakSakTjeneste;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdPersonIkkeFunnetException;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
@@ -86,20 +86,20 @@ public class RelevantSakSjekker {
 
     private boolean erITSakRelevant(String fnr, LocalDate fom, BehandlingTema tema) {
 
-        if (tema.gjelderForeldrepenger()) {
+        if (BehandlingTema.gjelderForeldrepenger(tema)) {
             return erITSakRelevantForFP(fnr, fom);
         }
-        if (tema.gjelderSvangerskapspenger()) {
+        if (BehandlingTema.gjelderSvangerskapspenger(tema)) {
             return erITSakRelevantForSVP(fnr, fom);
         }
         return false;
     }
 
     private boolean erITSakRelevantForIM(String fnr, LocalDate fom, BehandlingTema tema) {
-        if (tema.gjelderForeldrepenger()) {
+        if (BehandlingTema.gjelderForeldrepenger(tema)) {
             return erFpRelevantForIM(fnr, fom);
         }
-        if (tema.gjelderSvangerskapspenger()) {
+        if (BehandlingTema.gjelderSvangerskapspenger(tema)) {
             return erITSakRelevantForSVP(fnr, fom);
         }
         return false;

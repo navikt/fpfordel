@@ -27,13 +27,10 @@ import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartInput;
 import org.jboss.resteasy.specimpl.MultivaluedMapImpl;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
 import com.google.common.net.HttpHeaders;
 
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepositoryImpl;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.Valideringsfeil;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.DokumentforsendelseTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseIdDto;
@@ -45,10 +42,7 @@ import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 @SuppressWarnings("resource")
 public class DokumentforsendelseRestTjenesteTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
-    private KodeverkRepositoryImpl kodeverkRepo = new KodeverkRepositoryImpl(repoRule.getEntityManager());
     private DokumentforsendelseTjeneste dokumentTjenesteMock;
     private DokumentforsendelseRestTjeneste tjeneste;
     private InputPart metadataPart;
@@ -61,7 +55,7 @@ public class DokumentforsendelseRestTjenesteTest {
     public void setUp() throws Exception {
         dokumentTjenesteMock = mock(DokumentforsendelseTjeneste.class);
         when(dokumentTjenesteMock.finnStatusinformasjon(any(UUID.class))).thenReturn(new ForsendelseStatusDto(ForsendelseStatus.PENDING));
-        tjeneste = new DokumentforsendelseRestTjeneste(dokumentTjenesteMock, kodeverkRepo, null);
+        tjeneste = new DokumentforsendelseRestTjeneste(dokumentTjenesteMock, null);
 
 
         //default mocking

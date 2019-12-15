@@ -14,7 +14,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.feil.Feil;
@@ -34,8 +33,6 @@ public class OverførTilGsakFeilhåndteringsalgoritmeTest {
 
     @Inject
     private ProsessTaskRepository prosessTaskRepository;
-    @Inject
-    private KodeverkRepository kodeverkRepository;
 
     private OverførTilGsakFeilhåndteringsalgoritme algoritme;
     private ProsessTaskTypeInfo type = lagType();
@@ -43,7 +40,7 @@ public class OverførTilGsakFeilhåndteringsalgoritmeTest {
 
     @Before
     public void opprettAlgoritme() {
-        algoritme = new OverførTilGsakMedBackoffFeilhåndteringsalgoritme(prosessTaskRepository, kodeverkRepository);
+        algoritme = new OverførTilGsakMedBackoffFeilhåndteringsalgoritme(prosessTaskRepository);
     }
 
     @Test

@@ -13,11 +13,10 @@ import javax.jws.WebService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentKategori;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.Tema;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
@@ -71,20 +70,17 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
     private HentDataFraJoarkTjeneste hentDataFraJoarkTjeneste;
     private KlargjørForVLTjeneste klargjørForVLTjeneste;
     private FagsakRestKlient fagsakRestKlient;
-    private KodeverkRepository kodeverkRepository;
     private AktørConsumer aktørConsumer;
 
     @Inject
     public BehandleDokumentService(TilJournalføringTjeneste tilJournalføringTjeneste,
             HentDataFraJoarkTjeneste hentDataFraJoarkTjeneste,
             KlargjørForVLTjeneste klargjørForVLTjeneste, FagsakRestKlient fagsakRestKlient,
-            KodeverkRepository kodeverkRepository,
             AktørConsumer aktørConsumer) {
         this.tilJournalføringTjeneste = tilJournalføringTjeneste;
         this.hentDataFraJoarkTjeneste = hentDataFraJoarkTjeneste;
         this.klargjørForVLTjeneste = klargjørForVLTjeneste;
         this.fagsakRestKlient = fagsakRestKlient;
-        this.kodeverkRepository = kodeverkRepository;
         this.aktørConsumer = aktørConsumer;
     }
 
@@ -116,37 +112,32 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
         Optional<FagsakInfomasjonDto> optFagsakInfomasjonDto = fagsakRestKlient
                 .finnFagsakInfomasjon(new SaksnummerDto(saksnummer));
-        if (!optFagsakInfomasjonDto.isPresent()) {
+        if (optFagsakInfomasjonDto.isEmpty()) {
             throw BehandleDokumentServiceFeil.FACTORY.finnerIkkeFagsak(saksnummer).toException();
         }
 
         FagsakInfomasjonDto fagsakInfomasjonDto = optFagsakInfomasjonDto.get();
 
         String behandlingstemaOffisiellKode = fagsakInfomasjonDto.getBehandlingstemaOffisiellKode();
-        BehandlingTema behandlingTema = kodeverkRepository.finnForKodeverkEiersKode(BehandlingTema.class,
-                behandlingstemaOffisiellKode, BehandlingTema.UDEFINERT);
+        BehandlingTema behandlingTema = BehandlingTema.fraOffisiellKode(behandlingstemaOffisiellKode);
         String aktørId = fagsakInfomasjonDto.getAktørId();
 
         Optional<JournalMetadata<DokumentTypeId>> optJournalMetadata = hentJournalMetadata(arkivId);
         final JournalMetadata<DokumentTypeId> journalMetadata = optJournalMetadata.get();
         final DokumentTypeId dokumentTypeId = journalMetadata.getDokumentTypeId() != null
-                ? kodeverkRepository.finn(DokumentTypeId.class, journalMetadata.getDokumentTypeId())
-                : DokumentTypeId.UDEFINERT;
-        final DokumentKategori dokumentKategori = journalMetadata.getDokumentKategori() != null
-                ? kodeverkRepository.finn(DokumentKategori.class, journalMetadata.getDokumentKategori())
-                : DokumentKategori.UDEFINERT;
-        behandlingTema = kodeverkRepository.finn(BehandlingTema.class,
-                HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(Tema.FORELDRE_OG_SVANGERSKAPSPENGER,
-                        behandlingTema, dokumentTypeId));
+                ? journalMetadata.getDokumentTypeId() : DokumentTypeId.UDEFINERT;
+        final DokumentKategori dokumentKategori = journalMetadata.getDokumentKategori().orElse(DokumentKategori.UDEFINERT);
+        behandlingTema = HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(
+                Tema.FORELDRE_OG_SVANGERSKAPSPENGER, behandlingTema, dokumentTypeId);
 
-        validerKanJournalføres(saksnummer, fagsakInfomasjonDto, behandlingTema, dokumentTypeId, dokumentKategori);
+        validerKanJournalføres(behandlingTema, dokumentTypeId, dokumentKategori);
 
         final String xml = hentDokumentSettMetadata(saksnummer, behandlingTema, aktørId, journalMetadata,
                 dokumentTypeId);
 
         if (!JournalMetadata.Journaltilstand.ENDELIG.equals(journalMetadata.getJournaltilstand())) {
             logger.info(removeLineBreaks("Kaller tilJournalføring")); // NOSONAR
-            String innhold = dokumentTypeId.getNavn() != null ? dokumentTypeId.getNavn() : "Ukjent innhold";
+            String innhold = dokumentTypeId.getTermNavn() != null ? dokumentTypeId.getTermNavn() : "Ukjent innhold";
             if (!tilJournalføringTjeneste.tilJournalføring(arkivId, saksnummer, aktørId, enhetId, innhold)) {
                 validerArkivId(null);
             }
@@ -162,7 +153,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             throws OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet {
         Optional<JournalMetadata<DokumentTypeId>> optJournalMetadata = hentDataFraJoarkTjeneste
                 .hentHoveddokumentMetadata(arkivId);
-        if (!optJournalMetadata.isPresent()) {
+        if (optJournalMetadata.isEmpty()) {
             JournalpostIkkeFunnet journalpostIkkeFunnet = new JournalpostIkkeFunnet();
             journalpostIkkeFunnet.setFeilmelding("Finner ikke journalpost med id " + arkivId);
             journalpostIkkeFunnet.setFeilaarsak("Finner ikke journalpost");
@@ -172,8 +163,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         return optJournalMetadata;
     }
 
-    private void validerKanJournalføres(String saksnummer, FagsakInfomasjonDto fagsakInfomasjonDto,
-            BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId, DokumentKategori dokumentKategori) {
+    private void validerKanJournalføres(BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId, DokumentKategori dokumentKategori) {
         if (BehandlingTema.UDEFINERT.equals(behandlingTema) && (DokumentTypeId.KLAGE_DOKUMENT.equals(dokumentTypeId)
                 || DokumentKategori.KLAGE_ELLER_ANKE.equals(dokumentKategori))) {
             throw BehandleDokumentServiceFeil.FACTORY.sakUtenAvsluttetBehandling().toException();
@@ -189,7 +179,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             // Bruker eksisterende infrastruktur for å hente ut og validere XML-data.
             // Tasktype tilfeldig valgt
             ProsessTaskData prosessTaskData = new ProsessTaskData(KlargjorForVLTask.TASKNAME);
-            MottakMeldingDataWrapper dataWrapper = new MottakMeldingDataWrapper(kodeverkRepository, prosessTaskData);
+            MottakMeldingDataWrapper dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
             dataWrapper.setBehandlingTema(behandlingTema);
             dataWrapper.setSaksnummer(saksnummer);
             dataWrapper.setAktørId(aktørId);
@@ -227,7 +217,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             DokumentTypeId dokumentTypeId, String xml) {
         MottattStrukturertDokument<?> mottattDokument = MeldingXmlParser.unmarshallXml(xml);
         if (DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD.equals(dokumentTypeId)
-                && !behandlingTema.ikkeSpesifikkHendelse()) {
+                && !BehandlingTema.ikkeSpesifikkHendelse(behandlingTema)) {
             dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);
         }
         try {
@@ -249,12 +239,11 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
     private void validerDokumentData(MottakMeldingDataWrapper dataWrapper, BehandlingTema behandlingTema,
             DokumentTypeId dokumentTypeId, String imType, LocalDate startDato) {
         if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
-            BehandlingTema behandlingTemaFraIM = kodeverkRepository.finnForKodeverkEiersTermNavn(BehandlingTema.class,
-                    imType, BehandlingTema.UDEFINERT);
-            if (behandlingTemaFraIM.gjelderForeldrepenger()) {
-                if (!dataWrapper.getInntektsmeldingStartDato().isPresent()) { // Kommer ingen vei uten startdato
+            BehandlingTema behandlingTemaFraIM = BehandlingTema.fraTermNavn(imType);
+            if (BehandlingTema.gjelderForeldrepenger(behandlingTemaFraIM)) {
+                if (dataWrapper.getInntektsmeldingStartDato().isEmpty()) { // Kommer ingen vei uten startdato
                     throw BehandleDokumentServiceFeil.FACTORY.imUtenStartdato().toException();
-                } else if (!behandlingTema.gjelderForeldrepenger()) { // Prøver journalføre på annen
+                } else if (!BehandlingTema.gjelderForeldrepenger(behandlingTema)) { // Prøver journalføre på annen
                                                                       // fagsak - ytelsetype
                     throw BehandleDokumentServiceFeil.FACTORY.imFeilType().toException();
                 }
@@ -262,7 +251,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
                 throw BehandleDokumentServiceFeil.FACTORY.imFeilType().toException();
             }
         }
-        if (behandlingTema.gjelderForeldrepenger()
+        if (BehandlingTema.gjelderForeldrepenger(behandlingTema)
                 && startDato.isBefore(KonfigVerdier.ENDRING_BEREGNING_DATO)) {
             throw BehandleDokumentServiceFeil.FACTORY.forTidligUttak().toException();
         }

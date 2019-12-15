@@ -9,8 +9,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
@@ -48,10 +47,9 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
     public TilJournalføringTask(ProsessTaskRepository prosessTaskRepository,
                                 TilJournalføringTjeneste journalføringTjeneste,
                                 EnhetsTjeneste enhetsidTjeneste,
-                                KodeverkRepository kodeverkRepository,
                                 DokumentRepository dokumentRepository,
                                 AktørConsumerMedCache aktørConsumer) {
-        super(prosessTaskRepository, kodeverkRepository);
+        super(prosessTaskRepository);
         this.journalføring = journalføringTjeneste;
         this.enhetsidTjeneste = enhetsidTjeneste;
         this.dokumentRepository = dokumentRepository;
@@ -88,7 +86,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
                 return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
             }
         } else {
-            String innhold = dataWrapper.getDokumentTypeId().map(dtid -> kodeverkRepository.finn(DokumentTypeId.class, dtid)).map(DokumentTypeId::getNavn).orElse("Ukjent innhold");
+            String innhold = dataWrapper.getDokumentTypeId().map(DokumentTypeId::getTermNavn).orElse("Ukjent innhold");
             try {
                 if (!journalføring.tilJournalføring(dataWrapper.getArkivId(), dataWrapper.getSaksnummer().get(), dataWrapper.getAktørId().get(), enhetsId, innhold)) {
                     return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);

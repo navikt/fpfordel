@@ -10,15 +10,10 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.fordel.kodeverk.Fagsystem;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepositoryImpl;
-import no.nav.foreldrepenger.mottak.gsak.api.GsakSak;
+import no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem;
 import no.nav.tjeneste.virksomhet.sak.v1.binding.FinnSakForMangeForekomster;
 import no.nav.tjeneste.virksomhet.sak.v1.binding.FinnSakUgyldigInput;
 import no.nav.tjeneste.virksomhet.sak.v1.informasjon.Fagomraader;
@@ -33,26 +28,19 @@ import no.nav.vedtak.felles.integrasjon.sak.SakSelftestConsumer;
 
 public class GsakSakWebServiceTest {
 
-    private GsakSakAdapterImpl service; // objektet vi tester
+    private GsakSakTjeneste service; // objektet vi tester
 
     private SakConsumer mockSakConsumer;
     private SakSelftestConsumer mockSakSelftestConsumer;
-    private GsakSakTransformerer mockGsakSakTransformerer;
 
     private static final String BRUKER_FNR = "06016921295";
-    
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private KodeverkRepository kodeverkRepository = new KodeverkRepositoryImpl(repoRule.getEntityManager());
-
 
     @Before
     public void setup() {
         mockSakConsumer = mock(SakConsumer.class);
         mockSakSelftestConsumer = mock(SakSelftestConsumer.class);
-        mockGsakSakTransformerer = new GsakSakTransformerer(kodeverkRepository);
 
-        service = new GsakSakAdapterImpl(mockSakConsumer, mockSakSelftestConsumer, mockGsakSakTransformerer);
+        service = new GsakSakTjeneste(mockSakConsumer, mockSakSelftestConsumer);
     }
 
     @Test
@@ -66,7 +54,7 @@ public class GsakSakWebServiceTest {
     public void test_finnInfotrygdSakerForBruker_ok() throws FinnSakUgyldigInput, FinnSakForMangeForekomster {
 
         Fagsystemer infotrygdSystem = new Fagsystemer();
-        infotrygdSystem.setValue(Fagsystem.INFOTRYGD.getOffisiellKode());
+        infotrygdSystem.setValue(Fagsystem.INFOTRYGD.getKode());
 
         Sak sak1 = new Sak();
         sak1.setSakId("id1");

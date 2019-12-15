@@ -2,14 +2,14 @@ package no.nav.foreldrepenger.mottak.infotrygd.rest;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
-import static no.nav.foreldrepenger.fordel.kodeverk.RelatertYtelseTema.FORELDREPENGER_TEMA;
+import static no.nav.foreldrepenger.fordel.kodeverdi.RelatertYtelseTema.FORELDREPENGER_TEMA;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import no.nav.foreldrepenger.fordel.kodeverk.RelatertYtelseBehandlingstema;
+import no.nav.foreldrepenger.fordel.kodeverdi.RelatertYtelseBehandlingstema;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 
 public final class InfotrygdRestResponseMapper {

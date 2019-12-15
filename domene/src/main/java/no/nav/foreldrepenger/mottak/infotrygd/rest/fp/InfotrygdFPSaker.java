@@ -1,14 +1,14 @@
 package no.nav.foreldrepenger.mottak.infotrygd.rest.fp;
 
-import static no.nav.foreldrepenger.fordel.kodeverk.RelatertYtelseBehandlingstema.FORELDREPENGER_FODSEL_BEHANDLINGSTEMA;
+import static no.nav.foreldrepenger.fordel.kodeverdi.RelatertYtelseBehandlingstema.FORELDREPENGER_FODSEL_BEHANDLINGSTEMA;
 
 import java.net.URI;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.mottak.infotrygd.rest.InfotrygdSaker;
 import no.nav.foreldrepenger.mottak.infotrygd.rest.InfotrygdRestResponseMapper;
+import no.nav.foreldrepenger.mottak.infotrygd.rest.InfotrygdSaker;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 

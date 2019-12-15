@@ -1,5 +1,12 @@
 package no.nav.foreldrepenger.fordel.web.app.jackson;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.Provider;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -13,12 +20,6 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-
-import javax.ws.rs.ext.ContextResolver;
-import javax.ws.rs.ext.Provider;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Provider
 public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
@@ -55,8 +56,7 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
     }
 
     private static void addSerializers(SimpleModule module) {
-        module.addSerializer(new KodeverkSerializer());
-        module.addSerializer(new KodelisteSerializer());
+        module.addSerializer(new KodeverdiSerializer());
         module.addSerializer(new LocalDateTimeSerializer(DateTimeFormatter.ISO_DATE_TIME));
         module.addSerializer(new LocalDateSerializer(DateTimeFormatter.ISO_DATE));
         module.addSerializer(new StringSerializer());

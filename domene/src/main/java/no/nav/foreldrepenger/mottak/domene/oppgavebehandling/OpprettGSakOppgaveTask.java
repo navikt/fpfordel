@@ -23,10 +23,9 @@ import javax.persistence.NoResultException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.fordel.kodeverk.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.fordel.kodeverk.Tema;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.task.SlettForsendelseTask;
@@ -73,7 +72,6 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     private final BehandleoppgaveConsumer service;
 
     private final EnhetsTjeneste enhetsidTjeneste;
-    private final KodeverkRepository kodeverkRepository;
     private final AktørConsumerMedCache aktørConsumer;
     private final ProsessTaskRepository prosessTaskRepository;
 
@@ -81,11 +79,9 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     public OpprettGSakOppgaveTask(ProsessTaskRepository prosessTaskRepository,
             BehandleoppgaveConsumer service,
             EnhetsTjeneste enhetsidTjeneste,
-            KodeverkRepository kodeverkRepository,
             AktørConsumerMedCache aktørConsumer) {
         this.service = service;
         this.enhetsidTjeneste = enhetsidTjeneste;
-        this.kodeverkRepository = kodeverkRepository;
         this.aktørConsumer = aktørConsumer;
         this.prosessTaskRepository = prosessTaskRepository;
     }
@@ -95,11 +91,10 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         BehandlingTema behandlingTema = finnBehandlingTema(
                 Optional.ofNullable(prosessTaskData.getPropertyValue(BEHANDLINGSTEMA_KEY)));
         DokumentTypeId dokumentTypeId = Optional.ofNullable(prosessTaskData.getPropertyValue(DOKUMENTTYPE_ID_KEY))
-                .map(dt -> kodeverkRepository.finn(DokumentTypeId.class, dt)).orElse(DokumentTypeId.UDEFINERT);
+                .map(DokumentTypeId::fraKodeDefaultUdefinert).orElse(DokumentTypeId.UDEFINERT);
         Tema tema = Optional.ofNullable(prosessTaskData.getPropertyValue(TEMA_KEY))
-                .map(dt -> kodeverkRepository.finn(Tema.class, dt)).orElse(Tema.UDEFINERT);
-        behandlingTema = kodeverkRepository.finn(BehandlingTema.class,
-                HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(tema, behandlingTema, dokumentTypeId));
+                .map(dt -> Tema.kodeMap().getOrDefault(dt, Tema.UDEFINERT)).orElse(Tema.UDEFINERT);
+        behandlingTema = HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(tema, behandlingTema, dokumentTypeId);
 
         WSOpprettOppgaveResponse oppgaveResponse = opprettOppgave(prosessTaskData, behandlingTema, dokumentTypeId);
 
@@ -130,7 +125,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     private BehandlingTema finnBehandlingTema(Optional<String> kode) {
         BehandlingTema behandlingTema;
         try {
-            behandlingTema = kode.map(k -> kodeverkRepository.finn(BehandlingTema.class, k))
+            behandlingTema = kode.map(BehandlingTema::fraKodeDefaultUdefinert)
                     .orElse(BehandlingTema.UDEFINERT);
         } catch (NoResultException e) { // NOSONAR
             // Vi skal tåle ukjent behandlingstema
@@ -166,9 +161,9 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
     private String lagBeskrivelse(BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId, ProsessTaskData data) {
         if (DokumentTypeId.UDEFINERT.equals(dokumentTypeId)) {
-            return BehandlingTema.UDEFINERT.equals(behandlingTema) ? "Journalføring" : behandlingTema.getNavn();
+            return BehandlingTema.UDEFINERT.equals(behandlingTema) ? "Journalføring" : behandlingTema.getTermNavn();
         }
-        String beskrivelse = dokumentTypeId.getNavn();
+        String beskrivelse = dokumentTypeId.getTermNavn();
         if (DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.equals(dokumentTypeId)
                 && data.getPropertyValue(MottakMeldingDataWrapper.FØRSTE_UTTAKSDAG_KEY) != null) {
             String uttakStart = data.getPropertyValue(MottakMeldingDataWrapper.FØRSTE_UTTAKSDAG_KEY);
@@ -222,12 +217,12 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
             builder.medFagomradeKode(FAGOMRADE_KODE.toString())
                     .medPrioritetKode(PRIORITET_KODE.toString())
                     .medOppgavetypeKode(JFR_FOR);
-            if (behandlingTema.gjelderForeldrepenger() || dokumentTypeId.erForeldrepengerRelatert()) {
+            if (BehandlingTema.gjelderForeldrepenger(behandlingTema) || DokumentTypeId.erForeldrepengerRelatert(dokumentTypeId)) {
                 builder.medUnderkategoriKode("FORELDREPE_FOR");
-            } else if (behandlingTema.gjelderEngangsstønad() || dokumentTypeId.erEngangsstønadRelatert()) {
+            } else if (BehandlingTema.gjelderEngangsstønad(behandlingTema) || DokumentTypeId.erEngangsstønadRelatert(dokumentTypeId)) {
                 builder.medUnderkategoriKode("ENGANGSST_FOR");
-            } else if (behandlingTema.gjelderSvangerskapspenger()
-                    || dokumentTypeId.erSvangerskapspengerRelatert()) {
+            } else if (BehandlingTema.gjelderSvangerskapspenger(behandlingTema)
+                    || DokumentTypeId.erSvangerskapspengerRelatert(dokumentTypeId)) {
                 builder.medUnderkategoriKode("SVANGERSKAPSPE_FOR");
             }
         } else if (Tema.OMS.equals(tema)) {
@@ -238,8 +233,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     }
 
     private Tema hentUtTema(ProsessTaskInfo info) {
-        return kodeverkRepository.finn(Tema.class,
-                info.getProperties().getProperty(MottakMeldingDataWrapper.TEMA_KEY, "-"));
+        return Tema.kodeMap().getOrDefault(info.getProperties().getProperty(MottakMeldingDataWrapper.TEMA_KEY, "-"), Tema.UDEFINERT);
     }
 
     // Sett frist til mandag hvis fristen er i helgen.

@@ -6,9 +6,8 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentKategori;
-import no.nav.foreldrepenger.fordel.kodeverk.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverk.KodeverkRepository;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -36,9 +35,8 @@ public class OpprettSakTask extends WrappedProsessTaskHandler {
 
     @Inject
     public OpprettSakTask(ProsessTaskRepository prosessTaskRepository,
-            FagsakRestKlient fagsakRestKlient,
-            KodeverkRepository kodeverkRepository) {
-        super(prosessTaskRepository, kodeverkRepository);
+            FagsakRestKlient fagsakRestKlient) {
+        super(prosessTaskRepository);
         this.fagsakRestKlient = fagsakRestKlient;
     }
 
