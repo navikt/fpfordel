@@ -1,0 +1,12 @@
+{
+  "ingress": "https://foreldrepengesoknad-api-q.nav.no",
+  "application_name": "foreldrepengesoknad-api",
+  "env": {
+    "oppslag_uri": "https://api-gw-q1.oera.no/fpsoknad-oppslag/api/",
+    "historikk_uri": "https://api-gw-q1.oera.no/fpinfo-historikk/api/",
+    "mottak_uri": "https://api-gw-q1.oera.no/fpsoknad-mottak/api/",
+    "innsyn_mottak": "https://api-gw-q1.oera.no/fpsoknad-mottak/api/",
+    "innsyn_oppslag": "https://api-gw-q1.oera.no/fpsoknad-oppslag/api/",
+    "minidialog_uri": "https://api-gw-q1.oera.no/fpinfo-historikk/api/"
+  }
+}
