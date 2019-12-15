@@ -35,4 +35,9 @@ spec:
         memory: 3072Mi
       requests:
         cpu: 250m
-        memory: 1536Mi  
+        memory: 1536Mi 
+  env: 
+  {{#each env}}
+   - name: {{@key}}
+     value: "{{this}}"
+  {{/each}}        
