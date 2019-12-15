@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -28,9 +29,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.MockitoRule;
 
 import no.finn.unleash.Unleash;
@@ -48,6 +51,7 @@ import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
+@RunWith(MockitoJUnitRunner.class)
 public class HentOgVurderInfotrygdSakTaskTest {
     private static final String FNR = "99999999999";
 
@@ -418,7 +422,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     private void expectITRest(String fnr, InfotrygdSak... itsaker) {
         when(svp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
-        when(fp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
+        lenient().when(fp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
     }
 
     private void expectGsak(String fnr, GsakSak... gsaker) {
