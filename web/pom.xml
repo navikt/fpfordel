@@ -78,8 +78,6 @@
             <artifactId>nav-virksomhet-dokumentnotifikasjon-v1-meldingsdefinisjon</artifactId>
         </dependency>
 
-        <!-- Server Provided Libraries. Transitive avhengigheter som ikke
-            burde vært her da de trekkes inn av server. -->
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
             <artifactId>felles-sikkerhet</artifactId>
