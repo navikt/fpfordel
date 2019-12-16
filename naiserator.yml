@@ -6,7 +6,7 @@ metadata:
   labels:
     team: teamforeldrepenger
 spec:
- {{#each env}}
+{{#each env}}
    - name: {{@key}}
      value: "{{this}}"
 {{/each}}
