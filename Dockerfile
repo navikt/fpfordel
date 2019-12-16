@@ -16,4 +16,4 @@ COPY web/target/lib/*.jar /app/lib/
 
 # Application Start Command
 COPY run-java.sh /
-RUN chmod +x /run-java.s
+RUN chmod +x /run-java.sh
