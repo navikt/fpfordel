@@ -30,7 +30,7 @@ public class HentOgVurderVLSakTaskTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     private String saksnummer = "123456";
-    private String aktørId = "0456";
+    private String aktørId = "9000000000009";
 
     private LocalDate termindato = FPDateUtil.iDag();
 

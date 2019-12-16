@@ -16,6 +16,11 @@ import no.nav.tjeneste.virksomhet.sak.v1.informasjon.Person;
 import no.nav.tjeneste.virksomhet.sak.v1.informasjon.Sak;
 import no.nav.tjeneste.virksomhet.sak.v1.meldinger.FinnSakRequest;
 import no.nav.tjeneste.virksomhet.sak.v1.meldinger.FinnSakResponse;
+import no.nav.vedtak.feil.Feil;
+import no.nav.vedtak.feil.FeilFactory;
+import no.nav.vedtak.feil.LogLevel;
+import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
+import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 import no.nav.vedtak.felles.integrasjon.sak.SakConsumer;
 import no.nav.vedtak.felles.integrasjon.sak.SakSelftestConsumer;
@@ -76,4 +81,17 @@ public class GsakSakTjeneste {
         }
         return new GsakSak(fnr, sak.getSakId(), tema, fagsystem, sistEndret);
     }
+
+    private interface GsakSakFeil extends DeklarerteFeil {
+
+        GsakSakTjeneste.GsakSakFeil FACTORY = FeilFactory.create(GsakSakTjeneste.GsakSakFeil.class);
+
+        @TekniskFeil(feilkode = "FP-974567", feilmelding = "for mange saker funnet.", logLevel = LogLevel.ERROR)
+        Feil forMangeSakerFunnet(FinnSakForMangeForekomster e);
+
+        @TekniskFeil(feilkode = "FP-350721", feilmelding = "ugyldig input.", logLevel = LogLevel.ERROR)
+        Feil ugyldigInput(FinnSakUgyldigInput e);
+
+    }
+
 }

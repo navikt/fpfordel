@@ -58,21 +58,21 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 public class HentOgVurderInfotrygdSakTaskTest {
-    private static final String FNR = "06016921295";
+    private static final String FNR = "99999999999";
 
     private static final String AKTØR_BRUKER = "1";
-    private static final String AKTØR_ANNEN_PART = "124";
+    private static final String AKTØR_ANNEN_PART = "9";
     private static final String AKTØR_BRUKER_1 = "2";
-    private static final String AKTØR_ANNEN_PART_1 = "248";
+    private static final String AKTØR_ANNEN_PART_1 = "8";
     private static final String AKTØR_BRUKER_2 = "3";
-    private static final String AKTØR_ANNEN_PART_2 = "369";
+    private static final String AKTØR_ANNEN_PART_2 = "7";
 
-    private static final String FNR_BRUKER = "11118017368";
-    private static final String FNR_ANNEN_PART = "18119206878";
-    private static final String FNR_BRUKER_1 = "18119211879";
-    private static final String FNR_ANNEN_PART_1 = "11118068368";
-    private static final String FNR_BRUKER_2 = "18119211879";
-    private static final String FNR_ANNEN_PART_2 = "18119206878";
+    private static final String FNR_BRUKER = "99999999999";
+    private static final String FNR_ANNEN_PART = "99999999899";
+    private static final String FNR_BRUKER_1 = "99999999899";
+    private static final String FNR_ANNEN_PART_1 = "99999999999";
+    private static final String FNR_BRUKER_2 = "99999999899";
+    private static final String FNR_ANNEN_PART_2 = "99999999899";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();

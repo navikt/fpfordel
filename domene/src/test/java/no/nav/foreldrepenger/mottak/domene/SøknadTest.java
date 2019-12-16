@@ -35,7 +35,7 @@ import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
 
 public class SøknadTest {
 
-    private static String AKTØR_ID = "12341234";
+    private static String AKTØR_ID = "9000000000009";
     private static String SAKSNUMMER = "98765433";
 
     @Rule

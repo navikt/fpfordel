@@ -54,7 +54,7 @@
         </ns6:foreldrepenger>
     </ns5:omYtelse>
     <ns5:soeker>
-        <ns2:aktoerId>9000000000002</ns2:aktoerId>
+        <ns2:aktoerId>9000000000009</ns2:aktoerId>
         <ns2:soeknadsrolle kode="MOR"/>
     </ns5:soeker>
 </ns5:soeknad>

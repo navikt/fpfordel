@@ -9,7 +9,7 @@
                 <ns:telefonnummer>string</ns:telefonnummer>
             </ns:kontaktinformasjon>
         </ns:arbeidsgiver>
-        <ns:arbeidstakerFnr>12345678912</ns:arbeidstakerFnr>
+        <ns:arbeidstakerFnr>99999999999</ns:arbeidstakerFnr>
         <ns:naerRelasjon>true</ns:naerRelasjon>
         <!--Optional:-->
         <ns:arbeidsforhold>

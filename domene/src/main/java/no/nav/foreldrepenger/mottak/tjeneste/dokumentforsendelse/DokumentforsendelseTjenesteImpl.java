@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse;
 import static java.util.stream.Collectors.toSet;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static no.nav.vedtak.feil.LogLevel.WARN;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +26,10 @@ import no.nav.foreldrepenger.mottak.task.dokumentforsendelse.BehandleDokumentfor
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatusDto;
+import no.nav.vedtak.feil.Feil;
+import no.nav.vedtak.feil.FeilFactory;
+import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
+import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -97,7 +102,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
     @Override
     public ForsendelseStatusDto finnStatusinformasjon(UUID forsendelseId) {
         Optional<DokumentMetadata> metadataOpt = repository.hentUnikDokumentMetadata(forsendelseId);
-        if (!metadataOpt.isPresent()) {
+        if (metadataOpt.isEmpty()) {
             throw DokumentFeil.FACTORY.fantIkkeForsendelse(forsendelseId).toException();
         }
         DokumentMetadata dokumentMetadata = metadataOpt.get();
@@ -127,8 +132,9 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
         String ident = SubjectHandler.getSubjectHandler().getUid();
         if (ident != null) {
             Optional<String> aktørIdent = aktørConsumer.hentAktørIdForPersonIdent(ident);
+            var metadataBruker = metaData.getBrukerId();
 
-            if (aktørIdent.isPresent() && !aktørIdent.get().equals(metaData.getBrukerId())) {
+            if (!aktørIdent.map(metadataBruker::equals).orElse(Boolean.TRUE)) {
                 return aktørIdent;
             }
 
@@ -151,6 +157,16 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
         Predicate<ArkivFilType> aftCheck = aft -> dokumentArkivFilTyper.stream().anyMatch(aft::equals);
         long påkrevdeFunnetIhoveddokumentene = PÅKREVDE_HOVEDDOKUMENT_ARKIV_FIL_TYPER.stream().filter(aftCheck).count();
         return påkrevdeFunnetIhoveddokumentene == 2;
+    }
+
+    private interface DokumentforsendelseTjenesteFeil extends DeklarerteFeil {
+        DokumentforsendelseTjenesteImpl.DokumentforsendelseTjenesteFeil FACTORY = FeilFactory.create(DokumentforsendelseTjenesteImpl.DokumentforsendelseTjenesteFeil.class);
+
+        @TekniskFeil(feilkode = "FP-728553", feilmelding = "Saksnummer er påkrevd ved ettersendelser", logLevel = WARN)
+        Feil saksnummerPåkrevdVedEttersendelser();
+
+        @TekniskFeil(feilkode = "FP-728555", feilmelding = "Hoveddokumentet skal alltid sendes som to dokumenter med %s: %s og %s", logLevel = WARN)
+        Feil hoveddokumentSkalSendesSomToDokumenter(String content_type, String dokumenttype1, MediaType dokumenttype2);
     }
 
 }

@@ -1,5 +1,14 @@
 package no.nav.foreldrepenger.mottak.domene.v2;
 
+import java.time.LocalDate;
+import java.util.Optional;
+import java.util.function.Function;
+
+import javax.xml.bind.JAXBElement;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.mottak.domene.MeldingKonverteringFeil;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -7,13 +16,6 @@ import no.seres.xsd.nav.inntektsmelding_m._20181211.Arbeidsgiver;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.ArbeidsgiverPrivat;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.InntektsmeldingM;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Skjemainnhold;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.xml.bind.JAXBElement;
-import java.time.LocalDate;
-import java.util.Optional;
-import java.util.function.Function;
 
 public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM> {
 
@@ -45,7 +47,7 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
 
     public void kopierAktørTilMottakWrapper(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {
         Optional<String> aktørId = aktørIdFinder.apply(getArbeidstakerFnr());
-        if (!aktørId.isPresent()) {
+        if (aktørId.isEmpty()) {
             MeldingKonverteringFeil.FACTORY.finnerIkkeAktørId(this.getClass().getSimpleName()).log(LOG);
         }
         dataWrapper.setAktørId(aktørId.get());

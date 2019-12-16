@@ -52,8 +52,8 @@ public class BehandleDokumentServiceTest {
     private static final String JOURNALPOST_ID = "123";
     private static final String ENHETID = "4567";
     private static final String SAKSNUMMER = "789";
-    private static final String AKTØR_ID = "9000000000002";
-    private static final String BRUKER_FNR = "01234567890";
+    private static final String AKTØR_ID = "9000000000009";
+    private static final String BRUKER_FNR = "99999999899";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();

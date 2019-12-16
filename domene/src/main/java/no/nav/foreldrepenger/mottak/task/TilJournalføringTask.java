@@ -70,7 +70,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
     @Override
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper dataWrapper) {
         Optional<String> fnr = aktør.hentPersonIdentForAktørId(dataWrapper.getAktørId().get());//NOSONAR
-        if (!fnr.isPresent()) {
+        if (fnr.isEmpty()) {
             throw MottakMeldingFeil.FACTORY.fantIkkePersonidentForAktørId(TASKNAME, dataWrapper.getId()).toException();
         }
         String enhetsId = enhetsidTjeneste.hentFordelingEnhetId(dataWrapper.getTema(), dataWrapper.getBehandlingTema(), dataWrapper.getJournalførendeEnhet(), fnr);
@@ -92,7 +92,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
                     return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
                 }
             } catch (IntegrasjonException e) {
-                if (e.getFeil().getKode().equals(JOURNALMANGLER_EXCEPTION_KODE)) {
+                if (JOURNALMANGLER_EXCEPTION_KODE.equals(e.getFeil().getKode())) {
                     String logMessage = e.getFeil().getKode() + " " + e.getFeil().getFeilmelding();
                     LOG.info(logMessage);
                     return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
@@ -102,9 +102,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             }
         }
         Optional<UUID> forsendelseId = dataWrapper.getForsendelseId();
-        if (forsendelseId.isPresent()) {
-            dokumentRepository.oppdaterForsendelseMetadata(forsendelseId.get(), dataWrapper.getArkivId(), dataWrapper.getSaksnummer().get(), ForsendelseStatus.PENDING);
-        }
+        forsendelseId.ifPresent(uuid -> dokumentRepository.oppdaterForsendelseMetadata(uuid, dataWrapper.getArkivId(), dataWrapper.getSaksnummer().get(), ForsendelseStatus.PENDING));
         return dataWrapper.nesteSteg(KlargjorForVLTask.TASKNAME);
     }
 }

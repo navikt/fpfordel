@@ -49,8 +49,8 @@ public class TilJournalføringTaskTest {
     private static final String ARKIV_ID = "234567";
     private static final String ARKIV_SAK_SYSTEM = Fagsystem.GOSYS.getKode();
     private static final String SAKSNUMMER = "9876543";
-    private static final String AKTØR_ID = "1234";
-    private static final String BRUKER_FNR = "3011981234";
+    private static final String AKTØR_ID = "9000000000009";
+    private static final String BRUKER_FNR = "99999999899";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();

@@ -70,16 +70,16 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
         }
         if (gjelderIM(w)
                 && !gjelderSvangerskapspenger(w)
-                && !w.getInntektsmeldingStartDato().isPresent()) {
+                && w.getInntektsmeldingStartDato().isEmpty()) {
             throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
                     INNTEKSTMELDING_STARTDATO_KEY, w.getId()).toException();
         }
-        if (!w.getAktørId().isPresent()) {
+        if (w.getAktørId().isEmpty()) {
             throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
                     AKTØR_ID_KEY, w.getId()).toException();
         }
         if (gjelderForeldrepenger(w) && !gjelderIM(w)) {
-            if (!w.getAnnenPartId().isPresent()) {
+            if (w.getAnnenPartId().isEmpty()) {
                 throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
                         ANNEN_PART_ID_KEY, w.getId()).toException();
             }

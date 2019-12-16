@@ -37,8 +37,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 public class OpprettSakTaskTest {
 
-    public static final String FNR = "03035498000";
-    public static final String AKTØR_ID = "9000000000002";
+    public static final String FNR = "99999999999";
+    public static final String AKTØR_ID = "9000000000009";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -225,7 +225,7 @@ public class OpprettSakTaskTest {
 
         MottakMeldingDataWrapper ptData = new MottakMeldingDataWrapper(prosessTaskData);
         ptData.setArkivId("123");
-        ptData.setAktørId("1000104134079");
+        ptData.setAktørId("9000000000009");
         ptData.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
         ptData.setDokumentKategori(DokumentKategori.SØKNAD);
 

@@ -36,7 +36,7 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
 
     public void kopierAktørTilMottakWrapper(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {
         Optional<String> aktørId = aktørIdFinder.apply(getArbeidstakerFnr());
-        if (!aktørId.isPresent()) {
+        if (aktørId.isEmpty()) {
             MeldingKonverteringFeil.FACTORY.finnerIkkeAktørId(this.getClass().getSimpleName()).log(log);
         }
         aktørId.ifPresent(dataWrapper::setAktørId);

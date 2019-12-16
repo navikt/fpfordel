@@ -46,8 +46,8 @@ import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 @RunWith(CdiRunner.class)
 public class HentOgVurderGsakSakTaskTest {
 
-    private static final String BRUKER_FNR = "06016921295";
-    private static final String ANNEN_PART_FNR = "06016921296";
+    private static final String BRUKER_FNR = "99999999899";
+    private static final String ANNEN_PART_FNR = "99999999699";
     private static final String BRUKER_AKTØR_ID = "123";
     private static final String ANNEN_PART_ID = "124";
 

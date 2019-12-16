@@ -49,7 +49,7 @@ public class BehandleDokumentforsendelseTaskTest {
     // XML tilgjengelig
 
     private static final UUID FORSENDELSE_ID = UUID.randomUUID();
-    private static final String AKTØR_ID = "9000000000002";
+    private static final String AKTØR_ID = "9000000000009";
     private static final String PERSON_IDENT = "12345678901";
     private static final String FIL_SØKNAD_ENGST = "engangsstoenad-termin-soeknad.xml";
     private static final String FIL_SØKNAD_FORP = "selvb-soeknad-forp.xml";

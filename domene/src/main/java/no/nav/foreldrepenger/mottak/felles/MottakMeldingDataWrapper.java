@@ -113,10 +113,7 @@ public class MottakMeldingDataWrapper {
     }
 
     public BehandlingTema getBehandlingTema() {
-        if (BehandlingTema.kodeMap().get(prosessTaskData.getPropertyValue(BEHANDLINGSTEMA_KEY)) == null) {
-            throw new IllegalStateException("Ugyldig kode for BehandlingTema");
-        }
-        return BehandlingTema.fraKodeDefaultUdefinert(prosessTaskData.getPropertyValue(BEHANDLINGSTEMA_KEY));
+        return BehandlingTema.fraKode(prosessTaskData.getPropertyValue(BEHANDLINGSTEMA_KEY));
     }
 
     public void setBehandlingTema(BehandlingTema behandlingTema) {
@@ -124,10 +121,7 @@ public class MottakMeldingDataWrapper {
     }
 
     public Tema getTema() {
-        if (Tema.kodeMap().get(prosessTaskData.getPropertyValue(TEMA_KEY)) == null) {
-            throw new IllegalStateException("Ugyldig kode for Tema");
-        }
-        return Tema.fraKodeDefaultUdefinert(prosessTaskData.getPropertyValue(TEMA_KEY));
+        return Tema.fraKode(prosessTaskData.getPropertyValue(TEMA_KEY));
     }
 
     public boolean getHarTema() {

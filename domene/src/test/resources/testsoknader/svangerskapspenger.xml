@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns3:soeknad xmlns:ns6="urn:no:nav:vedtak:felles:xml:soeknad:endringssoeknad:v3" xmlns:ns5="urn:no:nav:vedtak:felles:xml:soeknad:foreldrepenger:v3" xmlns:ns8="urn:no:nav:vedtak:felles:xml:soeknad:engangsstoenad:v3" xmlns:ns7="urn:no:nav:vedtak:felles:xml:soeknad:uttak:v3" xmlns:ns2="urn:no:nav:vedtak:felles:xml:soeknad:felles:v3" xmlns:ns4="urn:no:nav:vedtak:felles:xml:soeknad:svangerskapspenger:v1" xmlns:ns3="urn:no:nav:vedtak:felles:xml:soeknad:v3">
+<ns3:soeknad xmlns:ns2="urn:no:nav:vedtak:felles:xml:soeknad:felles:v3"
+			 xmlns:ns4="urn:no:nav:vedtak:felles:xml:soeknad:svangerskapspenger:v1"
+			 xmlns:ns3="urn:no:nav:vedtak:felles:xml:soeknad:v3">
 	<ns3:mottattDato>2019-04-10</ns3:mottattDato>
 	<ns3:paakrevdeVedlegg>
 		<ns2:id>A16722</ns2:id>
@@ -46,7 +48,7 @@
 		</ns4:svangerskapspenger>
 	</ns3:omYtelse>
 	<ns3:soeker>
-		<ns2:aktoerId>1000104134079</ns2:aktoerId>
+		<ns2:aktoerId>9000000000009</ns2:aktoerId>
 		<ns2:soeknadsrolle kode="IKKE_RELEVANT"/>
 	</ns3:soeker>
 </ns3:soeknad>

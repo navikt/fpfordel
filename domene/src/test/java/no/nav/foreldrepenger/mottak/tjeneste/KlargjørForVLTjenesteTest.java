@@ -33,7 +33,7 @@ public class KlargjørForVLTjenesteTest {
         mockFagsakRestKlient = mock(FagsakRestKlient.class);
         mockDokumentRestTjeneste = mock(DokumentmottakRestKlient.class);
         var mockTilbakeRestTjeneste = mock(TilbakekrevingRestKlient.class);
-        klargjørForVLTjeneste = new KlargjørForVLTjeneste(mockDokumentRestTjeneste, mockFagsakRestKlient, mockTilbakeRestTjeneste, null);
+        klargjørForVLTjeneste = new KlargjørForVLTjeneste(mockDokumentRestTjeneste, mockFagsakRestKlient, mockTilbakeRestTjeneste);
     }
 
 

@@ -95,7 +95,7 @@ public class HentDataFraJoarkTaskTest {
 
     @Test
     public void skal_sende_til_manuell_behandling_ved_flere_bruker() throws Exception {
-        List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(joarkTestsupport.lagJournalMetadataUstrukturert(Arrays.asList(BRUKER_FNR, "12313121")));
+        List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(joarkTestsupport.lagJournalMetadataUstrukturert(Arrays.asList(BRUKER_FNR, "99999999899")));
 
         doReturn(metadata).when(joarkDokumentHåndterer).hentJoarkDokumentMetadata(ARKIV_ID);
 
@@ -245,7 +245,7 @@ public class HentDataFraJoarkTaskTest {
         List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(dokument);
         String xml = joarkTestsupport.readFile("testsoknader/inntektsmelding-far.xml");
         JournalDokument<DokumentTypeId> jdMock = new JournalDokument<DokumentTypeId>(dokument, xml);
-        String fnrPåInntektsmelding = "12345678912";
+        String fnrPåInntektsmelding = "99999999999";
 
         doReturn(metadata).when(joarkDokumentHåndterer).hentJoarkDokumentMetadata(ARKIV_ID);
         doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(joarkDokumentHåndterer).hentGyldigAktørFraPersonident(eq(fnrPåInntektsmelding));
@@ -284,7 +284,7 @@ public class HentDataFraJoarkTaskTest {
         List<JournalMetadata<DokumentTypeId>> metadata = Collections.singletonList(dokument);
         String xml = joarkTestsupport.readFile("testsoknader/inntektsmelding-far-svp.xml");
         JournalDokument<DokumentTypeId> jdMock = new JournalDokument<DokumentTypeId>(dokument, xml);
-        String fnrPåInntektsmelding = "12345678912";
+        String fnrPåInntektsmelding = "99999999999";
 
         doReturn(metadata).when(joarkDokumentHåndterer).hentJoarkDokumentMetadata(ARKIV_ID);
         doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(joarkDokumentHåndterer).hentGyldigAktørFraPersonident(eq(fnrPåInntektsmelding));

@@ -68,7 +68,7 @@ public class TilJournalføringTjeneste {
                 .filter(dokument -> !dokument.erHovedDokument())
                 .collect(Collectors.toList());
 
-        if (forsøkEndeligJF && !saksnummer.isPresent()) {
+        if (forsøkEndeligJF && saksnummer.isEmpty()) {
             throw MottakMeldingFeil.FACTORY.manglerSaksnummerForJournalføring(forsendelseId).toException();
         }
 

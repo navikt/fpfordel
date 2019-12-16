@@ -359,11 +359,11 @@ public class JournalTjenesteImplTest {
         String arkivSakId = "arkivsakId";
         JournalPost journalPost = new JournalPost("id");
         journalPost.setArkivSakId(arkivSakId);
-        String aktørId = "1234";
-        String ar = "ASS";
+        String aktørId = "9000000000009";
+        String ar = "ARKIVREF";
         journalPost.setAktørId(aktørId);
         journalPost.setArkivSakSystem(ar);
-        String fnr = "01234567890";
+        String fnr = "99999999999";
         when(aktørConsumerMock.hentPersonIdentForAktørId(aktørId)).thenReturn(Optional.of(fnr));
 
         journalTjeneste.oppdaterJournalpost(journalPost);
@@ -381,9 +381,9 @@ public class JournalTjenesteImplTest {
     @Test
     public void oppdater_journalpost_avsender_skal_oppdatere_journalpost() throws OppdaterJournalpostSikkerhetsbegrensning, OppdaterJournalpostOppdateringIkkeMulig, OppdaterJournalpostUgyldigInput, OppdaterJournalpostJournalpostIkkeInngaaende, OppdaterJournalpostObjektIkkeFunnet {
         JournalPost journalPost = new JournalPost("id");
-        String aktørId = "1234";
+        String aktørId = "9000000000009";
         journalPost.setAvsenderAktørId(aktørId);
-        String fnr = "01234567890";
+        String fnr = "99999999999";
         when(aktørConsumerMock.hentPersonIdentForAktørId(aktørId)).thenReturn(Optional.of(fnr));
 
         journalTjeneste.oppdaterJournalpost(journalPost);

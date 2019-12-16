@@ -32,7 +32,7 @@ public class GsakSakOversetterTest {
     @Test
     public void test_tilListInfotrygdSak() throws Exception {
 
-        final String fnr = "01020312345";
+        final String fnr = "99999999999";
 
         final Fagsystem fagsystemInfotrygdKV = Fagsystem.INFOTRYGD;
         final Fagsystemer fagsystemInfotrygd = new Fagsystemer();

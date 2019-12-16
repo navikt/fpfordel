@@ -64,7 +64,7 @@ public class HentOgVurderVLSakTask extends WrappedProsessTaskHandler {
 
     @Override
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
-        if (!dataWrapper.getAktørId().isPresent()) {
+        if (dataWrapper.getAktørId().isEmpty()) {
             throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
                     MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
         }
@@ -72,7 +72,7 @@ public class HentOgVurderVLSakTask extends WrappedProsessTaskHandler {
 
     @Override
     public void postcondition(MottakMeldingDataWrapper dataWrapper) {
-        if (!dataWrapper.getAktørId().isPresent()) {
+        if (dataWrapper.getAktørId().isEmpty()) {
             throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
                     MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
         }

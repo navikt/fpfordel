@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.fordel.kodeverdi;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -15,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum BehandlingTema implements KodeverdiMedNavn {
+public enum BehandlingTema implements Kodeverdi {
 
     ENGANGSSTØNAD("ENGST", "ab0327", "Engangsstønad"),
     ENGANGSSTØNAD_FØDSEL("ENGST_FODS","ab0050", "Engangsstønad ved fødsel"),
@@ -88,10 +87,6 @@ public enum BehandlingTema implements KodeverdiMedNavn {
             return UDEFINERT;
         }
         return KODER.getOrDefault(kode, UDEFINERT);
-    }
-
-    public static Map<String, BehandlingTema> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
     }
 
     public static BehandlingTema fraOffisiellKode(String kode) {

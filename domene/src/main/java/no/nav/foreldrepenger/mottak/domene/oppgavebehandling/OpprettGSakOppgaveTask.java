@@ -93,7 +93,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         DokumentTypeId dokumentTypeId = Optional.ofNullable(prosessTaskData.getPropertyValue(DOKUMENTTYPE_ID_KEY))
                 .map(DokumentTypeId::fraKodeDefaultUdefinert).orElse(DokumentTypeId.UDEFINERT);
         Tema tema = Optional.ofNullable(prosessTaskData.getPropertyValue(TEMA_KEY))
-                .map(dt -> Tema.kodeMap().getOrDefault(dt, Tema.UDEFINERT)).orElse(Tema.UDEFINERT);
+                .map(Tema::fraKodeDefaultUdefinert).orElse(Tema.UDEFINERT);
         behandlingTema = HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(tema, behandlingTema, dokumentTypeId);
 
         WSOpprettOppgaveResponse oppgaveResponse = opprettOppgave(prosessTaskData, behandlingTema, dokumentTypeId);
@@ -233,7 +233,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     }
 
     private Tema hentUtTema(ProsessTaskInfo info) {
-        return Tema.kodeMap().getOrDefault(info.getProperties().getProperty(MottakMeldingDataWrapper.TEMA_KEY, "-"), Tema.UDEFINERT);
+        return Tema.fraKodeDefaultUdefinert(info.getProperties().getProperty(MottakMeldingDataWrapper.TEMA_KEY, "-"));
     }
 
     // Sett frist til mandag hvis fristen er i helgen.

@@ -37,11 +37,11 @@ public class FagsakRestKlientImplTest {
         LocalDate termindato = FPDateUtil.iDag();
         LocalDate omsorgsovertagelsesDato = FPDateUtil.iDag().plusDays(1);
         String saksnummer = "666";
-        String aktørId = "0456";
+        String aktørId = "9000000000009";
         String årsakInntektsmelding = "Endring";
-        String annenPartId = "0789";
+        String annenPartId = "9000000000009";
         String arbeidsforholdsid = "56654679";
-        String virksomhetsnummer = "9825671290712";
+        String virksomhetsnummer = "999999999";
         LocalDateTime nå = FPDateUtil.nå();
 
         oidcRestClient = mock(OidcRestClient.class);

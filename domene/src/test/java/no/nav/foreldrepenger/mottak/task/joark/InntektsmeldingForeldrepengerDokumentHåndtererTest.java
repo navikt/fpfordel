@@ -75,7 +75,7 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
 
     @Test
     public void skal_håndtere_dokument_som_har_ikke_en_inntektsmelding() throws Exception {
-        String aktørId = "9000000000002";
+        String aktørId = "9000000000009";
         dataWrapper.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         dataWrapper.setAktørId(aktørId);

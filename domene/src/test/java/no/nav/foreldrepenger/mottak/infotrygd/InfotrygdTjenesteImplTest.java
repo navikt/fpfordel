@@ -34,15 +34,15 @@ import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebServiceFeil;
 import no.nav.vedtak.felles.integrasjon.infotrygdsak.InfotrygdSakConsumer;
 
 public class InfotrygdTjenesteImplTest {
-    private static final String FNR_SØKER = "14106512345";
-    private static final String FNR_EKTEFELLE = "01019055555";
+    private static final String FNR_SØKER = "99999999999";
+    private static final String FNR_EKTEFELLE = "99999999999";
     private static final LocalDate NOW = LocalDate.now();
     private static final LocalDate DATE_20170823 = NOW.minusMonths(4).plusDays(17);
     private static final LocalDate DATE_20170401 = NOW.minusMonths(8).minusDays(5);
     private static final LocalDate DATE_20171017 = NOW.minusMonths(2).plusDays(11);
     private static final LocalDate DATE_20180101 = NOW.plusDays(25);
     private static final String FORELDREPENGER = "Foreldrepenger";
-    private static final String SAKSBEHANDLER_ID = "Prinsesse Leia";
+    private static final String SAKSBEHANDLER_ID = "Saksbehandler";
 
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
