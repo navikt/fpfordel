@@ -66,7 +66,7 @@ class AppStartupInfoLogger {
             SortedMap<String, String> sysPropsMap = sysPropsHelper.filteredSortedProperties();
             String sysPropFormat = SYSPROP + ": {}={}";
             for (Entry<String, String> entry : sysPropsMap.entrySet()) {
-                log(sysPropFormat, LoggerUtils.removeLineBreaks(entry.getKey()), LoggerUtils.removeLineBreaks(entry.getValue()));
+                //log(sysPropFormat, LoggerUtils.removeLineBreaks(entry.getKey()), LoggerUtils.removeLineBreaks(entry.getValue()));
             }
         }
 
@@ -74,7 +74,7 @@ class AppStartupInfoLogger {
             SortedMap<String, String> envVarsMap = sysPropsHelper.filteredSortedEnvVars();
             for (Entry<String, String> entry : envVarsMap.entrySet()) {
                 String envVarFormat = ENVVAR + ": {}={}";
-                log(envVarFormat, LoggerUtils.removeLineBreaks(entry.getKey()), LoggerUtils.removeLineBreaks(entry.getValue()));
+                //log(envVarFormat, LoggerUtils.removeLineBreaks(entry.getKey()), LoggerUtils.removeLineBreaks(entry.getValue()));
             }
         }
 
