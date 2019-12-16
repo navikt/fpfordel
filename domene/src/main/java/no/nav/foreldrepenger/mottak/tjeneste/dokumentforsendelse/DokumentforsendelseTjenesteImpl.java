@@ -102,7 +102,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
     @Override
     public ForsendelseStatusDto finnStatusinformasjon(UUID forsendelseId) {
         Optional<DokumentMetadata> metadataOpt = repository.hentUnikDokumentMetadata(forsendelseId);
-        if (!metadataOpt.isPresent()) {
+        if (metadataOpt.isEmpty()) {
             throw DokumentFeil.FACTORY.fantIkkeForsendelse(forsendelseId).toException();
         }
         DokumentMetadata dokumentMetadata = metadataOpt.get();
@@ -132,8 +132,9 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
         String ident = SubjectHandler.getSubjectHandler().getUid();
         if (ident != null) {
             Optional<String> aktørIdent = aktørConsumer.hentAktørIdForPersonIdent(ident);
+            var metadataBruker = metaData.getBrukerId();
 
-            if (aktørIdent.isPresent() && !aktørIdent.get().equals(metaData.getBrukerId())) {
+            if (!aktørIdent.map(metadataBruker::equals).orElse(Boolean.TRUE)) {
                 return aktørIdent;
             }
 

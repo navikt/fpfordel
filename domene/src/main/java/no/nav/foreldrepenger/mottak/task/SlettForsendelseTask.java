@@ -37,7 +37,7 @@ public class SlettForsendelseTask extends WrappedProsessTaskHandler {
 
     @Override
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
-        if (!dataWrapper.getForsendelseId().isPresent()) {
+        if (dataWrapper.getForsendelseId().isEmpty()) {
             throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME, MottakMeldingDataWrapper.FORSENDELSE_ID_KEY, dataWrapper.getId()).toException();
         }
     }

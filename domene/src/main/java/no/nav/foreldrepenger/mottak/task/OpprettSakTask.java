@@ -42,15 +42,15 @@ public class OpprettSakTask extends WrappedProsessTaskHandler {
 
     @Override
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
-        if (!dataWrapper.getDokumentTypeId().isPresent()) {
+        if (dataWrapper.getDokumentTypeId().isEmpty()) {
             throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
                     MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY, dataWrapper.getId()).toException();
         }
-        if (!dataWrapper.getDokumentKategori().isPresent()) {
+        if (dataWrapper.getDokumentKategori().isEmpty()) {
             throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
                     MottakMeldingDataWrapper.DOKUMENTKATEGORI_ID_KEY, dataWrapper.getId()).toException();
         }
-        if (!dataWrapper.getAktørId().isPresent()) {
+        if (dataWrapper.getAktørId().isEmpty()) {
             throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
                     MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
         }
@@ -59,7 +59,7 @@ public class OpprettSakTask extends WrappedProsessTaskHandler {
     @Override
     public void postcondition(MottakMeldingDataWrapper dataWrapper) {
         if (TilJournalføringTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())) {
-            if (!dataWrapper.getSaksnummer().isPresent()) {
+            if (dataWrapper.getSaksnummer().isEmpty()) {
                 throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
                         MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId()).toException();
             }
@@ -83,7 +83,7 @@ public class OpprettSakTask extends WrappedProsessTaskHandler {
         }
 
         vurderFagsystemRespons.getSaksnummer().ifPresent(dataWrapper::setSaksnummer);
-        if (!vurderFagsystemRespons.getSaksnummer().isPresent()) {
+        if (vurderFagsystemRespons.getSaksnummer().isEmpty()) {
             SaksnummerDto saksnummerDto = fagsakRestKlient.opprettSak(new OpprettSakDto(dataWrapper.getArkivId(),
                     dataWrapper.getBehandlingTema().getOffisiellKode(), dataWrapper.getAktørId().get()));
             dataWrapper.setSaksnummer(saksnummerDto.getSaksnummer());
