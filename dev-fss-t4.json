@@ -1,4 +1,7 @@
 {
+  "cluster" : "preprod",
+  "oraclekv": "/oracle/data/dev/creds/fpfordel_t4-user",
+  "serviceuserkv" : "/serviceuser/data/test/srvfpfordel",
   "namespace" : "t4",
   "ingresses": ["https://fpfordel-t4.nais.preprod.local/fpfordel"],
   "env": {

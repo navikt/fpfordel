@@ -42,11 +42,11 @@ spec:
   vault:
     enabled: true
     paths:
-    - kvPath: /oracle/data/dev/creds/fpfordel_t4-user
+    - kvPath: {{oraclekv}}
       mountPath: /var/run/secrets/nais.io/defaultDS
-    - kvPath: /serviceuser/data/test/srvfpfordel
+    - kvPath: {{serviceuserkv}}
       mountPath: /var/run/secrets/nais.io/srvfpfordel
-    - kvPath: /kv/preprod/fss/fpfordel/default
+    - kvPath: /kv/{{cluster}}/fss/fpfordel/{{namespace}}
       mountPath: /var/run/secrets/nais.io/vault
   env: 
 {{#each env}}
