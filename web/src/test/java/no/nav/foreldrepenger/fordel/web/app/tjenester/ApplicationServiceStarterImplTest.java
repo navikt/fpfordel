@@ -33,7 +33,7 @@ public class ApplicationServiceStarterImplTest {
         when(iteratorMock.next()).thenReturn(serviceMock);
         doReturn(iteratorMock).when(instanceSpied).iterator();
 
-        serviceStarter = new ApplicationServiceStarterImpl(instanceSpied);
+        serviceStarter = new ApplicationServiceStarter(instanceSpied);
     }
 
     @Test

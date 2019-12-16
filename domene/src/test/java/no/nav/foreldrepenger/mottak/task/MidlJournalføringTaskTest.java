@@ -34,7 +34,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 public class MidlJournalføringTaskTest {
     private static final String SAKSNUMMER = "9876543";
-    private static final String AKTØR_ID = "1234";
+    private static final String AKTØR_ID = "9000000000009";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();

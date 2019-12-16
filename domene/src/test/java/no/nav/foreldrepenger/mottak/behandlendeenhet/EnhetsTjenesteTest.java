@@ -35,7 +35,7 @@ public class EnhetsTjenesteTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     private static final String ENHET_ID = "enhetId001";
-    private static final String FNR = "fnr001";
+    private static final String FNR = "99999999999";
     private String fordelingsOppgaveEnhetsId = "4825";
     public static final String GEOGRAFISK_TILKNYTNING = "test";
     public static final String DISKRESJONSKODE = "diskresjonskode";

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.fordel.kodeverdi;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -74,10 +73,6 @@ public enum ArkivFilType implements Kodeverdi {
             return UDEFINERT;
         }
         return KODER.getOrDefault(kode, UDEFINERT);
-    }
-
-    public static Map<String, ArkivFilType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
     }
 
     public static void main(String[] args) {

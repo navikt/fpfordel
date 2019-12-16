@@ -46,7 +46,7 @@
         </dekningsgrad>
     </omYtelse>
     <soeker>
-        <aktoerId>9000000000002</aktoerId>
+        <aktoerId>9000000000009</aktoerId>
         <soeknadsrolle kode="MOR"/>
     </soeker>
 </ns2:soeknad>

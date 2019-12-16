@@ -22,8 +22,8 @@ class JoarkTestsupport {
 
     static final String ARKIV_ID = "kiv2";
     static final String DOKUMENT_ID = "456";
-    static final String BRUKER_FNR = "01234567890";
-    static final String AKTØR_ID = "12345";
+    static final String BRUKER_FNR = "99999999899";
+    static final String AKTØR_ID = "9000000000009";
     static final DokumentKategori DOKUMENT_KATEGORI = DokumentKategori.UDEFINERT;
     static final List<String> brukerListe = Collections.singletonList(BRUKER_FNR);
 

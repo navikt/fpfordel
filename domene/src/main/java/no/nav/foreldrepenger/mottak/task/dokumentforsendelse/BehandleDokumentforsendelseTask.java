@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.mottak.task.dokumentforsendelse;
 
+import static no.nav.vedtak.feil.LogLevel.WARN;
+
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
@@ -33,6 +35,10 @@ import no.nav.foreldrepenger.mottak.task.OpprettSakTask;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
+import no.nav.vedtak.feil.Feil;
+import no.nav.vedtak.feil.FeilFactory;
+import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
+import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -262,4 +268,15 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
                 .orElse(dataWrapper.getFørsteUttaksdag().orElse(Tid.TIDENES_BEGYNNELSE))
                 .isBefore(konfigVerdiStartdatoForeldrepenger);
     }
+
+    private interface BehandleDokumentforsendelseFeil extends DeklarerteFeil {
+        BehandleDokumentforsendelseTask.BehandleDokumentforsendelseFeil FACTORY = FeilFactory.create(BehandleDokumentforsendelseTask.BehandleDokumentforsendelseFeil.class);
+
+        @TekniskFeil(feilkode = "FP-758390", feilmelding = "Søkers ID samsvarer ikke med søkers ID i eksisterende sak", logLevel = WARN)
+        Feil aktørIdMismatch();
+
+        @TekniskFeil(feilkode = "FP-756353", feilmelding = "BehandlingTema i forsendelse samsvarer ikke med BehandlingTema i eksisterende sak {%s : %s}", logLevel = WARN)
+        Feil behandlingTemaMismatch(String behandlingTemaforsendelse, String behandlingTemaSak);
+    }
+
 }

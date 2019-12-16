@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.fordel.kodeverdi;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -14,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum Tema implements KodeverdiMedIntern {
+public enum Tema implements Kodeverdi {
 
     FORELDRE_OG_SVANGERSKAPSPENGER("FOR_SVA", "FOR"),
     OMS("OMS", "OMS"), // Omsorgspenger, Pleiepenger og opplæringspenger
@@ -64,10 +63,6 @@ public enum Tema implements KodeverdiMedIntern {
             return UDEFINERT;
         }
         return KODER.getOrDefault(kode, UDEFINERT);
-    }
-
-    public static Map<String, Tema> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
     }
 
     public static Tema fraOffisiellKode(String kode) {

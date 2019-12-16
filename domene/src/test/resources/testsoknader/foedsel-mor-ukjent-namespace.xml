@@ -1,7 +1,7 @@
 <v1:soeknadsskjemaEngangsstoenad xmlns:v1="http://nav.no/melding/virksomhet/soeknadsskjemaEngangsstoenad/v1"
                                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <bruker xsi:type="v1:Bruker">
-        <personidentifikator>07075489867</personidentifikator>
+        <personidentifikator>99999999899</personidentifikator>
     </bruker>
     <soknadsvalg>
         <foedselEllerAdopsjon>FOEDSEL</foedselEllerAdopsjon>

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns6:soeknad xmlns:ns6="urn:no:nav:vedtak:felles:xml:soeknad:v3" xmlns:ns5="urn:no:nav:vedtak:felles:xml:soeknad:felles:v3" xmlns:ns2="urn:no:nav:vedtak:felles:xml:soeknad:uttak:v3" xmlns:ns4="urn:no:nav:vedtak:felles:xml:soeknad:foreldrepenger:v3" xmlns:ns3="urn:no:nav:vedtak:felles:xml:soeknad:endringssoeknad:v3">
+<ns6:soeknad xmlns:ns6="urn:no:nav:vedtak:felles:xml:soeknad:v3"
+             xmlns:ns5="urn:no:nav:vedtak:felles:xml:soeknad:felles:v3"
+             xmlns:ns2="urn:no:nav:vedtak:felles:xml:soeknad:uttak:v3"
+             xmlns:ns4="urn:no:nav:vedtak:felles:xml:soeknad:foreldrepenger:v3">
     <ns6:mottattDato>2019-01-04</ns6:mottattDato>
     <ns6:paakrevdeVedlegg>
         <ns5:id>V00470913872202833923213882035459928</ns5:id>
@@ -10,7 +13,7 @@
     <ns6:omYtelse>
         <ns4:foreldrepenger>
             <ns4:annenForelder xsi:type="ns5:AnnenForelderMedNorskIdent" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                <ns5:aktoerId>9000000000003</ns5:aktoerId>
+                <ns5:aktoerId>9000000000008</ns5:aktoerId>
             </ns4:annenForelder>
             <ns4:rettigheter>
                 <ns5:harAnnenForelderRett>false</ns5:harAnnenForelderRett>
@@ -61,7 +64,7 @@
         </ns4:foreldrepenger>
     </ns6:omYtelse>
     <ns6:soeker>
-        <ns5:aktoerId>9000000000002</ns5:aktoerId>
+        <ns5:aktoerId>9000000000009</ns5:aktoerId>
         <ns5:soeknadsrolle kodeverk="FORELDRE_TYPE" kode="MOR"/>
     </ns6:soeker>
 </ns6:soeknad>

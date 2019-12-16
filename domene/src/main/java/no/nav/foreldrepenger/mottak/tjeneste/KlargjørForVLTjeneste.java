@@ -9,7 +9,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -29,15 +28,13 @@ public class KlargjørForVLTjeneste {
     private DokumentmottakRestKlient restKlient;
     private FagsakRestKlient fagsakRestKlient;
     private TilbakekrevingRestKlient tilbakekrevingRestKlient;
-    private Unleash unleash;
 
     @Inject
     public KlargjørForVLTjeneste(DokumentmottakRestKlient restKlient, FagsakRestKlient fagsakRestKlient,
-            TilbakekrevingRestKlient tilbakekrevingRestKlient, Unleash unleash) {
+            TilbakekrevingRestKlient tilbakekrevingRestKlient) {
         this.restKlient = restKlient;
         this.fagsakRestKlient = fagsakRestKlient;
         this.tilbakekrevingRestKlient = tilbakekrevingRestKlient;
-        this.unleash = unleash;
     }
 
     public KlargjørForVLTjeneste() {
@@ -67,13 +64,15 @@ public class KlargjørForVLTjeneste {
         journalpostMottakDto.setJournalForendeEnhet(journalFørendeEnhet);
         restKlient.send(journalpostMottakDto);
 
-        if (unleash != null && unleash.isEnabled(TILBAKE, false)) {
+        try {
             JournalpostMottakDto tilbakeMottakDto = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString,
                     dokumentTypeIdOffisiellKode, forsendelseMottatt, null);
             tilbakeMottakDto.setForsendelseId(forsendelseId);
             tilbakeMottakDto.setDokumentKategoriOffisiellKode(dokumentKategoriOffisiellKode);
             tilbakeMottakDto.setJournalForendeEnhet(journalFørendeEnhet);
             tilbakekrevingRestKlient.send(tilbakeMottakDto);
+        } catch (Exception e) {
+            log.warn("Feil ved sending av forsendelse til fptilbake, ukjent feil", e);
         }
     }
 

@@ -45,7 +45,7 @@ public class JournalTjenesteUtilTest {
     private static final String JOURNALPOST_ID = "1234";
     private static final List<String> DOKUMENT_ID_LISTE = new ArrayList<>();
     public static final String KANAL_REFERANSE = "SKY_CHANNEL";
-    public static final String FNR = "01234567890";
+    public static final String FNR = "99999999999";
     public static final String DOKUMENT_ID = "DOKUMENT_ID";
 
     private static LocalDate FORSENDELSE_MOTTATT = FPDateUtil.iDag();

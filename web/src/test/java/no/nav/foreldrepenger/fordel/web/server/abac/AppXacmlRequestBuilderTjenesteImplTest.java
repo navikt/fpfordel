@@ -58,7 +58,7 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
 
         when(pdpConsumerMock.evaluate(captor.capture())).thenReturn(responseWrapper);
         PdpRequest pdpRequest = lagPdpRequest();
-        pdpRequest.put(RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, Collections.singleton("1234561178900"));
+        pdpRequest.put(RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, Collections.singleton("9000000000009"));
         pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
         pdpKlient.forespørTilgang(pdpRequest);
 
@@ -92,7 +92,7 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
         when(pdpConsumerMock.evaluate(captor.capture())).thenReturn(responseWrapper);
 
         PdpRequest pdpRequest = lagPdpRequest();
-        pdpRequest.put(RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, Collections.singleton("1234567890001"));
+        pdpRequest.put(RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, Collections.singleton("9000000000009"));
         pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
         pdpKlient.forespørTilgang(pdpRequest);
 
@@ -107,9 +107,9 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
 
         when(pdpConsumerMock.evaluate(captor.capture())).thenReturn(responseWrapper);
         Set<String> personnr = new HashSet<>();
-        personnr.add("1234567890010");
-        personnr.add("1009870654321");
-        personnr.add("1515015015151");
+        personnr.add("9000000000009");
+        personnr.add("9000000000008");
+        personnr.add("9000000000007");
 
         PdpRequest pdpRequest = lagPdpRequest();
         pdpRequest.put(RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, personnr);
@@ -118,9 +118,9 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
 
         String xacmlRequestString = captor.getValue().build().toString();
 
-        assertThat(xacmlRequestString.contains("1234567890010")).isTrue();
-        assertThat(xacmlRequestString.contains("1009870654321")).isTrue();
-        assertThat(xacmlRequestString.contains("1515015015151")).isTrue();
+        assertThat(xacmlRequestString.contains("9000000000009")).isTrue();
+        assertThat(xacmlRequestString.contains("9000000000008")).isTrue();
+        assertThat(xacmlRequestString.contains("9000000000007")).isTrue();
     }
 
     private PdpRequest lagPdpRequest() {

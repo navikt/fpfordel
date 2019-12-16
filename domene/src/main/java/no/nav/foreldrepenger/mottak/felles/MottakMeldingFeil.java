@@ -48,9 +48,6 @@ public interface MottakMeldingFeil extends DeklarerteFeil {
     @TekniskFeil(feilkode = "FP-502574", feilmelding = "Ulik aktørId i tynnmelding og søknadsdokument", logLevel = WARN)
     Feil ulikAktørIdITynnMeldingOgSøknadsdokument();
 
-    @TekniskFeil(feilkode = "FP-513574", feilmelding = "Flere enn en fødselsdato i fødselssøknad", logLevel = WARN)
-    Feil merEnnEnFødselsdatoPåFødselsøknad();
-
     @TekniskFeil(feilkode = "FP-785833", feilmelding = "Feil journaltilstand. Forventet tilstand: endelig, fikk: {%s}", logLevel = INFO)
     Feil feilJournalTilstandForventetTilstandEndelig(JournalTilstand journalTilstand);
 

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.fordel.kodeverdi;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum DokumentTypeId implements KodeverdiMedNavn {
+public enum DokumentTypeId implements Kodeverdi {
 
     SØKNAD_SVANGERSKAPSPENGER("SØKNAD_SVANGERSKAPSPENGER","I000001", "Søknad om svangerskapspenger"),
     SØKNAD_FORELDREPENGER_ADOPSJON("SØKNAD_FORELDREPENGER_ADOPSJON","I000002", "Søknad om foreldrepenger ved adopsjon"),
@@ -164,10 +163,6 @@ public enum DokumentTypeId implements KodeverdiMedNavn {
             return UDEFINERT;
         }
         return KODER.getOrDefault(kode, UDEFINERT);
-    }
-
-    public static Map<String, DokumentTypeId> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
     }
 
     public static DokumentTypeId fraOffisiellKode(String kode) {

@@ -33,7 +33,7 @@ public class GsakSakWebServiceTest {
     private SakConsumer mockSakConsumer;
     private SakSelftestConsumer mockSakSelftestConsumer;
 
-    private static final String BRUKER_FNR = "06016921295";
+    private static final String BRUKER_FNR = "99999999899";
 
     @Before
     public void setup() {

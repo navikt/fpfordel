@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.fordel.kodeverdi;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -56,10 +55,6 @@ public enum RelatertYtelseTema implements Kodeverdi {
             return UDEFINERT;
         }
         return  KODER.getOrDefault(kode, UDEFINERT);
-    }
-
-    public static Map<String, RelatertYtelseTema> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
     }
 
     public static void main(String[] args) {

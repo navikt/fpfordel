@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.fordel.kodeverdi;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -14,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum DokumentKategori implements KodeverdiMedIntern {
+public enum DokumentKategori implements Kodeverdi {
 
     BRV("BRV", "B"),
     EDIALOG("EDIALOG", "ELEKTRONISK_DIALOG"),
@@ -77,10 +76,6 @@ public enum DokumentKategori implements KodeverdiMedIntern {
             return UDEFINERT;
         }
         return KODER.getOrDefault(kode, UDEFINERT);
-    }
-
-    public static Map<String, DokumentKategori> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
     }
 
     public static DokumentKategori fraOffisiellKode(String kode) {

@@ -26,6 +26,12 @@ import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningR
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningResponse;
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest;
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse;
+import no.nav.vedtak.feil.Feil;
+import no.nav.vedtak.feil.FeilFactory;
+import no.nav.vedtak.feil.LogLevel;
+import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
+import no.nav.vedtak.feil.deklarasjon.ManglerTilgangFeil;
+import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
 import no.nav.vedtak.util.FPDateUtil;
 
@@ -167,5 +173,17 @@ public class EnhetsTjeneste {
         // finnes i fødselsnumre
         char førsteTegn = fnr.charAt(0);
         return førsteTegn >= '4' && førsteTegn <= '7';
+    }
+
+    private interface EnhetsTjenesteFeil extends DeklarerteFeil {
+
+        EnhetsTjeneste.EnhetsTjenesteFeil FACTORY = FeilFactory.create(EnhetsTjeneste.EnhetsTjenesteFeil.class);
+
+        @TekniskFeil(feilkode = "FP-070668", feilmelding = "Person ikke funnet ved hentGeografiskTilknytning eller relasjoner", logLevel = LogLevel.ERROR)
+        Feil enhetsTjenestePersonIkkeFunnet(Exception e);
+
+        @ManglerTilgangFeil(feilkode = "FP-509290", feilmelding = "Mangler tilgang til å utføre hentGeografiskTilknytning eller hentrelasjoner", logLevel = LogLevel.ERROR)
+        Feil enhetsTjenesteSikkerhetsbegrensing(Exception e);
+
     }
 }
