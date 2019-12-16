@@ -1,43 +1,54 @@
-apiVersion: "nais.io/v1alpha1"
-kind: "Application"
+kind: Application
+apiVersion: nais.io/v1alpha1
 metadata:
   name: fpfordel
-  namespace: {{namespace}}
+  namespace:{{namespace}}
   labels:
     team: teamforeldrepenger
 spec:
-  image: {{image}}
-  port: 8080
-  replicas:
-      min: 2
-      max: 2
-      cpuThresholdPercentage: 50  
-  liveness:
-      path: /fpfordel/internal/health/isAlive
-      initialDelay: 60
-  readiness:
-      path: /fpfordel/internal/health/isReady
-      initialDelay: 60  
-  prometheus:
-      enabled: true
-      path: /fpfordel/internal/prometheus
-  replicas:
-      min: 2
-      max: 2
-      cpuThresholdPercentage: 50
-  ingresses:
-  {{#each ingresses as |url|}}
-    - {{url}}
-  {{/each}}
-  resources:
-      limits:
-        cpu: 1500m
-        memory: 3072Mi
-      requests:
-        cpu: 250m
-        memory: 1536Mi 
-  env: 
-  {{#each env}}
+ {{#each env}}
    - name: {{@key}}
      value: "{{this}}"
-  {{/each}}        
+{{/each}}
+  image:  {{image}}
+  ingresses:
+{{#each ingresses as |url|}}
+    - {{url}}
+{{/each}}
+  liveness:
+    path: /fpfordel/internal/health/isAlive
+    port: 8080
+    initialDelay: 30
+    periodSeconds: 10
+    failureThreshold: 10
+    timeout: 1
+  port: 8080
+  preStopHookPath: /fpfordel/internal/health/preStop
+  prometheus:
+    enabled: true
+    path: /fpfordel/internal/prometheus
+  readiness:
+    path: /fpfordel/internal/health/isReady
+    port: 8080
+    initialDelay: 30
+    timeout: 1
+  replicas:
+    min: 3
+    max: 3
+    cpuThresholdPercentage: 80
+  resources:
+    limits:
+      cpu: 500m
+      memory: 2048Mi
+    requests:
+      cpu: 200m
+      memory: 1024Mi
+  vault:
+    enabled: true
+    paths:
+    - kvPath: /oracle/data/dev/creds/fpfordel_t4-user
+      mountPath: /var/run/secrets/nais.io/defaultDS
+    - kvPath: /serviceuser/data/test/srvfpfordel
+      mountPath: /var/run/secrets/nais.io/srvfpfordel
+    - kvPath: /kv/preprod/fss/fpfordel/default
+      mountPath: /var/run/secrets/nais.io/vault
