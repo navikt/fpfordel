@@ -1,8 +1,8 @@
 kind: Application
 apiVersion: nais.io/v1alpha1
 metadata:
-  name: fpfordel-ny
-  namespace:{{namespace}}
+  name: fpfordelny
+  namespace: {{namespace}}
   labels:
     team: teamforeldrepenger
 spec:
