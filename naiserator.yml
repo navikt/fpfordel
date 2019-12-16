@@ -6,10 +6,6 @@ metadata:
   labels:
     team: teamforeldrepenger
 spec:
-{{#each env}}
-   - name: {{@key}}
-     value: "{{this}}"
-{{/each}}
   image:  {{image}}
   ingresses:
 {{#each ingresses as |url|}}
@@ -52,3 +48,8 @@ spec:
       mountPath: /var/run/secrets/nais.io/srvfpfordel
     - kvPath: /kv/preprod/fss/fpfordel/default
       mountPath: /var/run/secrets/nais.io/vault
+  env: 
+{{#each env}}
+   - name: {{@key}}
+     value: "{{this}}"
+{{/each}}    
