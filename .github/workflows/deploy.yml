@@ -35,7 +35,7 @@ jobs:
           docker cp initdb.sql `docker ps | tail -1 | awk  '{ print $1}'`:/initdb.sql
           docker exec -e ORACLE_SID=XE -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe `docker ps | tail -1 | awk  '{ print $1}'` /u01/app/oracle/product/11.2.0/xe/bin/sqlplus system/oracle @initdb.sql
    
-      - name: Compile
+      - name: Bygg, tag og push
         run: |
           echo "$Bygger artifakt $(echo $GITHUB_SHA | cut -c1-7)"
           mvn --quiet clean install --batch-mode --settings .github/workflows/.m2/settings.xml -Dchangelist= -Dsha1=-$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7) 
@@ -55,7 +55,7 @@ jobs:
           echo ::set-env name=IMAGE::$(cat .docker_image):$(cat .docker_tag)
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.GHA }}
-      - name: Deploy til dev-fss
+      - name: Deploy til dev-fss t4
         uses: nais/deploy/actions/deploy@v1 
         env:
           DRY_RUN: false
