@@ -1,8 +1,8 @@
 {
   "namespace" : "t4",
-  "ingresses": ["https://fpfordel-t4.nais.preprod.local/fpfordel-ny"],
+  "ingresses": ["https://fpfordel-t4.nais.preprod.local/fpfordelny"],
   "env": {
-   "loadbalancer.url" : "https://fpfordel-ny-t4.nais.preprod.local/",
+   "loadbalancer.url" : "https://fpfordelny-t4.nais.preprod.local/",
    "DEFAULTDS_URL" : "jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=d26dbfl020.test.local)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=FPFORDELT4)(INSTANCE_NAME=cctf01)(UR=A)(SERVER=DEDICATED)))",
    "DEFAULTDS_USERNAME" : "FPFORDEL_T4",
    "DEFAULTDS_OEMENDPOINT" : "/em/cloud/dbaas/pluggabledbplatforminstance/byrequest/2903",
