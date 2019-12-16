@@ -1,15 +1,19 @@
 FROM navikt/java:11-appdynamics
 
 ENV APPD_ENABLED=true
+ENV APP_NAME=fpfordel
 
-RUN mkdir lib
-RUN mkdir conf
-RUN mkdir webapp
+RUN mkdir /app/lib
+RUN mkdir /app/conf
 
 # Config
-COPY web/target/classes/jetty/jaspi-conf.xml conf/
+COPY web/target/classes/*.xml /app/
+COPY web/target/classes/jetty/jaspi-conf.xml /app/conf/
 
 # Application Container (Jetty)
-COPY web/target/app.jar .
-COPY web/target/lib/*.jar ./
-ENV JAVA_OPTS="-Xmx1024m -Xms128m -Djava.security.egd=file:/dev/urandom" 
+COPY web/target/app.jar /app/
+COPY web/target/lib/*.jar /app/lib/
+
+# Application Start Command
+COPY run-java.sh /
+RUN chmod +x /run-java.s
