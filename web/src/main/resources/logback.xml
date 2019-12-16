@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+    <!--
     <turboFilter class="no.nav.foreldrepenger.fordel.web.app.util.ConfidentialMarkerFilter"/>
+    -->
 	<appender name="STDOUT_JSON" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder class="net.logstash.logback.encoder.LogstashEncoder">
 		</encoder>
