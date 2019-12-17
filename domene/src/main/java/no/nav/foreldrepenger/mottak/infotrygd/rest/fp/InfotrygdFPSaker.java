@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.mottak.infotrygd.rest.fp;
 
-import static no.nav.foreldrepenger.fordel.kodeverdi.RelatertYtelseBehandlingstema.FORELDREPENGER_FODSEL_BEHANDLINGSTEMA;
-
 import java.net.URI;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -24,6 +22,6 @@ public class InfotrygdFPSaker extends InfotrygdSaker {
     @Inject
     public InfotrygdFPSaker(OidcRestClient restClient,
             @KonfigVerdi(value = "fpfordel.it.fp.url", defaultVerdi = DEFAULT_URI) URI uri) {
-        super(restClient, uri, new InfotrygdRestResponseMapper(FORELDREPENGER_FODSEL_BEHANDLINGSTEMA));
+        super(restClient, uri, new InfotrygdRestResponseMapper());
     }
 }

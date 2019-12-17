@@ -1,38 +1,16 @@
 package no.nav.foreldrepenger.mottak.infotrygd;
 
-import static no.nav.foreldrepenger.fordel.kodeverdi.RelatertYtelseTema.FORELDREPENGER_TEMA;
-
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.RelatertYtelseBehandlingstema;
-
 public class InfotrygdSak {
-    private final String tema;
-    private final String behandlingsTema;
-    private final String sakId;
     private final LocalDate iverksatt;
     private final LocalDate registrert;
 
-    public InfotrygdSak(String sakId, String tema, String behandlingsTema, LocalDate iverksatt, LocalDate registrert) { // NOSONAR
-        this.sakId = sakId;
-        this.tema = tema;
-        this.behandlingsTema = behandlingsTema;
+    public InfotrygdSak(LocalDate iverksatt, LocalDate registrert) { // NOSONAR
         this.iverksatt = iverksatt;
         this.registrert = registrert;
-    }
-
-    public String getSakId() {
-        return sakId;
-    }
-
-    public String getTema() {
-        return tema;
-    }
-
-    public String getBehandlingsTema() {
-        return behandlingsTema;
     }
 
     public Optional<LocalDate> getIverksatt() {
@@ -43,24 +21,9 @@ public class InfotrygdSak {
         return registrert;
     }
 
-    public boolean gjelderForeldrepenger() {
-        return FORELDREPENGER_TEMA.getKode().equals(tema)
-                && RelatertYtelseBehandlingstema.erGjelderForeldrepenger(behandlingsTema);
-    }
-
-    public boolean gjelderSvangerskapspenger() {
-        return FORELDREPENGER_TEMA.getKode().equals(tema)
-                && RelatertYtelseBehandlingstema.erGjelderSvangerskapspenger(behandlingsTema);
-    }
-
-    public boolean gjelderEngangsstonad() {
-        return FORELDREPENGER_TEMA.getKode().equals(tema)
-                && RelatertYtelseBehandlingstema.erGjelderEngangsstonad(behandlingsTema);
-    }
-
     @Override
     public int hashCode() {
-        return Objects.hash(behandlingsTema, iverksatt, tema);
+        return Objects.hash(iverksatt);
     }
 
     @Override
@@ -73,16 +36,12 @@ public class InfotrygdSak {
         }
         InfotrygdSak that = (InfotrygdSak) obj;
 
-        return Objects.equals(that.behandlingsTema, this.behandlingsTema) &&
-                Objects.equals(that.iverksatt, this.iverksatt) &&
-                // Objects.equals(that.registrert, this.registrert) &&
-                // Objects.equals(that.sakId, this.sakId) &&
-                Objects.equals(that.tema, this.tema);
+        return Objects.equals(that.iverksatt, this.iverksatt);
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[tema=" + tema + ", behandlingsTema=" + behandlingsTema  + ", iverksatt=" + iverksatt + "]";
+        return getClass().getSimpleName() + "[iverksatt=" + iverksatt + "]";
     }
 
 }

@@ -1,18 +1,12 @@
 package no.nav.foreldrepenger.mottak.infotrygd.rest;
 
-import static com.google.common.collect.Sets.difference;
-import static com.google.common.collect.Sets.symmetricDifference;
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 import static no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem.INFOTRYGD;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -20,32 +14,22 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.gsak.GsakSakTjeneste;
-import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdPersonIkkeFunnetException;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
 import no.nav.foreldrepenger.mottak.infotrygd.rest.fp.FP;
 import no.nav.foreldrepenger.mottak.infotrygd.rest.svp.SVP;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 
 @ApplicationScoped
 public class RelevantSakSjekker {
     private static final Logger LOG = LoggerFactory.getLogger(RelevantSakSjekker.class);
     private static final Period GSAK_EKSTRA_MND = Period.ofMonths(2);
-    private static String TOGGLE_REST_STYRER = "fpfordel.rest.svp.presedens";
 
-    private InfotrygdTjeneste infotrygd;
     private InfotrygdTjeneste svp;
     private InfotrygdTjeneste fp;
 
-    private Unleash unleash;
     private GsakSakTjeneste gsak;
 
     RelevantSakSjekker() {
@@ -56,13 +40,9 @@ public class RelevantSakSjekker {
     public RelevantSakSjekker(
             @SVP InfotrygdTjeneste svp,
             @FP InfotrygdTjeneste fp,
-            InfotrygdTjeneste infotrygd,
-            GsakSakTjeneste gsak,
-            Unleash unleash) {
+            GsakSakTjeneste gsak) {
         this.svp = svp;
         this.fp = fp;
-        this.infotrygd = infotrygd;
-        this.unleash = unleash;
         this.gsak = gsak;
     }
 
@@ -106,17 +86,17 @@ public class RelevantSakSjekker {
     }
 
     private boolean erITSakRelevantForFP(String fnr, LocalDate fom) {
-        return sammenlign(restSaker(fp, fnr, fom), wsSaker(fnr, fom, InfotrygdSak::gjelderForeldrepenger))
+        return restSaker(fp, fnr, fom).stream()
                 .anyMatch(svpFpRelevantTidFilter(fom));
     }
 
     private boolean erITSakRelevantForSVP(String fnr, LocalDate fom) {
-        return sammenlign(restSaker(svp, fnr, fom), wsSaker(fnr, fom, InfotrygdSak::gjelderSvangerskapspenger))
+        return restSaker(svp, fnr, fom).stream()
                 .anyMatch(svpFpRelevantTidFilter(fom));
     }
 
     private boolean erFpRelevantForIM(String fnr, LocalDate fom) {
-        return sammenlign(restSaker(fp, fnr, fom), wsSaker(fnr, fom, InfotrygdSak::gjelderForeldrepenger))
+        return restSaker(fp, fnr, fom).stream()
                 .map(InfotrygdSak::getIverksatt)
                 .flatMap(Optional::stream)
                 .anyMatch(fom::isBefore);
@@ -127,53 +107,11 @@ public class RelevantSakSjekker {
         return t.finnSakListe(fnr, fom);
     }
 
-    private List<InfotrygdSak> wsSaker(String fnr, LocalDate fom, Predicate<? super InfotrygdSak> saktype) {
-        try {
-            LOG.info("Henter saker fra WS fra {}", fom);
-            return infotrygd.finnSakListe(fnr, fom)
-                    .stream()
-                    .filter(saktype)
-                    .collect(toList());
-        } catch (InfotrygdPersonIkkeFunnetException e) {
-            Feilene.FACTORY.feilFraInfotrygdSakFordeling(e).log(LOG);
-        }
-        return emptyList();
-    }
-
     private static Predicate<? super InfotrygdSak> svpFpRelevantTidFilter(LocalDate fom) {
         // Intensjon med FALSE for å unngå treff pga praksis i enheter med
         // informasjonssaker
         return sak -> sak.getIverksatt().map(fom::isBefore).orElse(false)
                 || (sak.getRegistrert() != null && fom.isBefore(sak.getRegistrert()));
-    }
-
-    private static boolean erMann(String fnr) {
-        return Character.getNumericValue(fnr.charAt(8)) % 2 != 0;
-    }
-
-    private <T> Stream<T> sammenlign(List<T> restSaker, List<T> wsSaker) {
-        if (!restSaker.containsAll(wsSaker)) {
-            warn(restSaker, wsSaker);
-        } else {
-            LOG.info("{} sak(er) med identisk respons fra WS og REST", restSaker.size());
-        }
-        return unleash.isEnabled(TOGGLE_REST_STYRER) ? restSaker.stream() : wsSaker.stream();
-    }
-
-    private static <T> void warn(List<T> restSaker, List<T> wsSaker) {
-        var rest = new HashSet<>(restSaker);
-        var ws = new HashSet<>(wsSaker);
-        LOG.warn("Forskjellig respons fra WS og REST. Fikk {} fra REST og {} fra WS", restSaker, wsSaker);
-        LOG.warn("Elementer som ikke er tilstede i begge responser er {}", symmetricDifference(rest, ws));
-        LOG.warn("Elementer fra REST men ikke fra WS {}", difference(rest, ws));
-        LOG.warn("Elementer fra WS men ikke fra REST {}", difference(ws, rest));
-    }
-
-    private interface Feilene extends DeklarerteFeil {
-        Feilene FACTORY = FeilFactory.create(Feilene.class);
-
-        @TekniskFeil(feilkode = "FP-074122", feilmelding = "PersonIkkeFunnet fra infotrygdSak", logLevel = LogLevel.WARN)
-        Feil feilFraInfotrygdSakFordeling(Exception cause);
     }
 
 }

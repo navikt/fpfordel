@@ -2,28 +2,18 @@ package no.nav.foreldrepenger.mottak.infotrygd.rest;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
-import static no.nav.foreldrepenger.fordel.kodeverdi.RelatertYtelseTema.FORELDREPENGER_TEMA;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.RelatertYtelseBehandlingstema;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 
 public final class InfotrygdRestResponseMapper {
 
-    private static final String FA = FORELDREPENGER_TEMA.getKode();
 
-    private final String behandlingstema;
-
-    public InfotrygdRestResponseMapper(RelatertYtelseBehandlingstema behandlingstema) {
-        this.behandlingstema = behandlingstema.getKode();
-    }
-
-    public String getBehandlingstema() {
-        return behandlingstema;
+    public InfotrygdRestResponseMapper() {
     }
 
     public List<InfotrygdSak> map(Saker saker) {
@@ -55,19 +45,19 @@ public final class InfotrygdRestResponseMapper {
     }
 
     private InfotrygdSak tilInfotrygdSak(AvsluttetSak sak) {
-        return new InfotrygdSak(null, FA, behandlingstema, sak.getIverksatt(), null);
+        return new InfotrygdSak(sak.getIverksatt(), null);
     }
 
     private InfotrygdSak tilInfotrygdSak(IkkeStartetSak sak) {
-        return new InfotrygdSak(null, FA, behandlingstema, sak.getIverksatt(), sak.getRegistrert());
+        return new InfotrygdSak(sak.getIverksatt(), sak.getRegistrert());
     }
 
     private InfotrygdSak tilInfotrygdSak(Sak sak) {
-        return new InfotrygdSak(sak.getSaksnummer(), FA, behandlingstema, sak.getIverksatt(), sak.getVedtatt());
+        return new InfotrygdSak(sak.getIverksatt(), sak.getVedtatt());
     }
 
     private InfotrygdSak tilInfotrygdSak(LøpendeSak sak) {
-        return new InfotrygdSak(null, FA, behandlingstema, sak.getIverksatt(), null);
+        return new InfotrygdSak(sak.getIverksatt(), null);
     }
 
     private static <T> Stream<T> stream(List<T> list) {
@@ -84,6 +74,6 @@ public final class InfotrygdRestResponseMapper {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[behandlingstema=" + behandlingstema + "]";
+        return getClass().getSimpleName();
     }
 }

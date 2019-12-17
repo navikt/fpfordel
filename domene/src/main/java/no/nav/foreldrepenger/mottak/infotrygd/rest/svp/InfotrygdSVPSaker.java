@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.mottak.infotrygd.rest.svp;
 
-import static no.nav.foreldrepenger.fordel.kodeverdi.RelatertYtelseBehandlingstema.SVANGERSKAPSPENGER_BEHANDLINGSTEMA;
-
 import java.net.URI;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -25,6 +23,6 @@ public class InfotrygdSVPSaker extends InfotrygdSaker {
     @Inject
     public InfotrygdSVPSaker(OidcRestClient restClient,
             @KonfigVerdi(value = "fpfordel.it.svp.url", defaultVerdi = DEFAULT_URI) URI uri) {
-        super(restClient, uri, new InfotrygdRestResponseMapper(SVANGERSKAPSPENGER_BEHANDLINGSTEMA));
+        super(restClient, uri, new InfotrygdRestResponseMapper());
     }
 }

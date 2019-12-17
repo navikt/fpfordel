@@ -39,11 +39,11 @@ public abstract class InfotrygdSaker implements InfotrygdTjeneste {
                     .addParameter("fnr", fnr)
                     .addParameter("fom", fom(fom))
                     .build();
-            LOG.info("fpfordel infotrygd rest. Slår opp saker fra {} for {}", uri, getBehandlingsTema());
+            LOG.trace("fpfordel infotrygd rest. Slår opp saker fra {}", uri);
             var respons = restClient.get(request, Saker.class);
-            LOG.info("fpfordel infotrygd rest {}. Fikk saker {}", getBehandlingsTema(), respons);
+            LOG.trace("fpfordel infotrygd rest. Fikk saker {}", respons);
             var saker = mapper.map(respons);
-            LOG.info("fpfordel infotrygd rest {}. Mappet saker {}", getBehandlingsTema(), saker);
+            LOG.trace("fpfordel infotrygd rest. Mappet saker {}", saker);
             return saker;
         } catch (Exception e) {
             LOG.warn("Feil ved oppslag mot {}, returnerer ingen saker", uri, e);
@@ -53,10 +53,6 @@ public abstract class InfotrygdSaker implements InfotrygdTjeneste {
 
     private static String fom(LocalDate fom) {
         return DateTimeFormatter.ISO_LOCAL_DATE.format(fom);
-    }
-
-    private String getBehandlingsTema() {
-        return mapper.getBehandlingstema();
     }
 
     @Override
