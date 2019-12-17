@@ -18,8 +18,6 @@ spec:
     value: "true"
   - name: APPDYNAMICS_AGENT_ACCOUNT_NAME
     value: NON-PROD
-  - name: APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY
-    value: 5ed4d975-ed5b-40b2-8ac6-9e0c0e61a67e
   - name: DEFAULTDS_USERNAME
     value: FPFORDEL_Q1
   - name: DEFAULTDS_OEMENDPOINT
