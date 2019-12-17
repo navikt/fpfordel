@@ -26,7 +26,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem;
@@ -70,8 +69,6 @@ public class HentOgVurderGsakSakTaskTest {
     @Mock
     private InfotrygdTjeneste fp;
     @Mock
-    private Unleash unleash;
-    @Mock
     private AktørConsumerMedCache mockAktørConsumer;
     private List<GsakSak> sakerTom;
     private List<GsakSak> sakerMatchende;
@@ -87,7 +84,7 @@ public class HentOgVurderGsakSakTaskTest {
 
         when(mockAktørConsumer.hentPersonIdentForAktørId(ANNEN_PART_ID)).thenReturn(Optional.of(ANNEN_PART_FNR));
         when(mockAktørConsumer.hentAktørIdForPersonIdent(ANNEN_PART_FNR)).thenReturn(Optional.of(ANNEN_PART_ID));
-        RelevantSakSjekker relevansSjekker = new RelevantSakSjekker(svp, fp, ws, gsak, unleash);
+        RelevantSakSjekker relevansSjekker = new RelevantSakSjekker(svp, fp, gsak);
         task = new HentOgVurderInfotrygdSakTask(mockProsessTaskRepository, relevansSjekker, mockAktørConsumer);
 
         sakerTom = new ArrayList<>();
@@ -104,11 +101,11 @@ public class HentOgVurderGsakSakTaskTest {
     private List<InfotrygdSak> createInfotrygdSaker(boolean inkluderInntektsmelding) {
         final List<InfotrygdSak> saker = new ArrayList<>();
 
-        InfotrygdSak sak = new InfotrygdSak("123", "SP", "SV", LocalDate.now(), LocalDate.now());
+        InfotrygdSak sak = new InfotrygdSak(LocalDate.now(), LocalDate.now());
         saker.add(sak);
 
         if (inkluderInntektsmelding) {
-            sak = new InfotrygdSak("124", "FA", "FØ", LocalDate.now(), LocalDate.now());
+            sak = new InfotrygdSak(LocalDate.now(), LocalDate.now());
             saker.add(sak);
         }
 
@@ -147,7 +144,7 @@ public class HentOgVurderGsakSakTaskTest {
         assertThat(wrapperOut.getTema()).isEqualTo(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         assertThat(wrapperOut.getAktørId()).hasValueSatisfying(s -> assertThat(s).isEqualTo(BRUKER_AKTØR_ID));
         assertThat(wrapperOut.getProsessTaskData().getTaskType()).isEqualTo(OpprettSakTask.TASKNAME);
-        verify(ws, times(1)).finnSakListe(any(), any());
+        verify(fp, times(1)).finnSakListe(any(), any());
     }
 
     @Test
@@ -169,10 +166,10 @@ public class HentOgVurderGsakSakTaskTest {
     @Test
     public void test_doTask_infotrygdsak_i_gsak_og_relevant_i_infotrygd() {
         when(gsak.finnSaker(BRUKER_FNR)).thenReturn(sakerMatchende);
-        when(ws.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(createInfotrygdSaker(true));
+        when(fp.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(createInfotrygdSaker(true));
 
         when(gsak.finnSaker(ANNEN_PART_FNR)).thenReturn(sakerMatchende);
-        when(ws.finnSakListe(eq(ANNEN_PART_FNR), any())).thenReturn(createInfotrygdSaker(true));
+        when(fp.finnSakListe(eq(ANNEN_PART_FNR), any())).thenReturn(createInfotrygdSaker(true));
 
         MottakMeldingDataWrapper wrapperIn = opprettMottaksMelding();
 

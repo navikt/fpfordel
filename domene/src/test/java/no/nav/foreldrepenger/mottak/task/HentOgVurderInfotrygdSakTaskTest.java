@@ -6,7 +6,6 @@ import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.ENGANGSSTØN
 import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.FORELDREPENGER;
 import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.FORELDREPENGER_FØDSEL;
 import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.SVANGERSKAPSPENGER;
-import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD;
 import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.INNTEKTSMELDING;
 import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
 import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
@@ -18,12 +17,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,18 +39,12 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.gsak.GsakSak;
 import no.nav.foreldrepenger.mottak.gsak.GsakSakTjeneste;
-import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdFeil;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
-import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjenesteImpl;
-import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdUgyldigInputException;
 import no.nav.foreldrepenger.mottak.infotrygd.rest.RelevantSakSjekker;
-import no.nav.tjeneste.virksomhet.infotrygdsak.v1.binding.FinnSakListePersonIkkeFunnet;
-import no.nav.tjeneste.virksomhet.infotrygdsak.v1.binding.FinnSakListeUgyldigInput;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
-import no.nav.vedtak.felles.integrasjon.infotrygdsak.InfotrygdSakConsumer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -86,8 +77,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
     @Mock
     private AktørConsumerMedCache aktør;
     @Mock
-    private InfotrygdTjeneste infotrygd;
-    @Mock
     private InfotrygdTjeneste svp;
     @Mock
     private InfotrygdTjeneste fp;
@@ -100,37 +89,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
         expectAktørFnrMappings();
     }
 
-    @Test(expected = InfotrygdUgyldigInputException.class)
-    public void skal_håndtere_ugyldigInput_feil_fra_infotrygd() throws Exception {
-        var infotrygdKonsument = mock(InfotrygdSakConsumer.class);
-        when(infotrygdKonsument.finnSakListe(any())).thenThrow(FinnSakListeUgyldigInput.class);
-        expectGsaker(FNR_ANNEN_PART, gsaker(FNR));
-        infotrygd = new InfotrygdTjenesteImpl(infotrygdKonsument);
-
-        var w = dataWrapper(AKTØR_BRUKER);
-        w.setDokumentTypeId(SØKNAD_FORELDREPENGER_FØDSEL);
-        w.setAnnenPartId(AKTØR_ANNEN_PART);
-        w.setBehandlingTema(FORELDREPENGER_FØDSEL);
-
-        doTask(w);
-    }
-
-    @Test
-    public void skal_håndtere_personIkkeFunnet_feil_fra_infotryg() throws Exception {
-        var infotrygdSakConsumer = mock(InfotrygdSakConsumer.class);
-        when(fp.finnSakListe(any(), any())).thenReturn(Collections.emptyList());
-        when(svp.finnSakListe(any(), any())).thenReturn(Collections.emptyList());
-        when(infotrygdSakConsumer.finnSakListe(any())).thenThrow(FinnSakListePersonIkkeFunnet.class);
-        expectGsaker(FNR_ANNEN_PART, gsaker(FNR));
-        infotrygd = new InfotrygdTjenesteImpl(infotrygdSakConsumer);
-
-        var w = dataWrapper(AKTØR_BRUKER);
-        w.setDokumentTypeId(SØKNAD_FORELDREPENGER_FØDSEL);
-        w.setAnnenPartId(AKTØR_ANNEN_PART);
-        w.setBehandlingTema(FORELDREPENGER_FØDSEL);
-        doAndAssertOpprettet(w);
-    }
-
     @Test
     public void skal_finne_relevant_registrert_infotrygdsak_for_inntektsmelding() throws Exception {
         var g1 = new GsakSak(FNR_BRUKER, "id1", Tema.UDEFINERT, INFOTRYGD);
@@ -138,9 +96,9 @@ public class HentOgVurderInfotrygdSakTaskTest {
         var g3 = new GsakSak(FNR_BRUKER, "id3", FORELDRE_OG_SVANGERSKAPSPENGER, FPSAK);
         var g4 = new GsakSak(FNR_BRUKER, "id4", FORELDRE_OG_SVANGERSKAPSPENGER, FPSAK);
         expectGsak(FNR_BRUKER, g1, g2, g3, g4);
-        var it1 = new InfotrygdSak("id3", "FA", "FØ", now().minusYears(2),
+        var it1 = new InfotrygdSak(now().minusYears(2),
                 now().minusYears(2));
-        var it2 = new InfotrygdSak("id4", "FA", "FØ", now().minusMonths(1), now().minusMonths(1));
+        var it2 = new InfotrygdSak(now().minusMonths(1), now().minusMonths(1));
         expectIT(FNR_BRUKER, it1, it2);
 
         var w = dataWrapper(AKTØR_BRUKER);
@@ -159,8 +117,8 @@ public class HentOgVurderInfotrygdSakTaskTest {
         var g4 = new GsakSak(FNR_BRUKER_1, "id4", FORELDRE_OG_SVANGERSKAPSPENGER, FPSAK);
         expectGsak(FNR_BRUKER_1, g1, g2, g3, g4);
 
-        var it1 = new InfotrygdSak("id3", "FA", "FE", now().minusYears(2), now().minusYears(2));
-        var it2 = new InfotrygdSak("id4", "FA", "FØ", now().minusDays(1), now().minusDays(1));
+        var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
+        var it2 = new InfotrygdSak(now().minusDays(1), now().minusDays(1));
         expectIT(FNR_BRUKER_1, it1, it2);
 
         var w = dataWrapper(AKTØR_BRUKER_1);
@@ -177,8 +135,8 @@ public class HentOgVurderInfotrygdSakTaskTest {
         var g2 = new GsakSak(FNR_BRUKER, "id2", FORELDRE_OG_SVANGERSKAPSPENGER, INFOTRYGD);
         expectGsak(FNR_BRUKER, g1, g2);
 
-        var it1 = new InfotrygdSak("id1", "FA", "FE", now().minusYears(2), now().minusYears(2));
-        var it2 = new InfotrygdSak("id2", "FA", "FØ", now().minusDays(50), now().minusDays(50));
+        var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
+        var it2 = new InfotrygdSak(now().minusDays(50), now().minusDays(50));
         expectIT(FNR_BRUKER, it1, it2);
 
         var w = dataWrapper(AKTØR_BRUKER);
@@ -197,8 +155,8 @@ public class HentOgVurderInfotrygdSakTaskTest {
         var g4 = new GsakSak(FNR_BRUKER, "id4", FORELDRE_OG_SVANGERSKAPSPENGER, FPSAK);
         expectGsak(FNR_BRUKER, g1, g2, g3, g4);
 
-        var it1 = new InfotrygdSak("id3", "FA", "FE", now().minusYears(2), now().minusYears(2));
-        var it2 = new InfotrygdSak("id4", "FA", "FØ", now().minusDays(1), now().minusDays(1));
+        var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
+        var it2 = new InfotrygdSak(now().minusDays(1), now().minusDays(1));
         expectIT(FNR_BRUKER, it1, it2);
 
         var w = dataWrapper(AKTØR_BRUKER);
@@ -217,8 +175,8 @@ public class HentOgVurderInfotrygdSakTaskTest {
         var g4 = new GsakSak(FNR_ANNEN_PART, "id4", FORELDRE_OG_SVANGERSKAPSPENGER, FPSAK);
         expectGsak(FNR_ANNEN_PART, g1, g2, g3, g4);
 
-        var it1 = new InfotrygdSak("id3", "FA", "FE", now().minusYears(2), now().minusYears(2));
-        var it2 = new InfotrygdSak("id4", "FA", "FØ", now().minusDays(1), now().minusDays(1));
+        var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
+        var it2 = new InfotrygdSak(now().minusDays(1), now().minusDays(1));
         expectIT(FNR_ANNEN_PART, it1, it2);
 
         var w = dataWrapper(AKTØR_BRUKER);
@@ -233,7 +191,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
     @Test
     public void skal_opprette_sak_når_ingen_sak_for_foreldrepenger() throws Exception {
         when(gsak.finnSaker(FNR_ANNEN_PART)).thenReturn(emptyList());
-        when(infotrygd.finnSakListe(eq(FNR_ANNEN_PART), any())).thenReturn(emptyList());
 
         var w = dataWrapper(AKTØR_BRUKER);
         w.setBehandlingTema(FORELDREPENGER_FØDSEL);
@@ -261,8 +218,8 @@ public class HentOgVurderInfotrygdSakTaskTest {
         var g4 = new GsakSak(FNR_BRUKER_1, "id4", Tema.FORELDRE_OG_SVANGERSKAPSPENGER, FPSAK);
         expectGsak(FNR_BRUKER_1, g1, g2, g3, g4);
 
-        var it1 = new InfotrygdSak("id3", "FA", "FE", now().minusYears(2), now().minusYears(2));
-        var it2 = new InfotrygdSak("id4", "FA", "SV", now().minusMonths(1), now().minusMonths(1));
+        var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
+        var it2 = new InfotrygdSak(now().minusMonths(1), now().minusMonths(1));
         expectIT(FNR_BRUKER_1, it1, it2);
         expectITRest(FNR_BRUKER_1, it2);
 
@@ -281,8 +238,8 @@ public class HentOgVurderInfotrygdSakTaskTest {
         var g4 = new GsakSak(FNR_BRUKER_1, "id4", Tema.FORELDRE_OG_SVANGERSKAPSPENGER, FPSAK);
         expectGsak(FNR_BRUKER_1, g1, g2, g3, g4);
 
-        var it1 = new InfotrygdSak("id3", "FA", "FE", now().minusYears(2), now().minusYears(2));
-        var it2 = new InfotrygdSak("id4", "FA", "SV", now().minusMonths(1), now().minusMonths(1));
+        var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
+        var it2 = new InfotrygdSak(now().minusMonths(1), now().minusMonths(1));
         expectIT(FNR_BRUKER_1, it1, it2);
         expectITRest(FNR_BRUKER_1, it2);
 
@@ -298,7 +255,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
         var g1 = new GsakSak(FNR_ANNEN_PART_2, "id2", Tema.FORELDRE_OG_SVANGERSKAPSPENGER, INFOTRYGD);
         expectGsak(FNR_ANNEN_PART_2, g1);
 
-        var it = new InfotrygdSak("id4", "FA", "FØ", null, now().minusMonths(7));
+        var it = new InfotrygdSak(null, now().minusMonths(7));
         expectIT(FNR_ANNEN_PART_2, it);
 
         var w = dataWrapper(AKTØR_BRUKER_2);
@@ -327,7 +284,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
         var g1 = new GsakSak(FNR_BRUKER, "id1", FORELDRE_OG_SVANGERSKAPSPENGER, INFOTRYGD,
                 now().minusYears(2));
         expectGsak(FNR_BRUKER, g1);
-        var it1 = new InfotrygdSak("id3", "FA", "FE", now().minusYears(2), now().minusYears(2));
+        var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         expectIT(FNR_BRUKER, it1);
         var w = dataWrapper(AKTØR_BRUKER);
         w.setBehandlingTema(FORELDREPENGER);
@@ -345,7 +302,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     public void neste_steg_skal_være_opprettsak_hvis_relevant_infotrygdsak_ikke_finnes() throws Exception {
         when(gsak.finnSaker(any())).thenReturn(gsaker(FNR));
         expectGsaker(FNR_BRUKER, gsaker(FNR));
-        var it1 = new InfotrygdSak("id3", "FA", "FE", now().minusYears(2), now().minusYears(2));
+        var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         expectIT(FNR_BRUKER, it1);
         var w = dataWrapper(AKTØR_BRUKER);
         w.setBehandlingTema(FORELDREPENGER);
@@ -356,25 +313,10 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void neste_steg_skal_være_retry_hvis_nedetid() {
-
-        when(gsak.finnSaker(any())).thenReturn(gsaker(FNR));
-        when(infotrygd.finnSakListe(any(), any()))
-                .thenThrow(InfotrygdFeil.FACTORY.nedetid("InfotrygdSak", null).toException());
-
-        var w = dataWrapper(AKTØR_BRUKER);
-        w.setBehandlingTema(FORELDREPENGER);
-        w.setDokumentTypeId(FORELDREPENGER_ENDRING_SØKNAD);
-        w.setAnnenPartId(AKTØR_ANNEN_PART);
-        expect(TekniskException.class, "FP-180124");
-        doWithPrecondition(w);
-    }
-
-    @Test
     public void neste_steg_skal_throw_exception_hvis_annen_part_er_ikke_funnet() throws Exception {
 
         expectGsaker(FNR_ANNEN_PART, gsaker(FNR_ANNEN_PART));
-        var it1 = new InfotrygdSak("id3", "FA", "FE", now().minusYears(2), now().minusYears(2));
+        var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         expectIT(FNR_ANNEN_PART, it1);
 
         var w = dataWrapper(AKTØR_BRUKER);
@@ -389,7 +331,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     public void skal_throw_exception_hvis_ukjent_behandlings_tema() throws Exception {
         expectGsaker(FNR_ANNEN_PART, gsaker(FNR_ANNEN_PART));
 
-        var it1 = new InfotrygdSak("id3", "FA", "FE", now().minusYears(2), now().minusYears(2));
+        var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         expectIT(FNR_ANNEN_PART, it1);
 
         var w = dataWrapper(AKTØR_BRUKER);
@@ -433,7 +375,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     private HentOgVurderInfotrygdSakTask task() {
         return new HentOgVurderInfotrygdSakTask(prosessTaskRepository,
-                new RelevantSakSjekker(svp, fp, infotrygd, gsak, unleash),
+                new RelevantSakSjekker(svp, fp, gsak),
                 aktør
         );
     }
@@ -470,7 +412,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     private void expectIT(String fnr, InfotrygdSak... itsaker) {
-        when(infotrygd.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
         when(svp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
         when(fp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
     }
