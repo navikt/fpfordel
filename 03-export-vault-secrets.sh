@@ -2,13 +2,14 @@
 
 if test -f /var/run/secrets/nais.io/defaultDS/username;
 then
-    echo "Setting DEFAULTDS_USERNAME"
     export  DEFAULTDS_USERNAME=$(cat /var/run/secrets/nais.io/defaultDS/username)
+   echo "Setting DEFAULTDS_USERNAME to $DEFAULTDS_USERNAME"
+    
 fi
 
 if test -f /var/run/secrets/nais.io/defaultDS/password;
 then
-    echo "Setting DEFAULTDS_PASSWORD"
     export  DEFAULTDS_PASSWORD=$(/var/run/secrets/nais.io/defaultDS/password)
+    echo "Setting DEFAULTDS_PASSWORD to $DEFAULTDS_PASSWORD"
 fi
 echo "INIT SCRIPT XXXXXXXXXXX"
