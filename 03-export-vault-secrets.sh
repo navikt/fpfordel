@@ -9,7 +9,7 @@ fi
 
 if test -f /var/run/secrets/nais.io/defaultDS/password;
 then
-    export  DEFAULTDS_PASSWORD=$(/var/run/secrets/nais.io/defaultDS/password)
+    export  DEFAULTDS_PASSWORD=$(cat /var/run/secrets/nais.io/defaultDS/password)
     echo "Setting DEFAULTDS_PASSWORD to $DEFAULTDS_PASSWORD"
 fi
-echo "INIT SCRIPT XXXXXXXXXXX"
+echo "INIT SCRIPT DONE"
