@@ -1,19 +1,13 @@
 #!/usr/bin/env bash
 
-if test -f /secrets/oracle/dbconfig/jdbc_url;
-then
-    echo "Setting DEFAULTDS_URL"
-    export  DEFAULTDS_URL=$(cat /secrets/oracle/dbconfig/jdbc_url)
-fi
-
-if test -f /secrets/oracle/credentials/username;
+if test -f /var/run/secrets/nais.io/defaultDS/username;
 then
     echo "Setting DEFAULTDS_USERNAME"
-    export  DEFAULTDS_USERNAME=$(cat /secrets/oracle/credentials/username)
+    export  DEFAULTDS_USERNAME=$(cat /var/run/secrets/nais.io/defaultDS/username)
 fi
 
-if test -f /secrets/oracle/credentials/password;
+if test -f /var/run/secrets/nais.io/defaultDS/password;
 then
-    echo "Setting DEFAUTLDS_PASSWORD"
-    export  DEFAULTDS_PASSWORD=$(cat /secrets/oracle/credentials/password)
+    echo "Setting DEFAULTDS_PASSWORD"
+    export  DEFAULTDS_PASSWORD=$(/var/run/secrets/nais.io/defaultDS/password)
 fi
