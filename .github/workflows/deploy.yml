@@ -7,6 +7,7 @@ on:
 env:
   DOCKER_IMAGE: docker.pkg.github.com/${{ github.repository }}/fpfordel
   SID: XE
+  ORACLE_IMAGE: wnameless/oracle-xe-11g-r2
          
 jobs:
   build:
@@ -26,11 +27,12 @@ jobs:
         shell: bash
         run: |
           echo "Starter Oracle image"
-          docker run -d -p 1521:1521 --name oracle-xe -e ORACLE_DISABLE_ASYNCH_IO=true wnameless/oracle-xe-11g-r2
+          docker run -d -p 1521:1521 --name oracle-xe -e ORACLE_DISABLE_ASYNCH_IO=true $ORACLE_IMAGE
       - name: Vent 120 sekunder på Oracle oppstart
         shell: bash
         run: |
-          echo "Sover"
+          id = $(docker ps | tail -1 | awk  '{ print $1}')
+          echo "Sover, venter på $id"
           sleep 120
           echo "Kopierer oppstartsfiler"
           docker cp initdb.sql `docker ps | tail -1 | awk  '{ print $1}'`:/initdb.sql
