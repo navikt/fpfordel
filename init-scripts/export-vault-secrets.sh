@@ -11,3 +11,4 @@ then
     echo "Setting DEFAULTDS_PASSWORD"
     export  DEFAULTDS_PASSWORD=$(/var/run/secrets/nais.io/defaultDS/password)
 fi
+echo "INIT SCRIPT XXXXXXXXXXX"
