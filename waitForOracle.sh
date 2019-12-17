@@ -1,7 +1,0 @@
-status="1"
-while [ "$status" != "0" ]
-do
-  sleep 1
-  sqlplus /nolog @has-oracle-started.sql
-  status=$?
-done
