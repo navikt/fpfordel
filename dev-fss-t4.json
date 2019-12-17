@@ -14,6 +14,7 @@
    "ARBEIDSFORDELING_V1_URL":"https://norg2-t4.nais.preprod.local/norg2/ws/Arbeidsfordeling/v1",
    "BEHANDLEINNGAAENDEJOURNAL_V1_URL" : "https://dokarkiv-t4.nais.preprod.local/services/behandleinngaaendejournal/v1",
    "BEHANDLEOPPGAVE_V1_URL":"https://wasapp-t4.adeo.no/nav-gsak-ws/BehandleOppgaveV1",
+   "DEFAULTDS_URL" : "jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=d26dbfl020.test.local)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=FPFORDELT4)(INSTANCE_NAME=cctf01)(UR=A)(SERVER=DEDICATED)))",
    "FPFORDEL_CHANNEL_QUEUEMANAGER":"mq://d26apvl258.test.local:1412/MTXLSC02",
    "FPSAK_JOURNALPOSTKNYTTNING_URL":"https://fpsak-t4.nais.preprod.local/fpsak/api/fordel/fagsak/knyttJournalpost",
    "FPSAK_MOTTAJOURNALPOST_URL":"https://fpsak-t4.nais.preprod.local/fpsak/api/fordel/journalpost",
