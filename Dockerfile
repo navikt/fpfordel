@@ -13,7 +13,7 @@ COPY web/target/classes/jetty/jaspi-conf.xml /app/conf/
 # Application Container (Jetty)
 COPY web/target/app.jar /app/
 COPY web/target/lib/*.jar /app/lib/
-
+COPY init-scripts/*.sh /init-scripts/
 # Application Start Command
 COPY run-java.sh /
 RUN chmod +x /run-java.sh
