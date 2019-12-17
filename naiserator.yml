@@ -16,7 +16,7 @@ spec:
     port: 8080
     initialDelay: 45
     periodSeconds: 10
-    failureThreshold: 15
+    failureThreshold: 30
     timeout: 1
   port: 8080
   preStopHookPath: fpfordel/internal/health/preStop
