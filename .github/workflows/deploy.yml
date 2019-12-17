@@ -6,6 +6,7 @@ on:
       - gha 
 env:
   DOCKER_IMAGE: docker.pkg.github.com/${{ github.repository }}/fpfordel
+  SID: XE
          
 jobs:
   build:
@@ -29,19 +30,11 @@ jobs:
       - name: Vent 120 sekunder på Oracle oppstart
         shell: bash
         run: |
-          echo "Venter på oppstart av Oracle"
-          docker ps
-          docker cp hasOracleStarted.sql `docker ps | tail -1 | awk  '{ print $1}'`:/hasOracleStarted.sql
-          status="1"
-           while [ "$status" != "0" ] 
-           do
-            sleep 1
-            docker exec -e ORACLE_SID=XE -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe `docker ps | tail -1 | awk  '{ print $1}'` /u01/app/oracle/product/11.2.0/xe/bin/sqlplus system/oracle @hasOracleStarted.sql
-            status=$?
-          done
+          echo "Sover"
+          sleep 120
+          echo "Kopierer oppstartsfiler"
           docker cp initdb.sql `docker ps | tail -1 | awk  '{ print $1}'`:/initdb.sql
-          docker exec -e ORACLE_SID=XE -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe `docker ps | tail -1 | awk  '{ print $1}'` /u01/app/oracle/product/11.2.0/xe/bin/sqlplus system/oracle /nolog @has-oracle-started.sql
-   
+          docker exec -e ORACLE_SID=${SID} -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe `docker ps | tail -1 | awk  '{ print $1}'` /u01/app/oracle/product/11.2.0/xe/bin/sqlplus system/oracle /nolog @has-oracle-started.sql   
       - name: Bygg
         run: |
           echo "$Bygger artifakt $(echo $GITHUB_SHA | cut -c1-7)"
