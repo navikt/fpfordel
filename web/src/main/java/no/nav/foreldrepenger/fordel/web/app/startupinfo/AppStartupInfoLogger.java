@@ -66,7 +66,8 @@ class AppStartupInfoLogger {
             SortedMap<String, String> sysPropsMap = sysPropsHelper.filteredSortedProperties();
             String sysPropFormat = SYSPROP + ": {}={}";
             for (Entry<String, String> entry : sysPropsMap.entrySet()) {
-                //log(sysPropFormat, LoggerUtils.removeLineBreaks(entry.getKey()), LoggerUtils.removeLineBreaks(entry.getValue()));
+                log(sysPropFormat, LoggerUtils.removeLineBreaks(entry.getKey()),
+                        LoggerUtils.removeLineBreaks(entry.getValue()));
             }
         }
 
@@ -74,7 +75,8 @@ class AppStartupInfoLogger {
             SortedMap<String, String> envVarsMap = sysPropsHelper.filteredSortedEnvVars();
             for (Entry<String, String> entry : envVarsMap.entrySet()) {
                 String envVarFormat = ENVVAR + ": {}={}";
-                //log(envVarFormat, LoggerUtils.removeLineBreaks(entry.getKey()), LoggerUtils.removeLineBreaks(entry.getValue()));
+                log(envVarFormat, LoggerUtils.removeLineBreaks(entry.getKey()),
+                        LoggerUtils.removeLineBreaks(entry.getValue()));
             }
         }
 
@@ -99,7 +101,7 @@ class AppStartupInfoLogger {
     }
 
     private void log(String msg, Object... args) {
-        LOG.info(msg, args); //NOSONAR
+        LOG.info(msg, args); // NOSONAR
     }
 
     private void log(HealthCheck.Result result) {
@@ -109,16 +111,14 @@ class AppStartupInfoLogger {
                     (String) result.getDetails().get(ExtHealthCheck.DETAIL_DESCRIPTION),
                     (String) result.getDetails().get(ExtHealthCheck.DETAIL_ENDPOINT),
                     (String) result.getDetails().get(ExtHealthCheck.DETAIL_RESPONSE_TIME),
-                    result.getMessage()
-            ).log(LOG);
+                    result.getMessage()).log(LOG);
         } else {
             OppstartFeil.FACTORY.selftestStatus(
                     getStatus(result.isHealthy()),
                     null,
                     null,
                     null,
-                    result.getMessage()
-            ).log(LOG);
+                    result.getMessage()).log(LOG);
         }
     }
 
