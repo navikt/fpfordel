@@ -15,7 +15,6 @@ import static no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem.INFOTRYGD;
 import static no.nav.foreldrepenger.fordel.kodeverdi.Tema.FORELDRE_OG_SVANGERSKAPSPENGER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
@@ -88,7 +87,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     @Before
     public void setup() {
-        when(unleash.isEnabled(anyString())).thenReturn(true);
         expectAktørFnrMappings();
     }
 
@@ -405,12 +403,12 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     private void expectIT(String fnr, InfotrygdSak... itsaker) {
-        when(svp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
-        when(fp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
+        lenient().when(svp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
+        lenient().when(fp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
     }
 
     private void expectITRest(String fnr, InfotrygdSak... itsaker) {
-        when(svp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
+        lenient().when(svp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
         lenient().when(fp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
     }
 

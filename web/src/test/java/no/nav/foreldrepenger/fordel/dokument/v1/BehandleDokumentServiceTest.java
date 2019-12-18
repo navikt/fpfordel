@@ -41,7 +41,7 @@ import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.TilJournalføringTjeneste;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.OppdaterOgFerdigstillJournalfoeringUgyldigInput;
-import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.meldinger.WSOppdaterOgFerdigstillJournalfoeringRequest;
+import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.meldinger.OppdaterOgFerdigstillJournalfoeringRequest;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
 
@@ -119,7 +119,7 @@ public class BehandleDokumentServiceTest {
         expectedException.expect(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class);
         expectedException.expectMessage(BehandleDokumentService.ENHET_MANGLER);
 
-        WSOppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(null, JOURNALPOST_ID, SAKSNUMMER);
+        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(null, JOURNALPOST_ID, SAKSNUMMER);
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
     }
 
@@ -128,7 +128,7 @@ public class BehandleDokumentServiceTest {
         expectedException.expect(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class);
         expectedException.expectMessage(BehandleDokumentService.JOURNALPOST_MANGLER);
 
-        WSOppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, null, SAKSNUMMER);
+        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, null, SAKSNUMMER);
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
     }
 
@@ -137,7 +137,7 @@ public class BehandleDokumentServiceTest {
         expectedException.expect(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class);
         expectedException.expectMessage(BehandleDokumentService.SAKSNUMMER_UGYLDIG);
 
-        WSOppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, null);
+        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, null);
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
     }
 
@@ -148,14 +148,14 @@ public class BehandleDokumentServiceTest {
         when(fagsakRestKlientMock.finnFagsakInfomasjon(any()))
                 .thenReturn(Optional.empty());
 
-        WSOppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
     }
 
     @Test(expected = FunksjonellException.class)
     public void skalIkkeJournalføreKlagerPåSakUtenBehandling() throws Exception {
 
-        WSOppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, BehandlingTema.UDEFINERT.getOffisiellKode(), false)));
 
@@ -167,7 +167,7 @@ public class BehandleDokumentServiceTest {
     @Test
     public void skalKunneJournalføreKlagerPåSakMedBehandling() throws Exception {
 
-        WSOppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
 
         when(journalMetadata.getDokumentTypeId()).thenReturn(DokumentTypeId.KLAGE_DOKUMENT);
         when(journalMetadata.getDokumentKategori()).thenReturn(Optional.of(DokumentKategori.KLAGE_ELLER_ANKE));
@@ -178,7 +178,7 @@ public class BehandleDokumentServiceTest {
 
     @Test
     public void skalKjøreHeltIgjennomNaarJournaltilstandIkkeErEndelig() throws Exception {
-        WSOppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         when(tilJournalføringTjenesteMock.tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
                 navnDokumentTypeId)).thenReturn(true);
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
@@ -191,7 +191,7 @@ public class BehandleDokumentServiceTest {
 
     @Test(expected = OppdaterOgFerdigstillJournalfoeringUgyldigInput.class)
     public void skalGiUnntakNårDetFinnesManglerSomIkkeKanRettes() throws Exception {
-        WSOppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         when(tilJournalføringTjenesteMock.tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
                 navnDokumentTypeId)).thenReturn(false);
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
@@ -199,7 +199,7 @@ public class BehandleDokumentServiceTest {
 
     @Test
     public void skalTillateJournalførinAvInntektsmeldingForeldrepender() throws Exception {
-        WSOppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         when(tilJournalføringTjenesteMock.tilJournalføring(any(), any(), any(), any(), any())).thenReturn(true);
         DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
@@ -221,7 +221,7 @@ public class BehandleDokumentServiceTest {
 
     @Test(expected = FunksjonellException.class)
     public void skalIkkeTillateJournalførinAvInntektsmeldingSvangerskapspenger() throws Exception {
-        WSOppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
 
         DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
@@ -240,7 +240,7 @@ public class BehandleDokumentServiceTest {
 
     @Test(expected = FunksjonellException.class)
     public void skalIkkeTillateJournalførinAvSøknadMedUttakFørGrense() throws Exception {
-        WSOppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
 
         DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
@@ -263,7 +263,7 @@ public class BehandleDokumentServiceTest {
 
     @Test(expected = FunksjonellException.class)
     public void skalIkkeTillateJournalførinAvSøknadMedOmsorgFørGrense() throws Exception {
-        WSOppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
 
         DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON;
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
@@ -286,7 +286,7 @@ public class BehandleDokumentServiceTest {
 
     @Test
     public void skalTillateJournalførinAvSøknadMedUttakEtterGrense() throws Exception {
-        WSOppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         when(tilJournalføringTjenesteMock.tilJournalføring(any(), any(), any(), any(), any())).thenReturn(true);
         DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
@@ -307,7 +307,7 @@ public class BehandleDokumentServiceTest {
 
     @Test
     public void skalTillateJournalførinAvSøknadMedOmsorgEtterGrense() throws Exception {
-        WSOppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         when(tilJournalføringTjenesteMock.tilJournalføring(any(), any(), any(), any(), any())).thenReturn(true);
         DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON;
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
@@ -328,7 +328,7 @@ public class BehandleDokumentServiceTest {
 
     @Test
     public void skalTillateJournalførinAvEndringsSøknadMedAnnetSaksnummer() throws Exception {
-        WSOppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         when(tilJournalføringTjenesteMock.tilJournalføring(any(), any(), any(), any(), any())).thenReturn(true);
         DokumentTypeId dokumentTypeId = DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD;
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
@@ -351,7 +351,7 @@ public class BehandleDokumentServiceTest {
     public void skalKjøreHeltIgjennomNaarJournaltilstandErEndelig() throws Exception {
         when(journalMetadata.getJournaltilstand()).thenReturn(JournalMetadata.Journaltilstand.ENDELIG);
 
-        WSOppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
         verify(tilJournalføringTjenesteMock, never()).tilJournalføring(any(), any(), any(), any(), any());
@@ -359,9 +359,9 @@ public class BehandleDokumentServiceTest {
                 eq(engangsstønadFødsel), any(), any(), any());
     }
 
-    private WSOppdaterOgFerdigstillJournalfoeringRequest lagRequest(String enhetid, String journalpostId,
+    private OppdaterOgFerdigstillJournalfoeringRequest lagRequest(String enhetid, String journalpostId,
             String sakId) {
-        WSOppdaterOgFerdigstillJournalfoeringRequest request = new WSOppdaterOgFerdigstillJournalfoeringRequest();
+        OppdaterOgFerdigstillJournalfoeringRequest request = new OppdaterOgFerdigstillJournalfoeringRequest();
         request.setEnhetId(enhetid);
         request.setJournalpostId(journalpostId);
         request.setSakId(sakId);
