@@ -1,7 +1,13 @@
 package no.nav.foreldrepenger.fordel.web.app.startupinfo;
 
+import static com.google.common.collect.Maps.fromProperties;
+import static java.util.Map.Entry.comparingByKey;
+import static no.nav.vedtak.konfig.StandardPropertySource.APP_PROPERTIES;
+import static no.nav.vedtak.konfig.StandardPropertySource.ENV_PROPERTIES;
+import static no.nav.vedtak.konfig.StandardPropertySource.SYSTEM_PROPERTIES;
+
+import java.util.List;
 import java.util.Map.Entry;
-import java.util.SortedMap;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -11,14 +17,16 @@ import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.health.HealthCheck;
 
-import no.nav.foreldrepenger.fordel.web.app.selftest.SelftestResultat;
 import no.nav.foreldrepenger.fordel.web.app.selftest.Selftests;
 import no.nav.foreldrepenger.fordel.web.app.selftest.checks.ExtHealthCheck;
+import no.nav.vedtak.konfig.StandardPropertySource;
 import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.log.util.LoggerUtils;
+import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 class AppStartupInfoLogger {
+
+    private static final List<String> SECRETS = List.of("passord", "password", "passwd");
 
     private static final Logger LOG = LoggerFactory.getLogger(AppStartupInfoLogger.class);
 
@@ -30,17 +38,12 @@ class AppStartupInfoLogger {
     private static final String KONFIGURASJON = "Konfigurasjon";
     private static final String SELFTEST = "Selftest";
     private static final String APPLIKASJONENS_STATUS = "Applikasjonens status";
-    private static final String SYSPROP = "System property";
-    private static final String ENVVAR = "Env. var";
     private static final String START = "start:";
     private static final String SLUTT = "slutt.";
 
-    private static final String SKIP_LOG_SYS_PROPS = "skipLogSysProps";
-    private static final String SKIP_LOG_ENV_VARS = "skipLogEnvVars";
-    private static final String TRUE = "true";
+    private static final Environment ENV = Environment.current();
 
     AppStartupInfoLogger() {
-        // for CDI proxy
     }
 
     @Inject
@@ -57,30 +60,17 @@ class AppStartupInfoLogger {
 
     private void logKonfigurasjon() {
         log(KONFIGURASJON + " " + START);
-
-        SystemPropertiesHelper sysPropsHelper = SystemPropertiesHelper.getInstance();
-        boolean skipSysProps = TRUE.equalsIgnoreCase(System.getProperty(SKIP_LOG_SYS_PROPS));
-        boolean skipEnvVars = TRUE.equalsIgnoreCase(System.getProperty(SKIP_LOG_ENV_VARS));
-
-        if (!skipSysProps) {
-            SortedMap<String, String> sysPropsMap = sysPropsHelper.filteredSortedProperties();
-            String sysPropFormat = SYSPROP + ": {}={}";
-            for (Entry<String, String> entry : sysPropsMap.entrySet()) {
-                log(sysPropFormat, LoggerUtils.removeLineBreaks(entry.getKey()),
-                        LoggerUtils.removeLineBreaks(entry.getValue()));
-            }
-        }
-
-        if (!skipEnvVars) {
-            SortedMap<String, String> envVarsMap = sysPropsHelper.filteredSortedEnvVars();
-            for (Entry<String, String> entry : envVarsMap.entrySet()) {
-                String envVarFormat = ENVVAR + ": {}={}";
-                log(envVarFormat, LoggerUtils.removeLineBreaks(entry.getKey()),
-                        LoggerUtils.removeLineBreaks(entry.getValue()));
-            }
-        }
-
+        log(SYSTEM_PROPERTIES);
+        log(ENV_PROPERTIES);
+        log(APP_PROPERTIES);
         log(KONFIGURASJON + " " + SLUTT);
+    }
+
+    private void log(StandardPropertySource source) {
+        fromProperties(ENV.getProperties(source).getVerdier()).entrySet()
+                .stream()
+                .sorted(comparingByKey())
+                .forEach(e -> log(source, e));
     }
 
     private void logSelftest() {
@@ -88,23 +78,33 @@ class AppStartupInfoLogger {
 
         // callId er påkrevd på utgående kall og må settes før selftest kjøres
         MDCOperations.putCallId();
-        SelftestResultat samletResultat = selftests.run();
+        var samletResultat = selftests.run();
         MDCOperations.removeCallId();
 
-        for (HealthCheck.Result result : samletResultat.getAlleResultater()) {
-            log(result);
-        }
+        samletResultat.getAlleResultater().stream()
+                .forEach(AppStartupInfoLogger::log);
 
         log(APPLIKASJONENS_STATUS + ": {}", samletResultat.getAggregateResult());
-
         log(SELFTEST + " " + SLUTT);
     }
 
-    private void log(String msg, Object... args) {
-        LOG.info(msg, args); // NOSONAR
+    private static void log(StandardPropertySource source, Entry<String, String> entry) {
+        String val = entry.getValue();
+        String value = SECRETS
+                .stream()
+                .anyMatch(s -> s.contains(val)) ? hide(val) : val;
+        log("{}: {}={}", source.getName(), entry.getKey(), value);
     }
 
-    private void log(HealthCheck.Result result) {
+    private static String hide(String val) {
+        return "*".repeat(val.length());
+    }
+
+    private static void log(String msg, Object... args) {
+        LOG.info(msg, args);
+    }
+
+    private static void log(HealthCheck.Result result) {
         if (result.getDetails() != null) {
             OppstartFeil.FACTORY.selftestStatus(
                     getStatus(result.isHealthy()),
@@ -122,7 +122,7 @@ class AppStartupInfoLogger {
         }
     }
 
-    private String getStatus(boolean isHealthy) {
+    private static String getStatus(boolean isHealthy) {
         return isHealthy ? "OK" : "ERROR";
     }
 }
