@@ -6,7 +6,7 @@
   "ingresses": ["https://fpfordel-t4.nais.preprod.local"],
   "env": {
    "ABAC_PDP_ENDPOINT_URL" : "https://wasapp-t4.adeo.no/asm-pdp/authorize",
-   "Aktoer.v2.url" : "https://app-t4.adeo.no/aktoerregister/ws/Aktoer/v2",
+   "AKTOER_V2_URL" : "https://app-t4.adeo.no/aktoerregister/ws/Aktoer/v2",
    "APPDYNAMICS_CONTROLLER_HOST_NAME" : "appdynamics.adeo.no",
    "APPDYNAMICS_CONTROLLER_PORT" : "443",
    "APPDYNAMICS_CONTROLLER_SSL_ENABLED" : "true",
