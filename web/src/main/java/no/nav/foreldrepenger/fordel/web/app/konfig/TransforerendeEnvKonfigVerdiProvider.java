@@ -1,11 +1,9 @@
 package no.nav.foreldrepenger.fordel.web.app.konfig;
 
-import javax.enterprise.context.ApplicationScoped;
-
 import no.nav.vedtak.konfig.EnvPropertiesKonfigVerdiProvider;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-@ApplicationScoped
+//@ApplicationScoped
 public class TransforerendeEnvKonfigVerdiProvider extends EnvPropertiesKonfigVerdiProvider {
 
     @Override
