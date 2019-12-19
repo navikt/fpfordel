@@ -30,5 +30,3 @@ then
     export  SYSTEMBRUKER_USERNAME=$(cat /var/run/secrets/nais.io/srvfpfordel/username)
     echo "Setting SYSTEMBRUKER_USERNAME"
 fi
-echo "INIT SCRIPT DONE"
-/var/run/secrets/nais.io/srvfpfordel
