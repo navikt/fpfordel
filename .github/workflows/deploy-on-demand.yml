@@ -1,0 +1,23 @@
+name: Deploy
+on: repository_dispatch
+
+jobs:
+  deploy:
+    name: Deploy to environment
+    runs-on: ubuntu-latest
+    container: navikt/deployment-cli:0.4.0
+    steps:
+      - uses: actions/checkout@v1
+      - name: Deploy to environment
+        shell: bash
+        run: |
+          IFS=- read MILJO VERSION <<< $(jq -r '.action' $GITHUB_EVENT_PATH)
+          echo "Checkout version $VERSION"
+          git checkout $VERSION
+          if [[ $MILJO == "t4" || $MILJO == "q1" ]]; then
+            echo "Deploy $VERSION to $MILJO in dev-fss"
+            deployment-cli deploy create --cluster=dev-fss --repository=${GITHUB_REPOSITORY} --team=teamforeldrepenger -r=naiserator.yaml --var version=${VERSION} --vars=dev-fss-{MILJO}.json
+          fi
+        env:
+          DEPLOYMENT_PASSWORD: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+
