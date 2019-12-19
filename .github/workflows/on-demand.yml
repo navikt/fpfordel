@@ -10,6 +10,7 @@ jobs:
       - name: On demand deploy
         run: |
           pwd
+          ls *.yml
           echo "$GITHUB_ACCESS_TOKEN" | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
           docker pull docker.pkg.github.com/navikt/fpfordel/fpfordel:latest
           echo ::set-env name=IMAGE::docker.pkg.github.com/navikt/fpfordel/fpfordel:latest
