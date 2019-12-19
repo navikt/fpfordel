@@ -43,8 +43,6 @@
    "OIDC_STS_JWKS_URL" : "https://security-token-service-t4.nais.preprod.local/rest/v1/sts/jwks",
    "OIDC_OPENAM_AGENTNAME" : "fpfordel-t4",
    "OIDC_OPENAM_HOSTURL" : "https://isso-t.adeo.no:443/isso/oauth2",
-   "OPENIDCONNECT_USERNAME" : "fpfordel-t4",
-   "OPENIDCONNECT_ISSOHOST" : "https://isso-t.adeo.no:443/isso/oauth2",
    "PERSON_V3_URL" : "https://wasapp-t4.adeo.no/tpsws/ws/Person/v3",
    "SAK_V1_URL":"https://wasapp-t4.adeo.no/nav-gsak-ws/SakV1",
    "SECURITYTOKENSERVICE_URL" : "https://sts-t4.test.local/SecurityTokenServiceProvider/",
