@@ -19,5 +19,5 @@ jobs:
             deployment-cli deploy create --cluster=dev-fss --repository=${GITHUB_REPOSITORY} --team=teamforeldrepenger -r=naiserator.yaml --var version=${VERSION} --vars=dev-fss-{MILJO}.json
           fi
         env:
-          DEPLOYMENT_PASSWORD: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-
+          DEPLOYMENT_USERNAME: x-access-token
+          DEPLOYMENT_PASSWORD: ${{ secrets.GHA }}
