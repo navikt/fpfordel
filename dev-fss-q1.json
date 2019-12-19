@@ -26,7 +26,7 @@
    "INFOTRYGDSAK_V1_URL" : "https://modapp-q1.adeo.no/infotrygd-ws/InfotrygdSak/v1",
    "INNGAAENDEJOURNAL_V1_URL" : "https://dokarkiv-q1.nais.preprod.local/services/inngaaendejournal/v1",
    "JOURNAL_V2_URL" : "https://wasapp.adeo.no/joark/Journal/v2",
-   "LOADBALANCER_FQDN" : "https://fpfordel-q1.nais.preprod.local",
+   "LOADBALANCER_FQDN" : "fpfordel-q1.nais.preprod.local",
    "MOTTAINNGAAENDEFORSENDELSE_URL" : "https://dokmotinngaaende-q1.nais.preprod.local/rest/mottaInngaaendeForsendelse",
    "MOTTAK_QUEUE_QUEUENAME" : "QA.Q1_FPFORDEL.MOTTAK_QUEUE",
    "MOTTAK_QUEUE_QUEUEMANAGER" : "mq://b27apvl176.preprod.local:1413/MQ1LSC02",
