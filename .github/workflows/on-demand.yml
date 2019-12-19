@@ -7,17 +7,19 @@ jobs:
     runs-on: ubuntu-latest
     container: navikt/deployment-cli:0.4.0
     steps:
-      - uses: actions/checkout@v1
-      - name: Deploy to environment
-        shell: bash
+      - name: Bygg og last opp Docker image
         run: |
-          IFS=- read MILJO VERSION <<< $(jq -r '.action' $GITHUB_EVENT_PATH)
-          echo "Checkout version $VERSION"
-          git checkout $VERSION
-          if [[ $MILJO == "t4" || $MILJO == "q1" ]]; then
-            echo "Deploy $VERSION to $MILJO in dev-fss"
-            deployment-cli deploy create --cluster=dev-fss --repository=${GITHUB_REPOSITORY} --team=teamforeldrepenger -r=naiserator.yaml --var version=${VERSION} --vars=dev-fss-{MILJO}.json
-          fi
+          echo "$GITHUB_ACCESS_TOKEN" | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
+          docker pull docker.pkg.github.com/navikt/fpfordel/fpfordel:latest
+          echo ::set-env name=IMAGE::docker.pkg.github.com/navikt/fpfordel/fpfordel:latest
         env:
-          GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.GHA }}  
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GHA }}
+      - name: Deploy til dev-fss t4
+        uses: nais/deploy/actions/deploy@v1 
+        env:
+          DRY_RUN: false
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-fss
+          RESOURCE: naiserator.yml
+          PRINT_PAYLOAD: true
+          VARS: dev-fss-t4.json
