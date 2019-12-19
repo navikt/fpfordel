@@ -24,5 +24,11 @@ then
     export  SYSTEMBRUKER_PASSWORD=$(cat /var/run/secrets/nais.io/srvfpfordel/password)
     echo "Setting SYSTEMBRUKER_PASSWORD"
 fi
+
+if test -f /var/run/secrets/nais.io/srvfpfordel/username;
+then
+    export  SYSTEMBRUKER_USERNAME=$(cat /var/run/secrets/nais.io/srvfpfordel/username)
+    echo "Setting SYSTEMBRUKER_USERNAME"
+fi
 echo "INIT SCRIPT DONE"
 /var/run/secrets/nais.io/srvfpfordel

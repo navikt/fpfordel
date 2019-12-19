@@ -45,7 +45,6 @@
    "OIDC_OPENAM_HOSTURL" : "https://isso-t.adeo.no:443/isso/oauth2",
    "PERSON_V3_URL" : "https://wasapp-t4.adeo.no/tpsws/ws/Person/v3",
    "SAK_V1_URL":"https://wasapp-t4.adeo.no/nav-gsak-ws/SakV1",
-   "SECURITYTOKENSERVICE_URL" : "https://sts-t4.test.local/SecurityTokenServiceProvider/",
-   "SYSTEMBRUKER_USERNAME" : "srvfpfordel"
+   "SECURITYTOKENSERVICE_URL" : "https://sts-t4.test.local/SecurityTokenServiceProvider/"
   }
 }
