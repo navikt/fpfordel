@@ -45,7 +45,7 @@ spec:
     - kvPath: {{oraclecredskv}}
       mountPath: /var/run/secrets/nais.io/defaultDS
     - kvPath: {{oracleconfigkv}}
-      mountPath: /var/run/secrets/nais.io/defaultDS   
+      mountPath: /var/run/secrets/nais.io/defaultDSconfig   
     - kvPath: {{serviceuserkv}}
       mountPath: /var/run/secrets/nais.io/srvfpfordel
     - kvPath: /kv/{{cluster}}/fss/fpfordel/{{namespace}}
