@@ -16,7 +16,6 @@
    "ARBEIDSFORDELING_V1_URL":"https://app-q1.adeo.no/norg2/ws/Arbeidsfordeling/v1",
    "BEHANDLEINNGAAENDEJOURNAL_V1_URL" : "https://dokarkiv-q1.nais.preprod.local/services/behandleinngaaendejournal/v1",
    "BEHANDLEOPPGAVE_V1_URL":"https://wasapp-q1.adeo.no/nav-gsak-ws/BehandleOppgaveV1",
-   "DEFAULTDS_URL" : "jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=a01dbfl033.adeo.no)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=FPFORDELQ1)(INSTANCE_NAME=ccqf01)(UR=A)(SERVER=DEDICATED)))",
    "FPFORDEL_CHANNEL_QUEUEMANAGER":"mq://b27apvl176.preprod.local:1413/MQ1LSC02",
    "FPSAK_JOURNALPOSTKNYTTNING_URL":"https://fpsak-q1.nais.preprod.local/fpsak/api/fordel/fagsak/knyttJournalpost",
    "FPSAK_MOTTAJOURNALPOST_URL":"https://fpsak-q1.nais.preprod.local/fpsak/api/fordel/journalpost",
