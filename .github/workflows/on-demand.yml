@@ -1,5 +1,7 @@
 name: Deploy
 on: repository_dispatch
+  branches:
+      - gha 
 
 jobs:
   deploy:
