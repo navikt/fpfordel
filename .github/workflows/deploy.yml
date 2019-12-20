@@ -55,7 +55,7 @@ jobs:
           echo ::set-env name=IMAGE::$(cat .docker_image):$(cat .docker_tag)
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.GHA }}
-      - name: Deploy til dev-fss q1
+      - name: Deploy til dev-fss t4
         uses: nais/deploy/actions/deploy@v1 
         env:
           DRY_RUN: false
@@ -63,4 +63,4 @@ jobs:
           CLUSTER: dev-fss
           RESOURCE: naiserator.yml
           PRINT_PAYLOAD: true
-          VARS: dev-fss-q1.json
+          VARS: dev-fss-t4.json
