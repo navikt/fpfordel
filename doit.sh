@@ -1,1 +1,0 @@
-curl -v  "https://api.github.com/repos/navikt/fpfordel/dispatches" -H "Accept: application/vnd.github.everest-preview+json" -H "Authorization: token 972a5a941106737552693eb117ed22200fb61bab" -H "Content-Type: application/json" --data '{"event_type": "t4-latest"}'
