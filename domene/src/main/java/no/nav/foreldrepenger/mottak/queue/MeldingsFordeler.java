@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.mottak.queue;
 
-import no.nav.melding.virksomhet.dokumentnotifikasjon.v1.Forsendelsesinformasjon;
+import no.nav.melding.virksomhet.dokumentnotifikasjon.v1.XMLForsendelsesinformasjon;
 
 public interface MeldingsFordeler {
 
-    void execute(Forsendelsesinformasjon forsendelsesinfo);
+    void execute(XMLForsendelsesinformasjon forsendelsesinfo);
 }

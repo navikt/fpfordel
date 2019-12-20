@@ -7,7 +7,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.task.joark.HentDataFraJoarkTask;
-import no.nav.melding.virksomhet.dokumentnotifikasjon.v1.Forsendelsesinformasjon;
+import no.nav.melding.virksomhet.dokumentnotifikasjon.v1.XMLForsendelsesinformasjon;
 import no.nav.vedtak.felles.AktiverContextOgTransaksjon;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -28,7 +28,7 @@ public class ProsesstaskMeldingsfordeler implements MeldingsFordeler {
     }
 
     @Override
-    public void execute(Forsendelsesinformasjon forsendelsesinfo) {
+    public void execute(XMLForsendelsesinformasjon forsendelsesinfo) {
         final String arkivId = forsendelsesinfo.getArkivId();
         final BehandlingTema behandlingTema;
         if (forsendelsesinfo.getBehandlingstema() != null) {

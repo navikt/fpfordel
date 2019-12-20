@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import javax.ws.rs.core.MediaType;
@@ -41,6 +42,9 @@ import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 
 @SuppressWarnings("resource")
 public class DokumentforsendelseRestTjenesteTest {
+    static {
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
+    }
 
 
     private DokumentforsendelseTjeneste dokumentTjenesteMock;
@@ -57,8 +61,7 @@ public class DokumentforsendelseRestTjenesteTest {
         when(dokumentTjenesteMock.finnStatusinformasjon(any(UUID.class))).thenReturn(new ForsendelseStatusDto(ForsendelseStatus.PENDING));
         tjeneste = new DokumentforsendelseRestTjeneste(dokumentTjenesteMock, null);
 
-
-        //default mocking
+        // default mocking
         input = mock(MultipartInput.class);
         metadataPart = mockMetadataPart();
         hoveddokumentPart = mockHoveddokumentPartXml();
@@ -70,7 +73,6 @@ public class DokumentforsendelseRestTjenesteTest {
         when(input.getParts()).thenReturn(inputParts);
     }
 
-
     @Test
     public void input_skal_kaste_exception_når_inputpart_ikke_har_minst_2_parts() {
         when(input.getParts()).thenReturn(new ArrayList<>());
@@ -79,7 +81,6 @@ public class DokumentforsendelseRestTjenesteTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Må ha minst to deler,fikk 0");
     }
-
 
     @Test
     public void skal_kaste_teknisk_exception_hvis_metadata_ikke_er_første_part() {
@@ -125,7 +126,8 @@ public class DokumentforsendelseRestTjenesteTest {
     public void skal_kaste_teknisk_exception_hvis_metadata_har_færre_filer_enn_lastet_opp() throws Exception {
         List<InputPart> inputParts = new ArrayList<>();
         String contentId = "<some ID 4>";
-        Collections.addAll(inputParts, metadataPart, hoveddokumentPart, hoveddokumentPartPdf, vedleggPart, mockVedleggPart(contentId));
+        Collections.addAll(inputParts, metadataPart, hoveddokumentPart, hoveddokumentPartPdf, vedleggPart,
+                mockVedleggPart(contentId));
         when(input.getParts()).thenReturn(inputParts);
 
         assertThatThrownBy(() -> tjeneste.uploadFile(input))
@@ -145,7 +147,6 @@ public class DokumentforsendelseRestTjenesteTest {
                 .hasMessageContaining("FP-892457:Unknown part name");
     }
 
-
     @Test
     public void skal_kaste_teknisk_exception_hvis_vedlegg_ikke_er_mediatype_pdf() throws Exception {
         when(vedleggPart.getMediaType()).thenReturn(MediaType.APPLICATION_XML_TYPE);
@@ -159,7 +160,8 @@ public class DokumentforsendelseRestTjenesteTest {
     public void skal_lagre_dokumentene() throws IOException, Exception {
         Response response = tjeneste.uploadFile(input);
         assertThat(response.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
-        assertThat(response.getHeaderString(HttpHeaders.LOCATION)).isEqualTo("/dokumentforsendelse/status?forsendelseId=48f6e1cf-c5d8-4355-8e8c-b75494703959");
+        assertThat(response.getHeaderString(HttpHeaders.LOCATION))
+                .isEqualTo("/dokumentforsendelse/status?forsendelseId=48f6e1cf-c5d8-4355-8e8c-b75494703959");
     }
 
     @Test
@@ -227,7 +229,8 @@ public class DokumentforsendelseRestTjenesteTest {
     private InputPart mockBasicInputPart(Optional<String> contentId, String contentDispositionName) {
         InputPart part = mock(InputPart.class);
         MultivaluedMap<String, String> map = new MultivaluedMapImpl<>();
-        map.put("Content-Disposition", Arrays.asList("attachment; name=\"" + contentDispositionName + "\"; filename=\"" + "Farskap\""));
+        map.put("Content-Disposition",
+                Arrays.asList("attachment; name=\"" + contentDispositionName + "\"; filename=\"" + "Farskap\""));
         contentId.ifPresent(id -> map.put("Content-ID", Arrays.asList(id)));
         when(part.getHeaders()).thenReturn(map);
         return part;
@@ -270,4 +273,3 @@ public class DokumentforsendelseRestTjenesteTest {
     }
 
 }
-

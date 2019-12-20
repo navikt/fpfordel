@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.TimeZone;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -39,13 +40,16 @@ import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
 import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.TilJournalføringTjeneste;
-import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.binding.OppdaterOgFerdigstillJournalfoeringUgyldigInput;
+import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.OppdaterOgFerdigstillJournalfoeringUgyldigInput;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.meldinger.OppdaterOgFerdigstillJournalfoeringRequest;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
 
-
 public class BehandleDokumentServiceTest {
+
+    static {
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
+    }
 
     private BehandleDokumentService behandleDokumentService;
 
@@ -92,10 +96,12 @@ public class BehandleDokumentServiceTest {
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
 
         hentDataFraJoarkTjenesteMock = mock(HentDataFraJoarkTjeneste.class);
-        when(hentDataFraJoarkTjenesteMock.hentHoveddokumentMetadata(JOURNALPOST_ID)).thenReturn(Optional.of(journalMetadata));
+        when(hentDataFraJoarkTjenesteMock.hentHoveddokumentMetadata(JOURNALPOST_ID))
+                .thenReturn(Optional.of(journalMetadata));
 
         JournalDokument<?> journalDokument = mock(JournalDokument.class);
-        when(hentDataFraJoarkTjenesteMock.hentStrukturertJournalDokument(any(JournalMetadata.class))).thenReturn(Optional.of(journalDokument));
+        when(hentDataFraJoarkTjenesteMock.hentStrukturertJournalDokument(any(JournalMetadata.class)))
+                .thenReturn(Optional.of(journalDokument));
 
         tilJournalføringTjenesteMock = mock(TilJournalføringTjeneste.class);
         klargjørForVLTjenesteMock = mock(KlargjørForVLTjeneste.class);
@@ -173,17 +179,21 @@ public class BehandleDokumentServiceTest {
     @Test
     public void skalKjøreHeltIgjennomNaarJournaltilstandIkkeErEndelig() throws Exception {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
-        when(tilJournalføringTjenesteMock.tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID, navnDokumentTypeId)).thenReturn(true);
+        when(tilJournalføringTjenesteMock.tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
+                navnDokumentTypeId)).thenReturn(true);
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID, navnDokumentTypeId);
-        verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(), eq(engangsstønadFødsel), any(), any(), any());
+        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
+                navnDokumentTypeId);
+        verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+                eq(engangsstønadFødsel), any(), any(), any());
     }
 
     @Test(expected = OppdaterOgFerdigstillJournalfoeringUgyldigInput.class)
     public void skalGiUnntakNårDetFinnesManglerSomIkkeKanRettes() throws Exception {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
-        when(tilJournalføringTjenesteMock.tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID, navnDokumentTypeId)).thenReturn(false);
+        when(tilJournalføringTjenesteMock.tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
+                navnDokumentTypeId)).thenReturn(false);
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
     }
 
@@ -194,7 +204,8 @@ public class BehandleDokumentServiceTest {
         DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
-                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepengerFødsel.getOffisiellKode(), false)));
+                .thenReturn(
+                        Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepengerFødsel.getOffisiellKode(), false)));
 
         JournalMetadata<DokumentTypeId> dokument = lagJournalMetadata(DokumentTypeId.INNTEKTSMELDING);
         String xml = readFile("testdata/inntektsmelding-foreldrepenger.xml");
@@ -215,7 +226,8 @@ public class BehandleDokumentServiceTest {
         DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
-                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepengerFødsel.getOffisiellKode(), false)));
+                .thenReturn(
+                        Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepengerFødsel.getOffisiellKode(), false)));
 
         JournalMetadata<DokumentTypeId> dokument = lagJournalMetadata(DokumentTypeId.INNTEKTSMELDING);
         String xml = readFile("testdata/inntektsmelding-svangerskapspenger.xml");
@@ -343,10 +355,12 @@ public class BehandleDokumentServiceTest {
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
         verify(tilJournalføringTjenesteMock, never()).tilJournalføring(any(), any(), any(), any(), any());
-        verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(), eq(engangsstønadFødsel), any(), any(), any());
+        verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+                eq(engangsstønadFødsel), any(), any(), any());
     }
 
-    private OppdaterOgFerdigstillJournalfoeringRequest lagRequest(String enhetid, String journalpostId, String sakId) {
+    private OppdaterOgFerdigstillJournalfoeringRequest lagRequest(String enhetid, String journalpostId,
+            String sakId) {
         OppdaterOgFerdigstillJournalfoeringRequest request = new OppdaterOgFerdigstillJournalfoeringRequest();
         request.setEnhetId(enhetid);
         request.setJournalpostId(journalpostId);

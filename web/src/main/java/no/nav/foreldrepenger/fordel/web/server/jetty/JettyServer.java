@@ -63,6 +63,7 @@ public class JettyServer extends AbstractJettyServer {
         temporært();
     }
 
+    // TODO fjern, settes direkte i naiserator
     private void loadBalancerFqdnTilLoadBalancerUrl() {
         String fqdn = System.getenv("LOADBALANCER_FQDN");
         if (fqdn != null) {
@@ -72,6 +73,7 @@ public class JettyServer extends AbstractJettyServer {
         }
     }
 
+// TODO Fjern, slår aldri til
     private void wsMedLTPAmåIgjennomServiceGateway() {
         String url = System.getenv("SERVICEGATEWAY_URL");
         if (url != null) {
@@ -83,6 +85,7 @@ public class JettyServer extends AbstractJettyServer {
     private void temporært() {
         // FIXME : PFP-1176 Skriv om i OpenAmIssoHealthCheck og
         // AuthorizationRequestBuilder når Jboss dør
+        // TODO fjern
         String url = System.getenv("OIDC_OPENAM_HOSTURL");
         if (url != null) {
             LOG.info("Setter oidc host url fra {}", url);
@@ -90,6 +93,7 @@ public class JettyServer extends AbstractJettyServer {
         }
         // FIXME : PFP-1176 Skriv om i AuthorizationRequestBuilder og
         // IdTokenAndRefreshTokenProvider når Jboss dør
+        // TODO fjern
         String agent = System.getenv("OIDC_OPENAM_AGENTNAME");
         if (agent != null) {
             LOG.info("Setter agent fra {}", agent);
@@ -102,6 +106,7 @@ public class JettyServer extends AbstractJettyServer {
             System.setProperty("OpenIdConnect.password", pw);
         }
         // FIXME : PFP-1176 Skriv om i BaseJmsKonfig når Jboss dør
+        // TODO fjern, slår aldri til
         String cn = System.getenv("FPSAK_CHANNEL_NAME");
         if (cn != null) {
             LOG.info("Setter channel fra {}", cn);

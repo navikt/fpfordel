@@ -48,7 +48,7 @@ public class ApplicationConfig extends Application {
                         .collect(Collectors.toSet()));
 
         try {
-            new GenericOpenApiContextBuilder()
+            new GenericOpenApiContextBuilder<>()
                     .openApiConfiguration(oasConfig)
                     .buildContext(true)
                     .read();

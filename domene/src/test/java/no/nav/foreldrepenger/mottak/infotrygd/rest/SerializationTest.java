@@ -12,8 +12,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,7 +23,7 @@ public class SerializationTest {
 
     private static ObjectMapper mapper;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() throws IOException {
         mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
@@ -71,7 +71,7 @@ public class SerializationTest {
     }
 
     private void testJson(String json, Class<?> clazz) throws Exception {
-        testJson(json, clazz, true);
+        testJson(json, clazz, false);
     }
 
     private void testJson(String json, Class<?> clazz, boolean log) throws Exception {
@@ -84,7 +84,7 @@ public class SerializationTest {
     }
 
     private static void test(Object object) throws IOException {
-        test(object, true);
+        test(object, false);
     }
 
     private static void test(Object object, boolean log) throws IOException {
