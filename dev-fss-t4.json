@@ -10,9 +10,6 @@
 	"env": {
 		"ABAC_PDP_ENDPOINT_URL": "https://wasapp-t4.adeo.no/asm-pdp/authorize",
 		"AKTOER_V2_URL": "https://app-t4.adeo.no/aktoerregister/ws/Aktoer/v2",
-		"APPDYNAMICS_CONTROLLER_HOST_NAME": "appdynamics.adeo.no",
-		"APPDYNAMICS_CONTROLLER_PORT": "443",
-		"APPDYNAMICS_CONTROLLER_SSL_ENABLED": "true",
 		"APPDYNAMICS_AGENT_ACCOUNT_NAME": "NON-PROD",
 		"ARBEIDSFORDELING_V1_URL": "https://norg2-t4.nais.preprod.local/norg2/ws/Arbeidsfordeling/v1",
 		"BEHANDLEINNGAAENDEJOURNAL_V1_URL": "https://dokarkiv-t4.nais.preprod.local/services/behandleinngaaendejournal/v1",

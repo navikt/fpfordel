@@ -9,9 +9,6 @@
 	"env": {
 		"ABAC_PDP_ENDPOINT_URL": "https://wasapp.adeo.no/asm-pdp/authorize",
 		"AKTOER_V2_URL": "https://app.adeo.no/aktoerregister/ws/Aktoer/v2",
-		"APPDYNAMICS_CONTROLLER_HOST_NAME": "appdynamics.adeo.no",
-		"APPDYNAMICS_CONTROLLER_PORT": "443",
-		"APPDYNAMICS_CONTROLLER_SSL_ENABLED": "true",
 		"APPDYNAMICS_AGENT_ACCOUNT_NAME": "PROD",
 		"ARBEIDSFORDELING_V1_URL": "https://app.adeo.no/norg2/ws/Arbeidsfordeling/v1",
 		"BEHANDLEINNGAAENDEJOURNAL_V1_URL": "https://dokarkiv.nais.adeo.no/services/behandleinngaaendejournal/v1",
