@@ -3,7 +3,7 @@ name: Build, push, and deploy
 on:
   push:
     branches:
-      - gha 
+      - master 
 env:
   DOCKER_IMAGE: docker.pkg.github.com/${{ github.repository }}/fpfordel
          
