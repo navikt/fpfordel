@@ -43,7 +43,7 @@ jobs:
           docker cp initdb.sql `docker ps | tail -1 | awk  '{ print $1}'`:/initdb.sql
           docker exec -e ORACLE_SID=XE -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe `docker ps | tail -1 | awk  '{ print $1}'` /u01/app/oracle/product/11.2.0/xe/bin/sqlplus system/oracle @initdb.sql
    
-      - name: Bygg, tag og push
+      - name: Kompiler
         run: |
           echo "::set-env name=IMAGE::$IMAGE_BASE:$TAG" 
           mvn --quiet clean install --batch-mode --settings .github/workflows/.m2/settings.xml -Dchangelist= -Dsha1=-$TAG
@@ -67,3 +67,17 @@ jobs:
           RESOURCE: naiserator.yml
           PRINT_PAYLOAD: true
           VARS: dev-fss-t4.json
+          
+      - name: Informer om deployment i issue som kan kommenteres for å promotere til andre miljøer
+        if: success()
+        run: |
+         echo "Lager  issue for $TAG"
+             curl -X POST \
+            --url  https://api.github.com/repos/${{ github.repository }}/issues \
+            --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            --header "content-type: application/json" \
+            --data '{
+              "labels": ["deployment"],
+              "title": "Deployment av ${{env.TAG}} til dev-fss var OK",
+              "body":  "Kommenter med <b>/promote ${{env.TAG}} env namespace</b>, hvor <b>env</b> er et gyldig clusternavn. Kommenter med <b>/prod</b> for å deploye direkte til prod"
+            }'     
