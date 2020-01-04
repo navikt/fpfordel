@@ -49,6 +49,6 @@ jobs:
           repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
           comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
           body: |
-            >promote ${{ env.IMAGE }} til ${{ env.CLUSTER }}-${{ env.NAMESPACE }}var OK 
+            >promote ${{ env.IMAGE }} til ${{ env.CLUSTER }}-${{ env.NAMESPACE }} var OK 
           reaction-type: rocket
                   
