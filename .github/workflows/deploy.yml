@@ -5,27 +5,35 @@ on:
     branches:
       - master 
 env:
-  DOCKER_IMAGE: docker.pkg.github.com/${{ github.repository }}/fpfordel
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  IMAGE_BASE: docker.pkg.github.com/${{ github.repository }}/fpfordel
          
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+    
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
+     
       - uses: actions/setup-java@v1
         with:
           java-version: 1.11
+          
+      - name: Hent tag    
+        run: echo "::set-env name=TAG::$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7)"  
+           
       - name: Hent Oracle image
         shell: bash
         run: |
           echo "Starter Oracle image"
           docker run -d -p 1521:1521 --name oracle-xe -e ORACLE_DISABLE_ASYNCH_IO=true wnameless/oracle-xe-11g-r2
+     
       - name: Vent 60 sekunder på Oracle oppstart
         shell: bash
         run: |
@@ -37,25 +45,20 @@ jobs:
    
       - name: Bygg, tag og push
         run: |
-          echo "$Bygger artifakt $(echo $GITHUB_SHA | cut -c1-7)"
-          mvn --quiet clean install --batch-mode --settings .github/workflows/.m2/settings.xml -Dchangelist= -Dsha1=-$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7) 
+          echo "::set-env name=IMAGE::$IMAGE_BASE:$TAG" 
+          mvn --quiet clean install --batch-mode --settings .github/workflows/.m2/settings.xml -Dchangelist= -Dsha1=-$TAG
           echo "Bygget artifakt"
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_PASSWORD: ${{ secrets.GHA }}  
-      - name: Bygg og last opp Docker image
+     
+     - name: Bygg, tag og push Docker image  
         run: |
-          echo "$GITHUB_ACCESS_TOKEN" | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
-          echo $DOCKER_IMAGE > .docker_image
-          echo "$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7)" > .docker_tag
-          docker build . --pull -t $(cat .docker_image):$(cat .docker_tag)
-          docker push $(cat .docker_image):$(cat .docker_tag)
-          docker tag $(cat .docker_image):$(cat .docker_tag) $(cat .docker_image):latest
-          docker push $(cat .docker_image):latest
-          echo ::set-env name=IMAGE::$(cat .docker_image):$(cat .docker_tag)
-        env:
-          GITHUB_ACCESS_TOKEN: ${{ secrets.GHA }}
-      - name: Deploy til dev-fss t4
+          docker build --tag ${IMAGE} --tag ${IMAGE_BASE}:latest .
+          echo  ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
+          docker push ${IMAGE_BASE}   
+    
+     - name: Deploy til dev-fss t4
         uses: nais/deploy/actions/deploy@v1 
         env:
           DRY_RUN: false
