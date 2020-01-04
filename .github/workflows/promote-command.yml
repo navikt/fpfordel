@@ -34,7 +34,7 @@ jobs:
         if: failure()
         uses: peter-evans/create-or-update-comment@v1
         with:
-          token: ${{ secrets.NOTIFICATION }}
+          token: ${{ secrets.GHA }}
           repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
           comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
           body: |
