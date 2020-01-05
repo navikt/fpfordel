@@ -372,8 +372,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     private HentOgVurderInfotrygdSakTask task() {
         return new HentOgVurderInfotrygdSakTask(prosessTaskRepository,
                 new RelevantSakSjekker(svp, fp, gsak),
-                aktør
-        );
+                aktør);
     }
 
     private static List<GsakSak> gsaker(String fnr) {
@@ -421,7 +420,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     private void expect(String aktørId, String fnr) {
-        when(aktør.hentPersonIdentForAktørId(eq(aktørId))).thenReturn(Optional.of(fnr));
+        lenient().when(aktør.hentPersonIdentForAktørId(eq(aktørId))).thenReturn(Optional.of(fnr));
     }
 
 }

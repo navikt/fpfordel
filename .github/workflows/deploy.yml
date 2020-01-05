@@ -81,6 +81,6 @@ jobs:
             --header "content-type: application/json" \
             --data '{
               "labels": ["deployment"],
-              "title": "Deployment av $TAG til ${{env.CLUSTER}}-${{env.NAMESPACE}} var OK",
-              "body":  "Kommenter med <b>/promote ${{env.TAG}} env namespace</b>, hvor <b>env</b> er et gyldig clusternavn og <b>namespace</b> et eksisterende namespace i det clusteret. Kommenter med <b>/prod</b> for å deploye trunk fra master til prod"
+              "title": "Deployment av $TAG til $CLUSTER-$NAMESPACE var OK",
+              "body":  "Kommenter med <b>/promote $TAG env namespace</b>, hvor <b>env</b> er et gyldig clusternavn og <b>namespace</b> et eksisterende namespace i det clusteret. Kommenter med <b>/prod</b> for å deploye trunk fra master til prod"
             }'     
