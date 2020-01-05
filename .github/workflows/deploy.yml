@@ -60,9 +60,9 @@ jobs:
      
       - name: Bygg, tag og push Docker image  
         run: |
-          docker build --tag ${IMAGE} --tag ${IMAGE_BASE}:latest .
-          echo  ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
-          docker push ${IMAGE_BASE}   
+          docker build --tag $IMAGE --tag $IMAGE_BASE:latest .
+          echo  $GITHUB_TOKEN | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
+          docker push $IMAGE_BASE   
     
       - name: Deploy til cluster/namespace
         uses: nais/deploy/actions/deploy@v1 
