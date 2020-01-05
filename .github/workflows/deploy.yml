@@ -5,6 +5,7 @@ on:
     branches:
       - master 
 env:
+  INIT: initdb.sql
   ORACLE_IMAGE: wnameless/oracle-xe-11g-r2
   APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
   ORACLE_SID: XE
@@ -33,22 +34,20 @@ jobs:
       - name: Hent tag    
         run: echo "::set-env name=TAG::$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7)"  
            
-      - name: Hent Oracle image
+      - name: Hent og start Oracle image
         id: oracle
         shell: bash
         run: |
-          echo "Starter Oracle image"
-          echo "##[set-output name=pod;]$(docker run -d -p 1521:1521 --name oracle-xe -e ORACLE_DISABLE_ASYNCH_IO=true $ORACLE_IMAGE)"
-          echo "##[set-output name=pod1;]$(docker ps | tail -1 | awk  '{ print $1}')"
-     
+          echo "Henter og starter Oracle image $ORACLE_IMAGE"
+          echo "##[set-output name=pod;]$(docker run -d -p 1521:1521 --name oracle-xe -e ORACLE_DISABLE_ASYNCH_IO=true $ORACLE_IMAGE)"     
+    
       - name: Vent 60 sekunder på Oracle oppstart
         shell: bash
         run: |
           echo "Venter på oppstart av Oracle pod ${{ steps.oracle.outputs.pod }}"
-          docker ps
           sleep 60 
-          docker cp initdb.sql ${{ steps.oracle.outputs.pod }}:/initdb.sql
-          docker exec -e ORACLE_SID=$ORACLE_SID -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=$ORACLE_HOME ${{ steps.oracle.outputs.pod }} $ORACLE_HOME/bin/sqlplus system/oracle @initdb.sql
+          docker cp $INIT ${{ steps.oracle.outputs.pod }}:/$INIT
+          docker exec -e ORACLE_SID=$ORACLE_SID -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=$ORACLE_HOME ${{ steps.oracle.outputs.pod }} $ORACLE_HOME/bin/sqlplus system/oracle @$INIT
    
       - name: Kompiler
         run: |
@@ -77,7 +76,7 @@ jobs:
       - name: Informer om deployment i issue som kan kommenteres for å promotere til andre miljøer
         if: success()
         run: |
-         echo "Lager  issue for $TAG"
+         echo "Lager  issue for deployment $TAG"
              curl -X POST \
             --url  https://api.github.com/repos/${{ github.repository }}/issues \
             --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
