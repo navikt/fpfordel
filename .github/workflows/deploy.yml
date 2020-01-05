@@ -80,7 +80,7 @@ jobs:
             --header "authorization: Bearer $GITHUB_TOKEN" \
             --header "content-type: application/json" \
             --data '{
-              "labels": ["deployment",${{env.CLUSTER}},${{env.NAMESPACE}}],
+              "labels": ["deployment","dev-fss"],
               "title": "Deployment av ${{env.TAG}} til ${{env.CLUSTER}}-${{env.NAMESPACE}} var OK",
               "body":  "Kommenter med <b>/promote ${{env.TAG}} env namespace</b>, hvor <b>env</b> er et gyldig clusternavn og <b>namespace</b> et eksisterende namespace i det clusteret. Kommenter med <b>/prod</b> for å deploye trunk fra master til prod"
             }'     
