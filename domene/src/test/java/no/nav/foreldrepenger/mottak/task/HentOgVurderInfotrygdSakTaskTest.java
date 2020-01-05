@@ -416,7 +416,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     private void expectGsaker(String fnr, List<GsakSak> gsaker) {
-        when(gsak.finnSaker(fnr)).thenReturn(gsaker);
+        lenient().when(gsak.finnSaker(fnr)).thenReturn(gsaker);
     }
 
     private void expect(String aktørId, String fnr) {

@@ -71,16 +71,16 @@ jobs:
           PRINT_PAYLOAD: true
           VARS: ${{ env.CLUSTER }}-${{ env.NAMESPACE }}.json
           
-      - name: Informer om deployment i issue som kan kommenteres for å promotere til andre miljøer
+      - name: Informer om deployment
         if: success()
         run: |
-         echo "Lager  issue for deployment $TAG"
+         echo "Informerer om deployment av $TAG"
              curl -X POST \
             --url  https://api.github.com/repos/${{ github.repository }}/issues \
             --header "authorization: Bearer $GITHUB_TOKEN" \
             --header "content-type: application/json" \
             --data '{
               "labels": ["deployment"],
-              "title": "Deployment av $TAG til $CLUSTER-$NAMESPACE var OK",
-              "body":  "Kommenter med <b>/promote $TAG env namespace</b>, hvor <b>env</b> er et gyldig clusternavn og <b>namespace</b> et eksisterende namespace i det clusteret. Kommenter med <b>/prod</b> for å deploye trunk fra master til prod"
+              "title": "Deployment av ${{env.TAG}} til ${{env.CLUSTER}}-${{env.NAMESPACE}} var OK",
+              "body":  "Kommenter med <b>/promote ${{env.TAG}} env namespace</b>, hvor <b>env</b> er et gyldig clusternavn og <b>namespace</b> et eksisterende namespace i det clusteret. Kommenter med <b>/prod</b> for å deploye trunk fra master til prod"
             }'     
