@@ -46,8 +46,8 @@ jobs:
           echo "Venter på oppstart av Oracle pod ${{ steps.oracle.outputs.pod }}"
           docker ps
           sleep 60 
-          docker cp initdb.sql ${{ steps.oracle.outputs.pod }:/initdb.sql
-          docker exec -e ORACLE_SID=$ORACLE_SID -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=$ORACLE_HOME ${{ steps.oracle.outputs.pod } $ORACLE_HOME/bin/sqlplus system/oracle @initdb.sql
+          docker cp initdb.sql ${{ steps.oracle.outputs.pod }}:/initdb.sql
+          docker exec -e ORACLE_SID=$ORACLE_SID -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=$ORACLE_HOME ${{ steps.oracle.outputs.pod }} $ORACLE_HOME/bin/sqlplus system/oracle @initdb.sql
    
       - name: Kompiler
         run: |
