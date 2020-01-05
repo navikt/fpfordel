@@ -5,6 +5,7 @@ on:
     branches:
       - master 
 env:
+  APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
   ORACLE_INIT: initdb.sql
   ORACLE_ARGS:  -d -p 1521:1521 --name oracle-xe -e ORACLE_DISABLE_ASYNCH_IO=true
   ORACLE_IMAGE: wnameless/oracle-xe-11g-r2
@@ -66,7 +67,6 @@ jobs:
       - name: Deploy til cluster/namespace
         uses: nais/deploy/actions/deploy@v1 
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           RESOURCE: naiserator.yaml
           PRINT_PAYLOAD: true
           VARS: ${{ env.CLUSTER }}-${{ env.NAMESPACE }}.json
@@ -81,6 +81,6 @@ jobs:
             --header "content-type: application/json" \
             --data '{
               "labels": ["deployment"],
-              "title": "Deployment av ${{env.TAG}} til ${{env.CLUSTER}}-${{env.NAMESPACE}} var OK",
+              "title": "Deployment av $TAG til ${{env.CLUSTER}}-${{env.NAMESPACE}} var OK",
               "body":  "Kommenter med <b>/promote ${{env.TAG}} env namespace</b>, hvor <b>env</b> er et gyldig clusternavn og <b>namespace</b> et eksisterende namespace i det clusteret. Kommenter med <b>/prod</b> for å deploye trunk fra master til prod"
             }'     
