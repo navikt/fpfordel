@@ -5,7 +5,9 @@ on:
     branches:
       - master 
 env:
+  APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
   ORACLE_SID: XE
+  ORACLE_HOME: /u01/app/oracle/product/11.2.0/xe
   CLUSTER: dev-fss
   NAMESPACE: t4
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -43,7 +45,7 @@ jobs:
           docker ps
           sleep 60 
           docker cp initdb.sql `docker ps | tail -1 | awk  '{ print $1}'`:/initdb.sql
-          docker exec -e ORACLE_SID=$ORACLE_SID -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe `docker ps | tail -1 | awk  '{ print $1}'` /u01/app/oracle/product/11.2.0/xe/bin/sqlplus system/oracle @initdb.sql
+          docker exec -e ORACLE_SID=$ORACLE_SID -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=$ORACLE_HOME `docker ps | tail -1 | awk  '{ print $1}'` $ORACLE_HOME/bin/sqlplus system/oracle @initdb.sql
    
       - name: Kompiler
         run: |
@@ -59,15 +61,15 @@ jobs:
           echo  ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
           docker push ${IMAGE_BASE}   
     
-      - name: Deploy til dev-fss t4
+      - name: Deploy til cluster/namespace
         uses: nais/deploy/actions/deploy@v1 
         env:
           DRY_RUN: false
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: dev-fss
+          CLUSTER: ${{ env.CLUSTER }}
           RESOURCE: naiserator.yaml
           PRINT_PAYLOAD: true
-          VARS: dev-fss-t4.json
+          VARS: ${{ env.CLUSTER }}-${{ env.NAMESPACE }}.json
           
       - name: Informer om deployment i issue som kan kommenteres for å promotere til andre miljøer
         if: success()
