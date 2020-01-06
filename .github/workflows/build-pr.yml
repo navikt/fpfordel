@@ -1,20 +1,14 @@
 name: Build, push, and deploy
 
-on:
-  push:
-    branches:
-      - master 
+on: [pull_request]
+
 env:
-  APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
   ORACLE_INIT: initdb.sql
   ORACLE_ARGS:  -d -p 1521:1521 --name oracle-xe -e ORACLE_DISABLE_ASYNCH_IO=true
   ORACLE_IMAGE: wnameless/oracle-xe-11g-r2
   ORACLE_SID: XE
   ORACLE_HOME: /u01/app/oracle/product/11.2.0/xe
-  CLUSTER: dev-fss
-  NAMESPACE: t4
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  IMAGE_BASE: docker.pkg.github.com/${{ github.repository }}/fpfordel
          
 jobs:
   build:
@@ -35,10 +29,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.11
-          
-      - name: Hent tag    
-        run: echo "::set-env name=TAG::$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7)"  
-           
+              
       - name: Hent og start Oracle image
         id: oracle
         shell: bash
@@ -55,9 +46,7 @@ jobs:
           docker exec -e ORACLE_SID=$ORACLE_SID -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=$ORACLE_HOME ${{ steps.oracle.outputs.pod }} sqlplus system/oracle @$ORACLE_INIT
    
       - name: Kompiler
-        run: |
-          echo "::set-env name=IMAGE::$IMAGE_BASE:$TAG" 
-          mvn --quiet clean install --batch-mode --settings .github/workflows/.m2/settings.xml -Dchangelist= -Dsha1=-$TAG
+        run: mvn --quiet clean install --batch-mode --settings .github/workflows/.m2/settings.xml -Dchangelist= -Dsha1=-$TAG
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_PASSWORD: ${{ secrets.GHA }}  
