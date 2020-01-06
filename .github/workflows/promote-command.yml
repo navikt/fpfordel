@@ -42,7 +42,20 @@ jobs:
           comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
           body: |
             >promote ${{ env.IMAGE }} til ${{ env.CLUSTER }}-${{ env.NAMESPACE }} feilet
-          reaction-type: -1          
+          reaction-type: -1   
+          
+      - name: Hent andre issues med samme labels
+        if: success()
+        run: |
+         echo "Henter gamle issues"
+             curl -X GET \
+            --url  https://api.github.com/repos/${{ github.repository }}/issues \
+            --header "authorization: Bearer $GITHUB_TOKEN" \
+            --header "content-type: application/json" \
+            --data '{
+              "state": "open",
+              "labels": ["deployment","dev-fss","t4"]
+            }'                
  
       - name: Oppdater kommentar med deployment status
         if: success()
