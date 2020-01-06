@@ -59,7 +59,7 @@ class JournalTjenesteUtil {
     }
 
     DokumentInfoHoveddokument konverterTilDokumentInfoHoveddokument(List<Dokument> hoveddokument) {
-        DokumentInfoHoveddokument info = new DokumentInfoHoveddokument();
+        var info = new DokumentInfoHoveddokument();
         if (!hoveddokument.isEmpty()) {
             List<DokumentVariant> dokVariant = new ArrayList<>();
             for (Dokument dok : hoveddokument) {

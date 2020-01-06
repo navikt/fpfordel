@@ -33,10 +33,6 @@ public class JournalMetadata {
     private String kanalReferanseId;
     private String journalEnhet;
 
-    private JournalMetadata() {
-        // skjult
-    }
-
     public static Builder builder() {
         return new Builder();
     }

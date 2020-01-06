@@ -69,11 +69,11 @@ public class JournalTjeneste {
     private static final String PERSON_KEY = "person";
     private static final String MOTTAK_KANAL_NAV_NO = "NAV_NO";
 
-    private JournalConsumer journalConsumer;
-    private InngaaendeJournalConsumer inngaaendeJournalConsumer;
-    private BehandleInngaaendeJournalConsumer behandleInngaaendeJournalConsumer;
-    private MottaInngaaendeForsendelseRestKlient mottaInngaaendeForsendelseKlient;
-    private AktørConsumer aktørConsumer;
+    private final JournalConsumer journalConsumer;
+    private final InngaaendeJournalConsumer inngaaendeJournalConsumer;
+    private final BehandleInngaaendeJournalConsumer behandleInngaaendeJournalConsumer;
+    private final MottaInngaaendeForsendelseRestKlient mottaInngaaendeForsendelseKlient;
+    private final AktørConsumer aktørConsumer;
 
     private JournalTjenesteUtil journalTjenesteUtil;
 
