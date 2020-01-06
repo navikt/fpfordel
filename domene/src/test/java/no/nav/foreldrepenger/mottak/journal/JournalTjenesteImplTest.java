@@ -87,7 +87,8 @@ public class JournalTjenesteImplTest {
     private JournalConsumer journalConsumerMock = mock(JournalConsumer.class);
     private InngaaendeJournalConsumer inngaaendeMock = mock(InngaaendeJournalConsumer.class);
     private BehandleInngaaendeJournalConsumer behandleInngaaendeMock = mock(BehandleInngaaendeJournalConsumer.class);
-    private MottaInngaaendeForsendelseRestKlient inngaaendeForsendelseKlient = mock(MottaInngaaendeForsendelseRestKlient.class);
+    private MottaInngaaendeForsendelseRestKlient inngaaendeForsendelseKlient = mock(
+            MottaInngaaendeForsendelseRestKlient.class);
     private AktørConsumer aktørConsumerMock = mock(AktørConsumer.class);
 
     @Before
@@ -107,10 +108,10 @@ public class JournalTjenesteImplTest {
         journalTjeneste.hentDokument(null);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void test_hentDokument_skal_kaste_hentDokumentIkkeFunnetException() throws Exception {
-        when(journalConsumerMock.hentDokument(any(HentDokumentRequest.class))).thenThrow(new HentDokumentDokumentIkkeFunnet("ikke funnet", new DokumentIkkeFunnet()));
+        when(journalConsumerMock.hentDokument(any(HentDokumentRequest.class)))
+                .thenThrow(new HentDokumentDokumentIkkeFunnet("ikke funnet", new DokumentIkkeFunnet()));
 
         expectedException.expect(IntegrasjonException.class);
         expectedException.expectMessage("FP-249690");
@@ -119,10 +120,10 @@ public class JournalTjenesteImplTest {
         verify(journalConsumerMock).hentDokument(any(HentDokumentRequest.class));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void test_hentDokument_skal_kaste_journalUtilgjengeligSikkerhetsbegrensning() throws Exception {
-        when(journalConsumerMock.hentDokument(any(HentDokumentRequest.class))).thenThrow(new HentDokumentSikkerhetsbegrensning("begrenset", new Sikkerhetsbegrensning()));
+        when(journalConsumerMock.hentDokument(any(HentDokumentRequest.class)))
+                .thenThrow(new HentDokumentSikkerhetsbegrensning("begrenset", new Sikkerhetsbegrensning()));
 
         expectedException.expect(ManglerTilgangException.class);
         expectedException.expectMessage("FP-751834");
@@ -138,7 +139,6 @@ public class JournalTjenesteImplTest {
 
         when(journalConsumerMock.hentDokument(any(HentDokumentRequest.class))).thenReturn(response);
 
-        @SuppressWarnings({ "unchecked", "rawtypes" })
         JournalDokument result = journalTjeneste.hentDokument(lagJournalMetadata());
         assertThat(result.getXml()).isEqualTo("abc");
         assertThat(result.getMetadata()).isEqualToComparingFieldByField(lagJournalMetadata());
@@ -146,7 +146,8 @@ public class JournalTjenesteImplTest {
 
     @Test
     public void test_hentMetadata_skal_kaste_journalPostIkkeFunnet() throws Exception {
-        when(inngaaendeMock.hentJournalpost(any(HentJournalpostRequest.class))).thenThrow(new HentJournalpostJournalpostIkkeFunnet());
+        when(inngaaendeMock.hentJournalpost(any(HentJournalpostRequest.class)))
+                .thenThrow(new HentJournalpostJournalpostIkkeFunnet());
 
         expectedException.expect(IntegrasjonException.class);
         expectedException.expectMessage("FP-195433");
@@ -157,7 +158,8 @@ public class JournalTjenesteImplTest {
 
     @Test
     public void test_hentMetadata_skal_kaste_JournalUtilgjengeligSikkerhetsbegrensning() throws Exception {
-        when(inngaaendeMock.hentJournalpost(any(HentJournalpostRequest.class))).thenThrow(new HentJournalpostSikkerhetsbegrensning());
+        when(inngaaendeMock.hentJournalpost(any(HentJournalpostRequest.class)))
+                .thenThrow(new HentJournalpostSikkerhetsbegrensning());
 
         expectedException.expect(ManglerTilgangException.class);
         expectedException.expectMessage("FP-751834");
@@ -168,7 +170,8 @@ public class JournalTjenesteImplTest {
 
     @Test
     public void test_hentMetadata_skal_kaste_journalUgyldigInput() throws Exception {
-        when(inngaaendeMock.hentJournalpost(any(HentJournalpostRequest.class))).thenThrow(new HentJournalpostUgyldigInput());
+        when(inngaaendeMock.hentJournalpost(any(HentJournalpostRequest.class)))
+                .thenThrow(new HentJournalpostUgyldigInput());
 
         expectedException.expect(IntegrasjonException.class);
         expectedException.expectMessage("FP-276411");
@@ -179,7 +182,8 @@ public class JournalTjenesteImplTest {
 
     @Test
     public void test_hentMetadata_skal_kaste_journalpostIkkeInngaaende() throws Exception {
-        when(inngaaendeMock.hentJournalpost(any(HentJournalpostRequest.class))).thenThrow(new HentJournalpostJournalpostIkkeInngaaende());
+        when(inngaaendeMock.hentJournalpost(any(HentJournalpostRequest.class)))
+                .thenThrow(new HentJournalpostJournalpostIkkeInngaaende());
 
         expectedException.expect(IntegrasjonException.class);
         expectedException.expectMessage("FP-107540");
@@ -190,7 +194,8 @@ public class JournalTjenesteImplTest {
 
     @Test
     public void test_utledJournalføringsbehov_skal_kaste_journalUtilgjengeligSikkerhetsbegrensning() throws Exception {
-        when(inngaaendeMock.utledJournalfoeringsbehov(any(UtledJournalfoeringsbehovRequest.class))).thenThrow(new UtledJournalfoeringsbehovSikkerhetsbegrensning());
+        when(inngaaendeMock.utledJournalfoeringsbehov(any(UtledJournalfoeringsbehovRequest.class)))
+                .thenThrow(new UtledJournalfoeringsbehovSikkerhetsbegrensning());
 
         expectedException.expect(ManglerTilgangException.class);
         expectedException.expectMessage("FP-751834");
@@ -201,7 +206,8 @@ public class JournalTjenesteImplTest {
 
     @Test
     public void test_utledJournalføringsbehov_skal_kaste_journalfoeringsbehovUgyldigInput() throws Exception {
-        when(inngaaendeMock.utledJournalfoeringsbehov(any(UtledJournalfoeringsbehovRequest.class))).thenThrow(new UtledJournalfoeringsbehovUgyldigInput());
+        when(inngaaendeMock.utledJournalfoeringsbehov(any(UtledJournalfoeringsbehovRequest.class)))
+                .thenThrow(new UtledJournalfoeringsbehovUgyldigInput());
 
         expectedException.expect(IntegrasjonException.class);
         expectedException.expectMessage("FP-976237");
@@ -211,8 +217,10 @@ public class JournalTjenesteImplTest {
     }
 
     @Test
-    public void test_utledJournalføringsbehov_skal_kaste_journalfoeringsbehovJournalpostKanIkkeBehandles() throws Exception {
-        when(inngaaendeMock.utledJournalfoeringsbehov(any(UtledJournalfoeringsbehovRequest.class))).thenThrow(new UtledJournalfoeringsbehovJournalpostKanIkkeBehandles());
+    public void test_utledJournalføringsbehov_skal_kaste_journalfoeringsbehovJournalpostKanIkkeBehandles()
+            throws Exception {
+        when(inngaaendeMock.utledJournalfoeringsbehov(any(UtledJournalfoeringsbehovRequest.class)))
+                .thenThrow(new UtledJournalfoeringsbehovJournalpostKanIkkeBehandles());
 
         expectedException.expect(IntegrasjonException.class);
         expectedException.expectMessage("204098");
@@ -223,7 +231,8 @@ public class JournalTjenesteImplTest {
 
     @Test
     public void test_utledJournalføringsbehov_skal_kaste_journalføringsbehovJournalpostIkkeFunnet() throws Exception {
-        when(inngaaendeMock.utledJournalfoeringsbehov(any(UtledJournalfoeringsbehovRequest.class))).thenThrow(new UtledJournalfoeringsbehovJournalpostIkkeFunnet());
+        when(inngaaendeMock.utledJournalfoeringsbehov(any(UtledJournalfoeringsbehovRequest.class)))
+                .thenThrow(new UtledJournalfoeringsbehovJournalpostIkkeFunnet());
 
         expectedException.expect(IntegrasjonException.class);
         expectedException.expectMessage("FP-856651");
@@ -233,8 +242,10 @@ public class JournalTjenesteImplTest {
     }
 
     @Test
-    public void test_utledJournalføringsbehov_skal_kaste_journalføringsbehovJournalpostIkkeInngående() throws Exception {
-        when(inngaaendeMock.utledJournalfoeringsbehov(any(UtledJournalfoeringsbehovRequest.class))).thenThrow(new UtledJournalfoeringsbehovJournalpostIkkeInngaaende());
+    public void test_utledJournalføringsbehov_skal_kaste_journalføringsbehovJournalpostIkkeInngående()
+            throws Exception {
+        when(inngaaendeMock.utledJournalfoeringsbehov(any(UtledJournalfoeringsbehovRequest.class)))
+                .thenThrow(new UtledJournalfoeringsbehovJournalpostIkkeInngaaende());
 
         expectedException.expect(IntegrasjonException.class);
         expectedException.expectMessage("FP-729774");
@@ -287,8 +298,10 @@ public class JournalTjenesteImplTest {
 
     @Test
     public void test_ferdigstillJournalføring_skal_kaste_journalfoeringSikkerhetsbegrensning() throws Exception {
-        doThrow(new FerdigstillJournalfoeringSikkerhetsbegrensning("sikkerhet", new no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.feil.Sikkerhetsbegrensning()))
-                .when(behandleInngaaendeMock).ferdigstillJournalfoering(any(FerdigstillJournalfoeringRequest.class));
+        doThrow(new FerdigstillJournalfoeringSikkerhetsbegrensning("sikkerhet",
+                new no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.feil.Sikkerhetsbegrensning()))
+                        .when(behandleInngaaendeMock)
+                        .ferdigstillJournalfoering(any(FerdigstillJournalfoeringRequest.class));
 
         expectedException.expect(ManglerTilgangException.class);
         expectedException.expectMessage("FP-009810");
@@ -334,11 +347,12 @@ public class JournalTjenesteImplTest {
                 .medRetrySuffix("ABC")
                 .build();
 
-
-        when(inngaaendeForsendelseKlient.journalførForsendelse(any(MottaInngaaendeForsendelseRequest.class))).thenReturn(lagRespons(MottaInngaaendeForsendelseResponse.JournalTilstand.ENDELIG_JOURNALFOERT));
+        when(inngaaendeForsendelseKlient.journalførForsendelse(any(MottaInngaaendeForsendelseRequest.class)))
+                .thenReturn(lagRespons(MottaInngaaendeForsendelseResponse.JournalTilstand.ENDELIG_JOURNALFOERT));
         DokumentforsendelseResponse response = journalTjeneste.journalførDokumentforsendelse(request);
 
-        ArgumentCaptor<MottaInngaaendeForsendelseRequest> captor = ArgumentCaptor.forClass(MottaInngaaendeForsendelseRequest.class);
+        ArgumentCaptor<MottaInngaaendeForsendelseRequest> captor = ArgumentCaptor
+                .forClass(MottaInngaaendeForsendelseRequest.class);
         verify(inngaaendeForsendelseKlient).journalførForsendelse(captor.capture());
 
         MottaInngaaendeForsendelseRequest captured = captor.getValue();
@@ -355,7 +369,9 @@ public class JournalTjenesteImplTest {
     }
 
     @Test
-    public void oppdater_journalpost_skal_oppdatere_journalpost() throws OppdaterJournalpostSikkerhetsbegrensning, OppdaterJournalpostOppdateringIkkeMulig, OppdaterJournalpostUgyldigInput, OppdaterJournalpostJournalpostIkkeInngaaende, OppdaterJournalpostObjektIkkeFunnet {
+    public void oppdater_journalpost_skal_oppdatere_journalpost() throws OppdaterJournalpostSikkerhetsbegrensning,
+            OppdaterJournalpostOppdateringIkkeMulig, OppdaterJournalpostUgyldigInput,
+            OppdaterJournalpostJournalpostIkkeInngaaende, OppdaterJournalpostObjektIkkeFunnet {
         String arkivSakId = "arkivsakId";
         JournalPost journalPost = new JournalPost("id");
         journalPost.setArkivSakId(arkivSakId);
@@ -379,7 +395,10 @@ public class JournalTjenesteImplTest {
     }
 
     @Test
-    public void oppdater_journalpost_avsender_skal_oppdatere_journalpost() throws OppdaterJournalpostSikkerhetsbegrensning, OppdaterJournalpostOppdateringIkkeMulig, OppdaterJournalpostUgyldigInput, OppdaterJournalpostJournalpostIkkeInngaaende, OppdaterJournalpostObjektIkkeFunnet {
+    public void oppdater_journalpost_avsender_skal_oppdatere_journalpost()
+            throws OppdaterJournalpostSikkerhetsbegrensning, OppdaterJournalpostOppdateringIkkeMulig,
+            OppdaterJournalpostUgyldigInput, OppdaterJournalpostJournalpostIkkeInngaaende,
+            OppdaterJournalpostObjektIkkeFunnet {
         JournalPost journalPost = new JournalPost("id");
         String aktørId = "9000000000009";
         journalPost.setAvsenderAktørId(aktørId);
@@ -401,7 +420,6 @@ public class JournalTjenesteImplTest {
         journalTjeneste.oppdaterJournalpost(null);
     }
 
-    @SuppressWarnings("rawtypes")
     private JournalMetadata lagJournalMetadata() {
         return JournalMetadata.builder().medJournalpostId(JOURNALPOST_ID)
                 .medDokumentId(DOKUMENT_ID)
@@ -412,7 +430,8 @@ public class JournalTjenesteImplTest {
         return DokumentforsendelseTestUtil.lagDokument(FORSENDELSE_ID, dokTypeId, arkivFilType, hoveddok);
     }
 
-    private MottaInngaaendeForsendelseResponse lagRespons(MottaInngaaendeForsendelseResponse.JournalTilstand journalTilstand) {
+    private MottaInngaaendeForsendelseResponse lagRespons(
+            MottaInngaaendeForsendelseResponse.JournalTilstand journalTilstand) {
         List<String> dokId = new ArrayList<>();
         dokId.add("2345");
         dokId.add("2564");

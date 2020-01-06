@@ -84,7 +84,8 @@ public class JournalTjenesteUtilTest {
         DokumentInfoHoveddokument resultat = tjenesteUtil.konverterTilDokumentInfoHoveddokument(hoveddokument);
 
         assertThat(resultat).isNotNull();
-        assertThat(resultat.getDokumentTypeId()).isEqualTo(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.getOffisiellKode());
+        assertThat(resultat.getDokumentTypeId())
+                .isEqualTo(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.getOffisiellKode());
         assertThat(resultat.getDokumentVariant()).hasSize(2);
 
         DokumentVariant xmlVar = resultat.getDokumentVariant().get(0);
@@ -107,17 +108,22 @@ public class JournalTjenesteUtilTest {
         List<DokumentInfoVedlegg> resultat = tjenesteUtil.konverterTilDokumentInfoVedlegg(vedleggListe, false, false);
         assertThat(resultat).hasSize(2);
         assertThat(resultat.get(0).getTittel()).isNullOrEmpty();
-        assertThat(resultat.get(0).getDokumentTypeId()).isEqualTo(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL.getOffisiellKode());
+        assertThat(resultat.get(0).getDokumentTypeId())
+                .isEqualTo(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL.getOffisiellKode());
         assertThat(resultat.get(0).getDokumentVariant()).hasSize(1);
-        assertThat(resultat.get(0).getDokumentVariant().get(0).getArkivFilType()).isEqualByComparingTo(DokumentVariant.ArkivFilType.PDFA);
-        assertThat(resultat.get(0).getDokumentVariant().get(0).getVariantFormat()).isEqualByComparingTo(DokumentVariant.VariantFormat.ARKIV);
+        assertThat(resultat.get(0).getDokumentVariant().get(0).getArkivFilType())
+                .isEqualByComparingTo(DokumentVariant.ArkivFilType.PDFA);
+        assertThat(resultat.get(0).getDokumentVariant().get(0).getVariantFormat())
+                .isEqualByComparingTo(DokumentVariant.VariantFormat.ARKIV);
         assertThat(resultat.get(0).getDokumentVariant().get(0).getDokument()).isNotNull();
 
         assertThat(resultat.get(1).getTittel()).isNullOrEmpty();
         assertThat(resultat.get(1).getDokumentTypeId()).isEqualTo(DokumentTypeId.ANNET.getOffisiellKode());
         assertThat(resultat.get(1).getDokumentVariant()).hasSize(1);
-        assertThat(resultat.get(1).getDokumentVariant().get(0).getArkivFilType()).isEqualByComparingTo(DokumentVariant.ArkivFilType.PDFA);
-        assertThat(resultat.get(1).getDokumentVariant().get(0).getVariantFormat()).isEqualByComparingTo(DokumentVariant.VariantFormat.ARKIV);
+        assertThat(resultat.get(1).getDokumentVariant().get(0).getArkivFilType())
+                .isEqualByComparingTo(DokumentVariant.ArkivFilType.PDFA);
+        assertThat(resultat.get(1).getDokumentVariant().get(0).getVariantFormat())
+                .isEqualByComparingTo(DokumentVariant.VariantFormat.ARKIV);
         assertThat(resultat.get(1).getDokumentVariant().get(0).getDokument()).isNotNull();
     }
 
@@ -131,7 +137,8 @@ public class JournalTjenesteUtilTest {
         List<DokumentInfoVedlegg> resultat = tjenesteUtil.konverterTilDokumentInfoVedlegg(vedleggListe, false, true);
         assertThat(resultat).hasSize(3);
         assertThat(resultat.get(0).getTittel()).isNullOrEmpty();
-        assertThat(resultat.get(0).getDokumentTypeId()).isEqualTo(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL.getOffisiellKode());
+        assertThat(resultat.get(0).getDokumentTypeId())
+                .isEqualTo(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL.getOffisiellKode());
         assertThat(resultat.get(0).getDokumentVariant()).hasSize(1);
 
         assertThat(resultat.get(1).getTittel()).isEqualTo(DokumentTypeId.ANNET.getTermNavn());
@@ -142,7 +149,6 @@ public class JournalTjenesteUtilTest {
         assertThat(resultat.get(2).getDokumentTypeId()).isEqualTo(DokumentTypeId.ANNET.getOffisiellKode());
         assertThat(resultat.get(2).getDokumentVariant()).hasSize(1);
     }
-
 
     @Test
     public void skalKonvertereVedleggListeTilDokumentInfoVedleggListeOgSetteTittelPåVedleggNårHoveddokumentIkkeFinnesOgDokumentTypeIdErAnnet() {
@@ -197,9 +203,9 @@ public class JournalTjenesteUtilTest {
         HentJournalpostResponse testResponse = new HentJournalpostResponse();
         testResponse.setInngaaendeJournalpost(lagInngåendeJournalPost());
 
-        List<JournalMetadata<DokumentTypeId>> result = tjenesteUtil.konverterTilMetadata(JOURNALPOST_ID, testResponse);
+        List<JournalMetadata> result = tjenesteUtil.konverterTilMetadata(JOURNALPOST_ID, testResponse);
         assertThat(result.size()).isEqualTo(2);
-        JournalMetadata<DokumentTypeId> metadata = result.get(1);
+        JournalMetadata metadata = result.get(1);
         assertThat(metadata.getDokumentTypeId()).isEqualTo(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
         assertThat(metadata.getKanalReferanseId()).isEqualTo(KANAL_REFERANSE);
         assertThat(metadata.getForsendelseMottatt()).isEqualTo(FORSENDELSE_MOTTATT);
@@ -207,7 +213,8 @@ public class JournalTjenesteUtilTest {
         assertThat(metadata.getDokumentId()).isEqualTo(DOKUMENT_ID);
         assertThat(metadata.getBrukerIdentListe()).contains(FNR);
         assertThat(metadata.getVariantFormat()).isEqualTo(VariantFormat.SLADDET);
-        assertThat(metadata.getDokumentKategori().orElse(DokumentKategori.UDEFINERT)).isEqualTo(DokumentKategori.ELEKTRONISK_SKJEMA);
+        assertThat(metadata.getDokumentKategori().orElse(DokumentKategori.UDEFINERT))
+                .isEqualTo(DokumentKategori.ELEKTRONISK_SKJEMA);
     }
 
     private InngaaendeJournalpost lagInngåendeJournalPost() {
@@ -249,7 +256,9 @@ public class JournalTjenesteUtilTest {
         return DokumentforsendelseTestUtil.lagDokument(FORSENDELSE_ID, dokTypeId, arkivFilType, hoveddok);
     }
 
-    private Dokument lagDokumentMedBeskrivelse(DokumentTypeId dokTypeId, ArkivFilType arkivFilType, Boolean hoveddok, String beskrivelse) {
-        return DokumentforsendelseTestUtil.lagDokumentBeskrivelse(FORSENDELSE_ID, dokTypeId, arkivFilType, hoveddok, beskrivelse);
+    private Dokument lagDokumentMedBeskrivelse(DokumentTypeId dokTypeId, ArkivFilType arkivFilType, Boolean hoveddok,
+            String beskrivelse) {
+        return DokumentforsendelseTestUtil.lagDokumentBeskrivelse(FORSENDELSE_ID, dokTypeId, arkivFilType, hoveddok,
+                beskrivelse);
     }
 }

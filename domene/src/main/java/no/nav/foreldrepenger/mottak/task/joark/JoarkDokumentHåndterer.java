@@ -10,7 +10,6 @@ import java.util.Set;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.journal.JournalDokument;
@@ -24,7 +23,7 @@ class JoarkDokumentHåndterer {
 
     private final AktørConsumer aktør;
     private final HentDataFraJoarkTjeneste joark;
-    private JournalDokument<DokumentTypeId> dokumentCached;
+    private JournalDokument dokumentCached;
 
     @Inject
     JoarkDokumentHåndterer(HentDataFraJoarkTjeneste joark, AktørConsumer aktør) {
@@ -37,15 +36,15 @@ class JoarkDokumentHåndterer {
         return MeldingXmlParser.unmarshallXml(xmlDokument);
     }
 
-    JournalDokument<DokumentTypeId> hentJournalDokument(List<JournalMetadata<DokumentTypeId>> hoveddokumenter) {
-        JournalMetadata<DokumentTypeId> journalMetadata = hentMetadataForStrukturertDokument(hoveddokumenter);
+    JournalDokument hentJournalDokument(List<JournalMetadata> hoveddokumenter) {
+        JournalMetadata journalMetadata = hentMetadataForStrukturertDokument(hoveddokumenter);
 
         if (dokumentCached != null
                 && dokumentCached.getMetadata().getDokumentId().equals(journalMetadata.getDokumentId())) {
             return dokumentCached;
         }
 
-        Optional<JournalDokument<DokumentTypeId>> dokument = joark
+        Optional<JournalDokument> dokument = joark
                 .hentStrukturertJournalDokument(journalMetadata);
         if (dokument.isPresent()) {
             dokumentCached = dokument.get();
@@ -55,13 +54,13 @@ class JoarkDokumentHåndterer {
         return dokumentCached;
     }
 
-    List<JournalMetadata<DokumentTypeId>> hentJoarkDokumentMetadata(String journalpostId) {
+    List<JournalMetadata> hentJoarkDokumentMetadata(String journalpostId) {
         return joark.hentDokumentMetadata(journalpostId);
     }
 
-    private Set<String> hentUtAktørerFraMetadata(List<JournalMetadata<DokumentTypeId>> hoveddokumenter) {
+    private Set<String> hentUtAktørerFraMetadata(List<JournalMetadata> hoveddokumenter) {
         HashMap<String, String> brukere = new HashMap<>();
-        for (JournalMetadata<DokumentTypeId> journalMetadata : hoveddokumenter) {
+        for (JournalMetadata journalMetadata : hoveddokumenter) {
             for (String bruker : journalMetadata.getBrukerIdentListe()) {
                 brukere.put(bruker, bruker);
             }
@@ -69,7 +68,7 @@ class JoarkDokumentHåndterer {
         return brukere.keySet();
     }
 
-    Optional<String> hentGyldigAktørFraMetadata(List<JournalMetadata<DokumentTypeId>> hoveddokumenter) {
+    Optional<String> hentGyldigAktørFraMetadata(List<JournalMetadata> hoveddokumenter) {
         Set<String> personSet = hentUtAktørerFraMetadata(hoveddokumenter);
         if (personSet.isEmpty() || personSet.size() > 1) {
             return Optional.empty();

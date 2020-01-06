@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.VariantFormat;
 
-public class JournalMetadata<T extends DokumentTypeId> {
+public class JournalMetadata {
 
     public enum Journaltilstand {
         MIDLERTIDIG,
@@ -23,7 +23,7 @@ public class JournalMetadata<T extends DokumentTypeId> {
     private String dokumentId;
     private VariantFormat variantFormat;
     private Journaltilstand journaltilstand;
-    private T dokumentTypeId;
+    private DokumentTypeId dokumentTypeId;
     private DokumentKategori dokumentKategori;
     private ArkivFilType arkivFilType;
     private boolean erHoveddokument;
@@ -37,8 +37,8 @@ public class JournalMetadata<T extends DokumentTypeId> {
         // skjult
     }
 
-    public static <T extends DokumentTypeId> Builder<T> builder() {
-        return new Builder<>();
+    public static Builder builder() {
+        return new Builder();
     }
 
     public String getJournalpostId() {
@@ -53,7 +53,7 @@ public class JournalMetadata<T extends DokumentTypeId> {
         return variantFormat;
     }
 
-    public T getDokumentTypeId() {
+    public DokumentTypeId getDokumentTypeId() {
         return dokumentTypeId;
     }
 
@@ -96,11 +96,11 @@ public class JournalMetadata<T extends DokumentTypeId> {
         return kanalReferanseId;
     }
 
-    public static class Builder<T extends DokumentTypeId> {
+    public static class Builder {
         private String journalpostId;
         private String dokumentId;
         private VariantFormat variantFormat;
-        private T dokumentTypeId;
+        private DokumentTypeId dokumentTypeId;
         private DokumentKategori dokumentKategori;
         private ArkivFilType arkivFilType;
         private Journaltilstand journaltilstand;
@@ -111,74 +111,73 @@ public class JournalMetadata<T extends DokumentTypeId> {
         private String kanalReferanseId;
         private String journalEnhet;
 
-        public Builder<T> medJournalpostId(String journalpostId) {
+        public Builder medJournalpostId(String journalpostId) {
             this.journalpostId = journalpostId;
             return this;
         }
 
-        public Builder<T> medDokumentId(String dokumentId) {
+        public Builder medDokumentId(String dokumentId) {
             this.dokumentId = dokumentId;
             return this;
         }
 
-        public Builder<T> medVariantFormat(VariantFormat variantFormat) {
+        public Builder medVariantFormat(VariantFormat variantFormat) {
             this.variantFormat = variantFormat;
             return this;
         }
 
-        public Builder<T> medDokumentType(T dokumentTypeId) {
+        public Builder medDokumentType(DokumentTypeId dokumentTypeId) {
             this.dokumentTypeId = dokumentTypeId;
             return this;
         }
 
-        public Builder<T> medDokumentKategori(DokumentKategori dokumentKategori) {
+        public Builder medDokumentKategori(DokumentKategori dokumentKategori) {
             this.dokumentKategori = dokumentKategori;
             return this;
         }
 
-        public Builder<T> medJournalførendeEnhet(String enhet) {
+        public Builder medJournalførendeEnhet(String enhet) {
             this.journalEnhet = enhet;
             return this;
         }
 
-
-        public Builder<T> medArkivFilType(ArkivFilType arkivFilType) {
+        public Builder medArkivFilType(ArkivFilType arkivFilType) {
             this.arkivFilType = arkivFilType;
             return this;
         }
 
-        public Builder<T> medJournaltilstand(Journaltilstand journaltilstand) {
+        public Builder medJournaltilstand(Journaltilstand journaltilstand) {
             this.journaltilstand = journaltilstand;
             return this;
         }
 
-        public Builder<T> medErHoveddokument(boolean erHoveddokument) {
+        public Builder medErHoveddokument(boolean erHoveddokument) {
             this.erHoveddokument = erHoveddokument;
             return this;
         }
 
-        public Builder<T> medForsendelseMottatt(LocalDate forsendelseMottatt) {
+        public Builder medForsendelseMottatt(LocalDate forsendelseMottatt) {
             this.forsendelseMottatt = forsendelseMottatt;
             return this;
         }
 
-        public Builder<T> medForsendelseMottattTidspunkt(LocalDateTime forsendelseMottattTidspunkt) {
+        public Builder medForsendelseMottattTidspunkt(LocalDateTime forsendelseMottattTidspunkt) {
             this.forsendelseMottattTidspunkt = forsendelseMottattTidspunkt;
             return this;
         }
 
-        public Builder<T> medBrukerIdentListe(List<String> brukerIdentListe) {
+        public Builder medBrukerIdentListe(List<String> brukerIdentListe) {
             this.brukerIdentListe = brukerIdentListe;
             return this;
         }
 
-        public Builder<T> medKanalReferanseId(String kanalReferanseId) {
+        public Builder medKanalReferanseId(String kanalReferanseId) {
             this.kanalReferanseId = kanalReferanseId;
             return this;
         }
 
-        public JournalMetadata<T> build() {
-            JournalMetadata<T> jmd = new JournalMetadata<>();
+        public JournalMetadata build() {
+            JournalMetadata jmd = new JournalMetadata();
             jmd.journalpostId = this.journalpostId;
             jmd.dokumentId = this.dokumentId;
             jmd.variantFormat = this.variantFormat;

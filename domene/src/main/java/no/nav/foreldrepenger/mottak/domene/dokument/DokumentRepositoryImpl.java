@@ -19,7 +19,6 @@ import org.hibernate.exception.ConstraintViolationException;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class DokumentRepositoryImpl implements DokumentRepository {
@@ -33,7 +32,7 @@ public class DokumentRepositoryImpl implements DokumentRepository {
     }
 
     @Inject
-    public DokumentRepositoryImpl(@VLPersistenceUnit EntityManager entityManager) {
+    public DokumentRepositoryImpl(EntityManager entityManager) {
         this.entityManager = Objects.requireNonNull(entityManager);
     }
 

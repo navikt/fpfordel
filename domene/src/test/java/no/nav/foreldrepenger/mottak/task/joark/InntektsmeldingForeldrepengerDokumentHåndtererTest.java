@@ -51,8 +51,7 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
     private MottakMeldingDataWrapper dataWrapper;
     private JoarkDokumentHåndterer håndterer;
     private JoarkTestsupport joarkTestsupport = new JoarkTestsupport();
-    private String fastsattInntektsmeldingStartdatoFristForManuellBehandling = "2019-01-01";
-    private JournalMetadata<DokumentTypeId> journalMetadata;
+    private JournalMetadata journalMetadata;
 
     @Before
     public void setUp() throws Exception {
@@ -72,18 +71,17 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
         journalMetadata = joarkTestsupport.lagJournalMetadataStrukturert(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
     }
 
-
     @Test
     public void skal_håndtere_dokument_som_har_ikke_en_inntektsmelding() throws Exception {
         String aktørId = "9000000000009";
         dataWrapper.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         dataWrapper.setAktørId(aktørId);
-        
+
         when(håndterer.hentGyldigAktørFraMetadata(any())).thenReturn(Optional.of(aktørId));
-        
+
         String xml = joarkTestsupport.readFile("testsoknader/engangsstoenad-termin-soeknad.xml");
-        JournalDokument<DokumentTypeId> journalDokument = new JournalDokument<>(journalMetadata, xml);
+        JournalDokument journalDokument = new JournalDokument(journalMetadata, xml);
         doReturn(Collections.singletonList(journalMetadata)).when(håndterer).hentJoarkDokumentMetadata(any());
         doReturn(journalDokument).when(håndterer).hentJournalDokument(any());
 
@@ -92,7 +90,6 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
         assertThat(wrapper.getAktørId()).hasValue(aktørId);
         assertThat(wrapper.getProsessTaskData().getTaskType()).isEqualTo(HentOgVurderVLSakTask.TASKNAME);
     }
-
 
     @Test
     public void skalHåndtereIntekksmeldingForeldrepengerManuellJournalføringDokumentHåndterer() throws Exception {
@@ -106,12 +103,11 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
                 .medBrukerIdentListe(JoarkTestsupport.brukerListe)
                 .build();
 
-        List<JournalMetadata<?>> strukturertJournalMetadataSkanningMetaList = Arrays.asList(journalMetadata);
+        List<JournalMetadata> strukturertJournalMetadataSkanningMetaList = Arrays.asList(journalMetadata);
         doReturn(strukturertJournalMetadataSkanningMetaList).when(håndterer).hentJoarkDokumentMetadata(ARKIV_ID);
 
-
         String xml = joarkTestsupport.readFile("testsoknader/inntektsmelding-manual-sample.xml");
-        JournalDokument<DokumentTypeId> journalDokument = new JournalDokument<DokumentTypeId>(journalMetadata, xml);
+        JournalDokument journalDokument = new JournalDokument(journalMetadata, xml);
 
         doReturn(journalDokument).when(håndterer).hentJournalDokument(Collections.singletonList(journalMetadata));
         BehandlingTema actualBehandlingTema = BehandlingTema.FORELDREPENGER;
@@ -136,10 +132,10 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
                 .medBrukerIdentListe(JoarkTestsupport.brukerListe)
                 .build();
 
-        List<JournalMetadata<?>> strukturertJournalMetadataSkanningMetaList = Arrays.asList(journalMetadata);
+        List<JournalMetadata> strukturertJournalMetadataSkanningMetaList = Arrays.asList(journalMetadata);
 
         String xml = joarkTestsupport.readFile("testsoknader/inntektsmelding-elektronisk-sample.xml");
-        JournalDokument<DokumentTypeId> journalDokument = new JournalDokument<DokumentTypeId>(journalMetadata, xml);
+        JournalDokument journalDokument = new JournalDokument(journalMetadata, xml);
 
         doReturn(journalDokument).when(håndterer).hentJournalDokument(Collections.singletonList(journalMetadata));
         doReturn(strukturertJournalMetadataSkanningMetaList).when(håndterer).hentJoarkDokumentMetadata(ARKIV_ID);
@@ -165,11 +161,12 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
                 .medBrukerIdentListe(JoarkTestsupport.brukerListe)
                 .build();
 
-        List<JournalMetadata<?>> strukturertJournalMetadataSkanningMetaList = Arrays.asList(journalMetadata);
+        List<JournalMetadata> strukturertJournalMetadataSkanningMetaList = Arrays.asList(journalMetadata);
         doReturn(strukturertJournalMetadataSkanningMetaList).when(håndterer).hentJoarkDokumentMetadata(ARKIV_ID);
 
-        String xml = joarkTestsupport.readFile("testsoknader/inntektsmelding-manual-uten-startdato-foreldrepenger-periode-sample.xml");
-        JournalDokument<DokumentTypeId> journalDokument = new JournalDokument<DokumentTypeId>(journalMetadata, xml);
+        String xml = joarkTestsupport
+                .readFile("testsoknader/inntektsmelding-manual-uten-startdato-foreldrepenger-periode-sample.xml");
+        JournalDokument journalDokument = new JournalDokument(journalMetadata, xml);
 
         doReturn(journalDokument).when(håndterer).hentJournalDokument(Collections.singletonList(journalMetadata));
 
@@ -193,14 +190,15 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
                 .medDokumentKategori(DokumentKategori.ELEKTRONISK_SKJEMA)
                 .build();
 
-        List<JournalMetadata<?>> strukturertJournalMetadataSkanningMetaList = Arrays.asList(journalMetadata);
+        List<JournalMetadata> strukturertJournalMetadataSkanningMetaList = Arrays.asList(journalMetadata);
         doReturn(strukturertJournalMetadataSkanningMetaList).when(håndterer).hentJoarkDokumentMetadata(ARKIV_ID);
 
         when(håndterer.hentGyldigAktørFraMetadata(any())).thenReturn(Optional.empty());
         when(håndterer.hentGyldigAktørFraPersonident(any())).thenReturn(Optional.empty());
 
-        String xml = joarkTestsupport.readFile("testsoknader/inntektsmelding-manual-uten-startdato-foreldrepenger-periode-sample.xml");
-        JournalDokument<DokumentTypeId> journalDokument = new JournalDokument<DokumentTypeId>(journalMetadata, xml);
+        String xml = joarkTestsupport
+                .readFile("testsoknader/inntektsmelding-manual-uten-startdato-foreldrepenger-periode-sample.xml");
+        JournalDokument journalDokument = new JournalDokument(journalMetadata, xml);
 
         doReturn(journalDokument).when(håndterer).hentJournalDokument(Collections.singletonList(journalMetadata));
 

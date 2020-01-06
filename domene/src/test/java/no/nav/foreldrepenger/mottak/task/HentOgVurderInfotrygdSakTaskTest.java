@@ -388,10 +388,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
         return task.doTask(wrapper);
     }
 
-    private MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper wrapper) {
-        return task().doTask(wrapper);
-    }
-
     private void expectAktørFnrMappings() {
         expect(AKTØR_BRUKER, FNR_BRUKER);
         expect(AKTØR_BRUKER_1, FNR_BRUKER_1);

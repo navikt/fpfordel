@@ -15,7 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.VariantFormat;
 import no.nav.foreldrepenger.mottak.journal.JournalDokument;
 import no.nav.foreldrepenger.mottak.journal.JournalMetadata;
@@ -25,14 +24,13 @@ public class HentDataFraJoarkTjenesteTest {
     private static final String XML = "<xml/>";
     private HentDataFraJoarkTjeneste hentDataFraJoarkTjeneste; // objektet vi tester
     private JournalTjeneste mockJournalTjeneste;
-    private JournalMetadata<DokumentTypeId> mockJournalMetadata;
-    private List<JournalMetadata<DokumentTypeId>> mockJournalMetadataListe;
+    private JournalMetadata mockJournalMetadata;
+    private List<JournalMetadata> mockJournalMetadataListe;
 
     private static final String ARKIV_ID = "ark001";
     private static final ArkivFilType ARKIVFILTYPE_XML = ArkivFilType.XML;
     private static final ArkivFilType ARKIVFILTYPE_PDF = ArkivFilType.PDF;
 
-    @SuppressWarnings("unchecked")
     @Before
     public void setup() {
         mockJournalTjeneste = mock(JournalTjeneste.class);
@@ -49,12 +47,12 @@ public class HentDataFraJoarkTjenesteTest {
         when(mockJournalMetadata.getErHoveddokument()).thenReturn(true);
         when(mockJournalTjeneste.hentMetadata(ARKIV_ID)).thenReturn(mockJournalMetadataListe);
 
-        Optional<JournalMetadata<DokumentTypeId>> optJournalMetadata = hentDataFraJoarkTjeneste
+        Optional<JournalMetadata> optJournalMetadata = hentDataFraJoarkTjeneste
                 .hentHoveddokumentMetadata(ARKIV_ID);
 
         verify(mockJournalTjeneste).hentMetadata(eq(ARKIV_ID));
         assertThat(optJournalMetadata.isPresent()).isTrue();
-        JournalMetadata<DokumentTypeId> journalMetadata = optJournalMetadata.get();
+        JournalMetadata journalMetadata = optJournalMetadata.get();
         assertThat(journalMetadata).isEqualTo(mockJournalMetadata);
     }
 
@@ -66,27 +64,27 @@ public class HentDataFraJoarkTjenesteTest {
         when(mockJournalMetadata.getErHoveddokument()).thenReturn(true);
         when(mockJournalTjeneste.hentMetadata(ARKIV_ID)).thenReturn(mockJournalMetadataListe);
 
-        Optional<JournalMetadata<DokumentTypeId>> optJournalMetadata = hentDataFraJoarkTjeneste
+        Optional<JournalMetadata> optJournalMetadata = hentDataFraJoarkTjeneste
                 .hentHoveddokumentMetadata(ARKIV_ID);
 
         verify(mockJournalTjeneste).hentMetadata(eq(ARKIV_ID));
         assertThat(optJournalMetadata.isPresent()).isTrue();
-        JournalMetadata<DokumentTypeId> journalMetadata = optJournalMetadata.get();
+        JournalMetadata journalMetadata = optJournalMetadata.get();
         assertThat(journalMetadata).isEqualTo(mockJournalMetadata);
     }
 
     @Test
     public void skal_hente_JournalMetadata_for_ustrukturert_dokument_med_skanning_xml() {
-        List<JournalMetadata<DokumentTypeId>> lagUstrukturertDokumentMedSkanningMetaXml = lagUstrukturertDokumentMedSkanningMetaXml();
+        List<JournalMetadata> lagUstrukturertDokumentMedSkanningMetaXml = lagUstrukturertDokumentMedSkanningMetaXml();
 
         when(mockJournalTjeneste.hentMetadata(ARKIV_ID)).thenReturn(lagUstrukturertDokumentMedSkanningMetaXml);
 
-        Optional<JournalMetadata<DokumentTypeId>> optJournalMetadata = hentDataFraJoarkTjeneste
+        Optional<JournalMetadata> optJournalMetadata = hentDataFraJoarkTjeneste
                 .hentHoveddokumentMetadata(ARKIV_ID);
 
         verify(mockJournalTjeneste).hentMetadata(eq(ARKIV_ID));
         assertThat(optJournalMetadata).isPresent();
-        JournalMetadata<DokumentTypeId> journalMetadata = optJournalMetadata.get();
+        JournalMetadata journalMetadata = optJournalMetadata.get();
         assertThat(journalMetadata).extracting("arkivFilType").isEqualTo(ArkivFilType.PDF);
     }
 
@@ -97,7 +95,7 @@ public class HentDataFraJoarkTjenesteTest {
         when(mockJournalMetadata.getErHoveddokument()).thenReturn(false);
         when(mockJournalTjeneste.hentMetadata(ARKIV_ID)).thenReturn(mockJournalMetadataListe);
 
-        Optional<JournalMetadata<DokumentTypeId>> optJournalMetadata = hentDataFraJoarkTjeneste
+        Optional<JournalMetadata> optJournalMetadata = hentDataFraJoarkTjeneste
                 .hentHoveddokumentMetadata(ARKIV_ID);
 
         verify(mockJournalTjeneste).hentMetadata(eq(ARKIV_ID));
@@ -110,9 +108,9 @@ public class HentDataFraJoarkTjenesteTest {
         when(mockJournalMetadata.getArkivFilType()).thenReturn(ARKIVFILTYPE_XML);
         when(mockJournalMetadata.getVariantFormat()).thenReturn(VariantFormat.ORIGINAL);
         when(mockJournalTjeneste.hentDokument(mockJournalMetadata))
-                .thenReturn(new JournalDokument<>(mockJournalMetadata, XML));
+                .thenReturn(new JournalDokument(mockJournalMetadata, XML));
 
-        Optional<JournalDokument<DokumentTypeId>> optJournalDokument = hentDataFraJoarkTjeneste
+        Optional<JournalDokument> optJournalDokument = hentDataFraJoarkTjeneste
                 .hentStrukturertJournalDokument(mockJournalMetadata);
 
         assertThat(optJournalDokument).isPresent();
@@ -126,7 +124,7 @@ public class HentDataFraJoarkTjenesteTest {
         when(mockJournalMetadata.getArkivFilType()).thenReturn(ARKIVFILTYPE_PDF);
         when(mockJournalMetadata.getVariantFormat()).thenReturn(VariantFormat.ARKIV);
 
-        Optional<JournalDokument<DokumentTypeId>> optJournalDokument = hentDataFraJoarkTjeneste
+        Optional<JournalDokument> optJournalDokument = hentDataFraJoarkTjeneste
                 .hentStrukturertJournalDokument(mockJournalMetadata);
 
         assertThat(optJournalDokument).isNotPresent();
@@ -134,7 +132,7 @@ public class HentDataFraJoarkTjenesteTest {
 
     @Test
     public void er_strukturert_dokument() {
-        JournalMetadata<DokumentTypeId> strukturertJournalMetadataFullversjon = JournalMetadata.builder()
+        JournalMetadata strukturertJournalMetadataFullversjon = JournalMetadata.builder()
                 .medArkivFilType(ARKIVFILTYPE_XML).medVariantFormat(VariantFormat.FULLVERSJON).build();
         assertThat(HentDataFraJoarkTjeneste.erStrukturertDokument(Arrays.asList(strukturertJournalMetadataFullversjon)))
                 .isTrue();
@@ -142,9 +140,9 @@ public class HentDataFraJoarkTjenesteTest {
 
     @Test
     public void er_strukturert_dokument_med_arkiv_pdf() {
-        JournalMetadata<DokumentTypeId> strukturertJournalMetadataFullversjon = JournalMetadata.builder()
+        JournalMetadata strukturertJournalMetadataFullversjon = JournalMetadata.builder()
                 .medArkivFilType(ARKIVFILTYPE_XML).medVariantFormat(VariantFormat.ORIGINAL).build();
-        JournalMetadata<DokumentTypeId> arkivPdfMetadata = JournalMetadata.builder().medArkivFilType(ARKIVFILTYPE_PDF)
+        JournalMetadata arkivPdfMetadata = JournalMetadata.builder().medArkivFilType(ARKIVFILTYPE_PDF)
                 .medVariantFormat(VariantFormat.ARKIV).build();
         assertThat(HentDataFraJoarkTjeneste
                 .erStrukturertDokument(Arrays.asList(strukturertJournalMetadataFullversjon, arkivPdfMetadata)))
@@ -153,7 +151,7 @@ public class HentDataFraJoarkTjenesteTest {
 
     @Test
     public void er_ustrukturert_dokument() {
-        JournalMetadata<DokumentTypeId> arkivPdfMetadata = JournalMetadata.builder().medArkivFilType(ARKIVFILTYPE_PDF)
+        JournalMetadata arkivPdfMetadata = JournalMetadata.builder().medArkivFilType(ARKIVFILTYPE_PDF)
                 .medVariantFormat(VariantFormat.ARKIV).build();
         assertThat(HentDataFraJoarkTjeneste.erStrukturertDokument(Arrays.asList(arkivPdfMetadata))).isFalse();
     }
@@ -164,11 +162,11 @@ public class HentDataFraJoarkTjenesteTest {
                 .isFalse();
     }
 
-    private List<JournalMetadata<DokumentTypeId>> lagUstrukturertDokumentMedSkanningMetaXml() {
-        JournalMetadata<DokumentTypeId> strukturertJournalMetadataArkiv = JournalMetadata.builder()
+    private List<JournalMetadata> lagUstrukturertDokumentMedSkanningMetaXml() {
+        JournalMetadata strukturertJournalMetadataArkiv = JournalMetadata.builder()
                 .medErHoveddokument(true)
                 .medArkivFilType(ARKIVFILTYPE_PDF).medVariantFormat(VariantFormat.ARKIV).build();
-        JournalMetadata<DokumentTypeId> strukturertJournalMetadataSkanningMeta = JournalMetadata.builder()
+        JournalMetadata strukturertJournalMetadataSkanningMeta = JournalMetadata.builder()
                 .medErHoveddokument(true)
                 .medArkivFilType(ARKIVFILTYPE_XML).medVariantFormat(VariantFormat.SKANNING_META).build();
         return Arrays.asList(strukturertJournalMetadataSkanningMeta, strukturertJournalMetadataArkiv);

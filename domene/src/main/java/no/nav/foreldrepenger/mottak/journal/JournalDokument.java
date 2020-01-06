@@ -1,18 +1,17 @@
 package no.nav.foreldrepenger.mottak.journal;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+public class JournalDokument {
 
-public class JournalDokument<T extends DokumentTypeId> {
+    private JournalMetadata metadata;
+    private String xml; // XML på formatet SoeknadsskjemaEngangsstoenad. Se
+                        // xsd\no\nav\melding\virksomhet\soeknadsskjemaEngangsstoenad\v1\v1.xsd
 
-    private JournalMetadata<T> metadata;
-    private String xml; //XML på formatet SoeknadsskjemaEngangsstoenad. Se xsd\no\nav\melding\virksomhet\soeknadsskjemaEngangsstoenad\v1\v1.xsd
-
-    public JournalDokument(JournalMetadata<T> metadata, String xml) {
+    public JournalDokument(JournalMetadata metadata, String xml) {
         this.metadata = metadata;
         this.xml = xml;
     }
 
-    public JournalMetadata<T> getMetadata() {
+    public JournalMetadata getMetadata() {
         return metadata;
     }
 
