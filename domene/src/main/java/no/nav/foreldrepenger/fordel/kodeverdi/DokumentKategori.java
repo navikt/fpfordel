@@ -19,16 +19,16 @@ public enum DokumentKategori implements Kodeverdi {
     EDIALOG("EDIALOG", "ELEKTRONISK_DIALOG"),
     ELEKTRONISK_SKJEMA("ESKJ", "ES"),
     FNOT("FNOT", "FORVALTNINGSNOTAT"),
-    IBRV("IBRV","IB"),
+    IBRV("IBRV", "IB"),
     IKKE_TOLKBART_SKJEMA("ITSKJ", "IS"),
-    KLAGE_ELLER_ANKE("KLGA","KA"),
+    KLAGE_ELLER_ANKE("KLGA", "KA"),
     KONVEARK("KONVEARK", "KD"),
-    KONVSYS("KONVSYS","KS"),
-    PUBEOS("PUBEOS","PUBL_BLANKETT_EOS"),
-    SEDOK("SEDOK","SED"),
-    SØKNAD("SOKN","SOK"),
-    TSKJ("TSKJ","TS"),
-    VBRV("VBRV","VB"),
+    KONVSYS("KONVSYS", "KS"),
+    PUBEOS("PUBEOS", "PUBL_BLANKETT_EOS"),
+    SEDOK("SEDOK", "SED"),
+    SØKNAD("SOKN", "SOK"),
+    TSKJ("TSKJ", "TS"),
+    VBRV("VBRV", "VB"),
 
     UDEFINERT("-", null),
     ;
@@ -96,14 +96,8 @@ public enum DokumentKategori implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
-    @Override
+
     public String getOffisiellKode() {
         return offisiellKode;
-    }
-
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
     }
 }

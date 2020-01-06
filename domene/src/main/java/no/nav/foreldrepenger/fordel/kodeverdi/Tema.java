@@ -83,14 +83,9 @@ public enum Tema implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
-    @Override
+
     public String getOffisiellKode() {
         return offisiellKode;
     }
 
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
 }

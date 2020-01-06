@@ -19,7 +19,8 @@ public enum RelatertYtelseTema implements Kodeverdi {
     PÅRØRENDE_TEMA("BS"),
 
     /**
-     * Alle kodeverk må ha en verdi, det kan ikke være null i databasen. Denne koden gjør samme nytten.
+     * Alle kodeverk må ha en verdi, det kan ikke være null i databasen. Denne koden
+     * gjør samme nytten.
      */
     UDEFINERT("-"),
     ;
@@ -54,11 +55,7 @@ public enum RelatertYtelseTema implements Kodeverdi {
         if (kode == null) {
             return UDEFINERT;
         }
-        return  KODER.getOrDefault(kode, UDEFINERT);
-    }
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
+        return KODER.getOrDefault(kode, UDEFINERT);
     }
 
     @JsonProperty

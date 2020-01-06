@@ -17,12 +17,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public enum BehandlingTema implements Kodeverdi {
 
     ENGANGSSTØNAD("ENGST", "ab0327", "Engangsstønad"),
-    ENGANGSSTØNAD_FØDSEL("ENGST_FODS","ab0050", "Engangsstønad ved fødsel"),
-    ENGANGSSTØNAD_ADOPSJON("ENGST_ADOP","ab0027", "Engangsstønad ved adopsjon"),
+    ENGANGSSTØNAD_FØDSEL("ENGST_FODS", "ab0050", "Engangsstønad ved fødsel"),
+    ENGANGSSTØNAD_ADOPSJON("ENGST_ADOP", "ab0027", "Engangsstønad ved adopsjon"),
 
     FORELDREPENGER("FORP", "ab0326", "Foreldrepenger"),
     FORELDREPENGER_FØDSEL("FORP_FODS", "ab0047", "Foreldrepenger ved fødsel"),
-    FORELDREPENGER_ADOPSJON("FORP_ADOP","ab0072", "Foreldrepenger ved adopsjon"),
+    FORELDREPENGER_ADOPSJON("FORP_ADOP", "ab0072", "Foreldrepenger ved adopsjon"),
 
     SVANGERSKAPSPENGER("SVP", "ab0126", "Svangerskapspenger"),
 
@@ -33,7 +33,7 @@ public enum BehandlingTema implements Kodeverdi {
     OMS_PLEIE_BARN_NY("OMS_PLEIE_BARN_NY", "ab0320", "Pleiepenger sykt barn ny ordning"),
     OMS_PLEIE_INSTU("OMS_PLEIE_INSTU", "ab0153", "Pleiepenger ved institusjonsopphold"),
 
-    UDEFINERT("-", null,"Ikke definert"),
+    UDEFINERT("-", null, "Ikke definert"),
     ;
 
     private static final Map<String, BehandlingTema> KODER = new LinkedHashMap<>();
@@ -114,13 +114,11 @@ public enum BehandlingTema implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
-    @Override
+
     public String getOffisiellKode() {
         return offisiellKode;
     }
 
-    @Override
     public String getTermNavn() {
         return termnavn;
     }
@@ -145,7 +143,4 @@ public enum BehandlingTema implements Kodeverdi {
         return SVANGERSKAPSPENGER.equals(bt);
     }
 
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
 }

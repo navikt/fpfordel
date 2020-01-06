@@ -19,11 +19,11 @@ public enum Fagsystem implements Kodeverdi {
     JOARK("AS36"),
     INFOTRYGD("IT01"),
     ARENA("AO01"),
-    INNTEKT( "FS28"),
+    INNTEKT("FS28"),
     MEDL("FS18"),
-    GOSYS( "FS22"),
-    ENHETSREGISTERET( "ER01"),
-    AAREGISTERET( "AR01"),
+    GOSYS("FS22"),
+    ENHETSREGISTERET("ER01"),
+    AAREGISTERET("AR01"),
     MELOSYS("FS38"),
     UTBETALINGSMELDING("OB36"),
     GRISEN("AO11"),
@@ -33,7 +33,8 @@ public enum Fagsystem implements Kodeverdi {
     UNNTAK("UFM"),
 
     /**
-     * Alle kodeverk må ha en verdi, det kan ikke være null i databasen. Denne koden gjør samme nytten.
+     * Alle kodeverk må ha en verdi, det kan ikke være null i databasen. Denne koden
+     * gjør samme nytten.
      */
     UDEFINERT("-"),
     ;
@@ -68,11 +69,7 @@ public enum Fagsystem implements Kodeverdi {
         if (kode == null) {
             return UDEFINERT;
         }
-        return  KODER.getOrDefault(kode, UDEFINERT);
-    }
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
+        return KODER.getOrDefault(kode, UDEFINERT);
     }
 
     @JsonProperty

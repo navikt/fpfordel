@@ -24,7 +24,8 @@ public enum VariantFormat implements Kodeverdi {
     PRODUKSJON_DLF("PRODUKSJON_DLF"),
 
     /**
-     * Alle kodeverk må ha en verdi, det kan ikke være null i databasen. Denne koden gjør samme nytten.
+     * Alle kodeverk må ha en verdi, det kan ikke være null i databasen. Denne koden
+     * gjør samme nytten.
      */
     UDEFINERT("-"),
     ;
@@ -60,10 +61,6 @@ public enum VariantFormat implements Kodeverdi {
             return UDEFINERT;
         }
         return KODER.getOrDefault(kode, UDEFINERT);
-    }
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
     }
 
     @JsonProperty
