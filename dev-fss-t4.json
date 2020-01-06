@@ -1,5 +1,5 @@
 {
-	"cluster": "preprod",
+	"cluster": "preprod", 
 	"oracleconfigkv": "/oracle/data/dev/config/fpfordel_t4",
 	"oraclecredskv": "/oracle/data/dev/creds/fpfordel_t4-user",
 	"serviceuserkv": "/serviceuser/data/test/srvfpfordel",
