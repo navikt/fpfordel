@@ -14,6 +14,7 @@ jobs:
        
       - name: Set variabler for image, namespace og cluster
         run: |
+           echo "::set-env name=TAG::$({{ github.event.client_payload.slash_command.arg1 }} | cut -c1-7)"  
            echo "::set-env name=IMAGE::$IMAGE_BASE:${{ github.event.client_payload.slash_command.arg1 }}" 
            echo "::set-env name=CLUSTER::${{ github.event.client_payload.slash_command.arg2 }}"         
            echo "::set-env name=NAMESPACE::${{ github.event.client_payload.slash_command.arg3 }}"         
