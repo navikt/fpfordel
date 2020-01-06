@@ -21,6 +21,8 @@ jobs:
        
       - name: Sjekk ut kode
         uses: actions/checkout@v1
+        with:
+          ref: ${{ env.TAG }}
     
       - name: Promoter til cluster og namespace
         uses: nais/deploy/actions/deploy@v1
