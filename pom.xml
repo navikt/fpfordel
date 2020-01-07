@@ -34,7 +34,8 @@
         <felles.version>1.4.2-20191218142505-f63b3cc</felles.version>
         <metrics.version>4.1.2</metrics.version>
         <fp-kontrakter.version>5.1_20191210141010_6a7f399</fp-kontrakter.version>
-
+		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+		<sonar.organization>navit</sonar.organization>
     </properties>
 
     <dependencyManagement>
