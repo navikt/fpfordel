@@ -300,17 +300,17 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-					<groupId>org.jacoco</groupId>
-					<artifactId>jacoco-maven-plugin</artifactId>
-					<version>0.8.5</version>
-					<executions>
-						<execution>
-						    <goals>
-						      <goal>prepare-agent</goal>
-						    </goals>
-						</execution>
-					</executions>
-			    </plugin>
+		  <groupId>org.jacoco</groupId>
+		  <artifactId>jacoco-maven-plugin</artifactId>
+		  <version>0.8.5</version>
+		 <executions>
+		   <execution>
+	             <goals>
+		        <goal>prepare-agent</goal>
+		     </goals>
+		   </execution>
+		 </executions>
+               </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>buildnumber-maven-plugin</artifactId>
@@ -367,12 +367,6 @@
                     <artifactId>flatten-maven-plugin</artifactId>
                     <version>1.1.0</version>
                 </plugin>
-                <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.5</version>
-                </plugin>
-
             </plugins>
         </pluginManagement>
 
@@ -409,7 +403,7 @@
                 </configuration>
             </plugin>
             <plugin>
-			      <groupId>org.jacoco</groupId>
+			     <groupId>org.jacoco</groupId>
 			      <artifactId>jacoco-maven-plugin</artifactId>
 			      <executions>
 				<execution>
