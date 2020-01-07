@@ -1,6 +1,10 @@
 name: Build PR
 
-on: [pull_request]
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - master
 
 env:
   ORACLE_INIT: initdb.sql
