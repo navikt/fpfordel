@@ -63,12 +63,6 @@ jobs:
           GITHUB_USERNAME: x-access-token
           GITHUB_PASSWORD: ${{ secrets.GHA }}  
      
-      - name: Sonar
-        run:  mvn  verify  sonar:sonar  --settings .github/workflows/.m2/settings.xml -Dsonar.projectKey="navikt_fpfordel" -Dsonar.login=${SONAR}
-        env:
-          SONAR: ${{ secrets.SONAR }} 
-          GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.GHA }} 
     
       - name: Bygg, tag og push Docker image  
         run: |
