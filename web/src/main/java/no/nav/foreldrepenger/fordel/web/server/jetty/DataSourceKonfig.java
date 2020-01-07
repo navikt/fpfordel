@@ -8,6 +8,7 @@ import javax.sql.DataSource;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import no.nav.vedtak.konfig.PropertyUtil;
 import no.nav.vedtak.util.env.Environment;
 
 class DataSourceKonfig {
@@ -26,10 +27,14 @@ class DataSourceKonfig {
 
     private DataSource createDatasource(String dataSourceName) {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(env.getRequiredProperty(dataSourceName + ".url"));
-        config.setUsername(env.getRequiredProperty(dataSourceName + ".username"));
-        config.setPassword(env.getRequiredProperty(dataSourceName + ".password"));
-
+        config.setJdbcUrl(PropertyUtil.getProperty(dataSourceName + ".url"));
+        config.setUsername(PropertyUtil.getProperty(dataSourceName + ".username"));
+        config.setPassword(PropertyUtil.getProperty(dataSourceName + ".password")); // NOSONAR false positive
+        /*
+         * config.setJdbcUrl(env.getRequiredProperty(dataSourceName + ".url"));
+         * config.setUsername(env.getRequiredProperty(dataSourceName + ".username"));
+         * config.setPassword(env.getRequiredProperty(dataSourceName + ".password"));
+         */
         config.setConnectionTimeout(1000);
         config.setMinimumIdle(5);
         config.setMaximumPoolSize(30);

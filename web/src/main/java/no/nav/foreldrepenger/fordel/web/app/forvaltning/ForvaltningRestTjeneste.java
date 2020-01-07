@@ -7,6 +7,7 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.DRI
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -25,7 +26,6 @@ import no.nav.foreldrepenger.mottak.task.KlargjorForVLTask;
 import no.nav.foreldrepenger.mottak.task.MidlJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.VedlikeholdSchedulerTask;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
@@ -34,7 +34,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path("/forvaltning")
 @RequestScoped
-@Transaction
+@Transactional
 public class ForvaltningRestTjeneste {
 
     private ProsessTaskRepository prosessTaskRepository;

@@ -24,6 +24,7 @@ import java.util.function.Function;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
@@ -69,7 +70,6 @@ import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -78,7 +78,7 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 @Path(DokumentforsendelseRestTjeneste.SERVICE_PATH)
 @Produces(APPLICATION_JSON)
 @RequestScoped
-@Transaction
+@Transactional
 public class DokumentforsendelseRestTjeneste {
     static final String SERVICE_PATH = "/dokumentforsendelse";
 
@@ -345,7 +345,8 @@ public class DokumentforsendelseRestTjeneste {
     }
 
     private interface DokumentforsendelseRestTjenesteFeil extends DeklarerteFeil {
-        DokumentforsendelseRestTjeneste.DokumentforsendelseRestTjenesteFeil FACTORY = FeilFactory.create(DokumentforsendelseRestTjeneste.DokumentforsendelseRestTjenesteFeil.class);
+        DokumentforsendelseRestTjeneste.DokumentforsendelseRestTjenesteFeil FACTORY = FeilFactory
+                .create(DokumentforsendelseRestTjeneste.DokumentforsendelseRestTjenesteFeil.class);
 
         @TekniskFeil(feilkode = "FP-892453", feilmelding = "The first part must be the \"metadata\" part", logLevel = ERROR)
         Feil førsteInputPartSkalVæreMetadata();
