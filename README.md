@@ -5,7 +5,6 @@
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=sqale_index)](https://sonarcloud.io/dashboard?id=navikt_fpfordel)
 
 
-
 FPFORDEL
 ===============
 
