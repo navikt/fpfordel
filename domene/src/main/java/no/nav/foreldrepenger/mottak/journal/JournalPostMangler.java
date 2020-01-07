@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 public class JournalPostMangler {
 
     private List<JournalMangel> journalMangler = new ArrayList<>();
+
     public void leggTilJournalMangel(JournalMangelType mangelType, boolean harJournalfoeringsbehov) {
         journalMangler.add(new JournalMangel(mangelType, harJournalfoeringsbehov));
     }
@@ -17,15 +18,17 @@ public class JournalPostMangler {
     }
 
     public List<JournalMangelType> getMangler() {
-        return journalMangler.stream().filter(JournalMangel::harJournalfoeringsbehov).map(JournalMangel::getMangeltype).collect(Collectors.toList());
+        return journalMangler.stream().filter(JournalMangel::harJournalfoeringsbehov).map(JournalMangel::getMangeltype)
+                .collect(Collectors.toList());
     }
 
     public Optional<JournalMangel> getMangel(JournalMangelType mangelType) {
-        return journalMangler.stream().filter(m -> m.getMangeltype() == mangelType).filter(JournalMangel::harJournalfoeringsbehov).findFirst();
+        return journalMangler.stream().filter(m -> m.getMangeltype() == mangelType)
+                .filter(JournalMangel::harJournalfoeringsbehov).findFirst();
     }
 
     public void rettetMangel(JournalMangelType mangelType) {
-        getMangel(mangelType).orElseThrow(() -> new IllegalArgumentException("")).rettetMangel();
+        getMangel(mangelType).orElseThrow(() -> new IllegalArgumentException()).rettetMangel();
     }
 
     static class JournalMangel {

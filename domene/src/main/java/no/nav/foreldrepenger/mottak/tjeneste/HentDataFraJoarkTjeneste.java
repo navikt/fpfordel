@@ -35,7 +35,7 @@ public class HentDataFraJoarkTjeneste {
     public HentDataFraJoarkTjeneste() {
     }
 
-    public Optional<JournalMetadata<DokumentTypeId>> hentHoveddokumentMetadata(String journalpostId) {
+    public Optional<JournalMetadata> hentHoveddokumentMetadata(String journalpostId) {
         var hoveddokumenter = hentDokumentMetadata(journalpostId);
         if (!hoveddokumenter.isEmpty()) {
             if (erStrukturertDokument(hoveddokumenter)) {
@@ -47,8 +47,8 @@ public class HentDataFraJoarkTjeneste {
         return Optional.empty();
     }
 
-    public <T extends DokumentTypeId> Optional<JournalDokument<T>> hentStrukturertJournalDokument(
-            JournalMetadata<T> journalMetadata) {
+    public Optional<JournalDokument> hentStrukturertJournalDokument(
+            JournalMetadata journalMetadata) {
         if (ArkivFilType.XML.equals(journalMetadata.getArkivFilType())
                 && erStrukturertDokumentVariantFormat(journalMetadata)) {
             return Optional.ofNullable(journalTjeneste.hentDokument(journalMetadata));
@@ -56,37 +56,37 @@ public class HentDataFraJoarkTjeneste {
         return Optional.empty();
     }
 
-    public List<JournalMetadata<DokumentTypeId>> hentDokumentMetadata(String journalpostId) {
+    public List<JournalMetadata> hentDokumentMetadata(String journalpostId) {
         return journalTjeneste.hentMetadata(journalpostId).stream()
                 .filter(this::erHovedDokument)
                 .collect(Collectors.toList());
     }
 
-    public static <T extends DokumentTypeId> JournalMetadata<T> hentMetadataForStrukturertDokument(
-            List<JournalMetadata<T>> hoveddokumenter) {
+    public static JournalMetadata hentMetadataForStrukturertDokument(
+            List<JournalMetadata> hoveddokumenter) {
         return hoveddokumenter
                 .stream()
                 .filter(it -> ArkivFilType.XML.equals(it.getArkivFilType())).findFirst().get();
     }
 
-    public static <T extends DokumentTypeId> JournalMetadata<T> hentMetadataForUstrukturertDokument(
-            List<JournalMetadata<T>> hoveddokumenter) {
+    public static JournalMetadata hentMetadataForUstrukturertDokument(
+            List<JournalMetadata> hoveddokumenter) {
         return hoveddokumenter.stream()
                 .filter(it -> VariantFormat.ARKIV.equals(it.getVariantFormat()))
                 .findFirst()
                 .get();
     }
 
-    private boolean erHovedDokument(JournalMetadata<? extends DokumentTypeId> metadata) {
+    private boolean erHovedDokument(JournalMetadata metadata) {
         return metadata.getErHoveddokument() && metadata.getArkivFilType() != null;
     }
 
-    private static <T extends DokumentTypeId> boolean erStrukturertDokumentVariantFormat(JournalMetadata<T> it) {
+    private static boolean erStrukturertDokumentVariantFormat(JournalMetadata it) {
         return VariantFormat.ORIGINAL.equals(it.getVariantFormat())
                 || VariantFormat.FULLVERSJON.equals(it.getVariantFormat());
     }
 
-    public static <T extends DokumentTypeId> boolean erStrukturertDokument(List<JournalMetadata<T>> hoveddokumenter) {
+    public static boolean erStrukturertDokument(List<JournalMetadata> hoveddokumenter) {
         return hoveddokumenter.stream()
                 .filter(HentDataFraJoarkTjeneste::erStrukturertDokumentVariantFormat) // Ustrukturerte dokumenter kan ha
                                                                                       // xml med variantformat
@@ -101,27 +101,28 @@ public class HentDataFraJoarkTjeneste {
      * @param hovedDokumenter liste med hoveddokumenter
      * @return datoen forsendelsen er mottatt
      */
-    public static LocalDate hentForsendelseMottatt(List<JournalMetadata<DokumentTypeId>> hovedDokumenter) {
+    public static LocalDate hentForsendelseMottatt(List<JournalMetadata> hovedDokumenter) {
         return hovedDokumenter.stream().filter(m -> m.getForsendelseMottatt() != null)
                 .map(JournalMetadata::getForsendelseMottatt).findFirst().orElse(FPDateUtil.iDag());
     }
 
-    public static LocalDateTime hentForsendelseMottattTidspunkt(List<JournalMetadata<DokumentTypeId>> hovedDokumenter) {
+    public static LocalDateTime hentForsendelseMottattTidspunkt(List<JournalMetadata> hovedDokumenter) {
         return hovedDokumenter.stream().filter(m -> m.getForsendelseMottattTidspunkt() != null)
                 .map(JournalMetadata::getForsendelseMottattTidspunkt).findFirst().orElse(FPDateUtil.nå());
     }
 
-    public static DokumentTypeId hentDokumentTypeId(List<JournalMetadata<DokumentTypeId>> hovedDokumenter) {
+    public static DokumentTypeId hentDokumentTypeId(List<JournalMetadata> hovedDokumenter) {
         return hovedDokumenter.stream().filter(JournalMetadata::getErHoveddokument)
                 .map(JournalMetadata::getDokumentTypeId).findFirst().orElse(DokumentTypeId.UDEFINERT);
     }
 
-    public static Optional<DokumentKategori> hentDokumentKategori(List<JournalMetadata<DokumentTypeId>> hovedDokumenter) {
+    public static Optional<DokumentKategori> hentDokumentKategori(
+            List<JournalMetadata> hovedDokumenter) {
         return hovedDokumenter.stream().filter(JournalMetadata::getErHoveddokument)
                 .map(JournalMetadata::getDokumentKategori).flatMap(Optional::stream).findFirst();
     }
 
-    public static Optional<String> hentJournalførendeEnhet(List<JournalMetadata<DokumentTypeId>> hovedDokumenter) {
+    public static Optional<String> hentJournalførendeEnhet(List<JournalMetadata> hovedDokumenter) {
         return hovedDokumenter.stream().map(JournalMetadata::getJournalførendeEnhet).filter(Objects::nonNull)
                 .findFirst();
     }

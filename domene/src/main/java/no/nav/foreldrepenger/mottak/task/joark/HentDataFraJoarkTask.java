@@ -76,7 +76,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     @Override
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper dataWrapper) {
-        final List<JournalMetadata<DokumentTypeId>> hoveddokumenter = joarkDokumentHåndterer
+        final List<JournalMetadata> hoveddokumenter = joarkDokumentHåndterer
                 .hentJoarkDokumentMetadata(dataWrapper.getArkivId());
         if (hoveddokumenter.isEmpty()) {
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
@@ -96,7 +96,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         dataWrapper.setStrukturertDokument(erStrukturertDokument(hoveddokumenter));
 
         if (erStrukturertDokument(hoveddokumenter)) {
-            JournalDokument<DokumentTypeId> journalDokument = joarkDokumentHåndterer
+            JournalDokument journalDokument = joarkDokumentHåndterer
                     .hentJournalDokument(hoveddokumenter);
             MottattStrukturertDokument<?> mottattDokument = joarkDokumentHåndterer
                     .unmarshallXMLDokument(journalDokument.getXml());
@@ -124,7 +124,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         if (imYtelse.isEmpty()) {
             throw MottakMeldingFeil.FACTORY.manglerYtelsePåInntektsmelding().toException();
         }
-        BehandlingTema behandlingTemaFraIM =BehandlingTema.fraTermNavn(imYtelse.get());
+        BehandlingTema behandlingTemaFraIM = BehandlingTema.fraTermNavn(imYtelse.get());
 
         dataWrapper.setInntektsmeldingYtelse(imYtelse.get());
         dataWrapper.setBehandlingTema(behandlingTemaFraIM);

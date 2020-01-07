@@ -39,7 +39,8 @@ class JournalTjenesteUtil {
 
     static {
         journaltilstandPrjournaltilstandJaxb = new EnumMap<>(Journaltilstand.class);
-        journaltilstandPrjournaltilstandJaxb.put(Journaltilstand.MIDLERTIDIG, JournalMetadata.Journaltilstand.MIDLERTIDIG);
+        journaltilstandPrjournaltilstandJaxb.put(Journaltilstand.MIDLERTIDIG,
+                JournalMetadata.Journaltilstand.MIDLERTIDIG);
         journaltilstandPrjournaltilstandJaxb.put(Journaltilstand.UTGAAR, JournalMetadata.Journaltilstand.UTGAAR);
         journaltilstandPrjournaltilstandJaxb.put(Journaltilstand.ENDELIG, JournalMetadata.Journaltilstand.ENDELIG);
     }
@@ -47,16 +48,18 @@ class JournalTjenesteUtil {
     JournalTjenesteUtil() {
     }
 
-    DokumentforsendelseResponse konverterTilDokumentforsendelseResponse(MottaInngaaendeForsendelseResponse inngåendeForsendelseResponse) {
+    DokumentforsendelseResponse konverterTilDokumentforsendelseResponse(
+            MottaInngaaendeForsendelseResponse inngåendeForsendelseResponse) {
         return DokumentforsendelseResponse.builder()
                 .medJournalpostId(inngåendeForsendelseResponse.getJournalpostId())
-                .medJournalTilstand(JournalTilstand.fromValue(inngåendeForsendelseResponse.getJournalTilstand().value()))
+                .medJournalTilstand(
+                        JournalTilstand.fromValue(inngåendeForsendelseResponse.getJournalTilstand().value()))
                 .medDokumentIdListe(inngåendeForsendelseResponse.getDokumentIdListe())
                 .build();
     }
 
     DokumentInfoHoveddokument konverterTilDokumentInfoHoveddokument(List<Dokument> hoveddokument) {
-        DokumentInfoHoveddokument info = new DokumentInfoHoveddokument();
+        var info = new DokumentInfoHoveddokument();
         if (!hoveddokument.isEmpty()) {
             List<DokumentVariant> dokVariant = new ArrayList<>();
             for (Dokument dok : hoveddokument) {
@@ -76,9 +79,11 @@ class JournalTjenesteUtil {
         return info;
     }
 
-    List<DokumentInfoVedlegg> konverterTilDokumentInfoVedlegg(List<Dokument> vedlegg, boolean harHoveddokument, boolean endelig) {
+    List<DokumentInfoVedlegg> konverterTilDokumentInfoVedlegg(List<Dokument> vedlegg, boolean harHoveddokument,
+            boolean endelig) {
         List<DokumentInfoVedlegg> infoList = new ArrayList<>();
-        long antallAnnet = vedlegg.stream().map(Dokument::getDokumentTypeId).filter(DokumentTypeId.ANNET::equals).count();
+        long antallAnnet = vedlegg.stream().map(Dokument::getDokumentTypeId).filter(DokumentTypeId.ANNET::equals)
+                .count();
         boolean krevTittel = !harHoveddokument && vedlegg.size() == antallAnnet;
 
         for (Dokument dokument : vedlegg) {
@@ -89,7 +94,9 @@ class JournalTjenesteUtil {
     }
 
     String tittelFraDokument(Dokument dokument, boolean endelig, boolean kreverTittel) {
-        DokumentTypeId dokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokument.getDokumentTypeId()) ? DokumentTypeId.ANNET : dokument.getDokumentTypeId();
+        DokumentTypeId dokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokument.getDokumentTypeId())
+                ? DokumentTypeId.ANNET
+                : dokument.getDokumentTypeId();
         String dokumentTypeTittel = dokumentTypeId.getTermNavn();
         if (DokumentTypeId.ANNET.equals(dokumentTypeId)) {
             // Brukers beskrivelse hvis ulikt "Annet"
@@ -104,23 +111,34 @@ class JournalTjenesteUtil {
 
     JournalPostMangler konverterTilJournalmangler(JournalpostMangler journalpostMangler) {
         JournalPostMangler mangler = new JournalPostMangler();
-        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.ARKIVSAK, journalpostMangler.getArkivSak() == Journalfoeringsbehov.MANGLER);
-        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.AVSENDERID, journalpostMangler.getAvsenderId() == Journalfoeringsbehov.MANGLER);
-        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.AVSENDERNAVN, journalpostMangler.getAvsenderNavn() == Journalfoeringsbehov.MANGLER);
-        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.BRUKER, journalpostMangler.getBruker() == Journalfoeringsbehov.MANGLER);
-        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.INNHOLD, journalpostMangler.getInnhold() == Journalfoeringsbehov.MANGLER);
-        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.TEMA, journalpostMangler.getTema() == Journalfoeringsbehov.MANGLER);
-        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.HOVEDOK_KATEGORI, journalpostMangler.getHoveddokument().getDokumentkategori() == Journalfoeringsbehov.MANGLER);
-        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.HOVEDOK_TITTEL, journalpostMangler.getHoveddokument().getTittel() == Journalfoeringsbehov.MANGLER);
-        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.VEDLEGG_KATEGORI, journalpostMangler.getVedleggListe().stream().anyMatch(vedlegg -> vedlegg.getDokumentkategori() == Journalfoeringsbehov.MANGLER));
-        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.VEDLEGG_TITTEL, journalpostMangler.getVedleggListe().stream().anyMatch(vedlegg -> vedlegg.getTittel() == Journalfoeringsbehov.MANGLER));
+        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.ARKIVSAK,
+                journalpostMangler.getArkivSak() == Journalfoeringsbehov.MANGLER);
+        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.AVSENDERID,
+                journalpostMangler.getAvsenderId() == Journalfoeringsbehov.MANGLER);
+        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.AVSENDERNAVN,
+                journalpostMangler.getAvsenderNavn() == Journalfoeringsbehov.MANGLER);
+        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.BRUKER,
+                journalpostMangler.getBruker() == Journalfoeringsbehov.MANGLER);
+        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.INNHOLD,
+                journalpostMangler.getInnhold() == Journalfoeringsbehov.MANGLER);
+        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.TEMA,
+                journalpostMangler.getTema() == Journalfoeringsbehov.MANGLER);
+        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.HOVEDOK_KATEGORI,
+                journalpostMangler.getHoveddokument().getDokumentkategori() == Journalfoeringsbehov.MANGLER);
+        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.HOVEDOK_TITTEL,
+                journalpostMangler.getHoveddokument().getTittel() == Journalfoeringsbehov.MANGLER);
+        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.VEDLEGG_KATEGORI,
+                journalpostMangler.getVedleggListe().stream()
+                        .anyMatch(vedlegg -> vedlegg.getDokumentkategori() == Journalfoeringsbehov.MANGLER));
+        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.VEDLEGG_TITTEL, journalpostMangler
+                .getVedleggListe().stream().anyMatch(vedlegg -> vedlegg.getTittel() == Journalfoeringsbehov.MANGLER));
         return mangler;
     }
 
-    List<JournalMetadata<DokumentTypeId>> konverterTilMetadata(String journalpostId, HentJournalpostResponse response) {
+    List<JournalMetadata> konverterTilMetadata(String journalpostId, HentJournalpostResponse response) {
         InngaaendeJournalpost journalpost = response.getInngaaendeJournalpost();
 
-        List<JournalMetadata<DokumentTypeId>> metadataList = new ArrayList<>();
+        List<JournalMetadata> metadataList = new ArrayList<>();
 
         populerMetadataListe(journalpostId, journalpost, journalpost.getHoveddokument(), true, metadataList);
         if (journalpost.getVedleggListe() != null) {
@@ -150,18 +168,22 @@ class JournalTjenesteUtil {
     }
 
     private void populerMetadataListe(String journalpostId, InngaaendeJournalpost journalpost,
-                                      Dokumentinformasjon dokumentinfo, boolean erHoveddokument,
-                                      List<JournalMetadata<DokumentTypeId>> metadataList) {
+            Dokumentinformasjon dokumentinfo, boolean erHoveddokument,
+            List<JournalMetadata> metadataList) {
 
         Journaltilstand journaltilstandJaxb = journalpost.getJournaltilstand();
-        JournalMetadata.Journaltilstand journaltilstand = journaltilstandJaxb != null ? journaltilstandPrjournaltilstandJaxb.get(journaltilstandJaxb) : null;
+        JournalMetadata.Journaltilstand journaltilstand = journaltilstandJaxb != null
+                ? journaltilstandPrjournaltilstandJaxb.get(journaltilstandJaxb)
+                : null;
 
         LocalDate forsendelseMottatt = DateUtil.convertToLocalDate(journalpost.getForsendelseMottatt());
-        LocalDateTime forsendelseMottattTidspunkt = DateUtil.convertToLocalDateTime(journalpost.getForsendelseMottatt());
+        LocalDateTime forsendelseMottattTidspunkt = DateUtil
+                .convertToLocalDateTime(journalpost.getForsendelseMottatt());
         Optional<String> kanalReferanseId = Optional.ofNullable(journalpost.getKanalReferanseId());
         Optional<String> journalEnhet = Optional.ofNullable(journalpost.getJournalfEnhet());
 
-        List<no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Aktoer> brukerListe = journalpost.getBrukerListe();
+        List<no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Aktoer> brukerListe = journalpost
+                .getBrukerListe();
 
         final String dokumentId = dokumentinfo.getDokumentId();
         final DokumentTypeId dokumentTypeId = getDokumentTypeId(dokumentinfo);
@@ -169,14 +191,15 @@ class JournalTjenesteUtil {
 
         List<String> brukerIdentList = brukerListe.stream().filter((a) -> {
             // instanceof OK - eksternt grensesnitt
-            return a instanceof no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Person;  // NOSONAR
-        }).map(a -> ((no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Person) a).getIdent()).collect(Collectors.toList());
+            return a instanceof no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Person; // NOSONAR
+        }).map(a -> ((no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Person) a).getIdent())
+                .collect(Collectors.toList());
 
         for (Dokumentinnhold dokumentinnhold : dokumentinfo.getDokumentInnholdListe()) {
             VariantFormat variantFormat = getVariantFormat(dokumentinnhold);
             ArkivFilType arkivFilType = getArkivFilType(dokumentinnhold);
 
-            JournalMetadata.Builder<DokumentTypeId> builder = JournalMetadata.builder();
+            JournalMetadata.Builder builder = JournalMetadata.builder();
             builder.medJournalpostId(journalpostId);
             builder.medDokumentId(dokumentId);
             builder.medVariantFormat(variantFormat);
@@ -190,7 +213,7 @@ class JournalTjenesteUtil {
             builder.medBrukerIdentListe(brukerIdentList);
             kanalReferanseId.ifPresent(builder::medKanalReferanseId);
             journalEnhet.ifPresent(builder::medJournalførendeEnhet);
-            JournalMetadata<DokumentTypeId> metadata = builder.build();
+            JournalMetadata metadata = builder.build();
 
             metadataList.add(metadata);
         }

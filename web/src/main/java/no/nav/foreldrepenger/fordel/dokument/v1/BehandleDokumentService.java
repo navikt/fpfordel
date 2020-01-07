@@ -9,6 +9,7 @@ import java.util.function.Function;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.jws.WebService;
+import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,6 @@ import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
 import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebService;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -99,7 +99,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
     }
 
     @Override
-    @Transaction
+    @Transactional
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, ressurs = BeskyttetRessursResourceAttributt.FAGSAK)
     public void oppdaterOgFerdigstillJournalfoering(
             @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) OppdaterOgFerdigstillJournalfoeringRequest request)
@@ -127,11 +127,13 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         BehandlingTema behandlingTema = BehandlingTema.fraOffisiellKode(behandlingstemaOffisiellKode);
         String aktørId = fagsakInfomasjonDto.getAktørId();
 
-        Optional<JournalMetadata<DokumentTypeId>> optJournalMetadata = hentJournalMetadata(arkivId);
-        final JournalMetadata<DokumentTypeId> journalMetadata = optJournalMetadata.get();
+        Optional<JournalMetadata> optJournalMetadata = hentJournalMetadata(arkivId);
+        final JournalMetadata journalMetadata = optJournalMetadata.get();
         final DokumentTypeId dokumentTypeId = journalMetadata.getDokumentTypeId() != null
-                ? journalMetadata.getDokumentTypeId() : DokumentTypeId.UDEFINERT;
-        final DokumentKategori dokumentKategori = journalMetadata.getDokumentKategori().orElse(DokumentKategori.UDEFINERT);
+                ? journalMetadata.getDokumentTypeId()
+                : DokumentTypeId.UDEFINERT;
+        final DokumentKategori dokumentKategori = journalMetadata.getDokumentKategori()
+                .orElse(DokumentKategori.UDEFINERT);
         behandlingTema = HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(
                 Tema.FORELDRE_OG_SVANGERSKAPSPENGER, behandlingTema, dokumentTypeId);
 
@@ -154,9 +156,9 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
                                                                                                    // forsendelseid null
     }
 
-    private Optional<JournalMetadata<DokumentTypeId>> hentJournalMetadata(String arkivId)
+    private Optional<JournalMetadata> hentJournalMetadata(String arkivId)
             throws OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet {
-        Optional<JournalMetadata<DokumentTypeId>> optJournalMetadata = hentDataFraJoarkTjeneste
+        Optional<JournalMetadata> optJournalMetadata = hentDataFraJoarkTjeneste
                 .hentHoveddokumentMetadata(arkivId);
         if (optJournalMetadata.isEmpty()) {
             JournalpostIkkeFunnet journalpostIkkeFunnet = new JournalpostIkkeFunnet();
@@ -168,7 +170,8 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         return optJournalMetadata;
     }
 
-    private void validerKanJournalføres(BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId, DokumentKategori dokumentKategori) {
+    private void validerKanJournalføres(BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId,
+            DokumentKategori dokumentKategori) {
         if (BehandlingTema.UDEFINERT.equals(behandlingTema) && (DokumentTypeId.KLAGE_DOKUMENT.equals(dokumentTypeId)
                 || DokumentKategori.KLAGE_ELLER_ANKE.equals(dokumentKategori))) {
             throw BehandleDokumentServiceFeil.FACTORY.sakUtenAvsluttetBehandling().toException();
@@ -176,8 +179,8 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
     }
 
     private String hentDokumentSettMetadata(String saksnummer, BehandlingTema behandlingTema, String aktørId,
-            JournalMetadata<DokumentTypeId> journalMetadata, DokumentTypeId dokumentTypeId) {
-        Optional<JournalDokument<DokumentTypeId>> journalDokument = hentDataFraJoarkTjeneste
+            JournalMetadata journalMetadata, DokumentTypeId dokumentTypeId) {
+        Optional<JournalDokument> journalDokument = hentDataFraJoarkTjeneste
                 .hentStrukturertJournalDokument(journalMetadata);
         final String xml = journalDokument.map(JournalDokument::getXml).orElse(null);
         if (xml != null) {
@@ -249,7 +252,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
                 if (dataWrapper.getInntektsmeldingStartDato().isEmpty()) { // Kommer ingen vei uten startdato
                     throw BehandleDokumentServiceFeil.FACTORY.imUtenStartdato().toException();
                 } else if (!BehandlingTema.gjelderForeldrepenger(behandlingTema)) { // Prøver journalføre på annen
-                                                                      // fagsak - ytelsetype
+                    // fagsak - ytelsetype
                     throw BehandleDokumentServiceFeil.FACTORY.imFeilType().toException();
                 }
             } else if (!behandlingTemaFraIM.equals(behandlingTema)) {
@@ -285,7 +288,8 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
     private interface BehandleDokumentServiceFeil extends DeklarerteFeil {
 
-        BehandleDokumentService.BehandleDokumentServiceFeil FACTORY = FeilFactory.create(BehandleDokumentService.BehandleDokumentServiceFeil.class);
+        BehandleDokumentService.BehandleDokumentServiceFeil FACTORY = FeilFactory
+                .create(BehandleDokumentService.BehandleDokumentServiceFeil.class);
 
         @FunksjonellFeil(feilkode = "FP-963070", feilmelding = "Kan ikke journalføre på saksnummer: %s", løsningsforslag = "Journalføre dokument på annen sak i VL", logLevel = LogLevel.WARN)
         Feil finnerIkkeFagsak(String saksnummer);

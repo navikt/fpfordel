@@ -21,9 +21,7 @@ import no.nav.foreldrepenger.mottak.klient.TilbakekrevingRestKlient;
 @ApplicationScoped
 public class KlargjørForVLTjeneste {
 
-    private final String TILBAKE = "fpfordel.tilbake.sendjpost";
-
-    private static final Logger log = LoggerFactory.getLogger(KlargjørForVLTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KlargjørForVLTjeneste.class);
 
     private DokumentmottakRestKlient restKlient;
     private FagsakRestKlient fagsakRestKlient;
@@ -72,7 +70,7 @@ public class KlargjørForVLTjeneste {
             tilbakeMottakDto.setJournalForendeEnhet(journalFørendeEnhet);
             tilbakekrevingRestKlient.send(tilbakeMottakDto);
         } catch (Exception e) {
-            log.warn("Feil ved sending av forsendelse til fptilbake, ukjent feil", e);
+            LOG.warn("Feil ved sending av forsendelse til fptilbake, ukjent feil", e);
         }
     }
 

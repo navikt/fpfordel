@@ -1,24 +1,26 @@
 package no.nav.foreldrepenger.mottak.queue;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.control.ActivateRequestContext;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.task.joark.HentDataFraJoarkTask;
 import no.nav.melding.virksomhet.dokumentnotifikasjon.v1.XMLForsendelsesinformasjon;
-import no.nav.vedtak.felles.AktiverContextOgTransaksjon;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ApplicationScoped
-@AktiverContextOgTransaksjon
+@ActivateRequestContext
+@Transactional
 public class ProsesstaskMeldingsfordeler implements MeldingsFordeler {
 
     private ProsessTaskRepository prosessTaskRepository;
 
-    ProsesstaskMeldingsfordeler() {//NOSONAR.
+    ProsesstaskMeldingsfordeler() {// NOSONAR.
         // for CDI proxy
     }
 
@@ -40,7 +42,8 @@ public class ProsesstaskMeldingsfordeler implements MeldingsFordeler {
 
         final Tema tema = Tema.fraOffisiellKode(forsendelsesinfo.getTema().getValue());
 
-        MottakMeldingDataWrapper hentFraJoarkMelding = new MottakMeldingDataWrapper(new ProsessTaskData(HentDataFraJoarkTask.TASKNAME));
+        MottakMeldingDataWrapper hentFraJoarkMelding = new MottakMeldingDataWrapper(
+                new ProsessTaskData(HentDataFraJoarkTask.TASKNAME));
         settForsendelseInformasjonPåWrapper(arkivId, behandlingTema, tema, hentFraJoarkMelding);
 
         ProsessTaskData prosessTaskData = hentFraJoarkMelding.getProsessTaskData();
@@ -50,9 +53,9 @@ public class ProsesstaskMeldingsfordeler implements MeldingsFordeler {
     }
 
     private void settForsendelseInformasjonPåWrapper(String arkivId,
-                                                     BehandlingTema behandlingTema,
-                                                     Tema tema,
-                                                     MottakMeldingDataWrapper dataWrapper) {
+            BehandlingTema behandlingTema,
+            Tema tema,
+            MottakMeldingDataWrapper dataWrapper) {
         dataWrapper.setArkivId(arkivId);
         dataWrapper.setTema(tema);
         dataWrapper.setBehandlingTema(behandlingTema);

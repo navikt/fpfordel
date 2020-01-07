@@ -15,7 +15,6 @@ import javax.inject.Inject;
 import no.nav.dok.tjenester.mottainngaaendeforsendelse.ForsendelseInformasjon;
 import no.nav.dok.tjenester.mottainngaaendeforsendelse.MottaInngaaendeForsendelseRequest;
 import no.nav.dok.tjenester.mottainngaaendeforsendelse.MottaInngaaendeForsendelseResponse;
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.kodeverdi.VariantFormat;
@@ -70,20 +69,20 @@ public class JournalTjeneste {
     private static final String PERSON_KEY = "person";
     private static final String MOTTAK_KANAL_NAV_NO = "NAV_NO";
 
-    private JournalConsumer journalConsumer;
-    private InngaaendeJournalConsumer inngaaendeJournalConsumer;
-    private BehandleInngaaendeJournalConsumer behandleInngaaendeJournalConsumer;
-    private MottaInngaaendeForsendelseRestKlient mottaInngaaendeForsendelseKlient;
-    private AktørConsumer aktørConsumer;
+    private final JournalConsumer journalConsumer;
+    private final InngaaendeJournalConsumer inngaaendeJournalConsumer;
+    private final BehandleInngaaendeJournalConsumer behandleInngaaendeJournalConsumer;
+    private final MottaInngaaendeForsendelseRestKlient mottaInngaaendeForsendelseKlient;
+    private final AktørConsumer aktørConsumer;
 
     private JournalTjenesteUtil journalTjenesteUtil;
 
     @Inject
     public JournalTjeneste(JournalConsumer journalConsumer,
-                           InngaaendeJournalConsumer inngaaendeJournalConsumer,
-                           BehandleInngaaendeJournalConsumer behandleInngaaendeJournalConsumer,
-                           MottaInngaaendeForsendelseRestKlient mottaInngaaendeForsendelseKlient,
-                           AktørConsumer aktørConsumer) {
+            InngaaendeJournalConsumer inngaaendeJournalConsumer,
+            BehandleInngaaendeJournalConsumer behandleInngaaendeJournalConsumer,
+            MottaInngaaendeForsendelseRestKlient mottaInngaaendeForsendelseKlient,
+            AktørConsumer aktørConsumer) {
         this.journalConsumer = journalConsumer;
         this.inngaaendeJournalConsumer = inngaaendeJournalConsumer;
         this.behandleInngaaendeJournalConsumer = behandleInngaaendeJournalConsumer;
@@ -92,7 +91,7 @@ public class JournalTjeneste {
         this.journalTjenesteUtil = new JournalTjenesteUtil();
     }
 
-    public <T extends DokumentTypeId> JournalDokument<T> hentDokument(JournalMetadata<T> journalMetadata) {
+    public JournalDokument hentDokument(JournalMetadata journalMetadata) {
         if (journalMetadata == null) {
             throw new IllegalArgumentException("Inputdata er ikke satt");
         }
@@ -100,8 +99,10 @@ public class JournalTjeneste {
         journalConsumerRequest.setDokumentId(journalMetadata.getDokumentId());
         journalConsumerRequest.setJournalpostId(journalMetadata.getJournalpostId());
         no.nav.tjeneste.virksomhet.journal.v2.informasjon.Variantformater variantformater = new no.nav.tjeneste.virksomhet.journal.v2.informasjon.Variantformater();
-        String variantFormatOffisiellKode = journalMetadata.getVariantFormat() == null || VariantFormat.UDEFINERT.equals(journalMetadata.getVariantFormat())
-                ? null : journalMetadata.getVariantFormat().getKode();
+        String variantFormatOffisiellKode = journalMetadata.getVariantFormat() == null
+                || VariantFormat.UDEFINERT.equals(journalMetadata.getVariantFormat())
+                        ? null
+                        : journalMetadata.getVariantFormat().getKode();
         variantformater.setValue(variantFormatOffisiellKode);
         journalConsumerRequest.setVariantformat(variantformater);
 
@@ -114,10 +115,10 @@ public class JournalTjeneste {
         } catch (HentDokumentSikkerhetsbegrensning e) {
             throw JournalFeil.FACTORY.journalUtilgjengeligSikkerhetsbegrensning("Hent dokument", e).toException();
         }
-        return new JournalDokument<>(journalMetadata, new String(response, StandardCharsets.UTF_8));
+        return new JournalDokument(journalMetadata, new String(response, StandardCharsets.UTF_8));
     }
 
-    public List<JournalMetadata<DokumentTypeId>> hentMetadata(String journalpostId) {
+    public List<JournalMetadata> hentMetadata(String journalpostId) {
         HentJournalpostRequest request = new HentJournalpostRequest();
         request.setJournalpostId(journalpostId);
 
@@ -141,11 +142,13 @@ public class JournalTjeneste {
         UtledJournalfoeringsbehovRequest request = new UtledJournalfoeringsbehovRequest();
         request.setJournalpostId(journalpostId);
         try {
-            UtledJournalfoeringsbehovResponse utledJournalfoeringsbehovResponse = inngaaendeJournalConsumer.utledJournalfoeringsbehov(request);
+            UtledJournalfoeringsbehovResponse utledJournalfoeringsbehovResponse = inngaaendeJournalConsumer
+                    .utledJournalfoeringsbehov(request);
             JournalpostMangler journalfoeringsbehov = utledJournalfoeringsbehovResponse.getJournalfoeringsbehov();
             return journalTjenesteUtil.konverterTilJournalmangler(journalfoeringsbehov);
         } catch (UtledJournalfoeringsbehovSikkerhetsbegrensning e) {
-            throw JournalFeil.FACTORY.journalUtilgjengeligSikkerhetsbegrensning("Utled journalføringsbehov", e).toException();
+            throw JournalFeil.FACTORY.journalUtilgjengeligSikkerhetsbegrensning("Utled journalføringsbehov", e)
+                    .toException();
         } catch (UtledJournalfoeringsbehovUgyldigInput e) {
             throw JournalFeil.FACTORY.utledJournalfoeringsbehovUgyldigInput(e).toException();
         } catch (UtledJournalfoeringsbehovJournalpostKanIkkeBehandles e) {
@@ -222,7 +225,8 @@ public class JournalTjeneste {
         try {
             behandleInngaaendeJournalConsumer.oppdaterJournalpost(request);
         } catch (OppdaterJournalpostSikkerhetsbegrensning e) {
-            throw JournalFeil.FACTORY.journalUtilgjengeligSikkerhetsbegrensning("Oppdater journalpost", e).toException();
+            throw JournalFeil.FACTORY.journalUtilgjengeligSikkerhetsbegrensning("Oppdater journalpost", e)
+                    .toException();
         } catch (OppdaterJournalpostOppdateringIkkeMulig e) {
             throw JournalFeil.FACTORY.oppdaterJournalpostOppdateringIkkeMulig(e).toException();
         } catch (OppdaterJournalpostUgyldigInput e) {
@@ -234,7 +238,8 @@ public class JournalTjeneste {
         }
     }
 
-    public DokumentforsendelseResponse journalførDokumentforsendelse(DokumentforsendelseRequest dokumentforsendelseRequest) {
+    public DokumentforsendelseResponse journalførDokumentforsendelse(
+            DokumentforsendelseRequest dokumentforsendelseRequest) {
         String forsendelseId = dokumentforsendelseRequest.getForsendelseId();
         MottaInngaaendeForsendelseRequest request = new MottaInngaaendeForsendelseRequest();
         request.setForsokEndeligJF(dokumentforsendelseRequest.getForsøkEndeligJF());
@@ -248,12 +253,14 @@ public class JournalTjeneste {
         forsendelseInformasjon.setBruker(bruker);
 
         no.nav.dok.tjenester.mottainngaaendeforsendelse.Aktoer avsender = new no.nav.dok.tjenester.mottainngaaendeforsendelse.Aktoer();
-        avsender.setAdditionalProperty(AKTØR_ID_KEY, lagAktørStruktur(dokumentforsendelseRequest.getAvsender().orElse(dokumentforsendelseRequest.getBruker())));
+        avsender.setAdditionalProperty(AKTØR_ID_KEY, lagAktørStruktur(
+                dokumentforsendelseRequest.getAvsender().orElse(dokumentforsendelseRequest.getBruker())));
         forsendelseInformasjon.setAvsender(avsender);
 
         forsendelseInformasjon.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode());
         if (dokumentforsendelseRequest.getRetrySuffix().isPresent()) {
-            forsendelseInformasjon.setKanalReferanseId(forsendelseId + "-" + dokumentforsendelseRequest.getRetrySuffix().get());
+            forsendelseInformasjon
+                    .setKanalReferanseId(forsendelseId + "-" + dokumentforsendelseRequest.getRetrySuffix().get());
         } else {
             forsendelseInformasjon.setKanalReferanseId(forsendelseId);
         }
@@ -262,15 +269,18 @@ public class JournalTjeneste {
         forsendelseInformasjon.setMottaksKanal(MOTTAK_KANAL_NAV_NO);
         forsendelseInformasjon.setTittel(dokumentforsendelseRequest.getTittel());
         if (forsendelseInformasjon.getTittel() == null && !dokumentforsendelseRequest.getHoveddokument().isEmpty()) {
-            forsendelseInformasjon.setTittel(journalTjenesteUtil.tittelFraDokument(dokumentforsendelseRequest.getHoveddokument().get(0), dokumentforsendelseRequest.getForsøkEndeligJF(), true));
+            forsendelseInformasjon.setTittel(
+                    journalTjenesteUtil.tittelFraDokument(dokumentforsendelseRequest.getHoveddokument().get(0),
+                            dokumentforsendelseRequest.getForsøkEndeligJF(), true));
         } else {
             JournalFeil.FACTORY.kunneIkkeUtledeForsendelseTittel(forsendelseId);
         }
 
         String saksnummer = dokumentforsendelseRequest.getSaksnummer();
-        if(saksnummer != null) {
+        if (saksnummer != null) {
             no.nav.dok.tjenester.mottainngaaendeforsendelse.ArkivSak arkivSak = new no.nav.dok.tjenester.mottainngaaendeforsendelse.ArkivSak();
-            arkivSak.setArkivSakSystem(no.nav.dok.tjenester.mottainngaaendeforsendelse.ArkivSak.ArkivSakSystem.fromValue(Fagsystem.GOSYS.getKode()));
+            arkivSak.setArkivSakSystem(no.nav.dok.tjenester.mottainngaaendeforsendelse.ArkivSak.ArkivSakSystem
+                    .fromValue(Fagsystem.GOSYS.getKode()));
             arkivSak.setArkivSakId(saksnummer);
             forsendelseInformasjon.setArkivSak(arkivSak);
         }
@@ -278,11 +288,13 @@ public class JournalTjeneste {
         request.setForsendelseInformasjon(forsendelseInformasjon);
 
         if (!dokumentforsendelseRequest.getHoveddokument().isEmpty()) {
-            request.setDokumentInfoHoveddokument(journalTjenesteUtil.konverterTilDokumentInfoHoveddokument(dokumentforsendelseRequest.getHoveddokument()));
+            request.setDokumentInfoHoveddokument(journalTjenesteUtil
+                    .konverterTilDokumentInfoHoveddokument(dokumentforsendelseRequest.getHoveddokument()));
         }
 
         Boolean harHoveddokument = !dokumentforsendelseRequest.getHoveddokument().isEmpty();
-        request.setDokumentInfoVedlegg(journalTjenesteUtil.konverterTilDokumentInfoVedlegg(dokumentforsendelseRequest.getVedlegg(), harHoveddokument,
+        request.setDokumentInfoVedlegg(journalTjenesteUtil.konverterTilDokumentInfoVedlegg(
+                dokumentforsendelseRequest.getVedlegg(), harHoveddokument,
                 dokumentforsendelseRequest.getForsøkEndeligJF()));
 
         MottaInngaaendeForsendelseResponse response = mottaInngaaendeForsendelseKlient.journalførForsendelse(request);

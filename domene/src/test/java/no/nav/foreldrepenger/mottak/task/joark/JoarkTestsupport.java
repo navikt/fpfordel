@@ -34,9 +34,9 @@ class JoarkTestsupport {
         taskData.setSekvens("1");
     }
 
-    JournalMetadata.Builder<DokumentTypeId> lagJournalMetadata(ArkivFilType arkivfilType, List<String> brukerListe,
-                                                               VariantFormat variantFormat, DokumentTypeId dokumentTypeId) {
-        JournalMetadata.Builder<DokumentTypeId> builder = JournalMetadata.builder();
+    JournalMetadata.Builder lagJournalMetadata(ArkivFilType arkivfilType, List<String> brukerListe,
+            VariantFormat variantFormat, DokumentTypeId dokumentTypeId) {
+        JournalMetadata.Builder builder = JournalMetadata.builder();
         builder.medJournalpostId(ARKIV_ID);
         builder.medDokumentId(DOKUMENT_ID);
         builder.medVariantFormat(variantFormat);
@@ -50,23 +50,26 @@ class JoarkTestsupport {
         return builder;
     }
 
-    JournalMetadata<DokumentTypeId> lagJournalMetadataUstrukturert(List<String> brukerListe) {
-        return lagJournalMetadata(ArkivFilType.PDF, brukerListe, VariantFormat.ARKIV, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL).build();
+    JournalMetadata lagJournalMetadataUstrukturert(List<String> brukerListe) {
+        return lagJournalMetadata(ArkivFilType.PDF, brukerListe, VariantFormat.ARKIV,
+                DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL).build();
     }
 
-    JournalMetadata<DokumentTypeId> lagJournalMetadataUstrukturert() {
-        return lagJournalMetadata(ArkivFilType.PDF, brukerListe, VariantFormat.ARKIV, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL).build();
+    JournalMetadata lagJournalMetadataUstrukturert() {
+        return lagJournalMetadata(ArkivFilType.PDF, brukerListe, VariantFormat.ARKIV,
+                DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL).build();
     }
 
-    JournalMetadata<DokumentTypeId> lagJournalMetadataUstrukturert(DokumentTypeId dokumentTypeId) {
+    JournalMetadata lagJournalMetadataUstrukturert(DokumentTypeId dokumentTypeId) {
         return lagJournalMetadata(ArkivFilType.PDF, brukerListe, VariantFormat.ARKIV, dokumentTypeId).build();
     }
 
-    JournalMetadata<DokumentTypeId> lagJournalMetadataStrukturert() {
-        return lagJournalMetadata(ArkivFilType.XML, brukerListe, VariantFormat.FULLVERSJON, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL).build();
+    JournalMetadata lagJournalMetadataStrukturert() {
+        return lagJournalMetadata(ArkivFilType.XML, brukerListe, VariantFormat.FULLVERSJON,
+                DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL).build();
     }
 
-    JournalMetadata<DokumentTypeId> lagJournalMetadataStrukturert(DokumentTypeId dokumentTypeId) {
+    JournalMetadata lagJournalMetadataStrukturert(DokumentTypeId dokumentTypeId) {
         return lagJournalMetadata(ArkivFilType.XML, brukerListe, VariantFormat.FULLVERSJON, dokumentTypeId).build();
     }
 

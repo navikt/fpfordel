@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,12 +23,13 @@ import no.nav.foreldrepenger.mottak.tjeneste.TilJournalføringTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 /**
- * <p>ProssessTask som utleder journalføringsbehov og forsøker rette opp disse.</p>
+ * <p>
+ * ProssessTask som utleder journalføringsbehov og forsøker rette opp disse.
+ * </p>
  */
 @Dependent
 @ProsessTask(TilJournalføringTask.TASKNAME)
@@ -45,10 +47,10 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
 
     @Inject
     public TilJournalføringTask(ProsessTaskRepository prosessTaskRepository,
-                                TilJournalføringTjeneste journalføringTjeneste,
-                                EnhetsTjeneste enhetsidTjeneste,
-                                DokumentRepository dokumentRepository,
-                                AktørConsumerMedCache aktørConsumer) {
+            TilJournalføringTjeneste journalføringTjeneste,
+            EnhetsTjeneste enhetsidTjeneste,
+            DokumentRepository dokumentRepository,
+            AktørConsumerMedCache aktørConsumer) {
         super(prosessTaskRepository);
         this.journalføring = journalføringTjeneste;
         this.enhetsidTjeneste = enhetsidTjeneste;
@@ -59,36 +61,45 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
     @Override
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
         if (!dataWrapper.getAktørId().isPresent()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME, MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
         }
         if (!dataWrapper.getSaksnummer().isPresent()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME, MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId()).toException();
         }
     }
 
-    @Transaction
+    @Transactional
     @Override
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper dataWrapper) {
-        Optional<String> fnr = aktør.hentPersonIdentForAktørId(dataWrapper.getAktørId().get());//NOSONAR
+        Optional<String> fnr = aktør.hentPersonIdentForAktørId(dataWrapper.getAktørId().get());// NOSONAR
         if (fnr.isEmpty()) {
             throw MottakMeldingFeil.FACTORY.fantIkkePersonidentForAktørId(TASKNAME, dataWrapper.getId()).toException();
         }
-        String enhetsId = enhetsidTjeneste.hentFordelingEnhetId(dataWrapper.getTema(), dataWrapper.getBehandlingTema(), dataWrapper.getJournalførendeEnhet(), fnr);
+        String enhetsId = enhetsidTjeneste.hentFordelingEnhetId(dataWrapper.getTema(), dataWrapper.getBehandlingTema(),
+                dataWrapper.getJournalførendeEnhet(), fnr);
         if (dataWrapper.getArkivId() == null) {
             UUID forsendelseId = dataWrapper.getForsendelseId().orElseThrow(IllegalStateException::new);
             Boolean forsøkEndeligJF = true;
-            DokumentforsendelseResponse response = journalføring.journalførDokumentforsendelse(forsendelseId, dataWrapper.getSaksnummer(), dataWrapper.getAvsenderId(), forsøkEndeligJF, dataWrapper.getRetryingTask());
+            DokumentforsendelseResponse response = journalføring.journalførDokumentforsendelse(forsendelseId,
+                    dataWrapper.getSaksnummer(), dataWrapper.getAvsenderId(), forsøkEndeligJF,
+                    dataWrapper.getRetryingTask());
             dataWrapper.setArkivId(response.getJournalpostId());
-            // Hvis endelig journalføring feiler (fx pga doktype annet), send til manuell journalføring (journalpost er opprettet).
+            // Hvis endelig journalføring feiler (fx pga doktype annet), send til manuell
+            // journalføring (journalpost er opprettet).
             if (!JournalTilstand.ENDELIG_JOURNALFØRT.equals(response.getJournalTilstand())) {
-                MottakMeldingFeil.FACTORY.feilJournalTilstandForventetTilstandEndelig(response.getJournalTilstand()).log(LOG);
-                dokumentRepository.oppdaterForseldelseMedArkivId(forsendelseId, dataWrapper.getArkivId(), ForsendelseStatus.GOSYS);
+                MottakMeldingFeil.FACTORY.feilJournalTilstandForventetTilstandEndelig(response.getJournalTilstand())
+                        .log(LOG);
+                dokumentRepository.oppdaterForseldelseMedArkivId(forsendelseId, dataWrapper.getArkivId(),
+                        ForsendelseStatus.GOSYS);
                 return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
             }
         } else {
             String innhold = dataWrapper.getDokumentTypeId().map(DokumentTypeId::getTermNavn).orElse("Ukjent innhold");
             try {
-                if (!journalføring.tilJournalføring(dataWrapper.getArkivId(), dataWrapper.getSaksnummer().get(), dataWrapper.getAktørId().get(), enhetsId, innhold)) {
+                if (!journalføring.tilJournalføring(dataWrapper.getArkivId(), dataWrapper.getSaksnummer().get(),
+                        dataWrapper.getAktørId().get(), enhetsId, innhold)) {
                     return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
                 }
             } catch (IntegrasjonException e) {
@@ -102,7 +113,8 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             }
         }
         Optional<UUID> forsendelseId = dataWrapper.getForsendelseId();
-        forsendelseId.ifPresent(uuid -> dokumentRepository.oppdaterForsendelseMetadata(uuid, dataWrapper.getArkivId(), dataWrapper.getSaksnummer().get(), ForsendelseStatus.PENDING));
+        forsendelseId.ifPresent(uuid -> dokumentRepository.oppdaterForsendelseMetadata(uuid, dataWrapper.getArkivId(),
+                dataWrapper.getSaksnummer().get(), ForsendelseStatus.PENDING));
         return dataWrapper.nesteSteg(KlargjorForVLTask.TASKNAME);
     }
 }

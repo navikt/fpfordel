@@ -74,7 +74,7 @@ public class BehandleDokumentServiceTest {
     private BehandlingTema foreldrepenger;
     private BehandlingTema engangsstønad;
     private String navnDokumentTypeId;
-    private JournalMetadata<DokumentTypeId> journalMetadata;
+    private JournalMetadata journalMetadata;
 
     @SuppressWarnings("unchecked")
     @Before
@@ -99,7 +99,7 @@ public class BehandleDokumentServiceTest {
         when(hentDataFraJoarkTjenesteMock.hentHoveddokumentMetadata(JOURNALPOST_ID))
                 .thenReturn(Optional.of(journalMetadata));
 
-        JournalDokument<?> journalDokument = mock(JournalDokument.class);
+        JournalDokument journalDokument = mock(JournalDokument.class);
         when(hentDataFraJoarkTjenesteMock.hentStrukturertJournalDokument(any(JournalMetadata.class)))
                 .thenReturn(Optional.of(journalDokument));
 
@@ -110,7 +110,8 @@ public class BehandleDokumentServiceTest {
         when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.empty());
         when(aktørConsumer.hentAktørIdForPersonIdent(BRUKER_FNR)).thenReturn(Optional.of(AKTØR_ID));
 
-        behandleDokumentService = new BehandleDokumentService(tilJournalføringTjenesteMock, hentDataFraJoarkTjenesteMock, klargjørForVLTjenesteMock,
+        behandleDokumentService = new BehandleDokumentService(tilJournalføringTjenesteMock,
+                hentDataFraJoarkTjenesteMock, klargjørForVLTjenesteMock,
                 fagsakRestKlientMock, aktørConsumer);
     }
 
@@ -157,7 +158,8 @@ public class BehandleDokumentServiceTest {
 
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
-                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, BehandlingTema.UDEFINERT.getOffisiellKode(), false)));
+                .thenReturn(Optional
+                        .of(new FagsakInfomasjonDto(AKTØR_ID, BehandlingTema.UDEFINERT.getOffisiellKode(), false)));
 
         when(journalMetadata.getDokumentTypeId()).thenReturn(DokumentTypeId.KLAGE_DOKUMENT);
         when(journalMetadata.getDokumentKategori()).thenReturn(Optional.of(DokumentKategori.KLAGE_ELLER_ANKE));
@@ -207,16 +209,18 @@ public class BehandleDokumentServiceTest {
                 .thenReturn(
                         Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepengerFødsel.getOffisiellKode(), false)));
 
-        JournalMetadata<DokumentTypeId> dokument = lagJournalMetadata(DokumentTypeId.INNTEKTSMELDING);
+        JournalMetadata dokument = lagJournalMetadata(DokumentTypeId.INNTEKTSMELDING);
         String xml = readFile("testdata/inntektsmelding-foreldrepenger.xml");
-        JournalDokument<DokumentTypeId> jdMock = new JournalDokument<>(dokument, xml);
+        JournalDokument jdMock = new JournalDokument(dokument, xml);
 
         doReturn(Optional.of(jdMock)).when(hentDataFraJoarkTjenesteMock).hentStrukturertJournalDokument(any());
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID, dokumentTypeId.getTermNavn());
-        verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(), eq(foreldrepengerFødsel), any(), any(), any());
+        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
+                dokumentTypeId.getTermNavn());
+        verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+                eq(foreldrepengerFødsel), any(), any(), any());
     }
 
     @Test(expected = FunksjonellException.class)
@@ -229,9 +233,9 @@ public class BehandleDokumentServiceTest {
                 .thenReturn(
                         Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepengerFødsel.getOffisiellKode(), false)));
 
-        JournalMetadata<DokumentTypeId> dokument = lagJournalMetadata(DokumentTypeId.INNTEKTSMELDING);
+        JournalMetadata dokument = lagJournalMetadata(DokumentTypeId.INNTEKTSMELDING);
         String xml = readFile("testdata/inntektsmelding-svangerskapspenger.xml");
-        JournalDokument<DokumentTypeId> jdMock = new JournalDokument<>(dokument, xml);
+        JournalDokument jdMock = new JournalDokument(dokument, xml);
 
         doReturn(Optional.of(jdMock)).when(hentDataFraJoarkTjenesteMock).hentStrukturertJournalDokument(any());
 
@@ -247,9 +251,9 @@ public class BehandleDokumentServiceTest {
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode(), false)));
 
-        JournalMetadata<DokumentTypeId> dokument = lagJournalMetadata(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
+        JournalMetadata dokument = lagJournalMetadata(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
         String xml = readFile("testdata/selvb-soeknad-forp-uttak-før-konfigverdi.xml");
-        JournalDokument<DokumentTypeId> jdMock = new JournalDokument<DokumentTypeId>(dokument, xml);
+        JournalDokument jdMock = new JournalDokument(dokument, xml);
 
         doReturn(Optional.of(jdMock)).when(hentDataFraJoarkTjenesteMock).hentStrukturertJournalDokument(any());
 
@@ -270,9 +274,9 @@ public class BehandleDokumentServiceTest {
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode(), false)));
 
-        JournalMetadata<DokumentTypeId> dokument = lagJournalMetadata(DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON);
+        JournalMetadata dokument = lagJournalMetadata(DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON);
         String xml = readFile("testdata/fp-adopsjon-far.xml");
-        JournalDokument<DokumentTypeId> jdMock = new JournalDokument<DokumentTypeId>(dokument, xml);
+        JournalDokument jdMock = new JournalDokument(dokument, xml);
 
         doReturn(Optional.of(jdMock)).when(hentDataFraJoarkTjenesteMock).hentStrukturertJournalDokument(any());
 
@@ -293,16 +297,18 @@ public class BehandleDokumentServiceTest {
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode(), false)));
 
-        JournalMetadata<DokumentTypeId> dokument = lagJournalMetadata(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
+        JournalMetadata dokument = lagJournalMetadata(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
         String xml = readFile("testdata/selvb-soeknad-forp.xml");
-        JournalDokument<DokumentTypeId> jdMock = new JournalDokument<DokumentTypeId>(dokument, xml);
+        JournalDokument jdMock = new JournalDokument(dokument, xml);
 
         doReturn(Optional.of(jdMock)).when(hentDataFraJoarkTjenesteMock).hentStrukturertJournalDokument(any());
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID, dokumentTypeId.getTermNavn());
-        verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(), eq(foreldrepengerFødsel), any(), any(), any());
+        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
+                dokumentTypeId.getTermNavn());
+        verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+                eq(foreldrepengerFødsel), any(), any(), any());
     }
 
     @Test
@@ -314,16 +320,18 @@ public class BehandleDokumentServiceTest {
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode(), false)));
 
-        JournalMetadata<DokumentTypeId> dokument = lagJournalMetadata(DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON);
+        JournalMetadata dokument = lagJournalMetadata(DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON);
         String xml = readFile("testdata/fp-adopsjon-mor.xml");
-        JournalDokument<DokumentTypeId> jdMock = new JournalDokument<DokumentTypeId>(dokument, xml);
+        JournalDokument jdMock = new JournalDokument(dokument, xml);
 
         doReturn(Optional.of(jdMock)).when(hentDataFraJoarkTjenesteMock).hentStrukturertJournalDokument(any());
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID, dokumentTypeId.getTermNavn());
-        verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(), eq(foreldrepengerAdopsjon), any(), any(), any());
+        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
+                dokumentTypeId.getTermNavn());
+        verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+                eq(foreldrepengerAdopsjon), any(), any(), any());
     }
 
     @Test
@@ -335,16 +343,18 @@ public class BehandleDokumentServiceTest {
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode(), false)));
 
-        JournalMetadata<DokumentTypeId> dokument = lagJournalMetadata(DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD);
+        JournalMetadata dokument = lagJournalMetadata(DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD);
         String xml = readFile("testdata/selvb-soeknad-endring.xml");
-        JournalDokument<DokumentTypeId> jdMock = new JournalDokument<DokumentTypeId>(dokument, xml);
+        JournalDokument jdMock = new JournalDokument(dokument, xml);
 
         doReturn(Optional.of(jdMock)).when(hentDataFraJoarkTjenesteMock).hentStrukturertJournalDokument(any());
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID, dokumentTypeId.getTermNavn());
-        verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(), eq(foreldrepenger), any(), any(), any());
+        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
+                dokumentTypeId.getTermNavn());
+        verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+                eq(foreldrepenger), any(), any(), any());
     }
 
     @Test
@@ -368,8 +378,8 @@ public class BehandleDokumentServiceTest {
         return request;
     }
 
-    JournalMetadata<DokumentTypeId> lagJournalMetadata(DokumentTypeId dokumentTypeId) {
-        JournalMetadata.Builder<DokumentTypeId> builder = JournalMetadata.builder();
+    JournalMetadata lagJournalMetadata(DokumentTypeId dokumentTypeId) {
+        JournalMetadata.Builder builder = JournalMetadata.builder();
         builder.medJournalpostId(JOURNALPOST_ID);
         builder.medDokumentId(ENHETID);
         builder.medVariantFormat(VariantFormat.FULLVERSJON);
