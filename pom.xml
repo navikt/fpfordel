@@ -17,16 +17,6 @@
     </modules>
 
     <properties>
-        <sonar.language />
-        <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
-        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-        <sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
-        <sonar.java.source>${java.version}</sonar.java.source>
-        <sonar.exclusions>**/test/**,**/testutilities/**,**/fitnesse/**,**/swagger/**,**/docs/**</sonar.exclusions>
-        <sonar.coverage.exclusions>${sonar.exclusions}</sonar.coverage.exclusions>
-        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-        <sonar.jacoco.itReportPath>${maven.root}/target/jacoco-it.exec</sonar.jacoco.itReportPath>
-        <sonar.jacoco.reportPath>${maven.root}/target/jacoco.exec</sonar.jacoco.reportPath>
         <junit5.version>5.5.2</junit5.version>
         <tjenestespesifikasjon.version>1.2019.12.13-19.12-aea1d1642d8a</tjenestespesifikasjon.version>
         <revision>2.0</revision>
@@ -310,6 +300,18 @@
         <pluginManagement>
             <plugins>
                 <plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>0.8.5</version>
+					<executions>
+						<execution>
+						    <goals>
+						      <goal>prepare-agent</goal>
+						    </goals>
+						</execution>
+					</executions>
+			    </plugin>
+                <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>buildnumber-maven-plugin</artifactId>
                     <version>1.4</version>
@@ -406,45 +408,19 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
-             <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>agent</id>
-                                <goals>
-                                    <goal>prepare-agent</goal>
-                                </goals>
-                                <configuration>
-                                    <propertyName>jacoco.agent.argLine</propertyName>
-                                    <destFile>${sonar.jacoco.reportPath}</destFile>
-                                    <append>true</append>
-                                    <excludes>${sonar.coverage.exclusions}</excludes>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>agent-it</id>
-                                <goals>
-                                    <goal>prepare-agent-integration</goal>
-                                </goals>
-                                <configuration>
-                                    <propertyName>jacoco.agent.itArgLine</propertyName>
-                                    <destFile>${sonar.jacoco.itReportPath}</destFile>
-                                    <append>true</append>
-                                    <excludes>${sonar.coverage.exclusions}</excludes>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <argLine>${jacoco.agent.argLine} -Xms384M
-                                -Dfile.encoding=UTF-8</argLine>
-                        </configuration>
-                    </plugin>
+            <plugin>
+			      <groupId>org.jacoco</groupId>
+			      <artifactId>jacoco-maven-plugin</artifactId>
+			      <executions>
+				<execution>
+				  <id>report</id>
+				  <goals>
+				    <goal>report-aggregate</goal>
+				  </goals>
+				  <phase>install</phase>
+				</execution>
+			      </executions>
+			</plugin>
         </plugins>
     </build>
     <scm>
