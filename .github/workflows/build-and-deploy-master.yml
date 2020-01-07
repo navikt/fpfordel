@@ -64,9 +64,7 @@ jobs:
           GITHUB_PASSWORD: ${{ secrets.GHA }}  
      
       - name: Sonar
-        run: |
-          echo "::set-env name=IMAGE::$IMAGE_BASE:$TAG" 
-          mvn  sonar:sonar  --settings .github/workflows/.m2/settings.xml -Dsonar.projectKey="navikt_fpfordel" -Dsonar.login=${SONAR}
+        run:  mvn  sonar:sonar  --settings .github/workflows/.m2/settings.xml -Dsonar.projectKey="navikt_fpfordel" -Dsonar.login=${SONAR}
         env:
           SONAR: ${{ secrets.SONAR }} 
           GITHUB_USERNAME: x-access-token
