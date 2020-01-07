@@ -27,9 +27,10 @@
         <argLine>-Xms256m -Dfile.encoding=UTF-8 -Dlog.level.no.nav=WARN</argLine> <!-- default argLine for surefire-plugin -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-       <!--  <felles.version>1.4.2-20191218110056-fa5b90a</felles.version>  -->
-        <felles.version>1.4.2-20191218142505-f63b3cc</felles.version>
+
+        <felles.version>1.4.2-20191222184517-48d83b6</felles.version>
         <metrics.version>4.1.2</metrics.version>
+        <prometheus.version>0.8.0</prometheus.version>
         <fp-kontrakter.version>5.1_20191210141010_6a7f399</fp-kontrakter.version>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.organization>navit</sonar.organization>
@@ -69,6 +70,11 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>felles-integrasjon-bom</artifactId>
+                <version>${felles.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>infotrygd-saker-klient</artifactId>
                 <version>${felles.version}</version>
             </dependency>
 
@@ -143,6 +149,31 @@
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-healthchecks</artifactId>
                 <version>${metrics.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_dropwizard</artifactId>
+                <version>${prometheus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_servlet</artifactId>
+                <version>${prometheus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient</artifactId>
+                <version>${prometheus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_hotspot</artifactId>
+                <version>${prometheus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_common</artifactId>
+                <version>${prometheus.version}</version>
             </dependency>
 
             <!-- Transitive avhengighet resolution for å sikre bestemt versjon -->

@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.prometheus.client.hotspot.DefaultExports;
 import no.nav.vedtak.apptjeneste.AppServiceHandler;
 
 @ApplicationScoped
@@ -32,6 +33,7 @@ public class ApplicationServiceStarter {
     }
 
     public void startServices() {
+        DefaultExports.initialize();
         serviceMap.forEach((key, value) -> {
             if (value.compareAndSet(false, true)) {
                 LOGGER.info("starter service: {}", key.getClass().getSimpleName());
