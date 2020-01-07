@@ -9,6 +9,12 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
+import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.AvsluttedeSaker;
+import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.AvsluttetSak;
+import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.IkkeStartetSak;
+import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.LøpendeSak;
+import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
+import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Sak;
 
 public final class InfotrygdRestResponseMapper {
 
