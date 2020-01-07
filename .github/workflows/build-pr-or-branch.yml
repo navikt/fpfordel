@@ -1,4 +1,4 @@
-name: Build PR
+name: Bygg PR eller branches
 
 on:
   pull_request:
