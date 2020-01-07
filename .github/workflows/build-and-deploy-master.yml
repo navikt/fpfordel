@@ -58,7 +58,7 @@ jobs:
       - name: Kompiler
         run: |
           echo "::set-env name=IMAGE::$IMAGE_BASE:$TAG" 
-          mvn -P runSonar --quiet clean install sonar:sonar --batch-mode --settings .github/workflows/.m2/settings.xml -Dchangelist= -Dsha1=-$TAG -Dsonar.projectKey="navikt_fpfordel" -Dsonar.login=${SONAR}
+          mvn --quiet clean install sonar:sonar --batch-mode --settings .github/workflows/.m2/settings.xml -Dchangelist= -Dsha1=-$TAG -Dsonar.projectKey="navikt_fpfordel" -Dsonar.login=${SONAR}
         env:
           SONAR: ${{ secrets.SONAR }} 
           GITHUB_USERNAME: x-access-token
