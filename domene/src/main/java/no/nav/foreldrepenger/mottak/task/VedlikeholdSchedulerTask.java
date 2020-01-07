@@ -90,7 +90,7 @@ public class VedlikeholdSchedulerTask implements ProsessTaskHandler {
                 taskTypesMaxForsøk.put(tasktype, forsøk);
             }
         });
-        ptdList.forEach((ptd) -> {
+        ptdList.forEach(ptd -> {
             ptd.setStatus(ProsessTaskStatus.KLAR);
             ptd.setNesteKjøringEtter(nå);
             ptd.setSisteFeilKode(null);

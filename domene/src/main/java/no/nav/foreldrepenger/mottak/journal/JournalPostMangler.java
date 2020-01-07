@@ -28,7 +28,7 @@ public class JournalPostMangler {
     }
 
     public void rettetMangel(JournalMangelType mangelType) {
-        getMangel(mangelType).orElseThrow(() -> new IllegalArgumentException()).rettetMangel();
+        getMangel(mangelType).orElseThrow(IllegalArgumentException::new).rettetMangel();
     }
 
     static class JournalMangel {

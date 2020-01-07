@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.mottak.domene.dokument;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Objects;
@@ -33,7 +33,7 @@ public class Dokument extends BaseEntitet {
     private UUID forsendelseId;
 
     @Convert(converter = DokumentTypeId.KodeverdiConverter.class)
-    @Column(name="dokument_type_id", nullable = false)
+    @Column(name = "dokument_type_id", nullable = false)
     private DokumentTypeId dokumentTypeId = DokumentTypeId.UDEFINERT;
 
     @Lob
@@ -44,7 +44,7 @@ public class Dokument extends BaseEntitet {
     private Boolean hovedDokument;
 
     @Convert(converter = ArkivFilType.KodeverdiConverter.class)
-    @Column(name="arkiv_filtype", nullable = false)
+    @Column(name = "arkiv_filtype", nullable = false)
     private ArkivFilType arkivFilType = ArkivFilType.UDEFINERT;
 
     @Column(name = "BESKRIVELSE")
@@ -69,7 +69,7 @@ public class Dokument extends BaseEntitet {
         if (!ArkivFilType.erKlartekstType(this.arkivFilType)) {
             throw new IllegalStateException("Utviklerfeil: prøver å hente klartekst av binærdokument");
         }
-        return new String(blob, Charset.forName("UTF-8"));
+        return new String(blob, StandardCharsets.UTF_8);
     }
 
     public String getBase64EncodetDokument() {
@@ -84,7 +84,9 @@ public class Dokument extends BaseEntitet {
         return arkivFilType;
     }
 
-    public String getBeskrivelse() { return beskrivelse; }
+    public String getBeskrivelse() {
+        return beskrivelse;
+    }
 
     public static Builder builder() {
         return new Builder();
@@ -98,7 +100,6 @@ public class Dokument extends BaseEntitet {
         private UUID forsendelseId;
         private ArkivFilType arkivFilType;
         private String beskrivelse;
-
 
         public Dokument.Builder setDokumentTypeId(DokumentTypeId dokumentTypeId) {
             this.dokumentTypeId = dokumentTypeId;
@@ -143,7 +144,7 @@ public class Dokument extends BaseEntitet {
         }
 
         private void verifyStateForBuild() {
-            //TODO humle vurder denne når vi har full oversikt over hva som er påkrevd
+            // TODO humle vurder denne når vi har full oversikt over hva som er påkrevd
             Objects.requireNonNull(blob);
             Objects.requireNonNull(dokumentTypeId);
             Objects.requireNonNull(hovedDokument);

@@ -4,7 +4,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_HTML;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.fordel.web.app.selftest.checks.ExtHealthCheck;
 public class SelftestService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SelftestService.class);
-    private static final String RESPONSE_ENCODING = "UTF-8";
     private static final String RESPONSE_CACHE_KEY = "Cache-Control";
     private static final String RESPONSE_CACHE_VAL = "must-revalidate,no-cache,no-store";
 
@@ -51,7 +50,7 @@ public class SelftestService {
         loggSelftestResultat(samletResultat);
 
         Response.ResponseBuilder builder = Response.ok()
-                .encoding(RESPONSE_ENCODING)
+                .encoding(StandardCharsets.UTF_8.name())
                 .header(RESPONSE_CACHE_KEY, RESPONSE_CACHE_VAL);
 
         try {
@@ -70,7 +69,7 @@ public class SelftestService {
                     output = htmlFormatter.format(samletResultat);
                 }
             }
-            byte[] utfEncoded = output.getBytes(Charset.forName(RESPONSE_ENCODING));
+            byte[] utfEncoded = output.getBytes(StandardCharsets.UTF_8);
             builder.entity(utfEncoded);
         } catch (IOException e) {
             SelftestFeil.FACTORY.uventetSelftestFeil(e).log(LOGGER);
@@ -96,8 +95,7 @@ public class SelftestService {
                         getDetailValue(entry, ExtHealthCheck.DETAIL_DESCRIPTION),
                         getDetailValue(entry, ExtHealthCheck.DETAIL_ENDPOINT),
                         getDetailValue(entry, ExtHealthCheck.DETAIL_RESPONSE_TIME),
-                        entry.getMessage()
-                ).toException().log(LOGGER);
+                        entry.getMessage()).toException().log(LOGGER);
             }
         });
     }
@@ -109,8 +107,7 @@ public class SelftestService {
                         getDetailValue(entry, ExtHealthCheck.DETAIL_DESCRIPTION),
                         getDetailValue(entry, ExtHealthCheck.DETAIL_ENDPOINT),
                         getDetailValue(entry, ExtHealthCheck.DETAIL_RESPONSE_TIME),
-                        entry.getMessage()
-                ).toException().log(LOGGER);
+                        entry.getMessage()).toException().log(LOGGER);
             }
         });
     }
