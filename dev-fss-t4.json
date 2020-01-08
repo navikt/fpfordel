@@ -38,7 +38,7 @@
 		"OIDC_AAD_B2C_JWKSURL": "https://login.microsoftonline.com/navtestb2c.onmicrosoft.com/discovery/v2.0/keys?p=b2c_1a_idporten_ver1",
 		"OIDC_OPENAM_ISSUERURL": "https://isso-t.adeo.no:443/isso/oauth2",
 		"OIDC_OPENAM_JWKSURL": "https://isso-t.adeo.no:443/isso/oauth2/connect/jwk_uri",
-		"OIDC_STS_ISSUER_URL": "https://security-token-service-t4.nais.preprod.local",
+		"OIDC_STS_ISSUER_URL": "http://security-token-service.t4",
 		"OIDC_STS_JWKS_URL": "http://security-token-service.t4/rest/v1/sts/jwks",
 		"OIDC_OPENAM_AGENTNAME": "fpfordel-t4",
 		"OIDC_OPENAM_HOSTURL": "https://isso-t.adeo.no:443/isso/oauth2",
