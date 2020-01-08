@@ -37,7 +37,7 @@ jobs:
         if: failure()
         uses: peter-evans/create-or-update-comment@v1
         with:
-          token: ${{ secrets.GHA }}
+          token: ${{ secrets.NOTIFICATION }}
           repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
           issue-number: ${{ github.event.client_payload.github.payload.issue.number }}
           body: |
@@ -49,7 +49,7 @@ jobs:
         if: success()
         uses: peter-evans/create-or-update-comment@v1
         with:
-          token: ${{ secrets.GHA }}
+          token: ${{ secrets.NOTIFICATION }}
           repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
           issue-number: ${{ github.event.client_payload.github.payload.issue.number }}
           body: |
