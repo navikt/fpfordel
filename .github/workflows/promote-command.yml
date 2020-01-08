@@ -39,7 +39,7 @@ jobs:
         with:
           token: ${{ secrets.GHA }}
           repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
-          comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
+          issue-number: ${{ github.event.client_payload.github.payload.issue.number }}
           body: |
             >promote ${{ env.IMAGE }} til ${{ env.CLUSTER }}-${{ env.NAMESPACE }} feilet
           reaction-type: -1   
@@ -51,7 +51,7 @@ jobs:
         with:
           token: ${{ secrets.GHA }}
           repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
-          comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
+          issue-number: ${{ github.event.client_payload.github.payload.issue.number }}
           body: |
             >promote ${{ env.IMAGE }} til ${{ env.CLUSTER }}-${{ env.NAMESPACE }} var OK 
           reaction-type: rocket
