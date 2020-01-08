@@ -68,8 +68,15 @@ jobs:
         run: |
           docker build --tag $IMAGE --tag $IMAGE_BASE:latest .
           echo  $GITHUB_TOKEN | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
-          docker push $IMAGE_BASE   
-    
+          docker push $IMAGE_BASE  
+          
+      - name: Tag release      
+        uses: maxkomarychev/oction-create-release@v0.7.1
+        id: release
+        with:
+          token: ${{ secrets.GHA }}
+          tag_name: ${{ env.TAG }}
+  
       - name: Opprett deployment issue
         if: success()
         uses: maxkomarychev/oction-create-issue@v0.7.1
