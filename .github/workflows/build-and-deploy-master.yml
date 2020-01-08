@@ -70,23 +70,25 @@ jobs:
           echo  $GITHUB_TOKEN | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
           docker push $IMAGE_BASE   
     
-      - name: Deploy til cluster/namespace
-        uses: nais/deploy/actions/deploy@v1 
-        env:
-          RESOURCE: naiserator.yaml
-          PRINT_PAYLOAD: true
-          VARS: ${{ env.CLUSTER }}-${{ env.NAMESPACE }}.json
-          
-      - name: Informer om deployment
+      - name: Opprett deployment issue
         if: success()
-        run: |
-         echo "Informerer om deployment av $TAG"
-             curl -X POST \
-            --url  https://api.github.com/repos/${{ github.repository }}/issues \
-            --header "authorization: Bearer $GITHUB_TOKEN" \
-            --header "content-type: application/json" \
-            --data '{
-              "labels": ["deployment","dev-fss","t4"],
-              "title": "Deployment av ${{env.TAG}} til ${{env.CLUSTER}}-${{env.NAMESPACE}} var OK",
-              "body":  "Kommenter med <b>/promote ${{env.TAG}} env namespace</b>, hvor <b>env</b> er et gyldig clusternavn og <b>namespace</b> et eksisterende namespace i det clusteret. Kommenter med <b>/prod</b> for å deploye trunk fra master til prod"
-            }'     
+        uses: maxkomarychev/oction-create-issue@v0.7.1
+        id: createdeployissue
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: Deploy av ${{ env.TAG }}
+          labels: deployment
+          body: |
+            Kommenter med <b>/promote ${{ env.TAG }} cluster namespace</b>, hvor <b>cluster</b> er et gyldig clusternavn og <b>namespace</b> et eksisterende namespace i det clusteret.
+            <table>
+            <tr><th>Cluster</th><th>Namespace</th></tr>
+            <tr><td>dev-fss</td><td>t4, q0, q1</td></tr>
+            <tr><td>prod-fss</td><td>default</td></tr>
+            </table>
+      - name: Trigg deploy til dev-fss t4
+        if: success()
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+          issue-number: ${{ steps.createdeployissue.outputs.number }}
+          body: /promote ${{ env.TAG }} dev-fss t4
