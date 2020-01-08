@@ -92,10 +92,6 @@ fasitResources:
     resourceType: webserviceendpoint
     propertyMap:
       endpointUrl: PERSON_V3_URL
-  - alias: virksomhet:infotrygdsak_v1
-    resourceType: webserviceendpoint
-    propertyMap:
-      endpointUrl: INFOTRYGDSAK_V1_URL
   - alias: srvfpfordel
     resourceType: credential
     propertyMap:
