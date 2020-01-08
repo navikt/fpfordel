@@ -96,6 +96,6 @@ jobs:
         if: success()
         uses: peter-evans/create-or-update-comment@v1
         with:
-          token: ${{ secrets.NOIFICATION }}
+          token: ${{ secrets.NOTIFICATION }}
           issue-number: ${{ steps.createdeployissue.outputs.number }}
           body: /promote ${{ env.TAG }} ${{ env.CLUSTER }} ${{ env.NAMESPACE }}
