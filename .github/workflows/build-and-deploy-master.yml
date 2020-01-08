@@ -91,4 +91,4 @@ jobs:
         with:
           token: ${{ secrets.GHA }}
           issue-number: ${{ steps.createdeployissue.outputs.number }}
-          body: /promote ${{ env.TAG }} {{ env.CLUSTER }} {{ env.NAMESPACE }}
+          body: /promote ${{ env.TAG }} ${{ env.CLUSTER }} ${{ env.NAMESPACE }}
