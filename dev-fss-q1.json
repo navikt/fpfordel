@@ -45,6 +45,7 @@
 		"OIDC_OPENAM_HOSTURL": "https://isso-q.adeo.no:443/isso/oauth2",
 		"PERSON_V3_URL": "https://wasapp-q1.adeo.no/tpsws/ws/Person/v3",
 		"SAK_V1_URL": "https://wasapp-q1.adeo.no/nav-gsak-ws/SakV1",
-		"SECURITYTOKENSERVICE_URL": "http://sts.q1/SecurityTokenServiceProvider/"
+		"SECURITYTOKENSERVICE_URL": "http://sts.q1/SecurityTokenServiceProvider/",
+	        "TILBAKE_MOTTAJOURNALPOST_URL": "https://app-q1.adeo.no/fptilbake/api/fordel/journalpost"
 	}
 }
