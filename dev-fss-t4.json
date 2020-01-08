@@ -21,6 +21,7 @@
 		"FPSAK_SAKSINFORMASJON_URL": "http://fpsak.t4/fpsak/api/fordel/fagsak/informasjon",
 		"FPSAK_VURDERFAGSYSTEM_URL": "http://fpsak.t4/fpsak/api/fordel/vurderFagsystem",
 		"FP_STATUSINFORMASJON_URL": "http://fpinfo.t4/fpinfo/api/dokumentforsendelse/status",
+		"TILBAKE_MOTTAJOURNALPOST_URL": "https://app-t4.adeo.no/fptilbake/api/fordel/journalpost",
 		"INFOTRYGDSAK_V1_URL": "https://modapp-t4.adeo.no/infotrygd-ws/InfotrygdSak/v1",
 		"INNGAAENDEJOURNAL_V1_URL": "http://dokarkiv.t4/services/inngaaendejournal/v1",
 		"JOURNAL_V2_URL": "https://wasapp-t4.adeo.no/joark/Journal/v2",
