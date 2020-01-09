@@ -13,7 +13,7 @@
 		"AKTOER_V2_URL": "https://app-q1.adeo.no/aktoerregister/ws/Aktoer/v2",
 		"APPDYNAMICS_AGENT_ACCOUNT_NAME": "NON-PROD",
 		"ARBEIDSFORDELING_V1_URL": "https://app-q1.adeo.no/norg2/ws/Arbeidsfordeling/v1",
-		"BEHANDLEINNGAAENDEJOURNAL_V1_URL": "http://dokarkiv.q1/services/behandleinngaaendejournal/v1",
+		"BEHANDLEINNGAAENDEJOURNAL_V1_URL": "https://dokarkiv-q1.nais.preprod.local/services/behandleinngaaendejournal/v1",
 		"BEHANDLEOPPGAVE_V1_URL": "https://wasapp-q1.adeo.no/nav-gsak-ws/BehandleOppgaveV1",
 		"FPFORDEL_CHANNEL_QUEUEMANAGER": "mq://b27apvl176.preprod.local:1413/MQ1LSC02",
 		"FPSAK_JOURNALPOSTKNYTTNING_URL": "http://fpsak.q1/fpsak/api/fordel/fagsak/knyttJournalpost",
@@ -22,7 +22,7 @@
 		"FPSAK_SAKSINFORMASJON_URL": "http://fpsak.q1/fpsak/api/fordel/fagsak/informasjon",
 		"FPSAK_VURDERFAGSYSTEM_URL": "http://fpsak.q1/fpsak/api/fordel/vurderFagsystem",
 		"FP_STATUSINFORMASJON_URL": "http://fpinfo.q1/fpinfo/api/dokumentforsendelse/status",
-		"INNGAAENDEJOURNAL_V1_URL": "http://dokarkiv.q1/services/inngaaendejournal/v1",
+		"INNGAAENDEJOURNAL_V1_URL": "https://dokarkiv-q1.nais.preprod.local/services/inngaaendejournal/v1",
 		"JOURNAL_V2_URL": "https://wasapp-q1.adeo.no/joark/Journal/v2",
 		"LOADBALANCER_FQDN": "fpfordel-q1.nais.preprod.local",
 		"MOTTAINNGAAENDEFORSENDELSE_URL": "https://dokmotinngaaende-q1.nais.preprod.local/rest/mottaInngaaendeForsendelse",
@@ -45,6 +45,6 @@
 		"PERSON_V3_URL": "https://wasapp-q1.adeo.no/tpsws/ws/Person/v3",
 		"SAK_V1_URL": "https://wasapp-q1.adeo.no/nav-gsak-ws/SakV1",
 		"SECURITYTOKENSERVICE_URL": "https://sts-q1.preprod.local/SecurityTokenServiceProvider/",
-	        "TILBAKE_MOTTAJOURNALPOST_URL": "https://app-q1.adeo.no/fptilbake/api/fordel/journalpost"
+	    "TILBAKE_MOTTAJOURNALPOST_URL": "https://app-q1.adeo.no/fptilbake/api/fordel/journalpost"
 	}
 }
