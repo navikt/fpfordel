@@ -38,13 +38,13 @@
 		"OIDC_AAD_B2C_JWKSURL": "https://login.microsoftonline.com/navtestb2c.onmicrosoft.com/discovery/v2.0/keys?p=b2c_1a_idporten_ver1",
 		"OIDC_OPENAM_ISSUERURL": "https://isso-q.adeo.no:443/isso/oauth2",
 		"OIDC_OPENAM_JWKSURL": "https://isso-q.adeo.no:443/isso/oauth2/connect/jwk_uri",
-		"OIDC_STS_ISSUER_URL": "http://security-token-service",
-		"OIDC_STS_JWKS_URL": "http://security-token-service/rest/v1/sts/jwks",
+		"OIDC_STS_ISSUER_URL": "https://security-token-service.nais.preprod.local",
+		"OIDC_STS_JWKS_URL": "https://security-token-service.nais.preprod.local/rest/v1/sts/jwks",
 		"OIDC_OPENAM_AGENTNAME": "fpfordel-q1",
 		"OIDC_OPENAM_HOSTURL": "https://isso-q.adeo.no:443/isso/oauth2",
 		"PERSON_V3_URL": "https://wasapp-q1.adeo.no/tpsws/ws/Person/v3",
 		"SAK_V1_URL": "https://wasapp-q1.adeo.no/nav-gsak-ws/SakV1",
-		"SECURITYTOKENSERVICE_URL": "http://sts.q1/SecurityTokenServiceProvider/",
+		"SECURITYTOKENSERVICE_URL": "https://sts-q1.preprod.local/SecurityTokenServiceProvider/",
 	        "TILBAKE_MOTTAJOURNALPOST_URL": "https://app-q1.adeo.no/fptilbake/api/fordel/journalpost"
 	}
 }
