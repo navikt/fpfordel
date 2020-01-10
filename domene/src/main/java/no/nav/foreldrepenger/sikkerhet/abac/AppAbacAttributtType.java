@@ -10,11 +10,11 @@ public enum AppAbacAttributtType implements AbacAttributtType {
 
     FORSENDELSE_UUID("forsendelseUUID");
 
-    public static AbacAttributtType AKTØR_ID = StandardAbacAttributtType.AKTØR_ID;
+    public static final AbacAttributtType AKTØR_ID = StandardAbacAttributtType.AKTØR_ID;
 
-    public static AbacAttributtType JOURNALPOST_ID = StandardAbacAttributtType.JOURNALPOST_ID;
+    public static final AbacAttributtType JOURNALPOST_ID = StandardAbacAttributtType.JOURNALPOST_ID;
 
-    public static AbacAttributtType SAKSNUMMER = StandardAbacAttributtType.SAKSNUMMER;
+    public static final AbacAttributtType SAKSNUMMER = StandardAbacAttributtType.SAKSNUMMER;
 
     private final boolean maskerOutput;
     private final String sporingsloggEksternKode;
