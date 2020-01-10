@@ -58,10 +58,13 @@ jobs:
       - name: Kompiler
         run: |
           echo "::set-env name=IMAGE::$IMAGE_BASE:$TAG" 
-          mvn --quiet clean install  --batch-mode --settings .github/workflows/.m2/settings.xml -Dchangelist= -Dsha1=-$TAG
+          mvn jacoco:prepare-agent install -e --batch-mode --settings .github/workflows/.m2/settings.xml   -Djacoco.destFile=$(pwd)/target/jacoco.exec
+          mvn jacoco:report sonar:sonar -e --batch-mode --settings .github/workflows/.m2/settings.xml -Djacoco.dataFile=$(pwd)/target/jacoco.exec  -Dsonar.login=${SONAR}
+          echo "mvn --quiet clean install  --batch-mode --settings .github/workflows/.m2/settings.xml -Dchangelist= -Dsha1=-$TAG"
         env:
           GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.NOTIFICATION }}  
+          GITHUB_PASSWORD: ${{ secrets.NOTIFICATION }}
+          SONAR: ${{ secrets.SONAR }}  
      
     
       - name: Bygg, tag og push Docker image  
