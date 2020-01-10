@@ -123,9 +123,11 @@ public enum BehandlingTema implements Kodeverdi {
         return termnavn;
     }
 
-    private static Set<BehandlingTema> ES_BT = Set.of(ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON, ENGANGSSTØNAD_FØDSEL);
-    private static Set<BehandlingTema> FP_BT = Set.of(FORELDREPENGER, FORELDREPENGER_ADOPSJON, FORELDREPENGER_FØDSEL);
-    private static Set<BehandlingTema> UDEF_BT = Set.of(ENGANGSSTØNAD, FORELDREPENGER, UDEFINERT);
+    private static final Set<BehandlingTema> ES_BT = Set.of(ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON,
+            ENGANGSSTØNAD_FØDSEL);
+    private static final Set<BehandlingTema> FP_BT = Set.of(FORELDREPENGER, FORELDREPENGER_ADOPSJON,
+            FORELDREPENGER_FØDSEL);
+    private static final Set<BehandlingTema> UDEF_BT = Set.of(ENGANGSSTØNAD, FORELDREPENGER, UDEFINERT);
 
     public static boolean gjelderEngangsstønad(BehandlingTema bt) {
         return ES_BT.contains(bt);

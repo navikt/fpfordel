@@ -37,7 +37,8 @@ public enum ArkivFilType implements Kodeverdi {
     TIFF("TIFF"),
 
     /**
-     * Alle kodeverk må ha en verdi, det kan ikke være null i databasen. Denne koden gjør samme nytten.
+     * Alle kodeverk må ha en verdi, det kan ikke være null i databasen. Denne koden
+     * gjør samme nytten.
      */
     UDEFINERT("-"),
     ;
@@ -73,10 +74,6 @@ public enum ArkivFilType implements Kodeverdi {
             return UDEFINERT;
         }
         return KODER.getOrDefault(kode, UDEFINERT);
-    }
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
     }
 
     @JsonProperty
@@ -117,6 +114,5 @@ public enum ArkivFilType implements Kodeverdi {
             return dbData == null ? null : fraKode(dbData);
         }
     }
-
 
 }

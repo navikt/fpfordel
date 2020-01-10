@@ -24,7 +24,8 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
     }
 
     @Override
-    protected void kopierVerdier(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {
+    protected void kopierVerdier(MottakMeldingDataWrapper dataWrapper,
+            Function<String, Optional<String>> aktørIdFinder) {
         kopierAktørTilMottakWrapper(dataWrapper, aktørIdFinder);
         dataWrapper.setÅrsakTilInnsending(getÅrsakTilInnsending());
         dataWrapper.setVirksomhetsnummer(getVirksomhetsnummer());
@@ -34,7 +35,8 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
         dataWrapper.setInntektsmeldingYtelse(getYtelse());
     }
 
-    public void kopierAktørTilMottakWrapper(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {
+    public void kopierAktørTilMottakWrapper(MottakMeldingDataWrapper dataWrapper,
+            Function<String, Optional<String>> aktørIdFinder) {
         Optional<String> aktørId = aktørIdFinder.apply(getArbeidstakerFnr());
         if (aktørId.isEmpty()) {
             MeldingKonverteringFeil.FACTORY.finnerIkkeAktørId(this.getClass().getSimpleName()).log(log);
@@ -44,7 +46,6 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
 
     @Override
     protected void validerSkjemaSemantisk(MottakMeldingDataWrapper dataWrapper) {
-        return;
     }
 
     private LocalDate getStartdatoForeldrepengeperiode() {
@@ -59,7 +60,9 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
         return startdatoForeldrepengeperiode.getValue();
     }
 
-    // FIXME (GS) Disse to verdiene må bli kodeverk her og i fpsak, men hardkodes nå som string for å unngå duplisering av kodeverk og migrering. Det må vel finnes
+    // FIXME (GS) Disse to verdiene må bli kodeverk her og i fpsak, men hardkodes nå
+    // som string for å unngå duplisering av kodeverk og migrering. Det må vel
+    // finnes
     // en bedre løsning enn duplisering
     private String getÅrsakTilInnsending() {
         return getSkjema().getSkjemainnhold().getAarsakTilInnsending();
@@ -80,7 +83,8 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
     private Optional<String> getArbeidsforholdsid() {
         if (getSkjema().getSkjemainnhold().getArbeidsforhold() != null
                 && getSkjema().getSkjemainnhold().getArbeidsforhold().getValue().getArbeidsforholdId() != null) {
-            return Optional.ofNullable(getSkjema().getSkjemainnhold().getArbeidsforhold().getValue().getArbeidsforholdId().getValue());
+            return Optional.ofNullable(
+                    getSkjema().getSkjemainnhold().getArbeidsforhold().getValue().getArbeidsforholdId().getValue());
         }
         return Optional.empty();
     }
