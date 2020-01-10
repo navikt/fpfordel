@@ -8,8 +8,8 @@ import java.util.Optional;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import no.nav.vedtak.util.StringUtils;
 
-import com.sun.tools.javac.util.StringUtils;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
