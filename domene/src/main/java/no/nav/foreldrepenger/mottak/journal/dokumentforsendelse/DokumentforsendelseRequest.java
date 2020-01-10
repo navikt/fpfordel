@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.mottak.journal.dokumentforsendelse;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -170,7 +170,7 @@ public class DokumentforsendelseRequest {
         }
 
         private void setTittel(List<Dokument> vedleggListe) {
-            Map<DokumentTypeId, MutableInt> map = new HashMap<>();
+            Map<DokumentTypeId, MutableInt> map = new EnumMap<>(DokumentTypeId.class);
             for (Dokument vedlegg : vedleggListe) {
                 MutableInt count = map.get(vedlegg.getDokumentTypeId());
                 if (count == null) {
@@ -208,6 +208,7 @@ public class DokumentforsendelseRequest {
 
         static class MutableInt {
             int value = 1;
+
             public void increment() {
                 ++value;
             }

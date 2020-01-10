@@ -146,7 +146,7 @@ public class IndexClasses {
 
     public List<Class<?>> getSubClassesWithAnnotation(Class<?> klasse, Class<?> annotationClass) {
         List<Class<?>> classesWithAnnotation = getClassesWithAnnotation(annotationClass);
-        return classesWithAnnotation.stream().filter(c -> klasse.isAssignableFrom(c)).collect(Collectors.toList());
+        return classesWithAnnotation.stream().filter(klasse::isAssignableFrom).collect(Collectors.toList());
     }
 
     public List<Class<?>> getSubClassesOf(Class<?> class1) {
