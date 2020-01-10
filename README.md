@@ -22,5 +22,5 @@ Dette er løsning for fordeling av søknader (og inntektsmeldinger).
 ```bash
 mvn -B -Dfile.encoding=UTF-8 -DskipTests clean install
 
-docker build -t fpfordel . 
+docker build -t fpfordel .  
 ```
