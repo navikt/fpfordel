@@ -9,6 +9,8 @@ import java.util.Optional;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
+import com.sun.tools.javac.util.StringUtils;
+
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
@@ -27,7 +29,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.util.FPDateUtil;
-import no.nav.vedtak.util.StringUtils;
 
 /**
  * <p>
@@ -47,7 +48,6 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     private final AktørConsumer aktørConsumer;
     private final JoarkDokumentHåndterer joarkDokumentHåndterer;
-    private final LocalDate fastsattInntektsmeldingStartdatoFristForManuellBehandling = KonfigVerdier.ENDRING_BEREGNING_DATO;
 
     @Inject
     public HentDataFraJoarkTask(ProsessTaskRepository prosessTaskRepository,
@@ -152,6 +152,6 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     private boolean kreverStartdatoForInntektsmeldingenManuellBehandling(MottakMeldingDataWrapper dataWrapper) {
         LocalDate startDato = dataWrapper.getInntektsmeldingStartDato().orElse(Tid.TIDENES_BEGYNNELSE);
-        return startDato.isBefore(fastsattInntektsmeldingStartdatoFristForManuellBehandling);
+        return startDato.isBefore(KonfigVerdier.ENDRING_BEREGNING_DATO);
     }
 }
