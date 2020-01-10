@@ -51,7 +51,6 @@ import no.nav.vedtak.konfig.Tid;
 public class HentOgVurderVLSakTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.hentOgVurderVLSak";
-    private final LocalDate konfigVerdiStartdatoForeldrepenger = KonfigVerdier.ENDRING_BEREGNING_DATO;
 
     private final FagsakRestKlient fagsakRestKlient;
 
@@ -123,7 +122,7 @@ public class HentOgVurderVLSakTask extends WrappedProsessTaskHandler {
     }
 
     private boolean skalBehandlesEtterTidligereRegler(MottakMeldingDataWrapper dataWrapper) {
-        if (dataWrapper.getOmsorgsovertakelsedato().map(konfigVerdiStartdatoForeldrepenger::isAfter)
+        if (dataWrapper.getOmsorgsovertakelsedato().map(KonfigVerdier.ENDRING_BEREGNING_DATO::isAfter)
                 .orElse(Boolean.FALSE)) {
             return true;
         }
@@ -131,7 +130,7 @@ public class HentOgVurderVLSakTask extends WrappedProsessTaskHandler {
         if (annenPartHarRett.orElse(Boolean.FALSE)) {
             LocalDate barnFødselsdato = dataWrapper.getBarnFodselsdato()
                     .orElse(dataWrapper.getBarnTermindato().orElse(Tid.TIDENES_ENDE));
-            return konfigVerdiStartdatoForeldrepenger.isAfter(barnFødselsdato);
+            return KonfigVerdier.ENDRING_BEREGNING_DATO.isAfter(barnFødselsdato);
         }
         return false;
     }
