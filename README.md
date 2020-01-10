@@ -7,6 +7,8 @@
 FPFORDEL
 ===============
 
+
+
 Dette er repos for kildkode som dekker applikasjonen for fordeling av søknader fra Selvbetjening mellom Gosys, Infotrygd og FPSAK
 
 ### Struktur
