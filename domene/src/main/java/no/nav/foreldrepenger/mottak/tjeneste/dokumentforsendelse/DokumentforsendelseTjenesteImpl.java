@@ -160,13 +160,14 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
     }
 
     private interface DokumentforsendelseTjenesteFeil extends DeklarerteFeil {
-        DokumentforsendelseTjenesteImpl.DokumentforsendelseTjenesteFeil FACTORY = FeilFactory.create(DokumentforsendelseTjenesteImpl.DokumentforsendelseTjenesteFeil.class);
+        DokumentforsendelseTjenesteImpl.DokumentforsendelseTjenesteFeil FACTORY = FeilFactory
+                .create(DokumentforsendelseTjenesteImpl.DokumentforsendelseTjenesteFeil.class);
 
         @TekniskFeil(feilkode = "FP-728553", feilmelding = "Saksnummer er påkrevd ved ettersendelser", logLevel = WARN)
         Feil saksnummerPåkrevdVedEttersendelser();
 
         @TekniskFeil(feilkode = "FP-728555", feilmelding = "Hoveddokumentet skal alltid sendes som to dokumenter med %s: %s og %s", logLevel = WARN)
-        Feil hoveddokumentSkalSendesSomToDokumenter(String content_type, String dokumenttype1, MediaType dokumenttype2);
+        Feil hoveddokumentSkalSendesSomToDokumenter(String contentType, String dokumenttype1, MediaType dokumenttype2);
     }
 
 }
