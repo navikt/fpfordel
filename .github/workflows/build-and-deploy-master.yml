@@ -98,7 +98,7 @@ jobs:
             github.issues.create(owner: context.owner,
                                    repo: context.repo,
                                     title: 'Deploy av ${{ env.TAG }}',
-                                    body: 'TEST'})
+                                    body: 'TEST')
 
       - name: Trigg deploy til dev-fss t4
         if: success()
