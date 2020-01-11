@@ -64,18 +64,18 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 @SoapWebService(endpoint = "/sak/behandleDokument/v1", tjenesteBeskrivelseURL = "https://confluence.adeo.no/pages/viewpage.action?pageId=220529141")
 public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
-    public static final Logger logger = LoggerFactory.getLogger(BehandleDokumentService.class);
+    public static final Logger LOG = LoggerFactory.getLogger(BehandleDokumentService.class);
 
     static final String AVVIK_SAKSNUMMER = "FP-401245";
     static final String JOURNALPOST_MANGLER = "JournalpostId mangler";
     static final String ENHET_MANGLER = "EnhetId mangler";
     static final String SAKSNUMMER_UGYLDIG = "SakId (saksnummer) mangler eller er ugyldig";
 
-    private TilJournalføringTjeneste tilJournalføringTjeneste;
-    private HentDataFraJoarkTjeneste hentDataFraJoarkTjeneste;
-    private KlargjørForVLTjeneste klargjørForVLTjeneste;
-    private FagsakRestKlient fagsakRestKlient;
-    private AktørConsumer aktørConsumer;
+    private final TilJournalføringTjeneste tilJournalføringTjeneste;
+    private final HentDataFraJoarkTjeneste hentDataFraJoarkTjeneste;
+    private final KlargjørForVLTjeneste klargjørForVLTjeneste;
+    private final FagsakRestKlient fagsakRestKlient;
+    private final AktørConsumer aktørConsumer;
 
     @Inject
     public BehandleDokumentService(TilJournalføringTjeneste tilJournalføringTjeneste,
@@ -89,13 +89,9 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         this.aktørConsumer = aktørConsumer;
     }
 
-    public BehandleDokumentService() {
-        // NOSONAR: for cdi
-    }
-
     @Override
     public void ping() {
-        logger.debug(removeLineBreaks("ping")); // NOSONAR
+        LOG.debug(removeLineBreaks("ping"));
     }
 
     @Override
@@ -121,7 +117,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             throw BehandleDokumentServiceFeil.FACTORY.finnerIkkeFagsak(saksnummer).toException();
         }
 
-        FagsakInfomasjonDto fagsakInfomasjonDto = optFagsakInfomasjonDto.get();
+        var fagsakInfomasjonDto = optFagsakInfomasjonDto.get();
 
         String behandlingstemaOffisiellKode = fagsakInfomasjonDto.getBehandlingstemaOffisiellKode();
         BehandlingTema behandlingTema = BehandlingTema.fraOffisiellKode(behandlingstemaOffisiellKode);
@@ -143,7 +139,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
                 dokumentTypeId);
 
         if (!JournalMetadata.Journaltilstand.ENDELIG.equals(journalMetadata.getJournaltilstand())) {
-            logger.info(removeLineBreaks("Kaller tilJournalføring")); // NOSONAR
+            LOG.info(removeLineBreaks("Kaller tilJournalføring")); // NOSONAR
             String innhold = dokumentTypeId.getTermNavn() != null ? dokumentTypeId.getTermNavn() : "Ukjent innhold";
             if (!tilJournalføringTjeneste.tilJournalføring(arkivId, saksnummer, aktørId, enhetId, innhold)) {
                 validerArkivId(null);
@@ -233,7 +229,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         } catch (FunksjonellException e) {
             if (AVVIK_SAKSNUMMER.equals(e.getFeil().getKode())) {
                 String logMessage = e.getFeil().getKode() + " " + e.getFeil().getFeilmelding();
-                logger.info(logMessage);
+                LOG.info(logMessage);
             } else {
                 throw e;
             }
