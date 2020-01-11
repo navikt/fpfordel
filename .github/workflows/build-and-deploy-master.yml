@@ -88,20 +88,17 @@ jobs:
             <tr><td>dev-fss</td><td>t4,q1</td></tr>
             <tr><td>prod-fss</td><td>default</td></tr>
             </table>
-      - name: Trigg deploy til dev-fss t4
-        if: success()
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          token: ${{ secrets.NOTIFICATION }}
-          issue-number: ${{ steps.createdeployissue.outputs.number }}
-          body: /promote ${{ env.TAG }} ${{ env.CLUSTER }} ${{ env.NAMESPACE }}
 
-      - name: Trigg alternativ deploy til dev-fss t4
+      - name: Trigg deploy til dev-fss t4
         if: success()
         uses: actions/github-script@0.3.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const issue = { owner: context.issue.owner, repo: context.issue.repo, issue_number: ${{ steps.createdeployissue.outputs.number }} }
-            github.issues.createComment({...issue, title: 'Deploy av ${{ env.TAG }}', body: ' promote ${{ env.TAG }} ${{ env.CLUSTER }} ${{ env.NAMESPACE }}'})
+            const issue = { owner: context.issue.owner,
+                            repo: context.issue.repo,
+                            issue_number: ${{ steps.createdeployissue.outputs.number }} }
+            github.issues.createComment({...issue,
+                                    title: 'Deploy av ${{ env.TAG }}',
+                                    body: '/promote ${{ env.TAG }} ${{ env.CLUSTER }} ${{ env.NAMESPACE }}'})
 
