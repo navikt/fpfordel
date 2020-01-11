@@ -99,7 +99,6 @@ jobs:
                                        labels: ['deployment','${{env.CLUSTER}}'],
                                        title: 'Deploy av ${{ env.TAG }}',
                                       body: '(TEST) Kommenter med <b>/promote ${{ env.TAG }} cluster namespace</b>, hvor <b>cluster</b> er <i>dev-fss</i> eller <i>prod-fss</i> og <b>namespace</b> et eksisterende namespace i det clusteret'})
-                  let obj = JSON.parse(result)
                   
 
       - name: Trigg deploy til dev-fss t4
