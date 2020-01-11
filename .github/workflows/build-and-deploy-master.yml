@@ -96,6 +96,7 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
+            const core = require("@actions/core");
             github.issues.create({...context.repo,
                                     labels: ['deployment','${{env.CLUSTER}}'],
                                     title: 'Deploy av ${{ env.TAG }}',
