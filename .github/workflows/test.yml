@@ -1,8 +1,5 @@
-name: Comment
-
 on:
-  issues:
-    types: [opened]
+  issues: {types: opened}
 
 jobs:
   comment:
@@ -13,6 +10,8 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             github.issues.createComment({
-             ...context.issue_number,
+              issue_number: context.issue,
+              owner: context.owner,
+              repo: context.repo,
               body: 'Thanks for reporting!'
             })
