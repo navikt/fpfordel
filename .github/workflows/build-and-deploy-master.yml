@@ -89,7 +89,7 @@ jobs:
             <tr><td>prod-fss</td><td>default</td></tr>
             </table>
 
-      - name: alternativ issue
+      - name: Opprett alternativ issue
         if: success()
         uses: actions/github-script@0.4.0
         id: createdeployissue1
@@ -99,8 +99,11 @@ jobs:
             github.issues.create({...context.repo,
                                     labels: ['deployment','${{env.CLUSTER}}'],
                                     title: 'Deploy av ${{ env.TAG }}',
-                                    body: 'Kommenter med <b>/promote ${{ env.TAG }} cluster namespace</b>, hvor <b>cluster</b> er et gyldig clusternavn og <b>namespace</b> et eksisterende namespace i det clusteret'})
-
+                                    body: '(TEST) Kommenter med <b>/promote ${{ env.TAG }} cluster namespace</b>, hvor <b>cluster</b> er <i>dev-fss</i> eller <i>prod-fss</i> og <b>namespace</b> et eksisterende namespace i det clusteret'}).then(response => {
+    console.log('response', response)
+    core.setOutput("id", response.data.id)
+    core.setOutput("number", response.data.number)
+  })
       - name: Trigg deploy til dev-fss t4
         if: success()
         uses: actions/github-script@0.3.0
