@@ -102,8 +102,6 @@ jobs:
                                     title: 'Deploy av ${{ env.TAG }}',
                                     body: '(TEST) Kommenter med <b>/promote ${{ env.TAG }} cluster namespace</b>, hvor <b>cluster</b> er <i>dev-fss</i> eller <i>prod-fss</i> og <b>namespace</b> et eksisterende namespace i det clusteret'}).then(response => {
     console.log('response', response)
-    core.setOutput("id", response.data.id)
-    core.setOutput("number", response.data.number)
   })
       - name: Trigg deploy til dev-fss t4
         if: success()
