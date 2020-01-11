@@ -103,5 +103,5 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const issue = { owner: context.issue.owner, repo: context.issue.repo, issue_number: ${{ steps.createdeployissue.outputs.number }} }
-            github.issues.createComment({...issue, title: 'Deploy av ${{ env.TAG }}', body: '👋 Thanks for reporting!'})
+            github.issues.createComment({...issue, title: 'Deploy av ${{ env.TAG }}', body: ' promote ${{ env.TAG }} ${{ env.CLUSTER }} ${{ env.NAMESPACE }}'})
 
