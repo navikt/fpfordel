@@ -101,10 +101,6 @@ jobs:
                                        title: 'Deploy av ${{ env.TAG }}',
                                       body: '(TEST) Kommenter med <b>/promote ${{ env.TAG }} cluster namespace</b>, hvor <b>cluster</b> er <i>dev-fss</i> eller <i>prod-fss</i> og <b>namespace</b> et eksisterende namespace i det clusteret'})
                   console.log('result', result)
-                  const issue = { owner: context.repo.owner,repo: context.repo, issue_number: result.data.number} }
-                  github.issues.createComment({...issue,
-                                    title: '(TEST) Deploy av ${{ env.TAG }}',
-                                    body: '/promote ${{ env.TAG }} ${{ env.CLUSTER }} ${{ env.NAMESPACE }}'})
 
       - name: Trigg deploy til dev-fss t4
         if: success()
