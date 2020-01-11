@@ -95,8 +95,7 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            github.issues.create({owner: context.owner,
-                                   repo: context.repo,
+            github.issues.create({...context,
                                     title: 'Deploy av ${{ env.TAG }}',
                                     body: 'TEST'})
 
