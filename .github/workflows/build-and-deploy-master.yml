@@ -93,7 +93,7 @@ jobs:
         uses: actions/github-script@0.4.0
         id: createdeployissue1
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{secrets.NOIFICATION}}
           script: |
                   const result = await github.issues.create({...context.repo,
                                        labels: ['deployment','${{env.CLUSTER}}'],
@@ -106,7 +106,7 @@ jobs:
         if: success()
         uses: actions/github-script@0.3.0
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{secrets.NOIFICATION}}
           script: |
             const issue = { owner: context.issue.owner,
                             repo: context.issue.repo,
