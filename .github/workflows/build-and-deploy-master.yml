@@ -96,8 +96,14 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             github.issues.create({...context.repo,
+                                    labels: deployment,${{env.CLUSTER}},
                                     title: 'Deploy av ${{ env.TAG }}',
-                                    body: 'TEST'})
+                                    body: 'Kommenter med <b>/promote ${{ env.TAG }} cluster namespace</b>, hvor <b>cluster</b> er et gyldig clusternavn og <b>namespace</b> et eksisterende namespace i det clusteret.
+            <table>
+            <tr><th>Cluster</th><th>Namespace</th></tr>
+            <tr><td>dev-fss</td><td>t4,q1</td></tr>
+            <tr><td>prod-fss</td><td>default</td></tr>
+            </table>'})
 
       - name: Trigg deploy til dev-fss t4
         if: success()
