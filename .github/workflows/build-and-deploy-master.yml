@@ -73,13 +73,6 @@ jobs:
           echo  $GITHUB_TOKEN | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
           docker push $IMAGE_BASE  
           
-      - name: Tag release      
-        uses: maxkomarychev/oction-create-release@v0.7.1
-        id: release
-        with:
-          token: ${{ secrets.NOTIFICATION }}
-          tag_name: ${{ env.TAG }}
-  
       - name: Opprett deployment issue
         if: success()
         uses: maxkomarychev/oction-create-issue@v0.7.1
@@ -102,3 +95,13 @@ jobs:
           token: ${{ secrets.NOTIFICATION }}
           issue-number: ${{ steps.createdeployissue.outputs.number }}
           body: /promote ${{ env.TAG }} ${{ env.CLUSTER }} ${{ env.NAMESPACE }}
+
+      - name: Trigg alternativ deploy til dev-fss t4
+        if: success()
+        uses: actions/github-script@0.3.0
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const issue = { owner: context.issue.owner, repo: context.issue.repo, issue_number: context.issue.number }
+            github.issues.createComment({...issue, title: 'Deploy av ${{ env.TAG }}', body: '👋 Thanks for reporting!'})
+
