@@ -1,6 +1,6 @@
 name: Self Hosted
 
-on: [push]
+on: [issue_comment]
 
 jobs:
   comment:
