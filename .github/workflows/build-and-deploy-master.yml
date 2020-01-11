@@ -97,7 +97,7 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             github.issues.create({...context.repo,
-                                    labels: deployment,
+                                    labels: 'deployment',
                                     title: 'Deploy av ${{ env.TAG }}',
                                     body: 'Kommenter med <b>/promote ${{ env.TAG }} cluster namespace</b>, hvor <b>cluster</b> er et gyldig clusternavn og <b>namespace</b> et eksisterende namespace i det clusteret'})
 
