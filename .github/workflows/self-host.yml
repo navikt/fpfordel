@@ -1,0 +1,65 @@
+name: Build, push, and deploy
+
+on:
+  push:
+    branches:
+      - master 
+env:
+  APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+  ORACLE_INIT: initdb.sql
+  ORACLE_ARGS:  -d -p 1521:1521 --name oracle-xe -e ORACLE_DISABLE_ASYNCH_IO=true
+  ORACLE_IMAGE: wnameless/oracle-xe-11g-r2
+  ORACLE_SID: XE
+  ORACLE_HOME: /u01/app/oracle/product/11.2.0/xe
+  CLUSTER: dev-fss
+  NAMESPACE: t4
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  IMAGE_BASE: docker.pkg.github.com/${{ github.repository }}/fpfordel
+         
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+     
+      - name: Sjekk ut kode
+        uses: actions/checkout@v2
+      - run:  git fetch --prune --unshallow
+    
+      - name: Cache maven repository
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+     
+      - name: Setup Java 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.11
+          
+      - name: Hent tag    
+        run: echo "::set-env name=TAG::$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7)"  
+           
+      - name: Hent og start Oracle image
+        id: oracle
+        shell: bash
+        run: |
+          echo "Henter og starter Oracle image $ORACLE_IMAGE"
+          echo "##[set-output name=pod;]$(docker run $ORACLE_ARGS $ORACLE_IMAGE)"     
+    
+      - name: Vent 60 sekunder på Oracle oppstart
+        shell: bash
+        run: |
+          echo "Venter på oppstart av Oracle pod ${{ steps.oracle.outputs.pod }}"
+          sleep 60 
+          docker cp $ORACLE_INIT ${{ steps.oracle.outputs.pod }}:/$ORACLE_INIT
+          docker exec -e ORACLE_SID=$ORACLE_SID -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=$ORACLE_HOME ${{ steps.oracle.outputs.pod }} sqlplus system/oracle @$ORACLE_INIT
+   
+      - name: Kompiler
+        run: |
+          echo "::set-env name=IMAGE::$IMAGE_BASE:$TAG" 
+          mvn install -e --batch-mode --settings .github/workflows/.m2/settings.xml   
+        env:
+          GITHUB_USERNAME: x-access-token
+          GITHUB_PASSWORD: ${{ secrets.NOTIFICATION }}
+     
