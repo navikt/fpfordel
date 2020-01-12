@@ -60,7 +60,6 @@ jobs:
           echo "::set-env name=IMAGE::$IMAGE_BASE:$TAG" 
           mvn jacoco:prepare-agent install -e --batch-mode --settings .github/workflows/.m2/settings.xml   -Djacoco.destFile=$(pwd)/target/jacoco.exec
           mvn jacoco:report sonar:sonar -e --batch-mode --settings .github/workflows/.m2/settings.xml -Djacoco.dataFile=$(pwd)/target/jacoco.exec  -Dsonar.login=${SONAR} -Dsonar.projectKey=navikt_fpfordel
-          echo "mvn --quiet clean install  --batch-mode --settings .github/workflows/.m2/settings.xml -Dchangelist= -Dsha1=-$TAG"
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_PASSWORD: ${{ secrets.NOTIFICATION }}
@@ -79,8 +78,7 @@ jobs:
         id: createdeployissue
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          title: Deploy av ${{ env.TAG }}
-          labels: deployment,${{env.CLUSTER}}
+          title: Bygg av ${{ env.TAG }}
           body: |
             Kommenter med <b>/promote ${{ env.TAG }} cluster namespace</b>, hvor <b>cluster</b> er et gyldig clusternavn og <b>namespace</b> et eksisterende namespace i det clusteret.
             <table>
@@ -94,20 +92,18 @@ jobs:
         uses: actions/github-script@0.4.0
         id: createdeployissue1
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{secrets.NOTIFICATION}}
           script: |
-            const core = require("@actions/core");
-            github.issues.create({...context.repo,
-                                    labels: ['deployment','${{env.CLUSTER}}'],
-                                    title: 'Deploy av ${{ env.TAG }}',
-                                    body: '(TEST) Kommenter med <b>/promote ${{ env.TAG }} cluster namespace</b>, hvor <b>cluster</b> er <i>dev-fss</i> eller <i>prod-fss</i> og <b>namespace</b> et eksisterende namespace i det clusteret'}).then(response => {
-    console.log('response', response)
-  })
+                  const { data: issue } = await github.issues.create({...context.repo,
+                                       title: 'Bygg av ${{ env.TAG }}',
+                                       body: '(TEST) Kommenter med <b>/promote ${{ env.TAG }} cluster namespace</b>, hvor <b>cluster</b> er <i>dev-fss</i> eller <i>prod-fss</i> og <b>namespace</b> et eksisterende namespace i det clusteret'})
+                  
+
       - name: Trigg deploy til dev-fss t4
         if: success()
         uses: actions/github-script@0.3.0
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{secrets.NOTIFICATION}}
           script: |
             const issue = { owner: context.issue.owner,
                             repo: context.issue.repo,
