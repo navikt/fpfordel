@@ -1,4 +1,4 @@
-name: Build, push, and deploy
+name: self host
 
 on:
   issue_comment:
