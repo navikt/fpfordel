@@ -57,5 +57,6 @@ jobs:
             github.issues.createComment({...issue,
                                     title: 'Deploy av ${{ env.TAG }}',
                                     body: '>promote ${{ github.event.client_payload.slash_command.args }} var OK'})
+            github.issues.update({...issue, labels: ['deployment','${{ env.CLUSTER }}']})
    
                   
