@@ -94,7 +94,7 @@ jobs:
         with:
           github-token: ${{secrets.NOTIFICATION}}
           script: |
-                  const result = await github.issues.create({...context.repo,
+                  const { data: issue } = await github.issues.create({...context.repo,
                                        title: 'Bygg av ${{ env.TAG }}',
                                        body: '(TEST) Kommenter med <b>/promote ${{ env.TAG }} cluster namespace</b>, hvor <b>cluster</b> er <i>dev-fss</i> eller <i>prod-fss</i> og <b>namespace</b> et eksisterende namespace i det clusteret'})
                   
