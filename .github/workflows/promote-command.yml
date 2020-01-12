@@ -54,4 +54,18 @@ jobs:
           body: |
             >promote ${{ github.event.client_payload.slash_command.args }} var OK
           reaction-type: rocket
+      
+      - name: Oppdater alternativ kommentar med deployment status
+        if: success()
+        uses: actions/github-script@0.4.0
+        with:
+          github-token: ${{secrets.NOTIFICATION}}
+          script: |
+            const issue = { owner: context.issue.owner,
+                            repo: context.issue.repo,
+                            issue_number: ${{ github.event.client_payload.github.payload.issue.number }} }
+            github.issues.createComment({...issue,
+                                    title: 'Deploy av ${{ env.TAG }}',
+                                    body: '>(TEST) promote ${{ github.event.client_payload.slash_command.args }} var OK'})
+   
                   
