@@ -49,13 +49,13 @@ jobs:
         if: success()
         uses: actions/github-script@0.4.0
         with:
-          github-token: ${{secrets.NOTIFICATION}}
+          github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const issue = { owner: context.issue.owner,
                             repo: context.issue.repo,
                             issue_number: ${{ github.event.client_payload.github.payload.issue.number }} }
             github.issues.createComment({...issue,
                                     body: '>promote ${{ github.event.client_payload.slash_command.args }} var OK'})
-            github.issues.addLabels({...issue, labels: ['deployment','${{ env.CLUSTER }}']})
+            github.issues.addLabels({...issue, labels: ['deployment','${{ env.CLUSTER }}','${{ env.NAMESPACE }}']})
    
                   
