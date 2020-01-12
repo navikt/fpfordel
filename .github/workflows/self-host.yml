@@ -1,9 +1,8 @@
 name: Build, push, and deploy
 
 on:
-  push:
-    branches:
-      - master 
+  issue_comment:
+    types: [created]
 env:
   APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
   ORACLE_INIT: initdb.sql
@@ -14,7 +13,6 @@ env:
   CLUSTER: dev-fss
   NAMESPACE: t4
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  IMAGE_BASE: docker.pkg.github.com/${{ github.repository }}/fpfordel
          
 jobs:
   build:
