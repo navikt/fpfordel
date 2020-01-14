@@ -85,19 +85,7 @@ jobs:
             <tr><th>Cluster</th><th>Namespace</th></tr>
             <tr><td>dev-fss</td><td>t4,q1</td></tr>
             <tr><td>prod-fss</td><td>default</td></tr>
-            </table>
-
-      - name: Opprett alternativ issue
-        if: success()
-        uses: actions/github-script@0.4.0
-        id: createdeployissue1
-        with:
-          github-token: ${{secrets.NOTIFICATION}}
-          script: |
-                  const { data: issue } = await github.issues.create({...context.repo,
-                                       title: 'Bygg av ${{ env.TAG }}',
-                                       body: '(TEST) Kommenter med <b>/promote ${{ env.TAG }} cluster namespace</b>, hvor <b>cluster</b> er <i>dev-fss</i> eller <i>prod-fss</i> og <b>namespace</b> et eksisterende namespace i det clusteret'})
-                  
+            </table>        
 
       - name: Trigg deploy til dev-fss t4
         if: success()
