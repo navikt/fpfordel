@@ -62,13 +62,9 @@
             <artifactId>kodeverk-klient</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.vedtak.prosesstask</groupId>
-            <artifactId>prosesstask-rest-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.vedtak.prosesstask</groupId>
-            <artifactId>prosesstask</artifactId>
-        </dependency>
+	    <groupId>no.nav.vedtak.prosesstask</groupId>
+	    <artifactId>prosesstask-legacy</artifactId>
+	   </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.kontrakter</groupId>
             <artifactId>fordel-v1</artifactId>
