@@ -52,19 +52,11 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles</groupId>
-                <artifactId>felles-prosesstask</artifactId>
-                <version>${felles.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles</groupId>
-                <artifactId>felles-prosesstask</artifactId>
-                <version>${felles.version}</version>
-            </dependency>
-
+<dependency>
+  <groupId>no.nav.vedtak.prosesstask</groupId>
+  <artifactId>prosesstask</artifactId>
+  <version>2.0.0-20200114110159-ad2c31b</version>
+</dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>felles-integrasjon-pom</artifactId>
