@@ -61,14 +61,14 @@
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>kodeverk-klient</artifactId>
         </dependency>
-<dependency>
-  <groupId>no.nav.vedtak.prosesstask</groupId>
-  <artifactId>prosesstask-rest-api</artifactId>
-</dependency>
-<dependency>
-  <groupId>no.nav.vedtak.prosesstask</groupId>
-  <artifactId>prosesstask</artifactId>
-</dependency>
+        <dependency>
+            <groupId>no.nav.vedtak.prosesstask</groupId>
+            <artifactId>prosesstask-rest-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.vedtak.prosesstask</groupId>
+            <artifactId>prosesstask</artifactId>
+        </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.kontrakter</groupId>
             <artifactId>fordel-v1</artifactId>
@@ -306,36 +306,36 @@
 
     <build>
         <pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.jacoco</groupId>
-					<artifactId>jacoco-maven-plugin</artifactId>
-					<version>0.8.5</version>
-					<executions>
-						<execution>
-						    <goals>
-						      <goal>prepare-agent</goal>
-						    </goals>
-						</execution>
-					</executions>
-			      	</plugin>
+            <plugins>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.5</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
         <finalName>app</finalName>
         <plugins>
             <plugin>
-			      <groupId>org.jacoco</groupId>
-			      <artifactId>jacoco-maven-plugin</artifactId>
-			   <executions>
-				<execution>
-				  <id>report</id>
-				  <goals>
-				    <goal>report-aggregate</goal>
-				  </goals>
-				  <phase>verify</phase>
-				</execution>  
-               </executions>
-			</plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>report</id>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>

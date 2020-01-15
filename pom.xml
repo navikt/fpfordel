@@ -15,13 +15,13 @@
         <module>domene</module>
         <module>web</module>
     </modules>
-	
+
     <licenses>
-	<license>
-	   <name>MIT License</name>
-	   <url>https://opensource.org/licenses/MIT</url>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
         </license>
-   </licenses>		
+    </licenses>
 
     <properties>
         <junit5.version>5.5.2</junit5.version>
@@ -53,16 +53,16 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
-<dependency>
-  <groupId>no.nav.vedtak.prosesstask</groupId>
-  <artifactId>prosesstask-rest-api</artifactId>
+            <dependency>
+                <groupId>no.nav.vedtak.prosesstask</groupId>
+                <artifactId>prosesstask-rest-api</artifactId>
                 <version>${prosesstask.version}</version>
-</dependency>
-<dependency>
-  <groupId>no.nav.vedtak.prosesstask</groupId>
-  <artifactId>prosesstask</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.vedtak.prosesstask</groupId>
+                <artifactId>prosesstask</artifactId>
                 <version>${prosesstask.version}</version>
-</dependency>
+            </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>felles-integrasjon-pom</artifactId>
@@ -335,17 +335,17 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-		  <groupId>org.jacoco</groupId>
-		  <artifactId>jacoco-maven-plugin</artifactId>
-		  <version>0.8.5</version>
-		 <executions>
-		   <execution>
-	             <goals>
-		        <goal>prepare-agent</goal>
-		     </goals>
-		   </execution>
-		 </executions>
-               </plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.5</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>buildnumber-maven-plugin</artifactId>
@@ -438,18 +438,18 @@
                 </configuration>
             </plugin>
             <plugin>
-			     <groupId>org.jacoco</groupId>
-			      <artifactId>jacoco-maven-plugin</artifactId>
-			      <executions>
-				<execution>
-				  <id>report</id>
-				  <goals>
-				    <goal>report-aggregate</goal>
-				  </goals>
-				  <phase>verify</phase>
-				</execution>
-			      </executions>
-			</plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>report</id>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <scm>
