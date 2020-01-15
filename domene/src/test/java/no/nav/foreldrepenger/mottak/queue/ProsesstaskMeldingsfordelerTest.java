@@ -22,7 +22,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
-
 public class ProsesstaskMeldingsfordelerTest {
     private ProsessTaskRepository prosessTaskRepository;
     private ProsesstaskMeldingsfordeler meldingsFordeler;
@@ -32,7 +31,7 @@ public class ProsesstaskMeldingsfordelerTest {
 
     @Before
     public void setup() throws SQLException {
-        prosessTaskRepository = new ProsessTaskRepositoryImpl(repoRule.getEntityManager(), null);
+        prosessTaskRepository = new ProsessTaskRepositoryImpl(repoRule.getEntityManager(), null, null);
         meldingsFordeler = new ProsesstaskMeldingsfordeler(prosessTaskRepository);
     }
 

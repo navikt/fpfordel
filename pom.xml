@@ -15,13 +15,13 @@
         <module>domene</module>
         <module>web</module>
     </modules>
-	
+
     <licenses>
-	<license>
-	   <name>MIT License</name>
-	   <url>https://opensource.org/licenses/MIT</url>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
         </license>
-   </licenses>		
+    </licenses>
 
     <properties>
         <junit5.version>5.5.2</junit5.version>
@@ -34,8 +34,8 @@
         <argLine>-Xms256m -Dfile.encoding=UTF-8 -Dlog.level.no.nav=WARN</argLine> <!-- default argLine for surefire-plugin -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
-        <felles.version>1.4.2-20191222184517-48d83b6</felles.version>
+        <felles.version>1.5.0-20200115082538-c89157e</felles.version>
+        <prosesstask.version>2.0.0-20200114110159-ad2c31b</prosesstask.version>
         <metrics.version>4.1.2</metrics.version>
         <prometheus.version>0.8.0</prometheus.version>
         <fp-kontrakter.version>5.1_20191210141010_6a7f399</fp-kontrakter.version>
@@ -54,18 +54,15 @@
                 <type>pom</type>
             </dependency>
             <dependency>
-                <groupId>no.nav.foreldrepenger.felles</groupId>
-                <artifactId>felles-prosesstask</artifactId>
-                <version>${felles.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
+                <groupId>no.nav.vedtak.prosesstask</groupId>
+                <artifactId>prosesstask-rest-api</artifactId>
+                <version>${prosesstask.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.foreldrepenger.felles</groupId>
-                <artifactId>felles-prosesstask</artifactId>
-                <version>${felles.version}</version>
+                <groupId>no.nav.vedtak.prosesstask</groupId>
+                <artifactId>prosesstask</artifactId>
+                <version>${prosesstask.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>felles-integrasjon-pom</artifactId>
@@ -338,17 +335,17 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-		  <groupId>org.jacoco</groupId>
-		  <artifactId>jacoco-maven-plugin</artifactId>
-		  <version>0.8.5</version>
-		 <executions>
-		   <execution>
-	             <goals>
-		        <goal>prepare-agent</goal>
-		     </goals>
-		   </execution>
-		 </executions>
-               </plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.5</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>buildnumber-maven-plugin</artifactId>
@@ -441,18 +438,18 @@
                 </configuration>
             </plugin>
             <plugin>
-			     <groupId>org.jacoco</groupId>
-			      <artifactId>jacoco-maven-plugin</artifactId>
-			      <executions>
-				<execution>
-				  <id>report</id>
-				  <goals>
-				    <goal>report-aggregate</goal>
-				  </goals>
-				  <phase>verify</phase>
-				</execution>
-			      </executions>
-			</plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>report</id>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <scm>
