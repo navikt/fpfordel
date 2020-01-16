@@ -50,7 +50,7 @@ jobs:
           docker exec -e ORACLE_SID=$ORACLE_SID -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=$ORACLE_HOME ${{ steps.oracle.outputs.pod }} sqlplus system/oracle @$ORACLE_INIT
    
       - name: Kompiler
-        run: mvn --quiet clean install --batch-mode --settings .github/workflows/.m2/settings.xml -Dchangelist= -Dsha1=-$TAG
+        run: mvn --quiet clean install --batch-mode --settings .github/workflows/.m2/settings.xml
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_PASSWORD: ${{ secrets.NOTIFICATION }}  
