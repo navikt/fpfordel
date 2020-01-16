@@ -1,8 +1,6 @@
 #!/usr/bin/env sh
 set -eu
 
-hostname=$(hostname)
-
 export JAVA_OPTS="${JAVA_OPTS:-} -Djava.security.egd=file:/dev/./urandom"
 
 export STARTUP_CLASS=${STARTUP_CLASS:-"no.nav.foreldrepenger.fordel.web.server.jetty.JettyServer"}
