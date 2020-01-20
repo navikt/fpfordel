@@ -58,37 +58,35 @@ public class JettyServer extends AbstractJettyServer {
     }
 
     private void hacks4Nais() {
-        wsMedLTPAmåIgjennomServiceGateway();
-        LOG.info("ISSOHOST " + ENV.getProperty("OpenIdConnect.issoHost"));
-        // temporært();
+        // wsMedLTPAmåIgjennomServiceGateway();
+        temporært();
     }
 
 // TODO Fjern, slår aldri til
-    private void wsMedLTPAmåIgjennomServiceGateway() {
-        String url = System.getenv("SERVICEGATEWAY_URL");
-        if (url != null) {
-            LOG.info("Setter service gateway url fra {}", url);
-            System.setProperty("Oppgave_v3.url", url);
-        }
-    }
+    /*
+     * private void wsMedLTPAmåIgjennomServiceGateway() { String url =
+     * System.getenv("SERVICEGATEWAY_URL"); if (url != null) {
+     * LOG.info("Setter service gateway url fra {}", url);
+     * System.setProperty("Oppgave_v3.url", url); } }
+     */
 
     private void temporært() {
         // FIXME : PFP-1176 Skriv om i OpenAmIssoHealthCheck og
         // AuthorizationRequestBuilder når Jboss dør
         // TODO fjern
-        String url = System.getenv("OIDC_OPENAM_HOSTURL");
-        if (url != null) {
-            LOG.info("Setter oidc host url fra {}", url);
-            System.setProperty("OpenIdConnect.issoHost", url);
-        }
+        /*
+         * String url = System.getenv("OIDC_OPENAM_HOSTURL"); if (url != null) {
+         * LOG.info("Setter oidc host url fra {}", url);
+         * System.setProperty("OpenIdConnect.issoHost", url); }
+         */
         // FIXME : PFP-1176 Skriv om i AuthorizationRequestBuilder og
         // IdTokenAndRefreshTokenProvider når Jboss dør
         // TODO fjern
-        String agent = System.getenv("OIDC_OPENAM_AGENTNAME");
-        if (agent != null) {
-            LOG.info("Setter agent fra {}", agent);
-            System.setProperty("OpenIdConnect.username", agent);
-        }
+        /*
+         * String agent = System.getenv("OIDC_OPENAM_AGENTNAME"); if (agent != null) {
+         * LOG.info("Setter agent fra {}", agent);
+         * System.setProperty("OpenIdConnect.username", agent); }
+         */
         // FIXME : PFP-1176 Skriv om i IdTokenAndRefreshTokenProvider når Jboss dør
         String pw = System.getenv("OIDC_OPENAM_PASSWORD");
         if (pw != null) {
@@ -97,11 +95,11 @@ public class JettyServer extends AbstractJettyServer {
         }
         // FIXME : PFP-1176 Skriv om i BaseJmsKonfig når Jboss dør
         // TODO fjern, slår aldri til
-        String cn = System.getenv("FPSAK_CHANNEL_NAME");
-        if (cn != null) {
-            LOG.info("Setter channel fra {}", cn);
-            System.setProperty("mqGateway02.channel", cn);
-        }
+        /*
+         * String cn = System.getenv("FPSAK_CHANNEL_NAME"); if (cn != null) {
+         * LOG.info("Setter channel fra {}", cn);
+         * System.setProperty("mqGateway02.channel", cn); }
+         */
     }
 
     @Override

@@ -39,8 +39,8 @@
 		"OIDC_OPENAM_JWKSURL": "https://isso.adeo.no:443/isso/oauth2/connect/jwk_uri",
 		"OIDC_STS_ISSUER_URL": "https://security-token-service.nais.adeo.no",
 		"OIDC_STS_JWKS_URL": "https://security-token-service.nais.adeo.no/rest/v1/sts/jwks",
-		"OIDC_OPENAM_AGENTNAME": "fpfordel-p",
-		"OIDC_OPENAM_HOSTURL": "https://isso.adeo.no:443/isso/oauth2",
+		"OPENIDCONNECT_USERNAME": "fpfordel-p",
+		"OPENIDCONNECT_ISSOHOST": "https://isso.adeo.no:443/isso/oauth2",
 		"PERSON_V3_URL": "https://wasapp.adeo.no/tpsws/ws/Person/v3",
 		"SAK_V1_URL": "https://wasapp.adeo.no/nav-gsak-ws/SakV1",
 		"SECURITYTOKENSERVICE_URL": "https://sts.adeo.no/SecurityTokenServiceProvider/"
