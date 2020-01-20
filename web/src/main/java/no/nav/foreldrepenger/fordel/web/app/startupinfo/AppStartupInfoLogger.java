@@ -5,6 +5,7 @@ import static java.util.Map.Entry.comparingByKey;
 import static no.nav.vedtak.konfig.StandardPropertySource.APP_PROPERTIES;
 import static no.nav.vedtak.konfig.StandardPropertySource.ENV_PROPERTIES;
 import static no.nav.vedtak.konfig.StandardPropertySource.SYSTEM_PROPERTIES;
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 
 import java.util.List;
 import java.util.Map.Entry;
@@ -40,6 +41,8 @@ class AppStartupInfoLogger {
     private static final String APPLIKASJONENS_STATUS = "Applikasjonens status";
     private static final String START = "start:";
     private static final String SLUTT = "slutt.";
+
+    private static final List<String> IGNORE = List.of("PORT_HTTP", "SERVICE_PORT,SERVICE_HOST");
 
     private static final Environment ENV = Environment.current();
 
@@ -92,8 +95,17 @@ class AppStartupInfoLogger {
         String val = entry.getValue();
         String value = SECRETS
                 .stream()
-                .anyMatch(s -> s.contains(val)) ? hide(val) : val;
-        log("{}: {}={}", source.getName(), entry.getKey(), value);
+                .anyMatch(s -> containsIgnoreCase(val, s)) ? hide(val) : val;
+        log(ignore(entry.getKey()), "{}: {}={}", source.getName(), entry.getKey(), value);
+    }
+
+    private static boolean ignore(String key) {
+        for (String ignore : IGNORE) {
+            if (key.toLowerCase().endsWith(ignore.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static String hide(String val) {
@@ -101,7 +113,15 @@ class AppStartupInfoLogger {
     }
 
     private static void log(String msg, Object... args) {
-        LOG.info(msg, args);
+        log(false, msg, args);
+    }
+
+    private static void log(boolean ignore, String msg, Object... args) {
+        if (ignore) {
+            LOG.debug(msg, args);
+        } else {
+            LOG.info(msg, args);
+        }
     }
 
     private static void log(HealthCheck.Result result) {
