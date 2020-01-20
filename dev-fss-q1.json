@@ -25,7 +25,7 @@
 		"INNGAAENDEJOURNAL_V1_URL": "https://dokarkiv-q1.nais.preprod.local/services/inngaaendejournal/v1",
 		"JOURNAL_V2_URL": "https://wasapp-q1.adeo.no/joark/Journal/v2",
 		"LOADBALANCER_URL" : "https://fpfordel-q1.nais.preprod.local",
-		"MOTTAINNGAAENDEFORSENDELSE_URL": "https://dokmotinngaaende-q1.nais.preprod.local/rest/mottaInngaaendeForsendelse",
+		"MOTTAINNGAAENDEFORSENDELSE_URL": "http://dokmotinngaaende.q1/rest/mottaInngaaendeForsendelse",
 		"MOTTAK_QUEUE_QUEUENAME": "QA.Q1_FPFORDEL.MOTTAK_QUEUE",
 		"MOTTAK_QUEUE_QUEUEMANAGER": "mq://b27apvl176.preprod.local:1413/MQ1LSC02",
 		"MQGATEWAY02_CHANNEL": "Q1_FPFORDEL",
