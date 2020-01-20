@@ -12,8 +12,6 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.webapp.MetaData;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.web.app.konfig.ApplicationConfig;
 import no.nav.foreldrepenger.fordel.web.server.jetty.DataSourceKonfig.DBConnProp;
@@ -21,8 +19,6 @@ import no.nav.vedtak.isso.IssoApplication;
 import no.nav.vedtak.util.env.Environment;
 
 public class JettyServer extends AbstractJettyServer {
-
-    private static final Logger LOG = LoggerFactory.getLogger(JettyServer.class);
     private DataSourceKonfig dataSourceKonfig;
     private static final Environment ENV = Environment.current();
 
@@ -54,52 +50,6 @@ public class JettyServer extends AbstractJettyServer {
     @Override
     protected void konfigurerMiljø() throws Exception {
         dataSourceKonfig = new DataSourceKonfig();
-        hacks4Nais();
-    }
-
-    private void hacks4Nais() {
-        // wsMedLTPAmåIgjennomServiceGateway();
-        temporært();
-    }
-
-// TODO Fjern, slår aldri til
-    /*
-     * private void wsMedLTPAmåIgjennomServiceGateway() { String url =
-     * System.getenv("SERVICEGATEWAY_URL"); if (url != null) {
-     * LOG.info("Setter service gateway url fra {}", url);
-     * System.setProperty("Oppgave_v3.url", url); } }
-     */
-
-    private void temporært() {
-        // FIXME : PFP-1176 Skriv om i OpenAmIssoHealthCheck og
-        // AuthorizationRequestBuilder når Jboss dør
-        // TODO fjern
-        /*
-         * String url = System.getenv("OIDC_OPENAM_HOSTURL"); if (url != null) {
-         * LOG.info("Setter oidc host url fra {}", url);
-         * System.setProperty("OpenIdConnect.issoHost", url); }
-         */
-        // FIXME : PFP-1176 Skriv om i AuthorizationRequestBuilder og
-        // IdTokenAndRefreshTokenProvider når Jboss dør
-        // TODO fjern
-        /*
-         * String agent = System.getenv("OIDC_OPENAM_AGENTNAME"); if (agent != null) {
-         * LOG.info("Setter agent fra {}", agent);
-         * System.setProperty("OpenIdConnect.username", agent); }
-         */
-        // FIXME : PFP-1176 Skriv om i IdTokenAndRefreshTokenProvider når Jboss dør
-        /*
-         * String pw = System.getenv("OIDC_OPENAM_PASSWORD"); if (pw != null) {
-         * LOG.info("Setter password"); System.setProperty("OpenIdConnect.password",
-         * pw); }
-         */
-        // FIXME : PFP-1176 Skriv om i BaseJmsKonfig når Jboss dør
-        // TODO fjern, slår aldri til
-        /*
-         * String cn = System.getenv("FPSAK_CHANNEL_NAME"); if (cn != null) {
-         * LOG.info("Setter channel fra {}", cn);
-         * System.setProperty("mqGateway02.channel", cn); }
-         */
     }
 
     @Override
