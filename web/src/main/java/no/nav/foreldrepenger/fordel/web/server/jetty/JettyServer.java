@@ -88,11 +88,11 @@ public class JettyServer extends AbstractJettyServer {
          * System.setProperty("OpenIdConnect.username", agent); }
          */
         // FIXME : PFP-1176 Skriv om i IdTokenAndRefreshTokenProvider når Jboss dør
-        String pw = System.getenv("OIDC_OPENAM_PASSWORD");
-        if (pw != null) {
-            LOG.info("Setter password");
-            System.setProperty("OpenIdConnect.password", pw);
-        }
+        /*
+         * String pw = System.getenv("OIDC_OPENAM_PASSWORD"); if (pw != null) {
+         * LOG.info("Setter password"); System.setProperty("OpenIdConnect.password",
+         * pw); }
+         */
         // FIXME : PFP-1176 Skriv om i BaseJmsKonfig når Jboss dør
         // TODO fjern, slår aldri til
         /*
