@@ -35,7 +35,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <felles.version>1.5.0-20200115082538-c89157e</felles.version>
-        <prosesstask.version>2.0.0-20200114110159-ad2c31b</prosesstask.version>
+        <prosesstask.version>2.0.0-20200118092644-2782011</prosesstask.version>
         <metrics.version>4.1.2</metrics.version>
         <prometheus.version>0.8.0</prometheus.version>
         <fp-kontrakter.version>5.1_20200114104934_66a9974</fp-kontrakter.version>
@@ -124,7 +124,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpmime</artifactId>
-                <version>4.5.10</version>
+                <version>4.5.11</version>
             </dependency>
             <dependency>
                 <groupId>net.logstash.logback</groupId>
