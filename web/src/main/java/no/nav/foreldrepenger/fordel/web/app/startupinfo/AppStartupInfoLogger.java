@@ -5,7 +5,6 @@ import static java.util.Map.Entry.comparingByKey;
 import static no.nav.vedtak.konfig.StandardPropertySource.APP_PROPERTIES;
 import static no.nav.vedtak.konfig.StandardPropertySource.ENV_PROPERTIES;
 import static no.nav.vedtak.konfig.StandardPropertySource.SYSTEM_PROPERTIES;
-import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 
 import java.util.List;
 import java.util.Map.Entry;
@@ -93,16 +92,22 @@ class AppStartupInfoLogger {
     }
 
     private static void log(StandardPropertySource source, Entry<String, String> entry) {
-        String val = entry.getValue();
-        String value = SECRETS
-                .stream()
-                .anyMatch(s -> containsIgnoreCase(val, s)) ? hide(val) : val;
+        String value = secret(entry.getKey()) ? hide(entry.getKey()) : entry.getKey();
         log(ignore(entry.getKey()), "{}: {}={}", source.getName(), entry.getKey(), value);
     }
 
     private static boolean ignore(String key) {
         for (String ignore : IGNORE) {
             if (key.toLowerCase().endsWith(ignore.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean secret(String key) {
+        for (String secret : SECRETS) {
+            if (key.toLowerCase().endsWith(secret.toLowerCase())) {
                 return true;
             }
         }
