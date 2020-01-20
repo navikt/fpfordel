@@ -24,6 +24,8 @@
 		"INNGAAENDEJOURNAL_V1_URL": "https://dokarkiv-t4.nais.preprod.local/services/inngaaendejournal/v1",
 		"JOURNAL_V2_URL": "https://wasapp-t4.adeo.no/joark/Journal/v2",
 		"LOADBALANCER_FQDN": "fpfordel-t4.nais.preprod.local",
+		"loadbalancer1.url" : "https://fpfordel-t4.nais.preprod.local",
+		"loadbalancer2.url" : "https://fpfordel-t4.nais.preprod.local",
 		"MOTTAINNGAAENDEFORSENDELSE_URL": "http://dokmotinngaaende.t4/rest/mottaInngaaendeForsendelse",
 		"MOTTAK_QUEUE_QUEUENAME": "QA.T4_FPFORDEL.MOTTAK_QUEUE",
 		"MOTTAK_QUEUE_QUEUEMANAGER": "mq://d26apvl258.test.local:1412/MTXLSC02",
