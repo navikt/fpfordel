@@ -58,7 +58,7 @@ public class JettyServer extends AbstractJettyServer {
 
     private void hacks4Nais() {
         wsMedLTPAmåIgjennomServiceGateway();
-        LOG.info("ISSOHOST " + ENV.getProperty("OpenIdConnect.issoHost");
+        LOG.info("ISSOHOST " + ENV.getProperty("OpenIdConnect.issoHost"));
         // temporært();
     }
 
