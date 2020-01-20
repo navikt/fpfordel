@@ -68,13 +68,21 @@ public class JettyServer extends AbstractJettyServer {
     private void loadBalancerFqdnTilLoadBalancerUrl() {
         String fqdn = System.getenv("LOADBALANCER_FQDN");
         if (fqdn != null) {
+            test();
+            LOG.info("Setter loadbalancer url fra {}", fqdn);
+            String protocol = (fqdn.startsWith("localhost")) ? "http" : "https";
+            System.setProperty("loadbalancer.url", protocol + "://" + fqdn);
+        }
+    }
+
+    private void test() {
+        try {
             LOG.info("Setter Test1 {}", ENV.getProperty("loadbalancer1.url"), URI.class, null);
             LOG.info("Setter Test2 {}", ENV.getProperty("loadbalancer2.url"), URI.class, null);
             LOG.info("Setter Test3 {}", ENV.getProperty("loadbalancer3.url"), URI.class, null);
             LOG.info("Setter Test4 {}", ENV.getProperty("loadbalancer4.url"), URI.class, null);
-            LOG.info("Setter loadbalancer url fra {}", fqdn);
-            String protocol = (fqdn.startsWith("localhost")) ? "http" : "https";
-            System.setProperty("loadbalancer.url", protocol + "://" + fqdn);
+        } catch (Exception e) {
+            LOG.info("Shit", e);
         }
     }
 
