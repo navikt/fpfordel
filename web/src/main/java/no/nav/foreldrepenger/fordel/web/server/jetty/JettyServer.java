@@ -69,6 +69,8 @@ public class JettyServer extends AbstractJettyServer {
         if (fqdn != null) {
             LOG.info("Setter Test1 {}", ENV.getProperty("loadbalancer1.url"));
             LOG.info("Setter Test2 {}", ENV.getProperty("loadbalancer2.url"));
+            LOG.info("Setter Test3 {}", ENV.getProperty("loadbalancer3.url"));
+            LOG.info("Setter Test4 {}", ENV.getProperty("loadbalancer4.url"));
             LOG.info("Setter loadbalancer url fra {}", fqdn);
             String protocol = (fqdn.startsWith("localhost")) ? "http" : "https";
             System.setProperty("loadbalancer.url", protocol + "://" + fqdn);

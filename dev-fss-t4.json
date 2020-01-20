@@ -26,6 +26,8 @@
 		"LOADBALANCER_FQDN": "fpfordel-t4.nais.preprod.local",
 		"loadbalancer1.url" : "https://fpfordel-t4.nais.preprod.local",
 		"loadbalancer2_url" : "https://fpfordel-t4.nais.preprod.local",
+		"LOADBALANCER3_URL" : "https://fpfordel-t4.nais.preprod.local",
+		"LOADBALANCER4.URL" : "https://fpfordel-t4.nais.preprod.local",
 		"MOTTAINNGAAENDEFORSENDELSE_URL": "http://dokmotinngaaende.t4/rest/mottaInngaaendeForsendelse",
 		"MOTTAK_QUEUE_QUEUENAME": "QA.T4_FPFORDEL.MOTTAK_QUEUE",
 		"MOTTAK_QUEUE_QUEUEMANAGER": "mq://d26apvl258.test.local:1412/MTXLSC02",
