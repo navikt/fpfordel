@@ -92,7 +92,7 @@ class AppStartupInfoLogger {
     }
 
     private static void log(StandardPropertySource source, Entry<String, String> entry) {
-        String value = secret(entry.getKey()) ? hide(entry.getKey()) : entry.getKey();
+        String value = secret(entry.getKey()) ? hide(entry.getValue()) : entry.getValue();
         log(ignore(entry.getKey()), "{}: {}={}", source.getName(), entry.getKey(), value);
     }
 
