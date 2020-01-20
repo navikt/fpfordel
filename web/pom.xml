@@ -62,13 +62,13 @@
             <artifactId>kodeverk-klient</artifactId>
         </dependency>
         <dependency>
-	    <groupId>no.nav.vedtak.prosesstask</groupId>
-	    <artifactId>prosesstask-legacy</artifactId>
-	   </dependency>
-	    <dependency>
-  <groupId>no.nav.vedtak.prosesstask</groupId>
-  <artifactId>prosesstask-rest-api</artifactId>
-</dependency>
+            <groupId>no.nav.vedtak.prosesstask</groupId>
+            <artifactId>prosesstask-legacy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.vedtak.prosesstask</groupId>
+            <artifactId>prosesstask-rest-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.kontrakter</groupId>
             <artifactId>fordel-v1</artifactId>
@@ -272,18 +272,27 @@
             <artifactId>felles-testutilities</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.10</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>org.jvnet.jaxb2_commons</groupId>
             <artifactId>jaxb2-basics-runtime</artifactId>
             <version>${org.jvnet.jaxb2.version}</version>
-
         </dependency>
-
     </dependencies>
 
     <dependencyManagement>
         <dependencies>
+
             <dependency>
                 <groupId>org.apache.geronimo.components</groupId>
                 <artifactId>geronimo-jaspi</artifactId>
