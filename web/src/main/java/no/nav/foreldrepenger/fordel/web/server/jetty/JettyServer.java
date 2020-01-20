@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.fordel.web.server.jetty;
 import static no.nav.vedtak.util.env.Cluster.NAIS_CLUSTER_NAME;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,10 +68,10 @@ public class JettyServer extends AbstractJettyServer {
     private void loadBalancerFqdnTilLoadBalancerUrl() {
         String fqdn = System.getenv("LOADBALANCER_FQDN");
         if (fqdn != null) {
-            LOG.info("Setter Test1 {}", ENV.getProperty("loadbalancer1.url"));
-            LOG.info("Setter Test2 {}", ENV.getProperty("loadbalancer2.url"));
-            LOG.info("Setter Test3 {}", ENV.getProperty("loadbalancer3.url"));
-            LOG.info("Setter Test4 {}", ENV.getProperty("loadbalancer4.url"));
+            LOG.info("Setter Test1 {}", ENV.getProperty("loadbalancer1.url"), URI.class, null);
+            LOG.info("Setter Test2 {}", ENV.getProperty("loadbalancer2.url"), URI.class, null);
+            LOG.info("Setter Test3 {}", ENV.getProperty("loadbalancer3.url"), URI.class, null);
+            LOG.info("Setter Test4 {}", ENV.getProperty("loadbalancer4.url"), URI.class, null);
             LOG.info("Setter loadbalancer url fra {}", fqdn);
             String protocol = (fqdn.startsWith("localhost")) ? "http" : "https";
             System.setProperty("loadbalancer.url", protocol + "://" + fqdn);
