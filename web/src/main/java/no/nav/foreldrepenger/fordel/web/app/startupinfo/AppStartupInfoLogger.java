@@ -41,8 +41,8 @@ class AppStartupInfoLogger {
     private static final String START = "start:";
     private static final String SLUTT = "slutt.";
 
-    private static final List<String> IGNORE = List.of("TCP_ADDR", "PORT_HTTP", "SERVICE_PORT", "SERVICE_HOST",
-            "TCP_PROTO", "80_TCP", "TCP_PORT");
+    private static final List<String> IGNORE = List.of("TCP_ADDR", "PORT_HTTP", "SERVICE_HOST",
+            "TCP_PROTO", "80_TCP", "_PORT");
 
     private static final Environment ENV = Environment.current();
 
