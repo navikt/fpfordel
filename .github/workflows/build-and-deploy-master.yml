@@ -47,7 +47,7 @@ jobs:
         run: |
           echo  $GITHUB_TOKEN | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
           echo "Henter og starter Oracle image $ORACLE_IMAGE1"
-          echo "##[set-output name=pod;]$(docker run $ORACLE_ARGS $ORACLE_IMAGE)"     
+          echo "##[set-output name=pod;]$(docker run $ORACLE_ARGS $ORACLE_IMAGE1)"     
     
       - name: Vent 60 sekunder på Oracle oppstart
         shell: bash
