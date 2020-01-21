@@ -8,6 +8,7 @@ env:
   APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
   ORACLE_INIT: initdb.sql
   ORACLE_ARGS:  -d -p 1521:1521 --name oracle-xe -e ORACLE_DISABLE_ASYNCH_IO=true
+  ORACLE_IMAGE1: docker.pkg.github.com/navikt/vtp/foreldrepenger-oracle
   ORACLE_IMAGE: wnameless/oracle-xe-11g-r2
   ORACLE_SID: XE
   ORACLE_HOME: /u01/app/oracle/product/11.2.0/xe
@@ -44,7 +45,8 @@ jobs:
         id: oracle
         shell: bash
         run: |
-          echo "Henter og starter Oracle image $ORACLE_IMAGE"
+          echo  $GITHUB_TOKEN | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
+          echo "Henter og starter Oracle image $ORACLE_IMAGE1"
           echo "##[set-output name=pod;]$(docker run $ORACLE_ARGS $ORACLE_IMAGE)"     
     
       - name: Vent 60 sekunder på Oracle oppstart
