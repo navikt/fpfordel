@@ -29,8 +29,8 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: ${{ env.CLUSTER }}
-          RESOURCE: naiserator.yaml
-          VARS: ${{ env.CLUSTER }}-${{ env.NAMESPACE }}.json 
+          RESOURCE: nais/naiserator.yaml
+          VARS: nais/${{ env.CLUSTER }}-${{ env.NAMESPACE }}.json 
           
       - name: Oppdater kommentar med deployment status ved feil
         if: failure()
@@ -58,5 +58,3 @@ jobs:
             github.issues.createComment({...issue,
                                     body: '>promote ${{ github.event.client_payload.slash_command.args }} var OK'})
             github.issues.addLabels({...issue, labels: ['deployment','${{ env.CLUSTER }}-${{ env.NAMESPACE }}']})
-   
-                  
