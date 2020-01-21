@@ -1,4 +1,4 @@
-name: Build, push, and deploy
+name: Build PR or branch
 
 on:
   pull_request:
