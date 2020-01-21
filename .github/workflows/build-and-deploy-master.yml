@@ -42,9 +42,9 @@ jobs:
         run: |
           echo  $GITHUB_TOKEN | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
           echo "Henter og starter Oracle image $ORACLE_IMAGE"
-          docker-compose -f docker-compose.yml pull
+          docker-compose -f oracle/docker-compose.yml pull
           rm -f nohup.out
-          docker-compose -f docker-compose.yml up oracle >nohup.out 2>&1 &
+          docker-compose -f oracle/docker-compose.yml up oracle >nohup.out 2>&1 &
           sh -c 'tail -n +0 -f nohup.out | { sed "/Disconnected/q" && kill $$; }' || true
     
       - name: Kompiler
