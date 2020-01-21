@@ -6,12 +6,7 @@ on:
       - master 
 env:
   APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-  ORACLE_INIT: initdb.sql
-  ORACLE_ARGS:  -d -p 1521:1521 --name oracle-xe -e ORACLE_DISABLE_ASYNCH_IO=true
-  ORACLE_IMAGE1: docker.pkg.github.com/navikt/vtp/foreldrepenger-oracle
-  ORACLE_IMAGE: wnameless/oracle-xe-11g-r2
-  ORACLE_SID: XE
-  ORACLE_HOME: /u01/app/oracle/product/11.2.0/xe
+  ORACLE_IMAGE: docker.pkg.github.com/navikt/vtp/foreldrepenger-oracle
   CLUSTER: dev-fss
   NAMESPACE: t4
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -46,21 +41,12 @@ jobs:
         shell: bash
         run: |
           echo  $GITHUB_TOKEN | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
-          echo "Henter og starter Oracle image $ORACLE_IMAGE1"
+          echo "Henter og starter Oracle image $ORACLE_IMAGE"
           docker-compose -f docker-compose.yml pull
           rm -f nohup.out
           docker-compose -f docker-compose.yml up oracle >nohup.out 2>&1 &
           sh -c 'tail -n +0 -f nohup.out | { sed "/Disconnected/q" && kill $$; }' || true
-#         echo "##[set-output name=pod;]$(docker run $ORACLE_ARGS $ORACLE_IMAGE1)"     
     
-      - name: Vent 60 sekunder på Oracle oppstart
-        shell: bash
-        run: |
-          echo "Venter på oppstart av Oracle pod ${{ steps.oracle.outputs.pod }}"
-#          sleep 60 
-#          docker cp $ORACLE_INIT ${{ steps.oracle.outputs.pod }}:/$ORACLE_INIT
-#          docker exec -e ORACLE_SID=$ORACLE_SID -e PATH=$PATH:$ORACLE_HOME/bin -e ORACLE_HOME=$ORACLE_HOME ${{ steps.oracle.outputs.pod }} sqlplus system/oracle @$ORACLE_INIT
-   
       - name: Kompiler
         run: |
           echo "::set-env name=IMAGE::$IMAGE_BASE:$TAG" 
