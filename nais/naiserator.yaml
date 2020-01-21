@@ -29,8 +29,16 @@ spec:
     initialDelay: 45
     timeout: 1
   replicas:
+{{#if minReplicas}}
+    min: {{minReplicas}}
+{{else}}
     min: 2
+{{/if}}
+{{#if maxReplicas}}
+    min: {{maxReplicas}}
+{{else}}
     max: 2
+{{/if}} 
     cpuThresholdPercentage: 80
   resources:
     limits:
