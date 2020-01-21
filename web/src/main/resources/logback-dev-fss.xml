@@ -1,5 +1,6 @@
 <included>
    <logger name="no.nav.foreldrepenger" level="trace" />
-   <logger name="org.apache.http.client" level="trace" />
+   <logger name="org.apache.http" level="trace" />
+   <logger name="no.nav.vedtak.isso", level="trace />
    <logger name="no.nav.foreldrepenger.fordel.web.app.startupinfo.AppStartupInfoLogger" level="info" />
 </included>
