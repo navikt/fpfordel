@@ -1,0 +1,5 @@
+<included>
+   <logger name="org.apache.http" level="trace" />
+   <logger name="no.nav.vedtak.sikkerhet", level="trace" />
+   <logger name="no.nav.vedtak.isso", level="trace" />
+</included>
