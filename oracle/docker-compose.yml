@@ -1,0 +1,10 @@
+version: '3.7'
+services:
+  oracle:
+    image: docker.pkg.github.com/navikt/vtp/foreldrepenger-oracle
+    shm_size: 2gb
+    ports:
+      - 1521:1521
+    container_name: oraclefpfordel
+    volumes:
+      - ./init.d:/docker-entrypoint-initdb.d/
