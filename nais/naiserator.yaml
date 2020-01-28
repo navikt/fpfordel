@@ -35,7 +35,7 @@ spec:
     min: 2
 {{/if}}
 {{#if maxReplicas}}
-    min: {{maxReplicas}}
+    max: {{maxReplicas}}
 {{else}}
     max: 2
 {{/if}} 
