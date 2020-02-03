@@ -35,7 +35,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <felles.version>1.5.0-20200121145523-7ff9fcf</felles.version>
-        <prosesstask.version>2.0.0-20200118092644-2782011</prosesstask.version>
+        <prosesstask.version>2.1.0-20200131125706-62fdd0f</prosesstask.version>
         <metrics.version>4.1.2</metrics.version>
         <prometheus.version>0.8.1</prometheus.version>
         <fp-kontrakter.version>5.1_20200117132228_47cdf2f</fp-kontrakter.version>
