@@ -7,7 +7,7 @@
 FPFORDEL
 ===============
 
-
+ 
 
 Dette er kildkode som dekker applikasjonen for fordeling av søknader fra Selvbetjening mellom Gosys, Infotrygd og FPSAK
 
