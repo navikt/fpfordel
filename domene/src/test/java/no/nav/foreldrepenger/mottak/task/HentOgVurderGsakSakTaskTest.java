@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 
 import javax.enterprise.inject.Instance;
 
@@ -73,6 +74,9 @@ public class HentOgVurderGsakSakTaskTest {
     private List<GsakSak> sakerTom;
     private List<GsakSak> sakerMatchende;
     private List<GsakSak> sakerMatchende2;
+    static {
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
+    }
 
     @Before
     public void setup() {
@@ -180,7 +184,8 @@ public class HentOgVurderGsakSakTaskTest {
 
     @Test
     public void test_validerDatagrunnlag_skal_feile_ved_manglende_temakode_og_behandlingstype() throws Exception {
-        MottakMeldingDataWrapper meldingDataWrapper = new MottakMeldingDataWrapper(new ProsessTaskData(HentOgVurderInfotrygdSakTask.TASKNAME));
+        MottakMeldingDataWrapper meldingDataWrapper = new MottakMeldingDataWrapper(
+                new ProsessTaskData(HentOgVurderInfotrygdSakTask.TASKNAME));
         meldingDataWrapper.setArkivId("123454");
         meldingDataWrapper.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
 
