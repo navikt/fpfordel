@@ -18,14 +18,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import javax.validation.Validation;
@@ -91,7 +89,7 @@ public class DokumentforsendelseRestTjeneste {
     private static final ObjectMapper OBJECT_MAPPER = new JacksonJsonConfig().getObjectMapper();
     private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
 
-    private static final Logger log = LoggerFactory.getLogger(DokumentforsendelseRestTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DokumentforsendelseRestTjeneste.class);
 
     private DokumentforsendelseTjeneste service;
 
@@ -118,7 +116,7 @@ public class DokumentforsendelseRestTjeneste {
     public Response uploadFile(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) MultipartInput input) {
         List<InputPart> inputParts = input.getParts();
         if (inputParts.size() < 2) {
-            throw new IllegalArgumentException("Må ha minst to deler,fikk " + inputParts.size());
+            throw new IllegalArgumentException("Må ha minst to deler, fikk " + inputParts.size());
         }
 
         Dokumentforsendelse dokumentforsendelse = nyDokumentforsendelse(inputParts.remove(0));
@@ -131,13 +129,16 @@ public class DokumentforsendelseRestTjeneste {
                 .finnStatusinformasjon(dokumentforsendelse.getForsendelsesId());
         switch (forsendelseStatusDto.getForsendelseStatus()) {
         case FPSAK:
+            LOG.info("Forsendelse {} ble fordelt til FPSAK", dokumentforsendelse.getForsendelsesId());
             return Response.seeOther(lagStatusURI(dokumentforsendelse.getForsendelsesId()))
                     .entity(forsendelseStatusDto)
                     .build();
         case GOSYS:
+            LOG.info("Forsendelse {} ble fordelt til GOSYS", dokumentforsendelse.getForsendelsesId());
             return Response.ok(forsendelseStatusDto).build();
         case PENDING:
         default:
+            LOG.info("Forsendelse {} enda ikke fordelt", dokumentforsendelse.getForsendelsesId());
             return Response.accepted()
                     .location(URI
                             .create(SERVICE_PATH + "/status?forsendelseId=" + dokumentforsendelse.getForsendelsesId()))
@@ -158,7 +159,7 @@ public class DokumentforsendelseRestTjeneste {
         UUID forsendelseId;
         try {
             forsendelseId = forsendelseIdDto.getForsendelseId();
-        } catch (IllegalArgumentException e) { // NOSONAR
+        } catch (IllegalArgumentException e) {
             FeltFeilDto ffd = new FeltFeilDto("forsendelseId", "Ugyldig uuid");
             throw new Valideringsfeil(Collections.singletonList(ffd));
         }
@@ -219,7 +220,7 @@ public class DokumentforsendelseRestTjeneste {
         String partFilename = getDirective(inputPart.getHeaders(), CONTENT_DISPOSITION, "filename");
         String finalFilename = partFilename != null ? partFilename.strip() : partFilename;
         if (finalFilename != null && DokumentTypeId.ANNET.equals(filMetadata.getDokumentTypeId())) {
-            log.info("Mottatt vedlegg av type ANNET med filename {}", partFilename);
+            LOG.info("Mottatt vedlegg av type ANNET med filename {}", partFilename);
         }
 
         Dokument.Builder builder = Dokument.builder()
@@ -240,8 +241,7 @@ public class DokumentforsendelseRestTjeneste {
                     .toException();
         }
 
-        Dokument dokument = builder.build();
-        service.lagreDokument(dokument);
+        service.lagreDokument(builder.build());
     }
 
     private void validerDokumentforsendelse(Dokumentforsendelse dokumentforsendelse) {
@@ -261,27 +261,29 @@ public class DokumentforsendelseRestTjeneste {
             throw DokumentforsendelseRestTjenesteFeil.FACTORY.metadataPartSkalHaMediaType(APPLICATION_JSON)
                     .toException();
         }
+        return dokumentForsendelseDto(body(inputPart, name));
+    }
 
-        String body;
+    private static DokumentforsendelseDto dokumentForsendelseDto(String body) {
         try {
-            body = inputPart.getBodyAsString();
-        } catch (IOException e1) {
-            throw DokumentforsendelseRestTjenesteFeil.FACTORY.feiletUnderInnlesningAvInputPart(name, e1).toException();
-        }
-
-        DokumentforsendelseDto dokumentforsendelseDto;
-        try {
-            dokumentforsendelseDto = OBJECT_MAPPER.readValue(body, DokumentforsendelseDto.class);
+            var dto = OBJECT_MAPPER.readValue(body, DokumentforsendelseDto.class);
+            var violations = VALIDATOR.validate(dto);
+            if (!violations.isEmpty()) {
+                throw new ConstraintViolationException(violations);
+            }
+            return dto;
         } catch (IOException e) {
             throw DokumentforsendelseRestTjenesteFeil.FACTORY.kunneIkkeParseMetadata(PART_KEY_METADATA, e)
                     .toException();
         }
+    }
 
-        Set<ConstraintViolation<DokumentforsendelseDto>> violations = VALIDATOR.validate(dokumentforsendelseDto);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
+    private static String body(InputPart inputPart, String name) {
+        try {
+            return inputPart.getBodyAsString();
+        } catch (IOException e1) {
+            throw DokumentforsendelseRestTjenesteFeil.FACTORY.feiletUnderInnlesningAvInputPart(name, e1).toException();
         }
-        return dokumentforsendelseDto;
     }
 
     private Dokumentforsendelse mapping(DokumentforsendelseDto dokumentforsendelseDto) {
