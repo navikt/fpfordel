@@ -16,10 +16,10 @@
         <jaxb2-maven-plugin.version>1.5</jaxb2-maven-plugin.version>
     </properties>
     <dependencies>
-    <dependency>
-                <groupId>org.apache.kafka</groupId>
-                <artifactId>kafka-clients</artifactId>
-            </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock-jre8</artifactId>
@@ -85,9 +85,9 @@
             <artifactId>felles-feil</artifactId>
         </dependency>
         <dependency>
-	    <groupId>no.nav.vedtak.prosesstask</groupId>
-	    <artifactId>prosesstask-legacy</artifactId>
-	</dependency>
+            <groupId>no.nav.vedtak.prosesstask</groupId>
+            <artifactId>prosesstask-legacy</artifactId>
+        </dependency>
         <dependency>
             <groupId>no.nav.vedtak.prosesstask</groupId>
             <artifactId>prosesstask</artifactId>
