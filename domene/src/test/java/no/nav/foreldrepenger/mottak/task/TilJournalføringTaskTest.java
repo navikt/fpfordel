@@ -87,7 +87,7 @@ public class TilJournalføringTaskTest {
                 dokumentRepositoryMock);
 
         task = new TilJournalføringTask(prosessTaskRepositoryMock, tilJournalføringTjeneste, enhetsTjenesteMock,
-                new LoggingHendelseProdusent("dummy"), dokumentRepositoryMock, aktørConsumerMock);
+                new LoggingHendelseProdusent(), dokumentRepositoryMock, aktørConsumerMock);
 
         ptd = new ProsessTaskData(TilJournalføringTask.TASKNAME);
         ptd.setSekvens("1");
