@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.vedtak.feil.Feil;
 
-//@ApplicationScoped
 public class KafkaHendelseProdusent implements HendelseProdusent {
 
     private static final Logger LOG = LoggerFactory.getLogger(KafkaHendelseProdusent.class);
