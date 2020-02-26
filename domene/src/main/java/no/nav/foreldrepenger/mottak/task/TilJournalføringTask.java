@@ -76,52 +76,53 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
 
     @Transactional
     @Override
-    public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper dataWrapper) {
-        Optional<String> fnr = aktør.hentPersonIdentForAktørId(dataWrapper.getAktørId().get());// NOSONAR
+    public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper w) {
+        Optional<String> fnr = aktør.hentPersonIdentForAktørId(w.getAktørId().get());// NOSONAR
         if (fnr.isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.fantIkkePersonidentForAktørId(TASKNAME, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.FACTORY.fantIkkePersonidentForAktørId(TASKNAME, w.getId()).toException();
         }
-        String enhetsId = enhetsidTjeneste.hentFordelingEnhetId(dataWrapper.getTema(), dataWrapper.getBehandlingTema(),
-                dataWrapper.getJournalførendeEnhet(), fnr);
-        if (dataWrapper.getArkivId() == null) {
-            UUID forsendelseId = dataWrapper.getForsendelseId().orElseThrow(IllegalStateException::new);
-            Boolean forsøkEndeligJF = true;
+        String enhetsId = enhetsidTjeneste.hentFordelingEnhetId(w.getTema(), w.getBehandlingTema(),
+                w.getJournalførendeEnhet(), fnr);
+        if (w.getArkivId() == null) {
+            UUID forsendelseId = w.getForsendelseId().orElseThrow(IllegalStateException::new);
             DokumentforsendelseResponse response = journalføring.journalførDokumentforsendelse(forsendelseId,
-                    dataWrapper.getSaksnummer(), dataWrapper.getAvsenderId(), forsøkEndeligJF,
-                    dataWrapper.getRetryingTask());
-            dataWrapper.setArkivId(response.getJournalpostId());
+                    w.getSaksnummer(), w.getAvsenderId(), true,
+                    w.getRetryingTask());
+            w.setArkivId(response.getJournalpostId());
             // Hvis endelig journalføring feiler (fx pga doktype annet), send til manuell
             // journalføring (journalpost er opprettet).
             if (!JournalTilstand.ENDELIG_JOURNALFØRT.equals(response.getJournalTilstand())) {
                 MottakMeldingFeil.FACTORY.feilJournalTilstandForventetTilstandEndelig(response.getJournalTilstand())
                         .log(LOG);
-                dokumentRepository.oppdaterForseldelseMedArkivId(forsendelseId, dataWrapper.getArkivId(),
+                dokumentRepository.oppdaterForseldelseMedArkivId(forsendelseId, w.getArkivId(),
                         ForsendelseStatus.GOSYS);
-                return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+                return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
             }
         } else {
-            String innhold = dataWrapper.getDokumentTypeId().map(DokumentTypeId::getTermNavn).orElse("Ukjent innhold");
+            String innhold = w.getDokumentTypeId().map(DokumentTypeId::getTermNavn).orElse("Ukjent innhold");
             try {
-                if (!journalføring.tilJournalføring(dataWrapper.getArkivId(), dataWrapper.getSaksnummer().get(),
-                        dataWrapper.getAktørId().get(), enhetsId, innhold)) {
-                    return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+                if (!journalføring.tilJournalføring(w.getArkivId(), w.getSaksnummer().get(),
+                        w.getAktørId().get(), enhetsId, innhold)) {
+                    return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
                 }
             } catch (IntegrasjonException e) {
                 if (JOURNALMANGLER_EXCEPTION_KODE.equals(e.getFeil().getKode())) {
                     String logMessage = e.getFeil().getKode() + " " + e.getFeil().getFeilmelding();
                     LOG.info(logMessage);
-                    return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+                    return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
                 } else {
                     throw e;
                 }
             }
         }
-        Optional<UUID> forsendelseId = dataWrapper.getForsendelseId();
-        forsendelseId.ifPresent(uuid -> dokumentRepository.oppdaterForsendelseMetadata(uuid, dataWrapper.getArkivId(),
-                dataWrapper.getSaksnummer().get(), ForsendelseStatus.PENDING));
-        var hendelse = new SøknadFordeltOgJournalførtHendelse(dataWrapper.getArkivId(), forsendelseId, fnr,
-                dataWrapper.getSaksnummer());
-        hendelseProdusent.send(hendelse, "TBD");
-        return dataWrapper.nesteSteg(KlargjorForVLTask.TASKNAME);
+        Optional<UUID> forsendelseId = w.getForsendelseId();
+        if (forsendelseId.isPresent()) {
+            dokumentRepository.oppdaterForsendelseMetadata(forsendelseId.get(), w.getArkivId(),
+                    w.getSaksnummer().get(), ForsendelseStatus.PENDING);
+            var hendelse = new SøknadFordeltOgJournalførtHendelse(w.getArkivId(), forsendelseId, fnr,
+                    w.getSaksnummer());
+            hendelseProdusent.send(hendelse, "TBD");
+        }
+        return w.nesteSteg(KlargjorForVLTask.TASKNAME);
     }
 }
