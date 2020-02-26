@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveT
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
+import no.nav.foreldrepenger.mottak.felles.kafka.SøknadFordeltOgJournalførtHendelse;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseResponse;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.JournalTilstand;
 import no.nav.foreldrepenger.mottak.tjeneste.TilJournalføringTjeneste;
@@ -115,6 +116,9 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
         Optional<UUID> forsendelseId = dataWrapper.getForsendelseId();
         forsendelseId.ifPresent(uuid -> dokumentRepository.oppdaterForsendelseMetadata(uuid, dataWrapper.getArkivId(),
                 dataWrapper.getSaksnummer().get(), ForsendelseStatus.PENDING));
+        var hendelse = new SøknadFordeltOgJournalførtHendelse(dataWrapper.getArkivId(), forsendelseId, fnr,
+                dataWrapper.getSaksnummer());
+        LOG.info("Publiserer hendelse {}", hendelse);
         return dataWrapper.nesteSteg(KlargjorForVLTask.TASKNAME);
     }
 }

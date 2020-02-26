@@ -18,19 +18,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 //@ApplicationScoped
-public class SøknadHendelseProdusent {
+public class HendelseProdusent {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SøknadHendelseProdusent.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HendelseProdusent.class);
 
     private static final String CALLID_NAME = "Nav-CallId";
     private Producer<String, String> producer;
     private String topic;
 
-    SøknadHendelseProdusent() {
+    HendelseProdusent() {
     }
 
     @Inject
-    public SøknadHendelseProdusent(String topic) {
+    public HendelseProdusent(String topic) {
         this.producer = new KafkaProducer<>(properties());
         this.topic = topic;
     }
