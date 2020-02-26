@@ -79,7 +79,7 @@ jobs:
             <tr><td>prod-fss</td><td>default</td></tr>
             </table>        
 
-      - name: Trigg deploy til dev-fss t4
+      - name: Trigg deploy til dev-fss t4 og q1
         if: success()
         uses: actions/github-script@0.3.0
         with:
@@ -91,4 +91,7 @@ jobs:
             github.issues.createComment({...issue,
                                     title: 'Deploy av ${{ env.TAG }}',
                                     body: '/promote ${{ env.TAG }} ${{ env.CLUSTER }} ${{ env.NAMESPACE }}'})
+            github.issues.createComment({...issue,
+                                    title: 'Deploy av ${{ env.TAG }}',
+                                    body: '/promote ${{ env.TAG }} ${{ env.CLUSTER }} q1'})
 
