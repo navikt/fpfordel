@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveT
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
+import no.nav.foreldrepenger.mottak.felles.kafka.HendelseProdusent;
 import no.nav.foreldrepenger.mottak.felles.kafka.SøknadFordeltOgJournalførtHendelse;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseResponse;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.JournalTilstand;
@@ -45,11 +46,12 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
     private final EnhetsTjeneste enhetsidTjeneste;
     private final DokumentRepository dokumentRepository;
     private final AktørConsumerMedCache aktør;
+    private final HendelseProdusent hendelseProdusent;
 
     @Inject
     public TilJournalføringTask(ProsessTaskRepository prosessTaskRepository,
             TilJournalføringTjeneste journalføringTjeneste,
-            EnhetsTjeneste enhetsidTjeneste,
+            EnhetsTjeneste enhetsidTjeneste, HendelseProdusent hendelseProdusent,
             DokumentRepository dokumentRepository,
             AktørConsumerMedCache aktørConsumer) {
         super(prosessTaskRepository);
@@ -57,6 +59,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
         this.enhetsidTjeneste = enhetsidTjeneste;
         this.dokumentRepository = dokumentRepository;
         this.aktør = aktørConsumer;
+        this.hendelseProdusent = hendelseProdusent;
     }
 
     @Override
@@ -118,7 +121,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
                 dataWrapper.getSaksnummer().get(), ForsendelseStatus.PENDING));
         var hendelse = new SøknadFordeltOgJournalførtHendelse(dataWrapper.getArkivId(), forsendelseId, fnr,
                 dataWrapper.getSaksnummer());
-        LOG.info("Publiserer hendelse {}", hendelse);
+        hendelseProdusent.send(hendelse, "TBD");
         return dataWrapper.nesteSteg(KlargjorForVLTask.TASKNAME);
     }
 }
