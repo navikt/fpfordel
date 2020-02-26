@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
+import no.nav.foreldrepenger.mottak.felles.kafka.LoggingHendelseProdusent;
 import no.nav.foreldrepenger.mottak.journal.JournalFeil;
 import no.nav.foreldrepenger.mottak.journal.JournalPost;
 import no.nav.foreldrepenger.mottak.journal.JournalPostMangler;
@@ -82,9 +83,11 @@ public class TilJournalføringTaskTest {
         aktørConsumerMock = mock(AktørConsumerMedCache.class);
         when(aktørConsumerMock.hentPersonIdentForAktørId(AKTØR_ID)).thenReturn(Optional.of(BRUKER_FNR));
 
-        TilJournalføringTjeneste tilJournalføringTjeneste = new TilJournalføringTjeneste(journalTjenesteMock, dokumentRepositoryMock);
+        TilJournalføringTjeneste tilJournalføringTjeneste = new TilJournalføringTjeneste(journalTjenesteMock,
+                dokumentRepositoryMock);
 
-        task = new TilJournalføringTask(prosessTaskRepositoryMock, tilJournalføringTjeneste, enhetsTjenesteMock, dokumentRepositoryMock, aktørConsumerMock);
+        task = new TilJournalføringTask(prosessTaskRepositoryMock, tilJournalføringTjeneste, enhetsTjenesteMock,
+                new LoggingHendelseProdusent(), dokumentRepositoryMock, aktørConsumerMock);
 
         ptd = new ProsessTaskData(TilJournalføringTask.TASKNAME);
         ptd.setSekvens("1");
@@ -101,14 +104,16 @@ public class TilJournalføringTaskTest {
             task.precondition(data);
             fail();
         } catch (VLException e) {
-            assertThat(e.getFeil().getKode()).isEqualTo(MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty("", "", 0L).getKode());
+            assertThat(e.getFeil().getKode())
+                    .isEqualTo(MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty("", "", 0L).getKode());
         }
         data.setArkivId(ARKIV_ID);
         try {
             task.precondition(data);
             fail();
         } catch (VLException e) {
-            assertThat(e.getFeil().getKode()).isEqualTo(MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty("", "", 0L).getKode());
+            assertThat(e.getFeil().getKode())
+                    .isEqualTo(MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty("", "", 0L).getKode());
         }
         data.setAktørId(AKTØR_ID);
 
@@ -116,7 +121,8 @@ public class TilJournalføringTaskTest {
             task.precondition(data);
             fail();
         } catch (VLException e) {
-            assertThat(e.getFeil().getKode()).isEqualTo(MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty("", "", 0L).getKode());
+            assertThat(e.getFeil().getKode())
+                    .isEqualTo(MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty("", "", 0L).getKode());
         }
         data.setSaksnummer("asdf");
 
@@ -137,11 +143,12 @@ public class TilJournalføringTaskTest {
         final JournalPostMangler journalføringsbehov = new JournalPostMangler();
         when(journalTjenesteMock.utledJournalføringsbehov(ARKIV_ID)).thenReturn(journalføringsbehov);
 
-
         MottakMeldingDataWrapper wrapper = doTaskWithPrecondition(data);
 
         assertThat(wrapper).isNotNull();
-        assertThat(wrapper.getProsessTaskData().getTaskType()).as("Forventer at sak uten mangler går videre til neste steg").isNotEqualTo(TilJournalføringTask.TASKNAME);
+        assertThat(wrapper.getProsessTaskData().getTaskType())
+                .as("Forventer at sak uten mangler går videre til neste steg")
+                .isNotEqualTo(TilJournalføringTask.TASKNAME);
     }
 
     @Test
@@ -168,7 +175,9 @@ public class TilJournalføringTaskTest {
         assertThat(journalPost.getArkivSakSystem().get()).isEqualTo(ARKIV_SAK_SYSTEM);
 
         assertThat(wrapper).isNotNull();
-        assertThat(wrapper.getProsessTaskData().getTaskType()).as("Forventer at sak uten mangler går videre til neste steg").isNotEqualTo(TilJournalføringTask.TASKNAME);
+        assertThat(wrapper.getProsessTaskData().getTaskType())
+                .as("Forventer at sak uten mangler går videre til neste steg")
+                .isNotEqualTo(TilJournalføringTask.TASKNAME);
     }
 
     @Test
@@ -189,7 +198,8 @@ public class TilJournalføringTaskTest {
         MottakMeldingDataWrapper wrapper = doTaskWithPrecondition(data);
 
         assertThat(wrapper).isNotNull();
-        assertThat(wrapper.getProsessTaskData().getTaskType()).as("Forventer at sak med mangler går til Gosys").isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+        assertThat(wrapper.getProsessTaskData().getTaskType()).as("Forventer at sak med mangler går til Gosys")
+                .isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
     }
 
     private MottakMeldingDataWrapper doTaskWithPrecondition(MottakMeldingDataWrapper data) {
@@ -216,7 +226,8 @@ public class TilJournalføringTaskTest {
         MottakMeldingDataWrapper wrapper = doTaskWithPrecondition(data);
 
         assertThat(wrapper).isNotNull();
-        assertThat(wrapper.getProsessTaskData().getTaskType()).as("Forventer at sak med dokumentmangler går til Gosys").isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+        assertThat(wrapper.getProsessTaskData().getTaskType()).as("Forventer at sak med dokumentmangler går til Gosys")
+                .isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
     }
 
     @Test(expected = IntegrasjonException.class)
@@ -229,7 +240,8 @@ public class TilJournalføringTaskTest {
         data.setSaksnummer("123");
         data.setAktørId(AKTØR_ID);
 
-        VLException funkExc = JournalFeil.FACTORY.utledJournalfoeringsbehovJournalpostIkkeInngaaende(null).toException();
+        VLException funkExc = JournalFeil.FACTORY.utledJournalfoeringsbehovJournalpostIkkeInngaaende(null)
+                .toException();
         when(journalTjenesteMock.utledJournalføringsbehov(any(String.class))).thenThrow(funkExc);
 
         doTaskWithPrecondition(data);
@@ -289,10 +301,13 @@ public class TilJournalføringTaskTest {
     public void test_skalVedJournalføringAvDokumentForsendelseFåJournalTilstandEndeligJournalført() {
         MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
 
-        List<Dokument> dokumenter = DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
+        List<Dokument> dokumenter = DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId,
+                DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
 
-        when(journalTjenesteMock.journalførDokumentforsendelse(any(DokumentforsendelseRequest.class))).thenReturn(DokumentforsendelseTestUtil.lagDokumentforsendelseRespons(JournalTilstand.ENDELIG_JOURNALFØRT, 3));
-        when(dokumentRepositoryMock.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(DokumentforsendelseTestUtil.lagMetadata(forsendelseId, SAKSNUMMER));
+        when(journalTjenesteMock.journalførDokumentforsendelse(any(DokumentforsendelseRequest.class))).thenReturn(
+                DokumentforsendelseTestUtil.lagDokumentforsendelseRespons(JournalTilstand.ENDELIG_JOURNALFØRT, 3));
+        when(dokumentRepositoryMock.hentEksaktDokumentMetadata(any(UUID.class)))
+                .thenReturn(DokumentforsendelseTestUtil.lagMetadata(forsendelseId, SAKSNUMMER));
         when(dokumentRepositoryMock.hentDokumenter(any(UUID.class))).thenReturn(dokumenter);
 
         data.setForsendelseId(forsendelseId);
@@ -302,12 +317,14 @@ public class TilJournalføringTaskTest {
         data.setSaksnummer(SAKSNUMMER);
         data.setRetryingTask("ABC");
 
-        ArgumentCaptor<DokumentforsendelseRequest> dokCapture = ArgumentCaptor.forClass(DokumentforsendelseRequest.class);
+        ArgumentCaptor<DokumentforsendelseRequest> dokCapture = ArgumentCaptor
+                .forClass(DokumentforsendelseRequest.class);
 
         task.doTask(data);
 
         verify(journalTjenesteMock).journalførDokumentforsendelse(dokCapture.capture());
-        verify(dokumentRepositoryMock).oppdaterForsendelseMetadata(any(UUID.class), any(), any(), any(ForsendelseStatus.class));
+        verify(dokumentRepositoryMock).oppdaterForsendelseMetadata(any(UUID.class), any(), any(),
+                any(ForsendelseStatus.class));
 
         DokumentforsendelseRequest request = dokCapture.getValue();
         assertThat(request.isRetrying()).isTrue();
@@ -319,10 +336,13 @@ public class TilJournalføringTaskTest {
     public void test_skalKasteTekniskExceptionNårJournalTilstandIkkeErEndelig() {
         MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
 
-        List<Dokument> dokumenter = DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
+        List<Dokument> dokumenter = DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId,
+                DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
 
-        when(journalTjenesteMock.journalførDokumentforsendelse(any(DokumentforsendelseRequest.class))).thenReturn(DokumentforsendelseTestUtil.lagDokumentforsendelseRespons(JournalTilstand.MIDLERTIDIG_JOURNALFØRT, 3));
-        when(dokumentRepositoryMock.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(DokumentforsendelseTestUtil.lagMetadata(forsendelseId, SAKSNUMMER));
+        when(journalTjenesteMock.journalførDokumentforsendelse(any(DokumentforsendelseRequest.class))).thenReturn(
+                DokumentforsendelseTestUtil.lagDokumentforsendelseRespons(JournalTilstand.MIDLERTIDIG_JOURNALFØRT, 3));
+        when(dokumentRepositoryMock.hentEksaktDokumentMetadata(any(UUID.class)))
+                .thenReturn(DokumentforsendelseTestUtil.lagMetadata(forsendelseId, SAKSNUMMER));
         when(dokumentRepositoryMock.hentDokumenter(any(UUID.class))).thenReturn(dokumenter);
 
         data.setForsendelseId(forsendelseId);
@@ -334,7 +354,8 @@ public class TilJournalføringTaskTest {
         data = task.doTask(data);
 
         verify(journalTjenesteMock).journalførDokumentforsendelse(any(DokumentforsendelseRequest.class));
-        verify(dokumentRepositoryMock, times(1)).oppdaterForseldelseMedArkivId(any(UUID.class), any(), any(ForsendelseStatus.class));
+        verify(dokumentRepositoryMock, times(1)).oppdaterForseldelseMedArkivId(any(UUID.class), any(),
+                any(ForsendelseStatus.class));
         assertThat(data).isNotNull();
         assertThat(data.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
     }
