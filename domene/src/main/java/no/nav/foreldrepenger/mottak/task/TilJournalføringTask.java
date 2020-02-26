@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveT
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
-import no.nav.foreldrepenger.mottak.felles.kafka.HendelseProdusent;
+import no.nav.foreldrepenger.mottak.felles.kafka.LoggingHendelseProdusent;
 import no.nav.foreldrepenger.mottak.felles.kafka.SøknadFordeltOgJournalførtHendelse;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseResponse;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.JournalTilstand;
@@ -46,12 +46,12 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
     private final EnhetsTjeneste enhetsidTjeneste;
     private final DokumentRepository dokumentRepository;
     private final AktørConsumerMedCache aktør;
-    private final HendelseProdusent hendelseProdusent;
+    private final LoggingHendelseProdusent hendelseProdusent;
 
     @Inject
     public TilJournalføringTask(ProsessTaskRepository prosessTaskRepository,
             TilJournalføringTjeneste journalføringTjeneste,
-            EnhetsTjeneste enhetsidTjeneste, HendelseProdusent hendelseProdusent,
+            EnhetsTjeneste enhetsidTjeneste, LoggingHendelseProdusent hendelseProdusent,
             DokumentRepository dokumentRepository,
             AktørConsumerMedCache aktørConsumer) {
         super(prosessTaskRepository);
