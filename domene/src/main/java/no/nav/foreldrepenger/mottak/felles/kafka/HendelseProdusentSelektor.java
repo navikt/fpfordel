@@ -16,11 +16,7 @@ public class HendelseProdusentSelektor {
 
     @Produces
     @ApplicationScoped
-    HendelseProdusent hentProdusent(Instance<HendelseProdusent> kandidater) {
-        return find(kandidater);
-    }
-
-    public static <T> T find(Instance<T> instance) {
+    HendelseProdusent hentProdusent(Instance<HendelseProdusent> instance) {
         if (instance.isResolvable()) {
             return instance.get();
         }
@@ -28,6 +24,5 @@ public class HendelseProdusentSelektor {
             return instance.select(NamedLiteral.of(CURRENT_CLUSTER)).get();
         }
         throw new IllegalStateException("Ingen instanser : " + instance);
-
     }
 }
