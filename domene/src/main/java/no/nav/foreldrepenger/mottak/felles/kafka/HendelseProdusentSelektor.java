@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.mottak.felles.kafka;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.literal.NamedLiteral;
 
 import org.slf4j.Logger;
@@ -14,9 +12,9 @@ public class HendelseProdusentSelektor {
     private static final Logger LOG = LoggerFactory.getLogger(HendelseProdusentSelektor.class);
     private static final String CURRENT_CLUSTER = Environment.current().clusterName();
 
-    @Produces
-    @ApplicationScoped
-    HendelseProdusent hentProdusent(Instance<HendelseProdusent> instance) {
+    // @Produces
+    // @ApplicationScoped
+    HendelseProdusent hendelseProdusent(Instance<HendelseProdusent> instance) {
         if (instance.isResolvable()) {
             return instance.get();
         }
