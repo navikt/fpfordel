@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.mottak.felles.kafka;
 
-import javax.enterprise.context.Dependent;
+import javax.enterprise.context.ApplicationScoped;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-@Dependent
+@ApplicationScoped
 public class LoggingHendelseProdusent implements HendelseProdusent {
     private static final Logger LOG = LoggerFactory.getLogger(LoggingHendelseProdusent.class);
     private final String topic;
