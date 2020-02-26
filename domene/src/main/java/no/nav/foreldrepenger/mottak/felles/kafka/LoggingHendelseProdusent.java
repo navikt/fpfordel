@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.mottak.felles.kafka;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Default;
+import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,11 +13,10 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 @Default
 public class LoggingHendelseProdusent implements HendelseProdusent {
     private static final Logger LOG = LoggerFactory.getLogger(LoggingHendelseProdusent.class);
-    private final String topic;
 
-    public LoggingHendelseProdusent(@KonfigVerdi("kafka.topics.fordeling") String topic) {
-        this.topic = topic;
-    }
+    @Inject
+    @KonfigVerdi("kafka.topics.fordeling")
+    private String topic;
 
     @Override
     public void send(Object hendelse, String nøkkel) {
