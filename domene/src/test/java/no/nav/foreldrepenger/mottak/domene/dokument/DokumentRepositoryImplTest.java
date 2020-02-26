@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import org.junit.Rule;
@@ -29,6 +30,9 @@ public class DokumentRepositoryImplTest {
     public RepositoryRule repoRule = new UnittestRepositoryRule();
 
     DokumentRepository repo = new DokumentRepositoryImpl(repoRule.getEntityManager());
+    static {
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
+    }
 
     @Test
     public void lagre_og_hente_dokumentMetadata() {
@@ -123,10 +127,12 @@ public class DokumentRepositoryImplTest {
     }
 
     private Dokument dokument(UUID forsendelseId, ArkivFilType arkivFilType) {
-        return DokumentforsendelseTestUtil.lagDokument(forsendelseId, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL, arkivFilType, true);
+        return DokumentforsendelseTestUtil.lagDokument(forsendelseId, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL,
+                arkivFilType, true);
     }
 
     private Dokument dokumentAnnet(UUID forsendelseId, ArkivFilType arkivFilType) {
-        return DokumentforsendelseTestUtil.lagDokumentBeskrivelse(forsendelseId, DokumentTypeId.ANNET, arkivFilType, true, "Farskap");
+        return DokumentforsendelseTestUtil.lagDokumentBeskrivelse(forsendelseId, DokumentTypeId.ANNET, arkivFilType,
+                true, "Farskap");
     }
 }
