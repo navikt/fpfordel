@@ -48,9 +48,9 @@ public class KafkaHendelseProdusent implements HendelseProdusent {
             @Override
             public void onCompletion(RecordMetadata md, Exception e) {
                 if (e == null) {
-                    LOG.info("Sendte melding {} med offset {} på {}", objekt, md.offset(), md.topic());
+                    LOG.info("Sendte melding {} med offset {} på {}", objekt, md.offset(), topic);
                 } else {
-                    LOG.warn("Kunne ikke sende melding {} på {}", objekt, md.topic(), e);
+                    LOG.warn("Kunne ikke sende melding {} på {}", objekt, topic, e);
                 }
             }
         });
