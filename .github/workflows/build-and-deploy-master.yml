@@ -49,6 +49,7 @@ jobs:
     
       - name: Kompiler
         run: |
+          mvn versions:set -B -DnewVersion=1.0.$TAG
           echo "::set-env name=IMAGE::$IMAGE_BASE:$TAG" 
           mvn jacoco:prepare-agent install -e --batch-mode --settings .github/workflows/.m2/settings.xml   -Djacoco.destFile=$(pwd)/target/jacoco.exec
           mvn jacoco:report sonar:sonar -e --batch-mode --settings .github/workflows/.m2/settings.xml -Djacoco.dataFile=$(pwd)/target/jacoco.exec  -Dsonar.login=${SONAR} -Dsonar.projectKey=navikt_fpfordel
