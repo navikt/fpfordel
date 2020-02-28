@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.mottak.felles.kafka;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -7,8 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-//@ApplicationScoped
-//@Default
+@ApplicationScoped
 public class LoggingHendelseProdusent implements HendelseProdusent {
     private static final Logger LOG = LoggerFactory.getLogger(LoggingHendelseProdusent.class);
 
