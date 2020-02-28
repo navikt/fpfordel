@@ -7,6 +7,7 @@ import static no.nav.vedtak.log.mdc.MDCOperations.getCallId;
 import java.util.Optional;
 import java.util.function.Function;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.kafka.clients.producer.Callback;
@@ -24,13 +25,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-//@ApplicationScoped
+@ApplicationScoped
 public class KafkaHendelseProdusent implements HendelseProdusent {
 
     private static final Logger LOG = LoggerFactory.getLogger(KafkaHendelseProdusent.class);
 
     private static final String CALLID_NAME = "Nav-CallId";
-    private Producer<String, String> producer;
+    private final Producer<String, String> producer;
     private static final ObjectMapper OM = new ObjectMapper();
 
     @Inject

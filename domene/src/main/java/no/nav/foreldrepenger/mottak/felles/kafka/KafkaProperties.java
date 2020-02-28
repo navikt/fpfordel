@@ -14,7 +14,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 
 import no.nav.vedtak.util.env.Environment;
 
-class KafkaProperties {
+final class KafkaProperties {
     private static final Environment ENV = Environment.current();
 
     private KafkaProperties() {
