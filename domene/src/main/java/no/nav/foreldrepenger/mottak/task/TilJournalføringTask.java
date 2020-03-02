@@ -121,7 +121,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
                     w.getSaksnummer().get(), ForsendelseStatus.PENDING);
             var hendelse = new SøknadFordeltOgJournalførtHendelse(w.getArkivId(), forsendelseId, fnr,
                     w.getSaksnummer());
-            hendelseProdusent.send(hendelse, "TBD");
+            hendelseProdusent.send(hendelse, forsendelseId.get().toString());
         }
         return w.nesteSteg(KlargjorForVLTask.TASKNAME);
     }
