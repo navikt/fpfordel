@@ -51,7 +51,8 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
     @Inject
     public TilJournalføringTask(ProsessTaskRepository prosessTaskRepository,
             TilJournalføringTjeneste journalføringTjeneste,
-            EnhetsTjeneste enhetsidTjeneste, HendelseProdusent hendelseProdusent,
+            EnhetsTjeneste enhetsidTjeneste, 
+            HendelseProdusent hendelseProdusent,
             DokumentRepository dokumentRepository,
             AktørConsumerMedCache aktørConsumer) {
         super(prosessTaskRepository);

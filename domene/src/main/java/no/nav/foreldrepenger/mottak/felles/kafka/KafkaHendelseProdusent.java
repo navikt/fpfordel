@@ -7,6 +7,7 @@ import static no.nav.vedtak.log.mdc.MDCOperations.getCallId;
 import java.util.Optional;
 import java.util.function.Function;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.kafka.clients.producer.Callback;
@@ -24,7 +25,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-//@ApplicationScoped
+@EnvironmentAlternative
+@ApplicationScoped
 public class KafkaHendelseProdusent implements HendelseProdusent {
 
     private static final Logger LOG = LoggerFactory.getLogger(KafkaHendelseProdusent.class);
@@ -57,8 +59,8 @@ public class KafkaHendelseProdusent implements HendelseProdusent {
 
     private ProducerRecord<String, String> meldingFra(Object objekt, String nøkkel) {
         return new ProducerRecord<>(topic, null, nøkkel, jsonFra(objekt, KafkaFeil.FEILFACTORY::kanIkkeSerialisere),
-                new RecordHeaders().add(CALLID_NAME,
-                        Optional.ofNullable(getCallId()).orElse(generateCallId()).getBytes()));
+            new RecordHeaders().add(CALLID_NAME,
+                Optional.ofNullable(getCallId()).orElse(generateCallId()).getBytes()));
     }
 
     private static String jsonFra(Object object, Function<JsonProcessingException, Feil> feilFactory) {

@@ -1,29 +1,34 @@
 package no.nav.foreldrepenger.mottak.felles.kafka;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 
 import no.nav.vedtak.util.env.Environment;
 
-//@ApplicationScoped
+@ApplicationScoped
 public class HendelseProdusentSelektor {
-    private static final Logger LOG = LoggerFactory.getLogger(HendelseProdusentSelektor.class);
     private static final Environment ENV = Environment.current();
 
-//    @Produces
-    HendelseProdusent hendelseProdusent(Instance<HendelseProdusent> instance) {
-        instance.stream().forEach(i -> LOG.info("Kandidat er {}", i));
-        LOG.info("Finner hendelsesprodusent-instans i {}-{}", ENV.clusterName(), ENV.namespace());
-        if ("t4".equals(ENV.namespace())) {
-            var instans = instance.select(LoggingHendelseProdusent.class);
-            LOG.info("Bruker logging-instans {} i {}-{}", instans.getClass().getSimpleName(), ENV.clusterName(),
-                    ENV.namespace());
-        }
-        var instans = instance.select(KafkaHendelseProdusent.class).get();
-        LOG.info("Bruker kafka-instans {} i {}-{}", instans.getClass().getSimpleName(), ENV.clusterName(),
-                ENV.namespace());
-        return instans;
+    private Instance<HendelseProdusent> instances;
+
+    @Inject
+    public HendelseProdusentSelektor(@Any Instance<HendelseProdusent> instances) {
+        this.instances = instances;
     }
+
+    @Produces
+    @ApplicationScoped
+    public HendelseProdusent hendelseProdusent() {
+        String namespace = ENV.namespace();
+        var instans = instances.select(HendelseProdusent.class, new EnvironmentAlternative.Literal(namespace));
+        if (instans.isResolvable()) {
+            return instans.get();
+        } else {
+            return instances.select(HendelseProdusent.class, new EnvironmentAlternative.Literal(EnvironmentAlternative.DEFAULT)).get();
+        }
+    }
+
 }
