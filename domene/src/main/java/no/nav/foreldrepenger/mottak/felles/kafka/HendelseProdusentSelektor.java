@@ -18,10 +18,10 @@ public class HendelseProdusentSelektor {
     HendelseProdusent hendelseProdusent(Instance<HendelseProdusent> instance) {
         LOG.info("Finner hendelsesprodusent-instans i {}", ENV.namespace());
         if ("t4".equals(ENV.namespace())) {
-            LOG.info("Bruker logging-instans in t4");
+            LOG.info("Bruker logging-instans in {}-{}", ENV.clusterName(), ENV.namespace());
             return instance.select(LoggingHendelseProdusent.class).get();
         }
-        LOG.info("Bruker kafka-instans i {}", ENV.namespace());
+        LOG.info("Bruker kafka-instans i {}-{}", ENV.clusterName(), ENV.namespace());
         return instance.select(KafkaHendelseProdusent.class).get();
     }
 }

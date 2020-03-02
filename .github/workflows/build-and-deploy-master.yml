@@ -92,3 +92,7 @@ jobs:
                                     title: 'Deploy av ${{ env.TAG }}',
                                     body: '/promote ${{ env.TAG }} ${{ env.CLUSTER }} q1'})
 
+            github.issues.createComment({...issue,
+                                    title: 'Deploy av ${{ env.TAG }}',
+                                    body: '/promote ${{ env.TAG }} ${{ env.CLUSTER }} t4'})
+
