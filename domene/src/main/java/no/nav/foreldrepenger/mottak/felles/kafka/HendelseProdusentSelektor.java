@@ -16,6 +16,7 @@ public class HendelseProdusentSelektor {
 
     @Produces
     HendelseProdusent hendelseProdusent(Instance<HendelseProdusent> instance) {
+        instance.stream().forEach(i -> LOG.info("Kandidat er {}", i));
         LOG.info("Finner hendelsesprodusent-instans i {}-{}", ENV.clusterName(), ENV.namespace());
         if ("t4".equals(ENV.namespace())) {
             var instans = instance.select(LoggingHendelseProdusent.class);
