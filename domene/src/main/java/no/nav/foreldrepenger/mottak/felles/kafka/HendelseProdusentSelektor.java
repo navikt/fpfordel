@@ -1,20 +1,18 @@
 package no.nav.foreldrepenger.mottak.felles.kafka;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.Produces;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.util.env.Environment;
 
-@ApplicationScoped
+//@ApplicationScoped
 public class HendelseProdusentSelektor {
     private static final Logger LOG = LoggerFactory.getLogger(HendelseProdusentSelektor.class);
     private static final Environment ENV = Environment.current();
 
-    @Produces
+//    @Produces
     HendelseProdusent hendelseProdusent(Instance<HendelseProdusent> instance) {
         instance.stream().forEach(i -> LOG.info("Kandidat er {}", i));
         LOG.info("Finner hendelsesprodusent-instans i {}-{}", ENV.clusterName(), ENV.namespace());
