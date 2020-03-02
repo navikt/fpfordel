@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,6 +26,10 @@ import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 public class ProsesstaskMeldingsfordelerTest {
     private ProsessTaskRepository prosessTaskRepository;
     private ProsesstaskMeldingsfordeler meldingsFordeler;
+
+    static {
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
+    }
 
     @Rule
     public RepositoryRule repoRule = new UnittestRepositoryRule();
