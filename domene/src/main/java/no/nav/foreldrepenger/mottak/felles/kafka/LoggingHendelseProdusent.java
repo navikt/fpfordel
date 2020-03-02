@@ -11,7 +11,7 @@ public class LoggingHendelseProdusent implements HendelseProdusent {
 
     @Override
     public void send(Object hendelse, String nøkkel) {
-        LOG.info("Publiserer hendelse {} med nøkkel {} på topic {}", hendelse, nøkkel);
+        LOG.info("Publiserer hendelse {} med nøkkel {}", hendelse, nøkkel);
     }
 
 }
