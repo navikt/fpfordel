@@ -16,8 +16,7 @@ import javax.inject.Qualifier;
 public @interface EnvironmentAlternative {
 
     String value() default DEFAULT;
-    
-    /** for å støtte søk på annotations. */
+
     public static class Literal extends AnnotationLiteral<EnvironmentAlternative> implements EnvironmentAlternative {
         private final String value;
 
@@ -31,8 +30,7 @@ public @interface EnvironmentAlternative {
         }
 
     }
-    
-    /** for å støtte repeterbar annotation. */
+
     @Inherited
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ ElementType.TYPE, ElementType.PARAMETER, ElementType.FIELD })
@@ -42,5 +40,4 @@ public @interface EnvironmentAlternative {
     }
 
     public static final String DEFAULT = "*";
-    
 }

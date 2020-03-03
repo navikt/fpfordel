@@ -51,7 +51,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
     @Inject
     public TilJournalføringTask(ProsessTaskRepository prosessTaskRepository,
             TilJournalføringTjeneste journalføringTjeneste,
-            EnhetsTjeneste enhetsidTjeneste, 
+            EnhetsTjeneste enhetsidTjeneste,
             HendelseProdusent hendelseProdusent,
             DokumentRepository dokumentRepository,
             AktørConsumerMedCache aktørConsumer) {
@@ -118,11 +118,12 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
         }
         Optional<UUID> forsendelseId = w.getForsendelseId();
         if (forsendelseId.isPresent()) {
-            dokumentRepository.oppdaterForsendelseMetadata(forsendelseId.get(), w.getArkivId(),
-                    w.getSaksnummer().get(), ForsendelseStatus.PENDING);
-            var hendelse = new SøknadFordeltOgJournalførtHendelse(w.getArkivId(), forsendelseId, fnr,
-                    w.getSaksnummer());
-            hendelseProdusent.send(hendelse, forsendelseId.get().toString());
+            var id = forsendelseId.get();
+            dokumentRepository.oppdaterForsendelseMetadata(id, w.getArkivId(), w.getSaksnummer().get(),
+                    ForsendelseStatus.PENDING);
+            hendelseProdusent.send(
+                    new SøknadFordeltOgJournalførtHendelse(w.getArkivId(), id, fnr.get(), w.getSaksnummer()),
+                    id.toString());
         }
         return w.nesteSteg(KlargjorForVLTask.TASKNAME);
     }

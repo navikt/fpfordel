@@ -45,6 +45,7 @@ public class KafkaHendelseProdusent implements HendelseProdusent {
 
     @Override
     public void send(Object objekt, String nøkkel) {
+        LOG.info("Sender melding {}", objekt);
         producer.send(meldingFra(objekt, nøkkel), new Callback() {
             @Override
             public void onCompletion(RecordMetadata md, Exception e) {
@@ -59,13 +60,12 @@ public class KafkaHendelseProdusent implements HendelseProdusent {
 
     private ProducerRecord<String, String> meldingFra(Object objekt, String nøkkel) {
         return new ProducerRecord<>(topic, null, nøkkel, jsonFra(objekt, KafkaFeil.FEILFACTORY::kanIkkeSerialisere),
-            new RecordHeaders().add(CALLID_NAME,
-                Optional.ofNullable(getCallId()).orElse(generateCallId()).getBytes()));
+                new RecordHeaders().add(CALLID_NAME,
+                        Optional.ofNullable(getCallId()).orElse(generateCallId()).getBytes()));
     }
 
     private static String jsonFra(Object object, Function<JsonProcessingException, Feil> feilFactory) {
         try {
-            LOG.info("Sender melding {}", object);
             return OM.writerWithDefaultPrettyPrinter().writeValueAsString(object);
         } catch (JsonProcessingException e) {
             throw feilFactory.apply(e).toException();
