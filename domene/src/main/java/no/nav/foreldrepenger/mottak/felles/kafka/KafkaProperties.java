@@ -15,6 +15,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import no.nav.vedtak.util.env.Environment;
 
 final class KafkaProperties {
+    private static final String KAFKA = "kafka.";
     private static final Environment ENV = Environment.current();
 
     private KafkaProperties() {
@@ -22,11 +23,11 @@ final class KafkaProperties {
 
     static Properties properties() {
         Properties properties = new Properties();
-        properties.setProperty(BOOTSTRAP_SERVERS_CONFIG, ENV.getRequiredProperty(BOOTSTRAP_SERVERS_CONFIG));
-        properties.setProperty(CLIENT_ID_CONFIG, ENV.getRequiredProperty(CLIENT_ID_CONFIG));
+        properties.setProperty(BOOTSTRAP_SERVERS_CONFIG, getRequiredProperty(BOOTSTRAP_SERVERS_CONFIG));
+        properties.setProperty(CLIENT_ID_CONFIG, getRequiredProperty(CLIENT_ID_CONFIG));
         properties.setProperty(SASL_JAAS_CONFIG, jaasCfg());
-        properties.setProperty(SECURITY_PROTOCOL_CONFIG, ENV.getProperty(SECURITY_PROTOCOL_CONFIG, "SASL_SSL"));
-        properties.setProperty(SASL_MECHANISM, ENV.getProperty(SASL_MECHANISM, "PLAIN"));
+        properties.setProperty(SECURITY_PROTOCOL_CONFIG, getProperty(SECURITY_PROTOCOL_CONFIG, "SASL_SSL"));
+        properties.setProperty(SASL_MECHANISM, getProperty(SASL_MECHANISM, "PLAIN"));
         properties.setProperty(KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         properties.setProperty(VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         return properties;
@@ -38,6 +39,14 @@ final class KafkaProperties {
                 ENV.getRequiredProperty("systembruker.username"),
                 ENV.getRequiredProperty("systembruker.password"));
 
+    }
+
+    private static String getRequiredProperty(String key) {
+        return ENV.getRequiredProperty(KAFKA + key);
+    }
+
+    private static String getProperty(String key, String defaultVerdi) {
+        return ENV.getProperty(KAFKA + key, defaultVerdi);
     }
 
 }

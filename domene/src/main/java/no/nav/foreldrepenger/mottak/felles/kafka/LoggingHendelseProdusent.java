@@ -14,5 +14,4 @@ public class LoggingHendelseProdusent implements HendelseProdusent {
     public void send(Object hendelse, String nøkkel) {
         LOG.info("Publiserer hendelse {} med nøkkel {}", hendelse, nøkkel);
     }
-
 }
