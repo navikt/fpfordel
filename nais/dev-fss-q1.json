@@ -12,7 +12,7 @@
 		"ABAC_PDP_ENDPOINT_URL": "https://wasapp-q1.adeo.no/asm-pdp/authorize",
 		"AKTOER_V2_URL": "https://app-q1.adeo.no/aktoerregister/ws/Aktoer/v2",
 		"APPDYNAMICS_AGENT_ACCOUNT_NAME": "NON-PROD",
-		"ARBEIDSFORDELING_V1_URL": "https://app-q1.adeo.no/norg2/ws/Arbeidsfordeling/v1",
+		"ARBEIDSFORDELING_RS_URL": "https://app-q1.adeo.no/norg2/api/v1/arbeidsfordeling/enheter",
 		"BEHANDLEINNGAAENDEJOURNAL_V1_URL": "https://dokarkiv-q1.nais.preprod.local/services/behandleinngaaendejournal/v1",
 		"BEHANDLEOPPGAVE_V1_URL": "https://wasapp-q1.adeo.no/nav-gsak-ws/BehandleOppgaveV1",
 		"FPFORDEL_CHANNEL_QUEUEMANAGER": "mq://b27apvl176.preprod.local:1413/MQ1LSC02",

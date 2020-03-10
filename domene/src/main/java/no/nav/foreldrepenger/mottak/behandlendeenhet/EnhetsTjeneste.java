@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.mottak.behandlendeenhet;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -32,28 +33,51 @@ import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.ManglerTilgangFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRequest;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingResponse;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRestKlient;
 import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 public class EnhetsTjeneste {
 
     private PersonConsumer personConsumer;
-    private ArbeidsfordelingTjeneste arbeidsfordelingTjeneste;
+    private ArbeidsfordelingRestKlient norgKlient;
 
+    private static final String TEMAGRUPPE = "FMLI"; // Kodeverk Temagrupper - dekker FOR + OMS
+    private static final String TEMA = Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode();
+    private static final String OPPGAVETYPE_JFR = "JFR"; // Kodeverk Oppgavetype - NFP , uten spesialenheter
+    private static final String ENHET_TYPE_NFP = "FPY"; // Kodeverk EnhetstyperNORG - NFP , uten spesialenheter
+    private static final String DISKRESJON_K6 = "SPSF"; // Kodeverk Diskresjonskoder
+    private static final String BEHANDLINGTYPE = "ae0034"; // Kodeverk Behandlingstype, bruker søknad
+    private static final String NK_ENHET_ID = "4292";
+
+    private List<String> alleJournalførendeEnheter = new ArrayList<>(); // Med klageinstans og kode6
+    private List<String> nfpJournalførendeEnheter = new ArrayList<>(); // Kun NFP
     private LocalDate sisteInnhenting = LocalDate.MIN;
-    private static final String DISKRESJON_K6 = "SPSF";
-    private List<String> alleJournalførendeEnheter;
-    private List<String> nfpJournalførendeEnheter;
 
     public EnhetsTjeneste() {
     }
 
     @Inject
     public EnhetsTjeneste(PersonConsumer personConsumer,
-                              ArbeidsfordelingTjeneste arbeidsfordelingTjeneste) {
+                          ArbeidsfordelingRestKlient norgKlient) {
         this.personConsumer = personConsumer;
-        this.arbeidsfordelingTjeneste = arbeidsfordelingTjeneste;
+        this.norgKlient = norgKlient;
+    }
+
+    public String hentFordelingEnhetId(Tema tema, BehandlingTema behandlingTema, Optional<String> enhetInput,
+                                       Optional<String> fnr) {
+        oppdaterEnhetCache();
+        if (enhetInput.isPresent() && alleJournalførendeEnheter.contains(enhetInput.get())) {
+            return enhetInput.get();
+        }
+
+        if (fnr.isPresent()) {
+            return hentEnhetId(fnr.get(), behandlingTema, tema);
+        } else {
+            return nfpJournalførendeEnheter.get(LocalDateTime.now().getSecond() % nfpJournalførendeEnheter.size());
+        }
     }
 
     private String hentEnhetId(String fnr, BehandlingTema behandlingTema, Tema tema) {
@@ -68,34 +92,44 @@ public class EnhetsTjeneste {
             }
         }
 
-        return arbeidsfordelingTjeneste.finnBehandlendeEnhetId(geoTilknytning.getTilknytning(), aktivDiskresjonskode,
-                behandlingTema, tema);
+        var request = ArbeidsfordelingRequest.ny()
+                .medTemagruppe(TEMAGRUPPE)
+                .medTema(tema.getOffisiellKode())
+                .medBehandlingstema(behandlingTema.getOffisiellKode())
+                .medBehandlingstype(BEHANDLINGTYPE)
+                .medOppgavetype(OPPGAVETYPE_JFR)
+                .medDiskresjonskode(aktivDiskresjonskode)
+                .medGeografiskOmraade(geoTilknytning.getTilknytning())
+                .build();
+        var respons = norgKlient.finnEnhet(request);
+        return validerOgVelgBehandlendeEnhet(respons, aktivDiskresjonskode, geoTilknytning.getTilknytning());
     }
 
-    public String hentFordelingEnhetId(Tema tema, BehandlingTema behandlingTema, Optional<String> enhetInput,
-                                       Optional<String> fnr) {
-        oppdaterEnhetCache();
-        if (enhetInput.isPresent()) {
-            for (String oEnhet : alleJournalførendeEnheter) {
-                if (enhetInput.get().equals(oEnhet)) {
-                    return oEnhet;
-                }
-            }
+    private String validerOgVelgBehandlendeEnhet(List<ArbeidsfordelingResponse> response, String diskresjonskode, String geoTilknytning) {
+        // Vi forventer å få én behandlende enhet.
+        if (response == null || response.size() != 1) {
+            throw EnhetsTjeneste.EnhetsTjenesteFeil.FACTORY.finnerIkkeBehandlendeEnhet(geoTilknytning, diskresjonskode).toException();
         }
-        if (fnr.isPresent()) {
-            return hentEnhetId(fnr.get(), behandlingTema, tema);
-        } else {
-            return nfpJournalførendeEnheter.get(LocalDateTime.now().getSecond() % nfpJournalførendeEnheter.size());
-        }
+
+        return response.get(0).getEnhetNr();
     }
 
     private void oppdaterEnhetCache() {
-        if (sisteInnhenting.isBefore(FPDateUtil.iDag())) {
-            alleJournalførendeEnheter = arbeidsfordelingTjeneste
-                    .finnAlleJournalførendeEnhetIdListe(BehandlingTema.UDEFINERT, true);
-            nfpJournalførendeEnheter = arbeidsfordelingTjeneste
-                    .finnAlleJournalførendeEnhetIdListe(BehandlingTema.UDEFINERT, false);
-            sisteInnhenting = FPDateUtil.iDag();
+        if (sisteInnhenting.isBefore(LocalDate.now())) {
+            var request = ArbeidsfordelingRequest.ny()
+                    .medTemagruppe(TEMAGRUPPE)
+                    .medTema(TEMA)
+                    .medBehandlingstype(BEHANDLINGTYPE)
+                    .medOppgavetype(OPPGAVETYPE_JFR)
+                    .build();
+            var respons = norgKlient.hentAlleAktiveEnheter(request);
+            alleJournalførendeEnheter.clear();
+            nfpJournalførendeEnheter.clear();
+            respons.stream().map(ArbeidsfordelingResponse::getEnhetNr).forEach(alleJournalførendeEnheter::add);
+            respons.stream().filter(e -> ENHET_TYPE_NFP.equalsIgnoreCase(e.getEnhetType()))
+                    .map(ArbeidsfordelingResponse::getEnhetNr).forEach(nfpJournalførendeEnheter::add);
+            alleJournalførendeEnheter.add(NK_ENHET_ID);
+            sisteInnhenting = LocalDate.now();
         }
     }
 
@@ -185,5 +219,7 @@ public class EnhetsTjeneste {
         @ManglerTilgangFeil(feilkode = "FP-509290", feilmelding = "Mangler tilgang til å utføre hentGeografiskTilknytning eller hentrelasjoner", logLevel = LogLevel.ERROR)
         Feil enhetsTjenesteSikkerhetsbegrensing(Exception e);
 
+        @TekniskFeil(feilkode = "FP-669566", feilmelding = "Finner ikke behandlende enhet for geografisk tilknytning %s, diskresjonskode %s", logLevel = LogLevel.ERROR)
+        Feil finnerIkkeBehandlendeEnhet(String geografiskTilknytning, String diskresjonskode);
     }
 }
