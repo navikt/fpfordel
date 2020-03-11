@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.behandlendeenhet;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -28,19 +27,23 @@ import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningR
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingResponse;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRestKlient;
 import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
 
 public class EnhetsTjenesteTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private static final String ENHET_ID = "enhetId001";
     private static final String FNR = "99999999999";
-    private String fordelingsOppgaveEnhetsId = "4825";
+    private static final ArbeidsfordelingResponse ENHET =
+            new ArbeidsfordelingResponse("4801", "Enhet", "Aktiv", "FPY");
+    private static final ArbeidsfordelingResponse FORDELING_ENHET =
+            new ArbeidsfordelingResponse("4825", "Oslo", "Aktiv", "FPY");
     public static final String GEOGRAFISK_TILKNYTNING = "test";
     public static final String DISKRESJONSKODE = "diskresjonskode";
     private EnhetsTjeneste enhetsTjeneste; // objektet vi tester
-    private ArbeidsfordelingTjeneste arbeidsfordelingTjeneste;
+    private ArbeidsfordelingRestKlient arbeidsfordelingTjeneste;
     private PersonConsumer personConsumer;
     private HentPersonResponse hentPersonResponse = new HentPersonResponse();;
 
@@ -49,8 +52,8 @@ public class EnhetsTjenesteTest {
         Person person = new Person();
         hentPersonResponse.setPerson(person);
         personConsumer = mock(PersonConsumer.class);
-        arbeidsfordelingTjeneste = mock(ArbeidsfordelingTjeneste.class);
-        when(arbeidsfordelingTjeneste.finnAlleJournalførendeEnhetIdListe(any(BehandlingTema.class), anyBoolean())).thenReturn(Collections.singletonList(fordelingsOppgaveEnhetsId));
+        arbeidsfordelingTjeneste = mock(ArbeidsfordelingRestKlient.class);
+        when(arbeidsfordelingTjeneste.hentAlleAktiveEnheter(any())).thenReturn(Collections.singletonList(FORDELING_ENHET));
 
         enhetsTjeneste = new EnhetsTjeneste(personConsumer, arbeidsfordelingTjeneste);
     }
@@ -61,12 +64,12 @@ public class EnhetsTjenesteTest {
         HentGeografiskTilknytningResponse response = new HentGeografiskTilknytningResponse();
         when(personConsumer.hentGeografiskTilknytning(any())).thenReturn(response);
         when(personConsumer.hentPersonResponse(any())).thenReturn(hentPersonResponse);
-        when(arbeidsfordelingTjeneste.finnBehandlendeEnhetId(null, null, BehandlingTema.FORELDREPENGER, Tema.FORELDRE_OG_SVANGERSKAPSPENGER)).thenReturn(ENHET_ID);
+        when(arbeidsfordelingTjeneste.finnEnhet(any())).thenReturn(Collections.singletonList(ENHET));
 
         String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.of(FNR));
 
         assertThat(enhetId).isNotNull();
-        assertThat(enhetId).isEqualTo(ENHET_ID);
+        assertThat(enhetId).isEqualTo(ENHET.getEnhetNr());
     }
 
     @Test
@@ -78,12 +81,12 @@ public class EnhetsTjenesteTest {
         response.setGeografiskTilknytning(geografiskTilknytning);
         when(personConsumer.hentGeografiskTilknytning(any())).thenReturn(response);
         when(personConsumer.hentPersonResponse(any())).thenReturn(hentPersonResponse);
-        when(arbeidsfordelingTjeneste.finnBehandlendeEnhetId(GEOGRAFISK_TILKNYTNING, null, BehandlingTema.FORELDREPENGER, Tema.FORELDRE_OG_SVANGERSKAPSPENGER)).thenReturn(ENHET_ID);
+        when(arbeidsfordelingTjeneste.finnEnhet(any())).thenReturn(Collections.singletonList(ENHET));
 
         String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.of(FNR));
 
         assertThat(enhetId).isNotNull();
-        assertThat(enhetId).isEqualTo(ENHET_ID);
+        assertThat(enhetId).isEqualTo(ENHET.getEnhetNr());
     }
 
     @Test
@@ -95,12 +98,12 @@ public class EnhetsTjenesteTest {
         response.setDiskresjonskode(diskresjonskoder);
         when(personConsumer.hentGeografiskTilknytning(any())).thenReturn(response);
         when(personConsumer.hentPersonResponse(any())).thenReturn(hentPersonResponse);
-        when(arbeidsfordelingTjeneste.finnBehandlendeEnhetId(null, DISKRESJONSKODE, BehandlingTema.FORELDREPENGER, Tema.FORELDRE_OG_SVANGERSKAPSPENGER)).thenReturn(ENHET_ID);
+        when(arbeidsfordelingTjeneste.finnEnhet(any())).thenReturn(Collections.singletonList(ENHET));
 
         String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.of(FNR));
 
         assertThat(enhetId).isNotNull();
-        assertThat(enhetId).isEqualTo(ENHET_ID);
+        assertThat(enhetId).isEqualTo(ENHET.getEnhetNr());
     }
 
     @Test
@@ -111,13 +114,13 @@ public class EnhetsTjenesteTest {
         response.setDiskresjonskode(diskresjonskoder);
         when(personConsumer.hentGeografiskTilknytning(any())).thenReturn(response);
         when(personConsumer.hentPersonResponse(any())).thenReturn(hentPersonResponse);
-        when(arbeidsfordelingTjeneste.finnBehandlendeEnhetId(null, DISKRESJONSKODE, BehandlingTema.FORELDREPENGER, Tema.FORELDRE_OG_SVANGERSKAPSPENGER)).thenReturn(ENHET_ID);
+        when(arbeidsfordelingTjeneste.finnEnhet(any())).thenReturn(Collections.singletonList(ENHET));
 
 
         String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.of(FNR));
 
         assertThat(enhetId).isNotNull();
-        assertThat(enhetId).isEqualTo(ENHET_ID);
+        assertThat(enhetId).isEqualTo(ENHET.getEnhetNr());
     }
 
     @Test
@@ -126,7 +129,7 @@ public class EnhetsTjenesteTest {
         String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.empty());
 
         assertThat(enhetId).isNotNull();
-        assertThat(enhetId).isEqualTo(fordelingsOppgaveEnhetsId);
+        assertThat(enhetId).isEqualTo(FORDELING_ENHET.getEnhetNr());
     }
 
     @Test

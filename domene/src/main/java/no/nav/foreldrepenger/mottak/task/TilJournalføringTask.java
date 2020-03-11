@@ -121,9 +121,13 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             var id = forsendelseId.get();
             dokumentRepository.oppdaterForsendelseMetadata(id, w.getArkivId(), w.getSaksnummer().get(),
                     ForsendelseStatus.PENDING);
-            hendelseProdusent.send(
-                    new SøknadFordeltOgJournalførtHendelse(w.getArkivId(), id, fnr.get(), w.getSaksnummer()),
-                    id.toString());
+            try {
+                hendelseProdusent.send(
+                        new SøknadFordeltOgJournalførtHendelse(w.getArkivId(), id, fnr.get(), w.getSaksnummer()),
+                        id.toString());
+            } catch (Exception e) {
+                LOG.warn("fpfordel kafka hendelsepublisering feilet for forsendelse {}", id.toString(), e);
+            }
         }
         return w.nesteSteg(KlargjorForVLTask.TASKNAME);
     }
