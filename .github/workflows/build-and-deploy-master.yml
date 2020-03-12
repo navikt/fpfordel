@@ -90,9 +90,9 @@ jobs:
                             issue_number: ${{ steps.createdeployissue.outputs.number }} }
             github.issues.createComment({...issue,
                                     title: 'Deploy av ${{ env.TAG }}',
-                                    body: '/promote ${{ env.TAG }} ${{ env.CLUSTER }} q1'})
+                                    body: '/promote dev-fss q1'})
 
             github.issues.createComment({...issue,
                                     title: 'Deploy av ${{ env.TAG }}',
-                                    body: '/promote ${{ env.TAG }} ${{ env.CLUSTER }} t4'})
+                                    body: '/promote dev-fss t4'})
 
