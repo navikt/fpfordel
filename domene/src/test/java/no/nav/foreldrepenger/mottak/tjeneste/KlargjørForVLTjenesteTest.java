@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import java.time.LocalDate;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -16,7 +18,6 @@ import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
 import no.nav.foreldrepenger.mottak.klient.DokumentmottakRestKlient;
 import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
 import no.nav.foreldrepenger.mottak.klient.TilbakekrevingRestKlient;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class KlargjørForVLTjenesteTest {
 
@@ -40,7 +41,7 @@ public class KlargjørForVLTjenesteTest {
     @Test
     public void skal_knytte_og_sende() {
 
-        klargjørForVLTjeneste.klargjørForVL(null, SAK_ID, ARKIV_ID, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, FPDateUtil.iDag().atStartOfDay(), BehandlingTema.FORELDREPENGER, null, DokumentKategori.SØKNAD, ENHET_ID);
+        klargjørForVLTjeneste.klargjørForVL(null, SAK_ID, ARKIV_ID, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, LocalDate.now().atStartOfDay(), BehandlingTema.FORELDREPENGER, null, DokumentKategori.SØKNAD, ENHET_ID);
 
         ArgumentCaptor<JournalpostKnyttningDto> captorJ = ArgumentCaptor.forClass(JournalpostKnyttningDto.class);
         verify(mockFagsakRestKlient).knyttSakOgJournalpost(captorJ.capture());

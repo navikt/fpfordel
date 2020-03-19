@@ -37,7 +37,6 @@ import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Person;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Variantformater;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.meldinger.HentJournalpostResponse;
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class JournalTjenesteUtilTest {
 
@@ -48,7 +47,7 @@ public class JournalTjenesteUtilTest {
     public static final String FNR = "99999999999";
     public static final String DOKUMENT_ID = "DOKUMENT_ID";
 
-    private static LocalDate FORSENDELSE_MOTTATT = FPDateUtil.iDag();
+    private static LocalDate FORSENDELSE_MOTTATT = LocalDate.now();
 
     static {
         DOKUMENT_ID_LISTE.add("234");

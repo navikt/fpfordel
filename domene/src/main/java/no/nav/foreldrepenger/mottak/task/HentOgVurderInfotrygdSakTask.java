@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.AKTØ
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.ANNEN_PART_ID_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.INNTEKSTMELDING_STARTDATO_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.TEMA_KEY;
-import static no.nav.vedtak.util.FPDateUtil.iDag;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -25,7 +24,6 @@ import no.nav.foreldrepenger.mottak.infotrygd.rest.RelevantSakSjekker;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.util.FPDateUtil;
 
 /**
  * <p>
@@ -105,7 +103,7 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
     }
 
     private MottakMeldingDataWrapper nesteStegForSvangerskapspenger(MottakMeldingDataWrapper w) {
-        if (skalMidlertidigJournalføre(w, fnr(w), iDag().minus(INFOTRYGD_SAK_GYLDIG_PERIODE))) {
+        if (skalMidlertidigJournalføre(w, fnr(w), LocalDate.now().minus(INFOTRYGD_SAK_GYLDIG_PERIODE))) {
             return midlertidigJournalført(w);
         }
         return nesteStegOpprettet(w);
@@ -118,7 +116,7 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
         if (erMann(annenPart)) {
             return nesteStegOpprettet(w);
         }
-        if (skalMidlertidigJournalføre(w, annenPart, iDag().minus(INFOTRYGD_ANNENPART_GYLDIG_PERIODE))) {
+        if (skalMidlertidigJournalføre(w, annenPart, LocalDate.now().minus(INFOTRYGD_ANNENPART_GYLDIG_PERIODE))) {
             return midlertidigJournalført(w);
         }
         return nesteStegOpprettet(w);
@@ -166,7 +164,7 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
 
     private MottakMeldingDataWrapper nesteStegForIM(MottakMeldingDataWrapper w) {
         String fnr = fnr(w);
-        if (skalMidlertidigJournalføreIM(w, fnr, FPDateUtil.iDag())) {
+        if (skalMidlertidigJournalføreIM(w, fnr, LocalDate.now())) {
             return midlertidigJournalført(w);
         }
         return nesteStegOpprettet(w);

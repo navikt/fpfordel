@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.domene.oppgavebehandling;
 
 import static no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask.TASKNAME;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.ANNEN_PART_ID_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.ARKIV_ID_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.BEHANDLINGSTEMA_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY;
@@ -42,7 +43,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskInfo;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.util.FPDateUtil;
 
 /**
  * <p>
@@ -111,7 +111,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
     private void opprettSletteTask(ProsessTaskData prosessTaskData) {
         ProsessTaskData nesteStegProsessTaskData = new ProsessTaskData(SlettForsendelseTask.TASKNAME);
-        nesteStegProsessTaskData.setNesteKjøringEtter(FPDateUtil.nå().plusMinutes(30)); // Gi selvbetjening tid til å
+        nesteStegProsessTaskData.setNesteKjøringEtter(LocalDateTime.now().plusMinutes(30)); // Gi selvbetjening tid til å
                                                                                         // polle ferdig
         long nesteSekvens = prosessTaskData.getSekvens() == null ? 1L
                 : Long.parseLong(prosessTaskData.getSekvens()) + 1;
@@ -142,6 +142,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     private WSOpprettOppgaveResponse opprettOppgave(ProsessTaskData prosessTaskData, BehandlingTema behandlingTema,
             DokumentTypeId dokumentTypeId) {
         final Optional<String> fødselsnr = hentPersonidentifikatorFraTaskData(prosessTaskData.getAktørId());
+        final Optional<String> annenpartFnr = hentAnnenPartFraTaskData(prosessTaskData);
         final String enhetInput = prosessTaskData.getPropertyValue(JOURNAL_ENHET);
 
         String arkivId = prosessTaskData.getPropertyValue(ARKIV_ID_KEY);
@@ -149,7 +150,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         // Overstyr saker fra NFP+NK, deretter egen logikk hvis fødselsnummer ikke er
         // oppgitt
         final String enhetId = enhetsidTjeneste.hentFordelingEnhetId(hentUtTema(prosessTaskData), behandlingTema,
-                Optional.ofNullable(enhetInput), fødselsnr);
+                Optional.ofNullable(enhetInput), fødselsnr, annenpartFnr);
         final String beskrivelse = lagBeskrivelse(behandlingTema, dokumentTypeId, prosessTaskData);
 
         OpprettOppgaveRequest request = createRequest(prosessTaskData, enhetId, beskrivelse, behandlingTema,
@@ -203,8 +204,8 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
                 .medBrukerTypeKode(BrukerType.PERSON)
                 .medMottattDato(
                         hentDatoFraTaskData(prosessTaskData.getPropertyValue(FORSENDELSE_MOTTATT_TIDSPUNKT_KEY)))
-                .medAktivFra(FPDateUtil.iDag())
-                .medAktivTil(helgeJustertFrist(FPDateUtil.iDag().plusDays(1L)))
+                .medAktivFra(LocalDate.now())
+                .medAktivTil(helgeJustertFrist(LocalDate.now().plusDays(1L)))
                 .medBeskrivelse(beskrivelse)
                 .medLest(IKKE_LEST)
                 .build();
@@ -253,5 +254,17 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
             return Optional.empty();
         }
         return aktørConsumer.hentPersonIdentForAktørId(aktørId);
+    }
+
+    private Optional<String> hentAnnenPartFraTaskData(ProsessTaskData prosessTaskData) {
+        var annenpart = prosessTaskData.getPropertyValue(ANNEN_PART_ID_KEY);
+        if (annenpart == null) {
+            return Optional.empty();
+        }
+        try {
+            return aktørConsumer.hentPersonIdentForAktørId(annenpart);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 }

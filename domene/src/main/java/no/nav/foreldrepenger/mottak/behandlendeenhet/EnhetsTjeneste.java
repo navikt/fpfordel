@@ -3,11 +3,9 @@ package no.nav.foreldrepenger.mottak.behandlendeenhet;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -16,17 +14,11 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentGeografiskTilknytningPersonIkkeFunnet;
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentGeografiskTilknytningSikkerhetsbegrensing;
-import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonPersonIkkeFunnet;
-import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonSikkerhetsbegrensning;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Informasjonsbehov;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personidenter;
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningRequest;
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningResponse;
-import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest;
-import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
@@ -67,27 +59,26 @@ public class EnhetsTjeneste {
     }
 
     public String hentFordelingEnhetId(Tema tema, BehandlingTema behandlingTema, Optional<String> enhetInput,
-                                       Optional<String> fnr) {
+                                       Optional<String> fnr, Optional<String> fnrAnnenPart) {
         oppdaterEnhetCache();
         if (enhetInput.isPresent() && alleJournalførendeEnheter.contains(enhetInput.get())) {
             return enhetInput.get();
         }
 
         if (fnr.isPresent()) {
-            return hentEnhetId(fnr.get(), behandlingTema, tema);
+            return hentEnhetId(fnr.get(), behandlingTema, tema, fnrAnnenPart);
         } else {
             return nfpJournalførendeEnheter.get(LocalDateTime.now().getSecond() % nfpJournalførendeEnheter.size());
         }
     }
 
-    private String hentEnhetId(String fnr, BehandlingTema behandlingTema, Tema tema) {
+    private String hentEnhetId(String fnr, BehandlingTema behandlingTema, Tema tema, Optional<String> fnrAnnenPart) {
         GeoTilknytning geoTilknytning = hentGeografiskTilknytning(fnr);
 
         String aktivDiskresjonskode = geoTilknytning.getDiskresjonskode();
-        if (!DISKRESJON_K6.equals(aktivDiskresjonskode)) {
-            boolean relasjonMedK6 = hentDiskresjonskoderForFamilierelasjoner(fnr).stream()
-                    .anyMatch(geo -> DISKRESJON_K6.equals(geo.getDiskresjonskode()));
-            if (relasjonMedK6) {
+        if (!DISKRESJON_K6.equals(aktivDiskresjonskode) && fnrAnnenPart.isPresent()) {
+            GeoTilknytning apTilknytning = hentGeografiskTilknytning(fnrAnnenPart.get());
+            if (Objects.equals(DISKRESJON_K6, apTilknytning.getDiskresjonskode())) {
                 aktivDiskresjonskode = DISKRESJON_K6;
             }
         }
@@ -149,42 +140,6 @@ public class EnhetsTjeneste {
             throw EnhetsTjenesteFeil.FACTORY.enhetsTjenestePersonIkkeFunnet(e).toException();
         }
     }
-
-    private List<GeoTilknytning> hentDiskresjonskoderForFamilierelasjoner(String fnr) {
-        HentPersonRequest request = new HentPersonRequest();
-        request.setAktoer(lagPersonIdent(fnr));
-        request.getInformasjonsbehov().add(Informasjonsbehov.FAMILIERELASJONER);
-        try {
-            HentPersonResponse response = personConsumer.hentPersonResponse(request);
-            Person person = response.getPerson();
-            return tilDiskresjonsKoder(person);
-        } catch (HentPersonPersonIkkeFunnet e) {
-            throw EnhetsTjenesteFeil.FACTORY.enhetsTjenestePersonIkkeFunnet(e).toException();
-        } catch (HentPersonSikkerhetsbegrensning e) {
-            throw EnhetsTjenesteFeil.FACTORY.enhetsTjenesteSikkerhetsbegrensing(e).toException();
-        }
-    }
-
-    private List<GeoTilknytning> tilDiskresjonsKoder(Person person) {
-        List<String> foreldreKoder = Arrays.asList("MORA", "FARA");
-
-        return person.getHarFraRolleI().stream()
-                .filter(rel -> !foreldreKoder.contains(rel.getTilRolle().getValue()))
-                .map(this::relasjonTilGeoMedDiskresjonForKode6)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-    }
-
-    private GeoTilknytning relasjonTilGeoMedDiskresjonForKode6(
-            no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon familierelasjon) {
-        Person person = familierelasjon.getTilPerson();
-
-        if (person.getDiskresjonskode() != null && DISKRESJON_K6.equals(person.getDiskresjonskode().getValue())) {
-            return new GeoTilknytning(null, person.getDiskresjonskode().getValue());
-        }
-        return null;
-    }
-
     private static PersonIdent lagPersonIdent(String fnr) {
         if (fnr == null || fnr.isEmpty()) {
             throw new IllegalArgumentException("Fødselsnummer kan ikke være null eller tomt");

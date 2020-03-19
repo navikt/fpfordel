@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class MottakMeldingDataWrapper {
 
@@ -63,7 +62,7 @@ public class MottakMeldingDataWrapper {
     }
 
     public MottakMeldingDataWrapper nesteSteg(String stegnavn) {
-        return nesteSteg(stegnavn, true, FPDateUtil.nå());
+        return nesteSteg(stegnavn, true, LocalDateTime.now());
     }
 
     public MottakMeldingDataWrapper nesteSteg(String stegnavn, boolean økSekvens, LocalDateTime nesteKjøringEtter) {
