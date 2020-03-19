@@ -79,12 +79,14 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
     @Override
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper w) {
         Optional<String> fnr = aktør.hentPersonIdentForAktørId(w.getAktørId().get());// NOSONAR
+        Optional<String> fnrAnnenPart = finnFnrAnnenPart(w);
         if (fnr.isEmpty()) {
             throw MottakMeldingFeil.FACTORY.fantIkkePersonidentForAktørId(TASKNAME, w.getId()).toException();
         }
         String enhetsId = enhetsidTjeneste.hentFordelingEnhetId(w.getTema(), w.getBehandlingTema(),
-                w.getJournalførendeEnhet(), fnr);
+                w.getJournalførendeEnhet(), fnr, fnrAnnenPart);
         if (w.getArkivId() == null) {
+            // Dokument fra selvbetjening, ikke journalført ennå.
             UUID forsendelseId = w.getForsendelseId().orElseThrow(IllegalStateException::new);
             DokumentforsendelseResponse response = journalføring.journalførDokumentforsendelse(forsendelseId,
                     w.getSaksnummer(), w.getAvsenderId(), true,
@@ -100,6 +102,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
                 return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
             }
         } else {
+            // Annet dokument fra dokumentmottak (scanning, altinn)
             String innhold = w.getDokumentTypeId().map(DokumentTypeId::getTermNavn).orElse("Ukjent innhold");
             try {
                 if (!journalføring.tilJournalføring(w.getArkivId(), w.getSaksnummer().get(),
@@ -130,5 +133,16 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             }
         }
         return w.nesteSteg(KlargjorForVLTask.TASKNAME);
+    }
+
+    private Optional<String> finnFnrAnnenPart(MottakMeldingDataWrapper w) {
+        if (w.getAnnenPartId().isEmpty())
+            return Optional.empty();
+        try {
+            return aktør.hentPersonIdentForAktørId(w.getAnnenPartId().get()); // NOSONAR
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+
     }
 }

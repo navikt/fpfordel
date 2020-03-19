@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.mottak.klient.VurderFagsystemResultat;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class HentOgVurderVLSakTaskTest {
 
@@ -32,7 +31,7 @@ public class HentOgVurderVLSakTaskTest {
     private String saksnummer = "123456";
     private String aktørId = "9000000000009";
 
-    private LocalDate termindato = FPDateUtil.iDag();
+    private LocalDate termindato = LocalDate.now();
 
     @Test
     public void precondition_skal_feile_ved_manglende_aktørId() {

@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.mottak.task.dokumentforsendelse;
 import static no.nav.vedtak.feil.LogLevel.WARN;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -43,7 +44,6 @@ import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
-import no.nav.vedtak.util.FPDateUtil;
 
 @Dependent
 @ProsessTask(BehandleDokumentforsendelseTask.TASKNAME)
@@ -196,7 +196,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
             kopierOgValiderAttributterFraSøknad(dataWrapper, dokument);
         }
         if (dataWrapper.getForsendelseMottattTidspunkt().isEmpty()) {
-            dataWrapper.setForsendelseMottattTidspunkt(FPDateUtil.nå());
+            dataWrapper.setForsendelseMottattTidspunkt(LocalDateTime.now());
         }
     }
 
@@ -218,7 +218,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
             utledDokumentKategori(dokument).ifPresent(dataWrapper::setDokumentKategori);
             dataWrapper.setAktørId(fagsakInfo.getAktørId());
             dataWrapper.setBehandlingTema(behandlingTemaFraSak);
-            dataWrapper.setForsendelseMottattTidspunkt(FPDateUtil.nå());
+            dataWrapper.setForsendelseMottattTidspunkt(LocalDateTime.now());
         }
 
     }

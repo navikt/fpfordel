@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.VariantFormat;
 import no.nav.foreldrepenger.mottak.journal.JournalDokument;
 import no.nav.foreldrepenger.mottak.journal.JournalMetadata;
 import no.nav.foreldrepenger.mottak.journal.JournalTjeneste;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 public class HentDataFraJoarkTjeneste {
@@ -103,12 +102,12 @@ public class HentDataFraJoarkTjeneste {
      */
     public static LocalDate hentForsendelseMottatt(List<JournalMetadata> hovedDokumenter) {
         return hovedDokumenter.stream().filter(m -> m.getForsendelseMottatt() != null)
-                .map(JournalMetadata::getForsendelseMottatt).findFirst().orElse(FPDateUtil.iDag());
+                .map(JournalMetadata::getForsendelseMottatt).findFirst().orElse(LocalDate.now());
     }
 
     public static LocalDateTime hentForsendelseMottattTidspunkt(List<JournalMetadata> hovedDokumenter) {
         return hovedDokumenter.stream().filter(m -> m.getForsendelseMottattTidspunkt() != null)
-                .map(JournalMetadata::getForsendelseMottattTidspunkt).findFirst().orElse(FPDateUtil.nå());
+                .map(JournalMetadata::getForsendelseMottattTidspunkt).findFirst().orElse(LocalDateTime.now());
     }
 
     public static DokumentTypeId hentDokumentTypeId(List<JournalMetadata> hovedDokumenter) {

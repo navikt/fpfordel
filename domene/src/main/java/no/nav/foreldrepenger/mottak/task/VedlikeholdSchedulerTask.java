@@ -19,7 +19,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTypeInfo;
-import no.nav.vedtak.util.FPDateUtil;
 
 /**
  * Enkel scheduler for dagens situasjon der man kjører mandag-fredag og det er
@@ -58,7 +57,7 @@ public class VedlikeholdSchedulerTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        LocalDate dagensDato = FPDateUtil.iDag();
+        LocalDate dagensDato = LocalDate.now();
         DayOfWeek dagensUkedag = DayOfWeek.from(dagensDato);
 
         // Lagre neste instans av daglig scheduler straks over midnatt
@@ -81,7 +80,7 @@ public class VedlikeholdSchedulerTask implements ProsessTaskHandler {
         if (ptdList.isEmpty()) {
             return;
         }
-        LocalDateTime nå = FPDateUtil.nå();
+        LocalDateTime nå = LocalDateTime.now();
         Map<String, Integer> taskTypesMaxForsøk = new HashMap<>();
         ptdList.stream().map(ProsessTaskData::getTaskType).forEach(tasktype -> {
             if (taskTypesMaxForsøk.get(tasktype) == null) {

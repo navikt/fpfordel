@@ -3,13 +3,12 @@ package no.nav.foreldrepenger.mottak.task.joark;
 import static no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste.erStrukturertDokument;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
-import no.nav.vedtak.util.StringUtils;
-
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -28,7 +27,7 @@ import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
-import no.nav.vedtak.util.FPDateUtil;
+import no.nav.vedtak.util.StringUtils;
 
 /**
  * <p>
@@ -103,7 +102,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             mottattDokument.kopierTilMottakWrapper(dataWrapper, joarkDokumentHåndterer::hentGyldigAktørFraPersonident);
             dataWrapper.setPayload(journalDokument.getXml());
             if (dataWrapper.getForsendelseMottattTidspunkt().isEmpty()) {
-                dataWrapper.setForsendelseMottattTidspunkt(FPDateUtil.nå());
+                dataWrapper.setForsendelseMottattTidspunkt(LocalDateTime.now());
             }
         }
 

@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class FagsakRestKlientImplTest {
 
@@ -32,17 +31,17 @@ public class FagsakRestKlientImplTest {
 
     @Test
     public void testInternMapping() {
-        LocalDate fødselsdato = FPDateUtil.iDag().plusDays(7);
-        List<LocalDate> adopsjonsBarnFødselsdatoer = Arrays.asList(FPDateUtil.iDag().minusYears(1), FPDateUtil.iDag().minusYears(2));
-        LocalDate termindato = FPDateUtil.iDag();
-        LocalDate omsorgsovertagelsesDato = FPDateUtil.iDag().plusDays(1);
+        LocalDate fødselsdato = LocalDate.now().plusDays(7);
+        List<LocalDate> adopsjonsBarnFødselsdatoer = Arrays.asList(LocalDate.now().minusYears(1), LocalDate.now().minusYears(2));
+        LocalDate termindato = LocalDate.now();
+        LocalDate omsorgsovertagelsesDato = LocalDate.now().plusDays(1);
         String saksnummer = "666";
         String aktørId = "9000000000009";
         String årsakInntektsmelding = "Endring";
         String annenPartId = "9000000000009";
         String arbeidsforholdsid = "56654679";
         String virksomhetsnummer = "999999999";
-        LocalDateTime nå = FPDateUtil.nå();
+        LocalDateTime nå = LocalDateTime.now();
 
         oidcRestClient = mock(OidcRestClient.class);
         fagsakRestKlient = new FagsakRestKlient(oidcRestClient, null, null, null, null);

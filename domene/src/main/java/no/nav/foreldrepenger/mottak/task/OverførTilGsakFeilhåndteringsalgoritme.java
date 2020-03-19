@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.mottak.task;
 
+import java.time.LocalDateTime;
+
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.vedtak.exception.IntegrasjonException;
@@ -9,7 +11,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTypeInfo;
 import no.nav.vedtak.felles.prosesstask.impl.feilhåndtering.SimpelFeilhåndteringsalgoritme;
 import no.nav.vedtak.felles.prosesstask.spi.ForsinkelseStrategi;
-import no.nav.vedtak.util.FPDateUtil;
 
 
 abstract class OverførTilGsakFeilhåndteringsalgoritme extends SimpelFeilhåndteringsalgoritme {
@@ -35,9 +36,9 @@ abstract class OverførTilGsakFeilhåndteringsalgoritme extends SimpelFeilhåndt
             MottakMeldingDataWrapper wrapper = new MottakMeldingDataWrapper(prosessTaskData);
             MottakMeldingDataWrapper nesteSteg;
             if (wrapper.getArkivId() == null) {
-                nesteSteg = wrapper.nesteSteg(MidlJournalføringTask.TASKNAME, false, FPDateUtil.nå());
+                nesteSteg = wrapper.nesteSteg(MidlJournalføringTask.TASKNAME, false, LocalDateTime.now());
             } else {
-                nesteSteg = wrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME, false, FPDateUtil.nå());
+                nesteSteg = wrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME, false, LocalDateTime.now());
             }
             ProsessTaskData nyProsessTaskData = nesteSteg.getProsessTaskData();
             prosessTaskRepository.lagre(nyProsessTaskData);

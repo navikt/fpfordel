@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.mottak.task;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,7 +18,6 @@ import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.util.FPDateUtil;
 
 @Dependent
 @ProsessTask(KlargjorForVLTask.TASKNAME)
@@ -71,7 +71,7 @@ public class KlargjorForVLTask extends WrappedProsessTaskHandler {
                 dataWrapper.getForsendelseId().orElse(null), dokumentKategori, journalEnhet);
 
         if (forsendelseId.isPresent() && !erReinnsend) {
-            return dataWrapper.nesteSteg(SlettForsendelseTask.TASKNAME, true, FPDateUtil.nå().plusMinutes(30)); // Gi
+            return dataWrapper.nesteSteg(SlettForsendelseTask.TASKNAME, true, LocalDateTime.now().plusMinutes(30)); // Gi
                                                                                                                 // selvbetjening
                                                                                                                 // tid
                                                                                                                 // til å

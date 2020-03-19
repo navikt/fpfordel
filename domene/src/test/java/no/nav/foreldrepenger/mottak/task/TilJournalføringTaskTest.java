@@ -92,7 +92,7 @@ public class TilJournalføringTaskTest {
         ptd = new ProsessTaskData(TilJournalføringTask.TASKNAME);
         ptd.setSekvens("1");
 
-        when(enhetsTjenesteMock.hentFordelingEnhetId(any(), any(), any(), any())).thenReturn(enhetId);
+        when(enhetsTjenesteMock.hentFordelingEnhetId(any(), any(), any(), any(), any())).thenReturn(enhetId);
 
     }
 
