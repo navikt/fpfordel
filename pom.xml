@@ -24,7 +24,7 @@
     </licenses>
 
     <properties>
-        <junit5.version>5.6.0</junit5.version>
+        <junit5.version>5.6.1</junit5.version>
         <tjenestespesifikasjon.version>1.2019.12.18-12.22-ce897c4eb2c1</tjenestespesifikasjon.version>
         <revision>2.0</revision>
         <sha1 />
