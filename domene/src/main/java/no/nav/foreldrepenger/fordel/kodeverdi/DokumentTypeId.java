@@ -96,6 +96,8 @@ public enum DokumentTypeId implements Kodeverdi {
     OPPLYSNING_TILRETTELEGGING_SVANGER("OPPLYSNING_TILRETTELEGGING_SVANGER", "I000108", "Opplysninger om muligheter og behov for tilrettelegging ved svangerskap"),
     SKJEMA_TILRETTELEGGING_OMPLASSERING("SKJEMA_TILRETTELEGGING_OMPLASSERING", "I000109", "Skjema for tilrettelegging og omplassering ved graviditet"),
     DOKUMENTASJON_ALENEOMSORG("DOKUMENTASJON_ALENEOMSORG", "I000110", "Dokumentasjon av aleneomsorg"),
+    DOKUMENTASJON_FORSVARSTJENESTE("DOKUMENTASJON_FORSVARSTJENESTE", "I000116", "Bekreftelse på øvelse eller tjeneste i Forsvaret eller Sivilforsvaret"),
+    DOKUMENTASJON_NAVTILTAK("DOKUMENTASJON_NAVTILTAK", "I000117", "Bekreftelse på tiltak i regi av Arbeids- og velferdsetaten"),
     BEGRUNNELSE_SØKNAD_ETTERSKUDD("BEGRUNNELSE_SØKNAD_ETTERSKUDD", "I000111", "Dokumentasjon av begrunnelse for hvorfor man søker tilbake i tid"),
     DOKUMENTASJON_INTRODUKSJONSPROGRAM("DOKUMENTASJON_INTRODUKSJONSPROGRAM", "I000112", "Dokumentasjon av deltakelse i introduksjonsprogrammet"),
     TILBAKEKREV_UTTALELSE("TILBAKEKREV_UTTALELSE", "I000114", "Uttalelse tilbakekreving"),
