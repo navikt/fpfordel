@@ -146,9 +146,13 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             }
         }
 
+        String eksternReferanseId = null;
+        if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId))
+            eksternReferanseId = journalMetadata.getKanalReferanseId();
+
         klargjørForVLTjeneste.klargjørForVL(xml, saksnummer, arkivId, dokumentTypeId,
                 journalMetadata.getForsendelseMottattTidspunkt(),
-                behandlingTema, null, dokumentKategori, journalMetadata.getJournalførendeEnhet()); // TODO: Shekhar
+                behandlingTema, null, dokumentKategori, journalMetadata.getJournalførendeEnhet(), eksternReferanseId); // TODO: Shekhar
                                                                                                    // forsendelseid null
     }
 

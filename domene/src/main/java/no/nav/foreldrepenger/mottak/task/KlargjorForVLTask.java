@@ -58,6 +58,7 @@ public class KlargjorForVLTask extends WrappedProsessTaskHandler {
         DokumentTypeId dokumenttypeId = dataWrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT);
         DokumentKategori dokumentKategori = dataWrapper.getDokumentKategori().orElse(DokumentKategori.UDEFINERT);
         String journalEnhet = dataWrapper.getJournalførendeEnhet().orElse(null);
+        String eksternReferanseId = dataWrapper.getEksternReferanseId().orElse(null);
         BehandlingTema behandlingsTema = dataWrapper.getBehandlingTema();
         Optional<UUID> forsendelseId = dataWrapper.getForsendelseId();
         boolean erReinnsend = dataWrapper.getRetryingTask().map(REINNSEND::equals).orElse(Boolean.FALSE);
@@ -68,7 +69,7 @@ public class KlargjorForVLTask extends WrappedProsessTaskHandler {
 
         klargjørForVLTjeneste.klargjørForVL(xml, saksnummer, arkivId, dokumenttypeId,
                 dataWrapper.getForsendelseMottattTidspunkt().orElse(null), behandlingsTema,
-                dataWrapper.getForsendelseId().orElse(null), dokumentKategori, journalEnhet);
+                dataWrapper.getForsendelseId().orElse(null), dokumentKategori, journalEnhet, eksternReferanseId);
 
         if (forsendelseId.isPresent() && !erReinnsend) {
             return dataWrapper.nesteSteg(SlettForsendelseTask.TASKNAME, true, LocalDateTime.now().plusMinutes(30)); // Gi

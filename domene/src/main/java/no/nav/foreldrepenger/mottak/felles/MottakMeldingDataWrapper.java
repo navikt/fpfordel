@@ -46,6 +46,7 @@ public class MottakMeldingDataWrapper {
     public static final String ARBEIDSGIVER_AKTØR_ID = "arbeidsgiver.aktoerId";
     public static final String ARBEIDSFORHOLDSID = "arbeidsforholdsId";
     public static final String INNTEKTSMELDING_YTELSE = "im.ytelse";
+    public static final String EKSTERN_REFERANSE = "eksternreferanse";
 
     // Inntektsmelding
     public static final String INNTEKSTMELDING_STARTDATO_KEY = "inntektsmelding.startdato";
@@ -194,6 +195,14 @@ public class MottakMeldingDataWrapper {
 
     public void setJournalførendeEnhet(String enhet) {
         prosessTaskData.setProperty(JOURNAL_ENHET, enhet);
+    }
+
+    public Optional<String> getEksternReferanseId() {
+        return Optional.ofNullable(prosessTaskData.getPropertyValue(EKSTERN_REFERANSE));
+    }
+
+    public void setEksternReferanseId(String enhet) {
+        prosessTaskData.setProperty(EKSTERN_REFERANSE, enhet);
     }
 
     public void setPayload(String payload) {

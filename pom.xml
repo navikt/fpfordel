@@ -38,7 +38,7 @@
         <prosesstask.version>2.0.0-20200118092644-2782011</prosesstask.version>	
 	<metrics.version>4.1.5</metrics.version>
         <prometheus.version>0.8.1</prometheus.version>
-        <fp-kontrakter.version>5.1-20200319151632-d72fd00</fp-kontrakter.version>
+        <fp-kontrakter.version>5.1-20200401094249-8828af7</fp-kontrakter.version>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.organization>navit</sonar.organization>
     </properties>
