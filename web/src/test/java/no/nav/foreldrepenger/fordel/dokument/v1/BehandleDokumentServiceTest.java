@@ -188,7 +188,7 @@ public class BehandleDokumentServiceTest {
         verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
                 navnDokumentTypeId);
         verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
-                eq(engangsstønadFødsel), any(), any(), any());
+                eq(engangsstønadFødsel), any(), any(), any(), any());
     }
 
     @Test(expected = OppdaterOgFerdigstillJournalfoeringUgyldigInput.class)
@@ -220,7 +220,7 @@ public class BehandleDokumentServiceTest {
         verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
                 dokumentTypeId.getTermNavn());
         verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
-                eq(foreldrepengerFødsel), any(), any(), any());
+                eq(foreldrepengerFødsel), any(), any(), any(), any());
     }
 
     @Test(expected = FunksjonellException.class)
@@ -308,7 +308,7 @@ public class BehandleDokumentServiceTest {
         verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
                 dokumentTypeId.getTermNavn());
         verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
-                eq(foreldrepengerFødsel), any(), any(), any());
+                eq(foreldrepengerFødsel), any(), any(), any(), any());
     }
 
     @Test
@@ -331,7 +331,7 @@ public class BehandleDokumentServiceTest {
         verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
                 dokumentTypeId.getTermNavn());
         verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
-                eq(foreldrepengerAdopsjon), any(), any(), any());
+                eq(foreldrepengerAdopsjon), any(), any(), any(), any());
     }
 
     @Test
@@ -354,7 +354,7 @@ public class BehandleDokumentServiceTest {
         verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
                 dokumentTypeId.getTermNavn());
         verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
-                eq(foreldrepenger), any(), any(), any());
+                eq(foreldrepenger), any(), any(), any(), any());
     }
 
     @Test
@@ -366,7 +366,7 @@ public class BehandleDokumentServiceTest {
 
         verify(tilJournalføringTjenesteMock, never()).tilJournalføring(any(), any(), any(), any(), any());
         verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
-                eq(engangsstønadFødsel), any(), any(), any());
+                eq(engangsstønadFødsel), any(), any(), any(), any());
     }
 
     private OppdaterOgFerdigstillJournalfoeringRequest lagRequest(String enhetid, String journalpostId,

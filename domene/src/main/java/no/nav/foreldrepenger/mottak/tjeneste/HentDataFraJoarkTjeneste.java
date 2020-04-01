@@ -126,6 +126,11 @@ public class HentDataFraJoarkTjeneste {
                 .findFirst();
     }
 
+    public static Optional<String> hentEksternReferanseId(List<JournalMetadata> hovedDokumenter) {
+        return hovedDokumenter.stream().map(JournalMetadata::getKanalReferanseId).filter(Objects::nonNull)
+                .findFirst();
+    }
+
     public static BehandlingTema korrigerBehandlingTemaFraDokumentType(Tema tema, BehandlingTema behandlingTema,
             DokumentTypeId dokumentTypeId) {
         if (behandlingTema == null) {

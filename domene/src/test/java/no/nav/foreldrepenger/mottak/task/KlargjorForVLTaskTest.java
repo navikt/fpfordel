@@ -81,7 +81,7 @@ public class KlargjorForVLTaskTest {
 
         MottakMeldingDataWrapper neste = toTaskWithPrecondition(data);
 
-        verify(klargjørForVLTjeneste).klargjørForVL(any(), any(), any(), any(), any(), any(), any(), any(), any());
+        verify(klargjørForVLTjeneste).klargjørForVL(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
         assertThat(neste).isNotNull();
         assertThat(neste.getProsessTaskData().getTaskType()).isEqualTo(SlettForsendelseTask.TASKNAME);
     }
@@ -99,7 +99,7 @@ public class KlargjorForVLTaskTest {
 
         MottakMeldingDataWrapper neste = toTaskWithPrecondition(data);
 
-        verify(klargjørForVLTjeneste).klargjørForVL(any(), any(), any(), any(), any(), any(), any(), any(), any());
+        verify(klargjørForVLTjeneste).klargjørForVL(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
         assertThat(neste).isNotNull();
         assertThat(neste.getProsessTaskData().getTaskType()).isEqualTo(SlettForsendelseTask.TASKNAME);
     }
@@ -117,7 +117,7 @@ public class KlargjorForVLTaskTest {
 
         MottakMeldingDataWrapper neste = toTaskWithPrecondition(data);
 
-        verify(klargjørForVLTjeneste).klargjørForVL(any(), any(), any(), any(), any(), any(), any(), any(), any());
+        verify(klargjørForVLTjeneste).klargjørForVL(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
         verify(dokumentRepository).oppdaterForsendelseMetadata(forsendelseId, ARKIV_ID, SAKSNUMMER, ForsendelseStatus.FPSAK);
         assertThat(neste).isNotNull();
         assertThat(neste.getProsessTaskData().getTaskType()).isEqualTo(SlettForsendelseTask.TASKNAME);
@@ -135,7 +135,7 @@ public class KlargjorForVLTaskTest {
 
         MottakMeldingDataWrapper neste = toTaskWithPrecondition(data);
 
-        verify(klargjørForVLTjeneste).klargjørForVL(any(), any(), any(), any(), any(), any(), any(), any(), any());
+        verify(klargjørForVLTjeneste).klargjørForVL(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
         assertThat(neste).isNull();
     }
 

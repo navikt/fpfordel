@@ -91,6 +91,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
                 HentDataFraJoarkTjeneste.hentForsendelseMottattTidspunkt(hoveddokumenter));
         HentDataFraJoarkTjeneste.hentJournalførendeEnhet(hoveddokumenter)
                 .ifPresent(dataWrapper::setJournalførendeEnhet);
+        HentDataFraJoarkTjeneste.hentEksternReferanseId(hoveddokumenter)
+                .ifPresent(dataWrapper::setEksternReferanseId);
         joarkDokumentHåndterer.hentGyldigAktørFraMetadata(hoveddokumenter).ifPresent(dataWrapper::setAktørId);
         dataWrapper.setStrukturertDokument(erStrukturertDokument(hoveddokumenter));
 

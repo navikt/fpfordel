@@ -39,9 +39,9 @@ public class KlargjørForVLTjeneste {
     }
 
     public void klargjørForVL(String xml, String saksnummer, String arkivId, DokumentTypeId dokumenttypeId,
-            LocalDateTime forsendelseMottatt,
-            BehandlingTema behandlingsTema, UUID forsendelseId, DokumentKategori dokumentKategori,
-            String journalFørendeEnhet) {
+                              LocalDateTime forsendelseMottatt,
+                              BehandlingTema behandlingsTema, UUID forsendelseId, DokumentKategori dokumentKategori,
+                              String journalFørendeEnhet, String eksternReferanseId) {
         String behandlingTemaString = behandlingsTema == null || BehandlingTema.UDEFINERT.equals(behandlingsTema)
                 ? BehandlingTema.UDEFINERT.getKode()
                 : behandlingsTema.getOffisiellKode();
@@ -60,6 +60,7 @@ public class KlargjørForVLTjeneste {
         journalpostMottakDto.setForsendelseId(forsendelseId);
         journalpostMottakDto.setDokumentKategoriOffisiellKode(dokumentKategoriOffisiellKode);
         journalpostMottakDto.setJournalForendeEnhet(journalFørendeEnhet);
+        journalpostMottakDto.setEksternReferanseId(eksternReferanseId);
         restKlient.send(journalpostMottakDto);
 
         try {
