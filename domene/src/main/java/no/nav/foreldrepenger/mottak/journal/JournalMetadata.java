@@ -31,6 +31,7 @@ public class JournalMetadata {
     private LocalDateTime forsendelseMottattTidspunkt;
     private List<String> brukerIdentListe;
     private String kanalReferanseId;
+    private String mottaksKanal;
     private String journalEnhet;
 
     public static Builder builder() {
@@ -92,6 +93,10 @@ public class JournalMetadata {
         return kanalReferanseId;
     }
 
+    public String getMottaksKanal() {
+        return mottaksKanal;
+    }
+
     public static class Builder {
         private String journalpostId;
         private String dokumentId;
@@ -105,6 +110,7 @@ public class JournalMetadata {
         private LocalDateTime forsendelseMottattTidspunkt;
         private List<String> brukerIdentListe;
         private String kanalReferanseId;
+        private String mottaksKanal;
         private String journalEnhet;
 
         public Builder medJournalpostId(String journalpostId) {
@@ -172,6 +178,11 @@ public class JournalMetadata {
             return this;
         }
 
+        public Builder medMottaksKanal(String mottaksKanal) {
+            this.mottaksKanal = mottaksKanal;
+            return this;
+        }
+
         public JournalMetadata build() {
             JournalMetadata jmd = new JournalMetadata();
             jmd.journalpostId = this.journalpostId;
@@ -186,6 +197,7 @@ public class JournalMetadata {
             jmd.forsendelseMottattTidspunkt = this.forsendelseMottattTidspunkt;
             jmd.brukerIdentListe = this.brukerIdentListe;
             jmd.kanalReferanseId = this.kanalReferanseId;
+            jmd.mottaksKanal = this.mottaksKanal;
             jmd.journalEnhet = this.journalEnhet;
             return jmd;
         }

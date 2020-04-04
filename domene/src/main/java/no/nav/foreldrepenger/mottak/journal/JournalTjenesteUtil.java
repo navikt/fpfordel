@@ -180,6 +180,7 @@ class JournalTjenesteUtil {
         LocalDateTime forsendelseMottattTidspunkt = DateUtil
                 .convertToLocalDateTime(journalpost.getForsendelseMottatt());
         Optional<String> kanalReferanseId = Optional.ofNullable(journalpost.getKanalReferanseId());
+        Optional<String> mottaksKanal = Optional.ofNullable(journalpost.getMottakskanal() != null ? journalpost.getMottakskanal().getValue() : null);
         Optional<String> journalEnhet = Optional.ofNullable(journalpost.getJournalfEnhet());
 
         List<no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Aktoer> brukerListe = journalpost
@@ -212,6 +213,7 @@ class JournalTjenesteUtil {
             builder.medForsendelseMottattTidspunkt(forsendelseMottattTidspunkt);
             builder.medBrukerIdentListe(brukerIdentList);
             kanalReferanseId.ifPresent(builder::medKanalReferanseId);
+            mottaksKanal.ifPresent(builder::medMottaksKanal);
             journalEnhet.ifPresent(builder::medJournalførendeEnhet);
             JournalMetadata metadata = builder.build();
 
