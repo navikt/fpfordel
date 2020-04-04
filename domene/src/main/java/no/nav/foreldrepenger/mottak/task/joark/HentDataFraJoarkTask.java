@@ -6,9 +6,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -45,6 +49,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.hentFraJoark";
 
+    private static final Logger LOG = LoggerFactory.getLogger(HentDataFraJoarkTask.class);
+
     private final AktørConsumer aktørConsumer;
     private final JoarkDokumentHåndterer joarkDokumentHåndterer;
 
@@ -77,6 +83,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper dataWrapper) {
         final List<JournalMetadata> hoveddokumenter = joarkDokumentHåndterer
                 .hentJoarkDokumentMetadata(dataWrapper.getArkivId());
+        loggJournalpost(hoveddokumenter);
+
         if (hoveddokumenter.isEmpty()) {
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
@@ -154,5 +162,14 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     private boolean kreverStartdatoForInntektsmeldingenManuellBehandling(MottakMeldingDataWrapper dataWrapper) {
         LocalDate startDato = dataWrapper.getInntektsmeldingStartDato().orElse(Tid.TIDENES_BEGYNNELSE);
         return startDato.isBefore(KonfigVerdier.ENDRING_BEREGNING_DATO);
+    }
+
+    private void loggJournalpost(List<JournalMetadata> dokumenter) {
+        var dtids = dokumenter.stream().map(JournalMetadata::getDokumentTypeId).collect(Collectors.toList());
+        if (dokumenter.isEmpty() || dtids.contains(DokumentTypeId.INNTEKTSMELDING))
+            return;
+        var tilstand = dokumenter.stream().findFirst().map(JournalMetadata::getJournaltilstand).map(JournalMetadata.Journaltilstand::name).orElse("TILSTAND_UDEF");
+        var kanal = dokumenter.stream().findFirst().map(JournalMetadata::getMottaksKanal).orElse("KANAL_UDEF");
+        LOG.info("FPFORDEL INNGÅENDE journalpost {} kanal {} tilstand {} typer {}", dokumenter.get(0).getJournalpostId(), kanal, tilstand, dtids);
     }
 }
