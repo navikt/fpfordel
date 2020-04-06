@@ -5,6 +5,9 @@ import javax.enterprise.context.control.ActivateRequestContext;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -17,6 +20,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 @ActivateRequestContext
 @Transactional
 public class ProsesstaskMeldingsfordeler implements MeldingsFordeler {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ProsesstaskMeldingsfordeler.class);
 
     private ProsessTaskRepository prosessTaskRepository;
 
@@ -41,6 +46,12 @@ public class ProsesstaskMeldingsfordeler implements MeldingsFordeler {
         }
 
         final Tema tema = Tema.fraOffisiellKode(forsendelsesinfo.getTema().getValue());
+
+        // I påvente av MMA-4323
+        if (Tema.OMS.equals(tema)) {
+            LOG.info("FPFORDEL ignorerer journalpost {} med tema OMS", arkivId);
+            return;
+        }
 
         MottakMeldingDataWrapper hentFraJoarkMelding = new MottakMeldingDataWrapper(
                 new ProsessTaskData(HentDataFraJoarkTask.TASKNAME));

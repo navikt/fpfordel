@@ -13,8 +13,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
 
-import com.fasterxml.jackson.databind.ObjectReader;
-
 import no.nav.foreldrepenger.fordel.ReadFileFromClassPathHelper;
 import no.nav.foreldrepenger.mottak.journal.saf.graphql.GraphQlError;
 import no.nav.foreldrepenger.mottak.journal.saf.graphql.GraphQlRequest;
@@ -35,8 +33,6 @@ public class SafTjeneste {
     private URI hentDokumentEndpoint;
     private OidcRestClient restKlient;
     private String query;
-
-    private ObjectReader objectReader = JacksonJsonConfig.getObjectMapper().readerFor(GraphQlResponse.class);
 
     SafTjeneste() {
         // CDI
