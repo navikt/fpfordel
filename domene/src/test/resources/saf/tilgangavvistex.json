@@ -1,0 +1,24 @@
+{
+  "errors": [
+    {
+      "message": "Tilgang til journalposten er avvist.",
+      "locations": []
+    },
+    {
+      "message": "Dette har du ikke lov til å drive med.",
+      "locations": [
+        {
+          "line": "1",
+          "column": "2"
+        },
+        {
+          "line": "1",
+          "column": "2"
+        }
+      ]
+    }
+  ],
+  "data": {
+    "journalpost": null
+  }
+}

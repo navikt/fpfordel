@@ -1,0 +1,22 @@
+{
+  "data": {
+    "journalpost": {
+      "journalpostId": "95423",
+      "tittel": "MASKERT_FELT",
+      "journalposttype": "I",
+      "journalstatus": "MOTTATT",
+      "kanal": "SKAN_NETS",
+      "tema": "FOR",
+      "behandlingstema": null,
+      "sak": {
+        "arkivsaksnummer": "13724",
+        "arkivsaksystem": "GSAK"
+      },
+      "bruker": {
+        "id": "10039005",
+        "type": "AKTOERID"
+      },
+      "journalforendeEnhet": "4819"
+    }
+  }
+}

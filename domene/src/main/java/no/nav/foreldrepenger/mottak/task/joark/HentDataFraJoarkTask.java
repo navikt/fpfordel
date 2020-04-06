@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveT
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
+import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.JournalDokument;
 import no.nav.foreldrepenger.mottak.journal.JournalMetadata;
 import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
@@ -53,13 +54,17 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     private final AktørConsumer aktørConsumer;
     private final JoarkDokumentHåndterer joarkDokumentHåndterer;
+    private final ArkivTjeneste arkivTjeneste;
 
     @Inject
     public HentDataFraJoarkTask(ProsessTaskRepository prosessTaskRepository,
-            AktørConsumer aktørConsumer, JoarkDokumentHåndterer joarkDokumentHåndterer) {
+                                AktørConsumer aktørConsumer,
+                                JoarkDokumentHåndterer joarkDokumentHåndterer,
+                                ArkivTjeneste arkivTjeneste) {
         super(prosessTaskRepository);
         this.aktørConsumer = aktørConsumer;
         this.joarkDokumentHåndterer = joarkDokumentHåndterer;
+        this.arkivTjeneste = arkivTjeneste;
     }
 
     @Override
@@ -86,6 +91,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         loggJournalpost(hoveddokumenter);
 
         if (hoveddokumenter.isEmpty()) {
+            arkivTjeneste.loggSammenligning(dataWrapper);
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
 
@@ -117,14 +123,17 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         }
 
         if (dataWrapper.getAktørId().isEmpty() || !Tema.FORELDRE_OG_SVANGERSKAPSPENGER.equals(dataWrapper.getTema())) {
+            arkivTjeneste.loggSammenligning(dataWrapper);
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
 
         if (DokumentTypeId.erInntektsmelding(dokumentTypeId)) {
+            arkivTjeneste.loggSammenligning(dataWrapper);
             return håndterInntektsmelding(dataWrapper);
         }
 
         // Videre håndtering
+        arkivTjeneste.loggSammenligning(dataWrapper);
         return dataWrapper.nesteSteg(HentOgVurderVLSakTask.TASKNAME);
     }
 

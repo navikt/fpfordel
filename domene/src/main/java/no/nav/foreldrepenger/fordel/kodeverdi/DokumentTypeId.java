@@ -119,6 +119,7 @@ public enum DokumentTypeId implements Kodeverdi {
 
     private static final Map<String, DokumentTypeId> KODER = new LinkedHashMap<>();
     private static final Map<String, DokumentTypeId> OFFISIELLE_KODER = new LinkedHashMap<>();
+    private static final Map<String, DokumentTypeId> TERMNAVN_KODER = new LinkedHashMap<>();
 
     public static final String KODEVERK = "DOKUMENT_TYPE_ID";
 
@@ -129,6 +130,9 @@ public enum DokumentTypeId implements Kodeverdi {
             }
             if (v.offisiellKode != null) {
                 OFFISIELLE_KODER.putIfAbsent(v.offisiellKode, v);
+            }
+            if (v.termnavn != null) {
+                TERMNAVN_KODER.putIfAbsent(v.termnavn, v);
             }
         }
     }
@@ -171,6 +175,13 @@ public enum DokumentTypeId implements Kodeverdi {
             return UDEFINERT;
         }
         return OFFISIELLE_KODER.getOrDefault(kode, UDEFINERT);
+    }
+
+    public static DokumentTypeId fraTermNavn(String navn) {
+        if (navn == null) {
+            return UDEFINERT;
+        }
+        return TERMNAVN_KODER.getOrDefault(navn, UDEFINERT);
     }
 
     @JsonProperty

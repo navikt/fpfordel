@@ -1,0 +1,21 @@
+{
+  "errors": [
+    {
+      "message": "Feilet ved henting av data (/journalpost) : null",
+      "locations": [
+        {
+          "line": 3,
+          "column": 3
+        }
+      ],
+      "path": [
+        "journalpost"
+      ],
+      "exceptionType": "TECHNICAL",
+      "exception": "NullPointerException"
+    }
+  ],
+  "data": {
+    "journalpost": null
+  }
+}
