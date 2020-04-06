@@ -18,12 +18,15 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.MapNAVSkjemaDokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.NAVSkjema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.saf.SafTjeneste;
 import no.nav.foreldrepenger.mottak.journal.saf.model.BrukerIdType;
 import no.nav.foreldrepenger.mottak.journal.saf.model.DokumentInfo;
 import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
 import no.nav.foreldrepenger.mottak.journal.saf.model.VariantFormat;
+import no.nav.foreldrepenger.mottak.task.KlargjorForVLTask;
+import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
 
 @ApplicationScoped
@@ -64,6 +67,7 @@ public class ArkivTjeneste {
         }
 
         info.setJournalpostId(journalpostId);
+        info.setTilstand(journalpost.getJournalstatus());
         mapIdent(journalpost).ifPresent(info::setBrukerAktørId);
         info.setKanal(journalpost.getKanal());
         info.setAlleTyper(utledDokumentTyper(journalpost));
@@ -120,11 +124,18 @@ public class ArkivTjeneste {
         throw new IllegalArgumentException("Ukjent brukerType=" + bruker.getType());
     }
 
-    public void loggSammenligning(MottakMeldingDataWrapper wrapper) {
+    public void loggSammenligning(MottakMeldingDataWrapper wrapper, Optional<String> brukerFraArkiv) {
         try {
             var ajp = hentArkivJournalpost(wrapper.getArkivId());
-            if (!Objects.equals(ajp.getBrukerAktørId(), wrapper.getAktørId().orElse(null)))
-                LOG.info("FPFORDEL SAF avvik journalpost {} bruker", wrapper.getArkivId());
+            if (ajp.getInnholderStrukturertInformasjon()) {
+                MottakMeldingDataWrapper testWrapper = wrapper.nesteSteg(KlargjorForVLTask.TASKNAME);
+                MottattStrukturertDokument<?> mottattDokument = MeldingXmlParser.unmarshallXml(ajp.getStrukturertPayload());
+                mottattDokument.kopierTilMottakWrapper(testWrapper, aktørConsumer::hentAktørIdForPersonIdent);
+                if (!Objects.equals(wrapper.getAktørId(), testWrapper.getAktørId()))
+                    LOG.info("FPFORDEL SAF avvik journalpost {} omhandler saf {} ij {}", wrapper.getArkivId(), testWrapper.getAktørId(), wrapper.getAktørId());
+            }
+            if (!Objects.equals(ajp.getBrukerAktørId(), brukerFraArkiv.orElse(null)))
+                LOG.info("FPFORDEL SAF avvik journalpost {} bruker saf {} ij {}", wrapper.getArkivId(), ajp.getBrukerAktørId(), brukerFraArkiv);
             if (!Objects.equals(ajp.getJournalfoerendeEnhet(), wrapper.getJournalførendeEnhet().orElse(null)))
                 LOG.info("FPFORDEL SAF avvik journalpost {} jfEnhet", wrapper.getArkivId());
             if (!Objects.equals(ajp.getEksternReferanseId(), wrapper.getEksternReferanseId().orElse(null)))
@@ -132,8 +143,14 @@ public class ArkivTjeneste {
             if (ajp.getInnholderStrukturertInformasjon() && !Objects.equals(ajp.getStrukturertPayload(), wrapper.getPayloadAsString().orElse(null)))
                 LOG.info("FPFORDEL SAF avvik journalpost {} payload", wrapper.getArkivId());
             if (!Objects.equals(ajp.getHovedtype(), wrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT)))
-                LOG.info("FPFORDEL SAF avvik journalpost {} dokumenttypeid SAF {} IJ {} allesaf {}", wrapper.getArkivId(), ajp.getHovedtype(), wrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT), ajp.getAlleTyper());
+                LOG.info("FPFORDEL SAF avvik journalpost {} dokumenttypeid SAF {} IJ {} allesaf {}",
+                        wrapper.getArkivId(), ajp.getHovedtype(), wrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT), ajp.getAlleTyper());
 
+            LOG.info("FPFORDEL SAF sammenlignet journalpost {} dokumenttypeid SAF {} IJ {} tilstandSAF {}",
+                    wrapper.getArkivId(), ajp.getHovedtype(), wrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT), ajp.getTilstand());
+
+            if (MapNAVSkjemaDokumentTypeId.dokumentTypeRank(ajp.getHovedtype()) < MapNAVSkjemaDokumentTypeId.dokumentTypeRank(wrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT)))
+                wrapper.setDokumentTypeId(ajp.getHovedtype());
         } catch (Exception e) {
             LOG.info("Noe rart skjedde", e);
         }
