@@ -53,8 +53,7 @@ public class MapNAVSkjemaDokumentTypeId {
             Map.entry(8, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON),
             Map.entry(9, DokumentTypeId.KLAGE_DOKUMENT),
             Map.entry(10, DokumentTypeId.ETTERSENDT_KLAGE),
-            Map.entry(98, DokumentTypeId.ANNET),
-            Map.entry(99, DokumentTypeId.UDEFINERT)
+            Map.entry(98, DokumentTypeId.ANNET)
     );
 
     public static DokumentTypeId mapBrevkode(NAVSkjema brevkode) {
@@ -70,6 +69,6 @@ public class MapNAVSkjemaDokumentTypeId {
     }
 
     public static DokumentTypeId dokumentTypeFromRank(int rank) {
-        return RANK_DOKUMENT_TYPE.getOrDefault(rank, DokumentTypeId.UDEFINERT);
+        return RANK_DOKUMENT_TYPE.getOrDefault(rank, DokumentTypeId.ANNET);
     }
 }
