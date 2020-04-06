@@ -8,7 +8,7 @@ env:
   APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
   ORACLE_IMAGE: docker.pkg.github.com/navikt/vtp/foreldrepenger-oracle
   CLUSTER: dev-fss
-  NAMESPACE: t4
+  NAMESPACE: q1
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   IMAGE_BASE: docker.pkg.github.com/${{ github.repository }}/fpfordel
          
@@ -95,7 +95,7 @@ jobs:
             Kommenter med <b>/promote cluster namespace</b>, hvor <b>cluster</b> er et gyldig clusternavn og <b>namespace</b> et eksisterende namespace i det clusteret.
             <table>
             <tr><th>Cluster</th><th>Namespace</th></tr>
-            <tr><td>dev-fss</td><td>t4,q1</td></tr>
+            <tr><td>dev-fss</td><td>q1</td></tr>
             <tr><td>prod-fss</td><td>default</td></tr>
             </table>        
 
@@ -111,8 +111,4 @@ jobs:
             github.issues.createComment({...issue,
                                     title: 'Deploy av ${{ env.TAG }}',
                                     body: '/promote dev-fss q1'})
-
-            github.issues.createComment({...issue,
-                                    title: 'Deploy av ${{ env.TAG }}',
-                                    body: '/promote dev-fss t4'})
 

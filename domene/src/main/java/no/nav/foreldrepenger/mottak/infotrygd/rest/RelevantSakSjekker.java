@@ -11,9 +11,6 @@ import java.util.function.Predicate;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.gsak.GsakSakTjeneste;
@@ -24,7 +21,6 @@ import no.nav.foreldrepenger.mottak.infotrygd.rest.svp.SVP;
 
 @ApplicationScoped
 public class RelevantSakSjekker {
-    private static final Logger LOG = LoggerFactory.getLogger(RelevantSakSjekker.class);
     private static final Period GSAK_EKSTRA_MND = Period.ofMonths(2);
 
     private InfotrygdTjeneste svp;
@@ -103,7 +99,6 @@ public class RelevantSakSjekker {
     }
 
     private List<InfotrygdSak> restSaker(InfotrygdTjeneste t, String fnr, LocalDate fom) {
-        LOG.info("Henter saker fra REST fra {}", fom);
         return t.finnSakListe(fnr, fom);
     }
 

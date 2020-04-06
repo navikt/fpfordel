@@ -4,8 +4,10 @@
 	"oraclecredskv": "/oracle/data/prod/creds/fpfordel_p-fpfordel_p",
 	"serviceuserkv": "/serviceuser/data/prod/srvfpfordel",
 	"namespace": "default",
-	"ingresses": ["https://fpfordel.nais.adeo.no",
-                  "https://fpfordel.nais.adeo.no/fpfordel"],
+	"ingresses": [
+		"https://fpfordel.nais.adeo.no",
+		"https://fpfordel.nais.adeo.no/fpfordel"
+	],
 	"env": {
 		"ABAC_PDP_ENDPOINT_URL": "https://wasapp.adeo.no/asm-pdp/authorize",
 		"AKTOER_V2_URL": "https://app.adeo.no/aktoerregister/ws/Aktoer/v2",
@@ -20,7 +22,6 @@
 		"FPSAK_SAKSINFORMASJON_URL": "https://fpsak.nais.adeo.no/fpsak/api/fordel/fagsak/informasjon",
 		"FPSAK_VURDERFAGSYSTEM_URL": "https://fpsak.nais.adeo.no/fpsak/api/fordel/vurderFagsystem",
 		"FP_STATUSINFORMASJON_URL": "https://fpinfo.nais.adeo.no/fpinfo/api/dokumentforsendelse/status",
-		"INFOTRYGDSAK_V1_URL": "https://modapp.adeo.no/infotrygd-ws/InfotrygdSak/v1",
 		"INNGAAENDEJOURNAL_V1_URL": "https://dokarkiv.nais.adeo.no/services/inngaaendejournal/v1",
 		"JOURNAL_V2_URL": "https://wasapp.adeo.no/joark/Journal/v2",
 		"LOADBALANCER_URL": "https://fpfordel.nais.adeo.no",
@@ -41,7 +42,9 @@
 		"OIDC_STS_JWKS_URL": "https://security-token-service.nais.adeo.no/rest/v1/sts/jwks",
 		"OPENIDCONNECT_USERNAME": "fpfordel-p",
 		"OPENIDCONNECT_ISSOHOST": "https://isso.adeo.no:443/isso/oauth2",
+		"OPPGAVE_BASE_URI": "http://oppgave",
 		"PERSON_V3_URL": "https://wasapp.adeo.no/tpsws/ws/Person/v3",
+		"SAF_BASE_URL" : "http://saf",
 		"SAK_V1_URL": "https://wasapp.adeo.no/nav-gsak-ws/SakV1",
 		"SECURITYTOKENSERVICE_URL": "https://sts.adeo.no/SecurityTokenServiceProvider/"
 	}
