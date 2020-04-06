@@ -104,7 +104,7 @@ public class ArkivTjeneste {
         if (lavestrank == 90) {
             return alleTyper.stream()
                    .filter(t -> MapNAVSkjemaDokumentTypeId.dokumentTypeRank(t) == 90)
-                   .findFirst().orElse(DokumentTypeId.UDEFINERT);
+                   .findFirst().orElse(DokumentTypeId.ANNET);
         }
         return MapNAVSkjemaDokumentTypeId.dokumentTypeFromRank(lavestrank);
     }
@@ -127,12 +127,17 @@ public class ArkivTjeneste {
     public void loggSammenligning(MottakMeldingDataWrapper wrapper, Optional<String> brukerFraArkiv) {
         try {
             var ajp = hentArkivJournalpost(wrapper.getArkivId());
-            if (ajp.getInnholderStrukturertInformasjon()) {
-                MottakMeldingDataWrapper testWrapper = wrapper.nesteSteg(KlargjorForVLTask.TASKNAME);
-                MottattStrukturertDokument<?> mottattDokument = MeldingXmlParser.unmarshallXml(ajp.getStrukturertPayload());
-                mottattDokument.kopierTilMottakWrapper(testWrapper, aktørConsumer::hentAktørIdForPersonIdent);
-                if (!Objects.equals(wrapper.getAktørId(), testWrapper.getAktørId()))
-                    LOG.info("FPFORDEL SAF avvik journalpost {} omhandler saf {} ij {}", wrapper.getArkivId(), testWrapper.getAktørId(), wrapper.getAktørId());
+            if (DokumentTypeId.INNTEKTSMELDING.equals(ajp.getHovedtype())) {
+                boolean fantInnhold = false;
+                if (ajp.getInnholderStrukturertInformasjon()) {
+                    fantInnhold = true;
+                    MottakMeldingDataWrapper testWrapper = wrapper.nesteSteg(KlargjorForVLTask.TASKNAME);
+                    MottattStrukturertDokument<?> mottattDokument = MeldingXmlParser.unmarshallXml(ajp.getStrukturertPayload());
+                    mottattDokument.kopierTilMottakWrapper(testWrapper, aktørConsumer::hentAktørIdForPersonIdent);
+                    if (!Objects.equals(wrapper.getAktørId(), testWrapper.getAktørId()))
+                        LOG.info("FPFORDEL SAF avvik journalpost {} omhandler saf {} ij {}", wrapper.getArkivId(), testWrapper.getAktørId(), wrapper.getAktørId());
+                }
+                LOG.info("FPFORDEL SAF inntektsmelding journalpost {} innhold {} bruker JP {}", wrapper.getArkivId(), fantInnhold ? "xml" : "tom", ajp.getBrukerAktørId());
             }
             if (!Objects.equals(ajp.getBrukerAktørId(), brukerFraArkiv.orElse(null)))
                 LOG.info("FPFORDEL SAF avvik journalpost {} bruker saf {} ij {}", wrapper.getArkivId(), ajp.getBrukerAktørId(), brukerFraArkiv);
