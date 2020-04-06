@@ -91,7 +91,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         loggJournalpost(hoveddokumenter);
 
         if (hoveddokumenter.isEmpty()) {
-            arkivTjeneste.loggSammenligning(dataWrapper);
+            arkivTjeneste.loggSammenligning(dataWrapper, Optional.empty());
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
 
@@ -107,7 +107,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
                 .ifPresent(dataWrapper::setJournalførendeEnhet);
         HentDataFraJoarkTjeneste.hentEksternReferanseId(hoveddokumenter)
                 .ifPresent(dataWrapper::setEksternReferanseId);
-        joarkDokumentHåndterer.hentGyldigAktørFraMetadata(hoveddokumenter).ifPresent(dataWrapper::setAktørId);
+        var brukerFraArkiv = joarkDokumentHåndterer.hentGyldigAktørFraMetadata(hoveddokumenter);
+        brukerFraArkiv.ifPresent(dataWrapper::setAktørId);
         dataWrapper.setStrukturertDokument(erStrukturertDokument(hoveddokumenter));
 
         if (erStrukturertDokument(hoveddokumenter)) {
@@ -123,17 +124,16 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         }
 
         if (dataWrapper.getAktørId().isEmpty() || !Tema.FORELDRE_OG_SVANGERSKAPSPENGER.equals(dataWrapper.getTema())) {
-            arkivTjeneste.loggSammenligning(dataWrapper);
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
 
         if (DokumentTypeId.erInntektsmelding(dokumentTypeId)) {
-            arkivTjeneste.loggSammenligning(dataWrapper);
+            arkivTjeneste.loggSammenligning(dataWrapper, brukerFraArkiv);
             return håndterInntektsmelding(dataWrapper);
         }
 
         // Videre håndtering
-        arkivTjeneste.loggSammenligning(dataWrapper);
+        arkivTjeneste.loggSammenligning(dataWrapper, brukerFraArkiv);
         return dataWrapper.nesteSteg(HentOgVurderVLSakTask.TASKNAME);
     }
 

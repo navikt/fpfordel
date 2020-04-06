@@ -13,6 +13,7 @@ public class ArkivJournalpost {
     private String journalpostId;
     private String brukerAktørId;
     private String kanal;
+    private String tilstand;
     private Tema tema;
     private BehandlingTema behandlingstema;
     private String journalfoerendeEnhet;
@@ -33,6 +34,14 @@ public class ArkivJournalpost {
 
     public void setJournalpostId(String journalpostId) {
         this.journalpostId = journalpostId;
+    }
+
+    public String getTilstand() {
+        return tilstand;
+    }
+
+    public void setTilstand(String tilstand) {
+        this.tilstand = tilstand;
     }
 
     public String getBrukerAktørId() {
@@ -133,6 +142,7 @@ public class ArkivJournalpost {
         return "ArkivJournalpost{" +
                 "journalpostId='" + journalpostId + '\'' +
                 ", kanal='" + kanal + '\'' +
+                ", tilstand='" + tilstand + '\'' +
                 ", tema=" + tema +
                 ", datoOpprettet=" + datoOpprettet +
                 ", eksternReferanseId='" + eksternReferanseId + '\'' +
