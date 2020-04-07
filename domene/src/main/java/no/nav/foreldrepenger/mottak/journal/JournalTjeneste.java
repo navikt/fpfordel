@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -30,9 +29,9 @@ import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.binding.OppdaterJ
 import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.binding.OppdaterJournalpostOppdateringIkkeMulig;
 import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.binding.OppdaterJournalpostSikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.binding.OppdaterJournalpostUgyldigInput;
-import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.informasjon.Aktoer;
 import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.informasjon.ArkivSak;
 import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.informasjon.Avsender;
+import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.informasjon.Dokumentinformasjon;
 import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.informasjon.InngaaendeJournalpost;
 import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.informasjon.Person;
 import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.meldinger.FerdigstillJournalfoeringRequest;
@@ -55,7 +54,6 @@ import no.nav.tjeneste.virksomhet.journal.v2.binding.HentDokumentDokumentIkkeFun
 import no.nav.tjeneste.virksomhet.journal.v2.binding.HentDokumentSikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.journal.v2.meldinger.HentDokumentRequest;
 import no.nav.tjeneste.virksomhet.journal.v2.meldinger.HentDokumentResponse;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
 import no.nav.vedtak.felles.integrasjon.behandleinngaaendejournal.BehandleInngaaendeJournalConsumer;
 import no.nav.vedtak.felles.integrasjon.inngaaendejournal.InngaaendeJournalConsumer;
 import no.nav.vedtak.felles.integrasjon.journal.v2.JournalConsumer;
@@ -73,7 +71,7 @@ public class JournalTjeneste {
     private final InngaaendeJournalConsumer inngaaendeJournalConsumer;
     private final BehandleInngaaendeJournalConsumer behandleInngaaendeJournalConsumer;
     private final MottaInngaaendeForsendelseRestKlient mottaInngaaendeForsendelseKlient;
-    private final AktørConsumer aktørConsumer;
+
 
     private JournalTjenesteUtil journalTjenesteUtil;
 
@@ -81,13 +79,11 @@ public class JournalTjeneste {
     public JournalTjeneste(JournalConsumer journalConsumer,
             InngaaendeJournalConsumer inngaaendeJournalConsumer,
             BehandleInngaaendeJournalConsumer behandleInngaaendeJournalConsumer,
-            MottaInngaaendeForsendelseRestKlient mottaInngaaendeForsendelseKlient,
-            AktørConsumer aktørConsumer) {
+            MottaInngaaendeForsendelseRestKlient mottaInngaaendeForsendelseKlient) {
         this.journalConsumer = journalConsumer;
         this.inngaaendeJournalConsumer = inngaaendeJournalConsumer;
         this.behandleInngaaendeJournalConsumer = behandleInngaaendeJournalConsumer;
         this.mottaInngaaendeForsendelseKlient = mottaInngaaendeForsendelseKlient;
-        this.aktørConsumer = aktørConsumer;
         this.journalTjenesteUtil = new JournalTjenesteUtil();
     }
 
@@ -198,24 +194,24 @@ public class JournalTjeneste {
             inngaaendeJournalpost.setArkivSak(arkivSak);
         }
 
-        if (journalPost.getAktørId() != null) {
-            Optional<String> fnr = aktørConsumer.hentPersonIdentForAktørId(journalPost.getAktørId());
-            if (fnr.isPresent()) {
-                Person person = new Person();
-                person.setIdent(fnr.get());
-                Aktoer bruker = person;
-                inngaaendeJournalpost.setBruker(bruker);
-            }
+        if (journalPost.getFnr() != null) {
+            Person person = new Person();
+            person.setIdent(journalPost.getFnr());
+            inngaaendeJournalpost.setBruker(person);
         }
 
-        if (journalPost.getAvsenderAktørId() != null) {
-            Optional<String> fnr = aktørConsumer.hentPersonIdentForAktørId(journalPost.getAvsenderAktørId());
-            if (fnr.isPresent()) {
-                Avsender avsender = new Avsender();
-                avsender.setAvsenderId(fnr.get());
-                avsender.setAvsenderNavn("NN");
-                inngaaendeJournalpost.setAvsender(avsender);
-            }
+        if (journalPost.getAvsenderFnr() != null || journalPost.getAvsenderNavn() != null) {
+            Avsender avsender = new Avsender();
+            avsender.setAvsenderId(journalPost.getAvsenderFnr());
+            avsender.setAvsenderNavn(journalPost.getAvsenderFnr() != null ? journalPost.getAvsenderFnr() : "NN");
+            inngaaendeJournalpost.setAvsender(avsender);
+        }
+
+        if (journalPost.getHovedDokumentTittel() != null) {
+            Dokumentinformasjon info = new Dokumentinformasjon();
+            info.setDokumentId(journalPost.getHovedDokumentId());
+            info.setTittel(journalPost.getHovedDokumentTittel());
+            inngaaendeJournalpost.setHoveddokument(info);
         }
 
         inngaaendeJournalpost.setInnhold(journalPost.getInnhold());

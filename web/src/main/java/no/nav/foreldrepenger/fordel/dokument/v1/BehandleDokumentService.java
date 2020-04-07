@@ -44,7 +44,7 @@ import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebService;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.konfig.Tid;
@@ -75,14 +75,14 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
     private final HentDataFraJoarkTjeneste hentDataFraJoarkTjeneste;
     private final KlargjørForVLTjeneste klargjørForVLTjeneste;
     private final FagsakRestKlient fagsakRestKlient;
-    private final AktørConsumer aktørConsumer;
+    private final AktørConsumerMedCache aktørConsumer;
     private final ArkivTjeneste arkivTjeneste;
 
     @Inject
     public BehandleDokumentService(TilJournalføringTjeneste tilJournalføringTjeneste,
                                    HentDataFraJoarkTjeneste hentDataFraJoarkTjeneste,
                                    KlargjørForVLTjeneste klargjørForVLTjeneste, FagsakRestKlient fagsakRestKlient,
-                                   AktørConsumer aktørConsumer, ArkivTjeneste arkivTjeneste) {
+                                   AktørConsumerMedCache aktørConsumer, ArkivTjeneste arkivTjeneste) {
         this.tilJournalføringTjeneste = tilJournalføringTjeneste;
         this.hentDataFraJoarkTjeneste = hentDataFraJoarkTjeneste;
         this.klargjørForVLTjeneste = klargjørForVLTjeneste;

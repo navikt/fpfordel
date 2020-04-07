@@ -13,13 +13,21 @@ public class JournalPostMangler {
         journalMangler.add(new JournalMangel(mangelType, harJournalfoeringsbehov));
     }
 
+    public void leggTilJournalMangel(JournalMangelType mangelType, String dokumentId, boolean harJournalfoeringsbehov) {
+        journalMangler.add(new JournalMangel(mangelType, dokumentId, harJournalfoeringsbehov));
+    }
+
     public boolean harMangler() {
         return journalMangler.stream().anyMatch(JournalMangel::harJournalfoeringsbehov);
     }
 
-    public List<JournalMangelType> getMangler() {
+    public List<JournalMangelType> getMangelTyper() {
         return journalMangler.stream().filter(JournalMangel::harJournalfoeringsbehov).map(JournalMangel::getMangeltype)
                 .collect(Collectors.toList());
+    }
+
+    public List<JournalMangel> getMangler() {
+        return journalMangler.stream().filter(JournalMangel::harJournalfoeringsbehov).collect(Collectors.toList());
     }
 
     public Optional<JournalMangel> getMangel(JournalMangelType mangelType) {
@@ -27,21 +35,32 @@ public class JournalPostMangler {
                 .filter(JournalMangel::harJournalfoeringsbehov).findFirst();
     }
 
-    public void rettetMangel(JournalMangelType mangelType) {
-        getMangel(mangelType).orElseThrow(IllegalArgumentException::new).rettetMangel();
+    public void rettetMangel(JournalMangel mangel) {
+        getMangel(mangel.getMangeltype()).orElseThrow(IllegalArgumentException::new).rettetMangel();
     }
 
-    static class JournalMangel {
+    public static class JournalMangel {
         private JournalMangelType mangeltype;
+        private String dokumentId;
         private boolean harJournalfoeringsbehov;
 
-        JournalMangel(JournalMangelType mangeltype, boolean harJournalfoeringsbehov) {
+        public JournalMangel(JournalMangelType mangeltype, boolean harJournalfoeringsbehov) {
             this.mangeltype = mangeltype;
             this.harJournalfoeringsbehov = harJournalfoeringsbehov;
         }
 
-        JournalMangelType getMangeltype() {
+        public JournalMangel(JournalMangelType mangeltype, String dokumentId, boolean harJournalfoeringsbehov) {
+            this.mangeltype = mangeltype;
+            this.dokumentId = dokumentId;
+            this.harJournalfoeringsbehov = harJournalfoeringsbehov;
+        }
+
+        public JournalMangelType getMangeltype() {
             return mangeltype;
+        }
+
+        public String getDokumentId() {
+            return dokumentId;
         }
 
         boolean harJournalfoeringsbehov() {

@@ -43,6 +43,7 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Forsendelse
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
+import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -82,9 +83,10 @@ public class TilJournalføringTaskTest {
         dokumentRepositoryMock = mock(DokumentRepository.class);
         aktørConsumerMock = mock(AktørConsumerMedCache.class);
         when(aktørConsumerMock.hentPersonIdentForAktørId(AKTØR_ID)).thenReturn(Optional.of(BRUKER_FNR));
+        var personMock = mock(PersonConsumer.class);
 
         TilJournalføringTjeneste tilJournalføringTjeneste = new TilJournalføringTjeneste(journalTjenesteMock,
-                dokumentRepositoryMock);
+                dokumentRepositoryMock, aktørConsumerMock, personMock);
 
         task = new TilJournalføringTask(prosessTaskRepositoryMock, tilJournalføringTjeneste, enhetsTjenesteMock,
                 new LoggingHendelseProdusent(), dokumentRepositoryMock, aktørConsumerMock);

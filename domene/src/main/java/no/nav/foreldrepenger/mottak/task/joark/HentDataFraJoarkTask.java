@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.mottak.journal.JournalDokument;
 import no.nav.foreldrepenger.mottak.journal.JournalMetadata;
 import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
 import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
@@ -52,13 +52,13 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(HentDataFraJoarkTask.class);
 
-    private final AktørConsumer aktørConsumer;
+    private final AktørConsumerMedCache aktørConsumer;
     private final JoarkDokumentHåndterer joarkDokumentHåndterer;
     private final ArkivTjeneste arkivTjeneste;
 
     @Inject
     public HentDataFraJoarkTask(ProsessTaskRepository prosessTaskRepository,
-                                AktørConsumer aktørConsumer,
+                                AktørConsumerMedCache aktørConsumer,
                                 JoarkDokumentHåndterer joarkDokumentHåndterer,
                                 ArkivTjeneste arkivTjeneste) {
         super(prosessTaskRepository);

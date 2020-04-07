@@ -16,17 +16,17 @@ import no.nav.foreldrepenger.mottak.journal.JournalDokument;
 import no.nav.foreldrepenger.mottak.journal.JournalMetadata;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 
 @Dependent
 class JoarkDokumentHåndterer {
 
-    private final AktørConsumer aktør;
+    private final AktørConsumerMedCache aktør;
     private final HentDataFraJoarkTjeneste joark;
     private JournalDokument dokumentCached;
 
     @Inject
-    JoarkDokumentHåndterer(HentDataFraJoarkTjeneste joark, AktørConsumer aktør) {
+    JoarkDokumentHåndterer(HentDataFraJoarkTjeneste joark, AktørConsumerMedCache aktør) {
         this.joark = joark;
         this.aktør = aktør;
     }

@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
 import no.nav.foreldrepenger.mottak.task.MidlJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -60,7 +60,7 @@ public class BehandleDokumentforsendelseTaskTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     private ProsessTaskRepository prosessTaskRepository = mock(ProsessTaskRepository.class);
-    private AktørConsumer aktørConsumer = mock(AktørConsumer.class);
+    private AktørConsumerMedCache aktørConsumer = mock(AktørConsumerMedCache.class);
     private FagsakRestKlient fagsakRestKlient = mock(FagsakRestKlient.class);
     private DokumentRepository dokumentRepository = mock(DokumentRepository.class);
 

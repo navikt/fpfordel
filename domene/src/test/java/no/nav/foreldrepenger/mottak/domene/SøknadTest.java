@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.mottak.domene.v3.Søknad;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.Endringssoeknad;
 import no.nav.vedtak.felles.xml.soeknad.engangsstoenad.v3.Engangsstønad;
@@ -43,7 +43,7 @@ public class SøknadTest {
 
     Soeknad søknad;
     Bruker bruker;
-    AktørConsumer aktørConsumer;
+    AktørConsumerMedCache aktørConsumer;
     MottakMeldingDataWrapper test;
     Søknad søknadXmlWrapper;
 
@@ -54,7 +54,7 @@ public class SøknadTest {
         bruker.setAktoerId(AKTØR_ID);
         søknad.setSoeker(bruker);
         søknad.setMottattDato(LocalDate.of(2018, 3, 8));
-        aktørConsumer = mock(AktørConsumer.class);
+        aktørConsumer = mock(AktørConsumerMedCache.class);
         test = new MottakMeldingDataWrapper(new ProsessTaskData("TEST"));
         test.setAktørId(AKTØR_ID);
         søknadXmlWrapper = (Søknad) MottattStrukturertDokument.toXmlWrapper(søknad);

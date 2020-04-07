@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.Before;
@@ -67,7 +66,6 @@ import no.nav.tjeneste.virksomhet.journal.v2.meldinger.HentDokumentRequest;
 import no.nav.tjeneste.virksomhet.journal.v2.meldinger.HentDokumentResponse;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.ManglerTilgangException;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
 import no.nav.vedtak.felles.integrasjon.behandleinngaaendejournal.BehandleInngaaendeJournalConsumer;
 import no.nav.vedtak.felles.integrasjon.inngaaendejournal.InngaaendeJournalConsumer;
 import no.nav.vedtak.felles.integrasjon.journal.v2.JournalConsumer;
@@ -89,15 +87,13 @@ public class JournalTjenesteImplTest {
     private BehandleInngaaendeJournalConsumer behandleInngaaendeMock = mock(BehandleInngaaendeJournalConsumer.class);
     private MottaInngaaendeForsendelseRestKlient inngaaendeForsendelseKlient = mock(
             MottaInngaaendeForsendelseRestKlient.class);
-    private AktørConsumer aktørConsumerMock = mock(AktørConsumer.class);
 
     @Before
     public void setUp() throws Exception {
         journalTjeneste = new JournalTjeneste(journalConsumerMock,
                 inngaaendeMock,
                 behandleInngaaendeMock,
-                inngaaendeForsendelseKlient,
-                aktørConsumerMock);
+                inngaaendeForsendelseKlient);
     }
 
     @Test
@@ -375,12 +371,10 @@ public class JournalTjenesteImplTest {
         String arkivSakId = "arkivsakId";
         JournalPost journalPost = new JournalPost("id");
         journalPost.setArkivSakId(arkivSakId);
-        String aktørId = "9000000000009";
         String ar = "ARKIVREF";
-        journalPost.setAktørId(aktørId);
-        journalPost.setArkivSakSystem(ar);
         String fnr = "99999999999";
-        when(aktørConsumerMock.hentPersonIdentForAktørId(aktørId)).thenReturn(Optional.of(fnr));
+        journalPost.setFnr(fnr);
+        journalPost.setArkivSakSystem(ar);
 
         journalTjeneste.oppdaterJournalpost(journalPost);
 
@@ -400,10 +394,8 @@ public class JournalTjenesteImplTest {
             OppdaterJournalpostUgyldigInput, OppdaterJournalpostJournalpostIkkeInngaaende,
             OppdaterJournalpostObjektIkkeFunnet {
         JournalPost journalPost = new JournalPost("id");
-        String aktørId = "9000000000009";
-        journalPost.setAvsenderAktørId(aktørId);
         String fnr = "99999999999";
-        when(aktørConsumerMock.hentPersonIdentForAktørId(aktørId)).thenReturn(Optional.of(fnr));
+        journalPost.setAvsenderFnr(fnr);
 
         journalTjeneste.oppdaterJournalpost(journalPost);
 

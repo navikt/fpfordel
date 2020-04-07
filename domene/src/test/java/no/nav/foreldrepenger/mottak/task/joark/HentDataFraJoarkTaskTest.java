@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.mottak.journal.JournalDokument;
 import no.nav.foreldrepenger.mottak.journal.JournalMetadata;
 import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -50,7 +50,7 @@ public class HentDataFraJoarkTaskTest {
     private JoarkDokumentHåndterer joarkDokumentHåndterer;
 
     @Mock
-    private AktørConsumer aktørConsumer;
+    private AktørConsumerMedCache aktørConsumer;
     private JoarkTestsupport joarkTestsupport = new JoarkTestsupport();
 
     @Before

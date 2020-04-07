@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
 import no.nav.foreldrepenger.mottak.klient.VurderFagsystemResultat;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -51,14 +51,14 @@ public class OpprettSakTaskTest {
     private FagsakRestKlient fagsakRestKlient;
 
     @Mock
-    private AktørConsumer aktørConsumer;
+    private AktørConsumerMedCache aktørConsumer;
 
     private OpprettSakTask task;
 
     @Before
     public void setUp() throws Exception {
         prosessTaskRepositoryMock = mock(ProsessTaskRepository.class);
-        aktørConsumer = mock(AktørConsumer.class);
+        aktørConsumer = mock(AktørConsumerMedCache.class);
         when(aktørConsumer.hentAktørIdForPersonIdent(FNR)).thenReturn(Optional.of(AKTØR_ID));
         fagsakRestKlient = mock(FagsakRestKlient.class);
         VurderFagsystemResultat vurderFagsystemRespons = new VurderFagsystemResultat();

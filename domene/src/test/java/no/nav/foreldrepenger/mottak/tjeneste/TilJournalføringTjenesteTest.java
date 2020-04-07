@@ -30,6 +30,8 @@ import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.Dokumentforsende
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseResponse;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseTestUtil;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.JournalTilstand;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
+import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
 
 public class TilJournalføringTjenesteTest {
 
@@ -51,7 +53,9 @@ public class TilJournalføringTjenesteTest {
         mockJournalTjeneste = mock(JournalTjeneste.class);
         mockDokumentRepository = mock(DokumentRepository.class);
         when(mockJournalTjeneste.utledJournalføringsbehov(anyString())).thenReturn(mockJournalføringsbehov);
-        tilJournalføringTjeneste = new TilJournalføringTjeneste(mockJournalTjeneste, mockDokumentRepository);
+        var personMock = mock(PersonConsumer.class);
+        var aktørMock = mock(AktørConsumerMedCache.class);
+        tilJournalføringTjeneste = new TilJournalføringTjeneste(mockJournalTjeneste, mockDokumentRepository, aktørMock, personMock);
     }
 
     @Test
@@ -69,7 +73,8 @@ public class TilJournalføringTjenesteTest {
     public void skal_ferdigstille_journalføring_hvis_kan_rette_mangler() {
 
         when(mockJournalføringsbehov.harMangler()).thenReturn(true).thenReturn(false);
-        List<JournalPostMangler.JournalMangelType> mockMangler = List.of(JournalPostMangler.JournalMangelType.ARKIVSAK, JournalPostMangler.JournalMangelType.INNHOLD);
+        List<JournalPostMangler.JournalMangel> mockMangler = List.of(new JournalPostMangler.JournalMangel(JournalPostMangler.JournalMangelType.ARKIVSAK, true),
+                new JournalPostMangler.JournalMangel(JournalPostMangler.JournalMangelType.INNHOLD, false));
         when(mockJournalføringsbehov.getMangler()).thenReturn(mockMangler);
 
         tilJournalføringTjeneste.tilJournalføring(ARKIV_ID, SAK_ID, AKTØR_ID, ENHET_ID, INNHOLD);
@@ -91,7 +96,8 @@ public class TilJournalføringTjenesteTest {
         JournalPostMangler journalPostMangler = new JournalPostMangler();
         journalPostMangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.ARKIVSAK, true);
         journalPostMangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.BRUKER, false);
-        journalPostMangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.HOVEDOK_TITTEL, true);
+        journalPostMangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.HOVEDOK_TITTEL, "123", true);
+        journalPostMangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.HOVEDOK_KATEGORI, "123", true);
         when(mockJournalTjeneste.utledJournalføringsbehov(any())).thenReturn(journalPostMangler);
 
         boolean resultat = tilJournalføringTjeneste.tilJournalføring(ARKIV_ID, SAK_ID, AKTØR_ID, ENHET_ID, INNHOLD);
