@@ -40,7 +40,7 @@ import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
@@ -51,7 +51,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.behandleDokumentForsendelse";
 
-    private final AktørConsumer aktørConsumer;
+    private final AktørConsumerMedCache aktørConsumer;
     private final FagsakRestKlient fagsakRestKlient;
     private final DokumentRepository dokumentRepository;
     private static final LocalDate konfigVerdiStartdatoForeldrepenger = KonfigVerdier.ENDRING_BEREGNING_DATO;
@@ -60,7 +60,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     @Inject
     public BehandleDokumentforsendelseTask(ProsessTaskRepository prosessTaskRepository,
-            AktørConsumer aktørConsumer,
+                                           AktørConsumerMedCache aktørConsumer,
             FagsakRestKlient fagsakRestKlient,
             DokumentRepository dokumentRepository) {
         super(prosessTaskRepository);

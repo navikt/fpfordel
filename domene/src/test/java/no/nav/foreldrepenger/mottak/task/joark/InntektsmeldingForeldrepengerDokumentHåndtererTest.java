@@ -35,7 +35,7 @@ import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.JournalDokument;
 import no.nav.foreldrepenger.mottak.journal.JournalMetadata;
 import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -60,7 +60,7 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
 
         ProsessTaskRepository ptr = mock(ProsessTaskRepository.class);
         håndterer = mock(JoarkDokumentHåndterer.class);
-        AktørConsumer aktørConsumer = mock(AktørConsumer.class);
+        AktørConsumerMedCache aktørConsumer = mock(AktørConsumerMedCache.class);
         joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, aktørConsumer, håndterer, mock(ArkivTjeneste.class)));
         when(håndterer.hentGyldigAktørFraMetadata(any())).thenReturn(Optional.of(AKTØR_ID));
         when(håndterer.hentGyldigAktørFraPersonident(any())).thenReturn(Optional.of(AKTØR_ID));

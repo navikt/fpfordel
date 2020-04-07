@@ -20,6 +20,13 @@ import no.nav.foreldrepenger.mottak.journal.JournalPostMangler;
 import no.nav.foreldrepenger.mottak.journal.JournalTjeneste;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseRequest;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseResponse;
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent;
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent;
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personidenter;
+import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest;
+import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
+import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
 
 @ApplicationScoped
 public class TilJournalføringTjeneste {
@@ -28,11 +35,16 @@ public class TilJournalføringTjeneste {
 
     private JournalTjeneste journal;
     private DokumentRepository dokumentRepository;
+    private AktørConsumerMedCache aktørConsumer;
+    private PersonConsumer personConsumer;
 
     @Inject
-    public TilJournalføringTjeneste(JournalTjeneste journalTjeneste, DokumentRepository dokumentRepository) {
+    public TilJournalføringTjeneste(JournalTjeneste journalTjeneste, DokumentRepository dokumentRepository,
+                                    AktørConsumerMedCache aktørConsumer, PersonConsumer personConsumer) {
         this.journal = journalTjeneste;
         this.dokumentRepository = dokumentRepository;
+        this.aktørConsumer = aktørConsumer;
+        this.personConsumer = personConsumer;
     }
 
     public TilJournalføringTjeneste() {
@@ -95,19 +107,23 @@ public class TilJournalføringTjeneste {
     private boolean retteOppMangler(String sakId, String arkivId, String aktørId, String innhold,
             JournalPostMangler journalføringsbehov) {
         final JournalPost journalPost = new JournalPost(arkivId);
-        List<JournalPostMangler.JournalMangelType> manglene = journalføringsbehov.getMangler();
-        for (JournalPostMangler.JournalMangelType mangel : manglene) {
-            switch (mangel) {
+        List<JournalPostMangler.JournalMangel> manglene = journalføringsbehov.getMangler();
+        var fnr = aktørConsumer.hentPersonIdentForAktørId(aktørId).orElse(null);
+        for (JournalPostMangler.JournalMangel mangel : manglene) {
+            switch (mangel.getMangeltype()) {
             case ARKIVSAK:
                 journalPost.setArkivSakId(sakId);
                 journalPost.setArkivSakSystem(Fagsystem.GOSYS.getKode());
                 journalføringsbehov.rettetMangel(mangel);
                 break;
             case AVSENDERID:
-                journalPost.setAvsenderAktørId(aktørId);
+                journalPost.setAvsenderFnr(fnr);
                 journalføringsbehov.rettetMangel(mangel);
                 break;
             case AVSENDERNAVN:
+                journalPost.setAvsenderFnr(fnr);
+                journalPost.setAvsenderNavn(brukersNavn(fnr));
+                journalføringsbehov.rettetMangel(mangel);
                 break;
             case INNHOLD:
                 journalPost.setInnhold(innhold);
@@ -116,9 +132,14 @@ public class TilJournalføringTjeneste {
             case TEMA:
                 break;
             case BRUKER:
-                journalPost.setAktørId(aktørId);
+                journalPost.setFnr(fnr);
                 journalføringsbehov.rettetMangel(mangel);
                 break;
+             case HOVEDOK_TITTEL:
+                 journalPost.setHovedDokumentTittel(innhold);
+                 journalPost.setHovedDokumentId(mangel.getDokumentId());
+                 journalføringsbehov.rettetMangel(mangel);
+                 break;
             default:
                 // Too be implemented
                 break;
@@ -128,10 +149,30 @@ public class TilJournalføringTjeneste {
         journal.oppdaterJournalpost(journalPost);
 
         if (journalføringsbehov.harMangler()) {
-            String mangler = journalføringsbehov.getMangler().toString();
+            String mangler = journalføringsbehov.getMangelTyper().toString();
             LOG.info("Journalpost resterende mangler: arkivsak {} mangler {}", arkivId, mangler);
         }
 
         return journalføringsbehov.harMangler();
+    }
+
+    private String brukersNavn(String fnr) {
+        if (fnr == null)
+            return null;
+        PersonIdent personIdent = new PersonIdent();
+        NorskIdent norskIdent = new NorskIdent();
+        norskIdent.setIdent(fnr);
+        Personidenter type = new Personidenter();
+        type.setValue(fnr.charAt(0) >= '4' && fnr.charAt(0) <= '7' ? "DNR" : "FNR");
+        norskIdent.setType(type);
+        personIdent.setIdent(norskIdent);
+        HentPersonRequest request = new HentPersonRequest();
+        request.setAktoer(personIdent);
+        try {
+            HentPersonResponse response = personConsumer.hentPersonResponse(request);
+            return response.getPerson().getPersonnavn().getSammensattNavn();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Fant ikke person", e);
+        }
     }
 }

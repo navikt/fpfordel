@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
 import no.nav.foreldrepenger.mottak.journal.saf.model.VariantFormat;
 import no.nav.foreldrepenger.mottak.task.KlargjorForVLTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 
 @ApplicationScoped
 public class ArkivTjeneste {
@@ -35,14 +35,14 @@ public class ArkivTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(ArkivTjeneste.class);
 
     private SafTjeneste safTjeneste;
-    private AktørConsumer aktørConsumer;
+    private AktørConsumerMedCache aktørConsumer;
 
     ArkivTjeneste() {
         // CDI
     }
 
     @Inject
-    public ArkivTjeneste(SafTjeneste safTjeneste, AktørConsumer aktørConsumer) {
+    public ArkivTjeneste(SafTjeneste safTjeneste, AktørConsumerMedCache aktørConsumer) {
         this.safTjeneste = safTjeneste;
         this.aktørConsumer = aktørConsumer;
     }

@@ -189,8 +189,8 @@ public class JournalTjenesteUtilTest {
 
         JournalPostMangler resultat = tjenesteUtil.konverterTilJournalmangler(journalpostMangler);
         assertThat(resultat.harMangler()).isTrue();
-        assertThat(resultat.getMangler()).isNotEmpty();
-        List<JournalPostMangler.JournalMangelType> mangler = resultat.getMangler();
+        assertThat(resultat.getMangelTyper()).isNotEmpty();
+        List<JournalPostMangler.JournalMangelType> mangler = resultat.getMangelTyper();
         assertThat(mangler).contains(JournalPostMangler.JournalMangelType.ARKIVSAK);
         assertThat(mangler).contains(JournalPostMangler.JournalMangelType.BRUKER);
         assertThat(mangler).contains(JournalPostMangler.JournalMangelType.INNHOLD);

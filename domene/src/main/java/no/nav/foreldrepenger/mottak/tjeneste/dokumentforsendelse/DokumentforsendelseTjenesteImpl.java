@@ -30,7 +30,7 @@ import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
@@ -44,14 +44,14 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
 
     private DokumentRepository repository;
     private ProsessTaskRepository prosessTaskRepository;
-    private AktørConsumer aktørConsumer;
+    private AktørConsumerMedCache aktørConsumer;
 
     public DokumentforsendelseTjenesteImpl() {
     }
 
     @Inject
     public DokumentforsendelseTjenesteImpl(DokumentRepository repository,
-            ProsessTaskRepository prosessTaskRepository, AktørConsumer aktørConsumer) {
+            ProsessTaskRepository prosessTaskRepository, AktørConsumerMedCache aktørConsumer) {
         this.repository = repository;
         this.prosessTaskRepository = prosessTaskRepository;
         this.aktørConsumer = aktørConsumer;

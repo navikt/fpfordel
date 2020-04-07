@@ -125,7 +125,7 @@ class JournalTjenesteUtil {
                 journalpostMangler.getTema() == Journalfoeringsbehov.MANGLER);
         mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.HOVEDOK_KATEGORI,
                 journalpostMangler.getHoveddokument().getDokumentkategori() == Journalfoeringsbehov.MANGLER);
-        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.HOVEDOK_TITTEL,
+        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.HOVEDOK_TITTEL, journalpostMangler.getHoveddokument().getDokumentId(),
                 journalpostMangler.getHoveddokument().getTittel() == Journalfoeringsbehov.MANGLER);
         mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.VEDLEGG_KATEGORI,
                 journalpostMangler.getVedleggListe().stream()

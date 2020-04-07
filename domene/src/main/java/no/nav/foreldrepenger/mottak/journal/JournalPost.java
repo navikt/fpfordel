@@ -6,14 +6,16 @@ import java.util.Optional;
 public class JournalPost {
 
     private final String journalpostId;
-
     private String innhold;
     private String arkivSakId;
     private String arkivSakSystem;
     private LocalDateTime forsendelseInnsendt;
     private String tema;
-    private String aktørId;
-    private String avsenderAktørId;
+    private String fnr;
+    private String avsenderFnr;
+    private String avsenderNavn;
+    private String hovedDokumentId;
+    private String hovedDokumentTittel;
 
     public JournalPost(String journalpostId) {
         this.journalpostId = journalpostId;
@@ -63,19 +65,43 @@ public class JournalPost {
         this.tema = tema;
     }
 
-    public String getAktørId() {
-        return aktørId;
+    public String getFnr() {
+        return fnr;
     }
 
-    public void setAktørId(String aktørId) {
-        this.aktørId = aktørId;
+    public void setFnr(String fnr) {
+        this.fnr = fnr;
     }
 
-    public String getAvsenderAktørId() {
-        return avsenderAktørId;
+    public String getAvsenderFnr() {
+        return avsenderFnr;
     }
 
-    public void setAvsenderAktørId(String avsenderAktørId) {
-        this.avsenderAktørId = avsenderAktørId;
+    public void setAvsenderFnr(String avsenderFnr) {
+        this.avsenderFnr = avsenderFnr;
+    }
+
+    public String getAvsenderNavn() {
+        return avsenderNavn;
+    }
+
+    public void setAvsenderNavn(String avsenderNavn) {
+        this.avsenderNavn = avsenderNavn;
+    }
+
+    public String getHovedDokumentId() {
+        return hovedDokumentId;
+    }
+
+    public void setHovedDokumentId(String hovedDokumentId) {
+        this.hovedDokumentId = hovedDokumentId;
+    }
+
+    public String getHovedDokumentTittel() {
+        return hovedDokumentTittel;
+    }
+
+    public void setHovedDokumentTittel(String hovedDokumentTittel) {
+        this.hovedDokumentTittel = hovedDokumentTittel;
     }
 }

@@ -44,7 +44,7 @@ import no.nav.foreldrepenger.mottak.tjeneste.TilJournalføringTjeneste;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.OppdaterOgFerdigstillJournalfoeringUgyldigInput;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.meldinger.OppdaterOgFerdigstillJournalfoeringRequest;
 import no.nav.vedtak.exception.FunksjonellException;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 
 public class BehandleDokumentServiceTest {
 
@@ -67,7 +67,7 @@ public class BehandleDokumentServiceTest {
     private HentDataFraJoarkTjeneste hentDataFraJoarkTjenesteMock;
     private KlargjørForVLTjeneste klargjørForVLTjenesteMock;
     private FagsakRestKlient fagsakRestKlientMock;
-    private AktørConsumer aktørConsumer;
+    private AktørConsumerMedCache aktørConsumer;
 
     private BehandlingTema engangsstønadFødsel;
     private BehandlingTema foreldrepengerFødsel;
@@ -107,7 +107,7 @@ public class BehandleDokumentServiceTest {
         tilJournalføringTjenesteMock = mock(TilJournalføringTjeneste.class);
         klargjørForVLTjenesteMock = mock(KlargjørForVLTjeneste.class);
 
-        aktørConsumer = mock(AktørConsumer.class);
+        aktørConsumer = mock(AktørConsumerMedCache.class);
         when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.empty());
         when(aktørConsumer.hentAktørIdForPersonIdent(BRUKER_FNR)).thenReturn(Optional.of(AKTØR_ID));
         var arkivTjeneste = mock(ArkivTjeneste.class);
