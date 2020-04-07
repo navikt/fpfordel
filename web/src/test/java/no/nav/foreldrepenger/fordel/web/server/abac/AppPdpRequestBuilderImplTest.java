@@ -76,7 +76,7 @@ public class AppPdpRequestBuilderImplTest {
     private AbacAttributtSamling byggAbacAttributtSamling() {
         AbacAttributtSamling attributtSamling = AbacAttributtSamling.medJwtToken(DUMMY_ID_TOKEN);
         attributtSamling.setActionType(BeskyttetRessursActionAttributt.READ);
-        attributtSamling.setResource(BeskyttetRessursResourceAttributt.FAGSAK);
+        attributtSamling.setResource(BeskyttetRessursResourceAttributt.FAGSAK.getEksternKode());
         return attributtSamling;
     }
 }

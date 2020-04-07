@@ -34,6 +34,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.VariantFormat;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
+import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.JournalDokument;
 import no.nav.foreldrepenger.mottak.journal.JournalMetadata;
 import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
@@ -109,10 +110,10 @@ public class BehandleDokumentServiceTest {
         aktørConsumer = mock(AktørConsumer.class);
         when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.empty());
         when(aktørConsumer.hentAktørIdForPersonIdent(BRUKER_FNR)).thenReturn(Optional.of(AKTØR_ID));
-
+        var arkivTjeneste = mock(ArkivTjeneste.class);
         behandleDokumentService = new BehandleDokumentService(tilJournalføringTjenesteMock,
                 hentDataFraJoarkTjenesteMock, klargjørForVLTjenesteMock,
-                fagsakRestKlientMock, aktørConsumer);
+                fagsakRestKlientMock, aktørConsumer, arkivTjeneste);
     }
 
     @Test
