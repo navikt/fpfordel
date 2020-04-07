@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.kodeverdi.VariantFormat;
 import no.nav.foreldrepenger.mottak.journal.JournalDokument;
 import no.nav.foreldrepenger.mottak.journal.JournalMetadata;
@@ -131,12 +130,12 @@ public class HentDataFraJoarkTjeneste {
                 .findFirst();
     }
 
-    public static BehandlingTema korrigerBehandlingTemaFraDokumentType(Tema tema, BehandlingTema behandlingTema,
-            DokumentTypeId dokumentTypeId) {
+    public static BehandlingTema korrigerBehandlingTemaFraDokumentType(BehandlingTema behandlingTema,
+                                                                       DokumentTypeId dokumentTypeId) {
         if (behandlingTema == null) {
             behandlingTema = BehandlingTema.UDEFINERT;
         }
-        if (!Tema.OMS.equals(tema) && BehandlingTema.ikkeSpesifikkHendelse(behandlingTema)) {
+        if (BehandlingTema.ikkeSpesifikkHendelse(behandlingTema)) {
             if (DokumentTypeId.erForeldrepengerRelatert(dokumentTypeId)) {
                 behandlingTema = BehandlingTema.FORELDREPENGER;
                 if (DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.equals(dokumentTypeId)) {

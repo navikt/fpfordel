@@ -234,25 +234,6 @@ public class HentDataFraJoarkTaskTest {
     }
 
     @Test
-    public void skal_sende_til_manuell_hvis_annet_tema() throws Exception {
-        JournalMetadata dokument = joarkTestsupport
-                .lagJournalMetadataStrukturert(DokumentTypeId.INNTEKTSMELDING);
-        List<JournalMetadata> metadata = Collections.singletonList(dokument);
-        String xml = joarkTestsupport.readFile("testsoknader/inntektsmelding-manual-sample.xml");
-        JournalDokument jdMock = new JournalDokument(dokument, xml);
-        doReturn(metadata).when(joarkDokumentHåndterer).hentJoarkDokumentMetadata(ARKIV_ID);
-        doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(joarkDokumentHåndterer)
-                .hentGyldigAktørFraPersonident(any());
-        doReturn(jdMock).when(joarkDokumentHåndterer).hentJournalDokument(any());
-
-        dataWrapper.setBehandlingTema(BehandlingTema.UDEFINERT);
-        dataWrapper.setTema(Tema.OMS);
-        MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
-
-        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
-    }
-
-    @Test
     public void skal_sende_inntektsmelding_for_far_til_sjekk_vl() throws Exception {
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);

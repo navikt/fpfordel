@@ -9,7 +9,6 @@ import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.FORSE
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.FORSENDELSE_MOTTATT_TIDSPUNKT_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.JOURNAL_ENHET;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.SAKSNUMMER_KEY;
-import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.TEMA_KEY;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -61,7 +60,6 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     private static final PrioritetKode PRIORITET_KODE = PrioritetKode.NORM_FOR;
     private static final boolean IKKE_LEST = false;
     private static final Logger log = LoggerFactory.getLogger(OpprettGSakOppgaveTask.class);
-    private static final String JFR_OMS = "JFR_OMS";
 
     /**
      * Journalføring foreldrepenger - JFR_FOR er ikke dokumentert i
@@ -92,9 +90,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
                 Optional.ofNullable(prosessTaskData.getPropertyValue(BEHANDLINGSTEMA_KEY)));
         DokumentTypeId dokumentTypeId = Optional.ofNullable(prosessTaskData.getPropertyValue(DOKUMENTTYPE_ID_KEY))
                 .map(DokumentTypeId::fraKodeDefaultUdefinert).orElse(DokumentTypeId.UDEFINERT);
-        Tema tema = Optional.ofNullable(prosessTaskData.getPropertyValue(TEMA_KEY))
-                .map(Tema::fraKodeDefaultUdefinert).orElse(Tema.UDEFINERT);
-        behandlingTema = HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(tema, behandlingTema, dokumentTypeId);
+        behandlingTema = HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(behandlingTema, dokumentTypeId);
 
         WSOpprettOppgaveResponse oppgaveResponse = opprettOppgave(prosessTaskData, behandlingTema, dokumentTypeId);
 
@@ -149,7 +145,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
         // Overstyr saker fra NFP+NK, deretter egen logikk hvis fødselsnummer ikke er
         // oppgitt
-        final String enhetId = enhetsidTjeneste.hentFordelingEnhetId(hentUtTema(prosessTaskData), behandlingTema,
+        final String enhetId = enhetsidTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, behandlingTema,
                 Optional.ofNullable(enhetInput), fødselsnr, annenpartFnr);
         final String beskrivelse = lagBeskrivelse(behandlingTema, dokumentTypeId, prosessTaskData);
 
@@ -213,28 +209,17 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
     private void setFagområdeOgPrioritet(ProsessTaskInfo info, OpprettOppgaveRequest.Builder builder,
             BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId) {
-        Tema tema = hentUtTema(info);
-        if (Tema.FORELDRE_OG_SVANGERSKAPSPENGER.equals(tema)) {
-            builder.medFagomradeKode(FAGOMRADE_KODE.toString())
-                    .medPrioritetKode(PRIORITET_KODE.toString())
-                    .medOppgavetypeKode(JFR_FOR);
-            if (BehandlingTema.gjelderForeldrepenger(behandlingTema) || DokumentTypeId.erForeldrepengerRelatert(dokumentTypeId)) {
-                builder.medUnderkategoriKode("FORELDREPE_FOR");
-            } else if (BehandlingTema.gjelderEngangsstønad(behandlingTema) || DokumentTypeId.erEngangsstønadRelatert(dokumentTypeId)) {
-                builder.medUnderkategoriKode("ENGANGSST_FOR");
-            } else if (BehandlingTema.gjelderSvangerskapspenger(behandlingTema)
-                    || DokumentTypeId.erSvangerskapspengerRelatert(dokumentTypeId)) {
-                builder.medUnderkategoriKode("SVANGERSKAPSPE_FOR");
-            }
-        } else if (Tema.OMS.equals(tema)) {
-            builder.medFagomradeKode(FagomradeKode.OMS.getKode())
-                    .medPrioritetKode(PrioritetKode.NORM_OMS.toString())
-                    .medOppgavetypeKode(JFR_OMS);
+        builder.medFagomradeKode(FAGOMRADE_KODE.toString())
+                .medPrioritetKode(PRIORITET_KODE.toString())
+                .medOppgavetypeKode(JFR_FOR);
+        if (BehandlingTema.gjelderForeldrepenger(behandlingTema) || DokumentTypeId.erForeldrepengerRelatert(dokumentTypeId)) {
+            builder.medUnderkategoriKode("FORELDREPE_FOR");
+        } else if (BehandlingTema.gjelderEngangsstønad(behandlingTema) || DokumentTypeId.erEngangsstønadRelatert(dokumentTypeId)) {
+            builder.medUnderkategoriKode("ENGANGSST_FOR");
+        } else if (BehandlingTema.gjelderSvangerskapspenger(behandlingTema)
+                || DokumentTypeId.erSvangerskapspengerRelatert(dokumentTypeId)) {
+            builder.medUnderkategoriKode("SVANGERSKAPSPE_FOR");
         }
-    }
-
-    private Tema hentUtTema(ProsessTaskInfo info) {
-        return Tema.fraKodeDefaultUdefinert(info.getProperties().getProperty(MottakMeldingDataWrapper.TEMA_KEY, "-"));
     }
 
     // Sett frist til mandag hvis fristen er i helgen.

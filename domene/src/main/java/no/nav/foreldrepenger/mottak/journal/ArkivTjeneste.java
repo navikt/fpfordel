@@ -124,7 +124,7 @@ public class ArkivTjeneste {
         throw new IllegalArgumentException("Ukjent brukerType=" + bruker.getType());
     }
 
-    public void loggSammenligning(MottakMeldingDataWrapper wrapper, Optional<String> brukerFraArkiv) {
+    public Optional<DokumentTypeId> loggSammenligning(MottakMeldingDataWrapper wrapper, Optional<String> brukerFraArkiv) {
         try {
             var ajp = hentArkivJournalpost(wrapper.getArkivId());
             if (DokumentTypeId.INNTEKTSMELDING.equals(ajp.getHovedtype())) {
@@ -155,9 +155,30 @@ public class ArkivTjeneste {
                     wrapper.getArkivId(), ajp.getHovedtype(), wrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT), ajp.getTilstand());
 
             if (MapNAVSkjemaDokumentTypeId.dokumentTypeRank(ajp.getHovedtype()) < MapNAVSkjemaDokumentTypeId.dokumentTypeRank(wrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT)))
-                wrapper.setDokumentTypeId(ajp.getHovedtype());
+                return Optional.of(ajp.getHovedtype());
+
         } catch (Exception e) {
             LOG.info("Noe rart skjedde", e);
         }
+        return Optional.empty();
+    }
+
+    public Optional<DokumentTypeId> loggSammenligningManuell(String journalpostId, DokumentTypeId dokumentTypeId) {
+        try {
+            var ajp = hentArkivJournalpost(journalpostId);
+            if (!Objects.equals(ajp.getHovedtype(), dokumentTypeId))
+                LOG.info("FPFORDEL SAF manuell avvik journalpost {} dokumenttypeid SAF {} IJ {} allesaf {}",
+                        journalpostId, ajp.getHovedtype(), dokumentTypeId, ajp.getAlleTyper());
+
+            LOG.info("FPFORDEL SAF manuell sammenlign journalpost {} dokumenttypeid SAF {} IJ {} tilstandSAF {}",
+                    journalpostId, ajp.getHovedtype(), dokumentTypeId, ajp.getTilstand());
+
+            if (MapNAVSkjemaDokumentTypeId.dokumentTypeRank(ajp.getHovedtype()) < MapNAVSkjemaDokumentTypeId.dokumentTypeRank(dokumentTypeId))
+                return Optional.of(ajp.getHovedtype());
+
+        } catch (Exception e) {
+            LOG.info("Noe rart skjedde", e);
+        }
+        return Optional.empty();
     }
 }

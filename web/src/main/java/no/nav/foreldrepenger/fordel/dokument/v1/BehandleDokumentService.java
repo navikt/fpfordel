@@ -17,12 +17,12 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
+import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.JournalDokument;
 import no.nav.foreldrepenger.mottak.journal.JournalMetadata;
 import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
@@ -76,17 +76,19 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
     private final KlargjørForVLTjeneste klargjørForVLTjeneste;
     private final FagsakRestKlient fagsakRestKlient;
     private final AktørConsumer aktørConsumer;
+    private final ArkivTjeneste arkivTjeneste;
 
     @Inject
     public BehandleDokumentService(TilJournalføringTjeneste tilJournalføringTjeneste,
-            HentDataFraJoarkTjeneste hentDataFraJoarkTjeneste,
-            KlargjørForVLTjeneste klargjørForVLTjeneste, FagsakRestKlient fagsakRestKlient,
-            AktørConsumer aktørConsumer) {
+                                   HentDataFraJoarkTjeneste hentDataFraJoarkTjeneste,
+                                   KlargjørForVLTjeneste klargjørForVLTjeneste, FagsakRestKlient fagsakRestKlient,
+                                   AktørConsumer aktørConsumer, ArkivTjeneste arkivTjeneste) {
         this.tilJournalføringTjeneste = tilJournalføringTjeneste;
         this.hentDataFraJoarkTjeneste = hentDataFraJoarkTjeneste;
         this.klargjørForVLTjeneste = klargjørForVLTjeneste;
         this.fagsakRestKlient = fagsakRestKlient;
         this.aktørConsumer = aktørConsumer;
+        this.arkivTjeneste = arkivTjeneste;
     }
 
     @Override
@@ -125,13 +127,14 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
         Optional<JournalMetadata> optJournalMetadata = hentJournalMetadata(arkivId);
         final JournalMetadata journalMetadata = optJournalMetadata.get();
-        final DokumentTypeId dokumentTypeId = journalMetadata.getDokumentTypeId() != null
+        final DokumentTypeId dokumentTypeIdJ = journalMetadata.getDokumentTypeId() != null
                 ? journalMetadata.getDokumentTypeId()
                 : DokumentTypeId.UDEFINERT;
+        final DokumentTypeId dokumentTypeId = arkivTjeneste.loggSammenligningManuell(arkivId, dokumentTypeIdJ).orElse(dokumentTypeIdJ);
         final DokumentKategori dokumentKategori = journalMetadata.getDokumentKategori()
                 .orElse(DokumentKategori.UDEFINERT);
         behandlingTema = HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(
-                Tema.FORELDRE_OG_SVANGERSKAPSPENGER, behandlingTema, dokumentTypeId);
+                behandlingTema, dokumentTypeId);
 
         validerKanJournalføres(behandlingTema, dokumentTypeId, dokumentKategori);
 

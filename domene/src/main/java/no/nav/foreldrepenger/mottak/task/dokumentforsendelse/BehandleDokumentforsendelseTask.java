@@ -118,8 +118,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         AtomicReference<BehandlingTema> behandlingTema = new AtomicReference<>();
 
         hovedDokumentOpt.ifPresent(dokument::set);
-        behandlingTema.set(HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(
-                dataWrapper.getHarTema() ? dataWrapper.getTema() : null, BehandlingTema.UDEFINERT,
+        behandlingTema.set(HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(BehandlingTema.UDEFINERT,
                 hovedDokumentOpt.map(Dokument::getDokumentTypeId).orElse(DokumentTypeId.UDEFINERT)));
         BehandlingTema tema = behandlingTema.get();
         dataWrapper.setBehandlingTema(tema);

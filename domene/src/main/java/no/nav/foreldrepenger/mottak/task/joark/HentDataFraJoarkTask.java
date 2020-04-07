@@ -100,7 +100,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         dataWrapper.setDokumentTypeId(dokumentTypeId);
         HentDataFraJoarkTjeneste.hentDokumentKategori(hoveddokumenter).ifPresent(dataWrapper::setDokumentKategori);
         dataWrapper.setBehandlingTema(HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(
-                dataWrapper.getTema(), dataWrapper.getBehandlingTema(), dokumentTypeId));
+                dataWrapper.getBehandlingTema(), dokumentTypeId));
         dataWrapper.setForsendelseMottattTidspunkt(
                 HentDataFraJoarkTjeneste.hentForsendelseMottattTidspunkt(hoveddokumenter));
         HentDataFraJoarkTjeneste.hentJournalførendeEnhet(hoveddokumenter)
@@ -133,7 +133,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         }
 
         // Videre håndtering
-        arkivTjeneste.loggSammenligning(dataWrapper, brukerFraArkiv);
+        arkivTjeneste.loggSammenligning(dataWrapper, brukerFraArkiv).ifPresent(dataWrapper::setDokumentTypeId);
         return dataWrapper.nesteSteg(HentOgVurderVLSakTask.TASKNAME);
     }
 
