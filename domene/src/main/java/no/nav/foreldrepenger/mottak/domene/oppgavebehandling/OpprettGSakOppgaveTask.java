@@ -26,11 +26,14 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.fordel.kodeverdi.Temagruppe;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
+import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.rest.OppgaveRestKlient;
+import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.rest.OpprettOppgave;
+import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.rest.Prioritet;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.task.SlettForsendelseTask;
 import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
-import no.nav.tjeneste.virksomhet.behandleoppgave.v1.meldinger.WSOpprettOppgaveResponse;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.behandleoppgave.BehandleoppgaveConsumer;
 import no.nav.vedtak.felles.integrasjon.behandleoppgave.BrukerType;
@@ -72,16 +75,19 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     private final EnhetsTjeneste enhetsidTjeneste;
     private final AktørConsumerMedCache aktørConsumer;
     private final ProsessTaskRepository prosessTaskRepository;
+    private final OppgaveRestKlient restKlient;
 
     @Inject
     public OpprettGSakOppgaveTask(ProsessTaskRepository prosessTaskRepository,
-            BehandleoppgaveConsumer service,
-            EnhetsTjeneste enhetsidTjeneste,
-            AktørConsumerMedCache aktørConsumer) {
+                                  BehandleoppgaveConsumer service,
+                                  EnhetsTjeneste enhetsidTjeneste,
+                                  AktørConsumerMedCache aktørConsumer,
+                                  OppgaveRestKlient restKlient) {
         this.service = service;
         this.enhetsidTjeneste = enhetsidTjeneste;
         this.aktørConsumer = aktørConsumer;
         this.prosessTaskRepository = prosessTaskRepository;
+        this.restKlient = restKlient;
     }
 
     @Override
@@ -92,9 +98,8 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
                 .map(DokumentTypeId::fraKodeDefaultUdefinert).orElse(DokumentTypeId.UDEFINERT);
         behandlingTema = HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(behandlingTema, dokumentTypeId);
 
-        WSOpprettOppgaveResponse oppgaveResponse = opprettOppgave(prosessTaskData, behandlingTema, dokumentTypeId);
+        String oppgaveId = opprettOppgave(prosessTaskData, behandlingTema, dokumentTypeId);
 
-        String oppgaveId = oppgaveResponse.getOppgaveId();
         log.info("Oppgave opprettet i Gosys med nummer: {}", oppgaveId);
 
         String forsendelseIdString = prosessTaskData.getPropertyValue(FORSENDELSE_ID_KEY);
@@ -135,7 +140,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
      * fordelingsopgpave. Fordelingsoppgave er ikke lenger i bruk. EnhetsId til
      * andre oppgaver skal hentes fra ekstern tjeneste.
      */
-    private WSOpprettOppgaveResponse opprettOppgave(ProsessTaskData prosessTaskData, BehandlingTema behandlingTema,
+    private String opprettOppgave(ProsessTaskData prosessTaskData, BehandlingTema behandlingTema,
             DokumentTypeId dokumentTypeId) {
         final Optional<String> fødselsnr = hentPersonidentifikatorFraTaskData(prosessTaskData.getAktørId());
         final Optional<String> annenpartFnr = hentAnnenPartFraTaskData(prosessTaskData);
@@ -149,10 +154,33 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
                 Optional.ofNullable(enhetInput), fødselsnr, annenpartFnr);
         final String beskrivelse = lagBeskrivelse(behandlingTema, dokumentTypeId, prosessTaskData);
 
+        try {
+            var request = OpprettOppgave.getBuilder()
+                    .medAktoerId(prosessTaskData.getAktørId())
+                    .medSaksreferanse(prosessTaskData.getPropertyValue(SAKSNUMMER_KEY))
+                    .medTildeltEnhetsnr(enhetId)
+                    .medOpprettetAvEnhetsnr(enhetId)
+                    .medJournalpostId(arkivId)
+                    .medAktivDato(LocalDate.now())
+                    .medFristFerdigstillelse(helgeJustertFrist(LocalDate.now().plusDays(1L)))
+                    .medBeskrivelse(beskrivelse)
+                    .medTemagruppe(Temagruppe.FAMILIEYTELSER.getKode())
+                    .medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode())
+                    .medBehandlingstema(BehandlingTema.UDEFINERT.equals(behandlingTema) ? null : behandlingTema.getOffisiellKode())
+                    .medOppgavetype("JFR")
+                    .medPrioritet(Prioritet.NORM);
+            var oppgave = restKlient.opprettetOppgave(request);
+            if (oppgave == null || oppgave.getId() == null)
+                throw new IllegalStateException("Gosys rest: kunne ikke opprette oppgave");
+            return oppgave.getId().toString();
+        } catch (Exception e) {
+            log.info("FPFORDEL GOSYS rest - feil ved oppretting av oppgave",e );
+        }
+
         OpprettOppgaveRequest request = createRequest(prosessTaskData, enhetId, beskrivelse, behandlingTema,
                 dokumentTypeId, arkivId, fødselsnr);
 
-        return service.opprettOppgave(request);
+        return service.opprettOppgave(request).getOppgaveId();
 
     }
 

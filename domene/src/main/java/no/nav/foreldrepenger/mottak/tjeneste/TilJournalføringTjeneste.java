@@ -109,6 +109,8 @@ public class TilJournalføringTjeneste {
         final JournalPost journalPost = new JournalPost(arkivId);
         List<JournalPostMangler.JournalMangel> manglene = journalføringsbehov.getMangler();
         var fnr = aktørConsumer.hentPersonIdentForAktørId(aktørId).orElse(null);
+
+        LOG.info("Journalpost retter mangler: arkivsak {} mangler {}", arkivId, journalføringsbehov.getMangelTyper());
         for (JournalPostMangler.JournalMangel mangel : manglene) {
             switch (mangel.getMangeltype()) {
             case ARKIVSAK:
@@ -149,8 +151,7 @@ public class TilJournalføringTjeneste {
         journal.oppdaterJournalpost(journalPost);
 
         if (journalføringsbehov.harMangler()) {
-            String mangler = journalføringsbehov.getMangelTyper().toString();
-            LOG.info("Journalpost resterende mangler: arkivsak {} mangler {}", arkivId, mangler);
+            LOG.info("Journalpost resterende mangler: arkivsak {} mangler {}", arkivId, journalføringsbehov.getMangelTyper());
         }
 
         return journalføringsbehov.harMangler();

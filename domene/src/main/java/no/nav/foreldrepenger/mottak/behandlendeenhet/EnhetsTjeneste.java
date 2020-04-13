@@ -12,6 +12,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.fordel.kodeverdi.Temagruppe;
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentGeografiskTilknytningPersonIkkeFunnet;
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentGeografiskTilknytningSikkerhetsbegrensing;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent;
@@ -36,7 +37,7 @@ public class EnhetsTjeneste {
     private PersonConsumer personConsumer;
     private ArbeidsfordelingRestKlient norgKlient;
 
-    private static final String TEMAGRUPPE = "FMLI"; // Kodeverk Temagrupper - dekker FOR + OMS
+    private static final String TEMAGRUPPE = Temagruppe.FAMILIEYTELSER.getKode(); // Kodeverk Temagrupper - dekker FOR + OMS
     private static final String TEMA = Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode();
     private static final String OPPGAVETYPE_JFR = "JFR"; // Kodeverk Oppgavetype - NFP , uten spesialenheter
     private static final String ENHET_TYPE_NFP = "FPY"; // Kodeverk EnhetstyperNORG - NFP , uten spesialenheter

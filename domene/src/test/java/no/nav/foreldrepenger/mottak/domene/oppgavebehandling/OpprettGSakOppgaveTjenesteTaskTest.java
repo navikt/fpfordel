@@ -62,7 +62,7 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
         enhetsidTjeneste = mock(EnhetsTjeneste.class);
         dokumentRepository = mock(DokumentRepository.class);
         when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), any(), any(), any())).thenReturn(fordelingsOppgaveEnhetsId);
-        task = new OpprettGSakOppgaveTask(prosessTaskRepository, mockService, enhetsidTjeneste, aktørConsumer);
+        task = new OpprettGSakOppgaveTask(prosessTaskRepository, mockService, enhetsidTjeneste, aktørConsumer, null);
     }
 
     @Test
