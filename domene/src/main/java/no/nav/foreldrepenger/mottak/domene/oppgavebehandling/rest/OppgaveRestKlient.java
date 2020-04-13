@@ -20,8 +20,6 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 public class OppgaveRestKlient {
 
     private static final String ENDPOINT_KEY = "oppgave.base.uri";
-    private static final String DEFAULT_OPPGAVE = "http://oppgave";
-    private static final String OPPGAVE_PATH = "/api/v1/oppgaver";
     private static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
 
     private OidcRestClient oidcRestClient;
@@ -31,9 +29,9 @@ public class OppgaveRestKlient {
     }
 
     @Inject
-    public OppgaveRestKlient(OidcRestClient oidcRestClient, @KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_OPPGAVE) URI endpoint) {
-        this.oidcRestClient =oidcRestClient ;
-        this.endpoint = URI.create(endpoint.toString() + OPPGAVE_PATH);
+    public OppgaveRestKlient(OidcRestClient oidcRestClient, @KonfigVerdi(ENDPOINT_KEY) URI endpoint) {
+        this.oidcRestClient = oidcRestClient ;
+        this.endpoint = endpoint;
     }
 
     public Oppgave opprettetOppgave(OpprettOppgave.Builder requestBuilder) {
