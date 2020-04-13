@@ -172,6 +172,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
             var oppgave = restKlient.opprettetOppgave(request);
             if (oppgave == null || oppgave.getId() == null)
                 throw new IllegalStateException("Gosys rest: kunne ikke opprette oppgave");
+            log.info("FPFORDEL GOSYS opprettet oppgave {}", oppgave);
             return oppgave.getId().toString();
         } catch (Exception e) {
             log.info("FPFORDEL GOSYS rest - feil ved oppretting av oppgave",e );
