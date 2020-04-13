@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.domene.oppgavebehandling.rest;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -26,10 +25,8 @@ public class Oppgave {
     private Integer versjon;
     private LocalDate fristFerdigstillelse;
     private LocalDate aktivDato;
-    private LocalDateTime opprettetTidspunkt;
     private Prioritet prioritet;
     private Oppgavestatus status;
-    private LocalDateTime ferdigstiltTidspunkt;
 
     @JsonCreator
     public Oppgave(@JsonProperty("id") Long id,
@@ -44,10 +41,8 @@ public class Oppgave {
                    @JsonProperty("versjon") Integer versjon,
                    @JsonProperty("fristFerdigstillelse") LocalDate fristFerdigstillelse,
                    @JsonProperty("aktivDato") LocalDate aktivDato,
-                   @JsonProperty("opprettetTidspunkt") LocalDateTime opprettetTidspunkt,
                    @JsonProperty("prioritet") Prioritet prioritet,
-                   @JsonProperty("status") Oppgavestatus status,
-                   @JsonProperty("ferdigstiltTidspunkt") LocalDateTime ferdigstiltTidspunkt) {
+                   @JsonProperty("status") Oppgavestatus status) {
         this.id = id;
         this.journalpostId = journalpostId;
         this.behandlesAvApplikasjon = behandlesAvApplikasjon;
@@ -60,10 +55,8 @@ public class Oppgave {
         this.versjon = versjon;
         this.fristFerdigstillelse = fristFerdigstillelse;
         this.aktivDato = aktivDato;
-        this.opprettetTidspunkt = opprettetTidspunkt;
         this.prioritet = prioritet;
         this.status = status;
-        this.ferdigstiltTidspunkt = ferdigstiltTidspunkt;
     }
 
     public Long getId() {
@@ -114,20 +107,12 @@ public class Oppgave {
         return aktivDato;
     }
 
-    public LocalDateTime getOpprettetTidspunkt() {
-        return opprettetTidspunkt;
-    }
-
     public Prioritet getPrioritet() {
         return prioritet;
     }
 
     public Oppgavestatus getStatus() {
         return status;
-    }
-
-    public LocalDateTime getFerdigstiltTidspunkt() {
-        return ferdigstiltTidspunkt;
     }
 
     @Override
@@ -145,10 +130,8 @@ public class Oppgave {
                 ", versjon=" + versjon +
                 ", fristFerdigstillelse=" + fristFerdigstillelse +
                 ", aktivDato=" + aktivDato +
-                ", opprettetTidspunkt=" + opprettetTidspunkt +
                 ", prioritet=" + prioritet +
                 ", status=" + status +
-                ", ferdigstiltTidspunkt=" + ferdigstiltTidspunkt +
                 '}';
     }
 }
