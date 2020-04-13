@@ -42,7 +42,7 @@
 		"OIDC_STS_JWKS_URL": "https://security-token-service.nais.preprod.local/rest/v1/sts/jwks",
 		"OPENIDCONNECT_USERNAME": "fpfordel-q1",		
 		"OPENIDCONNECT_ISSOHOST": "https://isso-q.adeo.no:443/isso/oauth2",
-		"OPPGAVE_BASE_URI": "http://oppgave",
+		"OPPGAVE_BASE_URI": "https://oppgave.nais.preprod.local/api/v1/oppgaver",
 		"PERSON_V3_URL": "https://wasapp-q1.adeo.no/tpsws/ws/Person/v3",
 		"SAF_BASE_URL" : "http://saf.q1",
 		"SAK_V1_URL": "https://wasapp-q1.adeo.no/nav-gsak-ws/SakV1",
