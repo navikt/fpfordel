@@ -18,15 +18,12 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.MapNAVSkjemaDokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.NAVSkjema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.saf.SafTjeneste;
 import no.nav.foreldrepenger.mottak.journal.saf.model.BrukerIdType;
 import no.nav.foreldrepenger.mottak.journal.saf.model.DokumentInfo;
 import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
 import no.nav.foreldrepenger.mottak.journal.saf.model.VariantFormat;
-import no.nav.foreldrepenger.mottak.task.KlargjorForVLTask;
-import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 
 @ApplicationScoped
@@ -128,25 +125,14 @@ public class ArkivTjeneste {
         try {
             var ajp = hentArkivJournalpost(wrapper.getArkivId());
             if (DokumentTypeId.INNTEKTSMELDING.equals(ajp.getHovedtype())) {
-                boolean fantInnhold = false;
+                /*boolean fantInnhold = false;
                 if (ajp.getInnholderStrukturertInformasjon()) {
                     fantInnhold = true;
                     MottakMeldingDataWrapper testWrapper = wrapper.nesteSteg(KlargjorForVLTask.TASKNAME);
                     MottattStrukturertDokument<?> mottattDokument = MeldingXmlParser.unmarshallXml(ajp.getStrukturertPayload());
                     mottattDokument.kopierTilMottakWrapper(testWrapper, aktørConsumer::hentAktørIdForPersonIdent);
-                    if (!Objects.equals(wrapper.getAktørId(), testWrapper.getAktørId()))
-                        LOG.info("FPFORDEL SAF avvik journalpost {} omhandler saf {} ij {}", wrapper.getArkivId(), testWrapper.getAktørId(), wrapper.getAktørId());
-                }
-                LOG.info("FPFORDEL SAF inntektsmelding journalpost {} innhold {} bruker JP {}", wrapper.getArkivId(), fantInnhold ? "xml" : "tom", ajp.getBrukerAktørId());
+                }*/
             }
-            if (!Objects.equals(ajp.getBrukerAktørId(), brukerFraArkiv.orElse(null)))
-                LOG.info("FPFORDEL SAF avvik journalpost {} bruker saf {} ij {}", wrapper.getArkivId(), ajp.getBrukerAktørId(), brukerFraArkiv);
-            if (!Objects.equals(ajp.getJournalfoerendeEnhet(), wrapper.getJournalførendeEnhet().orElse(null)))
-                LOG.info("FPFORDEL SAF avvik journalpost {} jfEnhet", wrapper.getArkivId());
-            if (!Objects.equals(ajp.getEksternReferanseId(), wrapper.getEksternReferanseId().orElse(null)))
-                LOG.info("FPFORDEL SAF avvik journalpost {} eksternref", wrapper.getArkivId());
-            if (ajp.getInnholderStrukturertInformasjon() && !Objects.equals(ajp.getStrukturertPayload(), wrapper.getPayloadAsString().orElse(null)))
-                LOG.info("FPFORDEL SAF avvik journalpost {} payload", wrapper.getArkivId());
             if (!Objects.equals(ajp.getHovedtype(), wrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT)))
                 LOG.info("FPFORDEL SAF avvik journalpost {} dokumenttypeid SAF {} IJ {} allesaf {}",
                         wrapper.getArkivId(), ajp.getHovedtype(), wrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT), ajp.getAlleTyper());

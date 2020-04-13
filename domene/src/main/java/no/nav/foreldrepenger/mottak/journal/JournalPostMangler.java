@@ -70,6 +70,11 @@ public class JournalPostMangler {
         void rettetMangel() {
             this.harJournalfoeringsbehov = false;
         }
+
+        @Override
+        public String toString() {
+            return "JournalMangel{ " + mangeltype + " }";
+        }
     }
 
     public enum JournalMangelType {
