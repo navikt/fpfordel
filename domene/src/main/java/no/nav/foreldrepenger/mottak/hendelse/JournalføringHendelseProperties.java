@@ -7,6 +7,7 @@ import javax.inject.Inject;
 
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.common.config.SaslConfigs;
+import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.errors.LogAndFailExceptionHandler;
@@ -23,6 +24,8 @@ public class JournalføringHendelseProperties {
     private final String username;
     private final String password;
     private String applicationId;
+    private final String trustStorePath;
+    private final String trustStorePassword;
 
 
     @Inject
@@ -30,12 +33,16 @@ public class JournalføringHendelseProperties {
                                            @KonfigVerdi("kafka.schema.registry.url") String schemaRegistry,
                                            @KonfigVerdi("systembruker.username") String username,
                                            @KonfigVerdi("systembruker.password") String password,
+                                           @KonfigVerdi(value = "javax.net.ssl.trustStore") String trustStorePath,
+                                           @KonfigVerdi(value = "javax.net.ssl.trustStorePassword") String trustStorePassword,
                                            @KonfigVerdi("kafka.topic.journal.hendelse") String topic) {
         this.journalfoeringHendelseTopic = new Topic<>(topic, Serdes.String(), new SpecificAvroSerde<>());
         this.bootstrapServers = bootstrapServers;
         this.schemaRegistryUrl = schemaRegistry;
         this.username = username;
         this.password = password;
+        this.trustStorePath = trustStorePath;
+        this.trustStorePassword = trustStorePassword;
         this.applicationId = System.getProperty("nais.app.name", "fpfordel") + "-" + System.getProperty("nais.namespace", "default");
     }
 
@@ -67,6 +74,19 @@ public class JournalføringHendelseProperties {
         return applicationId;
     }
 
+    private boolean harSattTrustStore() {
+        return trustStorePath != null && !trustStorePath.isEmpty()
+                && trustStorePassword != null && !trustStorePassword.isEmpty();
+    }
+
+    private String getTrustStorePath() {
+        return trustStorePath;
+    }
+
+    private String getTrustStorePassword() {
+        return trustStorePassword;
+    }
+
     public Properties getProperties() {
         final Properties props = new Properties();
 
@@ -85,6 +105,12 @@ public class JournalføringHendelseProperties {
             props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
             String jaasTemplate = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";";
             props.put(SaslConfigs.SASL_JAAS_CONFIG, String.format(jaasTemplate, getUsername(), getPassword()));
+        }
+
+        if (harSattTrustStore()) {
+            props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
+            props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, getTrustStorePath());
+            props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, getTrustStorePassword());
         }
 
         // Setup schema-registry

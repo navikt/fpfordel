@@ -25,7 +25,7 @@
 		"INNGAAENDEJOURNAL_V1_URL": "https://dokarkiv.nais.adeo.no/services/inngaaendejournal/v1",
 		"JOURNAL_V2_URL": "https://wasapp.adeo.no/joark/Journal/v2",
 		"KAFKA_BOOTSTRAP_SERVERS": "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443",
-		"KAFKA_SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.adeo.no",
+		"KAFKA_SCHEMA_REGISTRY_URL": "http://kafka-schema-registry.tpa:8081",
 		"KAFKA_TOPIC_JOURNAL_HENDELSE": "aapen-dok-journalfoering-v1-p",
 		"LOADBALANCER_URL": "https://fpfordel.nais.adeo.no",
 		"MOTTAINNGAAENDEFORSENDELSE_URL": "https://dokmotinngaaende.nais.adeo.no/rest/mottaInngaaendeForsendelse",
