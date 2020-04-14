@@ -13,6 +13,7 @@ import org.junit.Test;
 import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem;
+import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.melding.virksomhet.dokumentnotifikasjon.v1.XMLBehandlingstema;
 import no.nav.melding.virksomhet.dokumentnotifikasjon.v1.XMLForsendelsesinformasjon;
 import no.nav.melding.virksomhet.dokumentnotifikasjon.v1.XMLTema;
@@ -25,6 +26,7 @@ import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
 public class ProsesstaskMeldingsfordelerTest {
     private ProsessTaskRepository prosessTaskRepository;
+    private DokumentRepository dokumentRepository;
     private ProsesstaskMeldingsfordeler meldingsFordeler;
 
     static {
@@ -37,7 +39,8 @@ public class ProsesstaskMeldingsfordelerTest {
     @Before
     public void setup() throws SQLException {
         prosessTaskRepository = new ProsessTaskRepositoryImpl(repoRule.getEntityManager(), null, null);
-        meldingsFordeler = new ProsesstaskMeldingsfordeler(prosessTaskRepository);
+        dokumentRepository = new DokumentRepository(repoRule.getEntityManager());
+        meldingsFordeler = new ProsesstaskMeldingsfordeler(prosessTaskRepository, dokumentRepository);
     }
 
     @Test
@@ -55,7 +58,7 @@ public class ProsesstaskMeldingsfordelerTest {
         tema.setValue("FOR");
         input.setTema(tema);
 
-        meldingsFordeler.execute(input);
+        meldingsFordeler.execute(null, input);
         repoRule.getRepository().flush();
 
         List<ProsessTaskData> result = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -78,7 +81,7 @@ public class ProsesstaskMeldingsfordelerTest {
         XMLTema tema = new XMLTema();
         tema.setValue("FOR");
         input.setTema(tema);
-        meldingsFordeler.execute(input);
+        meldingsFordeler.execute(null, input);
         repoRule.getRepository().flush();
 
         List<ProsessTaskData> result = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -97,7 +100,7 @@ public class ProsesstaskMeldingsfordelerTest {
         XMLTema tema = new XMLTema();
         tema.setValue("FOR");
         input.setTema(tema);
-        meldingsFordeler.execute(input);
+        meldingsFordeler.execute(null, input);
         repoRule.getRepository().flush();
 
         List<ProsessTaskData> result = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);

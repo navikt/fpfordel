@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
+import no.nav.foreldrepenger.mottak.domene.dokument.Journalpost;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.task.joark.HentDataFraJoarkTask;
 import no.nav.melding.virksomhet.dokumentnotifikasjon.v1.XMLForsendelsesinformasjon;
@@ -24,28 +26,25 @@ public class ProsesstaskMeldingsfordeler implements MeldingsFordeler {
     private static final Logger LOG = LoggerFactory.getLogger(ProsesstaskMeldingsfordeler.class);
 
     private ProsessTaskRepository prosessTaskRepository;
+    private DokumentRepository dokumentRepository;
 
     ProsesstaskMeldingsfordeler() {// NOSONAR.
         // for CDI proxy
     }
 
     @Inject
-    public ProsesstaskMeldingsfordeler(ProsessTaskRepository prosessTaskRepository) {
+    public ProsesstaskMeldingsfordeler(ProsessTaskRepository prosessTaskRepository,
+                                       DokumentRepository dokumentRepository) {
         this.prosessTaskRepository = prosessTaskRepository;
+        this.dokumentRepository = dokumentRepository;
     }
 
     @Override
-    public void execute(XMLForsendelsesinformasjon forsendelsesinfo) {
+    public void execute(String correlationId, XMLForsendelsesinformasjon forsendelsesinfo) {
         final String arkivId = forsendelsesinfo.getArkivId();
-        final BehandlingTema behandlingTema;
-        if (forsendelsesinfo.getBehandlingstema() != null) {
-            var behandlingstemaOffisiellKode = forsendelsesinfo.getBehandlingstema().getValue();
-            behandlingTema = BehandlingTema.fraOffisiellKode(behandlingstemaOffisiellKode);
-        } else {
-            behandlingTema = BehandlingTema.UDEFINERT;
-        }
-
         final Tema tema = Tema.fraOffisiellKode(forsendelsesinfo.getTema().getValue());
+        final BehandlingTema behandlingTema = forsendelsesinfo.getBehandlingstema() != null ?
+                BehandlingTema.fraOffisiellKode(forsendelsesinfo.getBehandlingstema().getValue()) : BehandlingTema.UDEFINERT;
 
         // I påvente av MMA-4323
         if (Tema.OMS.equals(tema)) {
@@ -53,22 +52,25 @@ public class ProsesstaskMeldingsfordeler implements MeldingsFordeler {
             return;
         }
 
-        MottakMeldingDataWrapper hentFraJoarkMelding = new MottakMeldingDataWrapper(
-                new ProsessTaskData(HentDataFraJoarkTask.TASKNAME));
-        settForsendelseInformasjonPåWrapper(arkivId, behandlingTema, tema, hentFraJoarkMelding);
+        if (dokumentRepository.hentJournalposter(arkivId).stream().map(Journalpost::getOpprettetAv).anyMatch("KAFKA"::equalsIgnoreCase))
+            LOG.info("FPFORDEL Mottatt melding på kø allerede mottatt på KAFKA {}", arkivId);
 
-        ProsessTaskData prosessTaskData = hentFraJoarkMelding.getProsessTaskData();
-        prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(prosessTaskData);
 
+        lagreJoarkTask(arkivId, tema, behandlingTema);
+
+        dokumentRepository.lagreJournalpost(arkivId, "MIDLERTIDIG", null, correlationId, "MQ");
     }
 
-    private void settForsendelseInformasjonPåWrapper(String arkivId,
-            BehandlingTema behandlingTema,
-            Tema tema,
-            MottakMeldingDataWrapper dataWrapper) {
-        dataWrapper.setArkivId(arkivId);
-        dataWrapper.setTema(tema);
-        dataWrapper.setBehandlingTema(behandlingTema);
+    private void lagreJoarkTask(String arkivId, Tema tema, BehandlingTema behandlingTema) {
+        var taskdata = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
+        taskdata.setCallIdFraEksisterende();
+        MottakMeldingDataWrapper hentFraJoarkMelding = new MottakMeldingDataWrapper(taskdata);
+        hentFraJoarkMelding.setArkivId(arkivId);
+        hentFraJoarkMelding.setTema(tema);
+        hentFraJoarkMelding.setBehandlingTema(behandlingTema);
+        hentFraJoarkMelding.setMeldingsKildeMQ();
+        prosessTaskRepository.lagre(hentFraJoarkMelding.getProsessTaskData());
     }
+
+
 }

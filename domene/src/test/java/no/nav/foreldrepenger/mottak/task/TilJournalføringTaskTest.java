@@ -356,7 +356,7 @@ public class TilJournalføringTaskTest {
         data = task.doTask(data);
 
         verify(journalTjenesteMock).journalførDokumentforsendelse(any(DokumentforsendelseRequest.class));
-        verify(dokumentRepositoryMock, times(1)).oppdaterForseldelseMedArkivId(any(UUID.class), any(),
+        verify(dokumentRepositoryMock, times(1)).oppdaterForsendelseMedArkivId(any(UUID.class), any(),
                 any(ForsendelseStatus.class));
         assertThat(data).isNotNull();
         assertThat(data.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);

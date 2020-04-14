@@ -96,7 +96,7 @@ public class MidlJournalføringTaskTest {
         MottakMeldingDataWrapper target = task.doTask(data);
 
         verify(journalTjenesteMock).journalførDokumentforsendelse(dokCapture.capture());
-        verify(dokumentRepositoryMock).oppdaterForseldelseMedArkivId(any(UUID.class), any(), any(ForsendelseStatus.class));
+        verify(dokumentRepositoryMock).oppdaterForsendelseMedArkivId(any(UUID.class), any(), any(ForsendelseStatus.class));
 
         DokumentforsendelseRequest request = dokCapture.getValue();
         assertThat(request.isRetrying()).isFalse();

@@ -19,7 +19,8 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 @ApplicationScoped
 public class OppgaveRestKlient {
 
-    private static final String ENDPOINT_KEY = "oppgave.base.uri";
+    private static final String ENDPOINT_KEY = "oppgave.rs.uri";
+    private static final String DEFAULT_URI = "http://oppgave.default/api/v1/oppgaver";
     private static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
 
     private OidcRestClient oidcRestClient;
@@ -29,7 +30,8 @@ public class OppgaveRestKlient {
     }
 
     @Inject
-    public OppgaveRestKlient(OidcRestClient oidcRestClient, @KonfigVerdi(ENDPOINT_KEY) URI endpoint) {
+    public OppgaveRestKlient(OidcRestClient oidcRestClient,
+                             @KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
         this.oidcRestClient = oidcRestClient ;
         this.endpoint = endpoint;
     }

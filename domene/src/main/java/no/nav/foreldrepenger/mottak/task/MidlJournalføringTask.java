@@ -58,8 +58,8 @@ public class MidlJournalføringTask extends WrappedProsessTaskHandler {
                     dataWrapper.getSaksnummer(), dataWrapper.getAvsenderId(), false, dataWrapper.getRetryingTask());
             dataWrapper.setArkivId(response.getJournalpostId());
         }
-        forsendelseId.ifPresent(
-                fid -> repo.oppdaterForseldelseMedArkivId(fid, dataWrapper.getArkivId(), ForsendelseStatus.GOSYS));
+        forsendelseId.ifPresent(fid -> repo.oppdaterForsendelseMedArkivId(fid, dataWrapper.getArkivId(), ForsendelseStatus.GOSYS));
+        forsendelseId.ifPresent(fid -> repo.lagreJournalpostLokal(dataWrapper.getArkivId(), "MIDLERTIDIG", fid.toString()));
         return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
     }
 }

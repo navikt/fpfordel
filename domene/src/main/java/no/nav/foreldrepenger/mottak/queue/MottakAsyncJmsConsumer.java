@@ -56,7 +56,7 @@ public class MottakAsyncJmsConsumer extends InternalQueueConsumer {
         if (message instanceof TextMessage) {
             String messageText = ((TextMessage) message).getText();
             XMLForsendelsesinformasjon forsendelsesinfo = parseMessage(messageText);
-            meldingsFordeler.execute(forsendelsesinfo);
+            meldingsFordeler.execute(message.getJMSCorrelationID(), forsendelsesinfo);
         } else {
             FeilFactory.create(Feilene.class).ikkestøttetMessage(message.getClass()).log(log);
         }

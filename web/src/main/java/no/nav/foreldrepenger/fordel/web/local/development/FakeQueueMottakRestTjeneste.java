@@ -48,7 +48,7 @@ public class FakeQueueMottakRestTjeneste {
             final String dokumentForsendelse = scanner.next();
             final XMLForsendelsesinformasjon forsendelsesinformasjon = MottakAsyncJmsConsumer
                     .parseMessage(dokumentForsendelse);
-            meldingsFordeler.execute(forsendelsesinformasjon);
+            meldingsFordeler.execute("testmottak", forsendelsesinformasjon);
         } catch (IOException e) {
             return Response.serverError().entity(e).build();
         }

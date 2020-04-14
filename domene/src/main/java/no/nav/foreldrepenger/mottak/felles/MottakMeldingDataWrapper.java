@@ -24,6 +24,7 @@ public class MottakMeldingDataWrapper {
     public static final String AKTØR_ID_KEY = "aktoerId";
     public static final String SAKSNUMMER_KEY = "saksnummer";
     public static final String TEMA_KEY = "tema";
+    public static final String KILDE_KEY = "kilde";
     public static final String RETRY_KEY = "retry";
     public static final String BEHANDLINGSTEMA_KEY = "behandlingstema";
     public static final String DOKUMENTTYPE_ID_KEY = "dokumentTypeId";
@@ -413,4 +414,21 @@ public class MottakMeldingDataWrapper {
         prosessTaskData.setProperty(INNTEKTSMELDING_YTELSE, ytelse);
     }
 
+    public boolean erMeldingsKildeMQ() {
+        final String kilde = prosessTaskData.getProperties().getProperty(KILDE_KEY);
+        return "MQ".equals(kilde);
+    }
+
+    public boolean erMeldingsKildeKafka() {
+        final String kilde = prosessTaskData.getProperties().getProperty(KILDE_KEY);
+        return "KAFKA".equals(kilde);
+    }
+
+    public void setMeldingsKildeMQ() {
+        prosessTaskData.setProperty(KILDE_KEY, "MQ");
+    }
+
+    public void setMeldingsKildeKafka() {
+        prosessTaskData.setProperty(KILDE_KEY, "KAFKA");
+    }
 }
