@@ -52,6 +52,10 @@ public class Journalpost {
         this.opprettetAv = opprettetAv;
     }
 
+    public Journalpost() {
+        // Hibernate
+    }
+
     public Long getId() {
         return id;
     }
