@@ -38,6 +38,7 @@ public class JournalføringHendelseHåndterer {
     public JournalføringHendelseHåndterer(ProsessTaskRepository taskRepository,
                                           DokumentRepository dokumentRepository) {
         this.taskRepository = taskRepository;
+        this.dokumentRepository = dokumentRepository;
     }
 
     void handleMessage(String key, JournalfoeringHendelseRecord payload) {
@@ -46,9 +47,9 @@ public class JournalføringHendelseHåndterer {
         LOG.info("FPFORDEL Mottatt Journalføringhendelse '{}'", key);
 
         var arkivId = payload.getJournalpostId().toString();
-        var eksternReferanseId = payload.getKanalReferanseId().toString();
+        var eksternReferanseId = payload.getKanalReferanseId() != null ? payload.getKanalReferanseId().toString() : null;
 
-        if (dokumentRepository.erLokalForsendelse(eksternReferanseId)) {
+        if (eksternReferanseId != null && dokumentRepository.erLokalForsendelse(eksternReferanseId)) {
             LOG.info("FPFORDEL Mottatt Hendelse egen journalføring callid {}", arkivId);
             return;
         }
