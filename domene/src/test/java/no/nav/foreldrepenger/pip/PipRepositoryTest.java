@@ -16,14 +16,13 @@ import org.junit.Test;
 import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
-import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepositoryImpl;
 
 public class PipRepositoryTest {
     @Rule
     public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
     private final PipRepository pipRepository = new PipRepository(repoRule.getEntityManager());
-    private final DokumentRepository dokumentRepository = new DokumentRepositoryImpl(repoRule.getEntityManager());
+    private final DokumentRepository dokumentRepository = new DokumentRepository(repoRule.getEntityManager());
 
     private String brukerId = "Dummy";
     private String brukerId2 = "Dummy 2";

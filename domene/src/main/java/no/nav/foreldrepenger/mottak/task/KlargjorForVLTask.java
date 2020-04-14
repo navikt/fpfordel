@@ -72,12 +72,8 @@ public class KlargjorForVLTask extends WrappedProsessTaskHandler {
                 dataWrapper.getForsendelseId().orElse(null), dokumentKategori, journalEnhet, eksternReferanseId);
 
         if (forsendelseId.isPresent() && !erReinnsend) {
-            return dataWrapper.nesteSteg(SlettForsendelseTask.TASKNAME, true, LocalDateTime.now().plusMinutes(30)); // Gi
-                                                                                                                // selvbetjening
-                                                                                                                // tid
-                                                                                                                // til å
-                                                                                                                // polle
-                                                                                                                // ferdig
+            // Gi selvbetjening tid til å polle ferdig
+            return dataWrapper.nesteSteg(SlettForsendelseTask.TASKNAME, true, LocalDateTime.now().plusHours(6));
         }
         return null; // Siste steg, fpsak overtar nå
     }

@@ -10,7 +10,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
@@ -21,8 +20,7 @@ public class DokumentMetadata {
     public static final String UNIQUE_FORSENDELSE_ID_CONSTRAINT = "CHK_UNIQUE_FORS_DOKUMENT_MT";
 
     @Id
-    @SequenceGenerator(name = "dokumentMetadataSekvens", sequenceName = "SEQ_DOKUMENT_METADATA")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "dokumentMetadataSekvens")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_DOKUMENT_METADATA")
     private Long id;
 
     @Column(name = "FORSENDELSE_ID")

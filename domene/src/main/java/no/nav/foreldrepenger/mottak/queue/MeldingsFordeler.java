@@ -4,5 +4,5 @@ import no.nav.melding.virksomhet.dokumentnotifikasjon.v1.XMLForsendelsesinformas
 
 public interface MeldingsFordeler {
 
-    void execute(XMLForsendelsesinformasjon forsendelsesinfo);
+    void execute(String correlationId, XMLForsendelsesinformasjon forsendelsesinfo);
 }

@@ -13,7 +13,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import no.nav.foreldrepenger.fordel.BaseEntitet;
@@ -25,8 +24,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 public class Dokument extends BaseEntitet {
 
     @Id
-    @SequenceGenerator(name = "dokumentsekvens", sequenceName = "SEQ_DOKUMENT")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "dokumentsekvens")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_DOKUMENT")
     private Long id;
 
     @Column(name = "FORSENDELSE_ID")

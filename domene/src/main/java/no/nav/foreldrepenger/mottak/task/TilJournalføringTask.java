@@ -97,8 +97,8 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             if (!JournalTilstand.ENDELIG_JOURNALFØRT.equals(response.getJournalTilstand())) {
                 MottakMeldingFeil.FACTORY.feilJournalTilstandForventetTilstandEndelig(response.getJournalTilstand())
                         .log(LOG);
-                dokumentRepository.oppdaterForseldelseMedArkivId(forsendelseId, w.getArkivId(),
-                        ForsendelseStatus.GOSYS);
+                dokumentRepository.oppdaterForsendelseMedArkivId(forsendelseId, w.getArkivId(), ForsendelseStatus.GOSYS);
+                dokumentRepository.lagreJournalpostLokal(w.getArkivId(), "MIDLERTIDIG", forsendelseId.toString());
                 return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
             }
         } else {
@@ -124,6 +124,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             var id = forsendelseId.get();
             dokumentRepository.oppdaterForsendelseMetadata(id, w.getArkivId(), w.getSaksnummer().get(),
                     ForsendelseStatus.PENDING);
+            dokumentRepository.lagreJournalpostLokal(w.getArkivId(), "ENDELIG", forsendelseId.toString());
             try {
                 hendelseProdusent.send(
                         new SøknadFordeltOgJournalførtHendelse(w.getArkivId(), id, fnr.get(), w.getSaksnummer()),

@@ -112,8 +112,8 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
     private void opprettSletteTask(ProsessTaskData prosessTaskData) {
         ProsessTaskData nesteStegProsessTaskData = new ProsessTaskData(SlettForsendelseTask.TASKNAME);
-        nesteStegProsessTaskData.setNesteKjøringEtter(LocalDateTime.now().plusMinutes(30)); // Gi selvbetjening tid til å
-                                                                                        // polle ferdig
+        // Gi selvbetjening tid til å polle ferdig
+        nesteStegProsessTaskData.setNesteKjøringEtter(LocalDateTime.now().plusHours(6));
         long nesteSekvens = prosessTaskData.getSekvens() == null ? 1L
                 : Long.parseLong(prosessTaskData.getSekvens()) + 1;
         nesteStegProsessTaskData.setSekvens(Long.toString(nesteSekvens));
@@ -214,7 +214,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
         // Kodeverk fra FGSAK / Gosys. Søk etter ENGANGSST_FOR på confluence og bruk
         // verdier fra regneark (sic)....
-        setFagområdeOgPrioritet(prosessTaskData, builder, behandlingTema, dokumentTypeId);
+        setFagområdeOgPrioritet(builder, behandlingTema, dokumentTypeId);
         if (fødselsnr.isPresent()) {
             builder = builder.medFnr(fødselsnr.get());
         }
@@ -236,7 +236,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
                 .build();
     }
 
-    private void setFagområdeOgPrioritet(ProsessTaskInfo info, OpprettOppgaveRequest.Builder builder,
+    private void setFagområdeOgPrioritet(OpprettOppgaveRequest.Builder builder,
             BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId) {
         builder.medFagomradeKode(FAGOMRADE_KODE.toString())
                 .medPrioritetKode(PRIORITET_KODE.toString())

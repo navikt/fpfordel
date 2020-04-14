@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.Dokumentforsende
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
-public class DokumentRepositoryImplTest {
+public class DokumentRepositoryTest {
 
     private static final UUID FORSENDELSE_ID = UUID.randomUUID();
     private static final String ARKIV_ID = "1234";
@@ -29,7 +29,7 @@ public class DokumentRepositoryImplTest {
     @Rule
     public RepositoryRule repoRule = new UnittestRepositoryRule();
 
-    DokumentRepository repo = new DokumentRepositoryImpl(repoRule.getEntityManager());
+    DokumentRepository repo = new DokumentRepository(repoRule.getEntityManager());
     static {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
     }
@@ -113,7 +113,7 @@ public class DokumentRepositoryImplTest {
         DokumentMetadata uendret = repo.hentEksaktDokumentMetadata(FORSENDELSE_ID);
         assertThat(uendret.getArkivId()).isEmpty();
 
-        repo.oppdaterForseldelseMedArkivId(FORSENDELSE_ID, ARKIV_ID, ForsendelseStatus.FPSAK);
+        repo.oppdaterForsendelseMedArkivId(FORSENDELSE_ID, ARKIV_ID, ForsendelseStatus.FPSAK);
         DokumentMetadata endret = repo.hentEksaktDokumentMetadata(FORSENDELSE_ID);
         assertThat(endret.getArkivId()).hasValue(ARKIV_ID);
     }
