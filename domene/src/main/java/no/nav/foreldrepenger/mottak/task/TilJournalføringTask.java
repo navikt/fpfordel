@@ -124,7 +124,6 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             var id = forsendelseId.get();
             dokumentRepository.oppdaterForsendelseMetadata(id, w.getArkivId(), w.getSaksnummer().get(),
                     ForsendelseStatus.PENDING);
-            dokumentRepository.lagreJournalpostLokal(w.getArkivId(), "ENDELIG", forsendelseId.toString());
             try {
                 hendelseProdusent.send(
                         new SøknadFordeltOgJournalførtHendelse(w.getArkivId(), id, fnr.get(), w.getSaksnummer()),

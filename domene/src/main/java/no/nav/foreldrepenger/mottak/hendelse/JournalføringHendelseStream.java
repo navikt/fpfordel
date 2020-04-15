@@ -24,6 +24,7 @@ public class JournalføringHendelseStream implements AppServiceHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(JournalføringHendelseStream.class);
     private static final Set<String> HENDELSE_TYPER = Set.of("MidlertidigJournalført", "TemaEndret");
+    private static final String TEMA_FOR = Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode();
 
     private KafkaStreams stream;
     private Topic<String, JournalfoeringHendelseRecord> topic;
@@ -56,7 +57,7 @@ public class JournalføringHendelseStream implements AppServiceHandler {
 
         final StreamsBuilder builder = new StreamsBuilder();
         builder.stream(topic.getTopic(), consumed)
-                .filter((key, value) -> Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode().equals(value.getTemaNytt().toString()))
+                .filter((key, value) -> TEMA_FOR.equals(value.getTemaNytt().toString()))
                 .filter((key, value) -> HENDELSE_TYPER.contains(value.getHendelsesType().toString()))
                 .foreach(journalføringHendelseHåndterer::handleMessage);
 
