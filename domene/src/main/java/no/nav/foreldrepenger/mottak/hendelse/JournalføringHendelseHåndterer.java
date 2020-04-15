@@ -64,6 +64,7 @@ public class JournalføringHendelseHåndterer {
 
         if (dokumentRepository.hentJournalposter(arkivId).stream().map(Journalpost::getOpprettetAv).anyMatch("MQ"::equalsIgnoreCase)) {
             LOG.info("FPFORDEL Mottatt Hendelse allerede mottatt på MQ {}", arkivId);
+            dokumentRepository.lagreJournalpost(arkivId, payload.getJournalpostStatus().toString(), payload.getMottaksKanal().toString(), eksternReferanseId, "LOGKA");
             return;
         }
 

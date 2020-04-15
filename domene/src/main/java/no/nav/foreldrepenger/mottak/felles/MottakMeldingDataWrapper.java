@@ -419,6 +419,11 @@ public class MottakMeldingDataWrapper {
         return "MQ".equals(kilde);
     }
 
+    public boolean erMeldingsKildeExitMQ() {
+        final String kilde = prosessTaskData.getProperties().getProperty(KILDE_KEY);
+        return "XMQ".equals(kilde);
+    }
+
     public boolean erMeldingsKildeKafka() {
         final String kilde = prosessTaskData.getProperties().getProperty(KILDE_KEY);
         return "KAFKA".equals(kilde);
@@ -426,6 +431,10 @@ public class MottakMeldingDataWrapper {
 
     public void setMeldingsKildeMQ() {
         prosessTaskData.setProperty(KILDE_KEY, "MQ");
+    }
+
+    public void setMeldingsKildeExitMQ() {
+        prosessTaskData.setProperty(KILDE_KEY, "XMQ");
     }
 
     public void setMeldingsKildeKafka() {
