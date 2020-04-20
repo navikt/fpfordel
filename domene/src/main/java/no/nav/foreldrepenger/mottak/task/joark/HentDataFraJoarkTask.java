@@ -133,7 +133,10 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         }
 
         // Videre håndtering
-        arkivTjeneste.loggSammenligning(dataWrapper, brukerFraArkiv).ifPresent(dataWrapper::setDokumentTypeId);
+        arkivTjeneste.loggSammenligning(dataWrapper, brukerFraArkiv).ifPresent(dtid -> {
+            dataWrapper.setDokumentTypeId(dtid);
+            dataWrapper.setBehandlingTema(HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(dataWrapper.getBehandlingTema(), dtid));
+        });
         return dataWrapper.nesteSteg(HentOgVurderVLSakTask.TASKNAME);
     }
 
