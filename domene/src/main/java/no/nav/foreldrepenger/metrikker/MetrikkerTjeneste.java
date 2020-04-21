@@ -5,16 +5,19 @@ import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.vedtak.felles.integrasjon.sensu.SensuEvent;
 import no.nav.vedtak.felles.integrasjon.sensu.SensuKlient;
 
 @ApplicationScoped
 public class MetrikkerTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(MetrikkerTjeneste.class);
 
     private SensuKlient sensuKlient;
 
-    MetrikkerTjeneste() {
-    } // WELD ctor
+    MetrikkerTjeneste() {} // WELD ctor
 
     @Inject
     public MetrikkerTjeneste(SensuKlient sensuKlient) {
@@ -25,14 +28,6 @@ public class MetrikkerTjeneste {
         send(opprettProsessTaskEvent("antall_feilende_prosesstask", prosessTaskType, antall));
     }
 
-    public void logProsessTask(String prosessTaskType, int antall) {
-        send(opprettProsessTaskEvent("antall_prosesstask", prosessTaskType, antall));
-    }
-
-    public void logProsessTask(String prosessTaskType) {
-        logProsessTask(prosessTaskType, 1);
-    }
-
     private static SensuEvent opprettProsessTaskEvent(String metrikkNavn, String prosessTaskType, int antall) {
         return SensuEvent.createSensuEvent(metrikkNavn,
                 Map.of("prosesstask_type", prosessTaskType),
@@ -40,6 +35,10 @@ public class MetrikkerTjeneste {
     }
 
     private void send(SensuEvent event) {
-        sensuKlient.logMetrics(event);
+        try {
+            sensuKlient.logMetrics(event);
+        } catch (Exception ex) {
+            LOG.info("Exception ved logging til sensu.");
+        }
     }
 }

@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
-import no.nav.foreldrepenger.metrikker.MetrikkerTjeneste;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
@@ -36,9 +35,8 @@ public class OpprettSakTask extends WrappedProsessTaskHandler {
 
     @Inject
     public OpprettSakTask(ProsessTaskRepository prosessTaskRepository,
-                          FagsakRestKlient fagsakRestKlient,
-                          MetrikkerTjeneste metrikkerTjeneste) {
-        super(prosessTaskRepository, metrikkerTjeneste);
+                          FagsakRestKlient fagsakRestKlient) {
+        super(prosessTaskRepository);
         this.fagsakRestKlient = fagsakRestKlient;
     }
 

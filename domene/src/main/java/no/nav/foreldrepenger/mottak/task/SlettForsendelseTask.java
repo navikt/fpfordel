@@ -7,7 +7,6 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
-import no.nav.foreldrepenger.metrikker.MetrikkerTjeneste;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -32,9 +31,8 @@ public class SlettForsendelseTask extends WrappedProsessTaskHandler {
 
     @Inject
     public SlettForsendelseTask(ProsessTaskRepository prosessTaskRepository,
-                                DokumentRepository dokumentRepository,
-                                MetrikkerTjeneste metrikkerTjeneste) {
-        super(prosessTaskRepository, metrikkerTjeneste);
+                                DokumentRepository dokumentRepository) {
+        super(prosessTaskRepository);
         this.dokumentRepository = dokumentRepository;
     }
 

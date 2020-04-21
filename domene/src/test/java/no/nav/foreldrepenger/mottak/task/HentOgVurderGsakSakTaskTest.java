@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.metrikker.MetrikkerTjeneste;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.gsak.GsakSak;
 import no.nav.foreldrepenger.mottak.gsak.GsakSakTjeneste;
@@ -72,8 +71,6 @@ public class HentOgVurderGsakSakTaskTest {
     private InfotrygdTjeneste fp;
     @Mock
     private AktørConsumerMedCache mockAktørConsumer;
-    @Mock
-    private MetrikkerTjeneste metrikkerTjenesteMock;
 
     private List<GsakSak> sakerTom;
     private List<GsakSak> sakerMatchende;
@@ -93,7 +90,7 @@ public class HentOgVurderGsakSakTaskTest {
         when(mockAktørConsumer.hentPersonIdentForAktørId(ANNEN_PART_ID)).thenReturn(Optional.of(ANNEN_PART_FNR));
         when(mockAktørConsumer.hentAktørIdForPersonIdent(ANNEN_PART_FNR)).thenReturn(Optional.of(ANNEN_PART_ID));
         RelevantSakSjekker relevansSjekker = new RelevantSakSjekker(svp, fp, gsak);
-        task = new HentOgVurderInfotrygdSakTask(mockProsessTaskRepository, relevansSjekker, mockAktørConsumer, metrikkerTjenesteMock);
+        task = new HentOgVurderInfotrygdSakTask(mockProsessTaskRepository, relevansSjekker, mockAktørConsumer);
 
         sakerTom = new ArrayList<>();
 

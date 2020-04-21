@@ -19,7 +19,6 @@ import org.mockito.Mock;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.metrikker.MetrikkerTjeneste;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
@@ -50,8 +49,6 @@ public class MidlJournalføringTaskTest {
     private EnhetsTjeneste enhetsTjenesteMock;
     @Mock
     private DokumentRepository dokumentRepositoryMock;
-    @Mock
-    private MetrikkerTjeneste metrikkerTjeneste;
 
     private MidlJournalføringTask task;
     private ProsessTaskData ptd;
@@ -70,7 +67,7 @@ public class MidlJournalføringTaskTest {
 
         TilJournalføringTjeneste tilJournalføringTjeneste = new TilJournalføringTjeneste(journalTjenesteMock, dokumentRepositoryMock, aktørMock, personMock);
 
-        task = new MidlJournalføringTask(prosessTaskRepositoryMock, tilJournalføringTjeneste, dokumentRepositoryMock, metrikkerTjeneste);
+        task = new MidlJournalføringTask(prosessTaskRepositoryMock, tilJournalføringTjeneste, dokumentRepositoryMock);
 
         ptd = new ProsessTaskData(TilJournalføringTask.TASKNAME);
         ptd.setSekvens("1");

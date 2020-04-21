@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.metrikker.MetrikkerTjeneste;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
@@ -52,9 +51,8 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
     @Inject
     public HentOgVurderInfotrygdSakTask(ProsessTaskRepository prosessTaskRepository,
                                         RelevantSakSjekker relevansSjekker,
-                                        AktørConsumerMedCache aktør,
-                                        MetrikkerTjeneste metrikkerTjeneste) {
-        super(prosessTaskRepository, metrikkerTjeneste);
+                                        AktørConsumerMedCache aktør) {
+        super(prosessTaskRepository);
         this.relevansSjekker = relevansSjekker;
         this.aktør = aktør;
         LOGGER.info("Konstruert {}", this);

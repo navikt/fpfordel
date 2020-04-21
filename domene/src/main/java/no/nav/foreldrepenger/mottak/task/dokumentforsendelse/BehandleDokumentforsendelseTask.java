@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
-import no.nav.foreldrepenger.metrikker.MetrikkerTjeneste;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
@@ -63,9 +62,8 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     public BehandleDokumentforsendelseTask(ProsessTaskRepository prosessTaskRepository,
                                            AktørConsumerMedCache aktørConsumer,
                                            FagsakRestKlient fagsakRestKlient,
-                                           DokumentRepository dokumentRepository,
-                                           MetrikkerTjeneste metrikkerTjeneste) {
-        super(prosessTaskRepository, metrikkerTjeneste);
+                                           DokumentRepository dokumentRepository) {
+        super(prosessTaskRepository);
         this.aktørConsumer = aktørConsumer;
         this.fagsakRestKlient = fagsakRestKlient;
         this.dokumentRepository = dokumentRepository;

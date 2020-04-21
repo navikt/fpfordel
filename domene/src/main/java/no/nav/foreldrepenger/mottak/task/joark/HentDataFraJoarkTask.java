@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
-import no.nav.foreldrepenger.metrikker.MetrikkerTjeneste;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -61,9 +60,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     public HentDataFraJoarkTask(ProsessTaskRepository prosessTaskRepository,
                                 AktørConsumerMedCache aktørConsumer,
                                 JoarkDokumentHåndterer joarkDokumentHåndterer,
-                                ArkivTjeneste arkivTjeneste,
-                                MetrikkerTjeneste metrikkerTjeneste) {
-        super(prosessTaskRepository, metrikkerTjeneste);
+                                ArkivTjeneste arkivTjeneste) {
+        super(prosessTaskRepository);
         this.aktørConsumer = aktørConsumer;
         this.joarkDokumentHåndterer = joarkDokumentHåndterer;
         this.arkivTjeneste = arkivTjeneste;

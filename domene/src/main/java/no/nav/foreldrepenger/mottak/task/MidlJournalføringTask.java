@@ -7,7 +7,6 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
-import no.nav.foreldrepenger.metrikker.MetrikkerTjeneste;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -36,9 +35,8 @@ public class MidlJournalføringTask extends WrappedProsessTaskHandler {
     @Inject
     public MidlJournalføringTask(ProsessTaskRepository prosessTaskRepository,
                                  TilJournalføringTjeneste journalføringTjeneste,
-                                 DokumentRepository repo,
-                                 MetrikkerTjeneste metrikkerTjeneste) {
-        super(prosessTaskRepository, metrikkerTjeneste);
+                                 DokumentRepository repo) {
+        super(prosessTaskRepository);
         this.journalføring = journalføringTjeneste;
         this.repo = repo;
     }

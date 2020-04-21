@@ -8,7 +8,6 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
-import no.nav.foreldrepenger.metrikker.MetrikkerTjeneste;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
@@ -57,9 +56,8 @@ public class HentOgVurderVLSakTask extends WrappedProsessTaskHandler {
 
     @Inject
     public HentOgVurderVLSakTask(ProsessTaskRepository prosessTaskRepository,
-                                 FagsakRestKlient fagsakRestKlient,
-                                 MetrikkerTjeneste metrikkerTjeneste) {
-        super(prosessTaskRepository, metrikkerTjeneste);
+                                 FagsakRestKlient fagsakRestKlient) {
+        super(prosessTaskRepository);
         this.fagsakRestKlient = fagsakRestKlient;
     }
 

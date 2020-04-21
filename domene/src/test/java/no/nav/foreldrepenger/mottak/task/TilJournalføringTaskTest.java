@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.metrikker.MetrikkerTjeneste;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
@@ -69,8 +68,6 @@ public class TilJournalføringTaskTest {
     private DokumentRepository dokumentRepositoryMock;
     @Mock
     private AktørConsumerMedCache aktørConsumerMock;
-    @Mock
-    private MetrikkerTjeneste metrikkerTjenesteMock;
 
     private TilJournalføringTask task;
     private ProsessTaskData ptd;
@@ -92,7 +89,7 @@ public class TilJournalføringTaskTest {
                 dokumentRepositoryMock, aktørConsumerMock, personMock);
 
         task = new TilJournalføringTask(prosessTaskRepositoryMock, tilJournalføringTjeneste, enhetsTjenesteMock,
-                new LoggingHendelseProdusent(), dokumentRepositoryMock, aktørConsumerMock, metrikkerTjenesteMock);
+                new LoggingHendelseProdusent(), dokumentRepositoryMock, aktørConsumerMock);
 
         ptd = new ProsessTaskData(TilJournalføringTask.TASKNAME);
         ptd.setSekvens("1");
