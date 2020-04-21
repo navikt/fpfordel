@@ -14,6 +14,7 @@ import org.mockito.Mock;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.metrikker.MetrikkerTjeneste;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
@@ -40,6 +41,9 @@ public class KlargjorForVLTaskTest {
     @Mock
     private DokumentRepository dokumentRepository;
 
+    @Mock
+    private MetrikkerTjeneste metrikkerTjeneste;
+
     private UUID forsendelseId;
 
     @Before
@@ -48,7 +52,7 @@ public class KlargjorForVLTaskTest {
         klargjørForVLTjeneste = mock(KlargjørForVLTjeneste.class);
         dokumentRepository = mock(DokumentRepository.class);
         forsendelseId = UUID.randomUUID();
-        task = new KlargjorForVLTask(prosessTaskRepositoryMock, klargjørForVLTjeneste, dokumentRepository);
+        task = new KlargjorForVLTask(prosessTaskRepositoryMock, klargjørForVLTjeneste, dokumentRepository, metrikkerTjeneste);
         ptd = new ProsessTaskData(KlargjorForVLTask.TASKNAME);
         ptd.setSekvens("1");
 

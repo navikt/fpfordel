@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.metrikker.MetrikkerTjeneste;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -38,6 +39,8 @@ public class SlettForsendelseTaskTest {
     private ProsessTaskRepository prosessTaskRepositoryMock;
     @Mock
     private DokumentRepository dokumentRepositoryMock;
+    @Mock
+    private MetrikkerTjeneste metrikkerTjenesteMock;
 
     private SlettForsendelseTask task;
     private ProsessTaskData ptd;
@@ -49,7 +52,7 @@ public class SlettForsendelseTaskTest {
         prosessTaskRepositoryMock = mock(ProsessTaskRepository.class);
         dokumentRepositoryMock = mock(DokumentRepository.class);
 
-        task = new SlettForsendelseTask(prosessTaskRepositoryMock, dokumentRepositoryMock);
+        task = new SlettForsendelseTask(prosessTaskRepositoryMock, dokumentRepositoryMock, metrikkerTjenesteMock);
 
         ptd = new ProsessTaskData(SlettForsendelseTask.TASKNAME);
         ptd.setSekvens("1");

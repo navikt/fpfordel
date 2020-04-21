@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.mottak.felles;
 
+import no.nav.foreldrepenger.metrikker.MetrikkerTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -7,9 +8,12 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler {
 
     protected ProsessTaskRepository prosessTaskRepository;
+    protected MetrikkerTjeneste metrikkerTjeneste;
 
-    public WrappedProsessTaskHandler(ProsessTaskRepository prosessTaskRepository) {
+    public WrappedProsessTaskHandler(ProsessTaskRepository prosessTaskRepository,
+                                     MetrikkerTjeneste metrikkerTjeneste) {
         this.prosessTaskRepository = prosessTaskRepository;
+        this.metrikkerTjeneste = metrikkerTjeneste;
     }
 
     @Override
@@ -23,6 +27,8 @@ public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler {
             postcondition(prosessTaskDataNesteMedDataFraInput);
             prosessTaskRepository.lagre(prosessTaskDataNesteMedDataFraInput.getProsessTaskData());
         }
+
+        metrikkerTjeneste.logProsessTask(prosessTaskData.getTaskType());
     }
 
     public abstract void precondition(MottakMeldingDataWrapper dataWrapper);

@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.metrikker.MetrikkerTjeneste;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
@@ -30,9 +31,10 @@ public class KlargjorForVLTask extends WrappedProsessTaskHandler {
 
     @Inject
     public KlargjorForVLTask(ProsessTaskRepository prosessTaskRepository,
-            KlargjørForVLTjeneste klargjørForVLTjeneste,
-            DokumentRepository dokumentRepository) {
-        super(prosessTaskRepository);
+                             KlargjørForVLTjeneste klargjørForVLTjeneste,
+                             DokumentRepository dokumentRepository,
+                             MetrikkerTjeneste metrikkerTjeneste) {
+        super(prosessTaskRepository, metrikkerTjeneste);
         this.klargjørForVLTjeneste = klargjørForVLTjeneste;
         this.dokumentRepository = dokumentRepository;
     }

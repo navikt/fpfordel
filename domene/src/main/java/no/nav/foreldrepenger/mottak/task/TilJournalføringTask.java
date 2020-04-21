@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.metrikker.MetrikkerTjeneste;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
@@ -50,12 +51,13 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
 
     @Inject
     public TilJournalføringTask(ProsessTaskRepository prosessTaskRepository,
-            TilJournalføringTjeneste journalføringTjeneste,
-            EnhetsTjeneste enhetsidTjeneste,
-            HendelseProdusent hendelseProdusent,
-            DokumentRepository dokumentRepository,
-            AktørConsumerMedCache aktørConsumer) {
-        super(prosessTaskRepository);
+                                TilJournalføringTjeneste journalføringTjeneste,
+                                EnhetsTjeneste enhetsidTjeneste,
+                                HendelseProdusent hendelseProdusent,
+                                DokumentRepository dokumentRepository,
+                                AktørConsumerMedCache aktørConsumer,
+                                MetrikkerTjeneste metrikkerTjeneste) {
+        super(prosessTaskRepository, metrikkerTjeneste);
         this.journalføring = journalføringTjeneste;
         this.enhetsidTjeneste = enhetsidTjeneste;
         this.dokumentRepository = dokumentRepository;

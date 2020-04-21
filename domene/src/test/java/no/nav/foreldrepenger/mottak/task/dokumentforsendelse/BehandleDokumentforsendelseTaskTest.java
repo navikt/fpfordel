@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
+import no.nav.foreldrepenger.metrikker.MetrikkerTjeneste;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
@@ -63,6 +64,7 @@ public class BehandleDokumentforsendelseTaskTest {
     private AktørConsumerMedCache aktørConsumer = mock(AktørConsumerMedCache.class);
     private FagsakRestKlient fagsakRestKlient = mock(FagsakRestKlient.class);
     private DokumentRepository dokumentRepository = mock(DokumentRepository.class);
+    private MetrikkerTjeneste metrikkerTjenesteMock = mock(MetrikkerTjeneste.class);
 
     private BehandleDokumentforsendelseTask fordelDokTask;
     private ProsessTaskData ptd;
@@ -70,7 +72,7 @@ public class BehandleDokumentforsendelseTaskTest {
     @Before
     public void setup() {
         fordelDokTask = new BehandleDokumentforsendelseTask(prosessTaskRepository, aktørConsumer,
-                fagsakRestKlient, dokumentRepository);
+                fagsakRestKlient, dokumentRepository, metrikkerTjenesteMock);
         ptd = new ProsessTaskData(BehandleDokumentforsendelseTask.TASKNAME);
         ptd.setSekvens("1");
 

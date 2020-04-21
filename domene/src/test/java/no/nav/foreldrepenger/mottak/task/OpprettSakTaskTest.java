@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
+import no.nav.foreldrepenger.metrikker.MetrikkerTjeneste;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
@@ -52,6 +53,8 @@ public class OpprettSakTaskTest {
 
     @Mock
     private AktørConsumerMedCache aktørConsumer;
+    @Mock
+    private MetrikkerTjeneste metrikkerTjenesteMock;
 
     private OpprettSakTask task;
 
@@ -64,7 +67,7 @@ public class OpprettSakTaskTest {
         VurderFagsystemResultat vurderFagsystemRespons = new VurderFagsystemResultat();
         vurderFagsystemRespons.setBehandlesIVedtaksløsningen(true);
         when(fagsakRestKlient.vurderFagsystem(any())).thenReturn(vurderFagsystemRespons);
-        task = new OpprettSakTask(prosessTaskRepositoryMock, fagsakRestKlient);
+        task = new OpprettSakTask(prosessTaskRepositoryMock, fagsakRestKlient, metrikkerTjenesteMock);
     }
 
     @Test

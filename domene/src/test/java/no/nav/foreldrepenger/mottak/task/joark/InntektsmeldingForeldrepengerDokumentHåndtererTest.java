@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.kodeverdi.VariantFormat;
+import no.nav.foreldrepenger.metrikker.MetrikkerTjeneste;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
@@ -53,6 +54,7 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
     private JoarkDokumentHåndterer håndterer;
     private JoarkTestsupport joarkTestsupport = new JoarkTestsupport();
     private JournalMetadata journalMetadata;
+    private MetrikkerTjeneste metrikkerTjenesteMock;
 
     @Before
     public void setUp() throws Exception {
@@ -61,7 +63,8 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
         ProsessTaskRepository ptr = mock(ProsessTaskRepository.class);
         håndterer = mock(JoarkDokumentHåndterer.class);
         AktørConsumerMedCache aktørConsumer = mock(AktørConsumerMedCache.class);
-        joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, aktørConsumer, håndterer, mock(ArkivTjeneste.class)));
+        metrikkerTjenesteMock = mock(MetrikkerTjeneste.class);
+        joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, aktørConsumer, håndterer, mock(ArkivTjeneste.class), metrikkerTjenesteMock));
         when(håndterer.hentGyldigAktørFraMetadata(any())).thenReturn(Optional.of(AKTØR_ID));
         when(håndterer.hentGyldigAktørFraPersonident(any())).thenReturn(Optional.of(AKTØR_ID));
         taskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);

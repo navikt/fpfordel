@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.kodeverdi.VariantFormat;
+import no.nav.foreldrepenger.metrikker.MetrikkerTjeneste;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
@@ -49,15 +50,17 @@ public class ManuellJournalføringDokumentHåndtererTest {
     private MottakMeldingDataWrapper dataWrapper;
     private JoarkDokumentHåndterer håndterer;
     private JoarkTestsupport joarkTestsupport = new JoarkTestsupport();
+    private MetrikkerTjeneste metrikkerTjenesteMock;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
 
         ProsessTaskRepository ptr = mock(ProsessTaskRepository.class);
+        metrikkerTjenesteMock = mock(MetrikkerTjeneste.class);
         håndterer = mock(JoarkDokumentHåndterer.class);
         AktørConsumerMedCache aktørConsumer = mock(AktørConsumerMedCache.class);
-        joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, aktørConsumer, håndterer, mock(ArkivTjeneste.class)));
+        joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, aktørConsumer, håndterer, mock(ArkivTjeneste.class), metrikkerTjenesteMock));
         when(håndterer.hentGyldigAktørFraMetadata(any())).thenReturn(Optional.of(AKTØR_ID));
         when(håndterer.hentGyldigAktørFraPersonident(any())).thenReturn(Optional.of(AKTØR_ID));
         taskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);

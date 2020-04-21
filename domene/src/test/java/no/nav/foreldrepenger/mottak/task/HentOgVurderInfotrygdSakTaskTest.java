@@ -38,6 +38,7 @@ import org.mockito.junit.MockitoRule;
 import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.metrikker.MetrikkerTjeneste;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.gsak.GsakSak;
 import no.nav.foreldrepenger.mottak.gsak.GsakSakTjeneste;
@@ -84,6 +85,8 @@ public class HentOgVurderInfotrygdSakTaskTest {
     private InfotrygdTjeneste fp;
     @Mock
     private Unleash unleash;
+    @Mock
+    private MetrikkerTjeneste metrikkerTjeneste;
 
     @Before
     public void setup() {
@@ -372,7 +375,8 @@ public class HentOgVurderInfotrygdSakTaskTest {
     private HentOgVurderInfotrygdSakTask task() {
         return new HentOgVurderInfotrygdSakTask(prosessTaskRepository,
                 new RelevantSakSjekker(svp, fp, gsak),
-                aktør);
+                aktør,
+                metrikkerTjeneste);
     }
 
     private static List<GsakSak> gsaker(String fnr) {

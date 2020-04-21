@@ -8,12 +8,14 @@ import static org.mockito.Mockito.verify;
 import org.junit.Before;
 import org.junit.Test;
 
+import no.nav.foreldrepenger.metrikker.MetrikkerTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 public class WrappedProsessTaskHandlerTest {
 
     private WrappedProsessTaskHandler wrappedProsessTaskHandler; // objektet vi tester
+    private MetrikkerTjeneste mockMetrikkerTjeneste;
 
     private ProsessTaskRepository mockProsessTaskRepository;
     private ProsessTaskData prosessTaskData;
@@ -22,7 +24,8 @@ public class WrappedProsessTaskHandlerTest {
     @Before
     public void setup() {
         mockProsessTaskRepository = mock(ProsessTaskRepository.class);
-        wrappedProsessTaskHandler = new MyWrappedProsessTaskHandler(mockProsessTaskRepository);
+        mockMetrikkerTjeneste = mock(MetrikkerTjeneste.class);
+        wrappedProsessTaskHandler = new MyWrappedProsessTaskHandler(mockProsessTaskRepository, mockMetrikkerTjeneste);
         prosessTaskData = new ProsessTaskData("type");
         returnedDataWrapper = null;
     }
@@ -47,8 +50,8 @@ public class WrappedProsessTaskHandlerTest {
 
     private class MyWrappedProsessTaskHandler extends WrappedProsessTaskHandler {
 
-        MyWrappedProsessTaskHandler(ProsessTaskRepository prosessTaskRepository) {
-            super(prosessTaskRepository);
+        MyWrappedProsessTaskHandler(ProsessTaskRepository prosessTaskRepository, MetrikkerTjeneste metrikkerTjeneste) {
+            super(prosessTaskRepository, metrikkerTjeneste);
         }
 
         @Override
