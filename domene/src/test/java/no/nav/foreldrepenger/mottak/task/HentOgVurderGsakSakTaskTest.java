@@ -71,6 +71,7 @@ public class HentOgVurderGsakSakTaskTest {
     private InfotrygdTjeneste fp;
     @Mock
     private AktørConsumerMedCache mockAktørConsumer;
+
     private List<GsakSak> sakerTom;
     private List<GsakSak> sakerMatchende;
     private List<GsakSak> sakerMatchende2;

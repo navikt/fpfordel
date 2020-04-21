@@ -34,8 +34,8 @@ public class MidlJournalføringTask extends WrappedProsessTaskHandler {
 
     @Inject
     public MidlJournalføringTask(ProsessTaskRepository prosessTaskRepository,
-            TilJournalføringTjeneste journalføringTjeneste,
-            DokumentRepository repo) {
+                                 TilJournalføringTjeneste journalføringTjeneste,
+                                 DokumentRepository repo) {
         super(prosessTaskRepository);
         this.journalføring = journalføringTjeneste;
         this.repo = repo;

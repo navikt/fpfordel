@@ -40,7 +40,7 @@ public class MidlJournalføringTaskTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-    
+
     @Mock
     private ProsessTaskRepository prosessTaskRepositoryMock;
     @Mock

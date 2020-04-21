@@ -49,6 +49,8 @@
 		"PERSON_V3_URL": "https://wasapp.adeo.no/tpsws/ws/Person/v3",
 		"SAF_BASE_URL" : "http://saf",
 		"SAK_V1_URL": "https://wasapp.adeo.no/nav-gsak-ws/SakV1",
-		"SECURITYTOKENSERVICE_URL": "https://sts.adeo.no/SecurityTokenServiceProvider/"
+		"SECURITYTOKENSERVICE_URL": "https://sts.adeo.no/SecurityTokenServiceProvider/",
+		"SENSU_HOST": "sensu.nais",
+		"SENSU_PORT": "3030"
 	}
 }

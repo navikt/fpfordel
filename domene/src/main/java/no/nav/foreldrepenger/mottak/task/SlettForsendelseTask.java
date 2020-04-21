@@ -31,7 +31,7 @@ public class SlettForsendelseTask extends WrappedProsessTaskHandler {
 
     @Inject
     public SlettForsendelseTask(ProsessTaskRepository prosessTaskRepository,
-            DokumentRepository dokumentRepository) {
+                                DokumentRepository dokumentRepository) {
         super(prosessTaskRepository);
         this.dokumentRepository = dokumentRepository;
     }

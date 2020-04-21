@@ -24,7 +24,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
+
 public class ProsesstaskMeldingsfordelerTest {
+
     private ProsessTaskRepository prosessTaskRepository;
     private DokumentRepository dokumentRepository;
     private ProsesstaskMeldingsfordeler meldingsFordeler;

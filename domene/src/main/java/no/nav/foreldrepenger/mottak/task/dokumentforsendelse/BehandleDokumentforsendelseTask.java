@@ -61,8 +61,8 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     @Inject
     public BehandleDokumentforsendelseTask(ProsessTaskRepository prosessTaskRepository,
                                            AktørConsumerMedCache aktørConsumer,
-            FagsakRestKlient fagsakRestKlient,
-            DokumentRepository dokumentRepository) {
+                                           FagsakRestKlient fagsakRestKlient,
+                                           DokumentRepository dokumentRepository) {
         super(prosessTaskRepository);
         this.aktørConsumer = aktørConsumer;
         this.fagsakRestKlient = fagsakRestKlient;

@@ -372,7 +372,8 @@ public class HentOgVurderInfotrygdSakTaskTest {
     private HentOgVurderInfotrygdSakTask task() {
         return new HentOgVurderInfotrygdSakTask(prosessTaskRepository,
                 new RelevantSakSjekker(svp, fp, gsak),
-                aktør);
+                aktør
+        );
     }
 
     private static List<GsakSak> gsaker(String fnr) {

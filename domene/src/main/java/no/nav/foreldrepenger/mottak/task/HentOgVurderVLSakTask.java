@@ -56,7 +56,7 @@ public class HentOgVurderVLSakTask extends WrappedProsessTaskHandler {
 
     @Inject
     public HentOgVurderVLSakTask(ProsessTaskRepository prosessTaskRepository,
-            FagsakRestKlient fagsakRestKlient) {
+                                 FagsakRestKlient fagsakRestKlient) {
         super(prosessTaskRepository);
         this.fagsakRestKlient = fagsakRestKlient;
     }

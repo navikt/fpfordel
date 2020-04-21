@@ -35,7 +35,7 @@ public class OpprettSakTask extends WrappedProsessTaskHandler {
 
     @Inject
     public OpprettSakTask(ProsessTaskRepository prosessTaskRepository,
-            FagsakRestKlient fagsakRestKlient) {
+                          FagsakRestKlient fagsakRestKlient) {
         super(prosessTaskRepository);
         this.fagsakRestKlient = fagsakRestKlient;
     }

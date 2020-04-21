@@ -30,8 +30,8 @@ public class KlargjorForVLTask extends WrappedProsessTaskHandler {
 
     @Inject
     public KlargjorForVLTask(ProsessTaskRepository prosessTaskRepository,
-            KlargjørForVLTjeneste klargjørForVLTjeneste,
-            DokumentRepository dokumentRepository) {
+                             KlargjørForVLTjeneste klargjørForVLTjeneste,
+                             DokumentRepository dokumentRepository) {
         super(prosessTaskRepository);
         this.klargjørForVLTjeneste = klargjørForVLTjeneste;
         this.dokumentRepository = dokumentRepository;
