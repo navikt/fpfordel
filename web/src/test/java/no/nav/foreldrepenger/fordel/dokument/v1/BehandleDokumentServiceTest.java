@@ -179,6 +179,19 @@ public class BehandleDokumentServiceTest {
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
     }
 
+    @Test(expected = FunksjonellException.class)
+    public void skalIkkeJournalførePapirsøknadSakAnnenYtelse() throws Exception {
+
+        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
+                .thenReturn(Optional
+                        .of(new FagsakInfomasjonDto(AKTØR_ID, BehandlingTema.FORELDREPENGER_FØDSEL.getOffisiellKode(), false)));
+
+        when(journalMetadata.getDokumentTypeId()).thenReturn(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER);
+        when(journalMetadata.getDokumentKategori()).thenReturn(Optional.of(DokumentKategori.SØKNAD));
+        behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
+    }
+
     @Test
     public void skalKjøreHeltIgjennomNaarJournaltilstandIkkeErEndelig() throws Exception {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);

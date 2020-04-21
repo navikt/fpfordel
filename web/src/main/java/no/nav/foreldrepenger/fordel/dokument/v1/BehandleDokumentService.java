@@ -122,7 +122,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         var fagsakInfomasjonDto = optFagsakInfomasjonDto.get();
 
         String behandlingstemaOffisiellKode = fagsakInfomasjonDto.getBehandlingstemaOffisiellKode();
-        BehandlingTema behandlingTema = BehandlingTema.fraOffisiellKode(behandlingstemaOffisiellKode);
+        BehandlingTema behandlingTemaFagsak = BehandlingTema.fraOffisiellKode(behandlingstemaOffisiellKode);
         String aktørId = fagsakInfomasjonDto.getAktørId();
 
         Optional<JournalMetadata> optJournalMetadata = hentJournalMetadata(arkivId);
@@ -133,10 +133,12 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         final DokumentTypeId dokumentTypeId = arkivTjeneste.loggSammenligningManuell(arkivId, dokumentTypeIdJ).orElse(dokumentTypeIdJ);
         final DokumentKategori dokumentKategori = journalMetadata.getDokumentKategori()
                 .orElse(DokumentKategori.UDEFINERT);
-        behandlingTema = HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(
-                behandlingTema, dokumentTypeId);
+        BehandlingTema behandlingTemaDok = HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(
+                BehandlingTema.UDEFINERT, dokumentTypeId);
 
-        validerKanJournalføres(behandlingTema, dokumentTypeId, dokumentKategori);
+        BehandlingTema behandlingTema = validerOgVelgBehandlingTema(behandlingTemaFagsak, behandlingTemaDok, dokumentTypeId);
+
+        validerKanJournalføres(behandlingTemaFagsak, dokumentTypeId, dokumentKategori);
 
         final String xml = hentDokumentSettMetadata(saksnummer, behandlingTema, aktørId, journalMetadata,
                 dokumentTypeId);
@@ -171,6 +173,21 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
                     journalpostIkkeFunnet);
         }
         return optJournalMetadata;
+    }
+
+    private BehandlingTema validerOgVelgBehandlingTema(BehandlingTema behandlingTemaFagsak, BehandlingTema behandlingTemaDok, DokumentTypeId dokumentTypeId) {
+        if (BehandlingTema.UDEFINERT.equals(behandlingTemaDok))
+            return behandlingTemaFagsak;
+        if (BehandlingTema.UDEFINERT.equals(behandlingTemaFagsak))
+            return behandlingTemaDok;
+        if (!DokumentTypeId.erSøknadType(dokumentTypeId))
+            return behandlingTemaFagsak;
+        if ((BehandlingTema.gjelderForeldrepenger(behandlingTemaFagsak) && !BehandlingTema.gjelderForeldrepenger(behandlingTemaDok)) ||
+                (BehandlingTema.gjelderEngangsstønad(behandlingTemaFagsak) && !BehandlingTema.gjelderEngangsstønad(behandlingTemaDok)) ||
+                (BehandlingTema.gjelderSvangerskapspenger(behandlingTemaFagsak) && !BehandlingTema.gjelderSvangerskapspenger(behandlingTemaDok))) {
+            throw BehandleDokumentServiceFeil.FACTORY.søknadFeilType().toException();
+        }
+        return BehandlingTema.ikkeSpesifikkHendelse(behandlingTemaDok) ? behandlingTemaFagsak : behandlingTemaDok;
     }
 
     private void validerKanJournalføres(BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId,
@@ -302,6 +319,9 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
         @FunksjonellFeil(feilkode = "FP-963075", feilmelding = "Inntektsmelding årsak samsvarer ikke med sakens type - kan ikke journalføre", løsningsforslag = "Be om ny Inntektsmelding for Foreldrepenger", logLevel = LogLevel.WARN)
         Feil imFeilType();
+
+        @FunksjonellFeil(feilkode = "FP-963079", feilmelding = "Dokumentet samsvarer ikke med sakens type - kan ikke journalføre", løsningsforslag = "Journalfør på annen sak eller opprett ny sak", logLevel = LogLevel.WARN)
+        Feil søknadFeilType();
 
         @FunksjonellFeil(feilkode = "FP-963076", feilmelding = "Inntektsmelding mangler startdato - kan ikke journalføre", løsningsforslag = "Be om ny Inntektsmelding med startdato", logLevel = LogLevel.WARN)
         Feil imUtenStartdato();
