@@ -31,6 +31,8 @@ jobs:
           java-version: 1.11
           
       - name: Hent og start Oracle image
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
         id: oracle
         shell: bash
         run: |
@@ -40,7 +42,7 @@ jobs:
           rm -f nohup.out
           docker-compose -f oracle/docker-compose.yml up oracle >nohup.out 2>&1 &
           sh -c 'tail -n +0 -f nohup.out | { sed "/Disconnected/q" && kill $$; }' || true
-    
+
       - name: Kompiler
         run: mvn --quiet clean install --batch-mode --settings .github/workflows/.m2/settings.xml
         env:
