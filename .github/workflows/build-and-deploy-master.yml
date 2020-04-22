@@ -6,7 +6,7 @@ on:
       - master 
 env:
   APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-  ORACLE_IMAGE: docker.pkg.github.com/navikt/vtp/foreldrepenger-oracle
+  ORACLE_IMAGE: docker.pkg.github.com/navikt/fpsak-autotest/oracle-flattened
   CLUSTER: dev-fss
   NAMESPACE: q1
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
