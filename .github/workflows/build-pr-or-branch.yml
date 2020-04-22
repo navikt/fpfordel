@@ -6,7 +6,7 @@ on:
     branches-ignore:
       - master
 env:
-  ORACLE_IMAGE: docker.pkg.github.com/navikt/fpsak-autotest/oracle-flattened
+  ORACLE_IMAGE: docker.pkg.github.com/navikt/vtp/foreldrepenger-oracle
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
          
 jobs:
