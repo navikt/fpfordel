@@ -31,6 +31,8 @@ jobs:
           java-version: 1.11
           
       - name: Hent og start Oracle image
+        env:
+          GITHUB_TOKEN: ${{ secrets.NOTIFICATION }}
         id: oracle
         shell: bash
         run: |
