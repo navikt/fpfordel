@@ -5,6 +5,7 @@
 	"serviceuserkv": "/serviceuser/data/prod/srvfpfordel",
 	"namespace": "default",
 	"ingresses": [
+                "https://fpfordel.prod-fss.nais.io",
 		"https://fpfordel.nais.adeo.no",
 		"https://fpfordel.nais.adeo.no/fpfordel"
 	],

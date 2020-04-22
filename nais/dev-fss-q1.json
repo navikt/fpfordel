@@ -5,6 +5,7 @@
 	"serviceuserkv": "/serviceuser/data/dev/srvfpfordel",
 	"namespace": "q1",
 	"ingresses": [
+                "https://fpfordel.dev-fss.nais.io",
 		"https://fpfordel.nais.preprod.local",
 		"https://fpfordel-q1.nais.preprod.local/fpfordel"
 	],
