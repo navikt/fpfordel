@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.mottak.hendelse;
 
 import java.time.Duration;
 import java.util.Map;
-import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -23,7 +22,7 @@ import no.nav.vedtak.apptjeneste.AppServiceHandler;
 public class JournalføringHendelseStream implements AppServiceHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(JournalføringHendelseStream.class);
-    private static final Set<String> HENDELSE_TYPER = Set.of("MidlertidigJournalført", "TemaEndret");
+    private static final String HENDELSE_TYPER = "MidlertidigJournalført";
     private static final String TEMA_FOR = Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode();
 
     private KafkaStreams stream;
@@ -58,7 +57,7 @@ public class JournalføringHendelseStream implements AppServiceHandler {
         final StreamsBuilder builder = new StreamsBuilder();
         builder.stream(topic.getTopic(), consumed)
                 .filter((key, value) -> TEMA_FOR.equals(value.getTemaNytt().toString()))
-                .filter((key, value) -> HENDELSE_TYPER.contains(value.getHendelsesType().toString()))
+                .filter((key, value) -> HENDELSE_TYPER.equalsIgnoreCase(value.getHendelsesType().toString()))
                 .foreach(journalføringHendelseHåndterer::handleMessage);
 
         final Topology topology = builder.build();

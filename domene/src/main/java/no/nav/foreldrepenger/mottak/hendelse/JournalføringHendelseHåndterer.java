@@ -27,6 +27,8 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 public class JournalføringHendelseHåndterer {
 
     private static final Logger LOG = LoggerFactory.getLogger(JournalføringHendelseHåndterer.class);
+    private static final String EESSI = "EESSI";
+
     private ProsessTaskRepository taskRepository;
     private DokumentRepository dokumentRepository;
 
@@ -44,12 +46,20 @@ public class JournalføringHendelseHåndterer {
     void handleMessage(String key, JournalfoeringHendelseRecord payload) {
         setCallIdForHendelse(payload);
 
-        LOG.info("FPFORDEL Mottatt Journalføringhendelse '{}'", key);
-
         var arkivId = payload.getJournalpostId().toString();
+        var hendelseType = payload.getHendelsesType().toString();
+        var mottaksKanal = payload.getMottaksKanal().toString();
         var eksternReferanseId = payload.getKanalReferanseId() != null ? payload.getKanalReferanseId().toString() : null;
 
-        if (eksternReferanseId != null && dokumentRepository.erLokalForsendelse(eksternReferanseId)) {
+        // EESSI har egen mottaksprosess m/BEH_SED-oppgaver. De uten kanalreferanse er "klonet" av SBH og journalført fra Gosys.
+        if (EESSI.equals(mottaksKanal) || eksternReferanseId == null) {
+            LOG.info("FPFORDEL Mottatt Journalføringhendelse ignorerer journalpost {} kanal {}", arkivId, mottaksKanal);
+            return;
+        }
+
+        LOG.info("FPFORDEL Mottatt Journalføringhendelse type {} journalpost {} referanse {}", hendelseType, arkivId, eksternReferanseId);
+
+        if (dokumentRepository.erLokalForsendelse(eksternReferanseId)) {
             LOG.info("FPFORDEL Mottatt Hendelse egen journalføring callid {}", arkivId);
             return;
         }
@@ -62,13 +72,7 @@ public class JournalføringHendelseHåndterer {
             return;
         }
 
-        if (dokumentRepository.hentJournalposter(arkivId).stream().map(Journalpost::getOpprettetAv).anyMatch("MQ"::equalsIgnoreCase)) {
-            LOG.info("FPFORDEL Mottatt Hendelse allerede mottatt på MQ {}", arkivId);
-            dokumentRepository.lagreJournalpost(arkivId, payload.getJournalpostStatus().toString(), payload.getMottaksKanal().toString(), eksternReferanseId, "LOGKA");
-            return;
-        }
-
-        // lagreJoarkTask(payload, arkivId, eksternReferanseId); TODO: switchover
+        lagreJoarkTask(payload, arkivId, eksternReferanseId);
 
         dokumentRepository.lagreJournalpost(arkivId, payload.getJournalpostStatus().toString(), payload.getMottaksKanal().toString(), eksternReferanseId, "KAFKA");
     }
@@ -79,7 +83,8 @@ public class JournalføringHendelseHåndterer {
         MottakMeldingDataWrapper melding = new MottakMeldingDataWrapper(taskdata);
         melding.setArkivId(arkivId);
         melding.setTema(Tema.fraOffisiellKode(payload.getTemaNytt().toString()));
-        melding.setBehandlingTema(BehandlingTema.fraOffisiellKode(payload.getBehandlingstema().toString()));
+        melding.setBehandlingTema(BehandlingTema.fraOffisiellKode(payload.getBehandlingstema() != null ?
+                payload.getBehandlingstema().toString() : null));
         melding.setEksternReferanseId(eksternReferanse);
         melding.setMeldingsKildeKafka();
         taskRepository.lagre(melding.getProsessTaskData());

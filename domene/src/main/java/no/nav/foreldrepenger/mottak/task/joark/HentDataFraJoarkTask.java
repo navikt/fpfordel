@@ -19,6 +19,8 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
+import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
+import no.nav.foreldrepenger.mottak.domene.dokument.Journalpost;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
@@ -55,16 +57,19 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     private final AktørConsumerMedCache aktørConsumer;
     private final JoarkDokumentHåndterer joarkDokumentHåndterer;
     private final ArkivTjeneste arkivTjeneste;
+    private final DokumentRepository dokumentRepository;
 
     @Inject
     public HentDataFraJoarkTask(ProsessTaskRepository prosessTaskRepository,
                                 AktørConsumerMedCache aktørConsumer,
                                 JoarkDokumentHåndterer joarkDokumentHåndterer,
-                                ArkivTjeneste arkivTjeneste) {
+                                ArkivTjeneste arkivTjeneste,
+                                DokumentRepository dokumentRepository) {
         super(prosessTaskRepository);
         this.aktørConsumer = aktørConsumer;
         this.joarkDokumentHåndterer = joarkDokumentHåndterer;
         this.arkivTjeneste = arkivTjeneste;
+        this.dokumentRepository = dokumentRepository;
     }
 
     @Override
@@ -86,6 +91,21 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     @Override
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper dataWrapper) {
+        if (dataWrapper.erMeldingsKildeExitMQ()) {
+            if (dokumentRepository.hentJournalposter(dataWrapper.getArkivId()).stream().map(Journalpost::getOpprettetAv).anyMatch("KAFKA"::equalsIgnoreCase)) {
+                LOG.info("FPFORDEL JOARK ignorerer (Kafka) journalpost {} mottatt fra {}", dataWrapper.getArkivId(), dataWrapper.getMeldingsKilde());
+                return null;
+            } else {
+                dokumentRepository.lagreJournalpost(dataWrapper.getArkivId(), "MIDLERTIDIG", null, null, "MQ");
+            }
+        } else if (dataWrapper.erMeldingsKildeKafka()) {
+            if (dokumentRepository.hentJournalposter(dataWrapper.getArkivId()).stream().map(Journalpost::getOpprettetAv).anyMatch("MQ"::equalsIgnoreCase)) {
+                LOG.info("FPFORDEL JOARK ignorerer (MQ) journalpost {} mottatt fra {}", dataWrapper.getArkivId(), dataWrapper.getMeldingsKilde());
+                return null;
+            }
+        }
+        LOG.info("FPFORDEL JOARK behandler journalpost {} mottatt fra {}", dataWrapper.getArkivId(), dataWrapper.getMeldingsKilde());
+
         final List<JournalMetadata> hoveddokumenter = joarkDokumentHåndterer
                 .hentJoarkDokumentMetadata(dataWrapper.getArkivId());
         loggJournalpost(hoveddokumenter);
