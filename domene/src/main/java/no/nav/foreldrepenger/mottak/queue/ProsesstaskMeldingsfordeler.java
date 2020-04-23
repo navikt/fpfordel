@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.mottak.queue;
 
+import java.time.LocalDateTime;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.control.ActivateRequestContext;
 import javax.inject.Inject;
@@ -58,17 +60,18 @@ public class ProsesstaskMeldingsfordeler implements MeldingsFordeler {
 
         lagreJoarkTask(arkivId, tema, behandlingTema);
 
-        dokumentRepository.lagreJournalpost(arkivId, "MIDLERTIDIG", null, correlationId, "MQ");
+        dokumentRepository.lagreJournalpost(arkivId, "MIDLERTIDIG", null, correlationId, "XMQ");
     }
 
     private void lagreJoarkTask(String arkivId, Tema tema, BehandlingTema behandlingTema) {
         var taskdata = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
         taskdata.setCallIdFraEksisterende();
+        taskdata.setNesteKjøringEtter(LocalDateTime.now().plusMinutes(1));
         MottakMeldingDataWrapper hentFraJoarkMelding = new MottakMeldingDataWrapper(taskdata);
         hentFraJoarkMelding.setArkivId(arkivId);
         hentFraJoarkMelding.setTema(tema);
         hentFraJoarkMelding.setBehandlingTema(behandlingTema);
-        hentFraJoarkMelding.setMeldingsKildeMQ();
+        hentFraJoarkMelding.setMeldingsKildeExitMQ();
         prosessTaskRepository.lagre(hentFraJoarkMelding.getProsessTaskData());
     }
 

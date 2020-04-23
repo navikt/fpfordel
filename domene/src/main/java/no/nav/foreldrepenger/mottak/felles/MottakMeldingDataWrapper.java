@@ -429,6 +429,10 @@ public class MottakMeldingDataWrapper {
         return "KAFKA".equals(kilde);
     }
 
+    public String getMeldingsKilde() {
+        return prosessTaskData.getProperties().getProperty(KILDE_KEY);
+    }
+
     public void setMeldingsKildeMQ() {
         prosessTaskData.setProperty(KILDE_KEY, "MQ");
     }
