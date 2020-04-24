@@ -34,7 +34,7 @@
         <argLine>-Xms256m -Dfile.encoding=UTF-8 -Dlog.level.no.nav=WARN</argLine> <!-- default argLine for surefire-plugin -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <felles.version>1.6-20200421172722-efc1e3b</felles.version>
+        <felles.version>1.6-20200424085343-dc5e178</felles.version>
         <prosesstask.version>2.1.0-20200210093848-e657dd0</prosesstask.version>
         <metrics.version>4.1.6</metrics.version>
         <prometheus.version>0.8.1</prometheus.version>
