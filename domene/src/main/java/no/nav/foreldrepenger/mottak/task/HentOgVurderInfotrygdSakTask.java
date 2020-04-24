@@ -104,6 +104,7 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
 
     private MottakMeldingDataWrapper nesteStegForSvangerskapspenger(MottakMeldingDataWrapper w) {
         if (skalMidlertidigJournalføre(w, fnr(w), LocalDate.now().minus(INFOTRYGD_SAK_GYLDIG_PERIODE))) {
+            LOGGER.info("FPFORDEL VINFOTRYGD svp journalpost {}", w.getArkivId());
             return midlertidigJournalført(w);
         }
         return nesteStegOpprettet(w);
@@ -117,6 +118,7 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
             return nesteStegOpprettet(w);
         }
         if (skalMidlertidigJournalføre(w, annenPart, LocalDate.now().minus(INFOTRYGD_ANNENPART_GYLDIG_PERIODE))) {
+            LOGGER.info("FPFORDEL VINFOTRYGD fp journalpost {}", w.getArkivId());
             return midlertidigJournalført(w);
         }
         return nesteStegOpprettet(w);
@@ -165,6 +167,7 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
     private MottakMeldingDataWrapper nesteStegForIM(MottakMeldingDataWrapper w) {
         String fnr = fnr(w);
         if (skalMidlertidigJournalføreIM(w, fnr, LocalDate.now())) {
+            LOGGER.info("FPFORDEL VINFOTRYGD IM journalpost {}", w.getArkivId());
             return midlertidigJournalført(w);
         }
         return nesteStegOpprettet(w);
