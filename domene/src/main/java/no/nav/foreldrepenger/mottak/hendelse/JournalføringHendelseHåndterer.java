@@ -49,7 +49,8 @@ public class JournalføringHendelseHåndterer {
         var arkivId = payload.getJournalpostId().toString();
         var hendelseType = payload.getHendelsesType().toString();
         var mottaksKanal = payload.getMottaksKanal().toString();
-        var eksternReferanseId = payload.getKanalReferanseId() != null ? payload.getKanalReferanseId().toString() : null;
+        var eksternReferanseId = payload.getKanalReferanseId() == null || payload.getKanalReferanseId().toString().isEmpty()
+                ? null : payload.getKanalReferanseId().toString();
 
         // EESSI har egen mottaksprosess m/BEH_SED-oppgaver. De uten kanalreferanse er "klonet" av SBH og journalført fra Gosys.
         if (EESSI.equals(mottaksKanal) || eksternReferanseId == null) {
