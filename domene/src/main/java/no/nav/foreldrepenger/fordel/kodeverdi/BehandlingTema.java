@@ -145,4 +145,13 @@ public enum BehandlingTema implements Kodeverdi {
         return SVANGERSKAPSPENGER.equals(bt);
     }
 
+    public static BehandlingTema forYtelseUtenFamilieHendelse(BehandlingTema behandlingTema) {
+
+        if (FP_BT.contains(behandlingTema))
+            return FORELDREPENGER;
+        if (ES_BT.contains(behandlingTema))
+            return ENGANGSSTØNAD;
+        return SVANGERSKAPSPENGER.equals(behandlingTema) ? behandlingTema : UDEFINERT;
+
+    }
 }

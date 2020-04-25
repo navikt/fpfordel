@@ -12,13 +12,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum Temagruppe implements Kodeverdi {
+public enum Temagrupper implements Kodeverdi {
 
     FAMILIEYTELSER("FMLI"),
     UDEFINERT("-"),
     ;
 
-    private static final Map<String, Temagruppe> KODER = new LinkedHashMap<>();
+    private static final Map<String, Temagrupper> KODER = new LinkedHashMap<>();
 
     public static final String KODEVERK = "TEMA";
 
@@ -32,12 +32,12 @@ public enum Temagruppe implements Kodeverdi {
 
     private String kode;
 
-    private Temagruppe(String kode) {
+    private Temagrupper(String kode) {
         this.kode = kode;
     }
 
     @JsonCreator
-    public static Temagruppe fraKode(@JsonProperty("kode") String kode) {
+    public static Temagrupper fraKode(@JsonProperty("kode") String kode) {
         if (kode == null) {
             return null;
         }
@@ -48,7 +48,7 @@ public enum Temagruppe implements Kodeverdi {
         return ad;
     }
 
-    public static Temagruppe fraKodeDefaultUdefinert(@JsonProperty("kode") String kode) {
+    public static Temagrupper fraKodeDefaultUdefinert(@JsonProperty("kode") String kode) {
         if (kode == null) {
             return UDEFINERT;
         }

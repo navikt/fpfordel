@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.mottak.domene.oppgavebehandling;
 
+import static no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask.OPPGAVETYPER_JFR;
 import static no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask.TASKNAME;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.ARKIV_ID_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.BEHANDLINGSTEMA_KEY;
@@ -8,12 +9,12 @@ import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.JOURN
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.RETRY_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.TEMA_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,19 +34,25 @@ import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseTestUtil;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.JournalTilstand;
-import no.nav.tjeneste.virksomhet.behandleoppgave.v1.meldinger.WSOpprettOppgaveResponse;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
-import no.nav.vedtak.felles.integrasjon.behandleoppgave.BehandleoppgaveConsumer;
-import no.nav.vedtak.felles.integrasjon.behandleoppgave.opprett.OpprettOppgaveRequest;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.OppgaveRestKlient;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.testutilities.Whitebox;
 
 public class OpprettGSakOppgaveTjenesteTaskTest {
 
     private static final String SAKSNUMMER = "9876543";
+    private static final Oppgave OPPGAVE = new Oppgave(99L, null, null, null, null,
+            Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), null, null, null, 1, "4806",
+            LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET);
 
     private ProsessTaskRepository prosessTaskRepository;
-    private BehandleoppgaveConsumer mockService;
+    private OppgaveRestKlient mockService;
     private DokumentRepository dokumentRepository;
     private AktørConsumerMedCache aktørConsumer;
 
@@ -57,12 +64,12 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
     @Before
     public void setup() {
         prosessTaskRepository = Mockito.mock(ProsessTaskRepository.class);
-        mockService = Mockito.mock(BehandleoppgaveConsumer.class);
+        mockService = Mockito.mock(OppgaveRestKlient.class);
         aktørConsumer = mock(AktørConsumerMedCache.class);
         enhetsidTjeneste = mock(EnhetsTjeneste.class);
         dokumentRepository = mock(DokumentRepository.class);
         when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), any(), any(), any())).thenReturn(fordelingsOppgaveEnhetsId);
-        task = new OpprettGSakOppgaveTask(prosessTaskRepository, mockService, enhetsidTjeneste, aktørConsumer, null);
+        task = new OpprettGSakOppgaveTask(prosessTaskRepository, enhetsidTjeneste, aktørConsumer, mockService);
     }
 
     @Test
@@ -77,22 +84,18 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
         taskData.setProperty(BEHANDLINGSTEMA_KEY, behandlingTema.getKode());
         taskData.setProperty(DOKUMENTTYPE_ID_KEY, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getKode());
         taskData.setAktørId(aktørId);
-        WSOpprettOppgaveResponse mockResponse = new WSOpprettOppgaveResponse();
-        mockResponse.setOppgaveId("MOCK");
 
         String beskrivelse = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getTermNavn();
 
-        ArgumentCaptor<OpprettOppgaveRequest> captor = ArgumentCaptor.forClass(OpprettOppgaveRequest.class);
-
-        when(mockService.opprettOppgave(captor.capture())).thenReturn(mockResponse);
+        ArgumentCaptor<OpprettOppgave.Builder> captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
+        when(mockService.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
         when(aktørConsumer.hentPersonIdentForAktørId(aktørId)).thenReturn(Optional.of(fodselsnummer));
 
         task.doTask(taskData);
 
-        OpprettOppgaveRequest serviceRequest = captor.getValue();
-
-        assertEquals(serviceRequest.getBeskrivelse(), beskrivelse);
-        assertThat(serviceRequest.getOppgavetypeKode()).as("Forventer at oppgavekode er journalføring foreldrepenger").isEqualTo(OpprettGSakOppgaveTask.JFR_FOR);
+        OpprettOppgave request = captor.getValue().build();
+        assertThat((String) Whitebox.getInternalState(request, "beskrivelse")).isEqualTo(beskrivelse);
+        assertThat((String)Whitebox.getInternalState(request, "oppgavetype")).isEqualTo(OPPGAVETYPER_JFR);
     }
 
     @Test
@@ -105,20 +108,17 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
         taskData.setProperty(JOURNAL_ENHET, enhet);
         String beskrivelse = BehandlingTema.ENGANGSSTØNAD_FØDSEL.getTermNavn();
 
-        WSOpprettOppgaveResponse mockResponse = new WSOpprettOppgaveResponse();
-        mockResponse.setOppgaveId("MOCK");
 
-        ArgumentCaptor<OpprettOppgaveRequest> captor = ArgumentCaptor.forClass(OpprettOppgaveRequest.class);
-
-        when(mockService.opprettOppgave(captor.capture())).thenReturn(mockResponse);
+        ArgumentCaptor<OpprettOppgave.Builder> captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
+        when(mockService.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
         when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), eq(Optional.of(enhet)), any(), any())).thenReturn(enhet);
 
         task.doTask(taskData);
 
-        OpprettOppgaveRequest serviceRequest = captor.getValue();
-        assertThat(serviceRequest.getBeskrivelse()).as("Forventer at beskrivelse er fordelingsoppgave når vi ikke har aktørId.").isEqualTo(beskrivelse);
-        assertThat(serviceRequest.getOppgavetypeKode()).as("Forventer at oppgavekode er fordeling foreldrepenger").isEqualTo(OpprettGSakOppgaveTask.JFR_FOR);
-        assertThat(serviceRequest.getAnsvarligEnhetId()).as("Forventer journalførende enhet").isEqualTo(enhet);
+        OpprettOppgave request = captor.getValue().build();
+        assertThat((String) Whitebox.getInternalState(request, "beskrivelse")).isEqualTo(beskrivelse);
+        assertThat((String)Whitebox.getInternalState(request, "oppgavetype")).isEqualTo(OPPGAVETYPER_JFR);
+        assertThat((String)Whitebox.getInternalState(request, "tildeltEnhetsnr")).isEqualTo(enhet);
     }
 
     @Test
@@ -138,17 +138,14 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
         when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(DokumentforsendelseTestUtil.lagMetadata(forsendelseId, SAKSNUMMER));
         when(dokumentRepository.hentDokumenter(any(UUID.class))).thenReturn(dokumenter);
 
-        WSOpprettOppgaveResponse mockResponse = new WSOpprettOppgaveResponse();
-        mockResponse.setOppgaveId("MOCK");
         String beskrivelse = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.getTermNavn();
 
-        ArgumentCaptor<OpprettOppgaveRequest> captor = ArgumentCaptor.forClass(OpprettOppgaveRequest.class);
-
-        when(mockService.opprettOppgave(captor.capture())).thenReturn(mockResponse);
+        ArgumentCaptor<OpprettOppgave.Builder> captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
+        when(mockService.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
 
         task.doTask(taskData);
 
-        OpprettOppgaveRequest serviceRequest = captor.getValue();
-        assertThat(serviceRequest.getBeskrivelse()).as("Forventer at beskrivelse er fordelingsoppgave når vi ikke har aktørId.").isEqualTo(beskrivelse);
+        OpprettOppgave request = captor.getValue().build();
+        assertThat((String) Whitebox.getInternalState(request, "beskrivelse")).isEqualTo(beskrivelse);
     }
 }
