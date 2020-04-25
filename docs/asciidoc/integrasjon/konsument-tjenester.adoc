@@ -54,18 +54,6 @@ Oversikt over konsumerende tjenester.
 |https://confluence.adeo.no/display/SDFS/tjeneste_v3%3Avirksomhet%3ASak_v1[Beskrivelse]
 |*FinnSak:* Brukes for å finne sak i GSak.
 
-|Behandleoppgave
-|GSAK
-|virksomhet:Behandleoppgave_v1
-|https://confluence.adeo.no/pages/viewpage.action?pageId=233382799[Beskrivelse]
-|*OpprettOppgave:* Brukes for å opprette oppgave i Gsak systemet.
-
-|Oppgave
-|GSAK
-|virksomhet:Oppgave_v3
-|https://confluence.adeo.no/display/SDFS/tjeneste_v3%3Avirksomhet%3AOppgave_v3[Beskrivelse]
-|*finnOppgaveListe:* Operasjonen tilbyr å hente en liste med oppgaver basert på noen begrensingskriterier. Man kan hente oppgaver ved å sette forskjellige nøkkelfelter i input. Søket kan videre begrenses med å sette søkefiltre. Det er påkrevd at man setter minst ett av nøkkelfeltene ved kall av tjenesten, men man bør prøve å begrense søket ved hjelp av filterfeltene for å få et mest mulig målrettet søk mot de oppgavene man vil hente. Et mer begrenset søk er også gunstig for ytelsen, da et ubegrenset søk vil kreve prosessering av potensielt svært store mengder data i baksystemet.
-
 |InfotrygdSak
 |INFOTRYGD
 |virksomhet:infotrygdsak_v1

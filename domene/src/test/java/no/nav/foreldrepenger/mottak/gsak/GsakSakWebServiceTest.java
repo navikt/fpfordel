@@ -22,7 +22,6 @@ import no.nav.tjeneste.virksomhet.sak.v1.informasjon.Sak;
 import no.nav.tjeneste.virksomhet.sak.v1.meldinger.FinnSakRequest;
 import no.nav.tjeneste.virksomhet.sak.v1.meldinger.FinnSakResponse;
 import no.nav.vedtak.exception.VLException;
-import no.nav.vedtak.felles.integrasjon.behandleoppgave.FagomradeKode;
 import no.nav.vedtak.felles.integrasjon.sak.SakConsumer;
 import no.nav.vedtak.felles.integrasjon.sak.SakSelftestConsumer;
 
@@ -59,14 +58,14 @@ public class GsakSakWebServiceTest {
         Sak sak1 = new Sak();
         sak1.setSakId("id1");
         Fagomraader fagomraade1 = new Fagomraader();
-        fagomraade1.setValue(FagomradeKode.FOR.toString());
+        fagomraade1.setValue("FOR");
         sak1.setFagomraade(fagomraade1);
         sak1.setFagsystem(infotrygdSystem);
 
         Sak sak2 = new Sak();
         sak2.setSakId("id2");
         Fagomraader fagomraade2 = new Fagomraader();
-        fagomraade2.setValue(FagomradeKode.UKJ.toString());
+        fagomraade2.setValue("UKJ");
         sak2.setFagomraade(fagomraade2);
         sak2.setFagsystem(infotrygdSystem);
 
