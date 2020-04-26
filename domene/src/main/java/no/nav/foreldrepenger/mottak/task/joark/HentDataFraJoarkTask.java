@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
-import no.nav.foreldrepenger.mottak.domene.dokument.Journalpost;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
@@ -91,21 +90,6 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     @Override
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper dataWrapper) {
-        if (dataWrapper.erMeldingsKildeExitMQ()) {
-            if (dokumentRepository.hentJournalposter(dataWrapper.getArkivId()).stream().map(Journalpost::getOpprettetAv).anyMatch("KAFKA"::equalsIgnoreCase)) {
-                LOG.info("FPFORDEL JOARK ignorerer (Kafka) journalpost {} mottatt fra {}", dataWrapper.getArkivId(), dataWrapper.getMeldingsKilde());
-                return null;
-            } else {
-                dokumentRepository.lagreJournalpost(dataWrapper.getArkivId(), "MIDLERTIDIG", null, null, "MQ");
-            }
-        } else if (dataWrapper.erMeldingsKildeKafka()) {
-            if (dokumentRepository.hentJournalposter(dataWrapper.getArkivId()).stream().map(Journalpost::getOpprettetAv).anyMatch("MQ"::equalsIgnoreCase)) {
-                LOG.info("FPFORDEL JOARK ignorerer (MQ) journalpost {} mottatt fra {}", dataWrapper.getArkivId(), dataWrapper.getMeldingsKilde());
-                return null;
-            }
-        }
-        LOG.info("FPFORDEL JOARK behandler journalpost {} mottatt fra {}", dataWrapper.getArkivId(), dataWrapper.getMeldingsKilde());
-
         final List<JournalMetadata> hoveddokumenter = joarkDokumentHåndterer
                 .hentJoarkDokumentMetadata(dataWrapper.getArkivId());
         loggJournalpost(hoveddokumenter);
@@ -157,6 +141,11 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             dataWrapper.setDokumentTypeId(dtid);
             dataWrapper.setBehandlingTema(HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(dataWrapper.getBehandlingTema(), dtid));
         });
+        // Disse har så store mangler
+        if (DokumentTypeId.UDEFINERT.equals(dataWrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT))) {
+            LOG.info("FPFORDEL UDEFINERT dokumenttype for journalpost {}", dataWrapper.getArkivId());
+            return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+        }
         return dataWrapper.nesteSteg(HentOgVurderVLSakTask.TASKNAME);
     }
 
@@ -167,7 +156,6 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         }
         BehandlingTema behandlingTemaFraIM = BehandlingTema.fraTermNavn(imYtelse.get());
 
-        dataWrapper.setInntektsmeldingYtelse(imYtelse.get());
         dataWrapper.setBehandlingTema(behandlingTemaFraIM);
 
         if (BehandlingTema.gjelderForeldrepenger(behandlingTemaFraIM)) {

@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.fordel.web.app.exceptions.JsonMappingExceptionMappe
 import no.nav.foreldrepenger.fordel.web.app.exceptions.JsonParseExceptionMapper;
 import no.nav.foreldrepenger.fordel.web.app.forvaltning.ForvaltningRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste;
+import no.nav.foreldrepenger.fordel.web.app.rest.FagsakFraJournalpostRestTjeneste;
 import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
 
 @ApplicationPath(ApplicationConfig.API_URI)
@@ -63,6 +64,7 @@ public class ApplicationConfig extends Application {
         Set<Class<?>> classes = new HashSet<>();
         classes.add(ProsessTaskRestTjeneste.class);
         classes.add(DokumentforsendelseRestTjeneste.class);
+        classes.add(FagsakFraJournalpostRestTjeneste.class);
         classes.add(ForvaltningRestTjeneste.class);
         classes.add(SwaggerSerializers.class);
         classes.add(OpenApiResource.class);

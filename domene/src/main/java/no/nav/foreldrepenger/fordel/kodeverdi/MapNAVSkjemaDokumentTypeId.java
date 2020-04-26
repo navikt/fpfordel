@@ -38,6 +38,21 @@ public class MapNAVSkjemaDokumentTypeId {
             Map.entry(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON, 8),
             Map.entry(DokumentTypeId.KLAGE_DOKUMENT, 9),
             Map.entry(DokumentTypeId.ETTERSENDT_KLAGE, 10),
+            Map.entry(DokumentTypeId.TILBAKEKREV_UTTALELSE,11),
+            Map.entry(DokumentTypeId.LEGEERKLÆRING,20),
+            Map.entry(DokumentTypeId.DOK_INNLEGGELSE,21),
+            Map.entry(DokumentTypeId.DOKUMENTASJON_FORSVARSTJENESTE,22),
+            Map.entry(DokumentTypeId.DOKUMENTASJON_NAVTILTAK,23),
+            Map.entry(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL,30),
+            Map.entry(DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO,31),
+            Map.entry(DokumentTypeId.FØDSELSATTEST,32),
+            Map.entry(DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE,33),
+            Map.entry(DokumentTypeId.DOKUMENTASJON_ALENEOMSORG,34),
+            Map.entry(DokumentTypeId.DOK_FERIE,40),
+            Map.entry(DokumentTypeId.DOK_MORS_UTDANNING_ARBEID_SYKDOM,41),
+            Map.entry(DokumentTypeId.BESKRIVELSE_FUNKSJONSNEDSETTELSE,42),
+            Map.entry(DokumentTypeId.BEKREFTELSE_FRA_ARBEIDSGIVER,43),
+            Map.entry(DokumentTypeId.BEKREFTELSE_FRA_STUDIESTED,44),
             Map.entry(DokumentTypeId.ANNET, 98),
             Map.entry(DokumentTypeId.UDEFINERT, 99)
     );
@@ -53,7 +68,23 @@ public class MapNAVSkjemaDokumentTypeId {
             Map.entry(8, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON),
             Map.entry(9, DokumentTypeId.KLAGE_DOKUMENT),
             Map.entry(10, DokumentTypeId.ETTERSENDT_KLAGE),
-            Map.entry(98, DokumentTypeId.ANNET)
+            Map.entry(11, DokumentTypeId.TILBAKEKREV_UTTALELSE),
+            Map.entry(20, DokumentTypeId.LEGEERKLÆRING),
+            Map.entry(21, DokumentTypeId.DOK_INNLEGGELSE),
+            Map.entry(22, DokumentTypeId.DOKUMENTASJON_FORSVARSTJENESTE),
+            Map.entry(23, DokumentTypeId.DOKUMENTASJON_NAVTILTAK),
+            Map.entry(30, DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL),
+            Map.entry(31, DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO),
+            Map.entry(32, DokumentTypeId.FØDSELSATTEST),
+            Map.entry(33, DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE),
+            Map.entry(34, DokumentTypeId.DOKUMENTASJON_ALENEOMSORG),
+            Map.entry(40, DokumentTypeId.DOK_FERIE),
+            Map.entry(41, DokumentTypeId.DOK_MORS_UTDANNING_ARBEID_SYKDOM),
+            Map.entry(42, DokumentTypeId.BESKRIVELSE_FUNKSJONSNEDSETTELSE),
+            Map.entry(43, DokumentTypeId.BEKREFTELSE_FRA_ARBEIDSGIVER),
+            Map.entry(44, DokumentTypeId.BEKREFTELSE_FRA_STUDIESTED),
+            Map.entry(98, DokumentTypeId.ANNET),
+            Map.entry(99, DokumentTypeId.UDEFINERT)
     );
 
     public static DokumentTypeId mapBrevkode(NAVSkjema brevkode) {
@@ -64,11 +95,11 @@ public class MapNAVSkjemaDokumentTypeId {
 
     public static int dokumentTypeRank(DokumentTypeId dokumentTypeId) {
         if (dokumentTypeId == null)
-            return 99;
+            return DOKUMENT_TYPE_RANK.get(DokumentTypeId.UDEFINERT);
         return DOKUMENT_TYPE_RANK.getOrDefault(dokumentTypeId, 90);
     }
 
     public static DokumentTypeId dokumentTypeFromRank(int rank) {
-        return RANK_DOKUMENT_TYPE.getOrDefault(rank, DokumentTypeId.ANNET);
+        return RANK_DOKUMENT_TYPE.getOrDefault(rank, DokumentTypeId.UDEFINERT);
     }
 }

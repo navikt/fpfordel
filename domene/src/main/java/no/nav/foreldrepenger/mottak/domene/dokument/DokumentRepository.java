@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Forsendelse
 @ApplicationScoped
 public class DokumentRepository {
 
+    public static final String LOKALT_OPPHAV = "FORDEL";
     private static final String FORSENDELSE_ID = "forsendelseId";
     private static final String HOVED_DOKUMENT = "hovedDokument";
     private static final String ARKIV_FILTYPE = "arkivFilType";
@@ -121,13 +122,6 @@ public class DokumentRepository {
         lagre(metadata);
     }
 
-    public List<DokumentMetadata> hentDoumentMetadataForArkivId(String arkivId) {
-        TypedQuery<DokumentMetadata> query = entityManager.createQuery(
-                "from DokumentMetadata where arkivId = :arkivId", DokumentMetadata.class)
-                .setParameter("arkivId", arkivId);
-        return query.getResultList();
-    }
-
     public boolean erLokalForsendelse(String eksternReferanseId) {
         try {
             UUID forsendelseId = UUID.fromString(eksternReferanseId);
@@ -137,19 +131,8 @@ public class DokumentRepository {
         }
     }
 
-    public void lagre(Journalpost journalpost) {
-        entityManager.persist(journalpost);
-        entityManager.flush();
-    }
-
-    public void lagreJournalpost(String journalpostId, String tilstand, String kanal, String referanse, String opprettetAv) {
-        var journalpost = new Journalpost(journalpostId, tilstand, kanal, referanse, opprettetAv);
-        entityManager.persist(journalpost);
-        entityManager.flush();
-    }
-
-    public void lagreJournalpostLokal(String journalpostId, String tilstand, String referanse) {
-        var journalpost = new Journalpost(journalpostId, tilstand, "NAV_NO", referanse, "FORDEL");
+    public void lagreJournalpostLokal(String journalpostId, String kanal, String tilstand, String referanse) {
+        var journalpost = new Journalpost(journalpostId, tilstand, kanal, referanse, LOKALT_OPPHAV);
         entityManager.persist(journalpost);
         entityManager.flush();
     }

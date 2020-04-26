@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
@@ -50,7 +51,7 @@ public class JournalføringHendelseHåndtererTest {
                 .setHendelsesType("MidlertidigJournalført")
                 .setTemaNytt(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode()).setTemaGammelt("")
                 .setBehandlingstema(BehandlingTema.ENGANGSSTØNAD_FØDSEL.getOffisiellKode())
-                .setMottaksKanal("NAV_NO")
+                .setMottaksKanal(MottakKanal.SELVBETJENING.getKode())
                 .setKanalReferanseId("minfil.pdf")
                 .setJournalpostId(12345L)
                 .setJournalpostStatus("M");
@@ -73,7 +74,7 @@ public class JournalføringHendelseHåndtererTest {
                 .setHendelsesId("12345").setVersjon(1)
                 .setHendelsesType("MidlertidigJournalført")
                 .setTemaNytt(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode()).setTemaGammelt("")
-                .setMottaksKanal("ALTINN")
+                .setMottaksKanal(MottakKanal.ALTINN.getKode())
                 .setKanalReferanseId("AR325657")
                 .setJournalpostId(12345L)
                 .setJournalpostStatus("M");
@@ -95,7 +96,7 @@ public class JournalføringHendelseHåndtererTest {
                 .setHendelsesId("12345").setVersjon(1)
                 .setHendelsesType("MidlertidigJournalført")
                 .setTemaNytt(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode()).setTemaGammelt("")
-                .setMottaksKanal("NAV_NO")
+                .setMottaksKanal(MottakKanal.SELVBETJENING.getKode())
                 .setJournalpostId(12345L)
                 .setJournalpostStatus("M");
 

@@ -17,6 +17,7 @@ import no.nav.dok.tjenester.mottainngaaendeforsendelse.MottaInngaaendeForsendels
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.VariantFormat;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseResponse;
@@ -219,7 +220,7 @@ public class JournalTjenesteUtilTest {
     private InngaaendeJournalpost lagInngåendeJournalPost() {
         InngaaendeJournalpost journalpost = new InngaaendeJournalpost();
 
-        journalpost.setMottakskanal(new Mottakskanaler().withValue("NAV_NO"));
+        journalpost.setMottakskanal(new Mottakskanaler().withValue(MottakKanal.SELVBETJENING.getKode()));
 
         journalpost.setJournaltilstand(Journaltilstand.MIDLERTIDIG);
         journalpost.setForsendelseMottatt(DateUtil.convertToXMLGregorianCalendar(FORSENDELSE_MOTTATT));
