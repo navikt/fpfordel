@@ -4,6 +4,7 @@ import static no.nav.vedtak.log.util.LoggerUtils.removeLineBreaks;
 
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 
 import javax.enterprise.context.Dependent;
@@ -21,6 +22,7 @@ import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
+import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.JournalDokument;
@@ -77,18 +79,23 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
     private final FagsakRestKlient fagsakRestKlient;
     private final AktørConsumerMedCache aktørConsumer;
     private final ArkivTjeneste arkivTjeneste;
+    private final DokumentRepository dokumentRepository;
 
     @Inject
     public BehandleDokumentService(TilJournalføringTjeneste tilJournalføringTjeneste,
                                    HentDataFraJoarkTjeneste hentDataFraJoarkTjeneste,
-                                   KlargjørForVLTjeneste klargjørForVLTjeneste, FagsakRestKlient fagsakRestKlient,
-                                   AktørConsumerMedCache aktørConsumer, ArkivTjeneste arkivTjeneste) {
+                                   KlargjørForVLTjeneste klargjørForVLTjeneste,
+                                   FagsakRestKlient fagsakRestKlient,
+                                   AktørConsumerMedCache aktørConsumer,
+                                   ArkivTjeneste arkivTjeneste,
+                                   DokumentRepository dokumentRepository) {
         this.tilJournalføringTjeneste = tilJournalføringTjeneste;
         this.hentDataFraJoarkTjeneste = hentDataFraJoarkTjeneste;
         this.klargjørForVLTjeneste = klargjørForVLTjeneste;
         this.fagsakRestKlient = fagsakRestKlient;
         this.aktørConsumer = aktørConsumer;
         this.arkivTjeneste = arkivTjeneste;
+        this.dokumentRepository = dokumentRepository;
     }
 
     @Override
@@ -151,14 +158,26 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             }
         }
 
+        UUID forsendelseId = getForsendelseId(journalMetadata.getKanalReferanseId());
+
         String eksternReferanseId = null;
         if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId))
             eksternReferanseId = journalMetadata.getKanalReferanseId();
 
         klargjørForVLTjeneste.klargjørForVL(xml, saksnummer, arkivId, dokumentTypeId,
                 journalMetadata.getForsendelseMottattTidspunkt(),
-                behandlingTema, null, dokumentKategori, journalMetadata.getJournalførendeEnhet(), eksternReferanseId); // TODO: Shekhar
-                                                                                                   // forsendelseid null
+                behandlingTema, forsendelseId, dokumentKategori, journalMetadata.getJournalførendeEnhet(), eksternReferanseId);
+
+        // For å unngå klonede journalposter fra Gosys - de kan komme via Kafka
+        dokumentRepository.lagreJournalpostLokal(arkivId, journalMetadata.getMottaksKanal(), "ENDELIG", journalMetadata.getKanalReferanseId());
+    }
+
+    private UUID getForsendelseId(String eksternReferanseId) {
+        try {
+            return UUID.fromString(eksternReferanseId);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private Optional<JournalMetadata> hentJournalMetadata(String arkivId)

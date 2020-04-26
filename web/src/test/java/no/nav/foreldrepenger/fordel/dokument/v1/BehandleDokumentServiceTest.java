@@ -34,6 +34,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.VariantFormat;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
+import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.JournalDokument;
 import no.nav.foreldrepenger.mottak.journal.JournalMetadata;
@@ -89,6 +90,7 @@ public class BehandleDokumentServiceTest {
         navnDokumentTypeId = dokumentTypeId.getTermNavn();
 
         fagsakRestKlientMock = mock(FagsakRestKlient.class);
+
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, engangsstønad.getOffisiellKode(), false)));
 
@@ -111,9 +113,10 @@ public class BehandleDokumentServiceTest {
         when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.empty());
         when(aktørConsumer.hentAktørIdForPersonIdent(BRUKER_FNR)).thenReturn(Optional.of(AKTØR_ID));
         var arkivTjeneste = mock(ArkivTjeneste.class);
+        var dokumentRepository = mock(DokumentRepository.class);
         behandleDokumentService = new BehandleDokumentService(tilJournalføringTjenesteMock,
                 hentDataFraJoarkTjenesteMock, klargjørForVLTjenesteMock,
-                fagsakRestKlientMock, aktørConsumer, arkivTjeneste);
+                fagsakRestKlientMock, aktørConsumer, arkivTjeneste, dokumentRepository);
     }
 
     @Test
