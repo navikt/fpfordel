@@ -23,13 +23,12 @@ public class ProsesstaskMeldingsfordeler implements MeldingsFordeler {
     private ProsessTaskRepository prosessTaskRepository;
     private DokumentRepository dokumentRepository;
 
-    ProsesstaskMeldingsfordeler() {// NOSONAR.
-        // for CDI proxy
+    ProsesstaskMeldingsfordeler() {
     }
 
     @Inject
     public ProsesstaskMeldingsfordeler(ProsessTaskRepository prosessTaskRepository,
-                                       DokumentRepository dokumentRepository) {
+            DokumentRepository dokumentRepository) {
         this.prosessTaskRepository = prosessTaskRepository;
         this.dokumentRepository = dokumentRepository;
     }
