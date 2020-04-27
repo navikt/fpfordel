@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.mottak.journal.saf.model.BrukerIdType;
 import no.nav.foreldrepenger.mottak.journal.saf.model.DokumentInfo;
 import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
 import no.nav.foreldrepenger.mottak.journal.saf.model.VariantFormat;
+import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 
 @ApplicationScoped
@@ -63,19 +64,29 @@ public class ArkivTjeneste {
             info.setDokumentInfoId(dokumentInfo);
         }
 
+        Set<DokumentTypeId> alleTyper = utledDokumentTyper(journalpost);
+        BehandlingTema behandlingTema = utledBehandlingTema(journalpost.getBehandlingstema(), alleTyper);
         info.setJournalpostId(journalpostId);
         info.setTilstand(journalpost.getJournalstatus());
         mapIdent(journalpost).ifPresent(info::setBrukerAktørId);
         info.setKanal(journalpost.getKanal());
-        info.setAlleTyper(utledDokumentTyper(journalpost));
-        info.setHovedtype(utledHovedDokumentType(info.getAlleTyper()));
+        info.setAlleTyper(alleTyper);
+        info.setHovedtype(utledHovedDokumentType(alleTyper));
         info.setTema(Tema.fraOffisiellKode(journalpost.getTema()));
-        info.setBehandlingstema(BehandlingTema.fraOffisiellKode(journalpost.getBehandlingstema()));
+        info.setBehandlingstema(behandlingTema);
         info.setJournalfoerendeEnhet(journalpost.getJournalfoerendeEnhet());
         info.setDatoOpprettet(journalpost.getDatoOpprettet());
         info.setEksternReferanseId(journalpost.getEksternReferanseId());
 
         return info;
+    }
+
+    private BehandlingTema utledBehandlingTema(String btJournalpost, Set<DokumentTypeId> dokumenttyper) {
+        BehandlingTema bt = BehandlingTema.fraOffisiellKode(btJournalpost);
+        for (DokumentTypeId type : dokumenttyper) {
+            bt = HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(bt, type);
+        }
+        return bt;
     }
 
     private Set<DokumentTypeId> utledDokumentTyper(Journalpost journalpost) {
@@ -101,7 +112,7 @@ public class ArkivTjeneste {
         if (lavestrank == 90) {
             return alleTyper.stream()
                    .filter(t -> MapNAVSkjemaDokumentTypeId.dokumentTypeRank(t) == 90)
-                   .findFirst().orElse(DokumentTypeId.ANNET);
+                   .findFirst().orElse(DokumentTypeId.UDEFINERT);
         }
         return MapNAVSkjemaDokumentTypeId.dokumentTypeFromRank(lavestrank);
     }
@@ -166,5 +177,10 @@ public class ArkivTjeneste {
             LOG.info("Noe rart skjedde", e);
         }
         return Optional.empty();
+    }
+
+    public Boolean kanOppretteSak(String journalpostId) {
+        var ajp = hentArkivJournalpost(journalpostId);
+        return DokumentTypeId.erFørsteSøknadType(ajp.getHovedtype()) || DokumentTypeId.INNTEKTSMELDING.equals(ajp.getHovedtype());
     }
 }

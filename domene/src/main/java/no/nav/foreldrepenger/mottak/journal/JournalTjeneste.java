@@ -15,6 +15,7 @@ import no.nav.dok.tjenester.mottainngaaendeforsendelse.ForsendelseInformasjon;
 import no.nav.dok.tjenester.mottainngaaendeforsendelse.MottaInngaaendeForsendelseRequest;
 import no.nav.dok.tjenester.mottainngaaendeforsendelse.MottaInngaaendeForsendelseResponse;
 import no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem;
+import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.kodeverdi.VariantFormat;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseRequest;
@@ -65,7 +66,7 @@ public class JournalTjeneste {
     private static final String AKTØR_ID_KEY = "aktoer";
     private static final String IDENT_KEY = "ident";
     private static final String PERSON_KEY = "person";
-    private static final String MOTTAK_KANAL_NAV_NO = "NAV_NO";
+    private static final String MOTTAK_KANAL_NAV_NO = MottakKanal.SELVBETJENING.getKode();
 
     private final JournalConsumer journalConsumer;
     private final InngaaendeJournalConsumer inngaaendeJournalConsumer;

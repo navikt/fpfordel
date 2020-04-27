@@ -7,6 +7,7 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -59,7 +60,7 @@ public class MidlJournalføringTask extends WrappedProsessTaskHandler {
             dataWrapper.setArkivId(response.getJournalpostId());
         }
         forsendelseId.ifPresent(fid -> repo.oppdaterForsendelseMedArkivId(fid, dataWrapper.getArkivId(), ForsendelseStatus.GOSYS));
-        forsendelseId.ifPresent(fid -> repo.lagreJournalpostLokal(dataWrapper.getArkivId(), "MIDLERTIDIG", fid.toString()));
+        forsendelseId.ifPresent(fid -> repo.lagreJournalpostLokal(dataWrapper.getArkivId(), MottakKanal.SELVBETJENING.getKode(), "MIDLERTIDIG", fid.toString()));
         return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
     }
 }

@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.domene.dokument.Journalpost;
@@ -27,7 +28,7 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 public class JournalføringHendelseHåndterer {
 
     private static final Logger LOG = LoggerFactory.getLogger(JournalføringHendelseHåndterer.class);
-    private static final String EESSI = "EESSI";
+    private static final String EESSI = MottakKanal.EESSI.getKode();
 
     private ProsessTaskRepository taskRepository;
     private DokumentRepository dokumentRepository;
@@ -64,18 +65,12 @@ public class JournalføringHendelseHåndterer {
             LOG.info("FPFORDEL Mottatt Hendelse egen journalføring callid {}", arkivId);
             return;
         }
-        if (!dokumentRepository.hentDoumentMetadataForArkivId(arkivId).isEmpty()) {
-            LOG.info("FPFORDEL Mottatt Hendelse egen journalføring arkivid {}", arkivId);
-            return;
-        }
-        if (dokumentRepository.hentJournalposter(arkivId).stream().map(Journalpost::getOpprettetAv).anyMatch("FORDEL"::equalsIgnoreCase)) {
+        if (dokumentRepository.hentJournalposter(arkivId).stream().map(Journalpost::getOpprettetAv).anyMatch(DokumentRepository.LOKALT_OPPHAV::equalsIgnoreCase)) {
             LOG.info("FPFORDEL Mottatt Hendelse egen journalføring journalpost {}", arkivId);
             return;
         }
 
         lagreJoarkTask(payload, arkivId, eksternReferanseId);
-
-        dokumentRepository.lagreJournalpost(arkivId, payload.getJournalpostStatus().toString(), payload.getMottaksKanal().toString(), eksternReferanseId, "KAFKA");
     }
 
     private void lagreJoarkTask(JournalfoeringHendelseRecord payload, String arkivId, String eksternReferanse) {
@@ -84,19 +79,17 @@ public class JournalføringHendelseHåndterer {
         MottakMeldingDataWrapper melding = new MottakMeldingDataWrapper(taskdata);
         melding.setArkivId(arkivId);
         melding.setTema(Tema.fraOffisiellKode(payload.getTemaNytt().toString()));
-        melding.setBehandlingTema(BehandlingTema.fraOffisiellKode(payload.getBehandlingstema() != null ?
-                payload.getBehandlingstema().toString() : null));
+        melding.setBehandlingTema(BehandlingTema.fraOffisiellKode(payload.getBehandlingstema() != null ? payload.getBehandlingstema().toString() : null));
         melding.setEksternReferanseId(eksternReferanse);
-        melding.setMeldingsKildeKafka();
         taskRepository.lagre(melding.getProsessTaskData());
     }
 
     private void setCallIdForHendelse(JournalfoeringHendelseRecord payload) {
         var hendelsesId = payload.getHendelsesId();
-        if (hendelsesId == null) {
-            LOG.info("HendelseId er null, generer callId.");
-            hendelsesId = UUID.randomUUID().toString();
+        if (hendelsesId == null || hendelsesId.toString().isEmpty()) {
+            MDCOperations.putCallId(UUID.randomUUID().toString());
+        } else {
+            MDCOperations.putCallId(hendelsesId.toString());
         }
-        MDCOperations.putCallId(hendelsesId.toString());
     }
 }
