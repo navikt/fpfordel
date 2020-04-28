@@ -49,8 +49,8 @@ public class FagsakFraJournalpostRestTjeneste {
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
     public Response vurderJournalpostForOpprettFagsak(@BeanParam @NotNull @Valid SjekkJournalpostRequest request) {
-        List<BehandlingTema> aktive = request.getAktivesaker().stream().map(BehandlingTema::fraOffisiellKode).collect(Collectors.toList());
-        return Response.ok(arkivTjeneste.kanOppretteSak(request.getJournalpostId(), BehandlingTema.fraOffisiellKode(request.getOppgitt()), aktive)).build();
+        List<BehandlingTema> aktive = request.getAktivesakerBt().stream().map(BehandlingTema::fraOffisiellKode).collect(Collectors.toList());
+        return Response.ok(arkivTjeneste.kanOppretteSak(request.getJournalpostId(), BehandlingTema.fraOffisiellKode(request.getOppgittBt()), aktive)).build();
     }
 
 }
