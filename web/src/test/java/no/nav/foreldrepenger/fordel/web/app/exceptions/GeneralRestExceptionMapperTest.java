@@ -65,7 +65,7 @@ public class GeneralRestExceptionMapperTest {
 
     @Test
     public void constraint() {
-        Feil onstraint = DokumentFeil.FACTORY.constraintForsendelseId(UUID.randomUUID());
+        Feil constraint = DokumentFeil.FACTORY.constraintForsendelseId(UUID.randomUUID());
         Response response = generalRestExceptionMapper.toResponse(new ApplicationException(constraint.toException()));
         assertThat(response.getStatus()).isEqualTo(409);
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
