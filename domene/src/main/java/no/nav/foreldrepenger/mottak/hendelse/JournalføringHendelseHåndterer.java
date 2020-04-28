@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
-import no.nav.foreldrepenger.mottak.domene.dokument.Journalpost;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.task.joark.HentDataFraJoarkTask;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
@@ -65,7 +64,7 @@ public class JournalføringHendelseHåndterer {
             LOG.info("FPFORDEL Mottatt Hendelse egen journalføring callid {}", arkivId);
             return;
         }
-        if (dokumentRepository.hentJournalposter(arkivId).stream().map(Journalpost::getOpprettetAv).anyMatch(DokumentRepository.LOKALT_OPPHAV::equalsIgnoreCase)) {
+        if (!dokumentRepository.hentJournalposter(arkivId).isEmpty()) {
             LOG.info("FPFORDEL Mottatt Hendelse egen journalføring journalpost {}", arkivId);
             return;
         }
