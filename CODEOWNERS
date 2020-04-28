@@ -1,1 +1,1 @@
-* @navikt/foreldrepenger
+* @navikt/teamforeldrepenger

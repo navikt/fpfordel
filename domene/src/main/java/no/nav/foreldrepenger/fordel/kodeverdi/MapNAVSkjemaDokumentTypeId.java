@@ -4,6 +4,9 @@ import java.util.Map;
 
 public class MapNAVSkjemaDokumentTypeId {
 
+    public static final int GEN_RANK = 90;
+    public static final int UDEF_RANK = 99;
+
     private static final Map<NAVSkjema, DokumentTypeId> BREVKODE_DOKUMENT_TYPE = Map.ofEntries(
             Map.entry(NAVSkjema.SKJEMA_SVANGERSKAPSPENGER, DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER),
             Map.entry(NAVSkjema.SKJEMA_FORELDREPENGER_ADOPSJON, DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON),
@@ -54,7 +57,7 @@ public class MapNAVSkjemaDokumentTypeId {
             Map.entry(DokumentTypeId.BEKREFTELSE_FRA_ARBEIDSGIVER,43),
             Map.entry(DokumentTypeId.BEKREFTELSE_FRA_STUDIESTED,44),
             Map.entry(DokumentTypeId.ANNET, 98),
-            Map.entry(DokumentTypeId.UDEFINERT, 99)
+            Map.entry(DokumentTypeId.UDEFINERT, UDEF_RANK)
     );
 
     private static final Map<Integer, DokumentTypeId> RANK_DOKUMENT_TYPE = Map.ofEntries(
@@ -84,7 +87,7 @@ public class MapNAVSkjemaDokumentTypeId {
             Map.entry(43, DokumentTypeId.BEKREFTELSE_FRA_ARBEIDSGIVER),
             Map.entry(44, DokumentTypeId.BEKREFTELSE_FRA_STUDIESTED),
             Map.entry(98, DokumentTypeId.ANNET),
-            Map.entry(99, DokumentTypeId.UDEFINERT)
+            Map.entry(UDEF_RANK, DokumentTypeId.UDEFINERT)
     );
 
     public static DokumentTypeId mapBrevkode(NAVSkjema brevkode) {
@@ -96,7 +99,7 @@ public class MapNAVSkjemaDokumentTypeId {
     public static int dokumentTypeRank(DokumentTypeId dokumentTypeId) {
         if (dokumentTypeId == null)
             return DOKUMENT_TYPE_RANK.get(DokumentTypeId.UDEFINERT);
-        return DOKUMENT_TYPE_RANK.getOrDefault(dokumentTypeId, 90);
+        return DOKUMENT_TYPE_RANK.getOrDefault(dokumentTypeId, GEN_RANK);
     }
 
     public static DokumentTypeId dokumentTypeFromRank(int rank) {

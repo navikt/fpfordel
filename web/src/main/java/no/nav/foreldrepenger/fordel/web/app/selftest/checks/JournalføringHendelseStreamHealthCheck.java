@@ -36,7 +36,7 @@ public class JournalføringHendelseStreamHealthCheck extends ExtHealthCheck {
 
         KafkaStreams.State tilstand = consumer.getTilstand();
         intTestRes.setMessage("Consumer is in state [" + tilstand.name() + "].");
-        intTestRes.setOk(tilstand.isRunning() || KafkaStreams.State.CREATED.equals(tilstand));
+        intTestRes.setOk(tilstand.isRunningOrRebalancing() || KafkaStreams.State.CREATED.equals(tilstand));
         intTestRes.noteResponseTime();
         return intTestRes;
     }

@@ -25,7 +25,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
@@ -60,7 +59,7 @@ public class HentDataFraJoarkTaskTest {
 
         ProsessTaskRepository ptr = mock(ProsessTaskRepository.class);
         joarkDokumentHåndterer = mock(JoarkDokumentHåndterer.class);
-        joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, aktørConsumer, joarkDokumentHåndterer, mock(ArkivTjeneste.class), mock(DokumentRepository.class)));
+        joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, aktørConsumer, joarkDokumentHåndterer, mock(ArkivTjeneste.class)));
 
         taskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
         taskData.setSekvens("1");

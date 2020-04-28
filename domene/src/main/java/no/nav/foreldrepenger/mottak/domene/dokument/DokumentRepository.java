@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Forsendelse
 @ApplicationScoped
 public class DokumentRepository {
 
-    public static final String LOKALT_OPPHAV = "FORDEL";
+    private static final String LOKALT_OPPHAV = "FORDEL";
     private static final String FORSENDELSE_ID = "forsendelseId";
     private static final String HOVED_DOKUMENT = "hovedDokument";
     private static final String ARKIV_FILTYPE = "arkivFilType";
