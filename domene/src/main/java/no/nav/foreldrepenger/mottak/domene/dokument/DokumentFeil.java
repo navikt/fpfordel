@@ -17,6 +17,6 @@ public interface DokumentFeil extends DeklarerteFeil {
     @TekniskFeil(feilkode = "FP-302156", feilmelding = "Spørringen returnerte mer enn eksakt ett resultat", logLevel = LogLevel.WARN)
     Feil fantIkkeUnikResultat();
 
-    @TekniskFeil(feilkode = "FP-324315", feilmelding = "Duplikat forsendelseId {%s} finnes i databasen", logLevel = LogLevel.WARN)
+    @TekniskFeil(exceptionClass = ConstraintException.class, feilkode = "FP-324315", feilmelding = "Duplikat forsendelseId {%s} finnes i databasen", logLevel = LogLevel.WARN)
     Feil constraintForsendelseId(UUID forsendelseId);
 }
