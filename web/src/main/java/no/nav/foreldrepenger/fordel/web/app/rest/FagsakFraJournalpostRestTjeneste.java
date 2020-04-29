@@ -16,12 +16,17 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
+import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
+import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path("/vurdering")
@@ -51,6 +56,45 @@ public class FagsakFraJournalpostRestTjeneste {
     public Response vurderJournalpostForOpprettFagsak(@BeanParam @NotNull @Valid SjekkJournalpostRequest request) {
         List<BehandlingTema> aktive = request.getAktivesakerBt().stream().map(BehandlingTema::fraOffisiellKode).collect(Collectors.toList());
         return Response.ok(arkivTjeneste.kanOppretteSak(request.getJournalpostId(), BehandlingTema.fraOffisiellKode(request.getOppgittBt()), aktive)).build();
+    }
+
+    @GET
+    @Path("/ytelsetype")
+    @Produces(APPLICATION_JSON)
+    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @Operation(description = "Returnerer ES, FP, SVP eller '-' (udefinert)", tags = "Vurdering", responses = {
+            @ApiResponse(responseCode = "200", description = "Svar"),
+            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
+    })
+    public Response utledYtelsetypeForSak(@QueryParam("journalpostId") @Parameter(name = "journalpostId", description = "Journalpost ID", example = "false")
+                                                @NotNull @Valid AbacJournalpostIdDto journalpostIdDto) {
+        BehandlingTema bt = arkivTjeneste.utledBehandlingstemaFra(journalpostIdDto.getJournalpostId());
+        return Response.ok(utledYtelseTypeFra(bt)).build();
+    }
+
+    private String utledYtelseTypeFra(BehandlingTema bt) {
+        if (BehandlingTema.gjelderForeldrepenger(bt))
+            return "FP";
+        if (BehandlingTema.gjelderEngangsstønad(bt))
+            return "ES";
+        if (BehandlingTema.gjelderSvangerskapspenger(bt))
+            return "SVP";
+        return "-";
+    }
+
+    public static class AbacJournalpostIdDto extends JournalpostIdDto implements AbacDto {
+        public AbacJournalpostIdDto() {
+            super();
+        }
+
+        public AbacJournalpostIdDto(String journalpostId) {
+            super(journalpostId);
+        }
+
+        @Override
+        public AbacDataAttributter abacAttributter() {
+            return AbacDataAttributter.opprett();
+        }
     }
 
 }
