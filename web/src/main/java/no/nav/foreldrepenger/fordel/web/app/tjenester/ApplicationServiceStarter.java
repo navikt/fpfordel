@@ -43,6 +43,7 @@ public class ApplicationServiceStarter {
     }
 
     public void stopServices() {
+        LOGGER.info("stopper services. Antall: {}", serviceMap.size());
         List<Thread> threadList = new ArrayList<>();
         serviceMap.forEach((key, value) -> {
             if (value.compareAndSet(true, false)) {
