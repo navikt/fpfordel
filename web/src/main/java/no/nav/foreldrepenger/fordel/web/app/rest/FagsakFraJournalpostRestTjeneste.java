@@ -46,41 +46,18 @@ public class FagsakFraJournalpostRestTjeneste {
     }
 
     @GET
-    @Path("/kanopprettesak")
-    @Produces(APPLICATION_JSON)
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @Operation(description = "Vurder om det bør opprettes fagsak fra journalpost", tags = "Vurdering", responses = {
-            @ApiResponse(responseCode = "200", description = "Svar"),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
-    public Response vurderJournalpostForOpprettFagsak(@BeanParam @NotNull @Valid SjekkJournalpostRequest request) {
-        List<BehandlingTema> aktive = request.getAktivesakerBt().stream().map(BehandlingTema::fraOffisiellKode).collect(Collectors.toList());
-        return Response.ok(arkivTjeneste.kanOppretteSak(request.getJournalpostId(), BehandlingTema.fraOffisiellKode(request.getOppgittBt()), aktive)).build();
-    }
-
-    @GET
     @Path("/ytelsetype")
     @Produces(APPLICATION_JSON)
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @Operation(description = "Returnerer ES, FP, SVP eller '-' (udefinert)", tags = "Vurdering", responses = {
+    @Operation(description = "Returnerer ES, FP, SVP, IMFP, IMSVP eller '-' (udefinert)", tags = "Vurdering", responses = {
             @ApiResponse(responseCode = "200", description = "Svar"),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
     public Response utledYtelsetypeForSak(@QueryParam("journalpostId") @Parameter(name = "journalpostId", description = "Journalpost ID", example = "false")
                                                 @NotNull @Valid AbacJournalpostIdDto journalpostIdDto) {
-        BehandlingTema bt = arkivTjeneste.utledBehandlingstemaFra(journalpostIdDto.getJournalpostId());
-        return Response.ok(utledYtelseTypeFra(bt)).build();
+        return Response.ok(arkivTjeneste.utledBehandlingstemaFra(journalpostIdDto.getJournalpostId())).build();
     }
 
-    private String utledYtelseTypeFra(BehandlingTema bt) {
-        if (BehandlingTema.gjelderForeldrepenger(bt))
-            return "FP";
-        if (BehandlingTema.gjelderEngangsstønad(bt))
-            return "ES";
-        if (BehandlingTema.gjelderSvangerskapspenger(bt))
-            return "SVP";
-        return "-";
-    }
 
     public static class AbacJournalpostIdDto extends JournalpostIdDto implements AbacDto {
         public AbacJournalpostIdDto() {

@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.journal;
 
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -184,37 +183,16 @@ public class ArkivTjeneste {
         return Optional.empty();
     }
 
-    public Boolean kanOppretteSak(String journalpostId, BehandlingTema ønsket, List<BehandlingTema> aktiveSaker) {
-        var ajp = hentArkivJournalpost(journalpostId);
-        if (BehandlingTema.UDEFINERT.equals(ønsket))
-            return DokumentTypeId.erFørsteSøknadType(ajp.getHovedtype()); // Midlertid i påvente av kall med data
-        if (DokumentTypeId.erFørsteSøknadType(ajp.getHovedtype())) {
-            return kompatibleBehandlingtemaDokumenttype(ajp.getHovedtype(), ønsket); //&& !aktiveSaker.contains(ønsket);
-        }
-        if (DokumentTypeId.INNTEKTSMELDING.equals(ajp.getHovedtype())) {
-            if (ajp.getInnholderStrukturertInformasjon()) {
-                var taskdata = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
-                MottakMeldingDataWrapper testWrapper = new MottakMeldingDataWrapper(taskdata);
-                MottattStrukturertDokument<?> mottattDokument = MeldingXmlParser.unmarshallXml(ajp.getStrukturertPayload());
-                mottattDokument.kopierTilMottakWrapper(testWrapper, aktørConsumer::hentAktørIdForPersonIdent);
-                Optional<BehandlingTema> temaFraIM = testWrapper.getInntektsmeldingYtelse().map(BehandlingTema::fraTermNavn);
-                return temaFraIM.map(bt -> kompatibleBehandlingtemaIM(bt, ønsket)).orElse(false) && !aktiveSaker.contains(ønsket);
-            }
-        }
-        return Boolean.FALSE;
-    }
-
-    public BehandlingTema utledBehandlingstemaFra(String journalpostId) {
+    public String utledBehandlingstemaFra(String journalpostId) {
         var ajp = hentArkivJournalpost(journalpostId);
         LOG.info("FPFORDEL VURDERING journalpost {} dokumenttype {}", journalpostId, ajp.getHovedtype());
         if (DokumentTypeId.erFørsteSøknadType(ajp.getHovedtype())) {
             if (DokumentTypeId.erForeldrepengerRelatert(ajp.getHovedtype()))
-                return BehandlingTema.FORELDREPENGER;
+                return "FP";
             if (DokumentTypeId.erEngangsstønadRelatert(ajp.getHovedtype()))
-                return BehandlingTema.ENGANGSSTØNAD;
+                return "ES";
             if (DokumentTypeId.erSvangerskapspengerRelatert(ajp.getHovedtype()))
-                return BehandlingTema.SVANGERSKAPSPENGER;
-            return BehandlingTema.UDEFINERT;
+                return "SVP";
         }
         if (DokumentTypeId.INNTEKTSMELDING.equals(ajp.getHovedtype()) && ajp.getInnholderStrukturertInformasjon()) {
             var taskdata = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
@@ -223,26 +201,12 @@ public class ArkivTjeneste {
             mottattDokument.kopierTilMottakWrapper(testWrapper, aktørConsumer::hentAktørIdForPersonIdent);
             BehandlingTema temaFraIM = testWrapper.getInntektsmeldingYtelse().map(BehandlingTema::fraTermNavn).orElse(BehandlingTema.UDEFINERT);
             LOG.info("FPFORDEL VURDERING IM journalpost {} dokumenttype {} behtema {}", journalpostId, ajp.getHovedtype(), temaFraIM);
-            return temaFraIM;
+            if (DokumentTypeId.erForeldrepengerRelatert(ajp.getHovedtype()))
+                return "IMFP";
+            if (DokumentTypeId.erSvangerskapspengerRelatert(ajp.getHovedtype()))
+                return "IMSVP";
         }
-        return BehandlingTema.UDEFINERT;
+        return "-";
     }
-
-    private boolean kompatibleBehandlingtemaDokumenttype(DokumentTypeId dokumentTypeId, BehandlingTema ønsket) {
-        if (BehandlingTema.gjelderForeldrepenger(ønsket) && DokumentTypeId.erForeldrepengerRelatert(dokumentTypeId)) {
-            return true;
-        }
-        if (BehandlingTema.gjelderEngangsstønad(ønsket) && DokumentTypeId.erEngangsstønadRelatert(dokumentTypeId)) {
-            return true;
-        }
-        return BehandlingTema.gjelderSvangerskapspenger(ønsket) && DokumentTypeId.erSvangerskapspengerRelatert(dokumentTypeId);
-    }
-    private boolean kompatibleBehandlingtemaIM(BehandlingTema fraDokument, BehandlingTema ønsket) {
-        if (BehandlingTema.gjelderForeldrepenger(ønsket) && BehandlingTema.gjelderForeldrepenger(fraDokument)) {
-            return true;
-        }
-        return BehandlingTema.gjelderSvangerskapspenger(ønsket) && BehandlingTema.gjelderSvangerskapspenger(fraDokument);
-    }
-
 
 }
