@@ -204,6 +204,30 @@ public class ArkivTjeneste {
         return Boolean.FALSE;
     }
 
+    public BehandlingTema utledBehandlingstemaFra(String journalpostId) {
+        var ajp = hentArkivJournalpost(journalpostId);
+        LOG.info("FPFORDEL VURDERING journalpost {} dokumenttype {}", journalpostId, ajp.getHovedtype());
+        if (DokumentTypeId.erFørsteSøknadType(ajp.getHovedtype())) {
+            if (DokumentTypeId.erForeldrepengerRelatert(ajp.getHovedtype()))
+                return BehandlingTema.FORELDREPENGER;
+            if (DokumentTypeId.erEngangsstønadRelatert(ajp.getHovedtype()))
+                return BehandlingTema.ENGANGSSTØNAD;
+            if (DokumentTypeId.erSvangerskapspengerRelatert(ajp.getHovedtype()))
+                return BehandlingTema.SVANGERSKAPSPENGER;
+            return BehandlingTema.UDEFINERT;
+        }
+        if (DokumentTypeId.INNTEKTSMELDING.equals(ajp.getHovedtype()) && ajp.getInnholderStrukturertInformasjon()) {
+            var taskdata = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
+            MottakMeldingDataWrapper testWrapper = new MottakMeldingDataWrapper(taskdata);
+            MottattStrukturertDokument<?> mottattDokument = MeldingXmlParser.unmarshallXml(ajp.getStrukturertPayload());
+            mottattDokument.kopierTilMottakWrapper(testWrapper, aktørConsumer::hentAktørIdForPersonIdent);
+            BehandlingTema temaFraIM = testWrapper.getInntektsmeldingYtelse().map(BehandlingTema::fraTermNavn).orElse(BehandlingTema.UDEFINERT);
+            LOG.info("FPFORDEL VURDERING IM journalpost {} dokumenttype {} behtema {}", journalpostId, ajp.getHovedtype(), temaFraIM);
+            return temaFraIM;
+        }
+        return BehandlingTema.UDEFINERT;
+    }
+
     private boolean kompatibleBehandlingtemaDokumenttype(DokumentTypeId dokumentTypeId, BehandlingTema ønsket) {
         if (BehandlingTema.gjelderForeldrepenger(ønsket) && DokumentTypeId.erForeldrepengerRelatert(dokumentTypeId)) {
             return true;
