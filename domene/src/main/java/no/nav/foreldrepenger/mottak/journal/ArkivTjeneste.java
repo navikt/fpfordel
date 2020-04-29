@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.mottak.journal;
 
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -18,14 +19,18 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.MapNAVSkjemaDokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.NAVSkjema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.saf.SafTjeneste;
 import no.nav.foreldrepenger.mottak.journal.saf.model.BrukerIdType;
 import no.nav.foreldrepenger.mottak.journal.saf.model.DokumentInfo;
 import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
 import no.nav.foreldrepenger.mottak.journal.saf.model.VariantFormat;
+import no.nav.foreldrepenger.mottak.task.joark.HentDataFraJoarkTask;
+import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 public class ArkivTjeneste {
@@ -179,8 +184,41 @@ public class ArkivTjeneste {
         return Optional.empty();
     }
 
-    public Boolean kanOppretteSak(String journalpostId) {
+    public Boolean kanOppretteSak(String journalpostId, BehandlingTema ønsket, List<BehandlingTema> aktiveSaker) {
         var ajp = hentArkivJournalpost(journalpostId);
-        return DokumentTypeId.erFørsteSøknadType(ajp.getHovedtype()) || DokumentTypeId.INNTEKTSMELDING.equals(ajp.getHovedtype());
+        if (BehandlingTema.UDEFINERT.equals(ønsket))
+            return DokumentTypeId.erFørsteSøknadType(ajp.getHovedtype()); // Midlertid i påvente av kall med data
+        if (DokumentTypeId.erFørsteSøknadType(ajp.getHovedtype())) {
+            return kompatibleBehandlingtemaDokumenttype(ajp.getHovedtype(), ønsket); //&& !aktiveSaker.contains(ønsket);
+        }
+        if (DokumentTypeId.INNTEKTSMELDING.equals(ajp.getHovedtype())) {
+            if (ajp.getInnholderStrukturertInformasjon()) {
+                var taskdata = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
+                MottakMeldingDataWrapper testWrapper = new MottakMeldingDataWrapper(taskdata);
+                MottattStrukturertDokument<?> mottattDokument = MeldingXmlParser.unmarshallXml(ajp.getStrukturertPayload());
+                mottattDokument.kopierTilMottakWrapper(testWrapper, aktørConsumer::hentAktørIdForPersonIdent);
+                Optional<BehandlingTema> temaFraIM = testWrapper.getInntektsmeldingYtelse().map(BehandlingTema::fraTermNavn);
+                return temaFraIM.map(bt -> kompatibleBehandlingtemaIM(bt, ønsket)).orElse(false) && !aktiveSaker.contains(ønsket);
+            }
+        }
+        return Boolean.FALSE;
     }
+
+    private boolean kompatibleBehandlingtemaDokumenttype(DokumentTypeId dokumentTypeId, BehandlingTema ønsket) {
+        if (BehandlingTema.gjelderForeldrepenger(ønsket) && DokumentTypeId.erForeldrepengerRelatert(dokumentTypeId)) {
+            return true;
+        }
+        if (BehandlingTema.gjelderEngangsstønad(ønsket) && DokumentTypeId.erEngangsstønadRelatert(dokumentTypeId)) {
+            return true;
+        }
+        return BehandlingTema.gjelderSvangerskapspenger(ønsket) && DokumentTypeId.erSvangerskapspengerRelatert(dokumentTypeId);
+    }
+    private boolean kompatibleBehandlingtemaIM(BehandlingTema fraDokument, BehandlingTema ønsket) {
+        if (BehandlingTema.gjelderForeldrepenger(ønsket) && BehandlingTema.gjelderForeldrepenger(fraDokument)) {
+            return true;
+        }
+        return BehandlingTema.gjelderSvangerskapspenger(ønsket) && BehandlingTema.gjelderSvangerskapspenger(fraDokument);
+    }
+
+
 }
