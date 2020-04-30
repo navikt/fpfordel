@@ -247,7 +247,7 @@ public class BehandleDokumentforsendelseTaskTest {
     }
 
     private Optional<FagsakInfomasjonDto> genFagsakInformasjon(String behTemaOffisiellKode) {
-        FagsakInfomasjonDto dto = new FagsakInfomasjonDto(AKTØR_ID, behTemaOffisiellKode, false);
+        FagsakInfomasjonDto dto = new FagsakInfomasjonDto(AKTØR_ID, behTemaOffisiellKode);
 
         return Optional.of(dto);
     }

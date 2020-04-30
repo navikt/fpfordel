@@ -18,18 +18,14 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.MapNAVSkjemaDokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.NAVSkjema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.saf.SafTjeneste;
 import no.nav.foreldrepenger.mottak.journal.saf.model.BrukerIdType;
 import no.nav.foreldrepenger.mottak.journal.saf.model.DokumentInfo;
 import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
 import no.nav.foreldrepenger.mottak.journal.saf.model.VariantFormat;
-import no.nav.foreldrepenger.mottak.task.joark.HentDataFraJoarkTask;
-import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 public class ArkivTjeneste {
@@ -181,32 +177,6 @@ public class ArkivTjeneste {
             LOG.info("Noe rart skjedde", e);
         }
         return Optional.empty();
-    }
-
-    public String utledBehandlingstemaFra(String journalpostId) {
-        var ajp = hentArkivJournalpost(journalpostId);
-        LOG.info("FPFORDEL VURDERING journalpost {} dokumenttype {}", journalpostId, ajp.getHovedtype());
-        if (DokumentTypeId.erFørsteSøknadType(ajp.getHovedtype())) {
-            if (DokumentTypeId.erForeldrepengerRelatert(ajp.getHovedtype()))
-                return "FP";
-            if (DokumentTypeId.erEngangsstønadRelatert(ajp.getHovedtype()))
-                return "ES";
-            if (DokumentTypeId.erSvangerskapspengerRelatert(ajp.getHovedtype()))
-                return "SVP";
-        }
-        if (DokumentTypeId.INNTEKTSMELDING.equals(ajp.getHovedtype()) && ajp.getInnholderStrukturertInformasjon()) {
-            var taskdata = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
-            MottakMeldingDataWrapper testWrapper = new MottakMeldingDataWrapper(taskdata);
-            MottattStrukturertDokument<?> mottattDokument = MeldingXmlParser.unmarshallXml(ajp.getStrukturertPayload());
-            mottattDokument.kopierTilMottakWrapper(testWrapper, aktørConsumer::hentAktørIdForPersonIdent);
-            BehandlingTema temaFraIM = testWrapper.getInntektsmeldingYtelse().map(BehandlingTema::fraTermNavn).orElse(BehandlingTema.UDEFINERT);
-            LOG.info("FPFORDEL VURDERING IM journalpost {} dokumenttype {} behtema {}", journalpostId, ajp.getHovedtype(), temaFraIM);
-            if (DokumentTypeId.erForeldrepengerRelatert(ajp.getHovedtype()))
-                return "IMFP";
-            if (DokumentTypeId.erSvangerskapspengerRelatert(ajp.getHovedtype()))
-                return "IMSVP";
-        }
-        return "-";
     }
 
 }
