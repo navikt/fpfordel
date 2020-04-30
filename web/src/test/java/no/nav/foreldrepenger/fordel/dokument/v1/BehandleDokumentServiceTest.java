@@ -92,7 +92,7 @@ public class BehandleDokumentServiceTest {
         fagsakRestKlientMock = mock(FagsakRestKlient.class);
 
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
-                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, engangsstønad.getOffisiellKode(), false)));
+                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, engangsstønad.getOffisiellKode())));
 
         journalMetadata = mock(JournalMetadata.class);
         when(journalMetadata.getJournaltilstand()).thenReturn(JournalMetadata.Journaltilstand.MIDLERTIDIG);
@@ -163,7 +163,7 @@ public class BehandleDokumentServiceTest {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional
-                        .of(new FagsakInfomasjonDto(AKTØR_ID, BehandlingTema.UDEFINERT.getOffisiellKode(), false)));
+                        .of(new FagsakInfomasjonDto(AKTØR_ID, BehandlingTema.UDEFINERT.getOffisiellKode())));
 
         when(journalMetadata.getDokumentTypeId()).thenReturn(DokumentTypeId.KLAGE_DOKUMENT);
         when(journalMetadata.getDokumentKategori()).thenReturn(Optional.of(DokumentKategori.KLAGE_ELLER_ANKE));
@@ -188,7 +188,7 @@ public class BehandleDokumentServiceTest {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional
-                        .of(new FagsakInfomasjonDto(AKTØR_ID, BehandlingTema.FORELDREPENGER_FØDSEL.getOffisiellKode(), false)));
+                        .of(new FagsakInfomasjonDto(AKTØR_ID, BehandlingTema.FORELDREPENGER_FØDSEL.getOffisiellKode())));
 
         when(journalMetadata.getDokumentTypeId()).thenReturn(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER);
         when(journalMetadata.getDokumentKategori()).thenReturn(Optional.of(DokumentKategori.SØKNAD));
@@ -224,7 +224,7 @@ public class BehandleDokumentServiceTest {
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(
-                        Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepengerFødsel.getOffisiellKode(), false)));
+                        Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepengerFødsel.getOffisiellKode())));
 
         JournalMetadata dokument = lagJournalMetadata(DokumentTypeId.INNTEKTSMELDING);
         String xml = readFile("testdata/inntektsmelding-foreldrepenger.xml");
@@ -248,7 +248,7 @@ public class BehandleDokumentServiceTest {
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(
-                        Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepengerFødsel.getOffisiellKode(), false)));
+                        Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepengerFødsel.getOffisiellKode())));
 
         JournalMetadata dokument = lagJournalMetadata(DokumentTypeId.INNTEKTSMELDING);
         String xml = readFile("testdata/inntektsmelding-svangerskapspenger.xml");
@@ -266,7 +266,7 @@ public class BehandleDokumentServiceTest {
         DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
-                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode(), false)));
+                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode())));
 
         JournalMetadata dokument = lagJournalMetadata(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
         String xml = readFile("testdata/selvb-soeknad-forp-uttak-før-konfigverdi.xml");
@@ -289,7 +289,7 @@ public class BehandleDokumentServiceTest {
         DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON;
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
-                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode(), false)));
+                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode())));
 
         JournalMetadata dokument = lagJournalMetadata(DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON);
         String xml = readFile("testdata/fp-adopsjon-far.xml");
@@ -312,7 +312,7 @@ public class BehandleDokumentServiceTest {
         DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
-                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode(), false)));
+                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode())));
 
         JournalMetadata dokument = lagJournalMetadata(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
         String xml = readFile("testdata/selvb-soeknad-forp.xml");
@@ -335,7 +335,7 @@ public class BehandleDokumentServiceTest {
         DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON;
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
-                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode(), false)));
+                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode())));
 
         JournalMetadata dokument = lagJournalMetadata(DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON);
         String xml = readFile("testdata/fp-adopsjon-mor.xml");
@@ -358,7 +358,7 @@ public class BehandleDokumentServiceTest {
         DokumentTypeId dokumentTypeId = DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD;
         when(journalMetadata.getDokumentTypeId()).thenReturn(dokumentTypeId);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
-                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode(), false)));
+                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode())));
 
         JournalMetadata dokument = lagJournalMetadata(DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD);
         String xml = readFile("testdata/selvb-soeknad-endring.xml");
