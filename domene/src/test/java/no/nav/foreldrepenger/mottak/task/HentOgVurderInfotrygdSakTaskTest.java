@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.task;
 
 import static java.time.LocalDate.now;
-import static java.util.Collections.emptyList;
 import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.ENGANGSSTØNAD_FØDSEL;
 import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.FORELDREPENGER;
 import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.FORELDREPENGER_FØDSEL;
@@ -10,17 +9,13 @@ import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.INNTEKTSMELD
 import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
 import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
 import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER;
-import static no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem.FPSAK;
-import static no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem.INFOTRYGD;
 import static no.nav.foreldrepenger.fordel.kodeverdi.Tema.FORELDRE_OG_SVANGERSKAPSPENGER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,12 +30,8 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.MockitoRule;
 
-import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.gsak.GsakSak;
-import no.nav.foreldrepenger.mottak.gsak.GsakSakTjeneste;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
 import no.nav.foreldrepenger.mottak.infotrygd.rest.RelevantSakSjekker;
@@ -75,15 +66,11 @@ public class HentOgVurderInfotrygdSakTaskTest {
     @Mock
     private ProsessTaskRepository prosessTaskRepository;
     @Mock
-    private GsakSakTjeneste gsak;
-    @Mock
     private AktørConsumerMedCache aktør;
     @Mock
     private InfotrygdTjeneste svp;
     @Mock
     private InfotrygdTjeneste fp;
-    @Mock
-    private Unleash unleash;
 
     @Before
     public void setup() {
@@ -92,11 +79,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     @Test
     public void skal_finne_relevant_registrert_infotrygdsak_for_inntektsmelding() throws Exception {
-        var g1 = new GsakSak(FNR_BRUKER, "id1", Tema.UDEFINERT, INFOTRYGD);
-        var g2 = new GsakSak(FNR_BRUKER, "id2", FORELDRE_OG_SVANGERSKAPSPENGER, INFOTRYGD);
-        var g3 = new GsakSak(FNR_BRUKER, "id3", FORELDRE_OG_SVANGERSKAPSPENGER, FPSAK);
-        var g4 = new GsakSak(FNR_BRUKER, "id4", FORELDRE_OG_SVANGERSKAPSPENGER, FPSAK);
-        expectGsak(FNR_BRUKER, g1, g2, g3, g4);
         var it1 = new InfotrygdSak(now().minusYears(2),
                 now().minusYears(2));
         var it2 = new InfotrygdSak(now().minusMonths(1), now().minusMonths(1));
@@ -112,12 +94,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     @Test
     public void skal_finne_relevant_iverksatt_infotrygdsak_for_inntektsmelding_bruker1() throws Exception {
-        var g1 = new GsakSak(FNR_BRUKER_1, "id1", Tema.UDEFINERT, INFOTRYGD);
-        var g2 = new GsakSak(FNR_BRUKER_1, "id2", FORELDRE_OG_SVANGERSKAPSPENGER, INFOTRYGD);
-        var g3 = new GsakSak(FNR_BRUKER_1, "id3", FORELDRE_OG_SVANGERSKAPSPENGER, FPSAK);
-        var g4 = new GsakSak(FNR_BRUKER_1, "id4", FORELDRE_OG_SVANGERSKAPSPENGER, FPSAK);
-        expectGsak(FNR_BRUKER_1, g1, g2, g3, g4);
-
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         var it2 = new InfotrygdSak(now().minusDays(1), now().minusDays(1));
         expectIT(FNR_BRUKER_1, it1, it2);
@@ -132,10 +108,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     @Test
     public void skal_finne_relevant_infotrygdsak_for_inntektsmelding_avsluttet_vedtak() throws Exception {
-        var g1 = new GsakSak(FNR_BRUKER, "id1", Tema.UDEFINERT, INFOTRYGD);
-        var g2 = new GsakSak(FNR_BRUKER, "id2", FORELDRE_OG_SVANGERSKAPSPENGER, INFOTRYGD);
-        expectGsak(FNR_BRUKER, g1, g2);
-
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         var it2 = new InfotrygdSak(now().minusDays(50), now().minusDays(50));
         expectIT(FNR_BRUKER, it1, it2);
@@ -150,12 +122,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     @Test
     public void skal_ikke_lenger_sjekke_infotrygdsak_for_engangsstønad() throws Exception {
-        var g1 = new GsakSak(FNR_BRUKER, "id1", Tema.UDEFINERT, INFOTRYGD);
-        var g2 = new GsakSak(FNR_BRUKER, "id2", FORELDRE_OG_SVANGERSKAPSPENGER, INFOTRYGD);
-        var g3 = new GsakSak(FNR_BRUKER, "id3", FORELDRE_OG_SVANGERSKAPSPENGER, FPSAK);
-        var g4 = new GsakSak(FNR_BRUKER, "id4", FORELDRE_OG_SVANGERSKAPSPENGER, FPSAK);
-        expectGsak(FNR_BRUKER, g1, g2, g3, g4);
-
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         var it2 = new InfotrygdSak(now().minusDays(1), now().minusDays(1));
         expectIT(FNR_BRUKER, it1, it2);
@@ -170,12 +136,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     @Test
     public void skal_finne_relevant_infotrygdsak_for_foreldrepenger() throws Exception {
-        var g1 = new GsakSak(FNR_ANNEN_PART, "id1", Tema.UDEFINERT, INFOTRYGD);
-        var g2 = new GsakSak(FNR_ANNEN_PART, "id2", FORELDRE_OG_SVANGERSKAPSPENGER, INFOTRYGD);
-        var g3 = new GsakSak(FNR_ANNEN_PART, "id3", FORELDRE_OG_SVANGERSKAPSPENGER, FPSAK);
-        var g4 = new GsakSak(FNR_ANNEN_PART, "id4", FORELDRE_OG_SVANGERSKAPSPENGER, FPSAK);
-        expectGsak(FNR_ANNEN_PART, g1, g2, g3, g4);
-
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         var it2 = new InfotrygdSak(now().minusDays(1), now().minusDays(1));
         expectIT(FNR_ANNEN_PART, it1, it2);
@@ -191,7 +151,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     @Test
     public void skal_opprette_sak_når_ingen_sak_for_foreldrepenger() throws Exception {
-        when(gsak.finnSaker(FNR_ANNEN_PART)).thenReturn(emptyList());
 
         var w = dataWrapper(AKTØR_BRUKER);
         w.setBehandlingTema(FORELDREPENGER_FØDSEL);
@@ -213,11 +172,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     @Test
     public void skal_til_gosys_når_det_finnes_sak_for_svangerskapspenger() throws Exception {
-        var g1 = new GsakSak(FNR_BRUKER_1, "id1", Tema.UDEFINERT, INFOTRYGD);
-        var g2 = new GsakSak(FNR_BRUKER_1, "id2", Tema.FORELDRE_OG_SVANGERSKAPSPENGER, INFOTRYGD);
-        var g3 = new GsakSak(FNR_BRUKER_1, "id3", Tema.FORELDRE_OG_SVANGERSKAPSPENGER, FPSAK);
-        var g4 = new GsakSak(FNR_BRUKER_1, "id4", Tema.FORELDRE_OG_SVANGERSKAPSPENGER, FPSAK);
-        expectGsak(FNR_BRUKER_1, g1, g2, g3, g4);
 
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         var it2 = new InfotrygdSak(now().minusMonths(1), now().minusMonths(1));
@@ -233,11 +187,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     @Test
     public void skal_finne_relevant_registrert_infotrygdsak_for_inntektsmelding_svangerskapspenger() throws Exception {
-        var g1 = new GsakSak(FNR_BRUKER_1, "id1", Tema.UDEFINERT, INFOTRYGD);
-        var g2 = new GsakSak(FNR_BRUKER_1, "id2", Tema.FORELDRE_OG_SVANGERSKAPSPENGER, INFOTRYGD);
-        var g3 = new GsakSak(FNR_BRUKER_1, "id3", Tema.FORELDRE_OG_SVANGERSKAPSPENGER, FPSAK);
-        var g4 = new GsakSak(FNR_BRUKER_1, "id4", Tema.FORELDRE_OG_SVANGERSKAPSPENGER, FPSAK);
-        expectGsak(FNR_BRUKER_1, g1, g2, g3, g4);
 
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         var it2 = new InfotrygdSak(now().minusMonths(1), now().minusMonths(1));
@@ -253,8 +202,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     @Test
     public void skal_finne_relevant_infotrygdsak_for_medmor_foreldrepenger() throws Exception {
-        var g1 = new GsakSak(FNR_ANNEN_PART_2, "id2", Tema.FORELDRE_OG_SVANGERSKAPSPENGER, INFOTRYGD);
-        expectGsak(FNR_ANNEN_PART_2, g1);
 
         var it = new InfotrygdSak(null, now().minusMonths(7));
         expectIT(FNR_ANNEN_PART_2, it);
@@ -282,9 +229,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     @Test
     public void skal_sjekke_infotrygd_kun_for_bruker_ved_inntektsmelding() {
-        var g1 = new GsakSak(FNR_BRUKER, "id1", FORELDRE_OG_SVANGERSKAPSPENGER, INFOTRYGD,
-                now().minusYears(2));
-        expectGsak(FNR_BRUKER, g1);
+
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         expectIT(FNR_BRUKER, it1);
         var w = dataWrapper(AKTØR_BRUKER);
@@ -301,8 +246,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     @Test
     public void neste_steg_skal_være_opprettsak_hvis_relevant_infotrygdsak_ikke_finnes() throws Exception {
-        when(gsak.finnSaker(any())).thenReturn(gsaker(FNR));
-        expectGsaker(FNR_BRUKER, gsaker(FNR));
+
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         expectIT(FNR_BRUKER, it1);
         var w = dataWrapper(AKTØR_BRUKER);
@@ -315,7 +259,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     public void neste_steg_skal_throw_exception_hvis_annen_part_er_ikke_funnet() throws Exception {
 
-        expectGsaker(FNR_ANNEN_PART, gsaker(FNR_ANNEN_PART));
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         expectIT(FNR_ANNEN_PART, it1);
 
@@ -327,7 +270,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     @Test(expected = VLException.class)
     public void skal_throw_exception_hvis_ukjent_behandlings_tema() throws Exception {
-        expectGsaker(FNR_ANNEN_PART, gsaker(FNR_ANNEN_PART));
 
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         expectIT(FNR_ANNEN_PART, it1);
@@ -371,16 +313,9 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     private HentOgVurderInfotrygdSakTask task() {
         return new HentOgVurderInfotrygdSakTask(prosessTaskRepository,
-                new RelevantSakSjekker(svp, fp, gsak),
+                new RelevantSakSjekker(svp, fp),
                 aktør
         );
-    }
-
-    private static List<GsakSak> gsaker(String fnr) {
-        GsakSak sak1 = new GsakSak(fnr, "id1", Tema.UDEFINERT, INFOTRYGD);
-        GsakSak sak2 = new GsakSak(fnr, "id2", Tema.FORELDRE_OG_SVANGERSKAPSPENGER, INFOTRYGD);
-        GsakSak sak3 = new GsakSak(fnr, "id3", Tema.FORELDRE_OG_SVANGERSKAPSPENGER, FPSAK);
-        return List.of(sak1, sak2, sak3);
     }
 
     private MottakMeldingDataWrapper doWithPrecondition(MottakMeldingDataWrapper wrapper) {
@@ -406,14 +341,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
     private void expectITRest(String fnr, InfotrygdSak... itsaker) {
         lenient().when(svp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
         lenient().when(fp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
-    }
-
-    private void expectGsak(String fnr, GsakSak... gsaker) {
-        expectGsaker(fnr, Arrays.asList(gsaker));
-    }
-
-    private void expectGsaker(String fnr, List<GsakSak> gsaker) {
-        lenient().when(gsak.finnSaker(fnr)).thenReturn(gsaker);
     }
 
     private void expect(String aktørId, String fnr) {
