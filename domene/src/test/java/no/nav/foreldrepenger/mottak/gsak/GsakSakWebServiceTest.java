@@ -38,8 +38,8 @@ public class GsakSakWebServiceTest {
     public void setup() {
         mockSakConsumer = mock(SakConsumer.class);
         mockSakSelftestConsumer = mock(SakSelftestConsumer.class);
-
-        service = new GsakSakTjeneste(mockSakConsumer, mockSakSelftestConsumer);
+        var restklient = mock(SakRestKlient.class);
+        service = new GsakSakTjeneste(mockSakConsumer, mockSakSelftestConsumer, restklient);
     }
 
     @Test

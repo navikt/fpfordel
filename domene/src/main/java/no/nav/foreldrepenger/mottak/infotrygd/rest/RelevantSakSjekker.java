@@ -11,6 +11,9 @@ import java.util.function.Predicate;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.gsak.GsakSakTjeneste;
@@ -22,6 +25,7 @@ import no.nav.foreldrepenger.mottak.infotrygd.rest.svp.SVP;
 @ApplicationScoped
 public class RelevantSakSjekker {
     private static final Period GSAK_EKSTRA_MND = Period.ofMonths(2);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RelevantSakSjekker.class);
 
     private InfotrygdTjeneste svp;
     private InfotrygdTjeneste fp;
@@ -42,22 +46,25 @@ public class RelevantSakSjekker {
         this.gsak = gsak;
     }
 
-    public boolean skalMidlertidigJournalføre(String fnr, LocalDate fom, Tema tema, BehandlingTema behandlingTema) {
-        return harGsakSaker(fnr, fom, tema) && erITSakRelevant(fnr, fom, behandlingTema);
+    public boolean skalMidlertidigJournalføre(String aktørId, String fnr, LocalDate fom, Tema tema, BehandlingTema behandlingTema) {
+        return harGsakSaker(aktørId, fnr, fom, tema) && erITSakRelevant(fnr, fom, behandlingTema);
     }
 
-    public boolean skalMidlertidigJournalføreIM(String fnr, LocalDate fom, Tema tema, BehandlingTema behandlingTema) {
-        return harGsakSaker(fnr, fom.minus(GSAK_EKSTRA_MND), tema) && erITSakRelevantForIM(fnr, fom, behandlingTema);
+    public boolean skalMidlertidigJournalføreIM(String aktørId, String fnr, LocalDate fom, Tema tema, BehandlingTema behandlingTema) {
+        return harGsakSaker(aktørId, fnr, fom.minus(GSAK_EKSTRA_MND), tema) && erITSakRelevantForIM(fnr, fom, behandlingTema);
     }
 
-    private boolean harGsakSaker(String fnr, LocalDate fom, Tema tema) {
-        return gsak.finnSaker(fnr)
+    private boolean harGsakSaker(String aktørId, String fnr, LocalDate fom, Tema tema) {
+        var gsaker = gsak.finnSaker(fnr)
                 .stream()
                 .filter(sak -> sak.getFagsystem().equals(INFOTRYGD))
                 .filter(sak -> sak.getTema().equals(tema))
                 .anyMatch(sak -> sak.getSistEndret()
                         .map(fom::isBefore)
                         .orElse(true));
+        var restsaker = gsak.finnSakerRest(aktørId).stream().anyMatch(s -> s.getSistEndret().map(fom::isBefore).orElse(true));
+        LOGGER.info("FPFORDEL GSAK resultat gammel {} rest {}", gsaker ,  restsaker);
+        return gsaker;
     }
 
     private boolean erITSakRelevant(String fnr, LocalDate fom, BehandlingTema tema) {

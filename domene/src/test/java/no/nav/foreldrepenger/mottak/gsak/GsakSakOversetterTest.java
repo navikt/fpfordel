@@ -26,7 +26,8 @@ public class GsakSakOversetterTest {
 
     @Before
     public void setup() {
-        oversetter = new GsakSakTjeneste(sakConsumer, null);
+        var restklient = mock(SakRestKlient.class);
+        oversetter = new GsakSakTjeneste(sakConsumer, null, restklient);
     }
 
     @Test

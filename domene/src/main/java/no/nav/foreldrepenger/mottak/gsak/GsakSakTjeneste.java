@@ -30,15 +30,18 @@ public class GsakSakTjeneste {
 
     private SakConsumer sakConsumer;
     private SakSelftestConsumer sakSelftestConsumer;
+    private SakRestKlient restKlient;
 
     public GsakSakTjeneste() {
     }
 
     @Inject
     public GsakSakTjeneste(SakConsumer sakConsumer,
-                           SakSelftestConsumer sakSelftestConsumer) {
+                           SakSelftestConsumer sakSelftestConsumer,
+                           SakRestKlient restKlient) {
         this.sakConsumer = sakConsumer;
         this.sakSelftestConsumer = sakSelftestConsumer;
+        this.restKlient = restKlient;
     }
 
     public void ping() {
@@ -62,6 +65,10 @@ public class GsakSakTjeneste {
         }
 
         return transformer(fnr, response.getSakListe());
+    }
+
+    public List<GsakSak> finnSakerRest(String aktørId) {
+        return restKlient.finnSakListe(aktørId, Fagsystem.INFOTRYGD.getKode(), Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode());
     }
 
     private List<GsakSak> transformer(String fnr, List<Sak> sakListe) {
