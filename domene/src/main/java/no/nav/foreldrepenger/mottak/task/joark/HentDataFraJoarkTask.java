@@ -1,12 +1,8 @@
 package no.nav.foreldrepenger.mottak.task.joark;
 
-import static no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste.erStrukturertDokument;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -16,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
@@ -23,11 +20,11 @@ import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveT
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
+import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
-import no.nav.foreldrepenger.mottak.journal.JournalDokument;
-import no.nav.foreldrepenger.mottak.journal.JournalMetadata;
 import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
-import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
+import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
+import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -39,10 +36,6 @@ import no.nav.vedtak.util.StringUtils;
  * ProssessTask som håndterer uthenting av saksinformasjon fra
  * Journalarkivet(joark).
  * </p>
- * <p>
- * Avhengig av integerasjonen mot Journalarkivet for uthenting av metadata og
- * søknads-xml.
- * </p>
  */
 @Dependent
 @ProsessTask(HentDataFraJoarkTask.TASKNAME)
@@ -53,17 +46,14 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(HentDataFraJoarkTask.class);
 
     private final AktørConsumerMedCache aktørConsumer;
-    private final JoarkDokumentHåndterer joarkDokumentHåndterer;
     private final ArkivTjeneste arkivTjeneste;
 
     @Inject
     public HentDataFraJoarkTask(ProsessTaskRepository prosessTaskRepository,
                                 AktørConsumerMedCache aktørConsumer,
-                                JoarkDokumentHåndterer joarkDokumentHåndterer,
                                 ArkivTjeneste arkivTjeneste) {
         super(prosessTaskRepository);
         this.aktørConsumer = aktørConsumer;
-        this.joarkDokumentHåndterer = joarkDokumentHåndterer;
         this.arkivTjeneste = arkivTjeneste;
     }
 
@@ -86,62 +76,51 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     @Override
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper dataWrapper) {
-        final List<JournalMetadata> hoveddokumenter = joarkDokumentHåndterer
-                .hentJoarkDokumentMetadata(dataWrapper.getArkivId());
-        loggJournalpost(hoveddokumenter);
 
-        if (hoveddokumenter.isEmpty()) {
-            arkivTjeneste.loggSammenligning(dataWrapper, Optional.empty());
+        ArkivJournalpost journalpost = arkivTjeneste.hentArkivJournalpost(dataWrapper.getArkivId());
+
+        if (!Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
+            LOG.info("FPFORDEL feil tilstand på journalpost {} med {}", journalpost.getJournalpostId(), journalpost.getTilstand());
+            return null;
+        }
+
+        // Disse 2 + behandlingstema er normalt satt fra før
+        dataWrapper.setTema(journalpost.getTema());
+        dataWrapper.setEksternReferanseId(journalpost.getEksternReferanseId());
+
+        dataWrapper.setForsendelseMottattTidspunkt(journalpost.getDatoOpprettet());
+        dataWrapper.setDokumentTypeId(journalpost.getHovedtype());
+        dataWrapper.setBehandlingTema(ArkivUtil.behandlingTemaFraDokumentType(dataWrapper.getBehandlingTema(), journalpost.getHovedtype()));
+        dataWrapper.setDokumentKategori(ArkivUtil.utledKategoriFraDokumentType(journalpost.getHovedtype()));
+        journalpost.getBrukerAktørId().ifPresent(dataWrapper::setAktørId);
+        journalpost.getJournalfoerendeEnhet().ifPresent(dataWrapper::setJournalførendeEnhet);
+        dataWrapper.setStrukturertDokument(journalpost.getInnholderStrukturertInformasjon());
+
+        if (journalpost.getInnholderStrukturertInformasjon()) {
+            MottattStrukturertDokument<?> mottattDokument = MeldingXmlParser.unmarshallXml(journalpost.getStrukturertPayload());
+            mottattDokument.kopierTilMottakWrapper(dataWrapper, aktørConsumer::hentAktørIdForPersonIdent);
+            dataWrapper.setPayload(journalpost.getStrukturertPayload());
+        }
+        if (dataWrapper.getForsendelseMottattTidspunkt().isEmpty()) {
+            dataWrapper.setForsendelseMottattTidspunkt(LocalDateTime.now());
+        }
+
+        // Vesentlige mangler
+        if (dataWrapper.getAktørId().isEmpty() || !Tema.FORELDRE_OG_SVANGERSKAPSPENGER.equals(dataWrapper.getTema()) ||
+                DokumentTypeId.UDEFINERT.equals(journalpost.getHovedtype())) {
+            LOG.info("FPFORDEL feil tema, udefinert type eller manglende bruker for journalpost {} type {}",
+                    dataWrapper.getArkivId(), journalpost.getHovedtype());
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
 
-        // Legg til task-parametere fra innkommende journalpost
-        DokumentTypeId dokumentTypeId = HentDataFraJoarkTjeneste.hentDokumentTypeId(hoveddokumenter);
-        dataWrapper.setDokumentTypeId(dokumentTypeId);
-        HentDataFraJoarkTjeneste.hentDokumentKategori(hoveddokumenter).ifPresent(dataWrapper::setDokumentKategori);
-        dataWrapper.setBehandlingTema(HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(
-                dataWrapper.getBehandlingTema(), dokumentTypeId));
-        dataWrapper.setForsendelseMottattTidspunkt(
-                HentDataFraJoarkTjeneste.hentForsendelseMottattTidspunkt(hoveddokumenter));
-        HentDataFraJoarkTjeneste.hentJournalførendeEnhet(hoveddokumenter)
-                .ifPresent(dataWrapper::setJournalførendeEnhet);
-        HentDataFraJoarkTjeneste.hentEksternReferanseId(hoveddokumenter)
-                .ifPresent(dataWrapper::setEksternReferanseId);
-        var brukerFraArkiv = joarkDokumentHåndterer.hentGyldigAktørFraMetadata(hoveddokumenter);
-        brukerFraArkiv.ifPresent(dataWrapper::setAktørId);
-        dataWrapper.setStrukturertDokument(erStrukturertDokument(hoveddokumenter));
+        LOG.info("FPFORDEL INNGÅENDE journalpost {} kanal {} tilstand {} hovedtype {} alle typer {}",
+                dataWrapper.getArkivId(), journalpost.getKanal(), journalpost.getTilstand(),
+                journalpost.getHovedtype(), journalpost.getAlleTyper());
 
-        if (erStrukturertDokument(hoveddokumenter)) {
-            JournalDokument journalDokument = joarkDokumentHåndterer
-                    .hentJournalDokument(hoveddokumenter);
-            MottattStrukturertDokument<?> mottattDokument = joarkDokumentHåndterer
-                    .unmarshallXMLDokument(journalDokument.getXml());
-            mottattDokument.kopierTilMottakWrapper(dataWrapper, joarkDokumentHåndterer::hentGyldigAktørFraPersonident);
-            dataWrapper.setPayload(journalDokument.getXml());
-            if (dataWrapper.getForsendelseMottattTidspunkt().isEmpty()) {
-                dataWrapper.setForsendelseMottattTidspunkt(LocalDateTime.now());
-            }
-        }
-
-        if (dataWrapper.getAktørId().isEmpty() || !Tema.FORELDRE_OG_SVANGERSKAPSPENGER.equals(dataWrapper.getTema())) {
-            return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
-        }
-
-        if (DokumentTypeId.erInntektsmelding(dokumentTypeId)) {
-            arkivTjeneste.loggSammenligning(dataWrapper, brukerFraArkiv);
+        if (DokumentTypeId.erInntektsmelding(journalpost.getHovedtype())) {
             return håndterInntektsmelding(dataWrapper);
         }
 
-        // Videre håndtering
-        arkivTjeneste.loggSammenligning(dataWrapper, brukerFraArkiv).ifPresent(dtid -> {
-            dataWrapper.setDokumentTypeId(dtid);
-            dataWrapper.setBehandlingTema(HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(dataWrapper.getBehandlingTema(), dtid));
-        });
-        // Disse har så store mangler
-        if (DokumentTypeId.UDEFINERT.equals(dataWrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT))) {
-            LOG.info("FPFORDEL UDEFINERT dokumenttype for journalpost {}", dataWrapper.getArkivId());
-            return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
-        }
         return dataWrapper.nesteSteg(HentOgVurderVLSakTask.TASKNAME);
     }
 
@@ -180,12 +159,4 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         return startDato.isBefore(KonfigVerdier.ENDRING_BEREGNING_DATO);
     }
 
-    private void loggJournalpost(List<JournalMetadata> dokumenter) {
-        var dtids = dokumenter.stream().map(JournalMetadata::getDokumentTypeId).collect(Collectors.toList());
-        if (dokumenter.isEmpty() || dtids.contains(DokumentTypeId.INNTEKTSMELDING))
-            return;
-        var tilstand = dokumenter.stream().findFirst().map(JournalMetadata::getJournaltilstand).map(JournalMetadata.Journaltilstand::name).orElse("TILSTAND_UDEF");
-        var kanal = dokumenter.stream().findFirst().map(JournalMetadata::getMottaksKanal).orElse("KANAL_UDEF");
-        LOG.info("FPFORDEL INNGÅENDE journalpost {} kanal {} tilstand {} typer {}", dokumenter.get(0).getJournalpostId(), kanal, tilstand, dtids);
-    }
 }

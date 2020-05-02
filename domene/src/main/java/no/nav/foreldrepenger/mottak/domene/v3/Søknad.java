@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.domene.v3;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -45,7 +44,7 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
             Function<String, Optional<String>> aktørIdFinder) {
         dataWrapper.setStrukturertDokument(true);
         dataWrapper.setAktørId(getSkjema().getSoeker().getAktoerId());
-        dataWrapper.setForsendelseMottattTidspunkt(hentMottattDato());
+        hentMottattDato(dataWrapper);
 
         hentFødselsdato().ifPresent(dataWrapper::setBarnFodselsdato);
         hentTermindato().ifPresent(dataWrapper::setBarnTermindato);
@@ -124,10 +123,13 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
 
     }
 
-    public LocalDateTime hentMottattDato() {
-        // FIXME (StigTollefsen): er vel ikke riktig å håndter dato felt som tidspunkt?
-        LocalDate mottattDato = getSkjema().getMottattDato();
-        return mottattDato == null ? null : mottattDato.atStartOfDay();
+    public void hentMottattDato(MottakMeldingDataWrapper wrapper) {
+        Optional.ofNullable(getSkjema().getMottattDato()).ifPresent(mdato -> {
+            if (wrapper.getForsendelseMottattTidspunkt().isEmpty() ||
+                    wrapper.getForsendelseMottatt().isAfter(mdato)) {
+                wrapper.setForsendelseMottattTidspunkt(mdato.atStartOfDay());
+            }
+        });
     }
 
     public Optional<LocalDate> hentTermindato() {

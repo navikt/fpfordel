@@ -1,49 +1,21 @@
 package no.nav.foreldrepenger.mottak.journal;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.dok.tjenester.mottainngaaendeforsendelse.DokumentInfoHoveddokument;
 import no.nav.dok.tjenester.mottainngaaendeforsendelse.DokumentInfoVedlegg;
 import no.nav.dok.tjenester.mottainngaaendeforsendelse.DokumentVariant;
 import no.nav.dok.tjenester.mottainngaaendeforsendelse.MottaInngaaendeForsendelseResponse;
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverdi.VariantFormat;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseResponse;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.JournalTilstand;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Arkivfiltyper;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Dokumentinformasjon;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Dokumentinnhold;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Dokumentkategorier;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.DokumenttypeIder;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.InngaaendeJournalpost;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Journalfoeringsbehov;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.JournalpostMangler;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Journaltilstand;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Variantformater;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.meldinger.HentJournalpostResponse;
-import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 
 class JournalTjenesteUtil {
-
-    private static Map<Journaltilstand, JournalMetadata.Journaltilstand> journaltilstandPrjournaltilstandJaxb;
-
-    static {
-        journaltilstandPrjournaltilstandJaxb = new EnumMap<>(Journaltilstand.class);
-        journaltilstandPrjournaltilstandJaxb.put(Journaltilstand.MIDLERTIDIG,
-                JournalMetadata.Journaltilstand.MIDLERTIDIG);
-        journaltilstandPrjournaltilstandJaxb.put(Journaltilstand.UTGAAR, JournalMetadata.Journaltilstand.UTGAAR);
-        journaltilstandPrjournaltilstandJaxb.put(Journaltilstand.ENDELIG, JournalMetadata.Journaltilstand.ENDELIG);
-    }
 
     JournalTjenesteUtil() {
     }
@@ -135,20 +107,6 @@ class JournalTjenesteUtil {
         return mangler;
     }
 
-    List<JournalMetadata> konverterTilMetadata(String journalpostId, HentJournalpostResponse response) {
-        InngaaendeJournalpost journalpost = response.getInngaaendeJournalpost();
-
-        List<JournalMetadata> metadataList = new ArrayList<>();
-
-        populerMetadataListe(journalpostId, journalpost, journalpost.getHoveddokument(), true, metadataList);
-        if (journalpost.getVedleggListe() != null) {
-            for (Dokumentinformasjon dokumentInfo : journalpost.getVedleggListe()) {
-                populerMetadataListe(journalpostId, journalpost, dokumentInfo, false, metadataList);
-            }
-        }
-        return metadataList;
-    }
-
     private DokumentInfoVedlegg getDokumentInfoVedlegg(Dokument dokument, boolean endelig, boolean krevTittel) {
         DokumentTypeId dokumentTypeId = dokument.getDokumentTypeId();
         DokumentInfoVedlegg info = new DokumentInfoVedlegg();
@@ -165,100 +123,6 @@ class JournalTjenesteUtil {
         info.setDokumentVariant(dokumentVariantList);
 
         return info;
-    }
-
-    private void populerMetadataListe(String journalpostId, InngaaendeJournalpost journalpost,
-            Dokumentinformasjon dokumentinfo, boolean erHoveddokument,
-            List<JournalMetadata> metadataList) {
-
-        Journaltilstand journaltilstandJaxb = journalpost.getJournaltilstand();
-        JournalMetadata.Journaltilstand journaltilstand = journaltilstandJaxb != null
-                ? journaltilstandPrjournaltilstandJaxb.get(journaltilstandJaxb)
-                : null;
-
-        LocalDate forsendelseMottatt = DateUtil.convertToLocalDate(journalpost.getForsendelseMottatt());
-        LocalDateTime forsendelseMottattTidspunkt = DateUtil
-                .convertToLocalDateTime(journalpost.getForsendelseMottatt());
-        Optional<String> kanalReferanseId = Optional.ofNullable(journalpost.getKanalReferanseId());
-        Optional<String> mottaksKanal = Optional.ofNullable(journalpost.getMottakskanal() != null ? journalpost.getMottakskanal().getValue() : null);
-        Optional<String> journalEnhet = Optional.ofNullable(journalpost.getJournalfEnhet());
-
-        List<no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Aktoer> brukerListe = journalpost
-                .getBrukerListe();
-
-        final String dokumentId = dokumentinfo.getDokumentId();
-        final DokumentTypeId dokumentTypeId = getDokumentTypeId(dokumentinfo);
-        final Optional<DokumentKategori> dokumentKategori = getDokumentKategori(dokumentinfo);
-
-        List<String> brukerIdentList = brukerListe.stream().filter((a) -> {
-            // instanceof OK - eksternt grensesnitt
-            return a instanceof no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Person; // NOSONAR
-        }).map(a -> ((no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Person) a).getIdent())
-                .collect(Collectors.toList());
-
-        for (Dokumentinnhold dokumentinnhold : dokumentinfo.getDokumentInnholdListe()) {
-            VariantFormat variantFormat = getVariantFormat(dokumentinnhold);
-            ArkivFilType arkivFilType = getArkivFilType(dokumentinnhold);
-
-            JournalMetadata.Builder builder = JournalMetadata.builder();
-            builder.medJournalpostId(journalpostId);
-            builder.medDokumentId(dokumentId);
-            builder.medVariantFormat(variantFormat);
-            builder.medDokumentType(dokumentTypeId);
-            dokumentKategori.ifPresent(builder::medDokumentKategori);
-            builder.medArkivFilType(arkivFilType);
-            builder.medJournaltilstand(journaltilstand);
-            builder.medErHoveddokument(erHoveddokument);
-            builder.medForsendelseMottatt(forsendelseMottatt);
-            builder.medForsendelseMottattTidspunkt(forsendelseMottattTidspunkt);
-            builder.medBrukerIdentListe(brukerIdentList);
-            kanalReferanseId.ifPresent(builder::medKanalReferanseId);
-            mottaksKanal.ifPresent(builder::medMottaksKanal);
-            journalEnhet.ifPresent(builder::medJournalførendeEnhet);
-            JournalMetadata metadata = builder.build();
-
-            metadataList.add(metadata);
-        }
-    }
-
-    private DokumentTypeId getDokumentTypeId(Dokumentinformasjon dokumentinfo) {
-        DokumentTypeId dokumentTypeId = null;
-        DokumenttypeIder dokumenttypeJaxb = dokumentinfo.getDokumenttypeId();
-        if (dokumenttypeJaxb != null && dokumenttypeJaxb.getValue() != null) {
-            final String offisiellKode = dokumenttypeJaxb.getValue();
-            dokumentTypeId = DokumentTypeId.fraOffisiellKode(offisiellKode);
-        }
-        return dokumentTypeId;
-    }
-
-    private Optional<DokumentKategori> getDokumentKategori(Dokumentinformasjon dokumentinfo) {
-        DokumentKategori dokumentKategori = DokumentKategori.UDEFINERT;
-        Dokumentkategorier dokumentkategoriJaxb = dokumentinfo.getDokumentkategori();
-        if (dokumentkategoriJaxb != null && dokumentkategoriJaxb.getValue() != null) {
-            String offisiellKode = dokumentkategoriJaxb.getValue();
-            dokumentKategori = DokumentKategori.fraOffisiellKode(offisiellKode);
-        }
-        return DokumentKategori.UDEFINERT.equals(dokumentKategori) ? Optional.empty() : Optional.of(dokumentKategori);
-    }
-
-    private VariantFormat getVariantFormat(Dokumentinnhold dokumentinnhold) {
-        VariantFormat variantFormat = null;
-        Variantformater variantformatJaxb = dokumentinnhold.getVariantformat();
-        if (variantformatJaxb != null && variantformatJaxb.getValue() != null) {
-            String offisiellKode = variantformatJaxb.getValue();
-            variantFormat = VariantFormat.fraKodeDefaultUdefinert(offisiellKode);
-        }
-        return variantFormat;
-    }
-
-    private ArkivFilType getArkivFilType(Dokumentinnhold dokumentinnhold) {
-        ArkivFilType arkivFilType = null;
-        Arkivfiltyper arkivfiltypeJaxb = dokumentinnhold.getArkivfiltype();
-        if (arkivfiltypeJaxb != null && arkivfiltypeJaxb.getValue() != null) {
-            String offisiellKode = arkivfiltypeJaxb.getValue();
-            arkivFilType = ArkivFilType.fraKodeDefaultUdefinert(offisiellKode);
-        }
-        return arkivFilType;
     }
 
 }
