@@ -47,8 +47,6 @@
 		"OPPGAVE_RS_URI": "http://oppgave.default/api/v1/oppgaver",
 		"PERSON_V3_URL": "https://wasapp.adeo.no/tpsws/ws/Person/v3",
 		"SAF_BASE_URL" : "http://saf",
-		"SAK_V1_URL": "https://wasapp.adeo.no/nav-gsak-ws/SakV1",
-		"SAK_RS_URL": "http://sak.default/api/v1/saker",
 		"SECURITYTOKENSERVICE_URL": "https://sts.adeo.no/SecurityTokenServiceProvider/",
 		"SENSU_HOST": "sensu.nais",
 		"SENSU_PORT": "3030"

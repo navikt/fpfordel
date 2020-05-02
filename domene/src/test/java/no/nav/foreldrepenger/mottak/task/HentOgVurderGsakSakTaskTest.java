@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
@@ -29,11 +28,8 @@ import org.mockito.junit.MockitoRule;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.gsak.GsakSak;
-import no.nav.foreldrepenger.mottak.gsak.GsakSakTjeneste;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
 import no.nav.foreldrepenger.mottak.infotrygd.rest.RelevantSakSjekker;
@@ -62,8 +58,6 @@ public class HentOgVurderGsakSakTaskTest {
     private Instance<Period> infotrygdAnnenPartGyldigPeriodeInstance;
     private HentOgVurderInfotrygdSakTask task;
     @Mock
-    private GsakSakTjeneste gsak;
-    @Mock
     private InfotrygdTjeneste ws;
     @Mock
     private InfotrygdTjeneste svp;
@@ -72,9 +66,6 @@ public class HentOgVurderGsakSakTaskTest {
     @Mock
     private AktørConsumerMedCache mockAktørConsumer;
 
-    private List<GsakSak> sakerTom;
-    private List<GsakSak> sakerMatchende;
-    private List<GsakSak> sakerMatchende2;
     static {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
     }
@@ -89,18 +80,9 @@ public class HentOgVurderGsakSakTaskTest {
 
         when(mockAktørConsumer.hentPersonIdentForAktørId(ANNEN_PART_ID)).thenReturn(Optional.of(ANNEN_PART_FNR));
         when(mockAktørConsumer.hentAktørIdForPersonIdent(ANNEN_PART_FNR)).thenReturn(Optional.of(ANNEN_PART_ID));
-        RelevantSakSjekker relevansSjekker = new RelevantSakSjekker(svp, fp, gsak);
+        RelevantSakSjekker relevansSjekker = new RelevantSakSjekker(svp, fp);
         task = new HentOgVurderInfotrygdSakTask(mockProsessTaskRepository, relevansSjekker, mockAktørConsumer);
 
-        sakerTom = new ArrayList<>();
-
-        GsakSak sak1 = new GsakSak(BRUKER_FNR, "id1", Tema.UDEFINERT, Fagsystem.INFOTRYGD);
-        GsakSak sak2 = new GsakSak(BRUKER_FNR, "id2", Tema.FORELDRE_OG_SVANGERSKAPSPENGER, Fagsystem.INFOTRYGD,
-                LocalDate.now().minusMonths(9));
-        GsakSak sak4 = new GsakSak(BRUKER_FNR, "id4", Tema.FORELDRE_OG_SVANGERSKAPSPENGER, Fagsystem.INFOTRYGD,
-                LocalDate.now().minusYears(4));
-        sakerMatchende = Arrays.asList(sak1, sak2);
-        sakerMatchende2 = Arrays.asList(sak1, sak4);
     }
 
     private List<InfotrygdSak> createInfotrygdSaker(boolean inkluderInntektsmelding) {
@@ -119,7 +101,6 @@ public class HentOgVurderGsakSakTaskTest {
 
     @Test
     public void test_doTask_ingenMatchendeInfotrygdSak() {
-        when(gsak.finnSaker(BRUKER_FNR)).thenReturn(sakerTom);
 
         MottakMeldingDataWrapper wrapperIn = opprettMottaksMelding();
 
@@ -138,7 +119,6 @@ public class HentOgVurderGsakSakTaskTest {
 
     @Test
     public void test_doTask_infotrygdsak_i_gsak_men_ikke_relevant_sak_i_infotrygd() {
-        when(gsak.finnSaker(any())).thenReturn(sakerMatchende);
         when(ws.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(createInfotrygdSaker(false));
 
         MottakMeldingDataWrapper wrapperIn = opprettMottaksMelding();
@@ -154,7 +134,7 @@ public class HentOgVurderGsakSakTaskTest {
 
     @Test
     public void test_doTask_gammel_infotrygdsak_i_gsak_skip_infotrygd() {
-        when(gsak.finnSaker(any())).thenReturn(sakerMatchende2);
+
         when(ws.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(new ArrayList<>());
 
         MottakMeldingDataWrapper wrapperIn = opprettMottaksMelding();
@@ -170,10 +150,9 @@ public class HentOgVurderGsakSakTaskTest {
 
     @Test
     public void test_doTask_infotrygdsak_i_gsak_og_relevant_i_infotrygd() {
-        when(gsak.finnSaker(BRUKER_FNR)).thenReturn(sakerMatchende);
+
         when(fp.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(createInfotrygdSaker(true));
 
-        when(gsak.finnSaker(ANNEN_PART_FNR)).thenReturn(sakerMatchende);
         when(fp.finnSakListe(eq(ANNEN_PART_FNR), any())).thenReturn(createInfotrygdSaker(true));
 
         MottakMeldingDataWrapper wrapperIn = opprettMottaksMelding();
