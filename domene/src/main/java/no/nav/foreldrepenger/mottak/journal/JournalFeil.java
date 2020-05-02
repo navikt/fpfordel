@@ -11,12 +11,10 @@ import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.binding.OppdaterJ
 import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.binding.OppdaterJournalpostUgyldigInput;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.binding.HentJournalpostJournalpostIkkeFunnet;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.binding.HentJournalpostJournalpostIkkeInngaaende;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.binding.HentJournalpostUgyldigInput;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.binding.UtledJournalfoeringsbehovJournalpostIkkeFunnet;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.binding.UtledJournalfoeringsbehovJournalpostIkkeInngaaende;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.binding.UtledJournalfoeringsbehovJournalpostKanIkkeBehandles;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.binding.UtledJournalfoeringsbehovUgyldigInput;
-import no.nav.tjeneste.virksomhet.journal.v2.binding.HentDokumentDokumentIkkeFunnet;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
@@ -36,9 +34,6 @@ public interface JournalFeil extends DeklarerteFeil {
     @IntegrasjonFeil(feilkode = "FP-195433", feilmelding = "Journalpost ikke funnet", logLevel = LogLevel.WARN)
     Feil hentJournalpostIkkeFunnet(HentJournalpostJournalpostIkkeFunnet e);
 
-    @IntegrasjonFeil(feilkode = "FP-276411", feilmelding = "Journalpost ugyldig input", logLevel = LogLevel.WARN)
-    Feil journalpostUgyldigInput(HentJournalpostUgyldigInput e);
-
     @IntegrasjonFeil(feilkode = "FP-107540", feilmelding = "Journalpost ikke inngående", logLevel = LogLevel.WARN)
     Feil journalpostIkkeInngaaende(HentJournalpostJournalpostIkkeInngaaende e);
 
@@ -53,9 +48,6 @@ public interface JournalFeil extends DeklarerteFeil {
 
     @IntegrasjonFeil(feilkode = "FP-729774", feilmelding = "Utled journalføringsbehov journalpost ikke inngaaende", logLevel = LogLevel.WARN)
     Feil utledJournalfoeringsbehovJournalpostIkkeInngaaende(UtledJournalfoeringsbehovJournalpostIkkeInngaaende e);
-
-    @IntegrasjonFeil(feilkode = "FP-249690", feilmelding = "Fant ikke journal dokument", logLevel = LogLevel.WARN)
-    Feil hentDokumentIkkeFunnet(HentDokumentDokumentIkkeFunnet e);
 
     @IntegrasjonFeil(feilkode = "FP-453958", feilmelding = "Journalføring ferdigstilling ikke mulig", logLevel = LogLevel.WARN)
     Feil journalfoeringFerdigstillingIkkeMulig(FerdigstillJournalfoeringFerdigstillingIkkeMulig e);

@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostVurderingDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
@@ -75,13 +76,16 @@ public class VurderJournalpostYtelseRestTjeneste {
         try {
             var ajp = arkivTjeneste.hentArkivJournalpost(journalpostId);
             LOG.info("FPFORDEL VURDERING journalpost {} dokumenttype {}", journalpostId, ajp.getHovedtype());
+            if (!Journalposttype.INNGÅENDE.equals(ajp.getJournalposttype())) {
+                throw new IllegalArgumentException("Journalpost ikke inngående " + journalpostId);
+            }
             if (DokumentTypeId.erFørsteSøknadType(ajp.getHovedtype())) {
                 if (DokumentTypeId.erForeldrepengerRelatert(ajp.getHovedtype()))
                     return new JournalpostVurderingDto(BehandlingTema.FORELDREPENGER.getOffisiellKode(), true, false);
                 if (DokumentTypeId.erEngangsstønadRelatert(ajp.getHovedtype()))
-                    return new JournalpostVurderingDto(BehandlingTema.ENGANGSSTØNAD.getOffisiellKode(), true, false);;
+                    return new JournalpostVurderingDto(BehandlingTema.ENGANGSSTØNAD.getOffisiellKode(), true, false);
                 if (DokumentTypeId.erSvangerskapspengerRelatert(ajp.getHovedtype()))
-                    return new JournalpostVurderingDto(BehandlingTema.SVANGERSKAPSPENGER.getOffisiellKode(), true, false);;
+                    return new JournalpostVurderingDto(BehandlingTema.SVANGERSKAPSPENGER.getOffisiellKode(), true, false);
             }
             if (DokumentTypeId.INNTEKTSMELDING.equals(ajp.getHovedtype()) && ajp.getInnholderStrukturertInformasjon()) {
                 var taskdata = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);

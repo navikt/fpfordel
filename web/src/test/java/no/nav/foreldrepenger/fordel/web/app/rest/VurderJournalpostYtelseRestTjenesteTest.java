@@ -21,6 +21,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
+import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
@@ -110,21 +112,21 @@ public class VurderJournalpostYtelseRestTjenesteTest {
         assertThat(respons.getErFørstegangssøknad()).isFalse();
     }
 
-
-
     private ArkivJournalpost byggJournalpost(DokumentTypeId dokumentTypeId, String filnavn) {
-        var jp = new ArkivJournalpost();
-        jp.setJournalpostId(ARKIV_ID);
-        jp.setHovedtype(dokumentTypeId);
-        jp.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
+        var jp = ArkivJournalpost.getBuilder()
+                .medJournalpostId(ARKIV_ID)
+                .medHovedtype(dokumentTypeId)
+                .medJournalposttype(Journalposttype.INNGÅENDE)
+                .medTilstand(Journalstatus.MOTTATT)
+                .medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         if (filnavn != null) {
             try {
                 Path path = Paths.get(Objects.requireNonNull(getClass().getClassLoader().getResource(filnavn)).toURI());
-                jp.setStrukturertPayload(Files.readString(path));
+                jp.medStrukturertPayload(Files.readString(path));
             } catch (Exception e) {
                 //
             }
         }
-        return jp;
+        return jp.build();
     }
 }

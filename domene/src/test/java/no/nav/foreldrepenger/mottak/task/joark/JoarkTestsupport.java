@@ -6,16 +6,14 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverdi.VariantFormat;
-import no.nav.foreldrepenger.mottak.journal.JournalMetadata;
+import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 class JoarkTestsupport {
@@ -24,8 +22,7 @@ class JoarkTestsupport {
     static final String DOKUMENT_ID = "456";
     static final String BRUKER_FNR = "99999999899";
     static final String AKTØR_ID = "9000000000009";
-    static final DokumentKategori DOKUMENT_KATEGORI = DokumentKategori.UDEFINERT;
-    static final List<String> brukerListe = Collections.singletonList(BRUKER_FNR);
+    static final List<String> brukerListe = Collections.singletonList(AKTØR_ID);
 
     final ProsessTaskData taskData;
 
@@ -34,46 +31,42 @@ class JoarkTestsupport {
         taskData.setSekvens("1");
     }
 
-    JournalMetadata.Builder lagJournalMetadata(ArkivFilType arkivfilType, List<String> brukerListe,
-            VariantFormat variantFormat, DokumentTypeId dokumentTypeId) {
-        JournalMetadata.Builder builder = JournalMetadata.builder();
-        builder.medJournalpostId(ARKIV_ID);
-        builder.medDokumentId(DOKUMENT_ID);
-        builder.medVariantFormat(variantFormat);
-        builder.medDokumentType(dokumentTypeId);
-        builder.medDokumentKategori(DOKUMENT_KATEGORI);
-        builder.medArkivFilType(arkivfilType);
-        builder.medErHoveddokument(true);
-        builder.medForsendelseMottatt(LocalDate.now());
-        builder.medForsendelseMottattTidspunkt(LocalDateTime.now());
-        builder.medBrukerIdentListe(brukerListe);
-        return builder;
+    ArkivJournalpost.Builder lagArkivJournalpost(List<String> brukerListe,
+                                                 DokumentTypeId dokumentTypeId) {
+        return ArkivJournalpost.getBuilder()
+                .medJournalpostId(ARKIV_ID)
+                .medTilstand(Journalstatus.MOTTATT)
+                .medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER)
+                .medHovedtype(dokumentTypeId)
+                .medDokumentInfoId(DOKUMENT_ID)
+                .medDatoOpprettet(LocalDateTime.now())
+                .medBrukerAktørId(brukerListe.isEmpty() ? null : brukerListe.get(0));
     }
 
-    JournalMetadata lagJournalMetadataUstrukturert(List<String> brukerListe) {
-        return lagJournalMetadata(ArkivFilType.PDF, brukerListe, VariantFormat.ARKIV,
-                DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL).build();
+    ArkivJournalpost lagArkivJournalpostUstrukturert(List<String> brukerListe) {
+        return lagArkivJournalpost(brukerListe, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL).build();
     }
 
-    JournalMetadata lagJournalMetadataUstrukturert() {
-        return lagJournalMetadata(ArkivFilType.PDF, brukerListe, VariantFormat.ARKIV,
-                DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL).build();
+    ArkivJournalpost lagJArkivJournalpostUstrukturert() {
+        return lagArkivJournalpost(brukerListe, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL).build();
     }
 
-    JournalMetadata lagJournalMetadataUstrukturert(DokumentTypeId dokumentTypeId) {
-        return lagJournalMetadata(ArkivFilType.PDF, brukerListe, VariantFormat.ARKIV, dokumentTypeId).build();
+    ArkivJournalpost lagJArkivJournalpostUstrukturert(DokumentTypeId dokumentTypeId) {
+        return lagArkivJournalpost(brukerListe, dokumentTypeId).build();
     }
 
-    JournalMetadata lagJournalMetadataStrukturert() {
-        return lagJournalMetadata(ArkivFilType.XML, brukerListe, VariantFormat.FULLVERSJON,
-                DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL).build();
+    ArkivJournalpost lagArkivJournalpostStrukturert(DokumentTypeId dokumentTypeId, String filename) {
+        try {
+            if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId))
+                return lagArkivJournalpost(Collections.emptyList(), dokumentTypeId).medStrukturertPayload(this.readFile(filename)).build();
+            return lagArkivJournalpost(brukerListe, dokumentTypeId).medStrukturertPayload(this.readFile(filename)).build();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Manglende fil");
+        }
+
     }
 
-    JournalMetadata lagJournalMetadataStrukturert(DokumentTypeId dokumentTypeId) {
-        return lagJournalMetadata(ArkivFilType.XML, brukerListe, VariantFormat.FULLVERSJON, dokumentTypeId).build();
-    }
-
-    String readFile(String filename) throws URISyntaxException, IOException {
+    private String readFile(String filename) throws URISyntaxException, IOException {
         Path path = Paths.get(getClass().getClassLoader().getResource(filename).toURI());
         return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
     }

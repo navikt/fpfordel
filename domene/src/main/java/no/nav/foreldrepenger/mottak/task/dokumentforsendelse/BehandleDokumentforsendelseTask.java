@@ -35,7 +35,7 @@ import no.nav.foreldrepenger.mottak.task.MidlJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.OpprettSakTask;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
-import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
+import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
@@ -118,7 +118,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         AtomicReference<BehandlingTema> behandlingTema = new AtomicReference<>();
 
         hovedDokumentOpt.ifPresent(dokument::set);
-        behandlingTema.set(HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(BehandlingTema.UDEFINERT,
+        behandlingTema.set(ArkivUtil.behandlingTemaFraDokumentType(BehandlingTema.UDEFINERT,
                 hovedDokumentOpt.map(Dokument::getDokumentTypeId).orElse(DokumentTypeId.UDEFINERT)));
         BehandlingTema tema = behandlingTema.get();
         dataWrapper.setBehandlingTema(tema);
@@ -228,7 +228,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         if (DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD.equals(dokument.getDokumentTypeId())) {
             // Endringssøknad har ingen info om behandlingstema, slik vi kan ikke utlede
             // et spesifikt tema, så må ha løsere match. Se
-            // HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType
+            // ArkivUtil.korrigerBehandlingTemaFraDokumentType
             if (BehandlingTema.gjelderForeldrepenger(behandlingTema)) {
                 return;
             }

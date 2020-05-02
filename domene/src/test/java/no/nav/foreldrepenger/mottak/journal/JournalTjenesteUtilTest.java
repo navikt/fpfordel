@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.journal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -15,40 +14,20 @@ import no.nav.dok.tjenester.mottainngaaendeforsendelse.DokumentInfoVedlegg;
 import no.nav.dok.tjenester.mottainngaaendeforsendelse.DokumentVariant;
 import no.nav.dok.tjenester.mottainngaaendeforsendelse.MottaInngaaendeForsendelseResponse;
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
-import no.nav.foreldrepenger.fordel.kodeverdi.VariantFormat;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseResponse;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseTestUtil;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.JournalTilstand;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Arkivfiltyper;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.DokumentInformasjonMangler;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Dokumentinformasjon;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Dokumentinnhold;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Dokumentkategorier;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.DokumenttypeIder;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.InngaaendeJournalpost;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Journalfoeringsbehov;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.JournalpostMangler;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Journaltilstand;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Mottakskanaler;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Person;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Variantformater;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.meldinger.HentJournalpostResponse;
-import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 
 public class JournalTjenesteUtilTest {
 
     private static final UUID FORSENDELSE_ID = UUID.randomUUID();
     private static final String JOURNALPOST_ID = "1234";
     private static final List<String> DOKUMENT_ID_LISTE = new ArrayList<>();
-    public static final String KANAL_REFERANSE = "SKY_CHANNEL";
-    public static final String FNR = "99999999999";
-    public static final String DOKUMENT_ID = "DOKUMENT_ID";
-
-    private static LocalDate FORSENDELSE_MOTTATT = LocalDate.now();
 
     static {
         DOKUMENT_ID_LISTE.add("234");
@@ -197,60 +176,6 @@ public class JournalTjenesteUtilTest {
         assertThat(mangler).contains(JournalPostMangler.JournalMangelType.INNHOLD);
     }
 
-    @Test
-    public void skal_konvertere_metadata() {
-
-        HentJournalpostResponse testResponse = new HentJournalpostResponse();
-        testResponse.setInngaaendeJournalpost(lagInngåendeJournalPost());
-
-        List<JournalMetadata> result = tjenesteUtil.konverterTilMetadata(JOURNALPOST_ID, testResponse);
-        assertThat(result.size()).isEqualTo(2);
-        JournalMetadata metadata = result.get(1);
-        assertThat(metadata.getDokumentTypeId()).isEqualTo(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
-        assertThat(metadata.getKanalReferanseId()).isEqualTo(KANAL_REFERANSE);
-        assertThat(metadata.getForsendelseMottatt()).isEqualTo(FORSENDELSE_MOTTATT);
-        assertThat(metadata.getArkivFilType()).isEqualTo(ArkivFilType.PDFA);
-        assertThat(metadata.getDokumentId()).isEqualTo(DOKUMENT_ID);
-        assertThat(metadata.getBrukerIdentListe()).contains(FNR);
-        assertThat(metadata.getVariantFormat()).isEqualTo(VariantFormat.SLADDET);
-        assertThat(metadata.getDokumentKategori().orElse(DokumentKategori.UDEFINERT))
-                .isEqualTo(DokumentKategori.ELEKTRONISK_SKJEMA);
-    }
-
-    private InngaaendeJournalpost lagInngåendeJournalPost() {
-        InngaaendeJournalpost journalpost = new InngaaendeJournalpost();
-
-        journalpost.setMottakskanal(new Mottakskanaler().withValue(MottakKanal.SELVBETJENING.getKode()));
-
-        journalpost.setJournaltilstand(Journaltilstand.MIDLERTIDIG);
-        journalpost.setForsendelseMottatt(DateUtil.convertToXMLGregorianCalendar(FORSENDELSE_MOTTATT));
-        journalpost.setKanalReferanseId(KANAL_REFERANSE);
-
-        Dokumentinformasjon hovedDok = lagDokumentinformasjon();
-        journalpost.setHoveddokument(hovedDok);
-
-        Dokumentinformasjon vedlegg = lagDokumentinformasjon();
-        journalpost.getVedleggListe().add(vedlegg);
-        journalpost.getBrukerListe().add(new Person().withIdent(FNR));
-
-        return journalpost;
-    }
-
-    private Dokumentinformasjon lagDokumentinformasjon() {
-        Dokumentinformasjon dokumentinformasjon = new Dokumentinformasjon();
-        dokumentinformasjon.setDokumentId(DOKUMENT_ID);
-        dokumentinformasjon.setDokumenttypeId(new DokumenttypeIder().withValue("I000041"));
-        dokumentinformasjon.setDokumentkategori(new Dokumentkategorier().withValue("ES"));
-
-        Dokumentinnhold dokumentinnhold = new Dokumentinnhold();
-        dokumentinnhold.setVariantformat(new Variantformater().withValue("SLADDET"));
-        dokumentinnhold.setArkivfiltype(new Arkivfiltyper().withValue("PDFA"));
-
-        dokumentinformasjon.getDokumentInnholdListe().add(dokumentinnhold);
-
-        return dokumentinformasjon;
-
-    }
 
     private Dokument lagDokument(DokumentTypeId dokTypeId, ArkivFilType arkivFilType, Boolean hoveddok) {
         return DokumentforsendelseTestUtil.lagDokument(FORSENDELSE_ID, dokTypeId, arkivFilType, hoveddok);

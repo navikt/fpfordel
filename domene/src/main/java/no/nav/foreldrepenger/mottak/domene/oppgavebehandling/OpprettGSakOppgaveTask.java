@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Temagrupper;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.task.SlettForsendelseTask;
-import no.nav.foreldrepenger.mottak.tjeneste.HentDataFraJoarkTjeneste;
+import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OppgaveRestKlient;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
@@ -75,7 +75,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         BehandlingTema behandlingTema = BehandlingTema.fraKodeDefaultUdefinert(prosessTaskData.getPropertyValue(BEHANDLINGSTEMA_KEY));
         DokumentTypeId dokumentTypeId = Optional.ofNullable(prosessTaskData.getPropertyValue(DOKUMENTTYPE_ID_KEY))
                 .map(DokumentTypeId::fraKodeDefaultUdefinert).orElse(DokumentTypeId.UDEFINERT);
-        behandlingTema = HentDataFraJoarkTjeneste.korrigerBehandlingTemaFraDokumentType(behandlingTema, dokumentTypeId);
+        behandlingTema = ArkivUtil.behandlingTemaFraDokumentType(behandlingTema, dokumentTypeId);
 
         String oppgaveId = opprettOppgave(prosessTaskData, behandlingTema, dokumentTypeId);
 

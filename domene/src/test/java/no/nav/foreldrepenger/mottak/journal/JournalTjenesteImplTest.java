@@ -47,28 +47,16 @@ import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.informasjon.Innga
 import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.informasjon.Person;
 import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.meldinger.FerdigstillJournalfoeringRequest;
 import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.meldinger.OppdaterJournalpostRequest;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.binding.HentJournalpostJournalpostIkkeFunnet;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.binding.HentJournalpostJournalpostIkkeInngaaende;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.binding.HentJournalpostSikkerhetsbegrensning;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.binding.HentJournalpostUgyldigInput;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.binding.UtledJournalfoeringsbehovJournalpostIkkeFunnet;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.binding.UtledJournalfoeringsbehovJournalpostIkkeInngaaende;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.binding.UtledJournalfoeringsbehovJournalpostKanIkkeBehandles;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.binding.UtledJournalfoeringsbehovSikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.binding.UtledJournalfoeringsbehovUgyldigInput;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.meldinger.HentJournalpostRequest;
 import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.meldinger.UtledJournalfoeringsbehovRequest;
-import no.nav.tjeneste.virksomhet.journal.v2.binding.HentDokumentDokumentIkkeFunnet;
-import no.nav.tjeneste.virksomhet.journal.v2.binding.HentDokumentSikkerhetsbegrensning;
-import no.nav.tjeneste.virksomhet.journal.v2.feil.DokumentIkkeFunnet;
-import no.nav.tjeneste.virksomhet.journal.v2.feil.Sikkerhetsbegrensning;
-import no.nav.tjeneste.virksomhet.journal.v2.meldinger.HentDokumentRequest;
-import no.nav.tjeneste.virksomhet.journal.v2.meldinger.HentDokumentResponse;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.felles.integrasjon.behandleinngaaendejournal.BehandleInngaaendeJournalConsumer;
 import no.nav.vedtak.felles.integrasjon.inngaaendejournal.InngaaendeJournalConsumer;
-import no.nav.vedtak.felles.integrasjon.journal.v2.JournalConsumer;
 import no.nav.vedtak.felles.integrasjon.mottainngaaendeforsendelse.MottaInngaaendeForsendelseRestKlient;
 
 public class JournalTjenesteImplTest {
@@ -82,7 +70,6 @@ public class JournalTjenesteImplTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private JournalConsumer journalConsumerMock = mock(JournalConsumer.class);
     private InngaaendeJournalConsumer inngaaendeMock = mock(InngaaendeJournalConsumer.class);
     private BehandleInngaaendeJournalConsumer behandleInngaaendeMock = mock(BehandleInngaaendeJournalConsumer.class);
     private MottaInngaaendeForsendelseRestKlient inngaaendeForsendelseKlient = mock(
@@ -90,102 +77,10 @@ public class JournalTjenesteImplTest {
 
     @Before
     public void setUp() throws Exception {
-        journalTjeneste = new JournalTjeneste(journalConsumerMock,
+        journalTjeneste = new JournalTjeneste(
                 inngaaendeMock,
                 behandleInngaaendeMock,
                 inngaaendeForsendelseKlient);
-    }
-
-    @Test
-    public void test_hentDokument_skal_kaste_IllegalArgumentException() {
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Inputdata er ikke satt");
-
-        journalTjeneste.hentDokument(null);
-    }
-
-    @Test
-    public void test_hentDokument_skal_kaste_hentDokumentIkkeFunnetException() throws Exception {
-        when(journalConsumerMock.hentDokument(any(HentDokumentRequest.class)))
-                .thenThrow(new HentDokumentDokumentIkkeFunnet("ikke funnet", new DokumentIkkeFunnet()));
-
-        expectedException.expect(IntegrasjonException.class);
-        expectedException.expectMessage("FP-249690");
-
-        journalTjeneste.hentDokument(lagJournalMetadata());
-        verify(journalConsumerMock).hentDokument(any(HentDokumentRequest.class));
-    }
-
-    @Test
-    public void test_hentDokument_skal_kaste_journalUtilgjengeligSikkerhetsbegrensning() throws Exception {
-        when(journalConsumerMock.hentDokument(any(HentDokumentRequest.class)))
-                .thenThrow(new HentDokumentSikkerhetsbegrensning("begrenset", new Sikkerhetsbegrensning()));
-
-        expectedException.expect(ManglerTilgangException.class);
-        expectedException.expectMessage("FP-751834");
-
-        journalTjeneste.hentDokument(lagJournalMetadata());
-        verify(journalConsumerMock).hentDokument(any(HentDokumentRequest.class));
-    }
-
-    @Test
-    public void test_hentDokument_skal_returnere_journaldokument() throws Exception {
-        HentDokumentResponse response = new HentDokumentResponse();
-        response.setDokument("abc".getBytes("UTF-8"));
-
-        when(journalConsumerMock.hentDokument(any(HentDokumentRequest.class))).thenReturn(response);
-
-        JournalDokument result = journalTjeneste.hentDokument(lagJournalMetadata());
-        assertThat(result.getXml()).isEqualTo("abc");
-        assertThat(result.getMetadata()).isEqualToComparingFieldByField(lagJournalMetadata());
-    }
-
-    @Test
-    public void test_hentMetadata_skal_kaste_journalPostIkkeFunnet() throws Exception {
-        when(inngaaendeMock.hentJournalpost(any(HentJournalpostRequest.class)))
-                .thenThrow(new HentJournalpostJournalpostIkkeFunnet());
-
-        expectedException.expect(IntegrasjonException.class);
-        expectedException.expectMessage("FP-195433");
-
-        journalTjeneste.hentMetadata(JOURNALPOST_ID);
-        verify(inngaaendeMock).hentJournalpost(any(HentJournalpostRequest.class));
-    }
-
-    @Test
-    public void test_hentMetadata_skal_kaste_JournalUtilgjengeligSikkerhetsbegrensning() throws Exception {
-        when(inngaaendeMock.hentJournalpost(any(HentJournalpostRequest.class)))
-                .thenThrow(new HentJournalpostSikkerhetsbegrensning());
-
-        expectedException.expect(ManglerTilgangException.class);
-        expectedException.expectMessage("FP-751834");
-
-        journalTjeneste.hentMetadata(JOURNALPOST_ID);
-        verify(inngaaendeMock).hentJournalpost(any(HentJournalpostRequest.class));
-    }
-
-    @Test
-    public void test_hentMetadata_skal_kaste_journalUgyldigInput() throws Exception {
-        when(inngaaendeMock.hentJournalpost(any(HentJournalpostRequest.class)))
-                .thenThrow(new HentJournalpostUgyldigInput());
-
-        expectedException.expect(IntegrasjonException.class);
-        expectedException.expectMessage("FP-276411");
-
-        journalTjeneste.hentMetadata(JOURNALPOST_ID);
-        verify(inngaaendeMock).hentJournalpost(any(HentJournalpostRequest.class));
-    }
-
-    @Test
-    public void test_hentMetadata_skal_kaste_journalpostIkkeInngaaende() throws Exception {
-        when(inngaaendeMock.hentJournalpost(any(HentJournalpostRequest.class)))
-                .thenThrow(new HentJournalpostJournalpostIkkeInngaaende());
-
-        expectedException.expect(IntegrasjonException.class);
-        expectedException.expectMessage("FP-107540");
-
-        journalTjeneste.hentMetadata(JOURNALPOST_ID);
-        verify(inngaaendeMock).hentJournalpost(any(HentJournalpostRequest.class));
     }
 
     @Test
@@ -410,12 +305,6 @@ public class JournalTjenesteImplTest {
     public void skal_feile_når_journalpost_er_null() {
         expectedException.expect(IllegalArgumentException.class);
         journalTjeneste.oppdaterJournalpost(null);
-    }
-
-    private JournalMetadata lagJournalMetadata() {
-        return JournalMetadata.builder().medJournalpostId(JOURNALPOST_ID)
-                .medDokumentId(DOKUMENT_ID)
-                .build();
     }
 
     private Dokument lagDokument(DokumentTypeId dokTypeId, ArkivFilType arkivFilType, Boolean hoveddok) {
