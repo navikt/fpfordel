@@ -207,7 +207,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             dataWrapper.setBehandlingTema(behandlingTema);
             dataWrapper.setSaksnummer(saksnummer);
             dataWrapper.setAktørId(aktørId);
-            validerXml(dataWrapper, behandlingTema, journalpost.getHovedtype(), xml);
+            return validerXml(dataWrapper, behandlingTema, journalpost.getHovedtype(), xml);
         }
         return xml;
     }
@@ -244,9 +244,15 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         return (s == null || s.isEmpty());
     }
 
-    private void validerXml(MottakMeldingDataWrapper dataWrapper, BehandlingTema behandlingTema,
+    private String validerXml(MottakMeldingDataWrapper dataWrapper, BehandlingTema behandlingTema,
             DokumentTypeId dokumentTypeId, String xml) {
-        MottattStrukturertDokument<?> mottattDokument = MeldingXmlParser.unmarshallXml(xml);
+        MottattStrukturertDokument<?> mottattDokument;
+        try {
+            mottattDokument = MeldingXmlParser.unmarshallXml(xml);
+        } catch (Exception e) {
+            LOG.info("Journalpost med type {} er strukturert men er ikke gyldig XML", dokumentTypeId);
+            return null;
+        }
         if (DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD.equals(dokumentTypeId)
                 && !BehandlingTema.ikkeSpesifikkHendelse(behandlingTema)) {
             dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);
@@ -265,6 +271,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         LocalDate startDato = dataWrapper.getOmsorgsovertakelsedato()
                 .orElse(dataWrapper.getFørsteUttaksdag().orElse(Tid.TIDENES_ENDE));
         validerDokumentData(dataWrapper, behandlingTema, dokumentTypeId, imType, startDato);
+        return xml;
     }
 
     private void validerDokumentData(MottakMeldingDataWrapper dataWrapper, BehandlingTema behandlingTema,
