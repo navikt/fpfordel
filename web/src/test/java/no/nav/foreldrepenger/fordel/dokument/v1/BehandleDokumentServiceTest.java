@@ -221,7 +221,7 @@ public class BehandleDokumentServiceTest {
 
         verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
                 dokumentTypeId.getTermNavn());
-        verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+        verify(klargjørForVLTjenesteMock).klargjørForVL(eq(xml), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(foreldrepengerFødsel), any(), any(), any(), any());
     }
 
@@ -298,8 +298,29 @@ public class BehandleDokumentServiceTest {
 
         verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
                 dokumentTypeId.getTermNavn());
-        verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+        verify(klargjørForVLTjenesteMock).klargjørForVL(eq(xml), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(foreldrepengerFødsel), any(), any(), any(), any());
+    }
+
+    @Test
+    public void skalIgnorereUkjentStrukturertData() throws Exception {
+        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        when(tilJournalføringTjenesteMock.tilJournalføring(any(), any(), any(), any(), any())).thenReturn(true);
+        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_KONTANTSTØTTE;
+        when(journalpost.getHovedtype()).thenReturn(dokumentTypeId);
+        when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
+                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode())));
+
+        String xml = readFile("testdata/metadata.json");
+        when(journalpost.getStrukturertPayload()).thenReturn(xml);
+        when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
+
+        behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
+
+        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
+                dokumentTypeId.getTermNavn());
+        verify(klargjørForVLTjenesteMock).klargjørForVL(eq(null), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+                eq(foreldrepenger), any(), any(), any(), any());
     }
 
     @Test
@@ -319,7 +340,7 @@ public class BehandleDokumentServiceTest {
 
         verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
                 dokumentTypeId.getTermNavn());
-        verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+        verify(klargjørForVLTjenesteMock).klargjørForVL(eq(xml), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(foreldrepengerAdopsjon), any(), any(), any(), any());
     }
 
@@ -340,7 +361,7 @@ public class BehandleDokumentServiceTest {
 
         verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
                 dokumentTypeId.getTermNavn());
-        verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+        verify(klargjørForVLTjenesteMock).klargjørForVL(eq(xml), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(foreldrepenger), any(), any(), any(), any());
     }
 
