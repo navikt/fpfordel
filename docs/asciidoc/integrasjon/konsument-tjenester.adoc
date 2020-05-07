@@ -6,12 +6,6 @@ Oversikt over konsumerende tjenester.
 |===
 |Kortnavn | System | Alias |Link til beskrivelsen|Beskrivelse
 
-|Arbeidsfordeling
-|norg2
-|virksomhet:Arbeidsfordeling_v1
-|https://confluence.adeo.no/display/SDFS/tjeneste_v3%3Avirksomhet%3AArbeidsfordeling_v1[Beskrivelse]
-|*finnBehandlendeEnhetListe* Operasjon for å finne en liste med behandlende enheter knyttet til kriterier for arbeidsfordeling.
-
 |Aktoer
 |aktoerid
 |Aktoer_v2
@@ -23,13 +17,6 @@ Oversikt over konsumerende tjenester.
 |virksomhet:Person_v3
 |https://confluence.adeo.no/display/SDFS/tjeneste_v3%3Avirksomhet%3APerson_v3[Beskrivelse]
 |*hentGeografiskTilknytning:* Operasjonen returnerer geografisk tilknytning, diskresjonskode og navn på en ident som det spørres på. Operasjonen er tiltenkt brukt i ruting øyemed.
-
-
-|Journal
-|JOARK
-|Journal_v2
-|https://confluence.adeo.no/display/SDFS/tjeneste_v3%3Avirksomhet%3AJournal_v2[Beskrivelse]
-|*HentDokument:* Brukes for å hente ut dokument fra journal (JOARK). Brukes både for strukturerte dokumenter (XML) og andre.
 
 
 |InngaaendeJournal
@@ -48,23 +35,8 @@ Oversikt over konsumerende tjenester.
 |*ferdigstillJournalfoering*
 *oppdaterJournalpost*
 
-|Sak
-|GSAK
-|virksomhet:Sak_v1
-|https://confluence.adeo.no/display/SDFS/tjeneste_v3%3Avirksomhet%3ASak_v1[Beskrivelse]
-|*FinnSak:* Brukes for å finne sak i GSak.
-
-|InfotrygdSak
-|INFOTRYGD
-|virksomhet:infotrygdsak_v1
-|https://confluence.adeo.no/pages/viewpage.action?pageId=213064879[Beskrivelse]
-|*FinnSakListe:* Operasjon for å finne en liste med saker hos infotrygd.
-
 |===
 
 include::tps.adoc[leveloffset=+1]
 include::gosys.adoc[leveloffset=+1]
-include::gsak.adoc[leveloffset=+1]
-include::infotrygd.adoc[leveloffset=+1]
 include::joark.adoc[leveloffset=+1]
-include::norg2.adoc[leveloffset=+1]

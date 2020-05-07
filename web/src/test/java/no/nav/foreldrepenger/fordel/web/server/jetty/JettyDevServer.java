@@ -126,7 +126,6 @@ public class JettyDevServer extends JettyServer {
     @Override
     protected void konfigurerJndi() throws Exception {
         ConnectionHandler.settOppJndiDataSource(PropertiesUtils.getDBConnectionProperties());
-        konfigurerJms();
     }
 
     @Override
