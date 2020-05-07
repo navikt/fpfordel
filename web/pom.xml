@@ -100,13 +100,6 @@
             <artifactId>felles-integrasjon-rest</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-            <artifactId>felles-integrasjon-jms</artifactId>
-            <type>test-jar</type>
-            <scope>test</scope>
-            <version>${felles.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-multipart-provider</artifactId>
             <exclusions>

@@ -56,15 +56,6 @@ public class JettyServer extends AbstractJettyServer {
     protected void konfigurerJndi() throws Exception {
         // What?
         new EnvEntry("jdbc/defaultDS", dataSourceKonfig.getDefaultDatasource().getDatasource());
-        konfigurerJms();
-    }
-
-    protected void konfigurerJms() {
-        try {
-            new JmsKonfig().konfigurer();
-        } catch (Exception e) {
-            throw new IllegalStateException("Kunne ikke konfigurere JMS", e);
-        }
     }
 
     @Override
