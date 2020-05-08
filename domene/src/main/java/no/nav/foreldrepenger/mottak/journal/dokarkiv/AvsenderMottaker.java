@@ -43,4 +43,11 @@ public class AvsenderMottaker {
     public String getNavn() {
         return navn;
     }
+
+    @Override
+    public String toString() {
+        return "AvsenderMottaker{" +
+                "idType=" + idType +
+                '}';
+    }
 }

@@ -13,13 +13,13 @@ public class Bruker {
 
     @JsonProperty("id")
     private String id;
-    @JsonProperty("type")
-    private BrukerIdType type;
+    @JsonProperty("idType")
+    private BrukerIdType idType;
 
     @JsonCreator
-    public Bruker(@JsonProperty("id") String id, @JsonProperty("type") BrukerIdType type) {
+    public Bruker(@JsonProperty("id") String id, @JsonProperty("idType") BrukerIdType idType) {
         this.id = id;
-        this.type = type;
+        this.idType = idType;
     }
 
     public String getId() {
@@ -30,11 +30,15 @@ public class Bruker {
         this.id = id;
     }
 
-    public BrukerIdType getType() {
-        return type;
+    public BrukerIdType getIdType() {
+        return idType;
     }
 
-    public boolean erAktoerId() {
-        return BrukerIdType.AKTOERID.equals(type);
+    @Override
+    public String toString() {
+        return "Bruker{" +
+                "id='" + id + '\'' +
+                ", idType=" + idType +
+                '}';
     }
 }
