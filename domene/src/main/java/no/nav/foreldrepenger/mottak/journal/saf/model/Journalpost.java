@@ -32,6 +32,8 @@ public class Journalpost {
     private Sak sak;
     @JsonProperty("bruker")
     private Bruker bruker;
+    @JsonProperty("avsenderMottaker")
+    private AvsenderMottaker avsenderMottaker;
     @JsonProperty("journalfoerendeEnhet")
     private String journalfoerendeEnhet;
     @JsonProperty("datoOpprettet")
@@ -53,6 +55,7 @@ public class Journalpost {
                        @JsonProperty("journalfoerendeEnhet") String journalfoerendeEnhet,
                        @JsonProperty("eksternReferanseId") String eksternReferanseId,
                        @JsonProperty("bruker") Bruker bruker,
+                       @JsonProperty("avsenderMottaker") AvsenderMottaker avsenderMottaker,
                        @JsonProperty("sak") Sak sak,
                        @JsonProperty("dokumenter") List<DokumentInfo> dokumenter) {
         this.journalpostId = journalpostId;
@@ -64,6 +67,7 @@ public class Journalpost {
         this.behandlingstema = behandlingstema;
         this.sak = sak;
         this.bruker = bruker;
+        this.avsenderMottaker = avsenderMottaker;
         this.journalfoerendeEnhet = journalfoerendeEnhet;
         this.datoOpprettet = datoOpprettet;
         this.eksternReferanseId = eksternReferanseId;
@@ -106,6 +110,10 @@ public class Journalpost {
         return bruker;
     }
 
+    public AvsenderMottaker getAvsenderMottaker() {
+        return avsenderMottaker;
+    }
+
     public String getJournalfoerendeEnhet() {
         return journalfoerendeEnhet;
     }
@@ -139,6 +147,7 @@ public class Journalpost {
                 ", behandlingstema='" + behandlingstema + '\'' +
                 ", sak=" + sak +
                 ", bruker=" + bruker +
+                ", avsenderMottaker=" + avsenderMottaker +
                 ", journalfoerendeEnhet='" + journalfoerendeEnhet + '\'' +
                 ", datoOpprettet=" + datoOpprettet +
                 ", eksternReferanseId='" + eksternReferanseId + '\'' +
