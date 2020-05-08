@@ -14,9 +14,15 @@ query ($journalpostId: String!) {
       id
       type
     }
+    avsenderMottaker {
+      id
+      type
+      navn
+    }
     sak {
       arkivsaksnummer
       fagsakId
+      fagsaksystem
     }
     dokumenter {
       dokumentInfoId

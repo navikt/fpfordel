@@ -16,11 +16,14 @@ public class ArkivJournalpost {
 
     private String journalpostId;
     private String brukerAktørId;
+    private String avsenderIdent;
+    private String avsenderNavn;
     private String kanal;
     private Journalstatus tilstand;
     private Journalposttype journalposttype;
     private Tema tema;
     private BehandlingTema behandlingstema;
+    private BehandlingTema utledetBehandlingstema;
     private String journalfoerendeEnhet;
     private LocalDateTime datoOpprettet;
     private String eksternReferanseId;
@@ -49,6 +52,14 @@ public class ArkivJournalpost {
         return Optional.ofNullable(brukerAktørId);
     }
 
+    public String getAvsenderIdent() {
+        return avsenderIdent;
+    }
+
+    public String getAvsenderNavn() {
+        return avsenderNavn;
+    }
+
     public String getKanal() {
         return kanal;
     }
@@ -59,6 +70,10 @@ public class ArkivJournalpost {
 
     public BehandlingTema getBehandlingstema() {
         return behandlingstema;
+    }
+
+    public BehandlingTema getUtledetBehandlingstema() {
+        return utledetBehandlingstema;
     }
 
     public Optional<String> getJournalfoerendeEnhet() {
@@ -126,6 +141,12 @@ public class ArkivJournalpost {
             return this;
         }
 
+        public Builder medAvsender(String id, String navn) {
+            ajp.avsenderIdent = id;
+            ajp.avsenderNavn = navn;
+            return this;
+        }
+
         public Builder medKanal(String kanal) {
             ajp.kanal = kanal;
             return this;
@@ -138,6 +159,11 @@ public class ArkivJournalpost {
 
         public Builder medBehandlingstema(BehandlingTema behandlingstema) {
             ajp.behandlingstema = behandlingstema;
+            return this;
+        }
+
+        public Builder medUtledetBehandlingstema(BehandlingTema behandlingstema) {
+            ajp.utledetBehandlingstema = behandlingstema;
             return this;
         }
 

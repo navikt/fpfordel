@@ -1,10 +1,18 @@
 package no.nav.foreldrepenger.mottak.tjeneste;
 
+import java.util.Collection;
+import java.util.Comparator;
+
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.MapBehandlingstemaDokumentTypeId;
 
-public class ArkivUtil {
+public final class ArkivUtil {
+
+    private ArkivUtil() {
+        // NOSONAR
+    }
 
     public static DokumentKategori utledKategoriFraDokumentType(DokumentTypeId doktype) {
         if (DokumentTypeId.erSøknadType(doktype))
@@ -16,29 +24,22 @@ public class ArkivUtil {
 
     public static BehandlingTema behandlingTemaFraDokumentType(BehandlingTema behandlingTema,
                                                                DokumentTypeId dokumentTypeId) {
-        if (behandlingTema == null) {
-            behandlingTema = BehandlingTema.UDEFINERT;
-        }
-        if (BehandlingTema.ikkeSpesifikkHendelse(behandlingTema)) {
-            if (DokumentTypeId.erForeldrepengerRelatert(dokumentTypeId)) {
-                behandlingTema = BehandlingTema.FORELDREPENGER;
-                if (DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.equals(dokumentTypeId)) {
-                    behandlingTema = BehandlingTema.FORELDREPENGER_FØDSEL;
-                } else if (DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON.equals(dokumentTypeId)) {
-                    behandlingTema = BehandlingTema.FORELDREPENGER_ADOPSJON;
-                }
-            } else if (DokumentTypeId.erEngangsstønadRelatert(dokumentTypeId)) {
-                behandlingTema = BehandlingTema.ENGANGSSTØNAD;
-                if (DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.equals(dokumentTypeId)) {
-                    behandlingTema = BehandlingTema.ENGANGSSTØNAD_FØDSEL;
-                } else if (DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON.equals(dokumentTypeId)) {
-                    behandlingTema = BehandlingTema.ENGANGSSTØNAD_ADOPSJON;
-                }
-            } else if (DokumentTypeId.erSvangerskapspengerRelatert(dokumentTypeId)) {
-                behandlingTema = BehandlingTema.SVANGERSKAPSPENGER;
-            }
-        }
-        return behandlingTema;
+        int btRank = MapBehandlingstemaDokumentTypeId.behandlingstemaRank(behandlingTema);
+        int dtRank = MapBehandlingstemaDokumentTypeId.behandlingstemaRank(MapBehandlingstemaDokumentTypeId.mapDokumenttype(dokumentTypeId));
+
+        return MapBehandlingstemaDokumentTypeId.behandlingstemaFromRank(Math.min(btRank, dtRank));
+    }
+
+    public static BehandlingTema behandlingTemaFraDokumentTypeSet(BehandlingTema behandlingTema,
+                                                                  Collection<DokumentTypeId> typer) {
+        int btRank = MapBehandlingstemaDokumentTypeId.behandlingstemaRank(behandlingTema);
+        int dtRank = typer.stream()
+                .map(MapBehandlingstemaDokumentTypeId::mapDokumenttype)
+                .map(MapBehandlingstemaDokumentTypeId::behandlingstemaRank)
+                .min(Comparator.naturalOrder())
+                .orElse(MapBehandlingstemaDokumentTypeId.behandlingstemaRank(null));
+
+        return MapBehandlingstemaDokumentTypeId.behandlingstemaFromRank(Math.min(btRank, dtRank));
     }
 
 }

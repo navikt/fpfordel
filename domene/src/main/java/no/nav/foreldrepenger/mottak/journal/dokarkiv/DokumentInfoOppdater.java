@@ -1,6 +1,4 @@
-package no.nav.foreldrepenger.mottak.journal.saf.model;
-
-import java.util.List;
+package no.nav.foreldrepenger.mottak.journal.dokarkiv;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -11,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public class DokumentInfo {
+public class DokumentInfoOppdater {
 
     @JsonProperty("dokumentInfoId")
     private String dokumentInfoId;
@@ -19,22 +17,14 @@ public class DokumentInfo {
     private String tittel;
     @JsonProperty("brevkode")
     private String brevkode;
-    @JsonProperty("logiskeVedlegg")
-    private List<LogiskVedlegg> logiskeVedlegg;
-    @JsonProperty("dokumentvarianter")
-    private List<Dokumentvariant> dokumentvarianter;
 
     @JsonCreator
-    public DokumentInfo(@JsonProperty("dokumentInfoId") String dokumentInfoId,
-                        @JsonProperty("tittel") String tittel,
-                        @JsonProperty("brevkode") String brevkode,
-                        @JsonProperty("logiskeVedlegg") List<LogiskVedlegg> logiskeVedlegg,
-                        @JsonProperty("dokumentvarianter") List<Dokumentvariant> dokumentvarianter) {
+    public DokumentInfoOppdater(@JsonProperty("dokumentInfoId") String dokumentInfoId,
+                                @JsonProperty("tittel") String tittel,
+                                @JsonProperty("brevkode") String brevkode) {
         this.dokumentInfoId = dokumentInfoId;
         this.tittel = tittel;
         this.brevkode = brevkode;
-        this.logiskeVedlegg = logiskeVedlegg;
-        this.dokumentvarianter = dokumentvarianter;
     }
 
     public String getDokumentInfoId() {
@@ -49,13 +39,6 @@ public class DokumentInfo {
         return brevkode;
     }
 
-    public List<LogiskVedlegg> getLogiskeVedlegg() {
-        return logiskeVedlegg;
-    }
-
-    public List<Dokumentvariant> getDokumentvarianter() {
-        return dokumentvarianter;
-    }
 
     @Override
     public String toString() {
@@ -63,8 +46,6 @@ public class DokumentInfo {
                 "dokumentInfoId='" + dokumentInfoId + '\'' +
                 ", tittel='" + tittel + '\'' +
                 ", brevkode='" + brevkode + '\'' +
-                ", logiskeVedlegg=" + logiskeVedlegg +
-                ", dokumentvarianter=" + dokumentvarianter +
                 '}';
     }
 }

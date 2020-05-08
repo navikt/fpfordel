@@ -113,6 +113,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
 
+
         LOG.info("FPFORDEL INNGÅENDE journalpost {} kanal {} tilstand {} hovedtype {} alle typer {}",
                 dataWrapper.getArkivId(), journalpost.getKanal(), journalpost.getTilstand(),
                 journalpost.getHovedtype(), journalpost.getAlleTyper());
@@ -121,6 +122,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             return håndterInntektsmelding(dataWrapper);
         }
 
+        arkivTjeneste.oppdaterBehandlingstemaFor(journalpost);
         return dataWrapper.nesteSteg(HentOgVurderVLSakTask.TASKNAME);
     }
 
@@ -130,6 +132,10 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             throw MottakMeldingFeil.FACTORY.manglerYtelsePåInntektsmelding().toException();
         }
         BehandlingTema behandlingTemaFraIM = BehandlingTema.fraTermNavn(imYtelse.get());
+
+        // Mangler bruker
+        arkivTjeneste.oppdaterBehandlingstemaBruker(dataWrapper.getArkivId(), behandlingTemaFraIM.getOffisiellKode(),
+                dataWrapper.getAktørId().orElseThrow(() -> new IllegalStateException("Utviklerfeil: aktørid skal være satt")));
 
         dataWrapper.setBehandlingTema(behandlingTemaFraIM);
 

@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.journal.saf.model;
+package no.nav.foreldrepenger.mottak.journal.dokarkiv;
 
 import java.util.List;
 
@@ -7,6 +7,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import no.nav.foreldrepenger.mottak.journal.saf.model.Dokumentvariant;
+import no.nav.foreldrepenger.mottak.journal.saf.model.LogiskVedlegg;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)

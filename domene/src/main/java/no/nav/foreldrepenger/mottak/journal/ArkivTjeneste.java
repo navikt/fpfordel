@@ -19,6 +19,8 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.kodeverdi.MapNAVSkjemaDokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.NAVSkjema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.mottak.journal.dokarkiv.DokArkivTjeneste;
+import no.nav.foreldrepenger.mottak.journal.dokarkiv.OppdaterJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.saf.SafTjeneste;
 import no.nav.foreldrepenger.mottak.journal.saf.model.BrukerIdType;
 import no.nav.foreldrepenger.mottak.journal.saf.model.DokumentInfo;
@@ -33,6 +35,7 @@ public class ArkivTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(ArkivTjeneste.class);
 
     private SafTjeneste safTjeneste;
+    private DokArkivTjeneste dokArkivTjeneste;
     private AktørConsumerMedCache aktørConsumer;
 
     ArkivTjeneste() {
@@ -40,8 +43,11 @@ public class ArkivTjeneste {
     }
 
     @Inject
-    public ArkivTjeneste(SafTjeneste safTjeneste, AktørConsumerMedCache aktørConsumer) {
+    public ArkivTjeneste(SafTjeneste safTjeneste,
+                         DokArkivTjeneste dokArkivTjeneste,
+                         AktørConsumerMedCache aktørConsumer) {
         this.safTjeneste = safTjeneste;
+        this.dokArkivTjeneste = dokArkivTjeneste;
         this.aktørConsumer = aktørConsumer;
     }
 
@@ -66,6 +72,9 @@ public class ArkivTjeneste {
         Set<DokumentTypeId> alleTyper = utledDokumentTyper(journalpost);
         BehandlingTema behandlingTema = utledBehandlingTema(journalpost.getBehandlingstema(), alleTyper);
         mapIdent(journalpost).ifPresent(builder::medBrukerAktørId);
+        if (journalpost.getAvsenderMottaker() != null) {
+            builder.medAvsender(journalpost.getAvsenderMottaker().getId(), journalpost.getAvsenderMottaker().getNavn());
+        }
 
         return builder.medKanal(journalpost.getKanal())
                 .medJournalposttype(Journalposttype.fraKodeDefaultUdefinert(journalpost.getJournalposttype()))
@@ -73,19 +82,34 @@ public class ArkivTjeneste {
                 .medAlleTyper(alleTyper)
                 .medHovedtype(utledHovedDokumentType(alleTyper))
                 .medTema(Tema.fraOffisiellKode(journalpost.getTema()))
-                .medBehandlingstema(behandlingTema)
+                .medBehandlingstema(BehandlingTema.fraOffisiellKode(journalpost.getBehandlingstema()))
+                .medUtledetBehandlingstema(behandlingTema)
                 .medJournalfoerendeEnhet(journalpost.getJournalfoerendeEnhet())
                 .medDatoOpprettet(journalpost.getDatoOpprettet())
                 .medEksternReferanseId(journalpost.getEksternReferanseId())
                 .build();
     }
 
+    public void oppdaterBehandlingstemaBruker(String journalpostId, String behandlingstema, String aktørId) {
+        var builder = OppdaterJournalpostRequest.ny()
+                .medBehandlingstema(behandlingstema)
+                .medBruker(aktørId);
+        dokArkivTjeneste.oppdaterJournalpost(journalpostId, builder.build());
+        LOG.info("FPFORDEL INNTEKTSMELDING oppdaterte bt {} og bruker for {}", behandlingstema, journalpostId);
+    }
+
+    public void oppdaterBehandlingstemaFor(ArkivJournalpost journalpost) {
+        if (BehandlingTema.UDEFINERT.equals(journalpost.getBehandlingstema()) &&
+            !BehandlingTema.UDEFINERT.equals(journalpost.getUtledetBehandlingstema())) {
+            var builder = OppdaterJournalpostRequest.ny()
+                    .medBehandlingstema(journalpost.getUtledetBehandlingstema().getOffisiellKode());
+            dokArkivTjeneste.oppdaterJournalpost(journalpost.getJournalpostId(), builder.build());
+        }
+    }
+
     private BehandlingTema utledBehandlingTema(String btJournalpost, Set<DokumentTypeId> dokumenttyper) {
         BehandlingTema bt = BehandlingTema.fraOffisiellKode(btJournalpost);
-        for (DokumentTypeId type : dokumenttyper) {
-            bt = ArkivUtil.behandlingTemaFraDokumentType(bt, type);
-        }
-        return bt;
+        return ArkivUtil.behandlingTemaFraDokumentTypeSet(bt, dokumenttyper);
     }
 
     private Set<DokumentTypeId> utledDokumentTyper(Journalpost journalpost) {
