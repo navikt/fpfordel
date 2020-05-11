@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.mottak.journal.saf.model;
 
+import java.util.Optional;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -14,14 +16,14 @@ public class AvsenderMottaker {
     @JsonProperty("id")
     private String id;
     @JsonProperty("type")
-    private AvsenderMottakerIdType type;
+    private String type;
     @JsonProperty("navn")
     private String navn;
 
 
     @JsonCreator
     public AvsenderMottaker(@JsonProperty("id") String id,
-                            @JsonProperty("type") AvsenderMottakerIdType type,
+                            @JsonProperty("type") String type,
                             @JsonProperty("navn") String navn) {
         this.id = id;
         this.type = type;
@@ -32,16 +34,16 @@ public class AvsenderMottaker {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public AvsenderMottakerIdType getType() {
+    public String getType() {
         return type;
     }
 
     public String getNavn() {
         return navn;
+    }
+
+    public Optional<String> getIdHvisFNR() {
+        return "FNR".equalsIgnoreCase(type) ? Optional.ofNullable(id) : Optional.empty();
     }
 
     @Override

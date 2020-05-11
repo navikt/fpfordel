@@ -72,7 +72,7 @@ public class ArkivTjeneste {
         Set<DokumentTypeId> alleTyper = utledDokumentTyper(journalpost);
         BehandlingTema behandlingTema = utledBehandlingTema(journalpost.getBehandlingstema(), alleTyper);
         mapIdent(journalpost).ifPresent(builder::medBrukerAktørId);
-        if (journalpost.getAvsenderMottaker() != null) {
+        if (journalpost.getAvsenderMottaker() != null && journalpost.getAvsenderMottaker().getType() != null) {
             builder.medAvsender(journalpost.getAvsenderMottaker().getId(), journalpost.getAvsenderMottaker().getNavn());
         }
 
