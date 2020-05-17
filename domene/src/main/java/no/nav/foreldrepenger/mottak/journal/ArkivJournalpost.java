@@ -11,9 +11,11 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
 
 public class ArkivJournalpost {
 
+    private Journalpost original;
     private String journalpostId;
     private String brukerAktørId;
     private String avsenderIdent;
@@ -34,6 +36,10 @@ public class ArkivJournalpost {
 
 
     public ArkivJournalpost() {
+    }
+
+    public Journalpost getOriginalJournalpost() {
+        return original;
     }
 
     public String getJournalpostId() {
@@ -119,6 +125,11 @@ public class ArkivJournalpost {
             ajp = new ArkivJournalpost();
             ajp.alleTyper = new HashSet<>();
             ajp.behandlingstema = BehandlingTema.UDEFINERT;
+        }
+
+        public Builder medJournalpost(Journalpost journalpost) {
+            ajp.original = journalpost;
+            return this;
         }
 
         public Builder medJournalpostId(String journalpostId) {

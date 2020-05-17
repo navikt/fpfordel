@@ -6,31 +6,29 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import no.nav.foreldrepenger.mottak.journal.saf.model.VariantFormat;
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Dokumentvariant {
 
     @JsonProperty("variantformat")
-    private VariantFormat variantFormat;
+    private Variantformat variantformat;
     @JsonProperty("filtype")
     private String filtype;
     @JsonProperty("fysiskDokument")
     private String fysiskDokument;
 
     @JsonCreator
-    public Dokumentvariant(@JsonProperty("variantformat") VariantFormat variantFormat,
+    public Dokumentvariant(@JsonProperty("variantformat") Variantformat variantformat,
                            @JsonProperty("filtype") String filtype,
                            @JsonProperty("fysiskDokument") String fysiskDokument) {
-        this.variantFormat = variantFormat;
+        this.variantformat = variantformat;
         this.filtype = filtype;
         this.fysiskDokument = fysiskDokument;
     }
 
-    public VariantFormat getVariantFormat() {
-        return variantFormat;
+    public Variantformat getVariantformat() {
+        return variantformat;
     }
 
     public String getFiltype() {
@@ -44,7 +42,7 @@ public class Dokumentvariant {
     @Override
     public String toString() {
         return "Dokumentvariant{" +
-                "variantFormat=" + variantFormat +
+                "variantFormat=" + variantformat +
                 ", filtype='" + filtype + '\'' +
                 '}';
     }

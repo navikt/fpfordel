@@ -122,7 +122,9 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             return håndterInntektsmelding(dataWrapper);
         }
 
-        arkivTjeneste.oppdaterBehandlingstemaFor(journalpost);
+        if (!arkivTjeneste.oppdaterRettMangler(journalpost, dataWrapper.getAktørId().get(), dataWrapper.getBehandlingTema(), dataWrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT)))
+            return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+
         return dataWrapper.nesteSteg(HentOgVurderVLSakTask.TASKNAME);
     }
 

@@ -17,14 +17,22 @@ public class Sak {
     private String fagsaksystem;
     @JsonProperty("sakstype")
     private String sakstype;
+    @JsonProperty("arkivsaksnummer")
+    private String arkivsaksnummer;
+    @JsonProperty("arkivsaksystem")
+    private String arkivsaksystem;
 
     @JsonCreator
     public Sak(@JsonProperty("fagsakId") String fagsakId,
                @JsonProperty("fagsaksystem") String fagsaksystem,
-               @JsonProperty("sakstype") String sakstype) {
+               @JsonProperty("sakstype") String sakstype,
+               @JsonProperty("arkivsaksnummer") String arkivsaksnummer,
+               @JsonProperty("arkivsaksystem") String arkivsaksystem) {
         this.sakstype = sakstype;
         this.fagsakId = fagsakId;
         this.fagsaksystem = fagsaksystem;
+        this.arkivsaksnummer = arkivsaksnummer;
+        this.arkivsaksystem = arkivsaksystem;
     }
 
     public String getFagsakId() {
@@ -39,12 +47,22 @@ public class Sak {
         return sakstype;
     }
 
+    public String getArkivsaksnummer() {
+        return arkivsaksnummer;
+    }
+
+    public String getArkivsaksystem() {
+        return arkivsaksystem;
+    }
+
     @Override
     public String toString() {
         return "Sak{" +
-                "sakstype='" + sakstype + '\'' +
-                ", fagsakId='" + fagsakId + '\'' +
+                "fagsakId='" + fagsakId + '\'' +
                 ", fagsaksystem='" + fagsaksystem + '\'' +
+                ", sakstype='" + sakstype + '\'' +
+                ", arkivsaksnummer='" + arkivsaksnummer + '\'' +
+                ", arkivsaksystem='" + arkivsaksystem + '\'' +
                 '}';
     }
 

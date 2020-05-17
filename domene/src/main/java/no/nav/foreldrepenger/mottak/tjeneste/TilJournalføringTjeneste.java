@@ -95,11 +95,7 @@ public class TilJournalføringTjeneste {
 
         saksnummer.ifPresent(builder::medSaksnummer);
 
-        if (avsenderId.isPresent()) {
-            builder.medAvsender(avsenderId.get());
-        } else {
-            builder.medAvsender(metadata.getBrukerId());
-        }
+        builder.medAvsender(avsenderId.orElse(metadata.getBrukerId()));
 
         return journal.journalførDokumentforsendelse(builder.build());
     }

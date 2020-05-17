@@ -165,6 +165,7 @@ public class BehandleDokumentServiceTest {
 
         when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.KLAGE_DOKUMENT);
         when(tilJournalføringTjenesteMock.tilJournalføring(any(), any(), any(), any(), any())).thenReturn(true);
+        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(), any())).thenReturn(true);
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
     }
@@ -186,10 +187,13 @@ public class BehandleDokumentServiceTest {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         when(tilJournalføringTjenesteMock.tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
                 navnDokumentTypeId)).thenReturn(true);
+        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(), any())).thenReturn(true);
+        when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
+        when(journalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
+
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
-                navnDokumentTypeId);
+        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, SAKSNUMMER, ENHETID);
         verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(engangsstønadFødsel), any(), any(), any(), any());
     }
@@ -216,11 +220,13 @@ public class BehandleDokumentServiceTest {
 
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
         when(journalpost.getStrukturertPayload()).thenReturn(xml);
+        when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
+        when(journalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
+        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(), any())).thenReturn(true);
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
-                dokumentTypeId.getTermNavn());
+        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, SAKSNUMMER, ENHETID);
         verify(klargjørForVLTjenesteMock).klargjørForVL(eq(xml), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(foreldrepengerFødsel), any(), any(), any(), any());
     }
@@ -293,11 +299,13 @@ public class BehandleDokumentServiceTest {
         String xml = readFile("testdata/selvb-soeknad-forp.xml");
         when(journalpost.getStrukturertPayload()).thenReturn(xml);
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
+        when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
+        when(journalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
+        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(), any())).thenReturn(true);
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
-                dokumentTypeId.getTermNavn());
+        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, SAKSNUMMER, ENHETID);
         verify(klargjørForVLTjenesteMock).klargjørForVL(eq(xml), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(foreldrepengerFødsel), any(), any(), any(), any());
     }
@@ -314,11 +322,13 @@ public class BehandleDokumentServiceTest {
         String xml = readFile("testdata/metadata.json");
         when(journalpost.getStrukturertPayload()).thenReturn(xml);
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
+        when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
+        when(journalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
+        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(), any())).thenReturn(true);
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
-                dokumentTypeId.getTermNavn());
+        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, SAKSNUMMER, ENHETID);
         verify(klargjørForVLTjenesteMock).klargjørForVL(eq(null), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(foreldrepenger), any(), any(), any(), any());
     }
@@ -335,11 +345,13 @@ public class BehandleDokumentServiceTest {
         String xml = readFile("testdata/fp-adopsjon-mor.xml");
         when(journalpost.getStrukturertPayload()).thenReturn(xml);
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
+        when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
+        when(journalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
+        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(), any())).thenReturn(true);
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
-                dokumentTypeId.getTermNavn());
+        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, SAKSNUMMER, ENHETID);
         verify(klargjørForVLTjenesteMock).klargjørForVL(eq(xml), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(foreldrepengerAdopsjon), any(), any(), any(), any());
     }
@@ -356,11 +368,13 @@ public class BehandleDokumentServiceTest {
         String xml = readFile("testdata/selvb-soeknad-endring.xml");
         when(journalpost.getStrukturertPayload()).thenReturn(xml);
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
+        when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
+        when(journalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
+        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(), any())).thenReturn(true);
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(tilJournalføringTjenesteMock).tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
-                dokumentTypeId.getTermNavn());
+        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, SAKSNUMMER, ENHETID);
         verify(klargjørForVLTjenesteMock).klargjørForVL(eq(xml), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(foreldrepenger), any(), any(), any(), any());
     }
