@@ -17,15 +17,19 @@ public class DokumentInfoOpprett {
     private String tittel;
     @JsonProperty("brevkode")
     private String brevkode;
+    @JsonProperty("dokumentKategori")
+    private String dokumentKategori;
     @JsonProperty("dokumentvarianter")
     private List<Dokumentvariant> dokumentvarianter;
 
     @JsonCreator
     public DokumentInfoOpprett(@JsonProperty("tittel") String tittel,
                                @JsonProperty("brevkode") String brevkode,
+                               @JsonProperty("dokumentKategori") String dokumentKategori,
                                @JsonProperty("dokumentvarianter") List<Dokumentvariant> dokumentvarianter) {
         this.tittel = tittel;
         this.brevkode = brevkode;
+        this.dokumentKategori = dokumentKategori;
         this.dokumentvarianter = dokumentvarianter;
     }
 
@@ -37,6 +41,10 @@ public class DokumentInfoOpprett {
         return brevkode;
     }
 
+    public String getDokumentKategori() {
+        return dokumentKategori;
+    }
+
     public List<Dokumentvariant> getDokumentvarianter() {
         return dokumentvarianter;
     }
@@ -46,6 +54,7 @@ public class DokumentInfoOpprett {
         return "DokumentInfoOpprett{" +
                 "tittel='" + tittel + '\'' +
                 ", brevkode='" + brevkode + '\'' +
+                ", dokumentKategori='" + dokumentKategori + '\'' +
                 ", dokumentvarianter=" + dokumentvarianter +
                 '}';
     }

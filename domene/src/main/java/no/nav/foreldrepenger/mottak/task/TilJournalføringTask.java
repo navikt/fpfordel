@@ -10,7 +10,6 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
@@ -20,11 +19,11 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.felles.kafka.HendelseProdusent;
 import no.nav.foreldrepenger.mottak.felles.kafka.SøknadFordeltOgJournalførtHendelse;
+import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseResponse;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.JournalTilstand;
 import no.nav.foreldrepenger.mottak.tjeneste.TilJournalføringTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
-import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -42,8 +41,10 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
     public static final String JOURNALMANGLER_EXCEPTION_KODE = "FP-453958";
 
     private static final Logger LOG = LoggerFactory.getLogger(TilJournalføringTask.class);
+    private static final String AUTOMATISK_ENHET = "9999";
 
     private final TilJournalføringTjeneste journalføring;
+    private final ArkivTjeneste arkivTjeneste;
     private final EnhetsTjeneste enhetsidTjeneste;
     private final DokumentRepository dokumentRepository;
     private final AktørConsumerMedCache aktør;
@@ -52,12 +53,14 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
     @Inject
     public TilJournalføringTask(ProsessTaskRepository prosessTaskRepository,
                                 TilJournalføringTjeneste journalføringTjeneste,
+                                ArkivTjeneste arkivTjeneste,
                                 EnhetsTjeneste enhetsidTjeneste,
                                 HendelseProdusent hendelseProdusent,
                                 DokumentRepository dokumentRepository,
                                 AktørConsumerMedCache aktørConsumer) {
         super(prosessTaskRepository);
         this.journalføring = journalføringTjeneste;
+        this.arkivTjeneste = arkivTjeneste;
         this.enhetsidTjeneste = enhetsidTjeneste;
         this.dokumentRepository = dokumentRepository;
         this.aktør = aktørConsumer;
@@ -66,11 +69,11 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
 
     @Override
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
-        if (!dataWrapper.getAktørId().isPresent()) {
+        if (dataWrapper.getAktørId().isEmpty()) {
             throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
                     MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
         }
-        if (!dataWrapper.getSaksnummer().isPresent()) {
+        if (dataWrapper.getSaksnummer().isEmpty()) {
             throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
                     MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId()).toException();
         }
@@ -79,13 +82,12 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
     @Transactional
     @Override
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper w) {
-        Optional<String> fnr = aktør.hentPersonIdentForAktørId(w.getAktørId().get());// NOSONAR
+        Optional<String> fnr = w.getAktørId().flatMap(aktør::hentPersonIdentForAktørId);
         Optional<String> fnrAnnenPart = finnFnrAnnenPart(w);
         if (fnr.isEmpty()) {
             throw MottakMeldingFeil.FACTORY.fantIkkePersonidentForAktørId(TASKNAME, w.getId()).toException();
         }
-        String enhetsId = enhetsidTjeneste.hentFordelingEnhetId(w.getTema(), w.getBehandlingTema(),
-                w.getJournalførendeEnhet(), fnr, fnrAnnenPart);
+
         if (w.getArkivId() == null) {
             // Dokument fra selvbetjening, ikke journalført ennå.
             UUID forsendelseId = w.getForsendelseId().orElseThrow(IllegalStateException::new);
@@ -99,25 +101,17 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
                 MottakMeldingFeil.FACTORY.feilJournalTilstandForventetTilstandEndelig(response.getJournalTilstand())
                         .log(LOG);
                 dokumentRepository.oppdaterForsendelseMedArkivId(forsendelseId, w.getArkivId(), ForsendelseStatus.GOSYS);
+                // Det kommer en midlertidig-hendelse på Kafka om et par sekunder. Unngå å reagere på den.
                 dokumentRepository.lagreJournalpostLokal(w.getArkivId(), MottakKanal.SELVBETJENING.getKode(), "MIDLERTIDIG", forsendelseId.toString());
                 return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
             }
         } else {
-            // Annet dokument fra dokumentmottak (scanning, altinn)
-            String innhold = w.getDokumentTypeId().map(DokumentTypeId::getTermNavn).orElse("Ukjent innhold");
+            // Annet dokument fra dokumentmottak (scanning, altinn). Kan skippe unntakshåndtering. Bør feile.
             try {
-                if (!journalføring.tilJournalføring(w.getArkivId(), w.getSaksnummer().get(),
-                        w.getAktørId().get(), enhetsId, innhold)) {
-                    return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
-                }
-            } catch (IntegrasjonException e) {
-                if (JOURNALMANGLER_EXCEPTION_KODE.equals(e.getFeil().getKode())) {
-                    String logMessage = e.getFeil().getKode() + " " + e.getFeil().getFeilmelding();
-                    LOG.info(logMessage);
-                    return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
-                } else {
-                    throw e;
-                }
+                arkivTjeneste.ferdigstillJournalføring(w.getArkivId(), w.getSaksnummer().get(), w.getJournalførendeEnhet().orElse(AUTOMATISK_ENHET));
+            } catch (Exception e) {
+                MottakMeldingFeil.FACTORY.feilJournalTilstandForventetTilstandEndelig(JournalTilstand.MIDLERTIDIG_JOURNALFØRT).log(LOG);
+                return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
             }
         }
         Optional<UUID> forsendelseId = w.getForsendelseId();
@@ -137,10 +131,8 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
     }
 
     private Optional<String> finnFnrAnnenPart(MottakMeldingDataWrapper w) {
-        if (w.getAnnenPartId().isEmpty())
-            return Optional.empty();
         try {
-            return aktør.hentPersonIdentForAktørId(w.getAnnenPartId().get()); // NOSONAR
+            return w.getAnnenPartId().flatMap(aktør::hentPersonIdentForAktørId);
         } catch (Exception e) {
             return Optional.empty();
         }

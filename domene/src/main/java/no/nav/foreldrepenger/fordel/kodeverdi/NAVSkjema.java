@@ -39,7 +39,7 @@ public enum NAVSkjema implements Kodeverdi {
     SKJEMAE_KLAGE("SEKLAG", "NAVe 90-00.08", "Ettersendelse klage/anke"),
     SKJEMAE_FORELDREPENGER_ENDRING("SEEN", "NAVe 14-05.10", "Ettersendelse til søknad om endring av uttak av foreldrepenger eller overføring av kvote"),
 
-    SKJEMA_ANNEN_POST("SANP", "NAV 00-03.00", "Ettersendelse til søknad om endring av uttak av foreldrepenger eller overføring av kvote"),
+    SKJEMA_ANNEN_POST("SANP", "NAV 00-03.00", "Annen post"),
 
     // Altinn-skjemakode
     SKJEMA_INNTEKTSMELDING("INNTEKTSMELDING", "4936", "Inntektsmelding"),

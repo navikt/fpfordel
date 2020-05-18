@@ -133,9 +133,13 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         final String xml = hentDokumentSettMetadata(saksnummer, behandlingTema, aktørId, journalpost);
 
         if (Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
+            var brukDokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokumentTypeId) ? DokumentTypeId.ANNET : dokumentTypeId;
+            if (!arkivTjeneste.oppdaterRettMangler(journalpost, aktørId, behandlingTema, brukDokumentTypeId))
+                validerArkivId(null);
             LOG.info(removeLineBreaks("Kaller tilJournalføring")); // NOSONAR
-            String innhold = dokumentTypeId.getTermNavn() != null ? dokumentTypeId.getTermNavn() : "Ukjent innhold";
-            if (!tilJournalføringTjeneste.tilJournalføring(arkivId, saksnummer, aktørId, enhetId, innhold)) {
+            try {
+                arkivTjeneste.ferdigstillJournalføring(journalpost.getJournalpostId(), saksnummer, enhetId);
+            } catch (Exception e) {
                 validerArkivId(null);
             }
         }

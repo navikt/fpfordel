@@ -84,6 +84,7 @@ public class ManuellJournalføringDokumentHåndtererTest {
     public void skalHåndtereManuellJournalføringMedGyldigFnr() throws Exception {
         var metadata = joarkTestsupport.lagJArkivJournalpostUstrukturert(DokumentTypeId.ANNET);
         doReturn(metadata).when(arkivTjeneste).hentArkivJournalpost(ARKIV_ID);
+        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(),any())).thenReturn(true);
 
         MottakMeldingDataWrapper result = joarkTaskTestobjekt.doTask(dataWrapper);
 

@@ -30,6 +30,20 @@ public class MapNAVSkjemaDokumentTypeId {
             Map.entry(NAVSkjema.SKJEMAE_KLAGE, DokumentTypeId.ETTERSENDT_KLAGE)
     );
 
+    private static final Map<DokumentTypeId, NAVSkjema> DOKUMENT_TYPE_BREVKODE = Map.ofEntries(
+            Map.entry(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER, NAVSkjema.SKJEMA_SVANGERSKAPSPENGER),
+            Map.entry(DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON, NAVSkjema.SKJEMA_FORELDREPENGER_ADOPSJON),
+            Map.entry(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, NAVSkjema.SKJEMA_FORELDREPENGER_FØDSEL),
+            Map.entry(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON, NAVSkjema.SKJEMA_ENGANGSSTØNAD_ADOPSJON),
+            Map.entry(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL, NAVSkjema.SKJEMA_ENGANGSSTØNAD_FØDSEL),
+            Map.entry(DokumentTypeId.FLEKSIBELT_UTTAK_FORELDREPENGER, NAVSkjema.SKJEMA_FLEKSIBELT_UTTAK),
+            Map.entry(DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD, NAVSkjema.SKJEMA_FORELDREPENGER_ENDRING),
+            Map.entry(DokumentTypeId.KLAGE_DOKUMENT, NAVSkjema.SKJEMA_KLAGE_DOKUMENT),
+            Map.entry(DokumentTypeId.INNTEKTSMELDING, NAVSkjema.SKJEMA_INNTEKTSMELDING),
+            Map.entry(DokumentTypeId.ANNET, NAVSkjema.SKJEMA_ANNEN_POST),
+            Map.entry(DokumentTypeId.UDEFINERT, NAVSkjema.UDEFINERT)
+    );
+
     private static final Map<DokumentTypeId, Integer> DOKUMENT_TYPE_RANK = Map.ofEntries(
             Map.entry(DokumentTypeId.INNTEKTSMELDING, 1),
             Map.entry(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, 2),
@@ -94,6 +108,12 @@ public class MapNAVSkjemaDokumentTypeId {
         if (brevkode == null)
             return DokumentTypeId.UDEFINERT;
         return BREVKODE_DOKUMENT_TYPE.getOrDefault(brevkode, DokumentTypeId.UDEFINERT);
+    }
+
+    public static NAVSkjema mapDokumentTypeId(DokumentTypeId typeId) {
+        if (typeId == null)
+            return NAVSkjema.UDEFINERT;
+        return DOKUMENT_TYPE_BREVKODE.getOrDefault(typeId, NAVSkjema.UDEFINERT);
     }
 
     public static int dokumentTypeRank(DokumentTypeId dokumentTypeId) {

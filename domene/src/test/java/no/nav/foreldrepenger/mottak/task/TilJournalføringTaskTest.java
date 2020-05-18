@@ -31,8 +31,8 @@ import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveT
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.kafka.LoggingHendelseProdusent;
+import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.JournalFeil;
-import no.nav.foreldrepenger.mottak.journal.JournalPost;
 import no.nav.foreldrepenger.mottak.journal.JournalPostMangler;
 import no.nav.foreldrepenger.mottak.journal.JournalTjeneste;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseRequest;
@@ -40,7 +40,6 @@ import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.Dokumentforsende
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.JournalTilstand;
 import no.nav.foreldrepenger.mottak.tjeneste.TilJournalføringTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
-import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
@@ -59,7 +58,8 @@ public class TilJournalføringTaskTest {
 
     @Mock
     private ProsessTaskRepository prosessTaskRepositoryMock;
-
+    @Mock
+    private ArkivTjeneste arkivTjeneste;
     @Mock
     private JournalTjeneste journalTjenesteMock;
     @Mock
@@ -82,13 +82,14 @@ public class TilJournalføringTaskTest {
         enhetsTjenesteMock = mock(EnhetsTjeneste.class);
         dokumentRepositoryMock = mock(DokumentRepository.class);
         aktørConsumerMock = mock(AktørConsumerMedCache.class);
+        arkivTjeneste = mock(ArkivTjeneste.class);
         when(aktørConsumerMock.hentPersonIdentForAktørId(AKTØR_ID)).thenReturn(Optional.of(BRUKER_FNR));
         var personMock = mock(PersonConsumer.class);
 
         TilJournalføringTjeneste tilJournalføringTjeneste = new TilJournalføringTjeneste(journalTjenesteMock,
                 dokumentRepositoryMock, aktørConsumerMock, personMock);
 
-        task = new TilJournalføringTask(prosessTaskRepositoryMock, tilJournalføringTjeneste, enhetsTjenesteMock,
+        task = new TilJournalføringTask(prosessTaskRepositoryMock, tilJournalføringTjeneste, arkivTjeneste, enhetsTjenesteMock,
                 new LoggingHendelseProdusent(), dokumentRepositoryMock, aktørConsumerMock);
 
         ptd = new ProsessTaskData(TilJournalføringTask.TASKNAME);
@@ -165,16 +166,16 @@ public class TilJournalføringTaskTest {
         final JournalPostMangler journalføringsbehov = new JournalPostMangler();
         journalføringsbehov.leggTilJournalMangel(JournalPostMangler.JournalMangelType.ARKIVSAK, true);
         when(journalTjenesteMock.utledJournalføringsbehov(ARKIV_ID)).thenReturn(journalføringsbehov);
-        ArgumentCaptor<JournalPost> captor = ArgumentCaptor.forClass(JournalPost.class);
+
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
         MottakMeldingDataWrapper wrapper = doTaskWithPrecondition(data);
 
-        verify(journalTjenesteMock).oppdaterJournalpost(captor.capture());
+        verify(arkivTjeneste).ferdigstillJournalføring(any(), captor.capture(), any());
 
-        JournalPost journalPost = captor.getValue();
+        String sak = captor.getValue();
 
-        assertThat(journalPost.getArkivSakId()).isEqualTo(SAKSNUMMER);
-        assertThat(journalPost.getArkivSakSystem().get()).isEqualTo(ARKIV_SAK_SYSTEM);
+        assertThat(sak).isEqualTo(SAKSNUMMER);
 
         assertThat(wrapper).isNotNull();
         assertThat(wrapper.getProsessTaskData().getTaskType())
@@ -195,7 +196,7 @@ public class TilJournalføringTaskTest {
         when(journalTjenesteMock.utledJournalføringsbehov(ARKIV_ID)).thenReturn(journalføringsbehov);
 
         VLException funkExc = JournalFeil.FACTORY.journalfoeringFerdigstillingIkkeMulig(null).toException();
-        doThrow(funkExc).when(journalTjenesteMock).ferdigstillJournalføring(any(String.class), any(String.class));
+        doThrow(funkExc).when(arkivTjeneste).ferdigstillJournalføring(any(), any(), any());
 
         MottakMeldingDataWrapper wrapper = doTaskWithPrecondition(data);
 
@@ -223,70 +224,14 @@ public class TilJournalføringTaskTest {
         journalføringsbehov.leggTilJournalMangel(JournalPostMangler.JournalMangelType.BRUKER, true);
         journalføringsbehov.leggTilJournalMangel(JournalPostMangler.JournalMangelType.TEMA, true);
         journalføringsbehov.leggTilJournalMangel(JournalPostMangler.JournalMangelType.VEDLEGG_TITTEL, true);
-        when(journalTjenesteMock.utledJournalføringsbehov(ARKIV_ID)).thenReturn(journalføringsbehov);
+
+        doThrow(new IllegalArgumentException("blab bla")).when(arkivTjeneste).ferdigstillJournalføring(any(),any(),any());
 
         MottakMeldingDataWrapper wrapper = doTaskWithPrecondition(data);
 
         assertThat(wrapper).isNotNull();
         assertThat(wrapper.getProsessTaskData().getTaskType()).as("Forventer at sak med dokumentmangler går til Gosys")
                 .isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
-    }
-
-    @Test(expected = IntegrasjonException.class)
-    public void skal_ved_funksjonell_feil_i_utledJournalføringsbehov_kaste_integrasjonException_noe_som_trigger_feilhåndterer_til_å_gå_til_manuell_behandling() {
-
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
-        data.setArkivId(ARKIV_ID);
-        data.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
-        data.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
-        data.setSaksnummer("123");
-        data.setAktørId(AKTØR_ID);
-
-        VLException funkExc = JournalFeil.FACTORY.utledJournalfoeringsbehovJournalpostIkkeInngaaende(null)
-                .toException();
-        when(journalTjenesteMock.utledJournalføringsbehov(any(String.class))).thenThrow(funkExc);
-
-        doTaskWithPrecondition(data);
-    }
-
-    @Test(expected = IntegrasjonException.class)
-    public void skal_ved_funksjonell_feil_i_oppdaterJournalpost_kaste_integrasjonException_noe_som_trigger_feilhåndterer_til_å_gå_til_manuell_behandling() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
-        data.setArkivId(ARKIV_ID);
-        data.setSaksnummer("123");
-        data.setAktørId(AKTØR_ID);
-        data.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
-        data.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
-        final JournalPostMangler journalføringsbehov = new JournalPostMangler();
-        journalføringsbehov.leggTilJournalMangel(JournalPostMangler.JournalMangelType.ARKIVSAK, true);
-        when(journalTjenesteMock.utledJournalføringsbehov(ARKIV_ID)).thenReturn(journalføringsbehov);
-
-        VLException funkExc = JournalFeil.FACTORY.oppdaterJournalpostObjektIkkeFunnet(null).toException();
-        doThrow(funkExc).when(journalTjenesteMock).oppdaterJournalpost(any(JournalPost.class));
-
-        doTaskWithPrecondition(data);
-    }
-
-    @Test(expected = IntegrasjonException.class)
-    public void skal_ved_funksjonell_feil_i_ferdigstillJournalføring_kaste_integrasjonException_noe_som_trigger_feilhåndterer_til_å_gå_til_manuell_behandling() {
-
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
-        data.setArkivId(ARKIV_ID);
-        data.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
-        data.setSaksnummer("123");
-        data.setAktørId(AKTØR_ID);
-        data.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
-        final JournalPostMangler journalføringsbehov = new JournalPostMangler();
-        journalføringsbehov.leggTilJournalMangel(JournalPostMangler.JournalMangelType.ARKIVSAK, false);
-        when(journalTjenesteMock.utledJournalføringsbehov(ARKIV_ID)).thenReturn(journalføringsbehov);
-
-        VLException funkExc = JournalFeil.FACTORY.ferdigstillJournalfoeringObjektIkkeFunnet(null).toException();
-        doThrow(funkExc).when(journalTjenesteMock).ferdigstillJournalføring(any(String.class), any(String.class));
-
-        MottakMeldingDataWrapper wrapper = doTaskWithPrecondition(data);
-
-        assertThat(wrapper).isNotNull();
-        assertThat(wrapper.getProsessTaskData().getTaskType()).isEqualTo(MidlJournalføringTask.TASKNAME);
     }
 
     @Test

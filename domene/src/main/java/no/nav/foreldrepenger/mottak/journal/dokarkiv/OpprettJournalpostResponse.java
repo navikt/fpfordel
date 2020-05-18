@@ -18,12 +18,12 @@ public class OpprettJournalpostResponse {
     @JsonProperty("journalpostferdigstilt")
     private boolean journalpostferdigstilt;
     @JsonProperty("dokumenter")
-    private List<DokumentInfoOppdater> dokumenter;
+    private List<DokumentInfoResponse> dokumenter;
 
     @JsonCreator
     public OpprettJournalpostResponse(@JsonProperty("journalpostId") String journalpostId,
                                       @JsonProperty("journalpostferdigstilt") boolean journalpostferdigstilt,
-                                      @JsonProperty("dokumenter") List<DokumentInfoOppdater> dokumenter) {
+                                      @JsonProperty("dokumenter") List<DokumentInfoResponse> dokumenter) {
         this.journalpostId = journalpostId;
         this.journalpostferdigstilt = journalpostferdigstilt;
         this.dokumenter = dokumenter;
@@ -37,7 +37,7 @@ public class OpprettJournalpostResponse {
         return journalpostferdigstilt;
     }
 
-    public List<DokumentInfoOppdater> getDokumenter() {
+    public List<DokumentInfoResponse> getDokumenter() {
         return dokumenter;
     }
 
