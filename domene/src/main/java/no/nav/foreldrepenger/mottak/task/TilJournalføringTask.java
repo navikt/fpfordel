@@ -38,8 +38,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 public class TilJournalføringTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.tilJournalforing";
-    public static final String JOURNALMANGLER_EXCEPTION_KODE = "FP-453958";
-
+    
     private static final Logger LOG = LoggerFactory.getLogger(TilJournalføringTask.class);
     private static final String AUTOMATISK_ENHET = "9999";
 
