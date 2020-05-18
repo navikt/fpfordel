@@ -143,7 +143,7 @@ public class OppdaterJournalpostRequest {
         }
 
         public Builder medArkivSak(String arkivSakID) {
-            this.request.sak = new Sak(null, null, "ARKIVSAK", null, Fagsystem.GOSYS.getKode());
+            this.request.sak = new Sak(null, null, "ARKIVSAK", arkivSakID, "GSAK");
             this.harVerdier = true;
             return this;
         }
