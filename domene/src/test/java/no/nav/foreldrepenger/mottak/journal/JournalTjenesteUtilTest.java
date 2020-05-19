@@ -19,9 +19,6 @@ import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseResponse;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseTestUtil;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.JournalTilstand;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.DokumentInformasjonMangler;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Journalfoeringsbehov;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.JournalpostMangler;
 
 public class JournalTjenesteUtilTest {
 
@@ -150,32 +147,6 @@ public class JournalTjenesteUtilTest {
         assertThat(resultat).hasSize(1);
         assertThat(resultat.get(0).getTittel()).isNullOrEmpty();
     }
-
-    @Test
-    public void konverterJournalpostManglerTilJournalPostMangler() {
-        DokumentInformasjonMangler dokInfoMangler = new DokumentInformasjonMangler();
-        dokInfoMangler.setDokumentId("dokId");
-        dokInfoMangler.setDokumentkategori(Journalfoeringsbehov.MANGLER);
-        dokInfoMangler.setTittel(Journalfoeringsbehov.MANGLER);
-
-        JournalpostMangler journalpostMangler = new JournalpostMangler();
-        journalpostMangler.setAvsenderId(Journalfoeringsbehov.MANGLER_IKKE);
-        journalpostMangler.setTema(Journalfoeringsbehov.MANGLER_IKKE);
-        journalpostMangler.setArkivSak(Journalfoeringsbehov.MANGLER);
-        journalpostMangler.setBruker(Journalfoeringsbehov.MANGLER);
-        journalpostMangler.setForsendelseInnsendt(Journalfoeringsbehov.MANGLER);
-        journalpostMangler.setInnhold(Journalfoeringsbehov.MANGLER);
-        journalpostMangler.setHoveddokument(dokInfoMangler);
-
-        JournalPostMangler resultat = tjenesteUtil.konverterTilJournalmangler(journalpostMangler);
-        assertThat(resultat.harMangler()).isTrue();
-        assertThat(resultat.getMangelTyper()).isNotEmpty();
-        List<JournalPostMangler.JournalMangelType> mangler = resultat.getMangelTyper();
-        assertThat(mangler).contains(JournalPostMangler.JournalMangelType.ARKIVSAK);
-        assertThat(mangler).contains(JournalPostMangler.JournalMangelType.BRUKER);
-        assertThat(mangler).contains(JournalPostMangler.JournalMangelType.INNHOLD);
-    }
-
 
     private Dokument lagDokument(DokumentTypeId dokTypeId, ArkivFilType arkivFilType, Boolean hoveddok) {
         return DokumentforsendelseTestUtil.lagDokument(FORSENDELSE_ID, dokTypeId, arkivFilType, hoveddok);
