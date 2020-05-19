@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
-import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -44,7 +43,6 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
 
     private final TilJournalføringTjeneste journalføring;
     private final ArkivTjeneste arkivTjeneste;
-    private final EnhetsTjeneste enhetsidTjeneste;
     private final DokumentRepository dokumentRepository;
     private final AktørConsumerMedCache aktør;
     private final HendelseProdusent hendelseProdusent;
@@ -53,14 +51,12 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
     public TilJournalføringTask(ProsessTaskRepository prosessTaskRepository,
                                 TilJournalføringTjeneste journalføringTjeneste,
                                 ArkivTjeneste arkivTjeneste,
-                                EnhetsTjeneste enhetsidTjeneste,
                                 HendelseProdusent hendelseProdusent,
                                 DokumentRepository dokumentRepository,
                                 AktørConsumerMedCache aktørConsumer) {
         super(prosessTaskRepository);
         this.journalføring = journalføringTjeneste;
         this.arkivTjeneste = arkivTjeneste;
-        this.enhetsidTjeneste = enhetsidTjeneste;
         this.dokumentRepository = dokumentRepository;
         this.aktør = aktørConsumer;
         this.hendelseProdusent = hendelseProdusent;
@@ -82,7 +78,6 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
     @Override
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper w) {
         Optional<String> fnr = w.getAktørId().flatMap(aktør::hentPersonIdentForAktørId);
-        Optional<String> fnrAnnenPart = finnFnrAnnenPart(w);
         if (fnr.isEmpty()) {
             throw MottakMeldingFeil.FACTORY.fantIkkePersonidentForAktørId(TASKNAME, w.getId()).toException();
         }
@@ -127,14 +122,5 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             }
         }
         return w.nesteSteg(KlargjorForVLTask.TASKNAME);
-    }
-
-    private Optional<String> finnFnrAnnenPart(MottakMeldingDataWrapper w) {
-        try {
-            return w.getAnnenPartId().flatMap(aktør::hentPersonIdentForAktørId);
-        } catch (Exception e) {
-            return Optional.empty();
-        }
-
     }
 }

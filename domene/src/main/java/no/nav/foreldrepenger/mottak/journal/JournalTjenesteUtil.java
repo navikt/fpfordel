@@ -12,8 +12,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseResponse;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.JournalTilstand;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.Journalfoeringsbehov;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.JournalpostMangler;
 
 class JournalTjenesteUtil {
 
@@ -79,32 +77,6 @@ class JournalTjenesteUtil {
             return endelig || kreverTittel ? dokumentTypeTittel : null;
         }
         return kreverTittel ? dokumentTypeTittel : null;
-    }
-
-    JournalPostMangler konverterTilJournalmangler(JournalpostMangler journalpostMangler) {
-        JournalPostMangler mangler = new JournalPostMangler();
-        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.ARKIVSAK,
-                journalpostMangler.getArkivSak() == Journalfoeringsbehov.MANGLER);
-        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.AVSENDERID,
-                journalpostMangler.getAvsenderId() == Journalfoeringsbehov.MANGLER);
-        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.AVSENDERNAVN,
-                journalpostMangler.getAvsenderNavn() == Journalfoeringsbehov.MANGLER);
-        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.BRUKER,
-                journalpostMangler.getBruker() == Journalfoeringsbehov.MANGLER);
-        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.INNHOLD,
-                journalpostMangler.getInnhold() == Journalfoeringsbehov.MANGLER);
-        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.TEMA,
-                journalpostMangler.getTema() == Journalfoeringsbehov.MANGLER);
-        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.HOVEDOK_KATEGORI,
-                journalpostMangler.getHoveddokument().getDokumentkategori() == Journalfoeringsbehov.MANGLER);
-        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.HOVEDOK_TITTEL, journalpostMangler.getHoveddokument().getDokumentId(),
-                journalpostMangler.getHoveddokument().getTittel() == Journalfoeringsbehov.MANGLER);
-        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.VEDLEGG_KATEGORI,
-                journalpostMangler.getVedleggListe().stream()
-                        .anyMatch(vedlegg -> vedlegg.getDokumentkategori() == Journalfoeringsbehov.MANGLER));
-        mangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.VEDLEGG_TITTEL, journalpostMangler
-                .getVedleggListe().stream().anyMatch(vedlegg -> vedlegg.getTittel() == Journalfoeringsbehov.MANGLER));
-        return mangler;
     }
 
     private DokumentInfoVedlegg getDokumentInfoVedlegg(Dokument dokument, boolean endelig, boolean krevTittel) {

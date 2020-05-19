@@ -72,6 +72,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
     static final String JOURNALPOST_IKKE_INNGÅENDE = "Journalpost ikke Inngående";
     static final String ENHET_MANGLER = "EnhetId mangler";
     static final String SAKSNUMMER_UGYLDIG = "SakId (saksnummer) mangler eller er ugyldig";
+    static final String BRUKER_MANGLER = "Journalpost mangler knyting til bruker - prøv igjen om et halv minutt";
 
     private final TilJournalføringTjeneste tilJournalføringTjeneste;
     private final KlargjørForVLTjeneste klargjørForVLTjeneste;
@@ -135,12 +136,12 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         if (Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
             var brukDokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokumentTypeId) ? DokumentTypeId.ANNET : dokumentTypeId;
             if (!arkivTjeneste.oppdaterRettMangler(journalpost, aktørId, behandlingTema, brukDokumentTypeId))
-                validerArkivId(null);
+                ugyldigBrukerPrøvIgjen(arkivId);
             LOG.info(removeLineBreaks("Kaller tilJournalføring")); // NOSONAR
             try {
                 arkivTjeneste.ferdigstillJournalføring(journalpost.getJournalpostId(), saksnummer, enhetId);
             } catch (Exception e) {
-                validerArkivId(null);
+                ugyldigBrukerPrøvIgjen(arkivId);
             }
         }
 
@@ -229,6 +230,14 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             throw new OppdaterOgFerdigstillJournalfoeringUgyldigInput(ugyldigInput.getFeilmelding(), ugyldigInput);
         }
     }
+
+    private void ugyldigBrukerPrøvIgjen(String arkivId) throws OppdaterOgFerdigstillJournalfoeringUgyldigInput {
+        LOG.warn("FPFORDEL oppdaterOgFerdigstillJournalfoering feiler for {}", arkivId);
+        UgyldigInput ugyldigInput = lagUgyldigInput(BRUKER_MANGLER);
+        throw new OppdaterOgFerdigstillJournalfoeringUgyldigInput(ugyldigInput.getFeilmelding(), ugyldigInput);
+    }
+
+
 
     private void validerEnhetId(String enhetId) throws OppdaterOgFerdigstillJournalfoeringUgyldigInput {
         if (enhetId == null) {

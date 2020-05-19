@@ -29,8 +29,6 @@ import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.Dokumentforsende
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.JournalTilstand;
 import no.nav.foreldrepenger.mottak.tjeneste.TilJournalføringTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
-import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -62,10 +60,8 @@ public class MidlJournalføringTaskTest {
         prosessTaskRepositoryMock = mock(ProsessTaskRepository.class);
         enhetsTjenesteMock = mock(EnhetsTjeneste.class);
         dokumentRepositoryMock = mock(DokumentRepository.class);
-        var aktørMock = mock(AktørConsumerMedCache.class);
-        var personMock = mock(PersonConsumer.class);
 
-        TilJournalføringTjeneste tilJournalføringTjeneste = new TilJournalføringTjeneste(journalTjenesteMock, dokumentRepositoryMock, aktørMock, personMock);
+        TilJournalføringTjeneste tilJournalføringTjeneste = new TilJournalføringTjeneste(journalTjenesteMock, dokumentRepositoryMock);
 
         task = new MidlJournalføringTask(prosessTaskRepositoryMock, tilJournalføringTjeneste, dokumentRepositoryMock);
 

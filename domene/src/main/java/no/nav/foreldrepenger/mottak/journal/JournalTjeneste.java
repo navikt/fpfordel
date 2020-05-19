@@ -17,33 +17,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseRequest;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseResponse;
-import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.binding.FerdigstillJournalfoeringFerdigstillingIkkeMulig;
-import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.binding.FerdigstillJournalfoeringJournalpostIkkeInngaaende;
-import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.binding.FerdigstillJournalfoeringObjektIkkeFunnet;
-import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.binding.FerdigstillJournalfoeringSikkerhetsbegrensning;
-import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.binding.FerdigstillJournalfoeringUgyldigInput;
-import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.binding.OppdaterJournalpostJournalpostIkkeInngaaende;
-import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.binding.OppdaterJournalpostObjektIkkeFunnet;
-import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.binding.OppdaterJournalpostOppdateringIkkeMulig;
-import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.binding.OppdaterJournalpostSikkerhetsbegrensning;
-import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.binding.OppdaterJournalpostUgyldigInput;
-import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.informasjon.ArkivSak;
-import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.informasjon.Avsender;
-import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.informasjon.Dokumentinformasjon;
-import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.informasjon.InngaaendeJournalpost;
-import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.informasjon.Person;
-import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.meldinger.FerdigstillJournalfoeringRequest;
-import no.nav.tjeneste.virksomhet.behandleinngaaendejournal.v1.meldinger.OppdaterJournalpostRequest;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.binding.UtledJournalfoeringsbehovJournalpostIkkeFunnet;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.binding.UtledJournalfoeringsbehovJournalpostIkkeInngaaende;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.binding.UtledJournalfoeringsbehovJournalpostKanIkkeBehandles;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.binding.UtledJournalfoeringsbehovSikkerhetsbegrensning;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.binding.UtledJournalfoeringsbehovUgyldigInput;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.informasjon.JournalpostMangler;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.meldinger.UtledJournalfoeringsbehovRequest;
-import no.nav.tjeneste.virksomhet.inngaaendejournal.v1.meldinger.UtledJournalfoeringsbehovResponse;
-import no.nav.vedtak.felles.integrasjon.behandleinngaaendejournal.BehandleInngaaendeJournalConsumer;
-import no.nav.vedtak.felles.integrasjon.inngaaendejournal.InngaaendeJournalConsumer;
 import no.nav.vedtak.felles.integrasjon.mottainngaaendeforsendelse.MottaInngaaendeForsendelseRestKlient;
 
 @Dependent
@@ -54,121 +27,15 @@ public class JournalTjeneste {
     private static final String PERSON_KEY = "person";
     private static final String MOTTAK_KANAL_NAV_NO = MottakKanal.SELVBETJENING.getKode();
 
-    private final InngaaendeJournalConsumer inngaaendeJournalConsumer;
-    private final BehandleInngaaendeJournalConsumer behandleInngaaendeJournalConsumer;
     private final MottaInngaaendeForsendelseRestKlient mottaInngaaendeForsendelseKlient;
 
 
     private JournalTjenesteUtil journalTjenesteUtil;
 
     @Inject
-    public JournalTjeneste(InngaaendeJournalConsumer inngaaendeJournalConsumer,
-                           BehandleInngaaendeJournalConsumer behandleInngaaendeJournalConsumer,
-                           MottaInngaaendeForsendelseRestKlient mottaInngaaendeForsendelseKlient) {
-        this.inngaaendeJournalConsumer = inngaaendeJournalConsumer;
-        this.behandleInngaaendeJournalConsumer = behandleInngaaendeJournalConsumer;
+    public JournalTjeneste(MottaInngaaendeForsendelseRestKlient mottaInngaaendeForsendelseKlient) {
         this.mottaInngaaendeForsendelseKlient = mottaInngaaendeForsendelseKlient;
         this.journalTjenesteUtil = new JournalTjenesteUtil();
-    }
-
-    public JournalPostMangler utledJournalføringsbehov(String journalpostId) {
-        UtledJournalfoeringsbehovRequest request = new UtledJournalfoeringsbehovRequest();
-        request.setJournalpostId(journalpostId);
-        try {
-            UtledJournalfoeringsbehovResponse utledJournalfoeringsbehovResponse = inngaaendeJournalConsumer
-                    .utledJournalfoeringsbehov(request);
-            JournalpostMangler journalfoeringsbehov = utledJournalfoeringsbehovResponse.getJournalfoeringsbehov();
-            return journalTjenesteUtil.konverterTilJournalmangler(journalfoeringsbehov);
-        } catch (UtledJournalfoeringsbehovSikkerhetsbegrensning e) {
-            throw JournalFeil.FACTORY.journalUtilgjengeligSikkerhetsbegrensning("Utled journalføringsbehov", e)
-                    .toException();
-        } catch (UtledJournalfoeringsbehovUgyldigInput e) {
-            throw JournalFeil.FACTORY.utledJournalfoeringsbehovUgyldigInput(e).toException();
-        } catch (UtledJournalfoeringsbehovJournalpostKanIkkeBehandles e) {
-            throw JournalFeil.FACTORY.utledJournalfoeringsbehovJournalpostKanIkkeBehandles(e).toException();
-        } catch (UtledJournalfoeringsbehovJournalpostIkkeFunnet e) {
-            throw JournalFeil.FACTORY.utledJournalfoeringsbehovJournalpostIkkeFunnet(e).toException();
-        } catch (UtledJournalfoeringsbehovJournalpostIkkeInngaaende e) {
-            throw JournalFeil.FACTORY.utledJournalfoeringsbehovJournalpostIkkeInngaaende(e).toException();
-        }
-    }
-
-    public void ferdigstillJournalføring(String journalpostId, String enhetId) {
-        FerdigstillJournalfoeringRequest request = new FerdigstillJournalfoeringRequest();
-        request.setJournalpostId(journalpostId);
-        request.setEnhetId(enhetId);
-
-        try {
-            behandleInngaaendeJournalConsumer.ferdigstillJournalfoering(request);
-        } catch (FerdigstillJournalfoeringFerdigstillingIkkeMulig e) {
-            throw JournalFeil.FACTORY.journalfoeringFerdigstillingIkkeMulig(e).toException();
-        } catch (FerdigstillJournalfoeringJournalpostIkkeInngaaende e) {
-            throw JournalFeil.FACTORY.ferdigstillJournalfoeringJournalpostIkkeInngaaende(e).toException();
-        } catch (FerdigstillJournalfoeringUgyldigInput e) {
-            throw JournalFeil.FACTORY.ferdigstillJournalfoeringUgyldigInput(e).toException();
-        } catch (FerdigstillJournalfoeringSikkerhetsbegrensning e) {
-            throw JournalFeil.FACTORY.ferdigstillJournalfoeringSikkerhetsbegrensning(e).toException();
-        } catch (FerdigstillJournalfoeringObjektIkkeFunnet e) {
-            throw JournalFeil.FACTORY.ferdigstillJournalfoeringObjektIkkeFunnet(e).toException();
-        }
-    }
-
-    public void oppdaterJournalpost(JournalPost journalPost) {
-        if (journalPost == null) {
-            throw new IllegalArgumentException("Journalpost er null");
-        }
-
-        OppdaterJournalpostRequest request = new OppdaterJournalpostRequest();
-        InngaaendeJournalpost inngaaendeJournalpost = new InngaaendeJournalpost();
-        inngaaendeJournalpost.setJournalpostId(journalPost.getJournalpostId());
-
-        if (journalPost.getArkivSakId() != null) {
-            ArkivSak arkivSak = new ArkivSak();
-            arkivSak.setArkivSakId(journalPost.getArkivSakId());
-            if (journalPost.getArkivSakSystem().isPresent()) {
-                arkivSak.setArkivSakSystem(journalPost.getArkivSakSystem().get()); // NOSONAR
-            }
-            inngaaendeJournalpost.setArkivSak(arkivSak);
-        }
-
-        if (journalPost.getFnr() != null) {
-            Person person = new Person();
-            person.setIdent(journalPost.getFnr());
-            inngaaendeJournalpost.setBruker(person);
-        }
-
-        if (journalPost.getAvsenderFnr() != null || journalPost.getAvsenderNavn() != null) {
-            Avsender avsender = new Avsender();
-            avsender.setAvsenderId(journalPost.getAvsenderFnr());
-            avsender.setAvsenderNavn(journalPost.getAvsenderFnr() != null ? journalPost.getAvsenderFnr() : "NN");
-            inngaaendeJournalpost.setAvsender(avsender);
-        }
-
-        if (journalPost.getHovedDokumentTittel() != null) {
-            Dokumentinformasjon info = new Dokumentinformasjon();
-            info.setDokumentId(journalPost.getHovedDokumentId());
-            info.setTittel(journalPost.getHovedDokumentTittel());
-            inngaaendeJournalpost.setHoveddokument(info);
-        }
-
-        inngaaendeJournalpost.setInnhold(journalPost.getInnhold());
-
-        request.setInngaaendeJournalpost(inngaaendeJournalpost);
-
-        try {
-            behandleInngaaendeJournalConsumer.oppdaterJournalpost(request);
-        } catch (OppdaterJournalpostSikkerhetsbegrensning e) {
-            throw JournalFeil.FACTORY.journalUtilgjengeligSikkerhetsbegrensning("Oppdater journalpost", e)
-                    .toException();
-        } catch (OppdaterJournalpostOppdateringIkkeMulig e) {
-            throw JournalFeil.FACTORY.oppdaterJournalpostOppdateringIkkeMulig(e).toException();
-        } catch (OppdaterJournalpostUgyldigInput e) {
-            throw JournalFeil.FACTORY.oppdaterJournalpostUgyldigInput(e).toException();
-        } catch (OppdaterJournalpostJournalpostIkkeInngaaende e) {
-            throw JournalFeil.FACTORY.oppdaterJournalpostJournalpostIkkeInngaaende(e).toException();
-        } catch (OppdaterJournalpostObjektIkkeFunnet e) {
-            throw JournalFeil.FACTORY.oppdaterJournalpostObjektIkkeFunnet(e).toException();
-        }
     }
 
     public DokumentforsendelseResponse journalførDokumentforsendelse(

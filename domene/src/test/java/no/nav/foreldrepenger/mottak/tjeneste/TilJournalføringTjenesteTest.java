@@ -4,10 +4,7 @@ import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.ANNET;
 import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -23,94 +20,26 @@ import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
-import no.nav.foreldrepenger.mottak.journal.JournalPost;
-import no.nav.foreldrepenger.mottak.journal.JournalPostMangler;
 import no.nav.foreldrepenger.mottak.journal.JournalTjeneste;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseRequest;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseResponse;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseTestUtil;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.JournalTilstand;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
-import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
 
 public class TilJournalføringTjenesteTest {
 
     private TilJournalføringTjeneste tilJournalføringTjeneste; // objektet vi tester
     private JournalTjeneste mockJournalTjeneste;
-    private JournalPostMangler mockJournalføringsbehov;
     private DokumentRepository mockDokumentRepository;
 
-    private static final String ARKIV_ID = "123";
     private static final String SAK_ID = "456";
-    private static final String ENHET_ID = "en003";
-    private static final String AKTØR_ID = "123";
-    private static final String INNHOLD = "Inneholder";
     public static final String AVSENDER_ID = "3000";
 
     @Before
     public void setup() {
-        mockJournalføringsbehov = mock(JournalPostMangler.class);
         mockJournalTjeneste = mock(JournalTjeneste.class);
         mockDokumentRepository = mock(DokumentRepository.class);
-        when(mockJournalTjeneste.utledJournalføringsbehov(anyString())).thenReturn(mockJournalføringsbehov);
-        var personMock = mock(PersonConsumer.class);
-        var aktørMock = mock(AktørConsumerMedCache.class);
-        tilJournalføringTjeneste = new TilJournalføringTjeneste(mockJournalTjeneste, mockDokumentRepository, aktørMock, personMock);
-    }
-
-    @Test
-    public void skal_ferdigstille_journalføring_hvis_ikke_har_mangler() {
-
-        when(mockJournalføringsbehov.harMangler()).thenReturn(false);
-
-        tilJournalføringTjeneste.tilJournalføring(ARKIV_ID, SAK_ID, AKTØR_ID, ENHET_ID, INNHOLD);
-
-        verify(mockJournalTjeneste).utledJournalføringsbehov(eq(ARKIV_ID));
-        verify(mockJournalTjeneste).ferdigstillJournalføring(eq(ARKIV_ID), eq(ENHET_ID));
-    }
-
-    @Test
-    public void skal_ferdigstille_journalføring_hvis_kan_rette_mangler() {
-
-        when(mockJournalføringsbehov.harMangler()).thenReturn(true).thenReturn(false);
-        List<JournalPostMangler.JournalMangel> mockMangler = List.of(new JournalPostMangler.JournalMangel(JournalPostMangler.JournalMangelType.ARKIVSAK, true),
-                new JournalPostMangler.JournalMangel(JournalPostMangler.JournalMangelType.INNHOLD, false));
-        when(mockJournalføringsbehov.getMangler()).thenReturn(mockMangler);
-
-        tilJournalføringTjeneste.tilJournalføring(ARKIV_ID, SAK_ID, AKTØR_ID, ENHET_ID, INNHOLD);
-
-        verify(mockJournalTjeneste).utledJournalføringsbehov(eq(ARKIV_ID));
-
-        ArgumentCaptor<JournalPost> captor = ArgumentCaptor.forClass(JournalPost.class);
-        verify(mockJournalTjeneste).oppdaterJournalpost(captor.capture());
-        JournalPost journalPost = captor.getValue();
-        assertThat(journalPost.getArkivSakId()).isEqualTo(SAK_ID);
-        assertThat(journalPost.getInnhold()).isEqualTo(INNHOLD);
-
-        verify(mockJournalTjeneste).ferdigstillJournalføring(eq(ARKIV_ID), eq(ENHET_ID));
-    }
-
-    @Test
-    public void skal_feile_hvis_ikke_kan_rette_mangler() {
-
-        JournalPostMangler journalPostMangler = new JournalPostMangler();
-        journalPostMangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.ARKIVSAK, true);
-        journalPostMangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.BRUKER, false);
-        journalPostMangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.HOVEDOK_TITTEL, "123", true);
-        journalPostMangler.leggTilJournalMangel(JournalPostMangler.JournalMangelType.HOVEDOK_KATEGORI, "123", true);
-        when(mockJournalTjeneste.utledJournalføringsbehov(any())).thenReturn(journalPostMangler);
-
-        boolean resultat = tilJournalføringTjeneste.tilJournalføring(ARKIV_ID, SAK_ID, AKTØR_ID, ENHET_ID, INNHOLD);
-
-        assertThat(resultat).isFalse();
-        verify(mockJournalTjeneste).utledJournalføringsbehov(eq(ARKIV_ID));
-
-        ArgumentCaptor<JournalPost> captor = ArgumentCaptor.forClass(JournalPost.class);
-        verify(mockJournalTjeneste).oppdaterJournalpost(captor.capture());
-        JournalPost journalPost = captor.getValue();
-        assertThat(journalPost.getArkivSakId()).isEqualTo(SAK_ID);
-
-        verify(mockJournalTjeneste, never()).ferdigstillJournalføring(any(), any());
+        tilJournalføringTjeneste = new TilJournalføringTjeneste(mockJournalTjeneste, mockDokumentRepository);
     }
 
     @Test

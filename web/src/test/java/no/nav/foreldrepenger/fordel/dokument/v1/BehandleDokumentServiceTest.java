@@ -4,7 +4,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -164,7 +163,6 @@ public class BehandleDokumentServiceTest {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
 
         when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.KLAGE_DOKUMENT);
-        when(tilJournalføringTjenesteMock.tilJournalføring(any(), any(), any(), any(), any())).thenReturn(true);
         when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(), any())).thenReturn(true);
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
@@ -185,8 +183,6 @@ public class BehandleDokumentServiceTest {
     @Test
     public void skalKjøreHeltIgjennomNaarJournaltilstandIkkeErEndelig() throws Exception {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
-        when(tilJournalføringTjenesteMock.tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
-                navnDokumentTypeId)).thenReturn(true);
         when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(), any())).thenReturn(true);
         when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(journalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
@@ -201,15 +197,12 @@ public class BehandleDokumentServiceTest {
     @Test(expected = OppdaterOgFerdigstillJournalfoeringUgyldigInput.class)
     public void skalGiUnntakNårDetFinnesManglerSomIkkeKanRettes() throws Exception {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
-        when(tilJournalføringTjenesteMock.tilJournalføring(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID, ENHETID,
-                navnDokumentTypeId)).thenReturn(false);
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
     }
 
     @Test
     public void skalTillateJournalførinAvInntektsmeldingForeldrepender() throws Exception {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
-        when(tilJournalføringTjenesteMock.tilJournalføring(any(), any(), any(), any(), any())).thenReturn(true);
         DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         when(journalpost.getHovedtype()).thenReturn(dokumentTypeId);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
@@ -290,7 +283,6 @@ public class BehandleDokumentServiceTest {
     @Test
     public void skalTillateJournalførinAvSøknadMedUttakEtterGrense() throws Exception {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
-        when(tilJournalføringTjenesteMock.tilJournalføring(any(), any(), any(), any(), any())).thenReturn(true);
         DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
         when(journalpost.getHovedtype()).thenReturn(dokumentTypeId);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
@@ -313,7 +305,6 @@ public class BehandleDokumentServiceTest {
     @Test
     public void skalIgnorereUkjentStrukturertData() throws Exception {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
-        when(tilJournalføringTjenesteMock.tilJournalføring(any(), any(), any(), any(), any())).thenReturn(true);
         DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_KONTANTSTØTTE;
         when(journalpost.getHovedtype()).thenReturn(dokumentTypeId);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
@@ -336,7 +327,6 @@ public class BehandleDokumentServiceTest {
     @Test
     public void skalTillateJournalførinAvSøknadMedOmsorgEtterGrense() throws Exception {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
-        when(tilJournalføringTjenesteMock.tilJournalføring(any(), any(), any(), any(), any())).thenReturn(true);
         DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON;
         when(journalpost.getHovedtype()).thenReturn(dokumentTypeId);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
@@ -359,7 +349,6 @@ public class BehandleDokumentServiceTest {
     @Test
     public void skalTillateJournalførinAvEndringsSøknadMedAnnetSaksnummer() throws Exception {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
-        when(tilJournalføringTjenesteMock.tilJournalføring(any(), any(), any(), any(), any())).thenReturn(true);
         DokumentTypeId dokumentTypeId = DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD;
         when(journalpost.getHovedtype()).thenReturn(dokumentTypeId);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
@@ -386,7 +375,6 @@ public class BehandleDokumentServiceTest {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(tilJournalføringTjenesteMock, never()).tilJournalføring(any(), any(), any(), any(), any());
         verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(engangsstønadFødsel), any(), any(), any(), any());
     }

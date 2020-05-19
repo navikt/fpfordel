@@ -37,6 +37,7 @@ import no.nav.foreldrepenger.mottak.journal.dokarkiv.Dokumentvariant;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.OppdaterJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.OpprettJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.OpprettJournalpostResponse;
+import no.nav.foreldrepenger.mottak.journal.dokarkiv.Sak;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.Variantformat;
 import no.nav.foreldrepenger.mottak.journal.saf.SafTjeneste;
 import no.nav.foreldrepenger.mottak.journal.saf.model.BrukerIdType;
@@ -121,6 +122,12 @@ public class ArkivTjeneste {
 
     public OpprettJournalpostResponse opprettJournalpost(UUID forsendelse) {
         var request = lagOpprettRequest(forsendelse);
+        return dokArkivTjeneste.opprettJournalpost(request, false);
+    }
+
+    public OpprettJournalpostResponse opprettJournalpost(UUID forsendelse, String saksnummer) {
+        var request = lagOpprettRequest(forsendelse);
+        request.setSak(new Sak(null, null, "ARKIVSAK", saksnummer, "GSAK"));
         return dokArkivTjeneste.opprettJournalpost(request, true);
     }
 
@@ -130,26 +137,6 @@ public class ArkivTjeneste {
                 .medBruker(aktørId);
         if (dokArkivTjeneste.oppdaterJournalpost(journalpostId, builder.build())) {
             LOG.info("FPFORDEL INNTEKTSMELDING oppdaterte bt {} og bruker for {}", behandlingstema, journalpostId);
-        } else {
-            throw new IllegalStateException("FPFORDEL Kunne ikke oppdatere " + journalpostId);
-        }
-    }
-
-    public void oppdaterArkivSakIdFor(String journalpostId, String sakId) {
-        var builder = OppdaterJournalpostRequest.ny()
-                .medArkivSak(sakId);
-        if (dokArkivTjeneste.oppdaterJournalpost(journalpostId, builder.build())) {
-            LOG.info("FPFORDEL oppdaterer journalpost {} med arkivsak {}", journalpostId, sakId);
-        } else {
-            throw new IllegalStateException("FPFORDEL Kunne ikke oppdatere " + journalpostId);
-        }
-    }
-
-    public void oppdaterFagsakIdFor(String journalpostId, String fagsakId) {
-        var builder = OppdaterJournalpostRequest.ny()
-                .medSak(fagsakId);
-        if (dokArkivTjeneste.oppdaterJournalpost(journalpostId, builder.build())) {
-            LOG.info("FPFORDEL oppdaterer journalpost {} med fagsak {}", journalpostId, fagsakId);
         } else {
             throw new IllegalStateException("FPFORDEL Kunne ikke oppdatere " + journalpostId);
         }
