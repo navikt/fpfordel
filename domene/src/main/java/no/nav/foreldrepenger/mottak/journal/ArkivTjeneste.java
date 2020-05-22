@@ -36,7 +36,6 @@ import no.nav.foreldrepenger.mottak.journal.dokarkiv.DokumentInfoOpprett;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.Dokumentvariant;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.OppdaterJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.OpprettJournalpostRequest;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.OpprettJournalpostResponse;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.Sak;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.Variantformat;
 import no.nav.foreldrepenger.mottak.journal.saf.SafTjeneste;
@@ -120,15 +119,18 @@ public class ArkivTjeneste {
                 .build();
     }
 
-    public OpprettJournalpostResponse opprettJournalpost(UUID forsendelse) {
-        var request = lagOpprettRequest(forsendelse);
-        return dokArkivTjeneste.opprettJournalpost(request, false);
+    public OpprettetJournalpost opprettJournalpost(UUID forsendelse, String avsenderAktørId) {
+        var request = lagOpprettRequest(forsendelse, avsenderAktørId);
+        var response = dokArkivTjeneste.opprettJournalpost(request, false);
+        return new OpprettetJournalpost(response.getJournalpostId(), response.getJournalpostferdigstilt());
     }
 
-    public OpprettJournalpostResponse opprettJournalpost(UUID forsendelse, String saksnummer) {
-        var request = lagOpprettRequest(forsendelse);
+    public OpprettetJournalpost opprettJournalpost(UUID forsendelse, String avsenderAktørId, String saksnummer) {
+        var request = lagOpprettRequest(forsendelse, avsenderAktørId);
         request.setSak(new Sak(null, null, "ARKIVSAK", saksnummer, "GSAK"));
-        return dokArkivTjeneste.opprettJournalpost(request, true);
+        request.setJournalfoerendeEnhet("9999");
+        var response = dokArkivTjeneste.opprettJournalpost(request, true);
+        return new OpprettetJournalpost(response.getJournalpostId(), response.getJournalpostferdigstilt());
     }
 
     public void oppdaterBehandlingstemaBruker(String journalpostId, String behandlingstema, String aktørId) {
@@ -282,7 +284,7 @@ public class ArkivTjeneste {
         }
     }
 
-    private OpprettJournalpostRequest lagOpprettRequest(UUID forsendelseId) {
+    private OpprettJournalpostRequest lagOpprettRequest(UUID forsendelseId, String avsenderAktørId) {
         var metadata = dokumentRepository.hentEksaktDokumentMetadata(forsendelseId);
         var dokumenter = dokumentRepository.hentDokumenter(forsendelseId);
         var opprettDokumenter = lagAlleDokumentForOpprett(dokumenter);
@@ -291,7 +293,7 @@ public class ArkivTjeneste {
         var behandlingstema = utledBehandlingTema(null, dokumenttyper);
         var tittel = DokumentTypeId.UDEFINERT.equals(hovedtype) ? DokumentTypeId.ANNET.getTermNavn() : hovedtype.getTermNavn();
         var bruker = new Bruker(metadata.getBrukerId(), BrukerIdType.AKTOERID);
-        var ident = mapAktørIdTilFnr(metadata.getBrukerId());
+        var ident = mapAktørIdTilFnr(avsenderAktørId);
         var avsender = new AvsenderMottaker(ident, AvsenderMottakerIdType.FNR, brukersNavn(ident));
 
         var request = OpprettJournalpostRequest.nyInngående();
@@ -304,8 +306,6 @@ public class ArkivTjeneste {
         request.setBruker(bruker);
         request.setAvsenderMottaker(avsender);
         request.setDokumenter(opprettDokumenter);
-
-        //enhet + sak
 
         return request;
     }
@@ -342,10 +342,8 @@ public class ArkivTjeneste {
         final DokumentKategori kategori;
         if (DokumentTypeId.erSøknadType(type)) {
             kategori = DokumentKategori.SØKNAD;
-        } else if (DokumentTypeId.erKlageType(type)) {
-            kategori = DokumentKategori.KLAGE_ELLER_ANKE;
         } else {
-            kategori = DokumentKategori.IKKE_TOLKBART_SKJEMA;
+            kategori = DokumentTypeId.erKlageType(type) ? DokumentKategori.KLAGE_ELLER_ANKE : DokumentKategori.IKKE_TOLKBART_SKJEMA;
         }
         return new DokumentInfoOpprett(tittel, brevkode.getOffisiellKode(), kategori.getOffisiellKode(), varianter);
     }
