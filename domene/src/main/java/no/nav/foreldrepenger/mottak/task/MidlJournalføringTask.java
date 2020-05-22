@@ -13,8 +13,7 @@ import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveT
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
-import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseResponse;
-import no.nav.foreldrepenger.mottak.tjeneste.TilJournalføringTjeneste;
+import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -30,15 +29,15 @@ public class MidlJournalføringTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.midlJournalforing";
 
-    private final TilJournalføringTjeneste journalføring;
+    private ArkivTjeneste arkivTjeneste;
     private final DokumentRepository repo;
 
     @Inject
     public MidlJournalføringTask(ProsessTaskRepository prosessTaskRepository,
-                                 TilJournalføringTjeneste journalføringTjeneste,
+                                 ArkivTjeneste arkivTjeneste,
                                  DokumentRepository repo) {
         super(prosessTaskRepository);
-        this.journalføring = journalføringTjeneste;
+        this.arkivTjeneste = arkivTjeneste;
         this.repo = repo;
     }
 
@@ -55,9 +54,9 @@ public class MidlJournalføringTask extends WrappedProsessTaskHandler {
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper dataWrapper) {
         Optional<UUID> forsendelseId = dataWrapper.getForsendelseId();
         if (dataWrapper.getArkivId() == null && forsendelseId.isPresent()) { // Vi har ikke journalpostID - journalfør
-            DokumentforsendelseResponse response = journalføring.journalførDokumentforsendelse(forsendelseId.get(),
-                    dataWrapper.getSaksnummer(), dataWrapper.getAvsenderId(), false, dataWrapper.getRetryingTask());
-            dataWrapper.setArkivId(response.getJournalpostId());
+            var opprettetJournalpost = arkivTjeneste.opprettJournalpost(forsendelseId.get(),
+                    dataWrapper.getAvsenderId().orElse(dataWrapper.getAktørId().orElseThrow(() -> new IllegalStateException("Hvor ble det av brukers id?"))));
+            dataWrapper.setArkivId(opprettetJournalpost.getJournalpostId());
         }
         forsendelseId.ifPresent(fid -> repo.oppdaterForsendelseMedArkivId(fid, dataWrapper.getArkivId(), ForsendelseStatus.GOSYS));
         forsendelseId.ifPresent(fid -> repo.lagreJournalpostLokal(dataWrapper.getArkivId(), MottakKanal.SELVBETJENING.getKode(), "MIDLERTIDIG", fid.toString()));

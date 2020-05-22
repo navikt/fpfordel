@@ -9,8 +9,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -19,7 +17,7 @@ public class OpprettJournalpostRequest {
     @JsonProperty("tittel")
     private String tittel;
     @JsonProperty("journalposttype")
-    private String journalposttype;
+    private JournalpostType journalpostType;
     @JsonProperty("kanal")
     private String kanal;
     @JsonProperty("tema")
@@ -42,7 +40,7 @@ public class OpprettJournalpostRequest {
     private List<DokumentInfoOpprett> dokumenter;
 
     @JsonCreator
-    public OpprettJournalpostRequest(@JsonProperty("journalposttype") String journalposttype,
+    public OpprettJournalpostRequest(@JsonProperty("journalposttype") JournalpostType journalpostType,
                                      @JsonProperty("tittel") String tittel,
                                      @JsonProperty("kanal") String kanal,
                                      @JsonProperty("tema") String tema,
@@ -55,7 +53,7 @@ public class OpprettJournalpostRequest {
                                      @JsonProperty("sak") Sak sak,
                                      @JsonProperty("dokumenter") List<DokumentInfoOpprett> dokumenter) {
         this.tittel = tittel;
-        this.journalposttype = journalposttype;
+        this.journalpostType = journalpostType;
         this.kanal = kanal;
         this.tema = tema;
         this.behandlingstema = behandlingstema;
@@ -76,8 +74,8 @@ public class OpprettJournalpostRequest {
         this.tittel = tittel;
     }
 
-    public void setJournalposttype(String journalposttype) {
-        this.journalposttype = journalposttype;
+    public void setJournalposttype(JournalpostType journalpostType) {
+        this.journalpostType = journalpostType;
     }
 
     public void setKanal(String kanal) {
@@ -124,8 +122,8 @@ public class OpprettJournalpostRequest {
         return tittel;
     }
 
-    public String getJournalposttype() {
-        return journalposttype;
+    public JournalpostType getJournalpostType() {
+        return journalpostType;
     }
 
     public String getKanal() {
@@ -170,7 +168,7 @@ public class OpprettJournalpostRequest {
 
     public static OpprettJournalpostRequest nyInngående() {
         var response = new OpprettJournalpostRequest();
-        response.setJournalposttype(Journalposttype.INNGÅENDE.getKode());
+        response.setJournalposttype(JournalpostType.INNGAAENDE);
         return response;
     }
 
@@ -178,7 +176,7 @@ public class OpprettJournalpostRequest {
     public String toString() {
         return "OpprettJournalpostRequest{" +
                 "tittel='" + tittel + '\'' +
-                ", journalposttype='" + journalposttype + '\'' +
+                ", journalpostType='" + journalpostType + '\'' +
                 ", kanal='" + kanal + '\'' +
                 ", tema='" + tema + '\'' +
                 ", behandlingstema='" + behandlingstema + '\'' +
