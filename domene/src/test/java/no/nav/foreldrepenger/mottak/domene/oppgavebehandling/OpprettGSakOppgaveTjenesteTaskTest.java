@@ -32,8 +32,7 @@ import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseTestUtil;
-import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.JournalTilstand;
+import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OppgaveRestKlient;
@@ -130,12 +129,12 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
         taskData.setProperty(MottakMeldingDataWrapper.FORSENDELSE_ID_KEY, forsendelseId.toString());
         taskData.setProperty(DOKUMENTTYPE_ID_KEY, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.getKode());
         taskData.setProperty(RETRY_KEY, "J");
-        taskData.setProperty(ARKIV_ID_KEY, DokumentforsendelseTestUtil.lagDokumentforsendelseRespons(JournalTilstand.MIDLERTIDIG_JOURNALFØRT, 3).getJournalpostId());
+        taskData.setProperty(ARKIV_ID_KEY, DokumentArkivTestUtil.lagOpprettRespons(false).getJournalpostId());
 
         List<Dokument> dokumenter = new ArrayList<>();
-        dokumenter.addAll(DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL));
+        dokumenter.addAll(DokumentArkivTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL));
 
-        when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(DokumentforsendelseTestUtil.lagMetadata(forsendelseId, SAKSNUMMER));
+        when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(DokumentArkivTestUtil.lagMetadata(forsendelseId, SAKSNUMMER));
         when(dokumentRepository.hentDokumenter(any(UUID.class))).thenReturn(dokumenter);
 
         String beskrivelse = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.getTermNavn();

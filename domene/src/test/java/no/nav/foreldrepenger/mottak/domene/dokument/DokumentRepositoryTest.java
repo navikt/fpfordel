@@ -15,7 +15,7 @@ import org.junit.rules.ExpectedException;
 import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseTestUtil;
+import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
@@ -127,12 +127,12 @@ public class DokumentRepositoryTest {
     }
 
     private Dokument dokument(UUID forsendelseId, ArkivFilType arkivFilType) {
-        return DokumentforsendelseTestUtil.lagDokument(forsendelseId, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL,
+        return DokumentArkivTestUtil.lagDokument(forsendelseId, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL,
                 arkivFilType, true);
     }
 
     private Dokument dokumentAnnet(UUID forsendelseId, ArkivFilType arkivFilType) {
-        return DokumentforsendelseTestUtil.lagDokumentBeskrivelse(forsendelseId, DokumentTypeId.ANNET, arkivFilType,
+        return DokumentArkivTestUtil.lagDokumentBeskrivelse(forsendelseId, DokumentTypeId.ANNET, arkivFilType,
                 true, "Farskap");
     }
 }

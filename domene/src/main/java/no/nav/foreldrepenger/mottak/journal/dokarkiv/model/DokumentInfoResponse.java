@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.journal.dokarkiv;
+package no.nav.foreldrepenger.mottak.journal.dokarkiv.model;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -9,24 +9,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public class FerdigstillJournalpostRequest {
+public class DokumentInfoResponse {
 
-    @JsonProperty("journalfoerendeEnhet")
-    private String journalfoerendeEnhet;
+    @JsonProperty("dokumentInfoId")
+    private String dokumentInfoId;
 
     @JsonCreator
-    public FerdigstillJournalpostRequest(@JsonProperty("journalfoerendeEnhet") String journalfoerendeEnhet) {
-        this.journalfoerendeEnhet = journalfoerendeEnhet;
+    public DokumentInfoResponse(@JsonProperty("dokumentInfoId") String dokumentInfoId) {
+        this.dokumentInfoId = dokumentInfoId;
     }
 
-    public String getJournalfoerendeEnhet() {
-        return journalfoerendeEnhet;
+    public String getDokumentInfoId() {
+        return dokumentInfoId;
     }
 
     @Override
     public String toString() {
-        return "FerdigstillJournalpostRequest{" +
-                ", journalfoerendeEnhet='" + journalfoerendeEnhet + '\'' +
+        return "DokumentInfo{" +
+                "dokumentInfoId='" + dokumentInfoId + '\'' +
                 '}';
     }
 }

@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.felles.kafka.HendelseProdusent;
 import no.nav.foreldrepenger.mottak.felles.kafka.SøknadFordeltOgJournalførtHendelse;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
-import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.JournalTilstand;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -79,31 +78,16 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
         var saksnummer = w.getSaksnummer().orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mangler saksnummer"));
         if (w.getArkivId() == null) {
             // Dokument fra selvbetjening, ikke journalført ennå.
-            UUID forsendelseId = w.getForsendelseId().orElseThrow(IllegalStateException::new);
-            var avsenderId = w.getAvsenderId().orElse(w.getAktørId().orElseThrow(() -> new IllegalStateException("Hvor ble det av brukers id?")));
-            var opprettetJournalpost = arkivTjeneste.opprettJournalpost(forsendelseId, avsenderId, saksnummer);
-            w.setArkivId(opprettetJournalpost.getJournalpostId());
-            //DokumentforsendelseResponse response = journalføring.journalførDokumentforsendelse(forsendelseId,
-            //        w.getSaksnummer(), w.getAvsenderId(), true,
-            //        w.getRetryingTask());
-            //w.setArkivId(response.getJournalpostId());
-            // Hvis endelig journalføring feiler (fx pga doktype annet), send til manuell
-            // journalføring (journalpost er opprettet).
-            if (!opprettetJournalpost.isFerdigstilt()) {
-                LOG.info("FORDEL OPPRETT/FERDIG ikke ferdig for {} forsendelse {}", w.getArkivId(), forsendelseId.toString());
-                MottakMeldingFeil.FACTORY.feilJournalTilstandForventetTilstandEndelig(JournalTilstand.MIDLERTIDIG_JOURNALFØRT).log(LOG);
-                dokumentRepository.oppdaterForsendelseMedArkivId(forsendelseId, w.getArkivId(), ForsendelseStatus.GOSYS);
-                // Det kommer en midlertidig-hendelse på Kafka om et par sekunder. Unngå å reagere på den.
-                dokumentRepository.lagreJournalpostLokal(w.getArkivId(), MottakKanal.SELVBETJENING.getKode(), "MIDLERTIDIG", forsendelseId.toString());
+            if (!opprettJournalpostFerdigstill(w, saksnummer)) {
                 return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
             }
-            LOG.info("FORDEL OPPRETT/FERDIG ok for {} forsendelse {}", w.getArkivId(), forsendelseId.toString());
+            LOG.info("FORDEL OPPRETT/FERDIG ok for {} forsendelse {}", w.getArkivId(), w.getForsendelseId());
         } else {
             // Annet dokument fra dokumentmottak (scanning, altinn). Kan skippe unntakshåndtering. Bør feile.
             try {
                 arkivTjeneste.ferdigstillJournalføring(w.getArkivId(), saksnummer, w.getJournalførendeEnhet().orElse(AUTOMATISK_ENHET));
             } catch (Exception e) {
-                MottakMeldingFeil.FACTORY.feilJournalTilstandForventetTilstandEndelig(JournalTilstand.MIDLERTIDIG_JOURNALFØRT).log(LOG);
+                MottakMeldingFeil.FACTORY.feilJournalTilstandForventetTilstandEndelig().log(LOG);
                 return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
             }
         }
@@ -119,5 +103,22 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             }
         });
         return w.nesteSteg(KlargjorForVLTask.TASKNAME);
+    }
+
+    private boolean opprettJournalpostFerdigstill(MottakMeldingDataWrapper w, String saksnummer) {
+        UUID forsendelseId = w.getForsendelseId().orElseThrow(IllegalStateException::new);
+        var avsenderId = w.getAvsenderId().orElse(w.getAktørId().orElseThrow(() -> new IllegalStateException("Hvor ble det av brukers id?")));
+
+        var opprettetJournalpost = arkivTjeneste.opprettJournalpost(forsendelseId, avsenderId, saksnummer);
+        w.setArkivId(opprettetJournalpost.getJournalpostId());
+
+        if (!opprettetJournalpost.isFerdigstilt()) {
+            LOG.info("FORDEL OPPRETT/FERDIG ikke ferdig for {} forsendelse {}", w.getArkivId(), forsendelseId);
+            MottakMeldingFeil.FACTORY.feilJournalTilstandForventetTilstandEndelig().log(LOG);
+            dokumentRepository.oppdaterForsendelseMedArkivId(forsendelseId, w.getArkivId(), ForsendelseStatus.GOSYS);
+            // Det kommer en midlertidig-hendelse på Kafka om et par sekunder. Unngå å reagere på den.
+            dokumentRepository.lagreJournalpostLokal(w.getArkivId(), MottakKanal.SELVBETJENING.getKode(), "MIDLERTIDIG", forsendelseId.toString());
+        }
+        return opprettetJournalpost.isFerdigstilt();
     }
 }

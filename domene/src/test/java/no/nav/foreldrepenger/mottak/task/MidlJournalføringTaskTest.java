@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.mottak.task;
 
-import static no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseTestUtil.BRUKER_ID;
-import static no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseTestUtil.JOURNALPOST_ID;
+import static no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil.BRUKER_ID;
+import static no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil.JOURNALPOST_ID;
 import static no.nav.foreldrepenger.mottak.task.MidlJournalføringTask.TASKNAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,11 +28,11 @@ import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
+import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.DokArkivTjeneste;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.JournalpostType;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.OpprettJournalpostRequest;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.OpprettJournalpostResponse;
-import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseTestUtil;
+import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.JournalpostType;
+import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRequest;
+import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostResponse;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personnavn;
@@ -86,11 +86,11 @@ public class MidlJournalføringTaskTest {
         ptd.setSekvens("1");
         MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
 
-        List<Dokument> dokumenter = DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
+        List<Dokument> dokumenter = DokumentArkivTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
 
         when(dokArkivTjeneste.opprettJournalpost(any(), anyBoolean())).thenReturn(new OpprettJournalpostResponse(JOURNALPOST_ID, false, List.of()));
 
-        when(dokumentRepositoryMock.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(DokumentforsendelseTestUtil.lagMetadata(forsendelseId, null));
+        when(dokumentRepositoryMock.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(DokumentArkivTestUtil.lagMetadata(forsendelseId, null));
         when(dokumentRepositoryMock.hentDokumenter(any(UUID.class))).thenReturn(dokumenter);
 
         data.setForsendelseId(forsendelseId);

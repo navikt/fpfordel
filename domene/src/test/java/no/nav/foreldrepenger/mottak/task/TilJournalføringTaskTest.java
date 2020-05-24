@@ -29,8 +29,8 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.kafka.LoggingHendelseProdusent;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
+import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
 import no.nav.foreldrepenger.mottak.journal.OpprettetJournalpost;
-import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseTestUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
@@ -211,12 +211,12 @@ public class TilJournalføringTaskTest {
     public void test_skalVedJournalføringAvDokumentForsendelseFåJournalTilstandEndeligJournalført() {
         MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
 
-        List<Dokument> dokumenter = DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId,
+        List<Dokument> dokumenter = DokumentArkivTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId,
                 DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
 
         when(arkivTjeneste.opprettJournalpost(forsendelseId, AKTØR_ID, SAKSNUMMER)).thenReturn(new OpprettetJournalpost(ARKIV_ID, true));
         when(dokumentRepositoryMock.hentEksaktDokumentMetadata(any(UUID.class)))
-                .thenReturn(DokumentforsendelseTestUtil.lagMetadata(forsendelseId, SAKSNUMMER));
+                .thenReturn(DokumentArkivTestUtil.lagMetadata(forsendelseId, SAKSNUMMER));
         when(dokumentRepositoryMock.hentDokumenter(any(UUID.class))).thenReturn(dokumenter);
 
         data.setForsendelseId(forsendelseId);
@@ -238,13 +238,13 @@ public class TilJournalføringTaskTest {
     public void test_skalTilManuellNårJournalTilstandIkkeErEndelig() {
         MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
 
-        List<Dokument> dokumenter = DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId,
+        List<Dokument> dokumenter = DokumentArkivTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId,
                 DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
 
         when(arkivTjeneste.opprettJournalpost(forsendelseId, AKTØR_ID, SAKSNUMMER)).thenReturn(new OpprettetJournalpost(ARKIV_ID, false));
 
         when(dokumentRepositoryMock.hentEksaktDokumentMetadata(any(UUID.class)))
-                .thenReturn(DokumentforsendelseTestUtil.lagMetadata(forsendelseId, SAKSNUMMER));
+                .thenReturn(DokumentArkivTestUtil.lagMetadata(forsendelseId, SAKSNUMMER));
         when(dokumentRepositoryMock.hentDokumenter(any(UUID.class))).thenReturn(dokumenter);
 
         data.setForsendelseId(forsendelseId);

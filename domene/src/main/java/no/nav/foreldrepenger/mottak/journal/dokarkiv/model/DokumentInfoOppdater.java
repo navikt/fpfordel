@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.journal.dokarkiv;
+package no.nav.foreldrepenger.mottak.journal.dokarkiv.model;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
