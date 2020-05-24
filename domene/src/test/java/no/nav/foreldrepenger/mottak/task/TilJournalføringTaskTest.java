@@ -5,7 +5,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -30,11 +29,8 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.kafka.LoggingHendelseProdusent;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
-import no.nav.foreldrepenger.mottak.journal.JournalTjeneste;
-import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseRequest;
+import no.nav.foreldrepenger.mottak.journal.OpprettetJournalpost;
 import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseTestUtil;
-import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.JournalTilstand;
-import no.nav.foreldrepenger.mottak.tjeneste.TilJournalføringTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
@@ -55,8 +51,6 @@ public class TilJournalføringTaskTest {
     @Mock
     private ArkivTjeneste arkivTjeneste;
     @Mock
-    private JournalTjeneste journalTjenesteMock;
-    @Mock
     private DokumentRepository dokumentRepositoryMock;
     @Mock
     private AktørConsumerMedCache aktørConsumerMock;
@@ -68,16 +62,13 @@ public class TilJournalføringTaskTest {
     @Before
     public void setup() {
         forsendelseId = UUID.randomUUID();
-        journalTjenesteMock = mock(JournalTjeneste.class);
         prosessTaskRepositoryMock = mock(ProsessTaskRepository.class);
         dokumentRepositoryMock = mock(DokumentRepository.class);
         aktørConsumerMock = mock(AktørConsumerMedCache.class);
         arkivTjeneste = mock(ArkivTjeneste.class);
         when(aktørConsumerMock.hentPersonIdentForAktørId(AKTØR_ID)).thenReturn(Optional.of(BRUKER_FNR));
 
-        TilJournalføringTjeneste tilJournalføringTjeneste = new TilJournalføringTjeneste(journalTjenesteMock, dokumentRepositoryMock);
-
-        task = new TilJournalføringTask(prosessTaskRepositoryMock, tilJournalføringTjeneste, arkivTjeneste,
+        task = new TilJournalføringTask(prosessTaskRepositoryMock, arkivTjeneste,
                 new LoggingHendelseProdusent(), dokumentRepositoryMock, aktørConsumerMock);
 
         ptd = new ProsessTaskData(TilJournalføringTask.TASKNAME);
@@ -223,8 +214,7 @@ public class TilJournalføringTaskTest {
         List<Dokument> dokumenter = DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId,
                 DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
 
-        when(journalTjenesteMock.journalførDokumentforsendelse(any(DokumentforsendelseRequest.class))).thenReturn(
-                DokumentforsendelseTestUtil.lagDokumentforsendelseRespons(JournalTilstand.ENDELIG_JOURNALFØRT, 3));
+        when(arkivTjeneste.opprettJournalpost(forsendelseId, AKTØR_ID, SAKSNUMMER)).thenReturn(new OpprettetJournalpost(ARKIV_ID, true));
         when(dokumentRepositoryMock.hentEksaktDokumentMetadata(any(UUID.class)))
                 .thenReturn(DokumentforsendelseTestUtil.lagMetadata(forsendelseId, SAKSNUMMER));
         when(dokumentRepositoryMock.hentDokumenter(any(UUID.class))).thenReturn(dokumenter);
@@ -236,30 +226,23 @@ public class TilJournalføringTaskTest {
         data.setSaksnummer(SAKSNUMMER);
         data.setRetryingTask("ABC");
 
-        ArgumentCaptor<DokumentforsendelseRequest> dokCapture = ArgumentCaptor
-                .forClass(DokumentforsendelseRequest.class);
+        var next = task.doTask(data);
 
-        task.doTask(data);
-
-        verify(journalTjenesteMock).journalførDokumentforsendelse(dokCapture.capture());
         verify(dokumentRepositoryMock).oppdaterForsendelseMetadata(any(UUID.class), any(), any(),
                 any(ForsendelseStatus.class));
 
-        DokumentforsendelseRequest request = dokCapture.getValue();
-        assertThat(request.isRetrying()).isTrue();
-        assertThat(request.getForsøkEndeligJF()).isTrue();
-        assertThat(request.getSaksnummer()).isEqualTo(SAKSNUMMER);
+        assertThat(next.getProsessTaskData().getTaskType()).isEqualTo(KlargjorForVLTask.TASKNAME);
     }
 
     @Test
-    public void test_skalKasteTekniskExceptionNårJournalTilstandIkkeErEndelig() {
+    public void test_skalTilManuellNårJournalTilstandIkkeErEndelig() {
         MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
 
         List<Dokument> dokumenter = DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId,
                 DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
 
-        when(journalTjenesteMock.journalførDokumentforsendelse(any(DokumentforsendelseRequest.class))).thenReturn(
-                DokumentforsendelseTestUtil.lagDokumentforsendelseRespons(JournalTilstand.MIDLERTIDIG_JOURNALFØRT, 3));
+        when(arkivTjeneste.opprettJournalpost(forsendelseId, AKTØR_ID, SAKSNUMMER)).thenReturn(new OpprettetJournalpost(ARKIV_ID, false));
+
         when(dokumentRepositoryMock.hentEksaktDokumentMetadata(any(UUID.class)))
                 .thenReturn(DokumentforsendelseTestUtil.lagMetadata(forsendelseId, SAKSNUMMER));
         when(dokumentRepositoryMock.hentDokumenter(any(UUID.class))).thenReturn(dokumenter);
@@ -272,10 +255,7 @@ public class TilJournalføringTaskTest {
 
         data = task.doTask(data);
 
-        verify(journalTjenesteMock).journalførDokumentforsendelse(any(DokumentforsendelseRequest.class));
-        verify(dokumentRepositoryMock, times(1)).oppdaterForsendelseMedArkivId(any(UUID.class), any(),
-                any(ForsendelseStatus.class));
-        assertThat(data).isNotNull();
+        verify(dokumentRepositoryMock).oppdaterForsendelseMedArkivId(any(UUID.class), any(), any(ForsendelseStatus.class));
         assertThat(data.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
     }
 }
