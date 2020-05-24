@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.journal.dokumentforsendelse;
+package no.nav.foreldrepenger.mottak.journal;
 
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 
-public class DokumentforsendelseTestUtil {
+public class DokumentArkivTestUtil {
 
     public static final String BRUKER_ID = "1234";
     public static final String JOURNALPOST_ID = "234567";
@@ -53,16 +53,7 @@ public class DokumentforsendelseTestUtil {
         return dokumenter;
     }
 
-    public static DokumentforsendelseResponse lagDokumentforsendelseRespons(JournalTilstand journalTilstand, int antallDokumenter) {
-        List<String> dokIdListe = new ArrayList<>();
-        while (antallDokumenter > 0) {
-            dokIdListe.add("1234" + antallDokumenter);
-            --antallDokumenter;
-        }
-        return DokumentforsendelseResponse.builder()
-                .medJournalpostId(JOURNALPOST_ID)
-                .medJournalTilstand(journalTilstand)
-                .medDokumentIdListe(dokIdListe)
-                .build();
+    public static OpprettetJournalpost lagOpprettRespons(Boolean endelig) {
+        return new OpprettetJournalpost(JOURNALPOST_ID, endelig);
     }
 }

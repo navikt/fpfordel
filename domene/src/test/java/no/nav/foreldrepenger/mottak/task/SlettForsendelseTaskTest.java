@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseTestUtil;
+import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -59,8 +59,8 @@ public class SlettForsendelseTaskTest {
     public void test_skalSletteJournalførtForsendelse() {
         MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
 
-        DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
-        DokumentMetadata metadata = DokumentforsendelseTestUtil.lagMetadata(forsendelseId, SAKSNUMMER);
+        DokumentArkivTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
+        DokumentMetadata metadata = DokumentArkivTestUtil.lagMetadata(forsendelseId, SAKSNUMMER);
         metadata.setArkivId(SAKSNUMMER);
         metadata.setStatus(ForsendelseStatus.GOSYS);
 
@@ -81,8 +81,8 @@ public class SlettForsendelseTaskTest {
     public void test_skalIkkeSlettePendingForsendelse() {
         MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
 
-        DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
-        DokumentMetadata metadata = DokumentforsendelseTestUtil.lagMetadata(forsendelseId, SAKSNUMMER);
+        DokumentArkivTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
+        DokumentMetadata metadata = DokumentArkivTestUtil.lagMetadata(forsendelseId, SAKSNUMMER);
         metadata.setStatus(ForsendelseStatus.PENDING);
 
         when(dokumentRepositoryMock.hentUnikDokumentMetadata(any(UUID.class))).thenReturn(Optional.of(metadata));
@@ -101,8 +101,8 @@ public class SlettForsendelseTaskTest {
     public void test_skalIkkeSletteForsendelseUtenSaksnummer() {
         MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
 
-        DokumentforsendelseTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
-        DokumentMetadata metadata = DokumentforsendelseTestUtil.lagMetadata(forsendelseId, null);
+        DokumentArkivTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
+        DokumentMetadata metadata = DokumentArkivTestUtil.lagMetadata(forsendelseId, null);
         metadata.setStatus(ForsendelseStatus.FPSAK);
 
         when(dokumentRepositoryMock.hentUnikDokumentMetadata(any(UUID.class))).thenReturn(Optional.of(metadata));

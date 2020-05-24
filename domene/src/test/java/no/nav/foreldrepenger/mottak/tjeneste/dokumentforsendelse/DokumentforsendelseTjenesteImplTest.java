@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.journal.dokumentforsendelse.DokumentforsendelseTestUtil;
+import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseIdDto;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.TekniskException;
@@ -294,7 +294,7 @@ public class DokumentforsendelseTjenesteImplTest {
     }
 
     private static Dokument createDokument(ArkivFilType arkivFilType, boolean hovedDokument) {
-        return DokumentforsendelseTestUtil.lagDokument(ID, SØKNAD_FORELDREPENGER_FØDSEL, arkivFilType, hovedDokument);
+        return DokumentArkivTestUtil.lagDokument(ID, SØKNAD_FORELDREPENGER_FØDSEL, arkivFilType, hovedDokument);
     }
 
     private DokumentMetadata byggDokumentMetadata(String arkivId, String saksnummer, ForsendelseStatus status) {

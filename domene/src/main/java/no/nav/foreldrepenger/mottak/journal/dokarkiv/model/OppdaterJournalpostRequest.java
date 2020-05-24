@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.journal.dokarkiv;
+package no.nav.foreldrepenger.mottak.journal.dokarkiv.model;
 
 import java.util.ArrayList;
 import java.util.List;

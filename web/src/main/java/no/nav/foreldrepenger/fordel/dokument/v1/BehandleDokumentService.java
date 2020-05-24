@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.mottak.task.KlargjorForVLTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
-import no.nav.foreldrepenger.mottak.tjeneste.TilJournalføringTjeneste;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.BehandleDokumentforsendelseV1;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet;
@@ -74,7 +73,6 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
     static final String SAKSNUMMER_UGYLDIG = "SakId (saksnummer) mangler eller er ugyldig";
     static final String BRUKER_MANGLER = "Journalpost mangler knyting til bruker - prøv igjen om et halv minutt";
 
-    private final TilJournalføringTjeneste tilJournalføringTjeneste;
     private final KlargjørForVLTjeneste klargjørForVLTjeneste;
     private final FagsakRestKlient fagsakRestKlient;
     private final AktørConsumerMedCache aktørConsumer;
@@ -82,13 +80,11 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
     private final DokumentRepository dokumentRepository;
 
     @Inject
-    public BehandleDokumentService(TilJournalføringTjeneste tilJournalføringTjeneste,
-                                   KlargjørForVLTjeneste klargjørForVLTjeneste,
+    public BehandleDokumentService(KlargjørForVLTjeneste klargjørForVLTjeneste,
                                    FagsakRestKlient fagsakRestKlient,
                                    AktørConsumerMedCache aktørConsumer,
                                    ArkivTjeneste arkivTjeneste,
                                    DokumentRepository dokumentRepository) {
-        this.tilJournalføringTjeneste = tilJournalføringTjeneste;
         this.klargjørForVLTjeneste = klargjørForVLTjeneste;
         this.fagsakRestKlient = fagsakRestKlient;
         this.aktørConsumer = aktørConsumer;

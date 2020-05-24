@@ -33,7 +33,6 @@ import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
 import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
-import no.nav.foreldrepenger.mottak.tjeneste.TilJournalføringTjeneste;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.OppdaterOgFerdigstillJournalfoeringUgyldigInput;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.meldinger.OppdaterOgFerdigstillJournalfoeringRequest;
 import no.nav.vedtak.exception.FunksjonellException;
@@ -56,7 +55,6 @@ public class BehandleDokumentServiceTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private TilJournalføringTjeneste tilJournalføringTjenesteMock;
     private ArkivTjeneste arkivTjeneste;
     private KlargjørForVLTjeneste klargjørForVLTjenesteMock;
     private FagsakRestKlient fagsakRestKlientMock;
@@ -67,7 +65,6 @@ public class BehandleDokumentServiceTest {
     private BehandlingTema foreldrepengerAdopsjon;
     private BehandlingTema foreldrepenger;
     private BehandlingTema engangsstønad;
-    private String navnDokumentTypeId;
     private ArkivJournalpost journalpost;
 
     @SuppressWarnings("unchecked")
@@ -79,7 +76,6 @@ public class BehandleDokumentServiceTest {
         engangsstønad = BehandlingTema.ENGANGSSTØNAD;
         foreldrepenger = BehandlingTema.FORELDREPENGER;
         DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
-        navnDokumentTypeId = dokumentTypeId.getTermNavn();
 
         fagsakRestKlientMock = mock(FagsakRestKlient.class);
 
@@ -94,7 +90,6 @@ public class BehandleDokumentServiceTest {
         arkivTjeneste = mock(ArkivTjeneste.class);
         when(arkivTjeneste.hentArkivJournalpost(JOURNALPOST_ID)).thenReturn(journalpost);
 
-        tilJournalføringTjenesteMock = mock(TilJournalføringTjeneste.class);
         klargjørForVLTjenesteMock = mock(KlargjørForVLTjeneste.class);
 
         aktørConsumer = mock(AktørConsumerMedCache.class);
@@ -102,8 +97,7 @@ public class BehandleDokumentServiceTest {
         when(aktørConsumer.hentAktørIdForPersonIdent(BRUKER_FNR)).thenReturn(Optional.of(AKTØR_ID));
         var dokumentRepository = mock(DokumentRepository.class);
 
-        behandleDokumentService = new BehandleDokumentService(tilJournalføringTjenesteMock,
-                klargjørForVLTjenesteMock,
+        behandleDokumentService = new BehandleDokumentService(klargjørForVLTjenesteMock,
                 fagsakRestKlientMock, aktørConsumer, arkivTjeneste, dokumentRepository);
     }
 
