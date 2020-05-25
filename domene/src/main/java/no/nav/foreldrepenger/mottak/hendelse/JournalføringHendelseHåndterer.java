@@ -60,6 +60,7 @@ public class JournalføringHendelseHåndterer {
 
         LOG.info("FPFORDEL Mottatt Journalføringhendelse type {} journalpost {} referanse {}", hendelseType, arkivId, eksternReferanseId);
 
+        // All journalføring av innsendinger fra SB gir en Midlertidig-hendelse. De skal vi ikke reagere på før evt full refaktorering
         if (dokumentRepository.erLokalForsendelse(eksternReferanseId)) {
             LOG.info("FPFORDEL Mottatt Hendelse egen journalføring callid {}", arkivId);
             return;

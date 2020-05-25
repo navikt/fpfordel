@@ -72,8 +72,8 @@ public class KlargjorForVLTask extends WrappedProsessTaskHandler {
                 dataWrapper.getForsendelseId().orElse(null), dokumentKategori, journalEnhet, eksternReferanseId);
 
         if (forsendelseId.isPresent() && !erReinnsend) {
-            // Gi selvbetjening tid til å polle ferdig
-            return dataWrapper.nesteSteg(SlettForsendelseTask.TASKNAME, true, LocalDateTime.now().plusMinutes(30));
+            // Gi selvbetjening tid til å polle ferdig + Kafka-hendelse tid til å nå fram (og bli ignorert)
+            return dataWrapper.nesteSteg(SlettForsendelseTask.TASKNAME, true, LocalDateTime.now().plusHours(2));
         }
         return null; // Siste steg, fpsak overtar nå
     }
