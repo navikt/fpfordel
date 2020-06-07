@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.domene.oppgavebehandling;
 
 import static no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask.TASKNAME;
-import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.ANNEN_PART_ID_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.ARKIV_ID_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.BEHANDLINGSTEMA_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY;
@@ -104,7 +103,6 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     private String opprettOppgave(ProsessTaskData prosessTaskData, BehandlingTema behandlingTema,
             DokumentTypeId dokumentTypeId) {
         final Optional<String> fødselsnr = hentPersonidentifikatorFraTaskData(prosessTaskData.getAktørId());
-        final Optional<String> annenpartFnr = hentAnnenPartFraTaskData(prosessTaskData);
         final String enhetInput = prosessTaskData.getPropertyValue(JOURNAL_ENHET);
         // Oppgave har ikke mapping for alle undertyper fødsel/adopsjon
         final String brukBT = BehandlingTema.forYtelseUtenFamilieHendelse(behandlingTema).getOffisiellKode();
@@ -114,7 +112,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         // Overstyr saker fra NFP+NK, deretter egen logikk hvis fødselsnummer ikke er
         // oppgitt
         final String enhetId = enhetsidTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, behandlingTema,
-                Optional.ofNullable(enhetInput), fødselsnr, annenpartFnr);
+                Optional.ofNullable(enhetInput), fødselsnr);
         final String beskrivelse = lagBeskrivelse(behandlingTema, dokumentTypeId, prosessTaskData);
 
 
@@ -173,17 +171,5 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
             return Optional.empty();
         }
         return aktørConsumer.hentPersonIdentForAktørId(aktørId);
-    }
-
-    private Optional<String> hentAnnenPartFraTaskData(ProsessTaskData prosessTaskData) {
-        var annenpart = prosessTaskData.getPropertyValue(ANNEN_PART_ID_KEY);
-        if (annenpart == null) {
-            return Optional.empty();
-        }
-        try {
-            return aktørConsumer.hentPersonIdentForAktørId(annenpart);
-        } catch (Exception e) {
-            return Optional.empty();
-        }
     }
 }

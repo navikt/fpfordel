@@ -9,6 +9,10 @@ public class MapNAVSkjemaDokumentTypeId {
 
     private static final Map<NAVSkjema, DokumentTypeId> BREVKODE_DOKUMENT_TYPE = Map.ofEntries(
             Map.entry(NAVSkjema.SKJEMA_SVANGERSKAPSPENGER, DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER),
+            Map.entry(NAVSkjema.SKJEMA_SVANGERSKAPSPENGER_SN, DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER),
+            Map.entry(NAVSkjema.SKJEMA_TILRETTELEGGING_B, DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER),
+            Map.entry(NAVSkjema.SKJEMA_TILRETTELEGGING_N, DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER),
+            Map.entry(NAVSkjema.FORSIDE_SVP_GAMMEL, DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER),
             Map.entry(NAVSkjema.SKJEMA_FORELDREPENGER_ADOPSJON, DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON),
             Map.entry(NAVSkjema.SKJEMA_FORELDREPENGER_FØDSEL, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL),
             Map.entry(NAVSkjema.SKJEMA_ENGANGSSTØNAD_ADOPSJON, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON),

@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -60,26 +59,18 @@ public class EnhetsTjeneste {
     }
 
     public String hentFordelingEnhetId(Tema tema, BehandlingTema behandlingTema, Optional<String> enhetInput,
-                                       Optional<String> fnr, Optional<String> fnrAnnenPart) {
+                                       Optional<String> fnr) {
         oppdaterEnhetCache();
         if (enhetInput.map(alleJournalførendeEnheter::contains).orElse(Boolean.FALSE)) {
             return enhetInput.get();
         }
 
-        return fnr.map(f -> hentEnhetId(f, behandlingTema, tema, fnrAnnenPart))
+        return fnr.map(f -> hentEnhetId(f, behandlingTema, tema))
                 .orElse(nfpJournalførendeEnheter.get(LocalDateTime.now().getSecond() % nfpJournalførendeEnheter.size()));
     }
 
-    private String hentEnhetId(String fnr, BehandlingTema behandlingTema, Tema tema, Optional<String> fnrAnnenPart) {
+    private String hentEnhetId(String fnr, BehandlingTema behandlingTema, Tema tema) {
         GeoTilknytning geoTilknytning = hentGeografiskTilknytning(fnr);
-
-        String aktivDiskresjonskode = geoTilknytning.getDiskresjonskode();
-        if (!DISKRESJON_K6.equals(aktivDiskresjonskode) && fnrAnnenPart.isPresent()) {
-            GeoTilknytning apTilknytning = hentGeografiskTilknytning(fnrAnnenPart.get());
-            if (Objects.equals(DISKRESJON_K6, apTilknytning.getDiskresjonskode())) {
-                aktivDiskresjonskode = DISKRESJON_K6;
-            }
-        }
 
         var request = ArbeidsfordelingRequest.ny()
                 .medTemagruppe(TEMAGRUPPE)
@@ -87,11 +78,11 @@ public class EnhetsTjeneste {
                 .medBehandlingstema(behandlingTema.getOffisiellKode())
                 .medBehandlingstype(BEHANDLINGTYPE)
                 .medOppgavetype(OPPGAVETYPE_JFR)
-                .medDiskresjonskode(aktivDiskresjonskode)
+                .medDiskresjonskode(geoTilknytning.getDiskresjonskode())
                 .medGeografiskOmraade(geoTilknytning.getTilknytning())
                 .build();
         var respons = norgKlient.finnEnhet(request);
-        return validerOgVelgBehandlendeEnhet(respons, aktivDiskresjonskode, geoTilknytning.getTilknytning());
+        return validerOgVelgBehandlendeEnhet(respons, geoTilknytning.getDiskresjonskode(), geoTilknytning.getTilknytning());
     }
 
     private String validerOgVelgBehandlendeEnhet(List<ArbeidsfordelingResponse> response, String diskresjonskode, String geoTilknytning) {

@@ -67,7 +67,7 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
         aktørConsumer = mock(AktørConsumerMedCache.class);
         enhetsidTjeneste = mock(EnhetsTjeneste.class);
         dokumentRepository = mock(DokumentRepository.class);
-        when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), any(), any(), any())).thenReturn(fordelingsOppgaveEnhetsId);
+        when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), any(), any())).thenReturn(fordelingsOppgaveEnhetsId);
         task = new OpprettGSakOppgaveTask(prosessTaskRepository, enhetsidTjeneste, aktørConsumer, mockService);
     }
 
@@ -110,7 +110,7 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
 
         ArgumentCaptor<OpprettOppgave.Builder> captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
         when(mockService.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
-        when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), eq(Optional.of(enhet)), any(), any())).thenReturn(enhet);
+        when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), eq(Optional.of(enhet)), any())).thenReturn(enhet);
 
         task.doTask(taskData);
 
