@@ -23,6 +23,7 @@ public class MottakMeldingDataWrapper {
     public static final String ARKIV_ID_KEY = "arkivId";
     public static final String AKTØR_ID_KEY = "aktoerId";
     public static final String SAKSNUMMER_KEY = "saksnummer";
+    public static final String INN_SAKSNR_KEY = "journalpostsak";
     public static final String TEMA_KEY = "tema";
     public static final String RETRY_KEY = "retry";
     public static final String BEHANDLINGSTEMA_KEY = "behandlingstema";
@@ -146,6 +147,14 @@ public class MottakMeldingDataWrapper {
 
     public void setSaksnummer(String saksnummer) {
         prosessTaskData.setProperty(SAKSNUMMER_KEY, saksnummer);
+    }
+
+    public Optional<String> getInnkommendeSaksnummer() {
+        return Optional.ofNullable(prosessTaskData.getPropertyValue(INN_SAKSNR_KEY));
+    }
+
+    public void setInnkommendeSaksnummer(String saksnummer) {
+        prosessTaskData.setProperty(INN_SAKSNR_KEY, saksnummer);
     }
 
     public Optional<DokumentTypeId> getDokumentTypeId() {

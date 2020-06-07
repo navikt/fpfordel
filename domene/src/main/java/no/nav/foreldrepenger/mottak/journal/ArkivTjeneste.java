@@ -209,6 +209,14 @@ public class ArkivTjeneste {
         }
     }
 
+    public void ferdigstillJournalføring(String journalpostId, String enhet) {
+        if (dokArkivTjeneste.ferdigstillJournalpost(journalpostId, enhet)) {
+            LOG.info("FPFORDEL FERDIGSTILLING saksnummer presatt ferdigstilte journalpost {} enhet {}", journalpostId, enhet);
+        } else {
+            throw new IllegalStateException("FPFORDEL Kunne ikke ferdigstille journalpost " + journalpostId);
+        }
+    }
+
     private BehandlingTema utledBehandlingTema(String btJournalpost, Set<DokumentTypeId> dokumenttyper) {
         BehandlingTema bt = BehandlingTema.fraOffisiellKode(btJournalpost);
         return ArkivUtil.behandlingTemaFraDokumentTypeSet(bt, dokumenttyper);
