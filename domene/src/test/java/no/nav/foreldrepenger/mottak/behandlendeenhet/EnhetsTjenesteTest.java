@@ -60,7 +60,7 @@ public class EnhetsTjenesteTest {
         when(personConsumer.hentGeografiskTilknytning(any())).thenReturn(response);
         when(arbeidsfordelingTjeneste.finnEnhet(any())).thenReturn(Collections.singletonList(ENHET));
 
-        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.of(FNR), Optional.empty());
+        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.of(FNR));
 
         assertThat(enhetId).isNotNull();
         assertThat(enhetId).isEqualTo(ENHET.getEnhetNr());
@@ -76,7 +76,7 @@ public class EnhetsTjenesteTest {
         when(personConsumer.hentGeografiskTilknytning(any())).thenReturn(response);
         when(arbeidsfordelingTjeneste.finnEnhet(any())).thenReturn(Collections.singletonList(ENHET));
 
-        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.of(FNR), Optional.empty());
+        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.of(FNR));
 
         assertThat(enhetId).isNotNull();
         assertThat(enhetId).isEqualTo(ENHET.getEnhetNr());
@@ -92,7 +92,7 @@ public class EnhetsTjenesteTest {
         when(personConsumer.hentGeografiskTilknytning(any())).thenReturn(response);
         when(arbeidsfordelingTjeneste.finnEnhet(any())).thenReturn(Collections.singletonList(ENHET));
 
-        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.of(FNR), Optional.empty());
+        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.of(FNR));
 
         assertThat(enhetId).isNotNull();
         assertThat(enhetId).isEqualTo(ENHET.getEnhetNr());
@@ -108,7 +108,7 @@ public class EnhetsTjenesteTest {
         when(arbeidsfordelingTjeneste.finnEnhet(any())).thenReturn(Collections.singletonList(ENHET));
 
 
-        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.of(FNR), Optional.empty());
+        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.of(FNR));
 
         assertThat(enhetId).isNotNull();
         assertThat(enhetId).isEqualTo(ENHET.getEnhetNr());
@@ -117,7 +117,7 @@ public class EnhetsTjenesteTest {
     @Test
     public void skal_returnere_enhetid_journalføring_uten_fnr()  {
 
-        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.empty(), Optional.empty());
+        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.empty());
 
         assertThat(enhetId).isNotNull();
         assertThat(enhetId).isEqualTo(FORDELING_ENHET.getEnhetNr());
@@ -130,7 +130,7 @@ public class EnhetsTjenesteTest {
         when(personConsumer.hentGeografiskTilknytning(any())).thenThrow(new HentGeografiskTilknytningSikkerhetsbegrensing(null, null));
 
         @SuppressWarnings("unused")
-        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.of(FNR), Optional.empty());
+        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.of(FNR));
 
     }
 
@@ -143,7 +143,7 @@ public class EnhetsTjenesteTest {
         when(personConsumer.hentGeografiskTilknytning(any())).thenThrow(new HentGeografiskTilknytningPersonIkkeFunnet(null, null));
 
         @SuppressWarnings("unused")
-        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.of(FNR), Optional.empty());
+        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.of(FNR));
 
     }
 }

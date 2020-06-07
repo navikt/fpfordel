@@ -19,7 +19,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum NAVSkjema implements Kodeverdi {
 
-    SKJEMA_SVANGERSKAPSPENGER("SSVP", "NAV 14-04.10", "Søknad om svangerskapspenger til selvstendig næringsdrivende og frilanser"),
+    SKJEMA_SVANGERSKAPSPENGER("SSVPA", "NAV 14-04.10", "Søknad om svangerskapspenger for arbeidstakere"),
+    SKJEMA_SVANGERSKAPSPENGER_SN("SSVPS", "NAV 14-04.10", "Søknad om svangerskapspenger til selvstendig næringsdrivende og frilanser"),
     SKJEMA_FORELDREPENGER_ADOPSJON("SFPA", "NAV 14-05.06", "Søknad om foreldrepenger ved adopsjon"),
     SKJEMA_ENGANGSSTØNAD_FØDSEL("SESF", "NAV 14-05.07", "Søknad om engangsstønad ved fødsel"),
     SKJEMA_ENGANGSSTØNAD_ADOPSJON("SESA", "NAV 14-05.08", "Søknad om engangsstønad ved adopsjon"),
@@ -43,6 +44,13 @@ public enum NAVSkjema implements Kodeverdi {
 
     // Altinn-skjemakode
     SKJEMA_INNTEKTSMELDING("INNTEKTSMELDING", "4936", "Inntektsmelding"),
+
+    // Arbeidstilsynet-skjemakode
+    SKJEMA_TILRETTELEGGING_B("SSVPT", "AT-474B", "Tilrettelegging/omplassering ved graviditet"),
+    SKJEMA_TILRETTELEGGING_N("SSVPN", "AT-474N", "LIKT SOM SKJEMA_TILRETTELEGGING_B"),
+
+    // ANNET
+    FORSIDE_SVP_GAMMEL("SSVPG", "AT-474B","Tilrettelegging/omplassering pga graviditet / Søknad om svangerskapspenger til arbeidstaker"),
 
     UDEFINERT("-", null, "Ukjent type dokument");
 
@@ -148,6 +156,10 @@ public enum NAVSkjema implements Kodeverdi {
 
     private static final Set<NAVSkjema> SØKNAD_TYPER = Set.of(
             SKJEMA_SVANGERSKAPSPENGER,
+            SKJEMA_SVANGERSKAPSPENGER_SN,
+            SKJEMA_TILRETTELEGGING_B,
+            SKJEMA_TILRETTELEGGING_N,
+            FORSIDE_SVP_GAMMEL,
             SKJEMA_ENGANGSSTØNAD_ADOPSJON,
             SKJEMA_ENGANGSSTØNAD_FØDSEL,
             SKJEMA_FORELDREPENGER_ADOPSJON,
