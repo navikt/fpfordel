@@ -95,6 +95,11 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         journalpost.getBrukerAktørId().ifPresent(dataWrapper::setAktørId);
         journalpost.getJournalfoerendeEnhet().ifPresent(dataWrapper::setJournalførendeEnhet);
         dataWrapper.setStrukturertDokument(journalpost.getInnholderStrukturertInformasjon());
+        journalpost.getSaksnummer().ifPresent(s -> {
+            LOG.warn("FPFORDEL innkommende arkivsaksnummer {} for journalpost {}", s, dataWrapper.getArkivId());
+            dataWrapper.setSaksnummer(s);
+            dataWrapper.setInnkommendeSaksnummer(s);
+        });
 
         if (journalpost.getInnholderStrukturertInformasjon()) {
             MottattStrukturertDokument<?> mottattDokument = MeldingXmlParser.unmarshallXml(journalpost.getStrukturertPayload());
@@ -106,10 +111,19 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         }
 
         // Vesentlige mangler
-        if (dataWrapper.getAktørId().isEmpty() || !Tema.FORELDRE_OG_SVANGERSKAPSPENGER.equals(dataWrapper.getTema()) ||
-                DokumentTypeId.UDEFINERT.equals(journalpost.getHovedtype())) {
-            LOG.info("FPFORDEL feil tema, udefinert type eller manglende bruker for journalpost {} type {}",
+        if (!Tema.FORELDRE_OG_SVANGERSKAPSPENGER.equals(dataWrapper.getTema())) {
+            LOG.warn("FPFORDEL feil tema for journalpost {} tema {}",
+                    dataWrapper.getArkivId(), journalpost.getTema().getKode());
+            return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+        }
+        if (dataWrapper.getAktørId().isEmpty()) {
+            LOG.info("FPFORDEL manglende bruker for journalpost {} type {}",
                     dataWrapper.getArkivId(), journalpost.getHovedtype());
+            return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+        }
+        if (DokumentTypeId.UDEFINERT.equals(journalpost.getHovedtype())) {
+            LOG.info("FPFORDEL udefinert dokumenttype journalpost {} tittel {}",
+                    dataWrapper.getArkivId(), journalpost.getTittel());
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
 
