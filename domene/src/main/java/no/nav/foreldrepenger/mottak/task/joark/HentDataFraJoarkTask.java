@@ -80,7 +80,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         ArkivJournalpost journalpost = arkivTjeneste.hentArkivJournalpost(dataWrapper.getArkivId());
 
         if (!Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
-            LOG.info("FPFORDEL feil tilstand på journalpost {} med {}", journalpost.getJournalpostId(), journalpost.getTilstand());
+            LOG.info("FPFORDEL HERK feil tilstand på journalpost {} med {}", journalpost.getJournalpostId(), journalpost.getTilstand());
             return null;
         }
 
@@ -96,7 +96,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         journalpost.getJournalfoerendeEnhet().ifPresent(dataWrapper::setJournalførendeEnhet);
         dataWrapper.setStrukturertDokument(journalpost.getInnholderStrukturertInformasjon());
         journalpost.getSaksnummer().ifPresent(s -> {
-            LOG.warn("FPFORDEL innkommende arkivsaksnummer {} for journalpost {}", s, dataWrapper.getArkivId());
+            LOG.warn("FPFORDEL HERK innkommende arkivsaksnummer {} for journalpost {}", s, dataWrapper.getArkivId());
             dataWrapper.setSaksnummer(s);
             dataWrapper.setInnkommendeSaksnummer(s);
         });
@@ -112,17 +112,17 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
         // Vesentlige mangler
         if (!Tema.FORELDRE_OG_SVANGERSKAPSPENGER.equals(dataWrapper.getTema())) {
-            LOG.warn("FPFORDEL feil tema for journalpost {} tema {}",
+            LOG.warn("FPFORDEL HERK feil tema for journalpost {} tema {}",
                     dataWrapper.getArkivId(), journalpost.getTema().getKode());
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
         if (dataWrapper.getAktørId().isEmpty()) {
-            LOG.info("FPFORDEL manglende bruker for journalpost {} type {}",
+            LOG.info("FPFORDEL HERK manglende bruker for journalpost {} type {}",
                     dataWrapper.getArkivId(), journalpost.getHovedtype());
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
         if (DokumentTypeId.UDEFINERT.equals(journalpost.getHovedtype())) {
-            LOG.info("FPFORDEL udefinert dokumenttype journalpost {} tittel {}",
+            LOG.info("FPFORDEL HERK udefinert dokumenttype journalpost {} tittel {}",
                     dataWrapper.getArkivId(), journalpost.getTittel());
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }

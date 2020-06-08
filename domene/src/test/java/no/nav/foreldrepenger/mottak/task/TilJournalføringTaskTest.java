@@ -142,7 +142,7 @@ public class TilJournalføringTaskTest {
 
         MottakMeldingDataWrapper wrapper = doTaskWithPrecondition(data);
 
-        verify(arkivTjeneste).ferdigstillJournalføring(any(), captor.capture(), any());
+        verify(arkivTjeneste).oppdaterMedSak(any(), captor.capture());
 
         String sak = captor.getValue();
 
@@ -165,7 +165,7 @@ public class TilJournalføringTaskTest {
         data.setForsendelseId(forsendelseId);
 
         Exception funkExc = new IllegalStateException("bla bla");
-        doThrow(funkExc).when(arkivTjeneste).ferdigstillJournalføring(any(), any(), any());
+        doThrow(funkExc).when(arkivTjeneste).ferdigstillJournalføring(any(), any());
 
         MottakMeldingDataWrapper wrapper = doTaskWithPrecondition(data);
 
@@ -188,7 +188,7 @@ public class TilJournalføringTaskTest {
         data.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         data.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
 
-        doThrow(new IllegalArgumentException("blab bla")).when(arkivTjeneste).ferdigstillJournalføring(any(),any(),any());
+        doThrow(new IllegalArgumentException("blab bla")).when(arkivTjeneste).ferdigstillJournalføring(any(),any());
 
         MottakMeldingDataWrapper wrapper = doTaskWithPrecondition(data);
 

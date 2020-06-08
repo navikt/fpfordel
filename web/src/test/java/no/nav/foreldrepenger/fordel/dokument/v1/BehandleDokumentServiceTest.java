@@ -183,7 +183,8 @@ public class BehandleDokumentServiceTest {
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, SAKSNUMMER, ENHETID);
+        verify(arkivTjeneste).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER);
+        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
         verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(engangsstønadFødsel), any(), any(), any(), any());
     }
@@ -213,7 +214,8 @@ public class BehandleDokumentServiceTest {
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, SAKSNUMMER, ENHETID);
+        verify(arkivTjeneste).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER);
+        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
         verify(klargjørForVLTjenesteMock).klargjørForVL(eq(xml), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(foreldrepengerFødsel), any(), any(), any(), any());
     }
@@ -291,7 +293,8 @@ public class BehandleDokumentServiceTest {
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, SAKSNUMMER, ENHETID);
+        verify(arkivTjeneste).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER);
+        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
         verify(klargjørForVLTjenesteMock).klargjørForVL(eq(xml), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(foreldrepengerFødsel), any(), any(), any(), any());
     }
@@ -313,7 +316,8 @@ public class BehandleDokumentServiceTest {
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, SAKSNUMMER, ENHETID);
+        verify(arkivTjeneste).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER);
+        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
         verify(klargjørForVLTjenesteMock).klargjørForVL(eq(null), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(foreldrepenger), any(), any(), any(), any());
     }
@@ -335,7 +339,8 @@ public class BehandleDokumentServiceTest {
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, SAKSNUMMER, ENHETID);
+        verify(arkivTjeneste).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER);
+        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
         verify(klargjørForVLTjenesteMock).klargjørForVL(eq(xml), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(foreldrepengerAdopsjon), any(), any(), any(), any());
     }
@@ -357,7 +362,8 @@ public class BehandleDokumentServiceTest {
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, SAKSNUMMER, ENHETID);
+        verify(arkivTjeneste).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER);
+        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
         verify(klargjørForVLTjenesteMock).klargjørForVL(eq(xml), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(foreldrepenger), any(), any(), any(), any());
     }
