@@ -137,9 +137,7 @@ public class ArkivTjeneste {
         var builder = OppdaterJournalpostRequest.ny()
                 .medBehandlingstema(behandlingstema)
                 .medBruker(aktørId);
-        if (dokArkivTjeneste.oppdaterJournalpost(journalpostId, builder.build())) {
-            LOG.info("FPFORDEL INNTEKTSMELDING oppdaterte bt {} og bruker for {}", behandlingstema, journalpostId);
-        } else {
+        if (!dokArkivTjeneste.oppdaterJournalpost(journalpostId, builder.build())) {
             throw new IllegalStateException("FPFORDEL Kunne ikke oppdatere " + journalpostId);
         }
     }
@@ -170,48 +168,45 @@ public class ArkivTjeneste {
             builder.medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode());
         }
         if (journalpost.getBehandlingstema() == null && !BehandlingTema.UDEFINERT.equals(utledetBehandlingTema)) {
-            LOG.info("FPFORDEL oppdaterer manglende behandlingstema for {}", journalpost.getJournalpostId());
+            // Logges ikke da den nesten alltid oppdateres
             builder.medBehandlingstema(utledetBehandlingTema.getOffisiellKode());
         }
         if (journalpost.getBruker() == null || journalpost.getBruker().getId() == null) {
             LOG.info("FPFORDEL oppdaterer manglende bruker for {}", journalpost.getJournalpostId());
             builder.medBruker(aktørId);
         }
-        journalpost.getDokumenter().stream()
+        var oppdaterDok = journalpost.getDokumenter().stream()
                 .filter(d -> d.getTittel() == null || d.getTittel().isEmpty())
                 .filter(d -> d.getBrevkode() != null)
                 .map(d -> new DokumentInfoOppdater(d.getDokumentInfoId(), NAVSkjema.fraOffisiellKode(d.getBrevkode()).getTermNavn(), d.getBrevkode()))
-                .forEach(builder::leggTilDokument);
-        if (builder.harVerdier()) {
-            if (dokArkivTjeneste.oppdaterJournalpost(journalpost.getJournalpostId(), builder.build())) {
-                LOG.info("FPFORDEL oppdaterer journalpost med mangler {}", journalpost.getJournalpostId());
-            } else {
-                throw new IllegalStateException("FPFORDEL Kunne ikke oppdatere " + journalpost.getJournalpostId());
-            }
+                .collect(Collectors.toList());
+        if (!oppdaterDok.isEmpty())
+            LOG.info("FPFORDEL oppdaterer manglende dokumenttitler for {}", journalpost.getJournalpostId());
+        oppdaterDok.forEach(builder::leggTilDokument);
+        if (builder.harVerdier() && !dokArkivTjeneste.oppdaterJournalpost(journalpost.getJournalpostId(), builder.build())) {
+            throw new IllegalStateException("FPFORDEL Kunne ikke oppdatere " + journalpost.getJournalpostId());
         }
-        return !tittelMangler && journalpost.getDokumenter().stream().noneMatch(d -> d.getTittel() == null);
+        var resultat = !tittelMangler && journalpost.getDokumenter().stream().filter(d -> d.getTittel() == null || d.getTittel().isEmpty()).count() == oppdaterDok.size();
+        if (!resultat)
+            LOG.info("FPFORDEL oppdaterer gjenstår tittel eller dokumenttittel for {}", journalpost.getJournalpostId());
+        return resultat;
     }
 
-    public void ferdigstillJournalføring(String journalpostId, String arkivSakId, String enhet) {
-        if (arkivSakId == null || enhet == null) {
-            throw new IllegalArgumentException("FPFORDEL ferdigstill mangler saksnummer og enhet " + journalpostId);
+    public void oppdaterMedSak(String journalpostId, String arkivSakId) {
+        if (arkivSakId == null) {
+            throw new IllegalArgumentException("FPFORDEL oppdaterMedSak mangler saksnummer " + journalpostId);
         }
         var builder = OppdaterJournalpostRequest.ny().medArkivSak(arkivSakId);
         if (dokArkivTjeneste.oppdaterJournalpost(journalpostId, builder.build())) {
-            LOG.info("FPFORDEL FERDIGSTILLING oppdaterte {} med sak {}", journalpostId, arkivSakId);
+            LOG.info("FPFORDEL SAKSOPPDATERING oppdaterte {} med sak {}", journalpostId, arkivSakId);
         } else {
             throw new IllegalStateException("FPFORDEL Kunne ikke knytte journalpost " + journalpostId + " til sak " + arkivSakId);
-        }
-        if (dokArkivTjeneste.ferdigstillJournalpost(journalpostId, enhet)) {
-            LOG.info("FPFORDEL FERDIGSTILLING ferdigstilte journalpost {} enhet {}", journalpostId, enhet);
-        } else {
-            throw new IllegalStateException("FPFORDEL Kunne ikke ferdigstille journalpost " + journalpostId);
         }
     }
 
     public void ferdigstillJournalføring(String journalpostId, String enhet) {
         if (dokArkivTjeneste.ferdigstillJournalpost(journalpostId, enhet)) {
-            LOG.info("FPFORDEL FERDIGSTILLING saksnummer presatt ferdigstilte journalpost {} enhet {}", journalpostId, enhet);
+            LOG.info("FPFORDEL FERDIGSTILLING ferdigstilte journalpost {} enhet {}", journalpostId, enhet);
         } else {
             throw new IllegalStateException("FPFORDEL Kunne ikke ferdigstille journalpost " + journalpostId);
         }
