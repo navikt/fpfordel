@@ -15,9 +15,11 @@ import org.apache.kafka.streams.errors.LogAndFailExceptionHandler;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
 import no.nav.vedtak.konfig.KonfigVerdi;
+import no.nav.vedtak.util.env.Environment;
 
 @Dependent
 public class JournalføringHendelseProperties {
+    private static final Environment ENV = Environment.current();
     private final String bootstrapServers;
     private final String schemaRegistryUrl;
     private final Topic<String, JournalfoeringHendelseRecord> journalfoeringHendelseTopic;
@@ -43,7 +45,7 @@ public class JournalføringHendelseProperties {
         this.password = password;
         this.trustStorePath = trustStorePath;
         this.trustStorePassword = trustStorePassword;
-        this.applicationId = System.getProperty("nais.app.name", "fpfordel") + "-" + System.getProperty("nais.namespace", "default");
+        this.applicationId = System.getProperty("nais.app.name", "fpfordel") + "-" + ENV.namespace();
     }
 
     public Topic<String, JournalfoeringHendelseRecord> getTopic() {
