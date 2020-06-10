@@ -30,7 +30,7 @@
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
 
-        <felles.version>1.9-20200605051619-b6114c1</felles.version>
+        <felles.version>1.9-20200610132916-4d0f949</felles.version>
 
         <java.version>11</java.version>
         <argLine>-Xms256m -Dfile.encoding=UTF-8 -Dlog.level.no.nav=WARN</argLine> <!-- default argLine for surefire-plugin -->

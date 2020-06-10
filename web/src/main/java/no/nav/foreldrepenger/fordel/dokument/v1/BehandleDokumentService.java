@@ -4,6 +4,7 @@ import static no.nav.vedtak.log.util.LoggerUtils.removeLineBreaks;
 
 import java.time.LocalDate;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import javax.enterprise.context.Dependent;
@@ -136,6 +137,8 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             LOG.info(removeLineBreaks("Kaller tilJournalføring")); // NOSONAR
             try {
                 arkivTjeneste.oppdaterMedSak(journalpost.getJournalpostId(), saksnummer);
+                // Midlertidig for å se om man unngår å måtte gjøre journalføring to ganger fra Gosys
+                ventEttSekund();
                 arkivTjeneste.ferdigstillJournalføring(journalpost.getJournalpostId(), enhetId);
             } catch (Exception e) {
                 ugyldigBrukerPrøvIgjen(arkivId);
@@ -310,6 +313,13 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         faultInfo.setFeilmelding(melding);
         faultInfo.setFeilaarsak("Ugyldig input");
         return faultInfo;
+    }
+
+    private void ventEttSekund() {
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) { // NOSONAR
+        }
     }
 
     public static class AbacDataSupplier implements Function<Object, AbacDataAttributter> {
