@@ -136,10 +136,11 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
                 ugyldigBrukerPrøvIgjen(arkivId);
             LOG.info(removeLineBreaks("Kaller tilJournalføring")); // NOSONAR
             try {
-                arkivTjeneste.oppdaterMedSak(journalpost.getJournalpostId(), saksnummer);
-                // Midlertidig for å se om man unngår å måtte gjøre journalføring to ganger fra Gosys
-                ventEttSekund();
-                arkivTjeneste.ferdigstillJournalføring(journalpost.getJournalpostId(), enhetId);
+                if (!ferdigstill(saksnummer, enhetId, journalpost, 0L)) {
+                    if (!ferdigstill(saksnummer, enhetId, journalpost, 3L)) {
+                        throw new IllegalStateException("Retry virket ikke");
+                    }
+                }
             } catch (Exception e) {
                 ugyldigBrukerPrøvIgjen(arkivId);
             }
@@ -156,6 +157,18 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
         // For å unngå klonede journalposter fra Gosys - de kan komme via Kafka
         dokumentRepository.lagreJournalpostLokal(arkivId, journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
+    }
+
+    private boolean ferdigstill(String saksnummer, String enhetId, ArkivJournalpost journalpost, Long vent) {
+        if (vent > 0)
+            ventNSekund(vent);
+        try {
+            arkivTjeneste.oppdaterMedSak(journalpost.getJournalpostId(), saksnummer);
+            arkivTjeneste.ferdigstillJournalføring(journalpost.getJournalpostId(), enhetId);
+            return true;
+        } catch (IllegalStateException e) { // NOSONAR
+        }
+        return false;
     }
 
     private UUID getForsendelseId(String eksternReferanseId) {
@@ -315,9 +328,9 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         return faultInfo;
     }
 
-    private void ventEttSekund() {
+    private void ventNSekund(long n) {
         try {
-            TimeUnit.SECONDS.sleep(1);
+            TimeUnit.SECONDS.sleep(n);
         } catch (InterruptedException e) { // NOSONAR
         }
     }
