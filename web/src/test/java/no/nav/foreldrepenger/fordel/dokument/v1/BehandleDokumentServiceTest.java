@@ -37,6 +37,7 @@ import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.OppdaterOgFerdi
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.meldinger.OppdaterOgFerdigstillJournalfoeringRequest;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 public class BehandleDokumentServiceTest {
 
@@ -95,10 +96,9 @@ public class BehandleDokumentServiceTest {
         aktørConsumer = mock(AktørConsumerMedCache.class);
         when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.empty());
         when(aktørConsumer.hentAktørIdForPersonIdent(BRUKER_FNR)).thenReturn(Optional.of(AKTØR_ID));
-        var dokumentRepository = mock(DokumentRepository.class);
 
         behandleDokumentService = new BehandleDokumentService(klargjørForVLTjenesteMock,
-                fagsakRestKlientMock, aktørConsumer, arkivTjeneste, dokumentRepository);
+                fagsakRestKlientMock, aktørConsumer, arkivTjeneste,  mock(DokumentRepository.class), mock(ProsessTaskRepository.class));
     }
 
     @Test

@@ -37,6 +37,8 @@ public enum NAVSkjema implements Kodeverdi {
     SKJEMAE_ENGANGSSTØNAD_ADOPSJON("SEEA", "NAVe 14-05.08", "Ettersendelse til søknad om engangsstønad ved adopsjon"),
     SKJEMAE_FORELDREPENGER_FØDSEL("SEFF", "NAVe 14-05.09", "Ettersendelse til søknad om foreldrepenger ved fødsel"),
     SKJEMAE_FLEKSIBELT_UTTAK("SEFU", "NAVe 14-16.05", "Ettersendelse til søknad om endring eller nytt uttak av foreldrepenger"),
+    SKJEMAE_INNTEKTSOPPLYSNING_SELVSTENDIG("SEIS", "NAVe 14-35.01", "Ettersendelse til inntektsopplysninger for selvstendig næringsdrivende og frilansere som skal ha foreldrepenger eller svangerskapspenger"),
+    SKJEMAE_INNTEKTSOPPLYSNINGER("SEIP", "NAVe 08-30.01", "Ettersendelse til inntektsopplysninger for arbeidstaker som skal ha sykepenger, foreldrepenger, svangerskapspenger, pleie-/opplæringspenger og omsorgspenger"),
     SKJEMAE_KLAGE("SEKLAG", "NAVe 90-00.08", "Ettersendelse klage/anke"),
     SKJEMAE_FORELDREPENGER_ENDRING("SEEN", "NAVe 14-05.10", "Ettersendelse til søknad om endring av uttak av foreldrepenger eller overføring av kvote"),
 
