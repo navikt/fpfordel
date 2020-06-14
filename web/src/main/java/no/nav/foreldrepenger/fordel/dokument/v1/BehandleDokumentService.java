@@ -3,8 +3,8 @@ package no.nav.foreldrepenger.fordel.dokument.v1;
 import static no.nav.vedtak.log.util.LoggerUtils.removeLineBreaks;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import javax.enterprise.context.Dependent;
@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
@@ -29,6 +30,7 @@ import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
 import no.nav.foreldrepenger.mottak.task.KlargjorForVLTask;
+import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
@@ -48,6 +50,7 @@ import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebService;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -79,18 +82,21 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
     private final AktørConsumerMedCache aktørConsumer;
     private final ArkivTjeneste arkivTjeneste;
     private final DokumentRepository dokumentRepository;
+    private final ProsessTaskRepository taskRepository;
 
     @Inject
     public BehandleDokumentService(KlargjørForVLTjeneste klargjørForVLTjeneste,
                                    FagsakRestKlient fagsakRestKlient,
                                    AktørConsumerMedCache aktørConsumer,
                                    ArkivTjeneste arkivTjeneste,
-                                   DokumentRepository dokumentRepository) {
+                                   DokumentRepository dokumentRepository,
+                                   ProsessTaskRepository taskRepository) {
         this.klargjørForVLTjeneste = klargjørForVLTjeneste;
         this.fagsakRestKlient = fagsakRestKlient;
         this.aktørConsumer = aktørConsumer;
         this.arkivTjeneste = arkivTjeneste;
         this.dokumentRepository = dokumentRepository;
+        this.taskRepository = taskRepository;
     }
 
     @Override
@@ -136,10 +142,8 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
                 ugyldigBrukerPrøvIgjen(arkivId);
             LOG.info(removeLineBreaks("Kaller tilJournalføring")); // NOSONAR
             try {
-                if (!ferdigstill(saksnummer, enhetId, journalpost, 0L)) {
-                    if (!ferdigstill(saksnummer, enhetId, journalpost, 3L)) {
-                        throw new IllegalStateException("Retry virket ikke");
-                    }
+                if (!ferdigstill(saksnummer, enhetId, journalpost)) {
+                    lagreTournalføringTask(journalpost, behandlingTema, saksnummer, enhetId);
                 }
             } catch (Exception e) {
                 ugyldigBrukerPrøvIgjen(arkivId);
@@ -159,9 +163,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         dokumentRepository.lagreJournalpostLokal(arkivId, journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
     }
 
-    private boolean ferdigstill(String saksnummer, String enhetId, ArkivJournalpost journalpost, Long vent) {
-        if (vent > 0)
-            ventNSekund(vent);
+    private boolean ferdigstill(String saksnummer, String enhetId, ArkivJournalpost journalpost) {
         try {
             arkivTjeneste.oppdaterMedSak(journalpost.getJournalpostId(), saksnummer);
             arkivTjeneste.ferdigstillJournalføring(journalpost.getJournalpostId(), enhetId);
@@ -328,11 +330,31 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         return faultInfo;
     }
 
-    private void ventNSekund(long n) {
-        try {
-            TimeUnit.SECONDS.sleep(n);
-        } catch (InterruptedException e) { // NOSONAR
+
+    private void lagreTournalføringTask(ArkivJournalpost journalpost, BehandlingTema behandlingTema, String saksnummer, String enhetId) {
+        var taskdata = new ProsessTaskData(TilJournalføringTask.TASKNAME);
+        taskdata.setCallIdFraEksisterende();
+        taskdata.setNesteKjøringEtter(LocalDateTime.now().plusMinutes(1));
+        MottakMeldingDataWrapper dataWrapper = new MottakMeldingDataWrapper(taskdata);
+        dataWrapper.setRetryEndelig();
+        dataWrapper.setArkivId(journalpost.getJournalpostId());
+        dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
+        dataWrapper.setBehandlingTema(behandlingTema);
+        dataWrapper.setEksternReferanseId(journalpost.getEksternReferanseId());
+        dataWrapper.setForsendelseMottattTidspunkt(journalpost.getDatoOpprettet());
+        dataWrapper.setDokumentTypeId(journalpost.getHovedtype());
+        dataWrapper.setDokumentKategori(ArkivUtil.utledKategoriFraDokumentType(journalpost.getHovedtype()));
+        journalpost.getBrukerAktørId().ifPresent(dataWrapper::setAktørId);
+        dataWrapper.setJournalførendeEnhet(enhetId);
+        dataWrapper.setSaksnummer(saksnummer);
+        dataWrapper.setStrukturertDokument(journalpost.getInnholderStrukturertInformasjon());
+        if (journalpost.getInnholderStrukturertInformasjon()) {
+            dataWrapper.setPayload(journalpost.getStrukturertPayload());
         }
+        if (dataWrapper.getForsendelseMottattTidspunkt().isEmpty()) {
+            dataWrapper.setForsendelseMottattTidspunkt(LocalDateTime.now());
+        }
+        taskRepository.lagre(dataWrapper.getProsessTaskData());
     }
 
     public static class AbacDataSupplier implements Function<Object, AbacDataAttributter> {
