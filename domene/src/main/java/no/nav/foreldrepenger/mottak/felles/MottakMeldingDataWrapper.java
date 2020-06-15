@@ -317,15 +317,6 @@ public class MottakMeldingDataWrapper {
         prosessTaskData.setProperty(BARN_ANTALL_KEY, Integer.toString(antallBarn));
     }
 
-    public boolean erRetryEndelig() {
-        final String property = prosessTaskData.getPropertyValue(RETRY_ENDELIG);
-        return Boolean.parseBoolean(property);
-    }
-
-    public void setRetryEndelig() {
-        prosessTaskData.setProperty(RETRY_ENDELIG, String.valueOf(Boolean.TRUE));
-    }
-
     public Optional<Boolean> erStrukturertDokument() {
         final String property = prosessTaskData.getPropertyValue(STRUKTURERT_DOKUMENT);
         Boolean bool = property != null ? Boolean.parseBoolean(property) : null;

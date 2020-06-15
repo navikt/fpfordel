@@ -92,12 +92,8 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
                 }
                 arkivTjeneste.ferdigstillJournalføring(w.getArkivId(), w.getJournalførendeEnhet().orElse(AUTOMATISK_ENHET));
             } catch (Exception e) {
-                if (w.erRetryEndelig()) {
-                    throw MottakMeldingFeil.FACTORY.feilJournalTilstandForventetTilstandEndelig().toException();
-                } else {
-                    MottakMeldingFeil.FACTORY.feilJournalTilstandForventetTilstandEndelig().log(LOG);
-                    return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
-                }
+                MottakMeldingFeil.FACTORY.feilJournalTilstandForventetTilstandEndelig().log(LOG);
+                return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
             }
         }
         w.getForsendelseId().ifPresent(id -> {
