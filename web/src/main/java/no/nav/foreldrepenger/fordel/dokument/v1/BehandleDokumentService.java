@@ -144,6 +144,8 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             try {
                 if (!ferdigstill(saksnummer, enhetId, journalpost)) {
                     lagreTournalføringTask(journalpost, behandlingTema, saksnummer, enhetId);
+                    dokumentRepository.lagreJournalpostLokal(arkivId, journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
+                    return;
                 }
             } catch (Exception e) {
                 ugyldigBrukerPrøvIgjen(arkivId);
