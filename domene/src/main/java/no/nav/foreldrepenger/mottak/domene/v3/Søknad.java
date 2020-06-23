@@ -133,6 +133,10 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
     }
 
     public Optional<LocalDate> hentTermindato() {
+        Ytelse ytelse = getYtelse();
+        if (ytelse instanceof Svangerskapspenger) {
+            return Optional.ofNullable(((Svangerskapspenger) ytelse).getTermindato());
+        }
         SoekersRelasjonTilBarnet relasjon = getRelasjonTilBarnet();
         if (relasjon instanceof Termin) {
             return Optional.ofNullable(((Termin) relasjon).getTermindato());
@@ -141,6 +145,10 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
     }
 
     public Optional<LocalDate> hentFødselsdato() {
+        Ytelse ytelse = getYtelse();
+        if (ytelse instanceof Svangerskapspenger) {
+            return Optional.ofNullable(((Svangerskapspenger) ytelse).getFødselsdato());
+        }
         SoekersRelasjonTilBarnet relasjon = getRelasjonTilBarnet();
         if (relasjon instanceof Foedsel) {
             return Optional.ofNullable(((Foedsel) relasjon).getFoedselsdato());
