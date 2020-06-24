@@ -13,5 +13,5 @@ jobs:
           token: ${{ secrets.NOTIFICATION }}
           commands: promote
           issue-type: issue 
-          allow_edits: true   
+          allow-edits: true   
           reactions: false     
