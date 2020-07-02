@@ -5,6 +5,8 @@ import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.RETRY
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.DRIFT;
 
+import java.util.function.Function;
+
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -30,7 +32,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskIdDto;
+import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 @Path("/forvaltning")
 @RequestScoped
@@ -131,7 +135,7 @@ public class ForvaltningRestTjeneste {
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
-    public Response midlJournalførForsendelse(
+    public Response midlJournalførForsendelse(@TilpassetAbacAttributt(supplierClass = ForvaltningRestTjeneste.AbacDataSupplier.class)
             @Parameter(description = "Task som skal midl journalførs") @NotNull @Valid ProsessTaskIdDto taskId) {
         var data = prosessTaskRepository.finn(taskId.getProsessTaskId());
         if (data != null) {
@@ -171,7 +175,7 @@ public class ForvaltningRestTjeneste {
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
     @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
-    public Response setTaskFerdig(
+    public Response setTaskFerdig(@TilpassetAbacAttributt(supplierClass = ForvaltningRestTjeneste.AbacDataSupplier.class)
             @Parameter(description = "Task som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto taskId) {
         var data = prosessTaskRepository.finn(taskId.getProsessTaskId());
         if (data != null) {
@@ -181,5 +185,12 @@ public class ForvaltningRestTjeneste {
             prosessTaskRepository.lagre(data);
         }
         return Response.ok().build();
+    }
+
+    public static class AbacDataSupplier implements Function<Object, AbacDataAttributter> {
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            return AbacDataAttributter.opprett();
+        }
     }
 }

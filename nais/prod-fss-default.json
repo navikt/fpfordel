@@ -11,6 +11,7 @@
 	],
 	"env": {
 		"ABAC_PDP_ENDPOINT_URL": "https://wasapp.adeo.no/asm-pdp/authorize",
+		"ABAC_ATTRIBUTT_DRIFT": "no.nav.abac.attributter.foreldrepenger.drift",
 		"AKTOER_V2_URL": "https://app.adeo.no/aktoerregister/ws/Aktoer/v2",
 		"APPDYNAMICS_AGENT_ACCOUNT_NAME": "PROD",
 		"ARBEIDSFORDELING_RS_URL": "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter",
