@@ -19,6 +19,7 @@ import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
+import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 public class RestApiAbacTest {
 
@@ -61,11 +62,15 @@ public class RestApiAbacTest {
                     ParameterizedType type = (ParameterizedType) parameter.getParameterizedType();
                     @SuppressWarnings("rawtypes")
                     Class<?> aClass = (Class) (type.getActualTypeArguments()[0]);
-                    if (!AbacDto.class.isAssignableFrom(aClass) && !IgnorerteInputTyper.ignore(aClass)) {
+                    if (!AbacDto.class.isAssignableFrom(aClass)
+                            && !parameter.isAnnotationPresent(TilpassetAbacAttributt.class)
+                            && !IgnorerteInputTyper.ignore(aClass)) {
                         feilmeldinger.append(String.format(feilmelding, restMethode.getDeclaringClass().getSimpleName(), restMethode.getName(), aClass.getSimpleName()));
                     }
                 } else {
-                    if (!AbacDto.class.isAssignableFrom(parameter.getType()) && !IgnorerteInputTyper.ignore(parameter.getType())) {
+                    if (!AbacDto.class.isAssignableFrom(parameter.getType())
+                            && !parameter.isAnnotationPresent(TilpassetAbacAttributt.class)
+                            && !IgnorerteInputTyper.ignore(parameter.getType())) {
                         feilmeldinger.append(String.format(feilmelding, restMethode.getDeclaringClass().getSimpleName(), restMethode.getName(), parameter.getType().getSimpleName()));
                     }
                 }
@@ -79,12 +84,18 @@ public class RestApiAbacTest {
     private void assertAtIngenBrukerDummyVerdierPåBeskyttetRessurs(Method metode) {
         Class<?> klasse = metode.getDeclaringClass();
         BeskyttetRessurs annotation = metode.getAnnotation(BeskyttetRessurs.class);
+        if (annotation != null && !annotation.property().isEmpty()) {
+            if (annotation.property().equals("abac.attributt.drift")) {
+                return;
+            }
+            fail(klasse.getSimpleName() + "." + metode.getName() + " @" + annotation.getClass().getSimpleName() + " bruker ikke-støttet property: " + annotation.property());
+        }
         if (annotation != null && annotation.action() == BeskyttetRessursActionAttributt.DUMMY) {
             fail(klasse.getSimpleName() + "." + metode.getName() + " Ikke bruk DUMMY-verdi for "
-                + BeskyttetRessursActionAttributt.class.getSimpleName());
+                    + BeskyttetRessursActionAttributt.class.getSimpleName());
         } else if (annotation != null && annotation.ressurs() == BeskyttetRessursResourceAttributt.DUMMY) {
             fail(klasse.getSimpleName() + "." + metode.getName() + " Ikke bruk DUMMY-verdi for "
-                + BeskyttetRessursResourceAttributt.class.getSimpleName());
+                    + BeskyttetRessursResourceAttributt.class.getSimpleName());
         }
     }
 
