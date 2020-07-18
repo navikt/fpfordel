@@ -104,5 +104,8 @@ jobs:
                       issue_number: response.data.number }
                      github.issues.createComment({...issue,
                             title: 'Deploy av ${{ env.TAG }}',
+                            body: '/promote dev-fss teamforeldrepenger'})
+                     github.issues.createComment({...issue,
+                            title: 'Deploy av ${{ env.TAG }}',
                             body: '/promote dev-fss q1'})
                });
