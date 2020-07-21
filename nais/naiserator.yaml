@@ -22,7 +22,7 @@ spec:
   preStopHookPath: fpfordel/internal/health/preStop
   prometheus:
     enabled: true
-    path: fpfordel/internal/prometheus
+    path: fpfordel/internal/metrics/prometheus
   readiness:
     path: fpfordel/internal/health/isReady
     port: 8080
