@@ -1,4 +1,4 @@
-teamforeldrepenger
+ {
 	"cluster": "prod",
 	"oracleconfigkv": "/oracle/data/prod/config/fpfordel_p",
 	"oraclecredskv": "/oracle/data/prod/creds/fpfordel_p-fpfordel_p",
