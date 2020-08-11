@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
@@ -35,7 +35,7 @@ public class JournalføringHendelseHåndtererTest {
     @Rule
     public RepositoryRule repoRule = new UnittestRepositoryRule();
 
-    @Before
+    @BeforeEach
     public void setup() {
         prosessTaskRepository = new ProsessTaskRepositoryImpl(repoRule.getEntityManager(), null, null);
         dokumentRepository = new DokumentRepository(repoRule.getEntityManager());

@@ -6,10 +6,9 @@ import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.domene.v3.Søknad;
@@ -38,16 +37,13 @@ public class SøknadTest {
     private static String AKTØR_ID = "9000000000009";
     private static String SAKSNUMMER = "98765433";
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     Soeknad søknad;
     Bruker bruker;
     AktørConsumerMedCache aktørConsumer;
     MottakMeldingDataWrapper test;
     Søknad søknadXmlWrapper;
 
-    @Before
+    @BeforeEach
     public void init() {
         søknad = new Soeknad();
         bruker = new Bruker();
@@ -237,10 +233,8 @@ public class SøknadTest {
         test.setAktørId("95873742"); // simuler annen aktørId fra metadata
         test.setBehandlingTema(BehandlingTema.FORELDREPENGER_FØDSEL);
 
-        expectedException.expect(TekniskException.class);
-        expectedException.expectMessage("FP-502574");
-
-        søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
+        Assertions.assertThrows(TekniskException.class,
+                () -> søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent));
     }
 
     @Test
@@ -256,10 +250,9 @@ public class SøknadTest {
         test.setSaksnummer("857356"); // saksnummer fra metadata
         test.setBehandlingTema(BehandlingTema.FORELDREPENGER);
 
-        expectedException.expect(FunksjonellException.class);
-        expectedException.expectMessage("FP-401245");
+        Assertions.assertThrows(FunksjonellException.class,
+                () -> søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent));
 
-        søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
     }
 
     @Test

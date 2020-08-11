@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.mottak.felles;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -18,7 +17,7 @@ public class MottakMeldingDataWrapperForInntektsmeldingTest {
 
     private MottakMeldingDataWrapper testObjekt;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         eksisterendeData = new ProsessTaskData(PROSESSTASK_STEG1);
         eksisterendeData.setSekvens("1");

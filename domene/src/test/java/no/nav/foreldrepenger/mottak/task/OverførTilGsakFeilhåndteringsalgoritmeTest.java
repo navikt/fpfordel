@@ -8,10 +8,11 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.junit.Before;
+import org.jboss.weld.junit5.WeldJunit5Extension;
 import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
 import no.nav.vedtak.exception.IntegrasjonException;
@@ -23,9 +24,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTypeInfo;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@ExtendWith(WeldJunit5Extension.class)
 public class OverførTilGsakFeilhåndteringsalgoritmeTest {
 
     @Rule
@@ -37,7 +37,7 @@ public class OverførTilGsakFeilhåndteringsalgoritmeTest {
     private OverførTilGsakFeilhåndteringsalgoritme algoritme;
     private ProsessTaskTypeInfo type = lagType();
 
-    @Before
+    @BeforeEach
     public void opprettAlgoritme() {
         algoritme = new OverførTilGsakMedBackoffFeilhåndteringsalgoritme(prosessTaskRepository);
     }

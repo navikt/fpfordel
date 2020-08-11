@@ -6,8 +6,8 @@ import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
@@ -29,7 +29,7 @@ public class KlargjørForVLTjenesteTest {
     private static final String SAK_ID = "456";
     private static final String ENHET_ID = "en003";
 
-    @Before
+    @BeforeEach
     public void setup() {
         mockFagsakRestKlient = mock(FagsakRestKlient.class);
         mockDokumentRestTjeneste = mock(DokumentmottakRestKlient.class);
@@ -37,11 +37,11 @@ public class KlargjørForVLTjenesteTest {
         klargjørForVLTjeneste = new KlargjørForVLTjeneste(mockDokumentRestTjeneste, mockFagsakRestKlient, mockTilbakeRestTjeneste);
     }
 
-
     @Test
     public void skal_knytte_og_sende() {
 
-        klargjørForVLTjeneste.klargjørForVL(null, SAK_ID, ARKIV_ID, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, LocalDate.now().atStartOfDay(), BehandlingTema.FORELDREPENGER, null, DokumentKategori.SØKNAD, ENHET_ID, null);
+        klargjørForVLTjeneste.klargjørForVL(null, SAK_ID, ARKIV_ID, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, LocalDate.now().atStartOfDay(),
+                BehandlingTema.FORELDREPENGER, null, DokumentKategori.SØKNAD, ENHET_ID, null);
 
         ArgumentCaptor<JournalpostKnyttningDto> captorJ = ArgumentCaptor.forClass(JournalpostKnyttningDto.class);
         verify(mockFagsakRestKlient).knyttSakOgJournalpost(captorJ.capture());

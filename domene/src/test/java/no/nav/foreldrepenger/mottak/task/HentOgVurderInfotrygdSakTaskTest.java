@@ -19,16 +19,13 @@ import static org.mockito.Mockito.verify;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -40,7 +37,7 @@ import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class HentOgVurderInfotrygdSakTaskTest {
 
     private static final String AKTØR_BRUKER = "1";
@@ -57,11 +54,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
     private static final String FNR_BRUKER_2 = "99999999899";
     private static final String FNR_ANNEN_PART_2 = "99999999899";
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule();
     @Mock
     private ProsessTaskRepository prosessTaskRepository;
     @Mock
@@ -71,7 +63,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     @Mock
     private InfotrygdTjeneste fp;
 
-    @Before
+    @BeforeEach
     public void setup() {
         expectAktørFnrMappings();
     }
@@ -267,17 +259,19 @@ public class HentOgVurderInfotrygdSakTaskTest {
         doWithPrecondition(w);
     }
 
-    @Test(expected = VLException.class)
+    @Test
     public void skal_throw_exception_hvis_ukjent_behandlings_tema() throws Exception {
+        Assertions.assertThrows(VLException.class, () -> {
 
-        var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
-        expectIT(FNR_ANNEN_PART, it1);
+            var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
+            expectIT(FNR_ANNEN_PART, it1);
 
-        var w = dataWrapper(AKTØR_BRUKER);
-        w.setBehandlingTema(BehandlingTema.UDEFINERT);
-        w.setDokumentTypeId(SØKNAD_FORELDREPENGER_FØDSEL);
-        w.setInntekstmeldingStartdato(now());
-        doWithPrecondition(w);
+            var w = dataWrapper(AKTØR_BRUKER);
+            w.setBehandlingTema(BehandlingTema.UDEFINERT);
+            w.setDokumentTypeId(SØKNAD_FORELDREPENGER_FØDSEL);
+            w.setInntekstmeldingStartdato(now());
+            doWithPrecondition(w);
+        });
     }
 
     private void doAndAssertOpprettet(MottakMeldingDataWrapper w) {

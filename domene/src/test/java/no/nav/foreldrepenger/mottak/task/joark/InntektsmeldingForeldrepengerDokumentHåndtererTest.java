@@ -10,12 +10,10 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -28,13 +26,10 @@ import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
 
     private static final String ARKIV_ID = JoarkTestsupport.ARKIV_ID;
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     private ProsessTaskData taskData;
     private HentDataFraJoarkTask joarkTaskTestobjekt;
@@ -43,7 +38,7 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
     private AktørConsumerMedCache aktørConsumer;
     private ArkivTjeneste arkivTjeneste;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         initMocks(this);
 
@@ -93,7 +88,8 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
     @Test
     public void skalHåndtereInntektsmeldingUtenStartdatoMedManuellJournalføring() throws Exception {
         var dokument = joarkTestsupport
-                .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING, "testsoknader/inntektsmelding-manual-uten-startdato-foreldrepenger-periode-sample.xml");
+                .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING,
+                        "testsoknader/inntektsmelding-manual-uten-startdato-foreldrepenger-periode-sample.xml");
 
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
 
@@ -109,7 +105,8 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
     @Test
     public void skalHåndtereInntektsmeldingUtenGyldigFNR() throws Exception {
         var dokument = joarkTestsupport
-                .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING, "testsoknader/inntektsmelding-manual-uten-startdato-foreldrepenger-periode-sample.xml");
+                .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING,
+                        "testsoknader/inntektsmelding-manual-uten-startdato-foreldrepenger-periode-sample.xml");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
 
         when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.empty());

@@ -17,14 +17,13 @@ import java.util.TimeZone;
 
 import javax.enterprise.inject.Instance;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.jboss.weld.junit5.WeldJunit5Extension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -37,20 +36,15 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@ExtendWith(WeldJunit5Extension.class)
+@ExtendWith(MockitoExtension.class)
 public class HentOgVurderGsakSakTaskTest {
 
     private static final String BRUKER_FNR = "99999999899";
     private static final String ANNEN_PART_FNR = "99999999699";
     private static final String BRUKER_AKTØR_ID = "123";
     private static final String ANNEN_PART_ID = "124";
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
 
     @Mock
     Instance<Period> infotrygdSakGyldigPeriodeInstance;
@@ -70,7 +64,7 @@ public class HentOgVurderGsakSakTaskTest {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         ProsessTaskRepository mockProsessTaskRepository = mock(ProsessTaskRepository.class);
         when(infotrygdSakGyldigPeriodeInstance.get()).thenReturn(Period.parse("P10M"));
@@ -168,10 +162,9 @@ public class HentOgVurderGsakSakTaskTest {
                 new ProsessTaskData(HentOgVurderInfotrygdSakTask.TASKNAME));
         meldingDataWrapper.setArkivId("123454");
         meldingDataWrapper.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
+        Assertions.assertThrows(TekniskException.class,
+                () -> task.precondition(meldingDataWrapper));
 
-        expectedException.expect(TekniskException.class);
-
-        task.precondition(meldingDataWrapper);
     }
 
     @Test

@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.mottak.task;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -12,10 +12,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
@@ -43,9 +41,6 @@ public class TilJournalføringTaskTest {
     private static final String AKTØR_ID = "9000000000009";
     private static final String BRUKER_FNR = "99999999899";
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     @Mock
     private ProsessTaskRepository prosessTaskRepositoryMock;
     @Mock
@@ -59,7 +54,7 @@ public class TilJournalføringTaskTest {
     private ProsessTaskData ptd;
     private UUID forsendelseId;
 
-    @Before
+    @BeforeEach
     public void setup() {
         forsendelseId = UUID.randomUUID();
         prosessTaskRepositoryMock = mock(ProsessTaskRepository.class);
@@ -188,7 +183,7 @@ public class TilJournalføringTaskTest {
         data.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         data.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
 
-        doThrow(new IllegalArgumentException("blab bla")).when(arkivTjeneste).ferdigstillJournalføring(any(),any());
+        doThrow(new IllegalArgumentException("blab bla")).when(arkivTjeneste).ferdigstillJournalføring(any(), any());
 
         MottakMeldingDataWrapper wrapper = doTaskWithPrecondition(data);
 

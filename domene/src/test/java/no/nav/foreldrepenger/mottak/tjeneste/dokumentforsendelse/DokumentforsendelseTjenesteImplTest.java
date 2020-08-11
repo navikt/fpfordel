@@ -4,7 +4,6 @@ import static java.util.Arrays.asList;
 import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -15,16 +14,15 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
@@ -42,7 +40,7 @@ import no.nav.vedtak.felles.testutilities.sikkerhet.StaticSubjectHandler;
 import no.nav.vedtak.felles.testutilities.sikkerhet.SubjectHandlerUtils;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
+@ExtendWith(MockitoExtension.class)
 public class DokumentforsendelseTjenesteImplTest {
     private static final String BRUKER_ID = "1234L";
 
@@ -51,9 +49,6 @@ public class DokumentforsendelseTjenesteImplTest {
     static {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
     }
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     @Mock
     private DokumentRepository dokumentRepositoryMock;
@@ -66,7 +61,7 @@ public class DokumentforsendelseTjenesteImplTest {
 
     private static Class<? extends SubjectHandler> orgSubjectHandler;
 
-    @BeforeClass
+    @BeforeAll
     public static void setupClass() {
         String subjectHandlerImplementationClassName = System
                 .getProperty("no.nav.modig.core.context.subjectHandlerImplementationClass");
@@ -75,7 +70,7 @@ public class DokumentforsendelseTjenesteImplTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         tjeneste = new DokumentforsendelseTjenesteImpl(dokumentRepositoryMock,
                 prosessTaskRepositoryMock, aktørConsumerMock);
@@ -83,7 +78,7 @@ public class DokumentforsendelseTjenesteImplTest {
         SubjectHandlerUtils.useSubjectHandler(StaticSubjectHandler.class);
     }
 
-    @AfterClass
+    @AfterAll
     public static void teardown() {
         if (orgSubjectHandler == null) {
             SubjectHandlerUtils.unsetSubjectHandler();
@@ -103,9 +98,8 @@ public class DokumentforsendelseTjenesteImplTest {
         when(dokumentRepositoryMock.hentEksaktDokumentMetadata(any())).thenReturn(metadata);
         when(dokumentRepositoryMock.hentDokumenter(any())).thenReturn(asList(createDokument(ArkivFilType.PDFA, false)));
 
-        thrown.expect(TekniskException.class);
-        thrown.expectMessage(contains("FP-728553"));
-
+        Assertions.assertThrows(TekniskException.class,
+                () -> tjeneste.validerDokumentforsendelse(forsendelseId));
         tjeneste.validerDokumentforsendelse(forsendelseId);
         verify(prosessTaskRepositoryMock).lagre(any(ProsessTaskData.class));
     }
@@ -276,21 +270,18 @@ public class DokumentforsendelseTjenesteImplTest {
     @Test
     public void dokumentforsendelse_med_uuid_ikke_funnet() {
         ForsendelseIdDto forsendelseIdDto = lagForsendelseIdDto();
-
         when(dokumentRepositoryMock.hentUnikDokumentMetadata(any(UUID.class))).thenReturn(Optional.empty());
+        Assertions.assertThrows(TekniskException.class,
+                () -> tjeneste.finnStatusinformasjon(forsendelseIdDto.getForsendelseId()));
 
-        thrown.expect(TekniskException.class);
-        thrown.expectMessage("FP-295614");
-        tjeneste.finnStatusinformasjon(forsendelseIdDto.getForsendelseId());
     }
 
     @Test
     public void dokumentforsendelse_med_ugyldig_uuid() {
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Invalid UUID");
-
         ForsendelseIdDto forsendelseIdDto = new ForsendelseIdDto("123");
-        tjeneste.finnStatusinformasjon(forsendelseIdDto.getForsendelseId());
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> tjeneste.finnStatusinformasjon(forsendelseIdDto.getForsendelseId()));
+
     }
 
     private static Dokument createDokument(ArkivFilType arkivFilType, boolean hovedDokument) {

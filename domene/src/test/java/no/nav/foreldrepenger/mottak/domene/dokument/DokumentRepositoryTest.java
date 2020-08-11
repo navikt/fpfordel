@@ -8,9 +8,7 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
@@ -24,14 +22,11 @@ public class DokumentRepositoryTest {
     private static final UUID FORSENDELSE_ID = UUID.randomUUID();
     private static final String ARKIV_ID = "1234";
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-    @Rule
-    public RepositoryRule repoRule = new UnittestRepositoryRule();
-
+   
     DokumentRepository repo = new DokumentRepository(repoRule.getEntityManager());
     static {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
+        UnittestRepositoryRule.init();
     }
 
     @Test

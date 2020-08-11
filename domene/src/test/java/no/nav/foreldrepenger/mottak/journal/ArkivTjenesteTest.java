@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
@@ -46,7 +46,7 @@ public class ArkivTjenesteTest {
     private PersonConsumer personConsumer = mock(PersonConsumer.class);
     private AktørConsumerMedCache aktørConsumer = mock(AktørConsumerMedCache.class);
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         when(personConsumer.hentPersonResponse(any()))
                 .thenReturn(new HentPersonResponse().withPerson(new Person().withPersonnavn(new Personnavn().withSammensattNavn("For Etternavn"))));

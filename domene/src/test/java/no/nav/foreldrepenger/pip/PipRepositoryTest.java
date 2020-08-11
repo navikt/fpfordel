@@ -11,7 +11,7 @@ import java.util.TimeZone;
 import java.util.UUID;
 
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;

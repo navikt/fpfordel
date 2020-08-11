@@ -12,13 +12,12 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import java.util.Collections;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -32,13 +31,10 @@ import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class HentDataFraJoarkTaskTest {
 
     private static final String ARKIV_ID = JoarkTestsupport.ARKIV_ID;
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     private ProsessTaskData taskData;
     private HentDataFraJoarkTask joarkTaskTestobjekt;
@@ -51,7 +47,7 @@ public class HentDataFraJoarkTaskTest {
 
     private JoarkTestsupport joarkTestsupport = new JoarkTestsupport();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         initMocks(this);
 
@@ -102,7 +98,7 @@ public class HentDataFraJoarkTaskTest {
         var dokument = joarkTestsupport
                 .lagJArkivJournalpostUstrukturert();
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
-        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(),any())).thenReturn(true);
+        when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
@@ -116,7 +112,7 @@ public class HentDataFraJoarkTaskTest {
         var dokument = joarkTestsupport
                 .lagJArkivJournalpostUstrukturert();
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
-        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(),any())).thenReturn(true);
+        when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
         assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(HentOgVurderVLSakTask.TASKNAME);
@@ -167,7 +163,7 @@ public class HentDataFraJoarkTaskTest {
     public void skal_sende_til_vl_hvis_dokmenttype_kan_håndteres() throws Exception {
         var dokument = joarkTestsupport.lagJArkivJournalpostUstrukturert();
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
-        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(),any())).thenReturn(true);
+        when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
         dataWrapper.setBehandlingTema(BehandlingTema.UDEFINERT);
         dataWrapper.setTema(Tema.UDEFINERT);
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
@@ -215,7 +211,6 @@ public class HentDataFraJoarkTaskTest {
                 .hentPersonIdentForAktørId(eq(JoarkTestsupport.AKTØR_ID));
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
 
-
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
         assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
@@ -224,8 +219,8 @@ public class HentDataFraJoarkTaskTest {
     @Test
     public void test_validerDatagrunnlag_skal_feile_ved_manglende_arkiv_id() throws Exception {
         dataWrapper.setArkivId("");
-        expectedException.expect(TekniskException.class);
-        doTaskWithPrecondition(dataWrapper);
+        Assertions.assertThrows(TekniskException.class,
+                () -> doTaskWithPrecondition(dataWrapper));
     }
 
     @Test
@@ -237,11 +232,8 @@ public class HentDataFraJoarkTaskTest {
     @Test
     public void test_post_condition_skal_kaste_feilmelding_når_aktørId_mangler() {
         dataWrapper.setAktørId(null);
-
-        expectedException.expect(TekniskException.class);
-        expectedException.expectMessage("FP-638068");
-
-        joarkTaskTestobjekt.postcondition(dataWrapper);
+        Assertions.assertThrows(TekniskException.class,
+                () -> joarkTaskTestobjekt.postcondition(dataWrapper));
     }
 
     private MottakMeldingDataWrapper doTaskWithPrecondition(MottakMeldingDataWrapper data) {
