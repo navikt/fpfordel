@@ -29,15 +29,14 @@ public class JournalføringHendelseProperties {
     private final String trustStorePath;
     private final String trustStorePassword;
 
-
     @Inject
     public JournalføringHendelseProperties(@KonfigVerdi("kafka.bootstrap.servers") String bootstrapServers,
-                                           @KonfigVerdi("kafka.schema.registry.url") String schemaRegistry,
-                                           @KonfigVerdi("systembruker.username") String username,
-                                           @KonfigVerdi("systembruker.password") String password,
-                                           @KonfigVerdi(value = "javax.net.ssl.trustStore") String trustStorePath,
-                                           @KonfigVerdi(value = "javax.net.ssl.trustStorePassword") String trustStorePassword,
-                                           @KonfigVerdi("kafka.topic.journal.hendelse") String topic) {
+            @KonfigVerdi("kafka.schema.registry.url") String schemaRegistry,
+            @KonfigVerdi("systembruker.username") String username,
+            @KonfigVerdi("systembruker.password") String password,
+            @KonfigVerdi(value = "javax.net.ssl.trustStore") String trustStorePath,
+            @KonfigVerdi(value = "javax.net.ssl.trustStorePassword") String trustStorePassword,
+            @KonfigVerdi("kafka.topic.journal.hendelse") String topic) {
         this.journalfoeringHendelseTopic = new Topic<>(topic, Serdes.String(), new SpecificAvroSerde<>());
         this.bootstrapServers = bootstrapServers;
         this.schemaRegistryUrl = schemaRegistry;
@@ -45,7 +44,15 @@ public class JournalføringHendelseProperties {
         this.password = password;
         this.trustStorePath = trustStorePath;
         this.trustStorePassword = trustStorePassword;
-        this.applicationId = System.getProperty("nais.app.name", "fpfordel") + "-" + ENV.namespace();
+        this.applicationId = applicationId();
+    }
+
+    private static String applicationId() {
+        String prefix = ENV.getProperty("nais.app.name", "fpfordel");
+        if (ENV.isProd()) {
+            return prefix + "-default";
+        }
+        return prefix + "-" + ENV.namespace();
     }
 
     public Topic<String, JournalfoeringHendelseRecord> getTopic() {
@@ -93,9 +100,9 @@ public class JournalføringHendelseProperties {
         final Properties props = new Properties();
 
         /*
-         * Application ID må være unik per strøm for å unngå en feilsituasjon der
-         * man enkelte ganger får feil partition (dvs partitions fra annen topic
-         * enn den man skal ha).
+         * Application ID må være unik per strøm for å unngå en feilsituasjon der man
+         * enkelte ganger får feil partition (dvs partitions fra annen topic enn den man
+         * skal ha).
          */
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, getApplicationId() + "-" + journalfoeringHendelseTopic.getConsumerClientId());
         props.put(StreamsConfig.CLIENT_ID_CONFIG, journalfoeringHendelseTopic.getConsumerClientId());
