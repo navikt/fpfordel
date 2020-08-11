@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -85,7 +84,7 @@
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>aktoer-klient</artifactId>
-             <exclusions>
+            <exclusions>
                 <exclusion>
                     <groupId>javax.xml.stream</groupId>
                     <artifactId>stax-api</artifactId>
@@ -107,7 +106,7 @@
         <dependency>
             <groupId>no.nav.vedtak.prosesstask</groupId>
             <artifactId>prosesstask-legacy</artifactId>
-             <exclusions>
+            <exclusions>
                 <exclusion>
                     <groupId>javax.xml.stream</groupId>
                     <artifactId>stax-api</artifactId>
@@ -175,16 +174,6 @@
             <groupId>no.nav.foreldrepenger.fordel</groupId>
             <artifactId>migreringer</artifactId>
             <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles</groupId>
-            <artifactId>felles-testutilities</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
-            <artifactId>felles-sikkerhet-testutilities</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
