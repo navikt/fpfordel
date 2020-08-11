@@ -36,7 +36,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
 
     /*
-     * Konfigurasjon for hvor langt tilbake i tid man spør Infotrygd om det finnes saker
+     * Konfigurasjon for hvor langt tilbake i tid man spør Infotrygd om det finnes
+     * saker
      */
     private static final TemporalAmount INFOTRYGD_SAK_GYLDIG_PERIODE = Period.ofMonths(10);
     private static final TemporalAmount INFOTRYGD_ANNENPART_GYLDIG_PERIODE = Period.ofMonths(18);
@@ -50,8 +51,8 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
 
     @Inject
     public HentOgVurderInfotrygdSakTask(ProsessTaskRepository prosessTaskRepository,
-                                        RelevantSakSjekker relevansSjekker,
-                                        AktørConsumerMedCache aktør) {
+            RelevantSakSjekker relevansSjekker,
+            AktørConsumerMedCache aktør) {
         super(prosessTaskRepository);
         this.relevansSjekker = relevansSjekker;
         this.aktør = aktør;
@@ -174,11 +175,11 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
     }
 
     private boolean skalMidlertidigJournalføre(MottakMeldingDataWrapper w, String fnr, LocalDate fom) {
-        return relevansSjekker.skalMidlertidigJournalføre(fnr, fom, w.getTema(), w.getBehandlingTema());
+        return relevansSjekker.skalMidlertidigJournalføre(fnr, fom, w.getBehandlingTema());
     }
 
     private boolean skalMidlertidigJournalføreIM(MottakMeldingDataWrapper w, String fnr, LocalDate fom) {
-        return relevansSjekker.skalMidlertidigJournalføreIM(fnr, fom.minus(INFOTRYGD_SAK_GYLDIG_PERIODE), w.getTema(),
+        return relevansSjekker.skalMidlertidigJournalføreIM(fnr, fom.minus(INFOTRYGD_SAK_GYLDIG_PERIODE),
                 w.getBehandlingTema());
     }
 
