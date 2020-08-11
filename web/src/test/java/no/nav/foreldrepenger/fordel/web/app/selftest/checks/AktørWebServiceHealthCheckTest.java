@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 
 import org.junit.Test;
 
-import no.nav.foreldrepenger.fordel.web.app.selftest.checks.AktørWebServiceHealthCheck;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørSelftestConsumer;
 
 public class AktørWebServiceHealthCheckTest {

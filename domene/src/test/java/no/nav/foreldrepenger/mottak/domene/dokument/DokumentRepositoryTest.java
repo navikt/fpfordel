@@ -118,7 +118,7 @@ public class DokumentRepositoryTest {
         assertThat(endret.getArkivId()).hasValue(ARKIV_ID);
     }
 
-    private DokumentMetadata dokumentMetadata(UUID forsendelseId) {
+    private static DokumentMetadata dokumentMetadata(UUID forsendelseId) {
         return DokumentMetadata.builder()
                 .setBrukerId("01234567890")
                 .setForsendelseId(forsendelseId)
@@ -126,12 +126,12 @@ public class DokumentRepositoryTest {
                 .build();
     }
 
-    private Dokument dokument(UUID forsendelseId, ArkivFilType arkivFilType) {
+    private static Dokument dokument(UUID forsendelseId, ArkivFilType arkivFilType) {
         return DokumentArkivTestUtil.lagDokument(forsendelseId, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL,
                 arkivFilType, true);
     }
 
-    private Dokument dokumentAnnet(UUID forsendelseId, ArkivFilType arkivFilType) {
+    private static Dokument dokumentAnnet(UUID forsendelseId, ArkivFilType arkivFilType) {
         return DokumentArkivTestUtil.lagDokumentBeskrivelse(forsendelseId, DokumentTypeId.ANNET, arkivFilType,
                 true, "Farskap");
     }

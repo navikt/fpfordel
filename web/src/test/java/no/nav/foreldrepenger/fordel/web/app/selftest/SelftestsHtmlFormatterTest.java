@@ -1,31 +1,21 @@
 package no.nav.foreldrepenger.fordel.web.app.selftest;
 
-import com.codahale.metrics.health.HealthCheck;
-
-import no.nav.foreldrepenger.fordel.web.app.selftest.SelftestResultat;
-import no.nav.foreldrepenger.fordel.web.app.selftest.SelftestsHtmlFormatter;
-import no.nav.foreldrepenger.fordel.web.app.selftest.checks.ExtHealthCheck;
-
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
+
+import com.codahale.metrics.health.HealthCheck;
+
+import no.nav.foreldrepenger.fordel.web.app.selftest.checks.ExtHealthCheck;
 
 public class SelftestsHtmlFormatterTest {
-
-    private SelftestsHtmlFormatter formatter;
-
-    @Before
-    public void setup() {
-        formatter = new SelftestsHtmlFormatter();
-    }
 
     @Test
     public void skal_formattere_typisk_OverallResult() {
         SelftestResultat samletResultat = createPopulatedOverallResult();
-        String html = formatter.format(samletResultat);
+        String html = SelftestsHtmlFormatter.format(samletResultat);
         assertThat(html).startsWith("<html");
         assertThat(html).contains("descr1");
         assertThat(html).contains("90ms");
@@ -34,7 +24,7 @@ public class SelftestsHtmlFormatterTest {
         assertThat(html).endsWith("</html>");
     }
 
-    private SelftestResultat createPopulatedOverallResult() {
+    private static SelftestResultat createPopulatedOverallResult() {
         SelftestResultat samletResultat = new SelftestResultat();
 
         samletResultat.setApplication("myapp");

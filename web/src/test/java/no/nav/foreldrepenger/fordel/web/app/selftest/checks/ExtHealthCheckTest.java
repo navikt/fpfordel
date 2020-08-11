@@ -1,14 +1,13 @@
 package no.nav.foreldrepenger.fordel.web.app.selftest.checks;
 
-import com.codahale.metrics.health.HealthCheck;
-
-import no.nav.foreldrepenger.fordel.web.app.selftest.checks.ExtHealthCheck;
-import no.nav.foreldrepenger.fordel.web.app.selftest.checks.ExtHealthCheck.InternalResult;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.codahale.metrics.health.HealthCheck;
+
+import no.nav.foreldrepenger.fordel.web.app.selftest.checks.ExtHealthCheck.InternalResult;
 
 public class ExtHealthCheckTest {
 

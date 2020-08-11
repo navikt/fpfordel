@@ -1,16 +1,15 @@
 package no.nav.foreldrepenger.fordel.web.app.selftest;
 
-import com.codahale.metrics.health.HealthCheck;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import no.nav.foreldrepenger.fordel.web.app.selftest.SelftestResultat;
+import java.time.LocalDateTime;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.LocalDateTime;
+import com.codahale.metrics.health.HealthCheck;
 
-import static no.nav.foreldrepenger.fordel.web.app.selftest.SelftestResultat.AggregateResult;
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.fordel.web.app.selftest.SelftestResultat.AggregateResult;
 
 public class SelftestsOverallresultsTest {
 

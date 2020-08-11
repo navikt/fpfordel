@@ -60,9 +60,9 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     @Inject
     public BehandleDokumentforsendelseTask(ProsessTaskRepository prosessTaskRepository,
-                                           AktørConsumerMedCache aktørConsumer,
-                                           FagsakRestKlient fagsakRestKlient,
-                                           DokumentRepository dokumentRepository) {
+            AktørConsumerMedCache aktørConsumer,
+            FagsakRestKlient fagsakRestKlient,
+            DokumentRepository dokumentRepository) {
         super(prosessTaskRepository);
         this.aktørConsumer = aktørConsumer;
         this.fagsakRestKlient = fagsakRestKlient;
@@ -98,7 +98,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         }
     }
 
-    private void postconditionJournalføring(MottakMeldingDataWrapper dataWrapper) {
+    private static void postconditionJournalføring(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getSaksnummer().isEmpty()) {
             throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
                     MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId()).toException();
@@ -152,7 +152,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         return dataWrapper.nesteSteg(MidlJournalføringTask.TASKNAME);
     }
 
-    private void postConditionHentOgVurderVLSakOgOpprettSak(MottakMeldingDataWrapper dataWrapper) {
+    private static void postConditionHentOgVurderVLSakOgOpprettSak(MottakMeldingDataWrapper dataWrapper) {
         if (OpprettSakTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())
                 && dataWrapper.getForsendelseMottattTidspunkt().isEmpty()) {
             throw MottakMeldingFeil.FACTORY
@@ -222,7 +222,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     }
 
-    private void sjekkForMismatchMellomFagsakOgDokumentInn(BehandlingTema behandlingTema,
+    private static void sjekkForMismatchMellomFagsakOgDokumentInn(BehandlingTema behandlingTema,
             BehandlingTema fagsakTema, Dokument dokument) {
 
         if (DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD.equals(dokument.getDokumentTypeId())) {
@@ -248,7 +248,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         abstractMDto.kopierTilMottakWrapper(nesteSteg, aktørConsumer::hentAktørIdForPersonIdent);
     }
 
-    private Optional<DokumentKategori> utledDokumentKategori(Dokument dokument) {
+    private static Optional<DokumentKategori> utledDokumentKategori(Dokument dokument) {
         DokumentTypeId dti = dokument.getDokumentTypeId();
         if (DokumentTypeId.erSøknadType(dti)) {
             return Optional.of(DokumentKategori.SØKNAD);
@@ -262,14 +262,15 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
      * Startdato i mottatt søknaden er før fastsatt startdato for journalføring
      * gjennom VL
      */
-    private boolean sjekkOmSøknadenKreverManuellBehandling(MottakMeldingDataWrapper dataWrapper) {
+    private static boolean sjekkOmSøknadenKreverManuellBehandling(MottakMeldingDataWrapper dataWrapper) {
         return dataWrapper.getOmsorgsovertakelsedato()
                 .orElse(dataWrapper.getFørsteUttaksdag().orElse(Tid.TIDENES_BEGYNNELSE))
                 .isBefore(konfigVerdiStartdatoForeldrepenger);
     }
 
     private interface BehandleDokumentforsendelseFeil extends DeklarerteFeil {
-        BehandleDokumentforsendelseTask.BehandleDokumentforsendelseFeil FACTORY = FeilFactory.create(BehandleDokumentforsendelseTask.BehandleDokumentforsendelseFeil.class);
+        BehandleDokumentforsendelseTask.BehandleDokumentforsendelseFeil FACTORY = FeilFactory
+                .create(BehandleDokumentforsendelseTask.BehandleDokumentforsendelseFeil.class);
 
         @TekniskFeil(feilkode = "FP-758390", feilmelding = "Søkers ID samsvarer ikke med søkers ID i eksisterende sak", logLevel = WARN)
         Feil aktørIdMismatch();

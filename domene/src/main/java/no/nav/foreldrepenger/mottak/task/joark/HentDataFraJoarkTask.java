@@ -50,8 +50,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     @Inject
     public HentDataFraJoarkTask(ProsessTaskRepository prosessTaskRepository,
-                                AktørConsumerMedCache aktørConsumer,
-                                ArkivTjeneste arkivTjeneste) {
+            AktørConsumerMedCache aktørConsumer,
+            ArkivTjeneste arkivTjeneste) {
         super(prosessTaskRepository);
         this.aktørConsumer = aktørConsumer;
         this.arkivTjeneste = arkivTjeneste;
@@ -127,7 +127,6 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
 
-
         LOG.info("FPFORDEL INNGÅENDE journalpost {} kanal {} tilstand {} hovedtype {} alle typer {}",
                 dataWrapper.getArkivId(), journalpost.getKanal(), journalpost.getTilstand(),
                 journalpost.getHovedtype(), journalpost.getAlleTyper());
@@ -136,7 +135,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             return håndterInntektsmelding(dataWrapper);
         }
 
-        if (!arkivTjeneste.oppdaterRettMangler(journalpost, dataWrapper.getAktørId().get(), dataWrapper.getBehandlingTema(), dataWrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT)))
+        if (!arkivTjeneste.oppdaterRettMangler(journalpost, dataWrapper.getAktørId().get(), dataWrapper.getBehandlingTema(),
+                dataWrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT)))
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
 
         return dataWrapper.nesteSteg(HentOgVurderVLSakTask.TASKNAME);
@@ -176,7 +176,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         return Character.getNumericValue(fnrBruker.charAt(8)) % 2 != 0;
     }
 
-    private boolean kreverStartdatoForInntektsmeldingenManuellBehandling(MottakMeldingDataWrapper dataWrapper) {
+    private static boolean kreverStartdatoForInntektsmeldingenManuellBehandling(MottakMeldingDataWrapper dataWrapper) {
         LocalDate startDato = dataWrapper.getInntektsmeldingStartDato().orElse(Tid.TIDENES_BEGYNNELSE);
         return startDato.isBefore(KonfigVerdier.ENDRING_BEREGNING_DATO);
     }

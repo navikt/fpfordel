@@ -60,9 +60,9 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
     @Inject
     public OpprettGSakOppgaveTask(ProsessTaskRepository prosessTaskRepository,
-                                  EnhetsTjeneste enhetsidTjeneste,
-                                  AktørConsumerMedCache aktørConsumer,
-                                  OppgaveRestKlient restKlient) {
+            EnhetsTjeneste enhetsidTjeneste,
+            AktørConsumerMedCache aktørConsumer,
+            OppgaveRestKlient restKlient) {
         this.enhetsidTjeneste = enhetsidTjeneste;
         this.aktørConsumer = aktørConsumer;
         this.prosessTaskRepository = prosessTaskRepository;
@@ -88,7 +88,8 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
     private void opprettSletteTask(ProsessTaskData prosessTaskData) {
         ProsessTaskData nesteStegProsessTaskData = new ProsessTaskData(SlettForsendelseTask.TASKNAME);
-        // Gi selvbetjening tid til å polle ferdig + Kafka-hendelse tid til å nå fram (og bli ignorert)
+        // Gi selvbetjening tid til å polle ferdig + Kafka-hendelse tid til å nå fram
+        // (og bli ignorert)
         nesteStegProsessTaskData.setNesteKjøringEtter(LocalDateTime.now().plusHours(2));
         long nesteSekvens = prosessTaskData.getSekvens() == null ? 1L
                 : Long.parseLong(prosessTaskData.getSekvens()) + 1;
@@ -98,7 +99,6 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         nesteStegProsessTaskData.setGruppe(prosessTaskData.getGruppe());
         prosessTaskRepository.lagre(nesteStegProsessTaskData);
     }
-
 
     private String opprettOppgave(ProsessTaskData prosessTaskData, BehandlingTema behandlingTema,
             DokumentTypeId dokumentTypeId) {
@@ -114,7 +114,6 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         final String enhetId = enhetsidTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, behandlingTema,
                 Optional.ofNullable(enhetInput), fødselsnr);
         final String beskrivelse = lagBeskrivelse(behandlingTema, dokumentTypeId, prosessTaskData);
-
 
         var request = OpprettOppgave.getBuilder()
                 .medAktoerId(prosessTaskData.getAktørId())
@@ -135,7 +134,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         return oppgave.getId().toString();
     }
 
-    private String lagBeskrivelse(BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId, ProsessTaskData data) {
+    private static String lagBeskrivelse(BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId, ProsessTaskData data) {
         if (DokumentTypeId.UDEFINERT.equals(dokumentTypeId)) {
             return BehandlingTema.UDEFINERT.equals(behandlingTema) ? "Journalføring" : behandlingTema.getTermNavn();
         }
@@ -159,7 +158,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     }
 
     // Sett frist til mandag hvis fristen er i helgen.
-    private LocalDate helgeJustertFrist(LocalDate dato) {
+    private static LocalDate helgeJustertFrist(LocalDate dato) {
         if (dato.getDayOfWeek().getValue() > DayOfWeek.FRIDAY.getValue()) {
             return dato.plusDays(1L + DayOfWeek.SUNDAY.getValue() - dato.getDayOfWeek().getValue());
         }

@@ -144,7 +144,8 @@ public class HentOgVurderVLSakTaskTest {
 
     @Test
     public void neste_steg_skal_være_hentOgVurderVLSak_når_vurderFagsystem_returnerer_prøv_igjen() {
-        when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(null, LocalDateTime.now().plusDays(1), false, false, false, true));
+        when(fagsakRestKlientMock.vurderFagsystem(any()))
+                .thenReturn(lagFagsystemSvar(null, LocalDateTime.now().plusDays(1), false, false, false, true));
 
         HentOgVurderVLSakTask task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
         MottakMeldingDataWrapper dataWrapper = lagDataWrapper();
@@ -181,7 +182,8 @@ public class HentOgVurderVLSakTaskTest {
         return dataWrapper;
     }
 
-    private VurderFagsystemResultat lagFagsystemSvar(String saksnummer, LocalDateTime prøvIgjenTidspunkt, boolean behandlesIVL, boolean sjekkIT, boolean gsak, boolean prøvIgjen) {
+    private static VurderFagsystemResultat lagFagsystemSvar(String saksnummer, LocalDateTime prøvIgjenTidspunkt, boolean behandlesIVL,
+            boolean sjekkIT, boolean gsak, boolean prøvIgjen) {
         VurderFagsystemResultat res = new VurderFagsystemResultat();
         res.setSaksnummer(saksnummer);
         res.setPrøvIgjenTidspunkt(prøvIgjenTidspunkt);

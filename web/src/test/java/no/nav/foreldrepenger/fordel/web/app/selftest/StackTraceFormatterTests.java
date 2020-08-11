@@ -1,10 +1,8 @@
 package no.nav.foreldrepenger.fordel.web.app.selftest;
 
-import org.junit.Test;
-
-import no.nav.foreldrepenger.fordel.web.app.selftest.StackTraceFormatter;
-
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.Test;
 
 public class StackTraceFormatterTests {
 

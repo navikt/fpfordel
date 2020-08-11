@@ -17,15 +17,15 @@ import org.mockito.Mockito;
 import com.codahale.metrics.health.HealthCheck;
 import com.codahale.metrics.health.HealthCheckRegistry;
 
-import no.nav.foreldrepenger.fordel.web.app.selftest.SelftestResultat;
-import no.nav.foreldrepenger.fordel.web.app.selftest.Selftests;
 import no.nav.foreldrepenger.fordel.web.app.selftest.checks.ExtHealthCheck;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
 @RunWith(CdiRunner.class)
 public class SelftestsTest {
 
-    @Inject @Any Instance<ExtHealthCheck> healthChecks;
+    @Inject
+    @Any
+    Instance<ExtHealthCheck> healthChecks;
 
     private Selftests selftests;
 
@@ -35,7 +35,7 @@ public class SelftestsTest {
 
         List<ExtHealthCheck> checks = new ArrayList<>();
 
-        for(ExtHealthCheck ex: healthChecks){
+        for (ExtHealthCheck ex : healthChecks) {
             ExtHealthCheck newEx = Mockito.spy(ex);
             Mockito.doReturn(false).when(newEx).erKritiskTjeneste();
             checks.add(newEx);

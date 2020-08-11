@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.fordel.web.app.selftest;
 
-import com.codahale.metrics.health.HealthCheck;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.codahale.metrics.health.HealthCheck;
 
 public class SelftestResultat {
 

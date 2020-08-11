@@ -37,7 +37,6 @@ public class OverførTilGsakFeilhåndteringsalgoritmeTest {
     private OverførTilGsakFeilhåndteringsalgoritme algoritme;
     private ProsessTaskTypeInfo type = lagType();
 
-
     @Before
     public void opprettAlgoritme() {
         algoritme = new OverførTilGsakMedBackoffFeilhåndteringsalgoritme(prosessTaskRepository);
@@ -69,7 +68,7 @@ public class OverførTilGsakFeilhåndteringsalgoritmeTest {
         Feil feil = algoritme.hendelserNårIkkeKjøresPåNytt(exception, originalTaskData);
         assertThat(feil).isSameAs(exception.getFeil());
 
-        //Flush gjøres normalt rett etter feilhåndteringsalgoritmen har kjørt
+        // Flush gjøres normalt rett etter feilhåndteringsalgoritmen har kjørt
         ((ProsessTaskRepositoryImpl) prosessTaskRepository).getEntityManager().flush();
 
         List<ProsessTaskData> oppgaver = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -77,14 +76,15 @@ public class OverførTilGsakFeilhåndteringsalgoritmeTest {
         ProsessTaskInfo oppgave = oppgaver.get(0);
         assertThat(oppgave.getTaskType()).isEqualTo(MidlJournalføringTask.TASKNAME);
 
-        //skal ha samme gruppe for å vise at dette tilhører samme flyt
+        // skal ha samme gruppe for å vise at dette tilhører samme flyt
         assertThat(oppgave.getGruppe()).isEqualTo("1234");
-        //må ha samme (eller lavere) sekvensnummer enn prosess_task som feilet, ellers vil den ikke blir kjørt
+        // må ha samme (eller lavere) sekvensnummer enn prosess_task som feilet, ellers
+        // vil den ikke blir kjørt
         assertThat(oppgave.getSekvens()).isEqualTo("3");
 
     }
 
-    private ProsessTaskTypeInfo lagType() {
+    private static ProsessTaskTypeInfo lagType() {
         ProsessTaskTypeInfo mock = mock(ProsessTaskTypeInfo.class);
         when(mock.getMaksForsøk()).thenReturn(2);
         return mock;

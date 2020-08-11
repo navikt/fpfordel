@@ -9,7 +9,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
 import no.nav.foreldrepenger.mottak.infotrygd.rest.fp.FP;
@@ -20,7 +19,6 @@ public class RelevantSakSjekker {
 
     private InfotrygdTjeneste svp;
     private InfotrygdTjeneste fp;
-
 
     RelevantSakSjekker() {
         //
@@ -34,11 +32,11 @@ public class RelevantSakSjekker {
         this.fp = fp;
     }
 
-    public boolean skalMidlertidigJournalføre(String fnr, LocalDate fom, Tema tema, BehandlingTema behandlingTema) {
+    public boolean skalMidlertidigJournalføre(String fnr, LocalDate fom, BehandlingTema behandlingTema) {
         return erITSakRelevant(fnr, fom, behandlingTema);
     }
 
-    public boolean skalMidlertidigJournalføreIM(String fnr, LocalDate fom, Tema tema, BehandlingTema behandlingTema) {
+    public boolean skalMidlertidigJournalføreIM(String fnr, LocalDate fom, BehandlingTema behandlingTema) {
         return erITSakRelevantForIM(fnr, fom, behandlingTema);
     }
 
@@ -80,7 +78,7 @@ public class RelevantSakSjekker {
                 .anyMatch(fom::isBefore);
     }
 
-    private List<InfotrygdSak> restSaker(InfotrygdTjeneste t, String fnr, LocalDate fom) {
+    private static List<InfotrygdSak> restSaker(InfotrygdTjeneste t, String fnr, LocalDate fom) {
         return t.finnSakListe(fnr, fom);
     }
 

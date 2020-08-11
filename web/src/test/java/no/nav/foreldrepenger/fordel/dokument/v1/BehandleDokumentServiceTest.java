@@ -37,7 +37,6 @@ import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.OppdaterOgFerdi
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.meldinger.OppdaterOgFerdigstillJournalfoeringRequest;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 public class BehandleDokumentServiceTest {
 
@@ -68,7 +67,6 @@ public class BehandleDokumentServiceTest {
     private BehandlingTema engangsstønad;
     private ArkivJournalpost journalpost;
 
-    @SuppressWarnings("unchecked")
     @Before
     public void setUp() {
         engangsstønadFødsel = BehandlingTema.ENGANGSSTØNAD_FØDSEL;
@@ -98,7 +96,7 @@ public class BehandleDokumentServiceTest {
         when(aktørConsumer.hentAktørIdForPersonIdent(BRUKER_FNR)).thenReturn(Optional.of(AKTØR_ID));
 
         behandleDokumentService = new BehandleDokumentService(klargjørForVLTjenesteMock,
-                fagsakRestKlientMock, aktørConsumer, arkivTjeneste,  mock(DokumentRepository.class), mock(ProsessTaskRepository.class));
+                fagsakRestKlientMock, aktørConsumer, arkivTjeneste, mock(DokumentRepository.class));
     }
 
     @Test
@@ -157,7 +155,7 @@ public class BehandleDokumentServiceTest {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
 
         when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.KLAGE_DOKUMENT);
-        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(), any())).thenReturn(true);
+        when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
     }
@@ -177,7 +175,7 @@ public class BehandleDokumentServiceTest {
     @Test
     public void skalKjøreHeltIgjennomNaarJournaltilstandIkkeErEndelig() throws Exception {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
-        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(), any())).thenReturn(true);
+        when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
         when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(journalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
 
@@ -210,7 +208,7 @@ public class BehandleDokumentServiceTest {
         when(journalpost.getStrukturertPayload()).thenReturn(xml);
         when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(journalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
-        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(), any())).thenReturn(true);
+        when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
@@ -242,7 +240,6 @@ public class BehandleDokumentServiceTest {
         when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode())));
-
 
         String xml = readFile("testdata/selvb-soeknad-forp-uttak-før-konfigverdi.xml");
         when(journalpost.getStrukturertPayload()).thenReturn(xml);
@@ -289,7 +286,7 @@ public class BehandleDokumentServiceTest {
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
         when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(journalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
-        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(), any())).thenReturn(true);
+        when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
@@ -312,7 +309,7 @@ public class BehandleDokumentServiceTest {
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
         when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(journalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
-        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(), any())).thenReturn(true);
+        when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
@@ -335,7 +332,7 @@ public class BehandleDokumentServiceTest {
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
         when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(journalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
-        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(), any())).thenReturn(true);
+        when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
@@ -358,7 +355,7 @@ public class BehandleDokumentServiceTest {
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
         when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(journalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
-        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(), any())).thenReturn(true);
+        when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 

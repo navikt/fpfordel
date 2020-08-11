@@ -48,7 +48,7 @@ public class DokumentTest {
         dokument.getKlartekstDokument();
     }
 
-    private Dokument lagDokument(ArkivFilType arkivFilType) {
+    private static Dokument lagDokument(ArkivFilType arkivFilType) {
         return Dokument.builder()
                 .setForsendelseId(FORSENDELSE_ID)
                 .setDokumentTypeId(SØKNAD_FORELDREPENGER_FØDSEL)

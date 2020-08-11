@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.hendelse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -23,7 +22,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
-
 public class JournalføringHendelseHåndtererTest {
 
     private ProsessTaskRepository prosessTaskRepository;
@@ -38,7 +36,7 @@ public class JournalføringHendelseHåndtererTest {
     public RepositoryRule repoRule = new UnittestRepositoryRule();
 
     @Before
-    public void setup() throws SQLException {
+    public void setup() {
         prosessTaskRepository = new ProsessTaskRepositoryImpl(repoRule.getEntityManager(), null, null);
         dokumentRepository = new DokumentRepository(repoRule.getEntityManager());
         hendelseHåndterer = new JournalføringHendelseHåndterer(prosessTaskRepository, dokumentRepository);

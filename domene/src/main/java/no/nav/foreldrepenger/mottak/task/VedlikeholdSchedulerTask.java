@@ -101,7 +101,7 @@ public class VedlikeholdSchedulerTask implements ProsessTaskHandler {
         });
     }
 
-    private boolean erFastInfotrygdStengtDag(LocalDate dato) {
+    private static boolean erFastInfotrygdStengtDag(LocalDate dato) {
         return FASTE_STENGTE_DAGER.contains(MonthDay.from(dato));
     }
 }

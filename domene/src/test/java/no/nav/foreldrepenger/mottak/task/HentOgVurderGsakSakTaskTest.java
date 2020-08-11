@@ -85,7 +85,7 @@ public class HentOgVurderGsakSakTaskTest {
 
     }
 
-    private List<InfotrygdSak> createInfotrygdSaker(boolean inkluderInntektsmelding) {
+    private static List<InfotrygdSak> createInfotrygdSaker(boolean inkluderInntektsmelding) {
         final List<InfotrygdSak> saker = new ArrayList<>();
 
         InfotrygdSak sak = new InfotrygdSak(LocalDate.now(), LocalDate.now());
@@ -181,7 +181,7 @@ public class HentOgVurderGsakSakTaskTest {
         task.precondition(meldingIn);
     }
 
-    private MottakMeldingDataWrapper opprettMottaksMelding() {
+    private static MottakMeldingDataWrapper opprettMottaksMelding() {
         ProsessTaskData data = new ProsessTaskData(HentOgVurderInfotrygdSakTask.TASKNAME);
         data.setSekvens("1");
         MottakMeldingDataWrapper wrapperIn = new MottakMeldingDataWrapper(data);
@@ -194,7 +194,7 @@ public class HentOgVurderGsakSakTaskTest {
         return wrapperIn;
     }
 
-    private void assertTaskResult_WhenExceptingManuellJornalføring(MottakMeldingDataWrapper wrapperOut) {
+    private static void assertTaskResult_WhenExceptingManuellJornalføring(MottakMeldingDataWrapper wrapperOut) {
         assertThat(wrapperOut).isNotNull();
         assertThat(wrapperOut.getTema()).isEqualTo(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         assertThat(wrapperOut.getAktørId()).hasValueSatisfying(s -> assertThat(s).isEqualTo(BRUKER_AKTØR_ID));
