@@ -40,7 +40,6 @@ public class EnhetsTjeneste {
     private static final String TEMA = Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode();
     private static final String OPPGAVETYPE_JFR = "JFR"; // Kodeverk Oppgavetyper - NFP , uten spesialenheter
     private static final String ENHET_TYPE_NFP = "FPY"; // Kodeverk EnhetstyperNORG - NFP , uten spesialenheter
-    private static final String DISKRESJON_K6 = "SPSF"; // Kodeverk Diskresjonskoder
     private static final String BEHANDLINGTYPE = "ae0034"; // Kodeverk Behandlingstype, bruker søknad
     private static final String NK_ENHET_ID = "4292";
 
@@ -53,13 +52,13 @@ public class EnhetsTjeneste {
 
     @Inject
     public EnhetsTjeneste(PersonConsumer personConsumer,
-                          ArbeidsfordelingRestKlient norgKlient) {
+            ArbeidsfordelingRestKlient norgKlient) {
         this.personConsumer = personConsumer;
         this.norgKlient = norgKlient;
     }
 
     public String hentFordelingEnhetId(Tema tema, BehandlingTema behandlingTema, Optional<String> enhetInput,
-                                       Optional<String> fnr) {
+            Optional<String> fnr) {
         oppdaterEnhetCache();
         if (enhetInput.map(alleJournalførendeEnheter::contains).orElse(Boolean.FALSE)) {
             return enhetInput.get();
@@ -85,7 +84,7 @@ public class EnhetsTjeneste {
         return validerOgVelgBehandlendeEnhet(respons, geoTilknytning.getDiskresjonskode(), geoTilknytning.getTilknytning());
     }
 
-    private String validerOgVelgBehandlendeEnhet(List<ArbeidsfordelingResponse> response, String diskresjonskode, String geoTilknytning) {
+    private static String validerOgVelgBehandlendeEnhet(List<ArbeidsfordelingResponse> response, String diskresjonskode, String geoTilknytning) {
         // Vi forventer å få én behandlende enhet.
         if (response == null || response.size() != 1) {
             throw EnhetsTjeneste.EnhetsTjenesteFeil.FACTORY.finnerIkkeBehandlendeEnhet(geoTilknytning, diskresjonskode).toException();
@@ -129,6 +128,7 @@ public class EnhetsTjeneste {
             throw EnhetsTjenesteFeil.FACTORY.enhetsTjenestePersonIkkeFunnet(e).toException();
         }
     }
+
     private static PersonIdent lagPersonIdent(String fnr) {
         if (fnr == null || fnr.isEmpty()) {
             throw new IllegalArgumentException("Fødselsnummer kan ikke være null eller tomt");

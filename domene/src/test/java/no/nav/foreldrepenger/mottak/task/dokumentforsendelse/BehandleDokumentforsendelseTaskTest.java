@@ -246,7 +246,7 @@ public class BehandleDokumentforsendelseTaskTest {
                 .hasMessageContaining("FP-756353");
     }
 
-    private Optional<FagsakInfomasjonDto> genFagsakInformasjon(String behTemaOffisiellKode) {
+    private static Optional<FagsakInfomasjonDto> genFagsakInformasjon(String behTemaOffisiellKode) {
         FagsakInfomasjonDto dto = new FagsakInfomasjonDto(AKTØR_ID, behTemaOffisiellKode);
 
         return Optional.of(dto);
@@ -280,7 +280,7 @@ public class BehandleDokumentforsendelseTaskTest {
 
     }
 
-    private DokumentMetadata genMetadata(String saksnummer, String aktørId) {
+    private static DokumentMetadata genMetadata(String saksnummer, String aktørId) {
         DokumentMetadata metadata = DokumentMetadata.builder()
                 .setForsendelseId(FORSENDELSE_ID)
                 .setBrukerId(aktørId)

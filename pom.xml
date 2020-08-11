@@ -74,6 +74,11 @@
                 <artifactId>felles-integrasjon-bom</artifactId>
                 <version>${felles.version}</version>
             </dependency>
+             <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.9</version>
+        </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>infotrygd-saker-klient</artifactId>
@@ -342,6 +347,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+       
     </dependencies>
 
     <build>

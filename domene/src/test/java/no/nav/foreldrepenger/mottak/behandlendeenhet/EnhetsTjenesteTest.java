@@ -34,10 +34,8 @@ public class EnhetsTjenesteTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     private static final String FNR = "99999999999";
-    private static final ArbeidsfordelingResponse ENHET =
-            new ArbeidsfordelingResponse("4801", "Enhet", "Aktiv", "FPY");
-    private static final ArbeidsfordelingResponse FORDELING_ENHET =
-            new ArbeidsfordelingResponse("4825", "Oslo", "Aktiv", "FPY");
+    private static final ArbeidsfordelingResponse ENHET = new ArbeidsfordelingResponse("4801", "Enhet", "Aktiv", "FPY");
+    private static final ArbeidsfordelingResponse FORDELING_ENHET = new ArbeidsfordelingResponse("4825", "Oslo", "Aktiv", "FPY");
     public static final String GEOGRAFISK_TILKNYTNING = "test";
     public static final String DISKRESJONSKODE = "diskresjonskode";
     private EnhetsTjeneste enhetsTjeneste; // objektet vi tester
@@ -54,20 +52,22 @@ public class EnhetsTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_enhetid() throws HentGeografiskTilknytningPersonIkkeFunnet, HentGeografiskTilknytningSikkerhetsbegrensing, HentPersonPersonIkkeFunnet, HentPersonSikkerhetsbegrensning {
+    public void skal_returnere_enhetid() throws HentGeografiskTilknytningPersonIkkeFunnet, HentGeografiskTilknytningSikkerhetsbegrensing {
 
         HentGeografiskTilknytningResponse response = new HentGeografiskTilknytningResponse();
         when(personConsumer.hentGeografiskTilknytning(any())).thenReturn(response);
         when(arbeidsfordelingTjeneste.finnEnhet(any())).thenReturn(Collections.singletonList(ENHET));
 
-        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.of(FNR));
+        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(),
+                Optional.of(FNR));
 
         assertThat(enhetId).isNotNull();
         assertThat(enhetId).isEqualTo(ENHET.getEnhetNr());
     }
 
     @Test
-    public void skal_returnere_enhetid_og_kalle_arbeidsfordelingstjeneste_med_geografisk_tilknytning() throws HentGeografiskTilknytningPersonIkkeFunnet, HentGeografiskTilknytningSikkerhetsbegrensing, HentPersonPersonIkkeFunnet, HentPersonSikkerhetsbegrensning {
+    public void skal_returnere_enhetid_og_kalle_arbeidsfordelingstjeneste_med_geografisk_tilknytning()
+            throws HentGeografiskTilknytningPersonIkkeFunnet, HentGeografiskTilknytningSikkerhetsbegrensing {
 
         HentGeografiskTilknytningResponse response = new HentGeografiskTilknytningResponse();
         GeografiskTilknytning geografiskTilknytning = new Kommune();
@@ -76,14 +76,16 @@ public class EnhetsTjenesteTest {
         when(personConsumer.hentGeografiskTilknytning(any())).thenReturn(response);
         when(arbeidsfordelingTjeneste.finnEnhet(any())).thenReturn(Collections.singletonList(ENHET));
 
-        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.of(FNR));
+        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(),
+                Optional.of(FNR));
 
         assertThat(enhetId).isNotNull();
         assertThat(enhetId).isEqualTo(ENHET.getEnhetNr());
     }
 
     @Test
-    public void skal_returnere_enhetid_og_kalle_arbeidsfordelingstjeneste_med_diskresjonskode() throws HentGeografiskTilknytningPersonIkkeFunnet, HentGeografiskTilknytningSikkerhetsbegrensing, HentPersonPersonIkkeFunnet, HentPersonSikkerhetsbegrensning {
+    public void skal_returnere_enhetid_og_kalle_arbeidsfordelingstjeneste_med_diskresjonskode() throws HentGeografiskTilknytningPersonIkkeFunnet,
+            HentGeografiskTilknytningSikkerhetsbegrensing {
 
         HentGeografiskTilknytningResponse response = new HentGeografiskTilknytningResponse();
         Diskresjonskoder diskresjonskoder = new Diskresjonskoder();
@@ -92,14 +94,16 @@ public class EnhetsTjenesteTest {
         when(personConsumer.hentGeografiskTilknytning(any())).thenReturn(response);
         when(arbeidsfordelingTjeneste.finnEnhet(any())).thenReturn(Collections.singletonList(ENHET));
 
-        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.of(FNR));
+        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(),
+                Optional.of(FNR));
 
         assertThat(enhetId).isNotNull();
         assertThat(enhetId).isEqualTo(ENHET.getEnhetNr());
     }
 
     @Test
-    public void skal_returnere_enhetid_journalføring() throws HentGeografiskTilknytningPersonIkkeFunnet, HentGeografiskTilknytningSikkerhetsbegrensing, HentPersonPersonIkkeFunnet, HentPersonSikkerhetsbegrensning {
+    public void skal_returnere_enhetid_journalføring() throws HentGeografiskTilknytningPersonIkkeFunnet,
+            HentGeografiskTilknytningSikkerhetsbegrensing {
         HentGeografiskTilknytningResponse response = new HentGeografiskTilknytningResponse();
         Diskresjonskoder diskresjonskoder = new Diskresjonskoder();
         diskresjonskoder.setValue(DISKRESJONSKODE);
@@ -107,43 +111,47 @@ public class EnhetsTjenesteTest {
         when(personConsumer.hentGeografiskTilknytning(any())).thenReturn(response);
         when(arbeidsfordelingTjeneste.finnEnhet(any())).thenReturn(Collections.singletonList(ENHET));
 
-
-        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.of(FNR));
+        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(),
+                Optional.of(FNR));
 
         assertThat(enhetId).isNotNull();
         assertThat(enhetId).isEqualTo(ENHET.getEnhetNr());
     }
 
     @Test
-    public void skal_returnere_enhetid_journalføring_uten_fnr()  {
+    public void skal_returnere_enhetid_journalføring_uten_fnr() {
 
-        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.empty());
+        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(),
+                Optional.empty());
 
         assertThat(enhetId).isNotNull();
         assertThat(enhetId).isEqualTo(FORDELING_ENHET.getEnhetNr());
     }
 
     @Test
-    public void skal_kaste_sikkerhetsbegrening() throws HentGeografiskTilknytningPersonIkkeFunnet, HentGeografiskTilknytningSikkerhetsbegrensing, HentPersonPersonIkkeFunnet, HentPersonSikkerhetsbegrensning {
+    public void skal_kaste_sikkerhetsbegrening() throws HentGeografiskTilknytningPersonIkkeFunnet, HentGeografiskTilknytningSikkerhetsbegrensing {
         expectedException.expect(ManglerTilgangException.class);
         expectedException.expectMessage("FP-509290:Mangler tilgang til å utføre hentGeografiskTilknytning");
         when(personConsumer.hentGeografiskTilknytning(any())).thenThrow(new HentGeografiskTilknytningSikkerhetsbegrensing(null, null));
 
         @SuppressWarnings("unused")
-        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.of(FNR));
+        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(),
+                Optional.of(FNR));
 
     }
 
     @SuppressWarnings("unused")
     @Test
-    public void skal_kaste_person_ikke_funnet() throws HentGeografiskTilknytningPersonIkkeFunnet, HentGeografiskTilknytningSikkerhetsbegrensing, HentPersonPersonIkkeFunnet, HentPersonSikkerhetsbegrensning {
+    public void skal_kaste_person_ikke_funnet() throws HentGeografiskTilknytningPersonIkkeFunnet, HentGeografiskTilknytningSikkerhetsbegrensing,
+            HentPersonPersonIkkeFunnet, HentPersonSikkerhetsbegrensning {
         expectedException.expect(TekniskException.class);
         expectedException.expectMessage("FP-070668:Person ikke funnet ved hentGeografiskTilknytning");
         HentGeografiskTilknytningResponse response = new HentGeografiskTilknytningResponse();
         when(personConsumer.hentGeografiskTilknytning(any())).thenThrow(new HentGeografiskTilknytningPersonIkkeFunnet(null, null));
 
         @SuppressWarnings("unused")
-        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(), Optional.of(FNR));
+        String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, BehandlingTema.FORELDREPENGER, Optional.empty(),
+                Optional.of(FNR));
 
     }
 }

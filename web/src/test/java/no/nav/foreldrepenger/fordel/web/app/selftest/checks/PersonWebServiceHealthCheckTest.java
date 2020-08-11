@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.fordel.web.app.selftest.checks;
 
-import no.nav.foreldrepenger.fordel.web.app.selftest.checks.PersonWebServiceHealthCheck;
-import no.nav.vedtak.felles.integrasjon.person.PersonSelftestConsumer;
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import org.junit.Test;
+
+import no.nav.vedtak.felles.integrasjon.person.PersonSelftestConsumer;
 
 public class PersonWebServiceHealthCheckTest {
 

@@ -38,7 +38,7 @@ public class JournalføringHendelseHåndterer {
 
     @Inject
     public JournalføringHendelseHåndterer(ProsessTaskRepository taskRepository,
-                                          DokumentRepository dokumentRepository) {
+            DokumentRepository dokumentRepository) {
         this.taskRepository = taskRepository;
         this.dokumentRepository = dokumentRepository;
     }
@@ -50,9 +50,11 @@ public class JournalføringHendelseHåndterer {
         var hendelseType = payload.getHendelsesType().toString();
         var mottaksKanal = payload.getMottaksKanal().toString();
         var eksternReferanseId = payload.getKanalReferanseId() == null || payload.getKanalReferanseId().toString().isEmpty()
-                ? null : payload.getKanalReferanseId().toString();
+                ? null
+                : payload.getKanalReferanseId().toString();
 
-        // EESSI har egen mottaksprosess m/BEH_SED-oppgaver. De uten kanalreferanse er "klonet" av SBH og journalført fra Gosys.
+        // EESSI har egen mottaksprosess m/BEH_SED-oppgaver. De uten kanalreferanse er
+        // "klonet" av SBH og journalført fra Gosys.
         if (EESSI.equals(mottaksKanal) || eksternReferanseId == null) {
             LOG.info("FPFORDEL Mottatt Journalføringhendelse ignorerer journalpost {} kanal {}", arkivId, mottaksKanal);
             return;
@@ -60,7 +62,8 @@ public class JournalføringHendelseHåndterer {
 
         LOG.info("FPFORDEL Mottatt Journalføringhendelse type {} journalpost {} referanse {}", hendelseType, arkivId, eksternReferanseId);
 
-        // All journalføring av innsendinger fra SB gir en Midlertidig-hendelse. De skal vi ikke reagere på før evt full refaktorering
+        // All journalføring av innsendinger fra SB gir en Midlertidig-hendelse. De skal
+        // vi ikke reagere på før evt full refaktorering
         if (dokumentRepository.erLokalForsendelse(eksternReferanseId)) {
             LOG.info("FPFORDEL Mottatt Hendelse egen journalføring callid {}", arkivId);
             return;
@@ -79,12 +82,13 @@ public class JournalføringHendelseHåndterer {
         MottakMeldingDataWrapper melding = new MottakMeldingDataWrapper(taskdata);
         melding.setArkivId(arkivId);
         melding.setTema(Tema.fraOffisiellKode(payload.getTemaNytt().toString()));
-        melding.setBehandlingTema(BehandlingTema.fraOffisiellKode(payload.getBehandlingstema() != null ? payload.getBehandlingstema().toString() : null));
+        melding.setBehandlingTema(
+                BehandlingTema.fraOffisiellKode(payload.getBehandlingstema() != null ? payload.getBehandlingstema().toString() : null));
         melding.setEksternReferanseId(eksternReferanse);
         taskRepository.lagre(melding.getProsessTaskData());
     }
 
-    private void setCallIdForHendelse(JournalfoeringHendelseRecord payload) {
+    private static void setCallIdForHendelse(JournalfoeringHendelseRecord payload) {
         var hendelsesId = payload.getHendelsesId();
         if (hendelsesId == null || hendelsesId.toString().isEmpty()) {
             MDCOperations.putCallId(UUID.randomUUID().toString());

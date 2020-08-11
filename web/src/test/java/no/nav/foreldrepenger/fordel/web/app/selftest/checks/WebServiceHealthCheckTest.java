@@ -1,14 +1,11 @@
 package no.nav.foreldrepenger.fordel.web.app.selftest.checks;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import no.nav.foreldrepenger.fordel.web.app.selftest.checks.ExtHealthCheck;
-import no.nav.foreldrepenger.fordel.web.app.selftest.checks.WebServiceHealthCheck;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.xml.ws.WebServiceException;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Before;
+import org.junit.Test;
 
 public class WebServiceHealthCheckTest {
 
@@ -50,7 +47,7 @@ public class WebServiceHealthCheckTest {
         assertThat(res.getException()).isNotNull();
     }
 
-    //-----------
+    // -----------
 
     private static class MyWebServiceHealthCheck extends WebServiceHealthCheck {
 

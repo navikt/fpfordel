@@ -31,7 +31,6 @@ public class SelftestService {
 
     private Selftests selftests;
     private ObjectMapper mapper;
-    private SelftestsHtmlFormatter htmlFormatter;
 
     public SelftestService() {
         // CDI
@@ -41,7 +40,6 @@ public class SelftestService {
     public SelftestService(Selftests selftests) {
         this.selftests = selftests;
         this.mapper = new ObjectMapper().registerModule(new SelftestsJsonSerializerModule());
-        this.htmlFormatter = new SelftestsHtmlFormatter();
     }
 
     public Response doSelftest(String contentType, Boolean writeJsonAsHtml) {
@@ -66,7 +64,7 @@ public class SelftestService {
                     objWriter = mapper.writerWithDefaultPrettyPrinter();
                     output = "<pre>" + objWriter.writeValueAsString(samletResultat) + "</pre>";
                 } else {
-                    output = htmlFormatter.format(samletResultat);
+                    output = SelftestsHtmlFormatter.format(samletResultat);
                 }
             }
             byte[] utfEncoded = output.getBytes(StandardCharsets.UTF_8);

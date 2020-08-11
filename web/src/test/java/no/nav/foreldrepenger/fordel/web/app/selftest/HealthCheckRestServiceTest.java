@@ -10,8 +10,6 @@ import javax.ws.rs.core.Response;
 import org.junit.Before;
 import org.junit.Test;
 
-import no.nav.foreldrepenger.fordel.web.app.selftest.HealthCheckRestService;
-import no.nav.foreldrepenger.fordel.web.app.selftest.SelftestService;
 import no.nav.foreldrepenger.fordel.web.app.tjenester.ApplicationServiceStarter;
 
 @SuppressWarnings("resource")

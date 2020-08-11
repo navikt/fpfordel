@@ -35,7 +35,7 @@ public class OpprettSakTask extends WrappedProsessTaskHandler {
 
     @Inject
     public OpprettSakTask(ProsessTaskRepository prosessTaskRepository,
-                          FagsakRestKlient fagsakRestKlient) {
+            FagsakRestKlient fagsakRestKlient) {
         super(prosessTaskRepository);
         this.fagsakRestKlient = fagsakRestKlient;
     }
@@ -92,7 +92,7 @@ public class OpprettSakTask extends WrappedProsessTaskHandler {
         return dataWrapper.nesteSteg(TilJournalføringTask.TASKNAME);
     }
 
-    private boolean erKlageEllerAnke(MottakMeldingDataWrapper data) {
+    private static boolean erKlageEllerAnke(MottakMeldingDataWrapper data) {
         return (DokumentTypeId.KLAGE_DOKUMENT.equals(data.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT))
                 || DokumentKategori.KLAGE_ELLER_ANKE
                         .equals(data.getDokumentKategori().orElse(DokumentKategori.UDEFINERT)));

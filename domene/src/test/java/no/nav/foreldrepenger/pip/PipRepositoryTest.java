@@ -61,7 +61,7 @@ public class PipRepositoryTest {
                 .containsOnly(brukerId, brukerId2);
     }
 
-    private DokumentMetadata dokumentMetadata(String brukerId, UUID forsendelseId) {
+    private static DokumentMetadata dokumentMetadata(String brukerId, UUID forsendelseId) {
         return DokumentMetadata.builder()
                 .setBrukerId(brukerId)
                 .setForsendelseId(forsendelseId)

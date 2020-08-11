@@ -42,7 +42,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HentOgVurderInfotrygdSakTaskTest {
-    private static final String FNR = "99999999999";
 
     private static final String AKTØR_BRUKER = "1";
     private static final String AKTØR_ANNEN_PART = "9";
@@ -293,11 +292,11 @@ public class HentOgVurderInfotrygdSakTaskTest {
         assertTaskType(doWithPrecondition(w), name);
     }
 
-    private void assertTaskType(MottakMeldingDataWrapper wrapper, String taskname) {
+    private static void assertTaskType(MottakMeldingDataWrapper wrapper, String taskname) {
         assertThat(wrapper.getProsessTaskData().getTaskType()).isEqualTo(taskname);
     }
 
-    private MottakMeldingDataWrapper dataWrapper(String aktørBruker) {
+    private static MottakMeldingDataWrapper dataWrapper(String aktørBruker) {
         var w = new MottakMeldingDataWrapper(taskData());
         w.setAktørId(aktørBruker);
         w.setTema(FORELDRE_OG_SVANGERSKAPSPENGER);
@@ -305,7 +304,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     }
 
-    private ProsessTaskData taskData() {
+    private static ProsessTaskData taskData() {
         var data = new ProsessTaskData(HentOgVurderInfotrygdSakTask.TASKNAME);
         data.setSekvens("1");
         return data;
@@ -314,8 +313,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     private HentOgVurderInfotrygdSakTask task() {
         return new HentOgVurderInfotrygdSakTask(prosessTaskRepository,
                 new RelevantSakSjekker(svp, fp),
-                aktør
-        );
+                aktør);
     }
 
     private MottakMeldingDataWrapper doWithPrecondition(MottakMeldingDataWrapper wrapper) {

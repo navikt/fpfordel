@@ -201,7 +201,7 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
         return null;
     }
 
-    private BehandlingTema utledBehandlingTemaES(SoekersRelasjonTilBarnet relasjonTilBarnet) {
+    private static BehandlingTema utledBehandlingTemaES(SoekersRelasjonTilBarnet relasjonTilBarnet) {
         if (relasjonTilBarnet instanceof Foedsel || relasjonTilBarnet instanceof Termin) {
             return BehandlingTema.ENGANGSSTØNAD_FØDSEL;
         }
@@ -211,7 +211,7 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
         return BehandlingTema.ENGANGSSTØNAD;
     }
 
-    private BehandlingTema utledBehandlingTemaFP(SoekersRelasjonTilBarnet relasjonTilBarnet) {
+    private static BehandlingTema utledBehandlingTemaFP(SoekersRelasjonTilBarnet relasjonTilBarnet) {
         if (relasjonTilBarnet instanceof Foedsel || relasjonTilBarnet instanceof Termin) {
             return BehandlingTema.FORELDREPENGER_FØDSEL;
         }

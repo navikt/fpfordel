@@ -21,7 +21,6 @@ public class RelevantSakSjekker {
     private InfotrygdTjeneste svp;
     private InfotrygdTjeneste fp;
 
-
     RelevantSakSjekker() {
         //
     }
@@ -80,7 +79,7 @@ public class RelevantSakSjekker {
                 .anyMatch(fom::isBefore);
     }
 
-    private List<InfotrygdSak> restSaker(InfotrygdTjeneste t, String fnr, LocalDate fom) {
+    private static List<InfotrygdSak> restSaker(InfotrygdTjeneste t, String fnr, LocalDate fom) {
         return t.finnSakListe(fnr, fom);
     }
 

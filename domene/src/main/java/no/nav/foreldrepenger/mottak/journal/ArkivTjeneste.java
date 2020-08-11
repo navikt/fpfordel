@@ -69,10 +69,10 @@ public class ArkivTjeneste {
 
     @Inject
     public ArkivTjeneste(SafTjeneste safTjeneste,
-                         DokArkivTjeneste dokArkivTjeneste,
-                         DokumentRepository dokumentRepository,
-                         PersonConsumer personConsumer,
-                         AktørConsumerMedCache aktørConsumer) {
+            DokArkivTjeneste dokArkivTjeneste,
+            DokumentRepository dokumentRepository,
+            PersonConsumer personConsumer,
+            AktørConsumerMedCache aktørConsumer) {
         this.safTjeneste = safTjeneste;
         this.dokArkivTjeneste = dokArkivTjeneste;
         this.dokumentRepository = dokumentRepository;
@@ -142,14 +142,17 @@ public class ArkivTjeneste {
         }
     }
 
-    public boolean oppdaterRettMangler(ArkivJournalpost arkivJournalpost, String aktørId, BehandlingTema behandlingTema, DokumentTypeId defaultDokumentTypeId) {
+    public boolean oppdaterRettMangler(ArkivJournalpost arkivJournalpost, String aktørId, BehandlingTema behandlingTema,
+            DokumentTypeId defaultDokumentTypeId) {
         var journalpost = arkivJournalpost.getOriginalJournalpost();
         Set<DokumentTypeId> alleTyper = arkivJournalpost.getAlleTyper();
         var hovedtype = DokumentTypeId.UDEFINERT.equals(arkivJournalpost.getHovedtype()) ? defaultDokumentTypeId : arkivJournalpost.getHovedtype();
-        var utledetBehandlingTema = utledBehandlingTema(BehandlingTema.UDEFINERT.equals(behandlingTema) ? journalpost.getBehandlingstema() : behandlingTema.getOffisiellKode(), alleTyper);
+        var utledetBehandlingTema = utledBehandlingTema(
+                BehandlingTema.UDEFINERT.equals(behandlingTema) ? journalpost.getBehandlingstema() : behandlingTema.getOffisiellKode(), alleTyper);
         var tittelMangler = false;
         var builder = OppdaterJournalpostRequest.ny();
-        if (journalpost.getAvsenderMottaker() == null || journalpost.getAvsenderMottaker().getId() == null || journalpost.getAvsenderMottaker().getNavn() == null ) {
+        if (journalpost.getAvsenderMottaker() == null || journalpost.getAvsenderMottaker().getId() == null
+                || journalpost.getAvsenderMottaker().getNavn() == null) {
             var fnr = aktørConsumer.hentPersonIdentForAktørId(aktørId).orElseThrow(() -> new IllegalStateException("Mangler fnr for aktørid"));
             var navn = brukersNavn(fnr);
             LOG.info("FPFORDEL oppdaterer manglende avsender for {}", journalpost.getJournalpostId());
@@ -186,7 +189,8 @@ public class ArkivTjeneste {
         if (builder.harVerdier() && !dokArkivTjeneste.oppdaterJournalpost(journalpost.getJournalpostId(), builder.build())) {
             throw new IllegalStateException("FPFORDEL Kunne ikke oppdatere " + journalpost.getJournalpostId());
         }
-        var resultat = !tittelMangler && journalpost.getDokumenter().stream().filter(d -> d.getTittel() == null || d.getTittel().isEmpty()).count() == oppdaterDok.size();
+        var resultat = !tittelMangler
+                && journalpost.getDokumenter().stream().filter(d -> d.getTittel() == null || d.getTittel().isEmpty()).count() == oppdaterDok.size();
         if (!resultat)
             LOG.info("FPFORDEL oppdaterer gjenstår tittel eller dokumenttittel for {}", journalpost.getJournalpostId());
         return resultat;
@@ -212,12 +216,12 @@ public class ArkivTjeneste {
         }
     }
 
-    private BehandlingTema utledBehandlingTema(String btJournalpost, Set<DokumentTypeId> dokumenttyper) {
+    private static BehandlingTema utledBehandlingTema(String btJournalpost, Set<DokumentTypeId> dokumenttyper) {
         BehandlingTema bt = BehandlingTema.fraOffisiellKode(btJournalpost);
         return ArkivUtil.behandlingTemaFraDokumentTypeSet(bt, dokumenttyper);
     }
 
-    private Set<DokumentTypeId> utledDokumentTyper(Journalpost journalpost) {
+    private static Set<DokumentTypeId> utledDokumentTyper(Journalpost journalpost) {
         Set<DokumentTypeId> alletyper = new HashSet<>();
         Set<NAVSkjema> allebrevkoder = new HashSet<>();
         alletyper.add(DokumentTypeId.fraTermNavn(journalpost.getTittel()));
@@ -233,14 +237,14 @@ public class ArkivTjeneste {
         return alletyper;
     }
 
-    private DokumentTypeId utledHovedDokumentType(Set<DokumentTypeId> alleTyper) {
+    private static DokumentTypeId utledHovedDokumentType(Set<DokumentTypeId> alleTyper) {
         int lavestrank = alleTyper.stream()
                 .map(MapNAVSkjemaDokumentTypeId::dokumentTypeRank)
                 .min(Comparator.naturalOrder()).orElse(MapNAVSkjemaDokumentTypeId.UDEF_RANK);
         if (lavestrank == MapNAVSkjemaDokumentTypeId.GEN_RANK) {
             return alleTyper.stream()
-                   .filter(t -> MapNAVSkjemaDokumentTypeId.dokumentTypeRank(t) == MapNAVSkjemaDokumentTypeId.GEN_RANK)
-                   .findFirst().orElse(DokumentTypeId.UDEFINERT);
+                    .filter(t -> MapNAVSkjemaDokumentTypeId.dokumentTypeRank(t) == MapNAVSkjemaDokumentTypeId.GEN_RANK)
+                    .findFirst().orElse(DokumentTypeId.UDEFINERT);
         }
         return MapNAVSkjemaDokumentTypeId.dokumentTypeFromRank(lavestrank);
     }
@@ -313,7 +317,7 @@ public class ArkivTjeneste {
         return request;
     }
 
-    private List<DokumentInfoOpprett> lagAlleDokumentForOpprett(List<Dokument> dokumenter) {
+    private static List<DokumentInfoOpprett> lagAlleDokumentForOpprett(List<Dokument> dokumenter) {
         List<DokumentInfoOpprett> dokumenterRequest = new ArrayList<>();
         var hoveddokument = dokumenter.stream().filter(Dokument::erHovedDokument).collect(Collectors.toList());
         if (!hoveddokument.isEmpty()) {
@@ -334,7 +338,7 @@ public class ArkivTjeneste {
         return dokumenterRequest;
     }
 
-    private DokumentInfoOpprett lagDokumentForOpprett(Dokument dokument, Dokumentvariant struktuert) {
+    private static DokumentInfoOpprett lagDokumentForOpprett(Dokument dokument, Dokumentvariant struktuert) {
         List<Dokumentvariant> varianter = new ArrayList<>();
         if (struktuert != null)
             varianter.add(struktuert);

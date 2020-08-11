@@ -56,7 +56,7 @@ public class HentOgVurderVLSakTask extends WrappedProsessTaskHandler {
 
     @Inject
     public HentOgVurderVLSakTask(ProsessTaskRepository prosessTaskRepository,
-                                 FagsakRestKlient fagsakRestKlient) {
+            FagsakRestKlient fagsakRestKlient) {
         super(prosessTaskRepository);
         this.fagsakRestKlient = fagsakRestKlient;
     }
@@ -121,7 +121,7 @@ public class HentOgVurderVLSakTask extends WrappedProsessTaskHandler {
         return nesteSteg;
     }
 
-    private boolean skalBehandlesEtterTidligereRegler(MottakMeldingDataWrapper dataWrapper) {
+    private static boolean skalBehandlesEtterTidligereRegler(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getOmsorgsovertakelsedato().map(KonfigVerdier.ENDRING_BEREGNING_DATO::isAfter)
                 .orElse(Boolean.FALSE)) {
             return true;

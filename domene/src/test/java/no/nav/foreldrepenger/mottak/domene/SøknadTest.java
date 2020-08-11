@@ -60,7 +60,7 @@ public class SøknadTest {
         søknadXmlWrapper = (Søknad) MottattStrukturertDokument.toXmlWrapper(søknad);
     }
 
-    private OmYtelse mapOmYtelse(Ytelse ytelse) {
+    private static OmYtelse mapOmYtelse(Ytelse ytelse) {
         OmYtelse omYtelse = new OmYtelse();
         omYtelse.getAny().add(ytelse);
         return omYtelse;
@@ -79,8 +79,7 @@ public class SøknadTest {
         assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
 
     }
-    
-    
+
     @Test
     public void skal_sjekke_engangs_søknad_termin() {
         final SoekersRelasjonTilBarnet søkersRelasjonTilBarnet = new Termin();
@@ -107,7 +106,7 @@ public class SøknadTest {
         søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
         assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
     }
-    
+
     @Test
     public void skal_sjekke_engangs_søknad_omsorgovertakelse() {
         final SoekersRelasjonTilBarnet soekersRelasjonTilBarnet = new Omsorgsovertakelse();
@@ -134,7 +133,6 @@ public class SøknadTest {
 
     }
 
-
     @Test
     public void skal_sjekke_foreldrepenger_søknad_fødsel() {
 
@@ -149,7 +147,7 @@ public class SøknadTest {
 
         assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
     }
-    
+
     @Test
     public void skal_sjekke_foreldrepenger_søknad_termin() {
 
@@ -164,7 +162,7 @@ public class SøknadTest {
 
         assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
     }
-    
+
     @Test
     public void skal_sjekke_foreldrepenger_søknad_adopsjon() {
 
@@ -179,7 +177,7 @@ public class SøknadTest {
 
         assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
     }
-    
+
     @Test
     public void skal_sjekke_foreldrepenger_søknad_omsorgovertakelse() {
 
@@ -194,7 +192,7 @@ public class SøknadTest {
 
         assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
     }
-    
+
     @Test
     public void skal_kaste_ulikBehandlingstemaKodeITynnMeldingOgSøknadsdokument() {
 
@@ -205,10 +203,10 @@ public class SøknadTest {
         søknad.setOmYtelse(mapOmYtelse(foreldrepenger));
 
         test.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_ADOPSJON);
-        
+
         assertThatThrownBy(() -> søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent))
-            .isInstanceOf(TekniskException.class)
-            .hasMessageContaining("FP-404782");
+                .isInstanceOf(TekniskException.class)
+                .hasMessageContaining("FP-404782");
     }
 
     @Test

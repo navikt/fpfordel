@@ -13,8 +13,8 @@ import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.AvsluttedeSak
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.AvsluttetSak;
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.IkkeStartetSak;
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.LøpendeSak;
-import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Sak;
+import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
 
 public final class InfotrygdRestResponseMapper {
 

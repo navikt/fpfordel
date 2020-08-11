@@ -1,27 +1,25 @@
 package no.nav.foreldrepenger.fordel.web.app.selftest;
 
-import com.codahale.metrics.health.HealthCheck;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-
-import no.nav.foreldrepenger.fordel.web.app.selftest.SelftestResultat;
-import no.nav.foreldrepenger.fordel.web.app.selftest.SelftestsJsonSerializerModule;
-import no.nav.foreldrepenger.fordel.web.app.selftest.checks.ExtHealthCheck;
-
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.codahale.metrics.health.HealthCheck;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+
+import no.nav.foreldrepenger.fordel.web.app.selftest.checks.ExtHealthCheck;
 
 public class SelftestsJsonSerializerModuleTest {
 
     private ObjectMapper objectMapper;
 
     @Before
-    public void setup() throws IOException {
+    public void setup() {
         objectMapper = (new ObjectMapper()).registerModule(new SelftestsJsonSerializerModule());
     }
 
@@ -38,7 +36,7 @@ public class SelftestsJsonSerializerModuleTest {
         assertThat(json.contains("http://ws.nav.no")).isTrue();
     }
 
-    private SelftestResultat createPopulatedOverallResult() {
+    private static SelftestResultat createPopulatedOverallResult() {
         SelftestResultat samletResultat = new SelftestResultat();
 
         samletResultat.setApplication("myapp");

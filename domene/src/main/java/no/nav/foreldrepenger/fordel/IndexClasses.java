@@ -63,7 +63,7 @@ public class IndexClasses {
 
     }
 
-    private Index scanIndexFromFilesystem(URI location) {
+    private static Index scanIndexFromFilesystem(URI location) {
         try {
             Indexer indexer = new Indexer();
             Path source = Paths.get(location);

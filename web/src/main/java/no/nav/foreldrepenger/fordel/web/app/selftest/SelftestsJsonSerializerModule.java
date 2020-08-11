@@ -1,5 +1,14 @@
 package no.nav.foreldrepenger.fordel.web.app.selftest;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import com.codahale.metrics.health.HealthCheck;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.Version;
@@ -10,15 +19,6 @@ import com.fasterxml.jackson.databind.module.SimpleSerializers;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import no.nav.foreldrepenger.fordel.web.app.selftest.checks.ExtHealthCheck;
-
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 class SelftestsJsonSerializerModule extends Module {
 

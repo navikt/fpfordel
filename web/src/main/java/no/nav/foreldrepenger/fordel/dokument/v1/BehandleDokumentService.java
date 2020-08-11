@@ -47,7 +47,6 @@ import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebService;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -79,21 +78,18 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
     private final AktørConsumerMedCache aktørConsumer;
     private final ArkivTjeneste arkivTjeneste;
     private final DokumentRepository dokumentRepository;
-    private final ProsessTaskRepository taskRepository;
 
     @Inject
     public BehandleDokumentService(KlargjørForVLTjeneste klargjørForVLTjeneste,
-                                   FagsakRestKlient fagsakRestKlient,
-                                   AktørConsumerMedCache aktørConsumer,
-                                   ArkivTjeneste arkivTjeneste,
-                                   DokumentRepository dokumentRepository,
-                                   ProsessTaskRepository taskRepository) {
+            FagsakRestKlient fagsakRestKlient,
+            AktørConsumerMedCache aktørConsumer,
+            ArkivTjeneste arkivTjeneste,
+            DokumentRepository dokumentRepository) {
         this.klargjørForVLTjeneste = klargjørForVLTjeneste;
         this.fagsakRestKlient = fagsakRestKlient;
         this.aktørConsumer = aktørConsumer;
         this.arkivTjeneste = arkivTjeneste;
         this.dokumentRepository = dokumentRepository;
-        this.taskRepository = taskRepository;
     }
 
     @Override
@@ -159,7 +155,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         dokumentRepository.lagreJournalpostLokal(arkivId, journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
     }
 
-    private UUID getForsendelseId(String eksternReferanseId) {
+    private static UUID getForsendelseId(String eksternReferanseId) {
         try {
             return UUID.fromString(eksternReferanseId);
         } catch (Exception e) {
@@ -179,7 +175,8 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         }
     }
 
-    private BehandlingTema validerOgVelgBehandlingTema(BehandlingTema behandlingTemaFagsak, BehandlingTema behandlingTemaDok, DokumentTypeId dokumentTypeId) {
+    private static BehandlingTema validerOgVelgBehandlingTema(BehandlingTema behandlingTemaFagsak, BehandlingTema behandlingTemaDok,
+            DokumentTypeId dokumentTypeId) {
         if (BehandlingTema.UDEFINERT.equals(behandlingTemaDok))
             return behandlingTemaFagsak;
         if (BehandlingTema.UDEFINERT.equals(behandlingTemaFagsak))
@@ -194,7 +191,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         return BehandlingTema.ikkeSpesifikkHendelse(behandlingTemaDok) ? behandlingTemaFagsak : behandlingTemaDok;
     }
 
-    private void validerKanJournalføres(BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId,
+    private static void validerKanJournalføres(BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId,
             DokumentKategori dokumentKategori) {
         if (BehandlingTema.UDEFINERT.equals(behandlingTema) && (DokumentTypeId.KLAGE_DOKUMENT.equals(dokumentTypeId)
                 || DokumentKategori.KLAGE_ELLER_ANKE.equals(dokumentKategori))) {
@@ -237,8 +234,6 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         UgyldigInput ugyldigInput = lagUgyldigInput(BRUKER_MANGLER);
         throw new OppdaterOgFerdigstillJournalfoeringUgyldigInput(ugyldigInput.getFeilmelding(), ugyldigInput);
     }
-
-
 
     private void validerEnhetId(String enhetId) throws OppdaterOgFerdigstillJournalfoeringUgyldigInput {
         if (enhetId == null) {
@@ -315,7 +310,6 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         faultInfo.setFeilaarsak("Ugyldig input");
         return faultInfo;
     }
-
 
     public static class AbacDataSupplier implements Function<Object, AbacDataAttributter> {
 

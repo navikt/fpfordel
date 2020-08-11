@@ -1,17 +1,21 @@
 package no.nav.foreldrepenger.fordel.web.app.selftest;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.text.StringEscapeUtils;
+
 import com.codahale.metrics.health.HealthCheck;
 
 import no.nav.foreldrepenger.fordel.web.app.selftest.checks.ExtHealthCheck;
 
-import org.apache.commons.lang3.StringEscapeUtils;
-
-import java.util.HashMap;
-import java.util.Map;
-
 class SelftestsHtmlFormatter {
 
-    String format(SelftestResultat samletResultat) {
+    private SelftestsHtmlFormatter() {
+
+    }
+
+    static String format(SelftestResultat samletResultat) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -42,7 +46,7 @@ class SelftestsHtmlFormatter {
         return sb.toString();
     }
 
-    private void appendTableForAppInfo(StringBuilder sb, SelftestResultat samletResultat) {
+    private static void appendTableForAppInfo(StringBuilder sb, SelftestResultat samletResultat) {
         doInTag("table", sb, () -> {
             appendTrNameValue(sb, "Applikasjon", samletResultat.getApplication());
             appendTrNameValue(sb, "Versjon", samletResultat.getVersion());
@@ -51,14 +55,14 @@ class SelftestsHtmlFormatter {
         });
     }
 
-    private void appendMeta(StringBuilder sb) {
+    private static void appendMeta(StringBuilder sb) {
         Map<String, String> attributes = new HashMap<>();
         attributes.put("http-equiv", "Content-Type");
         attributes.put("content", "text/html;charset=UTF-8");
         doInTag("meta", attributes, sb);
     }
 
-    private void appendEmbeddedStyles(StringBuilder sb) {
+    private static void appendEmbeddedStyles(StringBuilder sb) {
         doInTag("style", sb, () -> {
             sb.append("table, th, td { border: 1px solid black; } ");
             sb.append("table { border-collapse: collapse; } ");
@@ -68,7 +72,7 @@ class SelftestsHtmlFormatter {
         });
     }
 
-    private void appendTableForResults(StringBuilder sb, SelftestResultat samletResultat) {
+    private static void appendTableForResults(StringBuilder sb, SelftestResultat samletResultat) {
         doInTag("table", sb, () -> {
             appendTrHeaders(sb, "Status", "Kritisk", "Responstid", "Beskrivelse", "Endepunkt", "Melding", "Stack trace");
             for (HealthCheck.Result result : samletResultat.getKritiskeResultater()) {
@@ -80,7 +84,7 @@ class SelftestsHtmlFormatter {
         });
     }
 
-    private void appendTrResult(StringBuilder sb, HealthCheck.Result result, boolean kritisk) {
+    private static void appendTrResult(StringBuilder sb, HealthCheck.Result result, boolean kritisk) {
         String status = result.isHealthy() ? "OK" : "Feilet";
         Map<String, Object> details = result.getDetails();
         String endpoint = "?";
@@ -107,14 +111,14 @@ class SelftestsHtmlFormatter {
         appendTrValues(sb, status, k, respTime, description, endpoint, msg, stacktrace);
     }
 
-    private void appendTrNameValue(StringBuilder sb, String name, String value) {
+    private static void appendTrNameValue(StringBuilder sb, String name, String value) {
         doInTag("tr", sb, () -> {
             doInTag("td", sb, () -> sb.append(name));
             doInTag("td", sb, () -> sb.append(value));
         });
     }
 
-    private void appendTrHeaders(StringBuilder sb, String... headers) {
+    private static void appendTrHeaders(StringBuilder sb, String... headers) {
         doInTag("tr", sb, () -> {
             for (String hdr : headers) {
                 doInTag("th", sb, () -> sb.append(hdr));
@@ -122,7 +126,7 @@ class SelftestsHtmlFormatter {
         });
     }
 
-    private void appendTrValues(StringBuilder sb, String... values) {
+    private static void appendTrValues(StringBuilder sb, String... values) {
         doInTag("tr", sb, () -> {
             for (String val : values) {
                 doInTag("td", sb, () -> sb.append(val));
@@ -135,15 +139,15 @@ class SelftestsHtmlFormatter {
         void doIt();
     }
 
-    private void doInTag(String tagName, StringBuilder sb, Doer doer) {
+    private static void doInTag(String tagName, StringBuilder sb, Doer doer) {
         doInTag(tagName, null, sb, doer);
     }
 
-    private void doInTag(String tagName, Map<String, String> attributes, StringBuilder sb) {
+    private static void doInTag(String tagName, Map<String, String> attributes, StringBuilder sb) {
         doInTag(tagName, attributes, sb, null);
     }
 
-    private void doInTag(String tagName, Map<String, String> attributes, StringBuilder sb, Doer doer) {
+    private static void doInTag(String tagName, Map<String, String> attributes, StringBuilder sb, Doer doer) {
         appendStartTag(sb, tagName, attributes);
         if (doer != null) {
             doer.doIt();
@@ -151,11 +155,11 @@ class SelftestsHtmlFormatter {
         appendEndTag(sb, tagName);
     }
 
-    private void appendStartTag(StringBuilder sb, String tagName) {
+    private static void appendStartTag(StringBuilder sb, String tagName) {
         appendStartTag(sb, tagName, null);
     }
 
-    private void appendStartTag(StringBuilder sb, String tagName, Map<String, String> attributes) {
+    private static void appendStartTag(StringBuilder sb, String tagName, Map<String, String> attributes) {
         sb.append('<');
         sb.append(tagName);
         if (attributes != null) {
@@ -171,13 +175,13 @@ class SelftestsHtmlFormatter {
         sb.append('>');
     }
 
-    private void appendEndTag(StringBuilder sb, String tagName) {
+    private static void appendEndTag(StringBuilder sb, String tagName) {
         sb.append("</");
         sb.append(tagName);
         sb.append('>');
     }
 
-    private String emptyIfNull(String respTime) {
+    private static String emptyIfNull(String respTime) {
         return respTime == null ? "" : respTime;
     }
 }

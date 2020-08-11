@@ -297,7 +297,7 @@ public class DokumentforsendelseTjenesteImplTest {
         return DokumentArkivTestUtil.lagDokument(ID, SØKNAD_FORELDREPENGER_FØDSEL, arkivFilType, hovedDokument);
     }
 
-    private DokumentMetadata byggDokumentMetadata(String arkivId, String saksnummer, ForsendelseStatus status) {
+    private static DokumentMetadata byggDokumentMetadata(String arkivId, String saksnummer, ForsendelseStatus status) {
         return new DokumentMetadata.Builder()
                 .setArkivId(arkivId)
                 .setSaksnummer(saksnummer)
@@ -308,7 +308,7 @@ public class DokumentforsendelseTjenesteImplTest {
                 .build();
     }
 
-    private ForsendelseIdDto lagForsendelseIdDto() {
+    private static ForsendelseIdDto lagForsendelseIdDto() {
         return new ForsendelseIdDto(ID.toString());
     }
 }

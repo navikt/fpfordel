@@ -26,6 +26,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import no.nav.vedtak.felles.lokal.dbstoette.DBConnectionProperties;
+
 public class JettyDevDbKonfigurasjon {
     private static final ObjectMapper OM;
 

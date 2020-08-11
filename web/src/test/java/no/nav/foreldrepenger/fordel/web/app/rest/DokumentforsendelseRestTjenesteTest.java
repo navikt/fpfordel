@@ -46,7 +46,6 @@ public class DokumentforsendelseRestTjenesteTest {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
     }
 
-
     private DokumentforsendelseTjeneste dokumentTjenesteMock;
     private DokumentforsendelseRestTjeneste tjeneste;
     private InputPart metadataPart;
@@ -157,7 +156,7 @@ public class DokumentforsendelseRestTjenesteTest {
     }
 
     @Test
-    public void skal_lagre_dokumentene() throws IOException, Exception {
+    public void skal_lagre_dokumentene() {
         Response response = tjeneste.uploadFile(input);
         assertThat(response.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
         assertThat(response.getHeaderString(HttpHeaders.LOCATION))
