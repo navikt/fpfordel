@@ -15,20 +15,18 @@ class DataSourceKonfig {
     private static final String MIGRATIONS_LOCATION = "classpath:/db/migration/";
     private final DBConnProp defaultDatasource;
     private final List<DBConnProp> dataSources;
-    private final Environment env;
+    private static final Environment ENV = Environment.current();
 
     DataSourceKonfig() {
         defaultDatasource = new DBConnProp(createDatasource("defaultDS"), MIGRATIONS_LOCATION + "defaultDS");
         dataSources = List.of(defaultDatasource);
-        this.env = Environment.current();
-
     }
 
-    private DataSource createDatasource(String dataSourceName) {
+    private static DataSource createDatasource(String dataSourceName) {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(env.getRequiredProperty(dataSourceName + ".url"));
-        config.setUsername(env.getRequiredProperty(dataSourceName + ".username"));
-        config.setPassword(env.getRequiredProperty(dataSourceName + ".password"));
+        config.setJdbcUrl(ENV.getRequiredProperty(dataSourceName + ".url"));
+        config.setUsername(ENV.getRequiredProperty(dataSourceName + ".username"));
+        config.setPassword(ENV.getRequiredProperty(dataSourceName + ".password"));
         config.setConnectionTimeout(1000);
         config.setMinimumIdle(5);
         config.setMaximumPoolSize(30);
