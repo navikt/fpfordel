@@ -4,11 +4,7 @@
 	"oraclecredskv": "/oracle/data/prod/creds/fpfordel_p-fpfordel_p",
 	"serviceuserkv": "/serviceuser/data/prod/srvfpfordel",
 	"namespace": "teamforeldrepenger",
-	"ingresses": [
-                "https://fpfordel.prod-fss.nais.io",
-		"https://fpfordel.nais.adeo.no",
-		"https://fpfordel.nais.adeo.no/fpfordel"
-	],
+	"ingresses": [ "https://fpfordel.nais.adeo.no" ],
 	"env": {
 		"ABAC_PDP_ENDPOINT_URL": "https://wasapp.adeo.no/asm-pdp/authorize",
 		"ABAC_ATTRIBUTT_DRIFT": "no.nav.abac.attributter.foreldrepenger.drift",
