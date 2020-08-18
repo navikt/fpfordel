@@ -38,7 +38,7 @@
 		"OPENIDCONNECT_ISSOHOST": "https://isso.adeo.no:443/isso/oauth2",
 		"OPPGAVE_RS_URI": "http://oppgave.default/api/v1/oppgaver",
 		"PERSON_V3_URL": "https://wasapp.adeo.no/tpsws/ws/Person/v3",
-		"SAF_BASE_URL" : "http://saf",
+		"SAF_BASE_URL" : "http://saf.default",
 		"SECURITYTOKENSERVICE_URL": "https://sts.adeo.no/SecurityTokenServiceProvider/",
 		"SENSU_HOST": "sensu.nais",
 		"SENSU_PORT": "3030"

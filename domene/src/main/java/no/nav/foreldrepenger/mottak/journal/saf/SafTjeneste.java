@@ -13,6 +13,9 @@ import no.nav.foreldrepenger.fordel.ReadFileFromClassPathHelper;
 import no.nav.foreldrepenger.mottak.journal.saf.graphql.GraphQlError;
 import no.nav.foreldrepenger.mottak.journal.saf.graphql.GraphQlRequest;
 import no.nav.foreldrepenger.mottak.journal.saf.graphql.GraphQlResponse;
+import no.nav.foreldrepenger.mottak.journal.saf.graphql.GraphQlTilknyttetRequest;
+import no.nav.foreldrepenger.mottak.journal.saf.graphql.GraphQlTilknyttetResponse;
+import no.nav.foreldrepenger.mottak.journal.saf.graphql.TilknyttetVariables;
 import no.nav.foreldrepenger.mottak.journal.saf.graphql.Variables;
 import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
 import no.nav.foreldrepenger.mottak.journal.saf.model.VariantFormat;
@@ -28,6 +31,7 @@ public class SafTjeneste {
     private URI hentDokumentEndpoint;
     private OidcRestClient restKlient;
     private String query;
+    private String tilknyttedeQuery;
 
     SafTjeneste() {
         // CDI
@@ -39,6 +43,7 @@ public class SafTjeneste {
         this.hentDokumentEndpoint = URI.create(endpoint.toString() + "/rest/hentdokument");
         this.restKlient = restKlient;
         this.query = ReadFileFromClassPathHelper.hent("saf/journalpostQuery.graphql");
+        this.tilknyttedeQuery = ReadFileFromClassPathHelper.hent("saf/tilknyttedeJournalposterQuery.graphql");
     }
 
     public Journalpost hentJournalpostInfo(String journalpostId) {
@@ -65,6 +70,24 @@ public class SafTjeneste {
             return restKlient.get(uri);
         } catch (Exception e) {
             throw new SafException("Kunne ikke hente dokument " + dokumentInfoId + " for journalpost " + journalpostId, e);
+        }
+    }
+
+    public List<Journalpost> hentEksternReferanseId(String dokumentInfoId) {
+        try {
+            GraphQlTilknyttetRequest graphQlRequest = new GraphQlTilknyttetRequest(tilknyttedeQuery, new TilknyttetVariables(dokumentInfoId));
+            GraphQlTilknyttetResponse graphQlResponse = restKlient.post(graphqlEndpoint, graphQlRequest, GraphQlTilknyttetResponse.class);
+            if (graphQlResponse.getData() == null || graphQlResponse.getData().getJournalposter() == null) {
+                List<String> errorMessageList = graphQlResponse.getErrors().stream().map(GraphQlError::getMessage).collect(Collectors.toList());
+                StringJoiner stringJoiner = new StringJoiner(System.lineSeparator());
+                stringJoiner.add("Journalposter for dokumentInfoId " + dokumentInfoId + " er null.");
+                errorMessageList.forEach(stringJoiner::add);
+                String errors = errorMessageList.toString();
+                throw new JounalpostIsNullException(errors);
+            }
+            return graphQlResponse.getData().getJournalposter();
+        } catch (Exception e) {
+            throw new SafException("Kunne ikke hente tilknyttede journalposter for dokumentInfoId " + dokumentInfoId, e);
         }
     }
 }

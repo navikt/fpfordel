@@ -145,8 +145,10 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         UUID forsendelseId = getForsendelseId(journalpost.getEksternReferanseId());
 
         String eksternReferanseId = null;
-        if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId))
-            eksternReferanseId = journalpost.getEksternReferanseId();
+        if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
+            eksternReferanseId = journalpost.getEksternReferanseId() != null ? journalpost.getEksternReferanseId() :
+                    arkivTjeneste.hentEksternReferanseId(journalpost.getOriginalJournalpost()).orElse(null);
+        }
 
         klargjørForVLTjeneste.klargjørForVL(xml, saksnummer, arkivId, dokumentTypeId, journalpost.getDatoOpprettet(),
                 behandlingTema, forsendelseId, dokumentKategori, enhetId, eksternReferanseId);
