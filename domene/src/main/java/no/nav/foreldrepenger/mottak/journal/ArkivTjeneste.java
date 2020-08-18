@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -56,6 +57,12 @@ import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
 public class ArkivTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArkivTjeneste.class);
+
+    // Fyll på med gjengangertitler som ikke omfattes av kodeverk DokumentTypeId
+    private static final Map<String, DokumentTypeId> TITTEL_MAP = Map.of(
+            "Klage", DokumentTypeId.KLAGE_DOKUMENT,
+            "Anke", DokumentTypeId.KLAGE_DOKUMENT
+    );
 
     private SafTjeneste safTjeneste;
     private DokArkivTjeneste dokArkivTjeneste;
@@ -221,14 +228,23 @@ public class ArkivTjeneste {
         return ArkivUtil.behandlingTemaFraDokumentTypeSet(bt, dokumenttyper);
     }
 
+    private static Optional<DokumentTypeId> dokumentTypeFraKjenteTitler(String tittel) {
+        if (tittel == null)
+            return Optional.empty();
+        return Optional.ofNullable(TITTEL_MAP.get(tittel));
+    }
+
     private static Set<DokumentTypeId> utledDokumentTyper(Journalpost journalpost) {
         Set<DokumentTypeId> alletyper = new HashSet<>();
         Set<NAVSkjema> allebrevkoder = new HashSet<>();
         alletyper.add(DokumentTypeId.fraTermNavn(journalpost.getTittel()));
         allebrevkoder.add(NAVSkjema.fraTermNavn(journalpost.getTittel()));
+        dokumentTypeFraKjenteTitler(journalpost.getTittel()).ifPresent(alletyper::add);
         journalpost.getDokumenter().forEach(d -> {
             alletyper.add(DokumentTypeId.fraTermNavn(d.getTittel()));
             d.getLogiskeVedlegg().forEach(v -> alletyper.add(DokumentTypeId.fraTermNavn(v.getTittel())));
+            dokumentTypeFraKjenteTitler(d.getTittel()).ifPresent(alletyper::add);
+            d.getLogiskeVedlegg().forEach(v -> dokumentTypeFraKjenteTitler(v.getTittel()).ifPresent(alletyper::add));
             allebrevkoder.add(NAVSkjema.fraOffisiellKode(d.getBrevkode()));
             allebrevkoder.add(NAVSkjema.fraTermNavn(d.getTittel()));
             d.getLogiskeVedlegg().forEach(v -> allebrevkoder.add(NAVSkjema.fraTermNavn(v.getTittel())));
