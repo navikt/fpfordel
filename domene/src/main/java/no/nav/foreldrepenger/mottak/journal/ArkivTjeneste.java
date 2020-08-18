@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -124,6 +125,17 @@ public class ArkivTjeneste {
                 .medDatoOpprettet(journalpost.getDatoOpprettet())
                 .medEksternReferanseId(journalpost.getEksternReferanseId())
                 .build();
+    }
+
+    public Optional<String> hentEksternReferanseId(Journalpost journalpost) {
+        var dokumentInfoId = journalpost.getDokumenter().get(0).getDokumentInfoId();
+        var referanse = safTjeneste.hentEksternReferanseId(dokumentInfoId).stream()
+                .map(Journalpost::getEksternReferanseId)
+                .filter(Objects::nonNull)
+                .findFirst();
+        var loggtekst = referanse.orElse("ingen");
+        LOG.info("FPFORDEL hentEksternReferanseId fant referanse {} for journalpost {}", loggtekst, journalpost.getJournalpostId());
+        return referanse;
     }
 
     public OpprettetJournalpost opprettJournalpost(UUID forsendelse, String avsenderAktørId) {
