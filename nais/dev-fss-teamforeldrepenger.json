@@ -5,7 +5,7 @@
 	"serviceuserkv": "/serviceuser/data/dev/srvfpfordel",
 	"namespace": "teamforeldrepenger",
 	"ingresses": [
-		        "https://fpfordel.nais.preprod.local/fpfordel"
+		        "https://fpfordel.nais.preprod.local"
 	],
 	"env": {
 		"ABAC_PDP_ENDPOINT_URL": "https://wasapp-q1.adeo.no/asm-pdp/authorize",

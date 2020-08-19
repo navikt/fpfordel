@@ -6,8 +6,7 @@
 	"namespace": "default",
 	"ingresses": [
                 "https://fpfordel.prod-fss.nais.io",
-		"https://fpfordel.nais.adeo.no",
-		"https://fpfordel.nais.adeo.no/fpfordel"
+		"https://fpfordel.nais.adeo.no"
 	],
 	"env": {
 		"ABAC_PDP_ENDPOINT_URL": "https://wasapp.adeo.no/asm-pdp/authorize",
