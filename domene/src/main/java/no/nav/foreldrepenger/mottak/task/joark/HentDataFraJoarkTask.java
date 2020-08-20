@@ -96,7 +96,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         journalpost.getJournalfoerendeEnhet().ifPresent(dataWrapper::setJournalførendeEnhet);
         dataWrapper.setStrukturertDokument(journalpost.getInnholderStrukturertInformasjon());
         journalpost.getSaksnummer().ifPresent(s -> {
-            LOG.warn("FPFORDEL HERK innkommende arkivsaksnummer {} for journalpost {}", s, dataWrapper.getArkivId());
+            LOG.info("FPFORDEL HERK innkommende arkivsaksnummer {} for journalpost {}", s, dataWrapper.getArkivId());
             dataWrapper.setSaksnummer(s);
             dataWrapper.setInnkommendeSaksnummer(s);
         });
