@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
     <name>Fordel :: Web :: Applikasjon</name>
     <properties>
-        <swagger-ui.version>3.32.1</swagger-ui.version>
+        <swagger-ui.version>3.32.3</swagger-ui.version>
         <cxf-xjc-boolean.version>3.1.0</cxf-xjc-boolean.version>
         <jaxb-fluent-api.version>2.1.8</jaxb-fluent-api.version>
         <cxf.version>3.3.4</cxf.version>
