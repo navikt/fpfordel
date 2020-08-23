@@ -10,6 +10,7 @@ import javax.ws.rs.core.Response;
 import org.junit.Before;
 import org.junit.Test;
 
+import no.nav.foreldrepenger.fordel.web.app.selftest.checks.DatabaseHealthCheck;
 import no.nav.foreldrepenger.fordel.web.app.tjenester.ApplicationServiceStarter;
 
 @SuppressWarnings("resource")
@@ -18,15 +19,17 @@ public class HealthCheckRestServiceTest {
     private HealthCheckRestService restTjeneste;
 
     private ApplicationServiceStarter serviceStarterMock = mock(ApplicationServiceStarter.class);
-    private SelftestService selftestServiceMock = mock(SelftestService.class);
+    private DatabaseHealthCheck databaseHealthCheck = mock(DatabaseHealthCheck.class);
 
     @Before
     public void setup() {
-        restTjeneste = new HealthCheckRestService(serviceStarterMock, selftestServiceMock);
+        restTjeneste = new HealthCheckRestService(serviceStarterMock, databaseHealthCheck);
     }
 
     @Test
     public void test_isAlive_skal_returnere_status_200() {
+        when(serviceStarterMock.isKafkaAlive()).thenReturn(true);
+
         Response response = restTjeneste.isAlive();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -34,20 +37,38 @@ public class HealthCheckRestServiceTest {
 
     @Test
     public void test_isReady_skal_returnere_service_unavailable_når_kritiske_selftester_feiler() {
-        when(selftestServiceMock.kritiskTjenesteFeilet()).thenReturn(true);
+        when(serviceStarterMock.isKafkaAlive()).thenReturn(false);
 
-        Response response = restTjeneste.isReady();
+        Response responseReady = restTjeneste.isReady();
+        Response responseAlive = restTjeneste.isAlive();
 
-        assertThat(response.getStatus()).isEqualTo(Response.Status.SERVICE_UNAVAILABLE.getStatusCode());
+        assertThat(responseReady.getStatus()).isEqualTo(Response.Status.SERVICE_UNAVAILABLE.getStatusCode());
+        assertThat(responseAlive.getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
     }
 
     @Test
+    public void test_isReady_skal_returnere_status_delvis_når_db_feiler() {
+        when(serviceStarterMock.isKafkaAlive()).thenReturn(true);
+        when(databaseHealthCheck.isReady()).thenReturn(false);
+
+        Response responseReady = restTjeneste.isReady();
+        Response responseAlive = restTjeneste.isAlive();
+
+        assertThat(responseReady.getStatus()).isEqualTo(Response.Status.SERVICE_UNAVAILABLE.getStatusCode());
+        assertThat(responseAlive.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+
+    @Test
     public void test_isReady_skal_returnere_status_ok_når_selftester_er_ok() {
-        when(selftestServiceMock.kritiskTjenesteFeilet()).thenReturn(false);
+        when(serviceStarterMock.isKafkaAlive()).thenReturn(true);
+        when(databaseHealthCheck.isReady()).thenReturn(true);
 
-        Response response = restTjeneste.isReady();
+        Response responseReady = restTjeneste.isReady();
+        Response responseAlive = restTjeneste.isAlive();
 
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(responseReady.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(responseAlive.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test

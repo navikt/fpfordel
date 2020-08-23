@@ -12,22 +12,24 @@ spec:
     - {{url}}
 {{/each}}
   liveness:
-    path: fpfordel/internal/health/isAlive
+    path: /fpfordel/internal/health/isAlive
     port: 8080
     initialDelay: 45
     periodSeconds: 10
-    failureThreshold: 30
-    timeout: 1
+    failureThreshold: 27
+    timeout: 3
   port: 8080
-  preStopHookPath: fpfordel/internal/health/preStop
+  preStopHookPath: /fpfordel/internal/health/preStop
   prometheus:
     enabled: true
-    path: fpfordel/internal/metrics/prometheus
+    path: /fpfordel/internal/metrics/prometheus
   readiness:
-    path: fpfordel/internal/health/isReady
+    path: /fpfordel/internal/health/isReady
     port: 8080
     initialDelay: 45
-    timeout: 1
+    periodSeconds: 10
+    failureThreshold: 27
+    timeout: 3
   replicas:
 {{#if minReplicas}}
     min: {{minReplicas}}
