@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
+import no.nav.foreldrepenger.fordel.web.app.selftest.checks.DatabaseHealthCheck;
 import no.nav.foreldrepenger.fordel.web.app.tjenester.ApplicationServiceStarter;
 
 @Path("/health")
@@ -23,38 +24,47 @@ public class HealthCheckRestService {
     private static final String RESPONSE_OK = "OK";
 
     private ApplicationServiceStarter starterService;
-    private SelftestService selftestService;
+    private DatabaseHealthCheck databaseHealthCheck;
 
     public HealthCheckRestService() {
         // CDI
     }
 
     @Inject
-    public HealthCheckRestService(ApplicationServiceStarter starterService, SelftestService selftestService) {
+    public HealthCheckRestService(ApplicationServiceStarter starterService, DatabaseHealthCheck databaseHealthCheck) {
         this.starterService = starterService;
-        this.selftestService = selftestService;
+        this.databaseHealthCheck = databaseHealthCheck;
     }
 
     @GET
     @Path("isAlive")
     @Operation(description = "sjekker om poden lever", tags = "nais", hidden = true)
     public Response isAlive() {
-        return Response
-                .ok(RESPONSE_OK)
-                .header(RESPONSE_CACHE_KEY, RESPONSE_CACHE_VAL)
-                .build();
+        if (starterService.isKafkaAlive()) {
+            return Response
+                    .ok(RESPONSE_OK)
+                    .header(RESPONSE_CACHE_KEY, RESPONSE_CACHE_VAL)
+                    .build();
+        } else {
+            return Response
+                    .serverError()
+                    .header(RESPONSE_CACHE_KEY, RESPONSE_CACHE_VAL)
+                    .build();
+        }
     }
 
     @GET
     @Path("isReady")
     @Operation(description = "sjekker om poden er klar", tags = "nais", hidden = true)
     public Response isReady() {
-        if (selftestService.kritiskTjenesteFeilet()) {
-            return Response.status(Response.Status.SERVICE_UNAVAILABLE)
+        if (starterService.isKafkaAlive() && databaseHealthCheck.isReady()) {
+            return Response
+                    .ok(RESPONSE_OK)
                     .header(RESPONSE_CACHE_KEY, RESPONSE_CACHE_VAL)
                     .build();
         } else {
-            return Response.ok(RESPONSE_OK)
+            return Response
+                    .status(Response.Status.SERVICE_UNAVAILABLE)
                     .header(RESPONSE_CACHE_KEY, RESPONSE_CACHE_VAL)
                     .build();
         }

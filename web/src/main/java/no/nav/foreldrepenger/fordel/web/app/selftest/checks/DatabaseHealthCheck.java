@@ -87,4 +87,8 @@ public class DatabaseHealthCheck extends ExtHealthCheck {
         }
         return result;
     }
+
+    public boolean isReady() {
+        return performCheck().isOk();
+    }
 }

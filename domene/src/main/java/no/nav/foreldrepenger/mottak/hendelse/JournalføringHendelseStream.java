@@ -15,11 +15,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.mottak.felles.kafka.KafkaIntegration;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
 import no.nav.vedtak.apptjeneste.AppServiceHandler;
 
 @ApplicationScoped
-public class JournalføringHendelseStream implements AppServiceHandler {
+public class JournalføringHendelseStream implements KafkaIntegration, AppServiceHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(JournalføringHendelseStream.class);
     private static final String HENDELSE_TYPER = "MidlertidigJournalført";
@@ -76,7 +77,7 @@ public class JournalføringHendelseStream implements AppServiceHandler {
             }
         });
         stream.setUncaughtExceptionHandler((t, e) -> {
-            LOG.error(getTopicName() + " :: Caught exception in stream, exiting", e);
+            LOG.error("{} :: Caught exception in stream, exiting", getTopicName(), e);
             stop();
         });
     }
@@ -98,9 +99,14 @@ public class JournalføringHendelseStream implements AppServiceHandler {
     }
 
     @Override
+    public boolean isAlive() {
+        return stream != null && stream.state().isRunningOrRebalancing();
+    }
+
+    @Override
     public void stop() {
         LOG.info("Starter shutdown av topic={}, tilstand={} med 10 sekunder timeout", getTopicName(), stream.state());
-        stream.close(Duration.ofSeconds(10));
+        stream.close(Duration.ofSeconds(20));
         LOG.info("Shutdown av topic={}, tilstand={} med 10 sekunder timeout", getTopicName(), stream.state());
     }
 }
