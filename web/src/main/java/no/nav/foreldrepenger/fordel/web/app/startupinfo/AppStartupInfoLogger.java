@@ -15,12 +15,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.codahale.metrics.health.HealthCheck;
-
-import no.nav.foreldrepenger.fordel.web.app.selftest.Selftests;
-import no.nav.foreldrepenger.fordel.web.app.selftest.checks.ExtHealthCheck;
 import no.nav.vedtak.konfig.StandardPropertySource;
-import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
@@ -30,14 +25,11 @@ class AppStartupInfoLogger {
 
     private static final Logger LOG = LoggerFactory.getLogger(AppStartupInfoLogger.class);
 
-    private Selftests selftests;
 
     private static final String OPPSTARTSINFO = "OPPSTARTSINFO";
     private static final String HILITE_SLUTT = "********";
     private static final String HILITE_START = HILITE_SLUTT;
     private static final String KONFIGURASJON = "Konfigurasjon";
-    private static final String SELFTEST = "Selftest";
-    private static final String APPLIKASJONENS_STATUS = "Applikasjonens status";
     private static final String START = "start:";
     private static final String SLUTT = "slutt.";
 
@@ -46,18 +38,13 @@ class AppStartupInfoLogger {
 
     private static final Environment ENV = Environment.current();
 
-    AppStartupInfoLogger() {
-    }
-
     @Inject
-    AppStartupInfoLogger(Selftests selftests) {
-        this.selftests = selftests;
+    AppStartupInfoLogger() {
     }
 
     void logAppStartupInfo() {
         log(HILITE_START + " " + OPPSTARTSINFO + " " + START + " " + HILITE_SLUTT);
         logKonfigurasjon();
-        logSelftest();
         log(HILITE_START + " " + OPPSTARTSINFO + " " + SLUTT + " " + HILITE_SLUTT);
     }
 
@@ -74,21 +61,6 @@ class AppStartupInfoLogger {
                 .stream()
                 .sorted(comparingByKey())
                 .forEach(e -> log(source, e));
-    }
-
-    private void logSelftest() {
-        log(SELFTEST + " " + START);
-
-        // callId er påkrevd på utgående kall og må settes før selftest kjøres
-        MDCOperations.putCallId();
-        var samletResultat = selftests.run();
-        MDCOperations.removeCallId();
-
-        samletResultat.getAlleResultater().stream()
-                .forEach(AppStartupInfoLogger::log);
-
-        log(APPLIKASJONENS_STATUS + ": {}", samletResultat.getAggregateResult());
-        log(SELFTEST + " " + SLUTT);
     }
 
     private static void log(StandardPropertySource source, Entry<String, String> entry) {
@@ -128,27 +100,5 @@ class AppStartupInfoLogger {
         } else {
             LOG.info(msg, args);
         }
-    }
-
-    private static void log(HealthCheck.Result result) {
-        if (result.getDetails() != null) {
-            OppstartFeil.FACTORY.selftestStatus(
-                    getStatus(result.isHealthy()),
-                    (String) result.getDetails().get(ExtHealthCheck.DETAIL_DESCRIPTION),
-                    (String) result.getDetails().get(ExtHealthCheck.DETAIL_ENDPOINT),
-                    (String) result.getDetails().get(ExtHealthCheck.DETAIL_RESPONSE_TIME),
-                    result.getMessage()).log(LOG);
-        } else {
-            OppstartFeil.FACTORY.selftestStatus(
-                    getStatus(result.isHealthy()),
-                    null,
-                    null,
-                    null,
-                    result.getMessage()).log(LOG);
-        }
-    }
-
-    private static String getStatus(boolean isHealthy) {
-        return isHealthy ? "OK" : "ERROR";
     }
 }
