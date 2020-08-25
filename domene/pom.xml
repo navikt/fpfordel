@@ -164,11 +164,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-core</artifactId>
-        </dependency>
-
         <!-- Test avhengigheter -->
         <dependency>
             <groupId>no.nav.foreldrepenger.fordel</groupId>
