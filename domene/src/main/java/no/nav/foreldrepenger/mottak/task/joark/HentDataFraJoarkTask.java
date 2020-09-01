@@ -96,7 +96,6 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         journalpost.getJournalfoerendeEnhet().ifPresent(dataWrapper::setJournalførendeEnhet);
         dataWrapper.setStrukturertDokument(journalpost.getInnholderStrukturertInformasjon());
         journalpost.getSaksnummer().ifPresent(s -> {
-            LOG.info("FPFORDEL HERK innkommende arkivsaksnummer {} for journalpost {}", s, dataWrapper.getArkivId());
             dataWrapper.setSaksnummer(s);
             dataWrapper.setInnkommendeSaksnummer(s);
         });
@@ -117,8 +116,10 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
         if (dataWrapper.getAktørId().isEmpty()) {
-            LOG.info("FPFORDEL HERK manglende bruker for journalpost {} type {}",
-                    dataWrapper.getArkivId(), journalpost.getHovedtype());
+            var avsender = journalpost.getAvsenderIdent() == null ? "ikke satt" :
+                    aktørConsumer.hentAktørIdForPersonIdent(journalpost.getAvsenderIdent()).orElse("finnes ikke");
+            LOG.info("FPFORDEL HERK manglende bruker for journalpost {} type {} avsender {}",
+                    dataWrapper.getArkivId(), journalpost.getHovedtype(), avsender);
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
         if (DokumentTypeId.UDEFINERT.equals(journalpost.getHovedtype())) {
