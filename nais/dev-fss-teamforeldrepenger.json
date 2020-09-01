@@ -5,6 +5,7 @@
 	"serviceuserkv": "/serviceuser/data/dev/srvfpfordel",
 	"namespace": "teamforeldrepenger",
 	"ingresses": [
+		        "https://fpfordel.dev.adeo.no",
 		        "https://fpfordel.nais.preprod.local"
 	],
 	"env": {
