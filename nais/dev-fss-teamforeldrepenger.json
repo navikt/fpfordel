@@ -5,8 +5,10 @@
 	"serviceuserkv": "/serviceuser/data/dev/srvfpfordel",
 	"namespace": "teamforeldrepenger",
 	"ingresses": [
-		        "https://fpfordel.dev.adeo.no",
-		        "https://fpfordel.nais.preprod.local"
+		"https://fpfordel.dev.adeo.no",
+		"https://fpfordel.nais.preprod.local",
+		"https://fpfordel-teamforeldrepenger.nais.preprod.local",
+		"https://fpfordel-q1.nais.preprod.local"
 	],
 	"env": {
 		"ABAC_PDP_ENDPOINT_URL": "https://wasapp-q1.adeo.no/asm-pdp/authorize",
@@ -23,7 +25,7 @@
 		"KAFKA_BOOTSTRAP_SERVERS": "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
 		"KAFKA_SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.preprod.local",
 		"KAFKA_TOPIC_JOURNAL_HENDELSE": "aapen-dok-journalfoering-v1-q1",
-		"LOADBALANCER_URL" : "https://fpfordel.dev.adeo.no",
+		"LOADBALANCER_URL" : "https://fpfordel.nais.preprod.local",
         "OIDC_AAD_B2C_ISSUERURL": "https://login.microsoftonline.com/d38f25aa-eab8-4c50-9f28-ebf92c1256f2/v2.0/",
 		"OIDC_AAD_B2C_AGENTNAME": "0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5",
 		"OIDC_AAD_B2C_HOSTURL": "https://not.used.in.fss",
