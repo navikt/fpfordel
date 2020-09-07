@@ -6,7 +6,7 @@ import java.util.Enumeration;
 
 import io.prometheus.client.Collector;
 
-public class TextFormatter {
+class TextFormatter {
 
     public static final String CONTENT_TYPE_004 = "text/plain; version=0.0.4; charset=utf-8";
 
@@ -59,14 +59,14 @@ public class TextFormatter {
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             switch (c) {
-            case '\\':
-                writer.append("\\\\");
-                break;
-            case '\n':
-                writer.append("\\n");
-                break;
-            default:
-                writer.append(c);
+                case '\\':
+                    writer.append("\\\\");
+                    break;
+                case '\n':
+                    writer.append("\\n");
+                    break;
+                default:
+                    writer.append(c);
             }
         }
     }
@@ -75,33 +75,33 @@ public class TextFormatter {
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             switch (c) {
-            case '\\':
-                writer.append("\\\\");
-                break;
-            case '\"':
-                writer.append("\\\"");
-                break;
-            case '\n':
-                writer.append("\\n");
-                break;
-            default:
-                writer.append(c);
+                case '\\':
+                    writer.append("\\\\");
+                    break;
+                case '\"':
+                    writer.append("\\\"");
+                    break;
+                case '\n':
+                    writer.append("\\n");
+                    break;
+                default:
+                    writer.append(c);
             }
         }
     }
 
     private static String typeString(Collector.Type t) {
         switch (t) {
-        case GAUGE:
-            return "gauge";
-        case COUNTER:
-            return "counter";
-        case SUMMARY:
-            return "summary";
-        case HISTOGRAM:
-            return "histogram";
-        default:
-            return "untyped";
+            case GAUGE:
+                return "gauge";
+            case COUNTER:
+                return "counter";
+            case SUMMARY:
+                return "summary";
+            case HISTOGRAM:
+                return "histogram";
+            default:
+                return "untyped";
         }
     }
 }

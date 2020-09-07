@@ -9,7 +9,6 @@ import static no.nav.vedtak.feil.LogLevel.ERROR;
 import static no.nav.vedtak.feil.LogLevel.WARN;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import java.io.IOException;
 import java.net.URI;
@@ -66,6 +65,7 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.FilMetadata;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseIdDto;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatusDto;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
+import no.nav.foreldrepenger.sikkerhet.abac.BeskyttetRessursAttributt;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
@@ -114,7 +114,7 @@ public class DokumentforsendelseRestTjeneste {
             @ApiResponse(responseCode = "200", headers = {
                     @Header(name = HttpHeaders.LOCATION, description = "Link til hvor man kan følge statusen på dokumentforsendelsen") }),
     })
-    @BeskyttetRessurs(action = CREATE, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.FAGSAK)
     public Response uploadFile(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) MultipartInput input) {
         List<InputPart> inputParts = input.getParts();
         if (inputParts.size() < 2) {
@@ -130,28 +130,28 @@ public class DokumentforsendelseRestTjeneste {
         ForsendelseStatusDto forsendelseStatusDto = service
                 .finnStatusinformasjon(dokumentforsendelse.getForsendelsesId());
         switch (forsendelseStatusDto.getForsendelseStatus()) {
-        case FPSAK:
-            LOG.info("Forsendelse {} ble fordelt til FPSAK", dokumentforsendelse.getForsendelsesId());
-            return Response.seeOther(lagStatusURI(dokumentforsendelse.getForsendelsesId()))
-                    .entity(forsendelseStatusDto)
-                    .build();
-        case GOSYS:
-            LOG.info("Forsendelse {} ble fordelt til GOSYS", dokumentforsendelse.getForsendelsesId());
-            return Response.ok(forsendelseStatusDto).build();
-        case PENDING:
-        default:
-            LOG.info("Forsendelse {} foreløpig ikke fordelt", dokumentforsendelse.getForsendelsesId());
-            return Response.accepted()
-                    .location(URI
-                            .create(SERVICE_PATH + "/status?forsendelseId=" + dokumentforsendelse.getForsendelsesId()))
-                    .entity(forsendelseStatusDto)
-                    .build();
+            case FPSAK:
+                LOG.info("Forsendelse {} ble fordelt til FPSAK", dokumentforsendelse.getForsendelsesId());
+                return Response.seeOther(lagStatusURI(dokumentforsendelse.getForsendelsesId()))
+                        .entity(forsendelseStatusDto)
+                        .build();
+            case GOSYS:
+                LOG.info("Forsendelse {} ble fordelt til GOSYS", dokumentforsendelse.getForsendelsesId());
+                return Response.ok(forsendelseStatusDto).build();
+            case PENDING:
+            default:
+                LOG.info("Forsendelse {} foreløpig ikke fordelt", dokumentforsendelse.getForsendelsesId());
+                return Response.accepted()
+                        .location(URI
+                                .create(SERVICE_PATH + "/status?forsendelseId=" + dokumentforsendelse.getForsendelsesId()))
+                        .entity(forsendelseStatusDto)
+                        .build();
         }
     }
 
     @GET
     @Path("/status")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = BeskyttetRessursAttributt.FAGSAK)
     @Operation(description = "Finner status på prosessering av mottatt dokumentforsendelse", tags = "Mottak", summary = "Format: \"8-4-4-4-12\" eksempel \"48F6E1CF-C5D8-4355-8E8C-B75494703959\"", responses = {
             @ApiResponse(responseCode = "200", description = "Status og Periode"),
             @ApiResponse(responseCode = "303", description = "See Other")
@@ -201,17 +201,17 @@ public class DokumentforsendelseRestTjeneste {
         }
 
         switch (name) {
-        case PART_KEY_HOVEDDOKUMENT:
-            hovedDokument = true;
-            break;
-        case PART_KEY_VEDLEGG:
-            hovedDokument = false;
-            if (!APPLICATION_PDF_TYPE.isCompatible(inputPart.getMediaType())) {
-                throw DokumentforsendelseRestTjenesteFeil.FACTORY.vedleggErIkkePdf(contentId).toException();
-            }
-            break;
-        default:
-            throw DokumentforsendelseRestTjenesteFeil.FACTORY.ukjentPartNavn().toException();
+            case PART_KEY_HOVEDDOKUMENT:
+                hovedDokument = true;
+                break;
+            case PART_KEY_VEDLEGG:
+                hovedDokument = false;
+                if (!APPLICATION_PDF_TYPE.isCompatible(inputPart.getMediaType())) {
+                    throw DokumentforsendelseRestTjenesteFeil.FACTORY.vedleggErIkkePdf(contentId).toException();
+                }
+                break;
+            default:
+                throw DokumentforsendelseRestTjenesteFeil.FACTORY.ukjentPartNavn().toException();
         }
 
         FilMetadata filMetadata = dokumentforsendelse.håndter(contentId);
@@ -287,7 +287,7 @@ public class DokumentforsendelseRestTjeneste {
         return dokumentforsendelseDto;
     }
 
-    private Dokumentforsendelse mapping(DokumentforsendelseDto dokumentforsendelseDto) {
+    private static Dokumentforsendelse mapping(DokumentforsendelseDto dokumentforsendelseDto) {
         DokumentMetadata metadata = DokumentMetadata.builder()
                 .setForsendelseId(dokumentforsendelseDto.getForsendelsesId())
                 .setBrukerId(dokumentforsendelseDto.getBrukerId())
@@ -322,7 +322,7 @@ public class DokumentforsendelseRestTjeneste {
         return null;
     }
 
-    private ArkivFilType mapMediatypeTilArkivFilType(MediaType mediaType) {
+    private static ArkivFilType mapMediatypeTilArkivFilType(MediaType mediaType) {
         if (mediaType.isCompatible(APPLICATION_PDF_TYPE)) {
             return ArkivFilType.PDFA;
         }

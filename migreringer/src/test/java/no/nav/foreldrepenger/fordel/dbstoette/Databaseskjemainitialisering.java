@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.fordel.dbstoette;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -39,7 +38,7 @@ public final class Databaseskjemainitialisering {
         try {
             settSchemaPlaceholder(DatasourceConfiguration.UNIT_TEST.getRaw());
             DatabaseStøtte.kjørMigreringFor(DatasourceConfiguration.DBA.get());
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -50,7 +49,7 @@ public final class Databaseskjemainitialisering {
 
         try {
             DatabaseStøtte.kjørMigreringFor(DatasourceConfiguration.UNIT_TEST.get());
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -70,7 +69,7 @@ public final class Databaseskjemainitialisering {
         try {
             Databaseskjemainitialisering.settSchemaPlaceholder(DatasourceConfiguration.UNIT_TEST.getRaw());
             DatabaseStøtte.settOppJndiForDefaultDataSource(DatasourceConfiguration.UNIT_TEST.get());
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -86,8 +85,7 @@ public final class Databaseskjemainitialisering {
         }
     }
 
-    public static void settSchemaPlaceholder(List<DBConnectionProperties> connectionProperties)
-            throws FileNotFoundException {
+    public static void settSchemaPlaceholder(List<DBConnectionProperties> connectionProperties) {
         for (DBConnectionProperties dbcp : connectionProperties) {
             Matcher matcher = placeholderPattern.matcher(dbcp.getSchema());
             if (matcher.matches()) {

@@ -34,13 +34,13 @@ public class DokumentfordenselseTestClient {
         String testdataDir = new File(this.getClass().getClassLoader().getResource("testdata/metadata.json").getPath()).getParent();
 
         MultipartEntityBuilder builder = MultipartEntityBuilder.create()
-            .setMimeSubtype("mixed")
-            .setMode(HttpMultipartMode.RFC6532);
+                .setMimeSubtype("mixed")
+                .setMode(HttpMultipartMode.RFC6532);
 
         builder.addPart(buildPart("metadata", new File(testdataDir, "metadata.json"), ContentType.APPLICATION_JSON, null))
-            .addPart(buildPart("hoveddokument", new File(testdataDir, "ES-F.xml"), ContentType.create("application/xml"), "<some ID 1>"))
-            .addPart(buildPart("hoveddokument", new File(testdataDir, "ES-f.pdf"), ContentType.create("application/pdf"), "<some ID 2>"))
-            .addPart(buildPart("vedlegg", new File(testdataDir, "terminbekreftelse.pdf"), ContentType.create("application/pdf"), "<some ID 3>"));
+                .addPart(buildPart("hoveddokument", new File(testdataDir, "ES-F.xml"), ContentType.create("application/xml"), "<some ID 1>"))
+                .addPart(buildPart("hoveddokument", new File(testdataDir, "ES-f.pdf"), ContentType.create("application/pdf"), "<some ID 2>"))
+                .addPart(buildPart("vedlegg", new File(testdataDir, "terminbekreftelse.pdf"), ContentType.create("application/pdf"), "<some ID 3>"));
 
         HttpPost post = new HttpPost(url); // Setting up a HTTP Post method with the target url
         post.setEntity(builder.build()); // Setting the multipart Entity to the post method
@@ -64,10 +64,10 @@ public class DokumentfordenselseTestClient {
         }
     }
 
-    private FormBodyPart buildPart(String name, File file, ContentType contentType, String contentId) {
+    private static FormBodyPart buildPart(String name, File file, ContentType contentType, String contentId) {
         FormBodyPartBuilder builder = FormBodyPartBuilder.create()
-            .setName(name)
-            .setBody(new FileBody(file, contentType));
+                .setName(name)
+                .setBody(new FileBody(file, contentType));
         if (contentId != null) {
             builder.setField("Content-ID", contentId);
         }

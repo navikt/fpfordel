@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.fordel.validering;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -37,7 +36,7 @@ public class SjekkDbStrukturTest {
     private static String schema;
 
     @BeforeClass
-    public static void setup() throws FileNotFoundException {
+    public static void setup() {
         List<DBConnectionProperties> connectionProperties = DatasourceConfiguration.UNIT_TEST.get();
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
         DBConnectionProperties dbconp = DBConnectionProperties.finnDefault(connectionProperties).get();
@@ -241,7 +240,7 @@ public class SjekkDbStrukturTest {
 
     }
 
-    private boolean ignoreColumn(String table, String cols) {
+    private static boolean ignoreColumn(String table, String cols) {
         String[][] ignored = new String[][] {
                 { "IAY_INNTEKTSPOST", "KL_YTELSE_TYPE" },
                 { "YF_FORDELING_PERIODE", "KL_AARSAK_TYPE" },
@@ -433,7 +432,7 @@ public class SjekkDbStrukturTest {
 
     }
 
-    private void opprettAvvikOgTekst(String sql, List<String> avvik, StringBuilder tekst) throws SQLException {
+    private static void opprettAvvikOgTekst(String sql, List<String> avvik, StringBuilder tekst) throws SQLException {
         try (Connection conn = ds.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql);) {
 

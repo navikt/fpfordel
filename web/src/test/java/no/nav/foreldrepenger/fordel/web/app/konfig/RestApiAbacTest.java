@@ -14,11 +14,11 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import no.nav.foreldrepenger.sikkerhet.abac.BeskyttetRessursAttributt;
 import no.nav.vedtak.isso.config.ServerInfo;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 public class RestApiAbacTest {
@@ -86,7 +86,7 @@ public class RestApiAbacTest {
         }
     }
 
-    private void assertAtIngenBrukerDummyVerdierPåBeskyttetRessurs(Method metode) {
+    private static void assertAtIngenBrukerDummyVerdierPåBeskyttetRessurs(Method metode) {
         Class<?> klasse = metode.getDeclaringClass();
         BeskyttetRessurs annotation = metode.getAnnotation(BeskyttetRessurs.class);
         if (annotation != null && !annotation.property().isEmpty()) {
@@ -99,9 +99,9 @@ public class RestApiAbacTest {
         if (annotation != null && annotation.action() == BeskyttetRessursActionAttributt.DUMMY) {
             fail(klasse.getSimpleName() + "." + metode.getName() + " Ikke bruk DUMMY-verdi for "
                     + BeskyttetRessursActionAttributt.class.getSimpleName());
-        } else if (annotation != null && annotation.ressurs() == BeskyttetRessursResourceAttributt.DUMMY) {
+        } else if (annotation != null && annotation.resource() == BeskyttetRessursAttributt.DUMMY) {
             fail(klasse.getSimpleName() + "." + metode.getName() + " Ikke bruk DUMMY-verdi for "
-                    + BeskyttetRessursResourceAttributt.class.getSimpleName());
+                    + BeskyttetRessursAttributt.class.getSimpleName());
         }
     }
 

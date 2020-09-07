@@ -376,7 +376,7 @@ public class BehandleDokumentServiceTest {
                 eq(engangsstønadFødsel), any(), any(), any(), any());
     }
 
-    private OppdaterOgFerdigstillJournalfoeringRequest lagRequest(String enhetid, String journalpostId,
+    private static OppdaterOgFerdigstillJournalfoeringRequest lagRequest(String enhetid, String journalpostId,
             String sakId) {
         OppdaterOgFerdigstillJournalfoeringRequest request = new OppdaterOgFerdigstillJournalfoeringRequest();
         request.setEnhetId(enhetid);

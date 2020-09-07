@@ -15,10 +15,10 @@ import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.pip.PipRepository;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
+import no.nav.foreldrepenger.sikkerhet.abac.BeskyttetRessursAttributt;
 import no.nav.vedtak.sikkerhet.abac.AbacAttributtSamling;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 
 public class AppPdpRequestBuilderImplTest {
@@ -73,10 +73,10 @@ public class AppPdpRequestBuilderImplTest {
         assertThat(request.getListOfString(RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE)).hasSize(2);
     }
 
-    private AbacAttributtSamling byggAbacAttributtSamling() {
+    private static AbacAttributtSamling byggAbacAttributtSamling() {
         AbacAttributtSamling attributtSamling = AbacAttributtSamling.medJwtToken(DUMMY_ID_TOKEN);
         attributtSamling.setActionType(BeskyttetRessursActionAttributt.READ);
-        attributtSamling.setResource(BeskyttetRessursResourceAttributt.FAGSAK.getEksternKode());
+        attributtSamling.setResource(BeskyttetRessursAttributt.FAGSAK);
         return attributtSamling;
     }
 }

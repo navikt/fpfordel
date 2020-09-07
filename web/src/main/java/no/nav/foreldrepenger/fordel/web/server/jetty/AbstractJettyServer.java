@@ -137,7 +137,7 @@ abstract class AbstractJettyServer {
 
     protected abstract Resource createResourceCollection() throws IOException;
 
-    private SecurityHandler createSecurityHandler() {
+    private static SecurityHandler createSecurityHandler() {
         ConstraintSecurityHandler securityHandler = new ConstraintSecurityHandler();
         securityHandler.setAuthenticatorFactory(new JaspiAuthenticatorFactory());
 

@@ -25,7 +25,6 @@ class AppStartupInfoLogger {
 
     private static final Logger LOG = LoggerFactory.getLogger(AppStartupInfoLogger.class);
 
-
     private static final String OPPSTARTSINFO = "OPPSTARTSINFO";
     private static final String HILITE_SLUTT = "********";
     private static final String HILITE_START = HILITE_SLUTT;
@@ -48,7 +47,7 @@ class AppStartupInfoLogger {
         log(HILITE_START + " " + OPPSTARTSINFO + " " + SLUTT + " " + HILITE_SLUTT);
     }
 
-    private void logKonfigurasjon() {
+    private static void logKonfigurasjon() {
         log(KONFIGURASJON + " " + START);
         log(SYSTEM_PROPERTIES);
         log(ENV_PROPERTIES);
@@ -56,7 +55,7 @@ class AppStartupInfoLogger {
         log(KONFIGURASJON + " " + SLUTT);
     }
 
-    private void log(StandardPropertySource source) {
+    private static void log(StandardPropertySource source) {
         fromProperties(ENV.getProperties(source).getVerdier()).entrySet()
                 .stream()
                 .sorted(comparingByKey())

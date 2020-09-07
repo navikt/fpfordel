@@ -225,7 +225,7 @@ public class DokumentforsendelseRestTjenesteTest {
         assertThat(abacDataAttributter.toString()).contains("AKTØR_ID=[MASKERT#1]");
     }
 
-    private InputPart mockBasicInputPart(Optional<String> contentId, String contentDispositionName) {
+    private static InputPart mockBasicInputPart(Optional<String> contentId, String contentDispositionName) {
         InputPart part = mock(InputPart.class);
         MultivaluedMap<String, String> map = new MultivaluedMapImpl<>();
         map.put("Content-Disposition",
@@ -242,14 +242,14 @@ public class DokumentforsendelseRestTjenesteTest {
         return part;
     }
 
-    private InputPart mockHoveddokumentPartXml() throws Exception {
+    private static InputPart mockHoveddokumentPartXml() throws Exception {
         InputPart part = mockBasicInputPart(Optional.of("<some ID 1>"), "hoveddokument");
         when(part.getMediaType()).thenReturn(MediaType.APPLICATION_XML_TYPE);
         when(part.getBodyAsString()).thenReturn("body");
         return part;
     }
 
-    private InputPart mockHoveddokumentPartPdf() throws Exception {
+    private static InputPart mockHoveddokumentPartPdf() throws Exception {
         InputPart part = mockBasicInputPart(Optional.of("<some ID 2>"), "hoveddokument");
         when(part.getMediaType()).thenReturn(MediaType.valueOf("application/pdf"));
         when(part.getBodyAsString()).thenReturn("");
@@ -257,7 +257,7 @@ public class DokumentforsendelseRestTjenesteTest {
         return part;
     }
 
-    private InputPart mockVedleggPart(String contentId) throws Exception {
+    private static InputPart mockVedleggPart(String contentId) throws Exception {
         InputPart part = mockBasicInputPart(Optional.of(contentId), "vedlegg");
         when(part.getMediaType()).thenReturn(MediaType.valueOf("application/pdf"));
         when(part.getBodyAsString()).thenReturn("");

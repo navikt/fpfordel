@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
-public class DatabaseHealthCheck  {
+public class DatabaseHealthCheck {
 
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseHealthCheck.class);
     private static final String JDBC_DEFAULT_DS = "jdbc/defaultDS";
@@ -31,15 +31,13 @@ public class DatabaseHealthCheck  {
         this.jndiName = JDBC_DEFAULT_DS;
     }
 
-
     private boolean isOK() {
-
 
         DataSource dataSource = null;
         try {
             dataSource = (DataSource) new InitialContext().lookup(jndiName);
         } catch (NamingException e) {
-            LOG.warn("Feil ved JNDI-oppslag for {} exception", jndiName , e);
+            LOG.warn("Feil ved JNDI-oppslag for {} exception", jndiName, e);
             return false;
         }
 
@@ -60,7 +58,7 @@ public class DatabaseHealthCheck  {
         return true;
     }
 
-    private String extractEndpoint(Connection connection) {
+    private static String extractEndpoint(Connection connection) {
         String result = "?";
         try {
             DatabaseMetaData metaData = connection.getMetaData();

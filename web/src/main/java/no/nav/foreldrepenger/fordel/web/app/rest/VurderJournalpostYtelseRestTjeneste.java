@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.fordel.web.app.rest;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -31,6 +30,7 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.task.joark.HentDataFraJoarkTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
+import no.nav.foreldrepenger.sikkerhet.abac.BeskyttetRessursAttributt;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -53,7 +53,7 @@ public class VurderJournalpostYtelseRestTjeneste {
 
     @Inject
     public VurderJournalpostYtelseRestTjeneste(ArkivTjeneste arkivTjeneste,
-                                               AktørConsumerMedCache aktørConsumer) {
+            AktørConsumerMedCache aktørConsumer) {
         this.aktørConsumer = aktørConsumer;
         this.arkivTjeneste = arkivTjeneste;
     }
@@ -61,16 +61,15 @@ public class VurderJournalpostYtelseRestTjeneste {
     @GET
     @Path("/ytelsetype")
     @Produces(APPLICATION_JSON)
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = BeskyttetRessursAttributt.FAGSAK)
     @Operation(description = "Returnerer ES, FP, SVP, IMFP, IMSVP eller '-' (udefinert)", tags = "Vurdering", responses = {
             @ApiResponse(responseCode = "200", description = "Svar"),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
-    public Response utledYtelsetypeForSak(@QueryParam("journalpostId") @Parameter(name = "journalpostId", description = "Journalpost ID", example = "false")
-                                                @NotNull @Valid AbacJournalpostIdDto journalpostIdDto) {
+    public Response utledYtelsetypeForSak(
+            @QueryParam("journalpostId") @Parameter(name = "journalpostId", description = "Journalpost ID", example = "false") @NotNull @Valid AbacJournalpostIdDto journalpostIdDto) {
         return Response.ok(utledBehandlingstemaFra(journalpostIdDto.getJournalpostId())).build();
     }
-
 
     JournalpostVurderingDto utledBehandlingstemaFra(String journalpostId) {
         try {
