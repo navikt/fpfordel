@@ -13,5 +13,4 @@ public class BeskyttetRessursAttributt {
     public static final String OPPGAVESTYRING_AVDELINGENHET = "no.nav.abac.attributter.foreldrepenger.oppgavestyring.avdelingsenhet";
     public static final String RISIKOKLASSIFISERING = "no.nav.abac.attributter.foreldrepenger.risikoklassifisering";
     public static final String UTTAKSPLAN = "no.nav.abac.attributter.resource.foreldrepenger.uttaksplan";
-    public static final String DUMMY = null;
 }

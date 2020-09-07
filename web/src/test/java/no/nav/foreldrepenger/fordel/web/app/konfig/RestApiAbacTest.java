@@ -14,7 +14,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import no.nav.foreldrepenger.sikkerhet.abac.BeskyttetRessursAttributt;
 import no.nav.vedtak.isso.config.ServerInfo;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -99,9 +98,6 @@ public class RestApiAbacTest {
         if (annotation != null && annotation.action() == BeskyttetRessursActionAttributt.DUMMY) {
             fail(klasse.getSimpleName() + "." + metode.getName() + " Ikke bruk DUMMY-verdi for "
                     + BeskyttetRessursActionAttributt.class.getSimpleName());
-        } else if (annotation != null && annotation.resource() == BeskyttetRessursAttributt.DUMMY) {
-            fail(klasse.getSimpleName() + "." + metode.getName() + " Ikke bruk DUMMY-verdi for "
-                    + BeskyttetRessursAttributt.class.getSimpleName());
         }
     }
 
