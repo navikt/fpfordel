@@ -8,9 +8,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.UUID;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.pip.PipRepository;
@@ -25,9 +23,6 @@ public class AppPdpRequestBuilderImplTest {
     private static final String DUMMY_ID_TOKEN = "dummyheader.dymmypayload.dummysignaturee";
     private static final String AKTØR = "AktørID_1";
     private static final UUID DOKUMENTFORSENDELSE = UUID.randomUUID();
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     private PipRepository pipRepository = Mockito.mock(PipRepository.class);
     // private AktørConsumerMedCache aktørConsumer =
