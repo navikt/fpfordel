@@ -27,8 +27,8 @@ import javax.ws.rs.core.Response;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartInput;
 import org.jboss.resteasy.specimpl.MultivaluedMapImpl;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.net.HttpHeaders;
 
@@ -40,7 +40,6 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Forsendelse
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 
-@SuppressWarnings("resource")
 public class DokumentforsendelseRestTjenesteTest {
     static {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
@@ -54,7 +53,7 @@ public class DokumentforsendelseRestTjenesteTest {
     private InputPart vedleggPart;
     private MultipartInput input;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         dokumentTjenesteMock = mock(DokumentforsendelseTjeneste.class);
         when(dokumentTjenesteMock.finnStatusinformasjon(any(UUID.class))).thenReturn(new ForsendelseStatusDto(ForsendelseStatus.PENDING));

@@ -7,13 +7,12 @@ import static org.mockito.Mockito.when;
 
 import javax.ws.rs.core.Response;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.fordel.web.app.selftest.checks.DatabaseHealthCheck;
 import no.nav.foreldrepenger.fordel.web.app.tjenester.ApplicationServiceStarter;
 
-@SuppressWarnings("resource")
 public class HealthCheckRestServiceTest {
 
     private HealthCheckRestService restTjeneste;
@@ -21,7 +20,7 @@ public class HealthCheckRestServiceTest {
     private ApplicationServiceStarter serviceStarterMock = mock(ApplicationServiceStarter.class);
     private DatabaseHealthCheck databaseHealthCheck = mock(DatabaseHealthCheck.class);
 
-    @Before
+    @BeforeEach
     public void setup() {
         restTjeneste = new HealthCheckRestService(serviceStarterMock, databaseHealthCheck);
     }
@@ -57,7 +56,6 @@ public class HealthCheckRestServiceTest {
         assertThat(responseReady.getStatus()).isEqualTo(Response.Status.SERVICE_UNAVAILABLE.getStatusCode());
         assertThat(responseAlive.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
-
 
     @Test
     public void test_isReady_skal_returnere_status_ok_når_selftester_er_ok() {

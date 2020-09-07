@@ -21,8 +21,8 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.sikkerhet.abac.BeskyttetRessursAttributt;
@@ -42,7 +42,7 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
     private PdpConsumer pdpConsumerMock;
     private AppXacmlRequestBuilderTjenesteImpl xamlRequestBuilderTjeneste;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         pdpConsumerMock = mock(PdpConsumer.class);
         xamlRequestBuilderTjeneste = new AppXacmlRequestBuilderTjenesteImpl();
@@ -130,7 +130,6 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
         return request;
     }
 
-    @SuppressWarnings("resource")
     private XacmlResponseWrapper createResponse(String jsonFile) throws FileNotFoundException {
         File file = new File(getClass().getClassLoader().getResource(jsonFile).getFile());
         JsonReader reader = Json.createReader(new FileReader(file));
