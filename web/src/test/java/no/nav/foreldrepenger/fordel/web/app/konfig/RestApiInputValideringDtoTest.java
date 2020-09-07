@@ -46,6 +46,7 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -55,7 +56,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import no.nav.foreldrepenger.fordel.IndexClasses;
 import no.nav.vedtak.isso.config.ServerInfo;
 
-//@RunWith(Parameterized.class)
+@RunWith(Parameterized.class)
 public class RestApiInputValideringDtoTest extends RestApiTester {
 
     private Class<?> dto;
