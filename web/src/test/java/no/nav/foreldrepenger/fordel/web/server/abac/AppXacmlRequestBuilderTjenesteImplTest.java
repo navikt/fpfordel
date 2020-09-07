@@ -21,13 +21,13 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import no.nav.foreldrepenger.sikkerhet.abac.BeskyttetRessursAttributt;
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 import no.nav.vedtak.sikkerhet.abac.PdpKlient;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.pdp.PdpConsumer;
@@ -42,7 +42,7 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
     private PdpConsumer pdpConsumerMock;
     private AppXacmlRequestBuilderTjenesteImpl xamlRequestBuilderTjeneste;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         pdpConsumerMock = mock(PdpConsumer.class);
         xamlRequestBuilderTjeneste = new AppXacmlRequestBuilderTjenesteImpl();
@@ -122,15 +122,14 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
         assertThat(xacmlRequestString.contains("9000000000007")).isTrue();
     }
 
-    private PdpRequest lagPdpRequest() {
+    private static PdpRequest lagPdpRequest() {
         PdpRequest request = new PdpRequest();
         request.put(RESOURCE_FELLES_DOMENE, "foreldrepenger");
         request.put(XACML_1_0_ACTION_ACTION_ID, BeskyttetRessursActionAttributt.READ.getEksternKode());
-        request.put(RESOURCE_FELLES_RESOURCE_TYPE, BeskyttetRessursResourceAttributt.FAGSAK.getEksternKode());
+        request.put(RESOURCE_FELLES_RESOURCE_TYPE, BeskyttetRessursAttributt.FAGSAK);
         return request;
     }
 
-    @SuppressWarnings("resource")
     private XacmlResponseWrapper createResponse(String jsonFile) throws FileNotFoundException {
         File file = new File(getClass().getClassLoader().getResource(jsonFile).getFile());
         JsonReader reader = Json.createReader(new FileReader(file));

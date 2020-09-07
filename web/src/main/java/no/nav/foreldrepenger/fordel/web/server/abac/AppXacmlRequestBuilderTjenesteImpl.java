@@ -48,7 +48,7 @@ public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTj
         return xacmlBuilder;
     }
 
-    private XacmlAttributeSet byggRessursAttributter(PdpRequest pdpRequest, Tuple<String, String> ident) {
+    private static XacmlAttributeSet byggRessursAttributter(PdpRequest pdpRequest, Tuple<String, String> ident) {
         var resourceAttributeSet = new XacmlAttributeSet();
         resourceAttributeSet.addAttribute(RESOURCE_FELLES_DOMENE,
                 pdpRequest.getString(RESOURCE_FELLES_DOMENE));
@@ -60,7 +60,7 @@ public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTj
         return resourceAttributeSet;
     }
 
-    private List<Tuple<String, String>> hentIdenter(PdpRequest pdpRequest, String... identNøkler) {
+    private static List<Tuple<String, String>> hentIdenter(PdpRequest pdpRequest, String... identNøkler) {
         List<Tuple<String, String>> identer = new ArrayList<>();
         for (String key : identNøkler) {
             identer.addAll(pdpRequest.getListOfString(key).stream()

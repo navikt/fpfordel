@@ -3,19 +3,20 @@ package no.nav.foreldrepenger.fordel.web.app.tjenester;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
- * Base klasse for dto testing. Legger til serializere og deserializere slik at dto'er med custom typer kan testes.
+ * Base klasse for dto testing. Legger til serializere og deserializere slik at
+ * dto'er med custom typer kan testes.
  */
 public abstract class DtoTest {
 
     protected ObjectMapper objectMapper = new ObjectMapper();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         objectMapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();

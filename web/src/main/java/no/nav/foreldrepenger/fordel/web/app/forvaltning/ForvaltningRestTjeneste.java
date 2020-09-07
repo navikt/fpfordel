@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.fordel.web.app.forvaltning;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.RETRY_KEY;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.DRIFT;
 
 import java.util.function.Function;
 
@@ -28,6 +27,7 @@ import no.nav.foreldrepenger.mottak.task.KlargjorForVLTask;
 import no.nav.foreldrepenger.mottak.task.MidlJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.VedlikeholdSchedulerTask;
+import no.nav.foreldrepenger.sikkerhet.abac.BeskyttetRessursAttributt;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
@@ -63,7 +63,7 @@ public class ForvaltningRestTjeneste {
     @Path("/retry-suffix")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
+    @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
     public Response setRetrySuffix(
             @Parameter(description = "Sett kanalreferanse-suffix før restart prosesstask") @NotNull @Valid RetryTaskKanalrefDto dto) {
         var data = prosessTaskRepository.finn(dto.getProsessTaskIdDto().getProsessTaskId());
@@ -83,7 +83,7 @@ public class ForvaltningRestTjeneste {
     @Path("/submit-journalfort-im")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
+    @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
     public Response submitJournalførtInntektsmelding(
             @Parameter(description = "Send im til angitt sak") @NotNull @Valid SubmitJfortIMDto dto) {
         var data = prosessTaskRepository.finn(dto.getProsessTaskIdDto().getProsessTaskId());
@@ -108,7 +108,7 @@ public class ForvaltningRestTjeneste {
     @Path("/submit-journalforing-endelig")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
+    @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
     public Response submitJournalpostEndeligKlargjor(
             @Parameter(description = "Send im til angitt sak") @NotNull @Valid SubmitJfortIMDto dto) {
         var data = prosessTaskRepository.finn(dto.getProsessTaskIdDto().getProsessTaskId());
@@ -134,9 +134,9 @@ public class ForvaltningRestTjeneste {
     @Path("/midl-journalfor")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
-    public Response midlJournalførForsendelse(@TilpassetAbacAttributt(supplierClass = ForvaltningRestTjeneste.AbacDataSupplier.class)
-            @Parameter(description = "Task som skal midl journalførs") @NotNull @Valid ProsessTaskIdDto taskId) {
+    @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
+    public Response midlJournalførForsendelse(
+            @TilpassetAbacAttributt(supplierClass = ForvaltningRestTjeneste.AbacDataSupplier.class) @Parameter(description = "Task som skal midl journalførs") @NotNull @Valid ProsessTaskIdDto taskId) {
         var data = prosessTaskRepository.finn(taskId.getProsessTaskId());
         if (data != null) {
             var dataWrapperFra = new MottakMeldingDataWrapper(data);
@@ -154,7 +154,7 @@ public class ForvaltningRestTjeneste {
             @ApiResponse(responseCode = "200", description = "Starter batch-scheduler."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
-    @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
+    @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
     public Response autoRunBatch() {
         boolean eksisterende = prosessTaskRepository.finnIkkeStartet().stream()
                 .map(ProsessTaskData::getTaskType)
@@ -174,9 +174,9 @@ public class ForvaltningRestTjeneste {
             @ApiResponse(responseCode = "200", description = "Task satt til ferdig."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
-    @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
-    public Response setTaskFerdig(@TilpassetAbacAttributt(supplierClass = ForvaltningRestTjeneste.AbacDataSupplier.class)
-            @Parameter(description = "Task som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto taskId) {
+    @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
+    public Response setTaskFerdig(
+            @TilpassetAbacAttributt(supplierClass = ForvaltningRestTjeneste.AbacDataSupplier.class) @Parameter(description = "Task som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto taskId) {
         var data = prosessTaskRepository.finn(taskId.getProsessTaskId());
         if (data != null) {
             data.setStatus(ProsessTaskStatus.FERDIG);

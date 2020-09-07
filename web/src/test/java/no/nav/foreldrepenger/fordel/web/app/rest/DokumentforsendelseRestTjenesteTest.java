@@ -27,8 +27,8 @@ import javax.ws.rs.core.Response;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartInput;
 import org.jboss.resteasy.specimpl.MultivaluedMapImpl;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.net.HttpHeaders;
 
@@ -40,7 +40,6 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Forsendelse
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 
-@SuppressWarnings("resource")
 public class DokumentforsendelseRestTjenesteTest {
     static {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
@@ -54,7 +53,7 @@ public class DokumentforsendelseRestTjenesteTest {
     private InputPart vedleggPart;
     private MultipartInput input;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         dokumentTjenesteMock = mock(DokumentforsendelseTjeneste.class);
         when(dokumentTjenesteMock.finnStatusinformasjon(any(UUID.class))).thenReturn(new ForsendelseStatusDto(ForsendelseStatus.PENDING));
@@ -225,7 +224,7 @@ public class DokumentforsendelseRestTjenesteTest {
         assertThat(abacDataAttributter.toString()).contains("AKTØR_ID=[MASKERT#1]");
     }
 
-    private InputPart mockBasicInputPart(Optional<String> contentId, String contentDispositionName) {
+    private static InputPart mockBasicInputPart(Optional<String> contentId, String contentDispositionName) {
         InputPart part = mock(InputPart.class);
         MultivaluedMap<String, String> map = new MultivaluedMapImpl<>();
         map.put("Content-Disposition",
@@ -242,14 +241,14 @@ public class DokumentforsendelseRestTjenesteTest {
         return part;
     }
 
-    private InputPart mockHoveddokumentPartXml() throws Exception {
+    private static InputPart mockHoveddokumentPartXml() throws Exception {
         InputPart part = mockBasicInputPart(Optional.of("<some ID 1>"), "hoveddokument");
         when(part.getMediaType()).thenReturn(MediaType.APPLICATION_XML_TYPE);
         when(part.getBodyAsString()).thenReturn("body");
         return part;
     }
 
-    private InputPart mockHoveddokumentPartPdf() throws Exception {
+    private static InputPart mockHoveddokumentPartPdf() throws Exception {
         InputPart part = mockBasicInputPart(Optional.of("<some ID 2>"), "hoveddokument");
         when(part.getMediaType()).thenReturn(MediaType.valueOf("application/pdf"));
         when(part.getBodyAsString()).thenReturn("");
@@ -257,7 +256,7 @@ public class DokumentforsendelseRestTjenesteTest {
         return part;
     }
 
-    private InputPart mockVedleggPart(String contentId) throws Exception {
+    private static InputPart mockVedleggPart(String contentId) throws Exception {
         InputPart part = mockBasicInputPart(Optional.of(contentId), "vedlegg");
         when(part.getMediaType()).thenReturn(MediaType.valueOf("application/pdf"));
         when(part.getBodyAsString()).thenReturn("");

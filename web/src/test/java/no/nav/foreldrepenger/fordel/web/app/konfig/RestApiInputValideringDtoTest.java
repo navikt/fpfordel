@@ -63,9 +63,9 @@ public class RestApiInputValideringDtoTest extends RestApiTester {
 
     @Parameterized.Parameters(name = "Validerer Dto - {0}")
     public static Collection<Object[]> getDtos() {
-        String prevLBUrl = System.setProperty(ServerInfo.PROPERTY_KEY_LOADBALANCER_URL,"http://localhost:8090");
+        String prevLBUrl = System.setProperty(ServerInfo.PROPERTY_KEY_LOADBALANCER_URL, "http://localhost:8090");
         Set<Object[]> alleDtoTyper = finnAlleDtoTyper().stream().map(c -> new Object[] { c.getName(), c }).collect(Collectors.toSet());
-        if(prevLBUrl != null){
+        if (prevLBUrl != null) {
             System.setProperty(ServerInfo.PROPERTY_KEY_LOADBALANCER_URL, prevLBUrl);
         }
         return alleDtoTyper;
@@ -76,18 +76,21 @@ public class RestApiInputValideringDtoTest extends RestApiTester {
     }
 
     /**
-     * IKKE ignorer eller fjern denne testen, den sørger for at inputvalidering er i orden for REST-grensesnittene
+     * IKKE ignorer eller fjern denne testen, den sørger for at inputvalidering er i
+     * orden for REST-grensesnittene
      * <p>
-     * Kontakt Team Humle hvis du trenger hjelp til å endre koden din slik at den går igjennom her
+     * Kontakt Team Humle hvis du trenger hjelp til å endre koden din slik at den
+     * går igjennom her
      */
     @Test
     public void alle_felter_i_objekter_som_brukes_som_inputDTO_skal_enten_ha_valideringsannotering_eller_være_av_godkjent_type() throws Exception {
-        Set<Class<?>> validerteKlasser = new HashSet<>(); // trengs for å unngå løkker og unngå å validere samme klasse flere ganger dobbelt
+        Set<Class<?>> validerteKlasser = new HashSet<>(); // trengs for å unngå løkker og unngå å validere samme klasse flere ganger
+                                                          // dobbelt
         validerRekursivt(validerteKlasser, dto, null);
     }
 
     private static final List<Class<? extends Object>> ALLOWED_ENUM_ANNOTATIONS = Arrays.asList(JsonProperty.class, JsonValue.class, JsonIgnore.class,
-        Valid.class, Null.class, NotNull.class);
+            Valid.class, Null.class, NotNull.class);
 
     @SuppressWarnings("rawtypes")
     private static final Map<Class, List<List<Class<? extends Annotation>>>> UNNTATT_FRA_VALIDERING = new HashMap<Class, List<List<Class<? extends Annotation>>>>() {
@@ -109,22 +112,22 @@ public class RestApiInputValideringDtoTest extends RestApiTester {
     private static final Map<Class, List<List<Class<? extends Annotation>>>> VALIDERINGSALTERNATIVER = new HashMap<Class, List<List<Class<? extends Annotation>>>>() {
         {
             put(String.class, asList(
-                asList(Pattern.class, Size.class),
-                asList(Pattern.class),
-                singletonList(Digits.class)));
+                    asList(Pattern.class, Size.class),
+                    asList(Pattern.class),
+                    singletonList(Digits.class)));
             put(Long.class, asList(
-                asList(Min.class, Max.class),
-                asList(Digits.class)));
+                    asList(Min.class, Max.class),
+                    asList(Digits.class)));
             put(long.class, asList(
-                asList(Min.class, Max.class),
-                asList(Digits.class)));
+                    asList(Min.class, Max.class),
+                    asList(Digits.class)));
             put(Integer.class, singletonList(
-                asList(Min.class, Max.class)));
+                    asList(Min.class, Max.class)));
             put(int.class, singletonList(
-                asList(Min.class, Max.class)));
+                    asList(Min.class, Max.class)));
             put(BigDecimal.class, asList(
-                asList(Min.class, Max.class, Digits.class),
-                asList(DecimalMin.class, DecimalMax.class, Digits.class)));
+                    asList(Min.class, Max.class, Digits.class),
+                    asList(DecimalMin.class, DecimalMax.class, Digits.class)));
 
             putAll(UNNTATT_FRA_VALIDERING);
         }
@@ -147,7 +150,6 @@ public class RestApiInputValideringDtoTest extends RestApiTester {
         return VALIDERINGSALTERNATIVER.get(type);
     }
 
-
     private static Set<Class<?>> finnAlleDtoTyper() {
         Set<Class<?>> parametre = new TreeSet<>(Comparator.comparing(Class::getName));
         for (Method method : finnAlleRestMetoder()) {
@@ -164,7 +166,8 @@ public class RestApiInputValideringDtoTest extends RestApiTester {
         Set<Class<?>> filtreteParametre = new TreeSet<>(Comparator.comparing(Class::getName));
         for (Class<?> klasse : parametre) {
             if (klasse.getName().startsWith("java")) {
-                // ikke sjekk nedover i innebygde klasser, det skal brukes annoteringer på tidligere tidspunkt
+                // ikke sjekk nedover i innebygde klasser, det skal brukes annoteringer på
+                // tidligere tidspunkt
                 continue;
             }
             filtreteParametre.add(klasse);
@@ -205,7 +208,7 @@ public class RestApiInputValideringDtoTest extends RestApiTester {
                 validerRiktigAnnotert(field); // har konfigurert opp spesifikk validering
             } else if (field.getType().getName().startsWith("java")) {
                 throw new AssertionError(
-                    "Feltet " + field + " har ikke påkrevde annoteringer. Trenger evt. utvidelse av denne testen for å akseptere denne typen.");
+                        "Feltet " + field + " har ikke påkrevde annoteringer. Trenger evt. utvidelse av denne testen for å akseptere denne typen.");
             } else {
                 validerHarValidAnnotering(field);
                 validerRekursivt(besøkteKlasser, field.getType(), forrigeKlasse);
@@ -222,7 +225,7 @@ public class RestApiInputValideringDtoTest extends RestApiTester {
     private static void validerEnum(Field field) {
         validerRiktigAnnotert(field);
         List<Annotation> illegal = Arrays.asList(field.getAnnotations()).stream().filter(a -> !ALLOWED_ENUM_ANNOTATIONS.contains(a.annotationType()))
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
         if (!illegal.isEmpty()) {
             throw new AssertionError("Ugyldige annotasjoner funnet på [" + field + "]: " + illegal);
         }

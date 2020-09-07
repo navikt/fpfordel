@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
+import no.nav.foreldrepenger.sikkerhet.abac.BeskyttetRessursAttributt;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.BehandleDokumentforsendelseV1;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.OppdaterOgFerdigstillJournalfoeringUgyldigInput;
@@ -51,7 +52,6 @@ import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 /**
@@ -99,7 +99,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
     @Override
     @Transactional
-    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, ressurs = BeskyttetRessursResourceAttributt.FAGSAK)
+    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = BeskyttetRessursAttributt.FAGSAK)
     public void oppdaterOgFerdigstillJournalfoering(
             @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) OppdaterOgFerdigstillJournalfoeringRequest request)
             throws OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet,
@@ -146,8 +146,8 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
         String eksternReferanseId = null;
         if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
-            eksternReferanseId = journalpost.getEksternReferanseId() != null ? journalpost.getEksternReferanseId() :
-                    arkivTjeneste.hentEksternReferanseId(journalpost.getOriginalJournalpost()).orElse(null);
+            eksternReferanseId = journalpost.getEksternReferanseId() != null ? journalpost.getEksternReferanseId()
+                    : arkivTjeneste.hentEksternReferanseId(journalpost.getOriginalJournalpost()).orElse(null);
         }
 
         klargjørForVLTjeneste.klargjørForVL(xml, saksnummer, arkivId, dokumentTypeId, journalpost.getDatoOpprettet(),
@@ -217,41 +217,41 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         return xml;
     }
 
-    private void validerSaksnummer(String saksnummer) throws OppdaterOgFerdigstillJournalfoeringUgyldigInput {
+    private static void validerSaksnummer(String saksnummer) throws OppdaterOgFerdigstillJournalfoeringUgyldigInput {
         if (erNullEllerTom(saksnummer)) {
             UgyldigInput ugyldigInput = lagUgyldigInput(SAKSNUMMER_UGYLDIG);
             throw new OppdaterOgFerdigstillJournalfoeringUgyldigInput(ugyldigInput.getFeilmelding(), ugyldigInput);
         }
     }
 
-    private void validerArkivId(String arkivId) throws OppdaterOgFerdigstillJournalfoeringUgyldigInput {
+    private static void validerArkivId(String arkivId) throws OppdaterOgFerdigstillJournalfoeringUgyldigInput {
         if (erNullEllerTom(arkivId)) {
             UgyldigInput ugyldigInput = lagUgyldigInput(JOURNALPOST_MANGLER);
             throw new OppdaterOgFerdigstillJournalfoeringUgyldigInput(ugyldigInput.getFeilmelding(), ugyldigInput);
         }
     }
 
-    private void ugyldigBrukerPrøvIgjen(String arkivId) throws OppdaterOgFerdigstillJournalfoeringUgyldigInput {
+    private static void ugyldigBrukerPrøvIgjen(String arkivId) throws OppdaterOgFerdigstillJournalfoeringUgyldigInput {
         LOG.warn("FPFORDEL oppdaterOgFerdigstillJournalfoering feiler for {}", arkivId);
         UgyldigInput ugyldigInput = lagUgyldigInput(BRUKER_MANGLER);
         throw new OppdaterOgFerdigstillJournalfoeringUgyldigInput(ugyldigInput.getFeilmelding(), ugyldigInput);
     }
 
-    private void validerEnhetId(String enhetId) throws OppdaterOgFerdigstillJournalfoeringUgyldigInput {
+    private static void validerEnhetId(String enhetId) throws OppdaterOgFerdigstillJournalfoeringUgyldigInput {
         if (enhetId == null) {
             UgyldigInput ugyldigInput = lagUgyldigInput(ENHET_MANGLER);
             throw new OppdaterOgFerdigstillJournalfoeringUgyldigInput(ugyldigInput.getFeilmelding(), ugyldigInput);
         }
     }
 
-    private void validerJournalposttype(Journalposttype type) throws OppdaterOgFerdigstillJournalfoeringUgyldigInput {
+    private static void validerJournalposttype(Journalposttype type) throws OppdaterOgFerdigstillJournalfoeringUgyldigInput {
         if (!Journalposttype.INNGÅENDE.equals(type)) {
             UgyldigInput ugyldigInput = lagUgyldigInput(JOURNALPOST_IKKE_INNGÅENDE);
             throw new OppdaterOgFerdigstillJournalfoeringUgyldigInput(ugyldigInput.getFeilmelding(), ugyldigInput);
         }
     }
 
-    private boolean erNullEllerTom(String s) {
+    private static boolean erNullEllerTom(String s) {
         return (s == null || s.isEmpty());
     }
 
@@ -285,7 +285,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         return xml;
     }
 
-    private void validerDokumentData(MottakMeldingDataWrapper dataWrapper, BehandlingTema behandlingTema,
+    private static void validerDokumentData(MottakMeldingDataWrapper dataWrapper, BehandlingTema behandlingTema,
             DokumentTypeId dokumentTypeId, String imType, LocalDate startDato) {
         if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
             BehandlingTema behandlingTemaFraIM = BehandlingTema.fraTermNavn(imType);
@@ -306,7 +306,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         }
     }
 
-    private UgyldigInput lagUgyldigInput(String melding) {
+    private static UgyldigInput lagUgyldigInput(String melding) {
         UgyldigInput faultInfo = new UgyldigInput();
         faultInfo.setFeilmelding(melding);
         faultInfo.setFeilaarsak("Ugyldig input");

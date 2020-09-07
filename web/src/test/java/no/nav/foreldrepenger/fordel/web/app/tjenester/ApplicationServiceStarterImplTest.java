@@ -10,8 +10,8 @@ import java.util.Iterator;
 
 import javax.enterprise.inject.Instance;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.apptjeneste.AppServiceHandler;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestInstanceImpl;
@@ -27,7 +27,7 @@ public class ApplicationServiceStarterImplTest {
     @SuppressWarnings("unchecked")
     private Iterator<AppServiceHandler> iteratorMock = mock(Iterator.class);
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(iteratorMock.hasNext()).thenReturn(true, false);
         when(iteratorMock.next()).thenReturn(serviceMock);

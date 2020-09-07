@@ -8,26 +8,21 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.UUID;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.pip.PipRepository;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
+import no.nav.foreldrepenger.sikkerhet.abac.BeskyttetRessursAttributt;
 import no.nav.vedtak.sikkerhet.abac.AbacAttributtSamling;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 
 public class AppPdpRequestBuilderImplTest {
     private static final String DUMMY_ID_TOKEN = "dummyheader.dymmypayload.dummysignaturee";
     private static final String AKTØR = "AktørID_1";
     private static final UUID DOKUMENTFORSENDELSE = UUID.randomUUID();
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     private PipRepository pipRepository = Mockito.mock(PipRepository.class);
     // private AktørConsumerMedCache aktørConsumer =
@@ -73,10 +68,10 @@ public class AppPdpRequestBuilderImplTest {
         assertThat(request.getListOfString(RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE)).hasSize(2);
     }
 
-    private AbacAttributtSamling byggAbacAttributtSamling() {
+    private static AbacAttributtSamling byggAbacAttributtSamling() {
         AbacAttributtSamling attributtSamling = AbacAttributtSamling.medJwtToken(DUMMY_ID_TOKEN);
         attributtSamling.setActionType(BeskyttetRessursActionAttributt.READ);
-        attributtSamling.setResource(BeskyttetRessursResourceAttributt.FAGSAK.getEksternKode());
+        attributtSamling.setResource(BeskyttetRessursAttributt.FAGSAK);
         return attributtSamling;
     }
 }
