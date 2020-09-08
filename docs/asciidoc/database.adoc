@@ -1,6 +1,0 @@
-= Database
-
-== Diagrammer
-
-include::{generated}/jdbc.adoc[leveloffset=0]
-
