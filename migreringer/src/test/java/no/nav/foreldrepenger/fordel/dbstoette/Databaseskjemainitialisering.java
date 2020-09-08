@@ -44,24 +44,17 @@ public final class Databaseskjemainitialisering {
     }
 
     public static void migrerUnittestSkjemaer() {
-
         settOppSkjemaer();
-
         try {
             DatabaseStøtte.kjørMigreringFor(DatasourceConfiguration.UNIT_TEST.get());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-        if (!isJenkins()) {
-            slettAlleSemaphorer();
-            try {
-                Files.createTempFile(SEMAPHORE_FIL_PREFIX, SEMAPHORE_FIL_SUFFIX);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            log.info("Kjører på jenkins");
+        slettAlleSemaphorer();
+        try {
+            Files.createTempFile(SEMAPHORE_FIL_PREFIX, SEMAPHORE_FIL_SUFFIX);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -75,13 +68,9 @@ public final class Databaseskjemainitialisering {
     }
 
     public static void kjørMigreringHvisNødvendig() {
-        if (!Databaseskjemainitialisering.isJenkins() && !Databaseskjemainitialisering.erMigreringKjørt()) {
+        if (!Databaseskjemainitialisering.erMigreringKjørt()) {
             log.info("Kjører migrering på nytt");
             Databaseskjemainitialisering.migrerUnittestSkjemaer();
-        } else {
-            if (!Databaseskjemainitialisering.isJenkins()) {
-                log.info("Migrering var kjørt nylig (under 5 min siden), så skipper den.");
-            }
         }
     }
 
@@ -116,10 +105,6 @@ public final class Databaseskjemainitialisering {
         }
 
         return list.length != 0;
-    }
-
-    public static boolean isJenkins() {
-        return System.getenv().containsKey("BUILD_NUMBER") && System.getenv().containsKey("BRANCH_NAME");
     }
 
     private static void slettAlleSemaphorer() {
