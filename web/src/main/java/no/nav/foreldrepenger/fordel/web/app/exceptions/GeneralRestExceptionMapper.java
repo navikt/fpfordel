@@ -47,7 +47,7 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
 
         if (cause instanceof VLException) {
             if (cause instanceof ConstraintException) {
-                return handleConstraintException((ConstraintException) cause, callId);
+                return handleConstraintException((ConstraintException) cause);
             }
             return handleVLException((VLException) cause, callId);
         }
@@ -83,7 +83,7 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
         return serverError(callId, feil);
     }
 
-    private static Response handleConstraintException(ConstraintException e, String callId) {
+    private static Response handleConstraintException(ConstraintException e) {
         return Response.status(Status.CONFLICT)
                 .entity(new FeilDto(FeilType.GENERELL_FEIL, e.getMessage()))
                 .type(MediaType.APPLICATION_JSON)
