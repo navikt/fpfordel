@@ -221,19 +221,9 @@
                 <version>2.1.4</version>
             </dependency>
             <dependency>
-                <groupId>io.github.swagger2markup</groupId>
-                <artifactId>markup-document-builder</artifactId>
-                <version>1.1.2</version>
-            </dependency>
-            <dependency>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-annotations</artifactId>
                 <version>2.1.4</version>
-            </dependency>
-            <dependency>
-                <groupId>io.javaslang</groupId>
-                <artifactId>javaslang</artifactId>
-                <version>2.0.6</version>
             </dependency>
             <dependency>
                 <groupId>org.owasp.encoder</groupId>
