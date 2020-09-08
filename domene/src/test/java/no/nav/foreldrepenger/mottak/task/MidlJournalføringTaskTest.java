@@ -14,10 +14,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
@@ -46,9 +44,6 @@ public class MidlJournalføringTaskTest {
     private static final String FNR = "90000000009";
     private static final String NAVN = "Kari Etternavn";
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     @Mock
     private ProsessTaskRepository prosessTaskRepositoryMock;
     @Mock
@@ -63,7 +58,7 @@ public class MidlJournalføringTaskTest {
     private MidlJournalføringTask task;
     private UUID forsendelseId;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         forsendelseId = UUID.randomUUID();
         prosessTaskRepositoryMock = mock(ProsessTaskRepository.class);
@@ -73,7 +68,8 @@ public class MidlJournalføringTaskTest {
         personConsumer = mock(PersonConsumer.class);
         when(aktørConsumer.hentAktørIdForPersonIdent(FNR)).thenReturn(Optional.of(BRUKER_ID));
         when(aktørConsumer.hentPersonIdentForAktørId(BRUKER_ID)).thenReturn(Optional.of(FNR));
-        when(personConsumer.hentPersonResponse(any())).thenReturn(new HentPersonResponse().withPerson(new Person().withPersonnavn(new Personnavn().withSammensattNavn(NAVN))));
+        when(personConsumer.hentPersonResponse(any()))
+                .thenReturn(new HentPersonResponse().withPerson(new Person().withPersonnavn(new Personnavn().withSammensattNavn(NAVN))));
 
         ArkivTjeneste arkivTjeneste = new ArkivTjeneste(null, dokArkivTjeneste, dokumentRepositoryMock, personConsumer, aktørConsumer);
         task = new MidlJournalføringTask(prosessTaskRepositoryMock, arkivTjeneste, dokumentRepositoryMock);

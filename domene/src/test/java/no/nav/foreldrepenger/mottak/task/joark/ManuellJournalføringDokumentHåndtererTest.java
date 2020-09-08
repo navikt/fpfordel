@@ -12,10 +12,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import java.util.Collections;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -35,9 +33,6 @@ public class ManuellJournalføringDokumentHåndtererTest {
 
     private static final String ARKIV_ID = JoarkTestsupport.ARKIV_ID;
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     private ProsessTaskData taskData;
     private ArkivTjeneste arkivTjeneste;
     private AktørConsumerMedCache aktørConsumer;
@@ -45,7 +40,7 @@ public class ManuellJournalføringDokumentHåndtererTest {
     private MottakMeldingDataWrapper dataWrapper;
     private JoarkTestsupport joarkTestsupport = new JoarkTestsupport();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         initMocks(this);
 
@@ -64,7 +59,8 @@ public class ManuellJournalføringDokumentHåndtererTest {
     @Test
     public void skalHåndtereManuellJournalføringAvInntektsmelding() throws Exception {
 
-        ArkivJournalpost journalMetadata = joarkTestsupport.lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING, "testsoknader/inntektsmelding-manual-sample.xml");
+        ArkivJournalpost journalMetadata = joarkTestsupport.lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING,
+                "testsoknader/inntektsmelding-manual-sample.xml");
 
         doReturn(journalMetadata).when(arkivTjeneste).hentArkivJournalpost(ARKIV_ID);
 
@@ -84,7 +80,7 @@ public class ManuellJournalføringDokumentHåndtererTest {
     public void skalHåndtereManuellJournalføringMedGyldigFnr() throws Exception {
         var metadata = joarkTestsupport.lagJArkivJournalpostUstrukturert(DokumentTypeId.ANNET);
         doReturn(metadata).when(arkivTjeneste).hentArkivJournalpost(ARKIV_ID);
-        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(),any())).thenReturn(true);
+        when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
         MottakMeldingDataWrapper result = joarkTaskTestobjekt.doTask(dataWrapper);
 

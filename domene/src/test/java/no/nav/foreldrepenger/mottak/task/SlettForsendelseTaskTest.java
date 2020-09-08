@@ -10,10 +10,8 @@ import static org.mockito.Mockito.when;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
@@ -31,9 +29,6 @@ public class SlettForsendelseTaskTest {
     private static final String SAKSNUMMER = "9876543";
     private static final String AKTØR_ID = "9000000000009";
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     @Mock
     private ProsessTaskRepository prosessTaskRepositoryMock;
     @Mock
@@ -43,7 +38,7 @@ public class SlettForsendelseTaskTest {
     private ProsessTaskData ptd;
     private UUID forsendelseId;
 
-    @Before
+    @BeforeEach
     public void setup() {
         forsendelseId = UUID.randomUUID();
         prosessTaskRepositoryMock = mock(ProsessTaskRepository.class);

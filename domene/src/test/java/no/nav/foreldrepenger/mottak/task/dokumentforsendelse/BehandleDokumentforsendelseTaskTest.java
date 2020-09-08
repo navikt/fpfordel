@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.mottak.task.dokumentforsendelse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
@@ -20,10 +22,8 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -56,9 +56,6 @@ public class BehandleDokumentforsendelseTaskTest {
     private static final String FIL_SØKNAD_ENDRING = "selvb-soeknad-endring.xml";
     private static final String FIL_SØKNAD_FORP_UTTAK_FØR_KONFIGVERDI = "selvb-soeknad-forp-uttak-før-konfigverdi.xml";
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     private ProsessTaskRepository prosessTaskRepository = mock(ProsessTaskRepository.class);
     private AktørConsumerMedCache aktørConsumer = mock(AktørConsumerMedCache.class);
     private FagsakRestKlient fagsakRestKlient = mock(FagsakRestKlient.class);
@@ -67,7 +64,7 @@ public class BehandleDokumentforsendelseTaskTest {
     private BehandleDokumentforsendelseTask fordelDokTask;
     private ProsessTaskData ptd;
 
-    @Before
+    @BeforeEach
     public void setup() {
         fordelDokTask = new BehandleDokumentforsendelseTask(prosessTaskRepository, aktørConsumer,
                 fagsakRestKlient, dokumentRepository);
@@ -81,20 +78,16 @@ public class BehandleDokumentforsendelseTaskTest {
     public void testAvPrecondition() {
         MottakMeldingDataWrapper innData = new MottakMeldingDataWrapper(ptd);
 
-        expectedException.expect(TekniskException.class);
-        expectedException.expectMessage("FP-941984");
-
-        fordelDokTask.precondition(innData);
+        var e = assertThrows(TekniskException.class, () -> fordelDokTask.precondition(innData));
+        assertTrue(e.getMessage().contains("FP-941984"));
     }
 
     @Test
     public void testAvPostCondition() {
         MottakMeldingDataWrapper utData = new MottakMeldingDataWrapper(ptd);
+        var e = assertThrows(TekniskException.class, () -> fordelDokTask.postcondition(utData));
+        assertTrue(e.getMessage().contains("FP-638068"));
 
-        expectedException.expect(TekniskException.class);
-        expectedException.expectMessage("FP-638068");
-
-        fordelDokTask.postcondition(utData);
     }
 
     @Test

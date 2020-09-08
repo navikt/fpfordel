@@ -1,15 +1,15 @@
 package no.nav.foreldrepenger.mottak.felles;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -22,13 +22,10 @@ public class MottakMeldingDataWrapperTest {
     private static final String PROSESSTASK_STEG2 = "prosesstask.steg2";
     private static final String PROSESSTASK_STEG3 = "prosesstask.steg3";
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     private ProsessTaskData eksisterendeData;
     private MottakMeldingDataWrapper wrapper;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         eksisterendeData = new ProsessTaskData(PROSESSTASK_STEG1);
         eksisterendeData.setSekvens("1");
@@ -93,7 +90,8 @@ public class MottakMeldingDataWrapperTest {
     public void test_skal_kunne_sette_dokumenttypeid_og_hente_ut_igjen() throws Exception {
         wrapper.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
 
-        assertThat(wrapper.getDokumentTypeId()).hasValueSatisfying(s -> assertThat(s.getKode()).isEqualTo(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getKode()));
+        assertThat(wrapper.getDokumentTypeId())
+                .hasValueSatisfying(s -> assertThat(s.getKode()).isEqualTo(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getKode()));
     }
 
     @Test
@@ -119,7 +117,7 @@ public class MottakMeldingDataWrapperTest {
         assertThat(wrapper.getAdopsjonsbarnFodselsdatoer()).isEqualTo(Arrays.asList(now, dato1, dato2));
         assertThat(wrapper.getBarnTermindato()).hasValueSatisfying(s -> assertThat(s).isEqualTo(dato3));
         assertThat(wrapper.getOmsorgsovertakelsedato()).hasValueSatisfying(s -> assertThat(s).isEqualTo(dato2));
-        assertThat(wrapper.getBarnFodselsdato()).hasValueSatisfying(s-> assertThat(s).isEqualTo(dato1));
+        assertThat(wrapper.getBarnFodselsdato()).hasValueSatisfying(s -> assertThat(s).isEqualTo(dato1));
     }
 
     @Test
@@ -164,14 +162,12 @@ public class MottakMeldingDataWrapperTest {
     @Test
     public void skal_kunne_sette_antall_barn_og_hente_ut_igjen() {
         wrapper.setAntallBarn(2);
-
         assertThat(wrapper.getAntallBarn()).hasValue(2);
     }
 
     @Test
     public void skal_returnere_tom_optional_når_inntektsmelding_startdato_ikke_er_satt() {
         Optional<LocalDate> result = wrapper.getInntektsmeldingStartDato();
-
         assertThat(result).isEmpty();
     }
 
@@ -179,10 +175,7 @@ public class MottakMeldingDataWrapperTest {
     public void skal_kaste_illegalstate_hvis_inntektsmelding_startdato_inneholder_flere_datoer() {
         eksisterendeData.setProperty(MottakMeldingDataWrapper.INNTEKSTMELDING_STARTDATO_KEY, "1234;1234");
         MottakMeldingDataWrapper wrapper = new MottakMeldingDataWrapper(eksisterendeData);
-
-        expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage("Inneholder flere startdatoer.");
-
-        wrapper.getInntektsmeldingStartDato();
+        var e = assertThrows(IllegalStateException.class, () -> wrapper.getInntektsmeldingStartDato());
+        assertTrue(e.getMessage().contains("Inneholder flere startdatoer"));
     }
 }

@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.mottak.task;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -14,10 +16,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
@@ -40,10 +40,6 @@ public class OpprettSakTaskTest {
     public static final String FNR = "99999999999";
     public static final String AKTØR_ID = "9000000000009";
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-
     @Mock
     private ProsessTaskRepository prosessTaskRepositoryMock;
 
@@ -55,7 +51,7 @@ public class OpprettSakTaskTest {
 
     private OpprettSakTask task;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         prosessTaskRepositoryMock = mock(ProsessTaskRepository.class);
         aktørConsumer = mock(AktørConsumerMedCache.class);
@@ -152,30 +148,21 @@ public class OpprettSakTaskTest {
         ptData.setAktørId(AKTØR_ID);
         ptData.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         ptData.setDokumentTypeId(DokumentTypeId.KLAGE_DOKUMENT);
-
-        expectedException.expect(TekniskException.class);
-        expectedException.expectMessage("FP-941984");
-
-        doTaskWithPrecondition(ptData);
+        var e = assertThrows(TekniskException.class, () -> doTaskWithPrecondition(ptData));
+        assertTrue(e.getMessage().contains("FP-941984"));
     }
 
     @Test
     public void test_validerDatagrunnlag_skal_feile_ved_manglende_personId() throws Exception {
         MottakMeldingDataWrapper meldingDataWrapper = new MottakMeldingDataWrapper(new ProsessTaskData(OpprettSakTask.TASKNAME));
-
-        expectedException.expect(TekniskException.class);
-
-        task.precondition(meldingDataWrapper);
+        assertThrows(TekniskException.class, () -> task.precondition(meldingDataWrapper));
     }
 
     @Test
     public void test_validerDatagrunnlag_skal_feile_ved_manglende_behandlingstema() throws Exception {
         MottakMeldingDataWrapper meldingDataWrapper = new MottakMeldingDataWrapper(new ProsessTaskData(OpprettSakTask.TASKNAME));
         meldingDataWrapper.setAktørId("123");
-
-        expectedException.expect(TekniskException.class);
-
-        task.precondition(meldingDataWrapper);
+        assertThrows(TekniskException.class, () -> task.precondition(meldingDataWrapper));
     }
 
     @Test
@@ -191,6 +178,7 @@ public class OpprettSakTaskTest {
         data.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
         task.precondition(data);
     }
+
     @Test
     // https://jira.adeo.no/browse/PFP-1730
     public void skalIkkeOppretteNySakHvisDetFinnesEksisterende() {

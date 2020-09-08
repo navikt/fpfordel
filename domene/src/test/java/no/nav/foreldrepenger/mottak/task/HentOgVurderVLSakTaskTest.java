@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.mottak.task;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -8,9 +10,7 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -25,9 +25,6 @@ public class HentOgVurderVLSakTaskTest {
     private FagsakRestKlient fagsakRestKlientMock = mock(FagsakRestKlient.class);
     private ProsessTaskRepository prosessTaskRepository = mock(ProsessTaskRepository.class);
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     private String saksnummer = "123456";
     private String aktørId = "9000000000009";
 
@@ -37,12 +34,9 @@ public class HentOgVurderVLSakTaskTest {
     public void precondition_skal_feile_ved_manglende_aktørId() {
         MottakMeldingDataWrapper dataWrapper = lagDataWrapper();
         dataWrapper.setAktørId(null);
-
-        expectedException.expect(TekniskException.class);
-        expectedException.expectMessage("FP-941984");
-
         HentOgVurderVLSakTask task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
-        task.precondition(dataWrapper);
+        var e = assertThrows(TekniskException.class, () -> task.precondition(dataWrapper));
+        assertTrue(e.getMessage().contains("FP-941984"));
     }
 
     @Test
@@ -50,11 +44,9 @@ public class HentOgVurderVLSakTaskTest {
         MottakMeldingDataWrapper dataWrapper = lagDataWrapper();
         dataWrapper.setAktørId(null);
 
-        expectedException.expect(TekniskException.class);
-        expectedException.expectMessage("FP-638068");
-
         HentOgVurderVLSakTask task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
-        task.postcondition(dataWrapper);
+        var e = assertThrows(TekniskException.class, () -> task.postcondition(dataWrapper));
+        assertTrue(e.getMessage().contains("FP-638068"));
     }
 
     @Test
