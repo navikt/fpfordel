@@ -14,9 +14,6 @@
     <name>Fordel :: Web :: Applikasjon</name>
     <properties>
         <swagger-ui.version>3.32.5</swagger-ui.version>
-        <cxf-xjc-boolean.version>3.1.0</cxf-xjc-boolean.version>
-        <jaxb-fluent-api.version>2.1.8</jaxb-fluent-api.version>
-        <cxf.version>3.3.4</cxf.version>
         <org.jvnet.jaxb2.version>0.11.1</org.jvnet.jaxb2.version>
         <wsdl.directory>src/main/wsdl</wsdl.directory>
     </properties>
@@ -295,7 +292,7 @@
                 <!-- bør ha samme versjon som CXF ellers -->
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http-jetty</artifactId>
-                <version>3.3.7</version>
+                <version>3.3.6</version>
             </dependency>
 
         </dependencies>
