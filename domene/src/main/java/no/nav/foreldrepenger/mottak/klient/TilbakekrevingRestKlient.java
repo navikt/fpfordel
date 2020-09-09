@@ -12,7 +12,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 @ApplicationScoped
 public class TilbakekrevingRestKlient {
     private static final String ENDPOINT_KEY = "tilbake_mottaJournalpost.url";
-    private static final String DEFAULT_URI = "http://fptilbake.default/fptilbake/api/fordel/journalpost";
+    private static final String DEFAULT_URI = "http://fptilbake/fptilbake/api/fordel/journalpost";
 
     private OidcRestClient oidcRestClient;
     private URI endpoint;

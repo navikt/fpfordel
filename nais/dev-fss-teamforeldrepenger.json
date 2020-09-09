@@ -40,7 +40,7 @@
 		"PERSON_V3_URL": "https://wasapp-q1.adeo.no/tpsws/ws/Person/v3",
 		"SAF_BASE_URL" : "http://saf.q1",
 		"SECURITYTOKENSERVICE_URL": "https://sts-q1.preprod.local/SecurityTokenServiceProvider/",
-	    "TILBAKE_MOTTAJOURNALPOST_URL": "https://app-q1.adeo.no/fptilbake/api/fordel/journalpost",
+	    "TILBAKE_MOTTAJOURNALPOST_URL": "http://fptilbake/fptilbake/api/fordel/journalpost",
 		"SENSU_HOST": "sensu.nais",
 		"SENSU_PORT": "3030"
 	}
