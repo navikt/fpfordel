@@ -15,6 +15,6 @@ interface MeldingXmlParserFeil extends DeklarerteFeil {
     @TekniskFeil(feilkode = "FP-958723", feilmelding = "Fant ikke xsd for namespacet '%s'", logLevel = WARN)
     Feil ukjentNamespace(String namespace, IllegalStateException e);
 
-    @TekniskFeil(feilkode = "FP-312345", feilmelding = "Feil ved parsing av ukjent journaldokument-type med namespace '%s'", logLevel = ERROR)
-    Feil uventetFeilVedParsingAvXml(String namespace, Exception e);
+    @TekniskFeil(feilkode = "FP-312345", feilmelding = "Feil ved parsing av ukjent journaldokument-type med namespace %s av %s", logLevel = ERROR)
+    Feil uventetFeilVedParsingAvXml(String namespace, String xml, Exception e);
 }

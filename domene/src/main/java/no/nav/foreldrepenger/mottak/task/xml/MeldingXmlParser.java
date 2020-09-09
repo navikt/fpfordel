@@ -41,7 +41,7 @@ public final class MeldingXmlParser {
                     try {
                         return f.parse(xml);
                     } catch (Exception e) {
-                        throw FACTORY.uventetFeilVedParsingAvXml(ns(xml), e).toException();
+                        throw FACTORY.uventetFeilVedParsingAvXml(ns(xml), xml, e).toException();
                     }
                 })
                 .map(MottattStrukturertDokument::toXmlWrapper)
