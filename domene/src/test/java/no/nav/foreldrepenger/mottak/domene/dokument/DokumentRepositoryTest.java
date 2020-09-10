@@ -10,7 +10,7 @@ import java.util.UUID;
 
 import javax.persistence.EntityManager;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -35,13 +35,13 @@ public class DokumentRepositoryTest {
         this.entityManager = entityManager;
     }
 
-    DokumentRepository repo;
+    private static DokumentRepository repo;
     static {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
     }
 
-    @BeforeEach
-    public void before() {
+    @BeforeAll
+    public void beforeAll() {
         repo = new DokumentRepository(entityManager);
     }
 
