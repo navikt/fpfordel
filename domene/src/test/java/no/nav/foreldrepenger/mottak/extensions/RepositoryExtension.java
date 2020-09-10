@@ -68,7 +68,6 @@ public class RepositoryExtension extends
 
     @Override
     public void beforeEach(ExtensionContext context) throws Exception {
-        SubjectHandlerUtils.useSubjectHandler(DummySubjectHandler.class);
         LOG.info("Before each");
 
     }
@@ -92,6 +91,7 @@ public class RepositoryExtension extends
     @Override
     protected void init() {
         LOG.info("Init ");
+        SubjectHandlerUtils.useSubjectHandler(DummySubjectHandler.class);
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
         if (System.getenv("MAVEN_CMD_LINE_ARGS") == null) {
             LOG.warn("Kjører migreringer");
