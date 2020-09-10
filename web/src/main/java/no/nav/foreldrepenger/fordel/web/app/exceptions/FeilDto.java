@@ -31,5 +31,7 @@ public class FeilDto implements Serializable {
         return feltFeil;
     }
 
-    public FeilType getType() { return type; }
+    public FeilType getType() {
+        return type;
+    }
 }

@@ -9,8 +9,9 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import no.nav.foreldrepenger.fordel.kodeverdi.Kodeverdi;
 
 /**
- * Enkel serialisering av KodeverkTabell klasser, uten at disse trenger @JsonIgnore eller lignende. Deserialisering går
- * av seg selv normalt (får null for andre felter).
+ * Enkel serialisering av KodeverkTabell klasser, uten at disse
+ * trenger @JsonIgnore eller lignende. Deserialisering går av seg selv normalt
+ * (får null for andre felter).
  */
 public class KodeverdiSerializer extends StdSerializer<Kodeverdi> {
 

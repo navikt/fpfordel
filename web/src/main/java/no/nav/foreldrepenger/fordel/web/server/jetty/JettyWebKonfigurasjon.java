@@ -5,7 +5,8 @@ public class JettyWebKonfigurasjon implements AppKonfigurasjon {
 
     private Integer serverPort;
 
-    public JettyWebKonfigurasjon() {}
+    public JettyWebKonfigurasjon() {
+    }
 
     public JettyWebKonfigurasjon(int serverPort) {
         this.serverPort = serverPort;

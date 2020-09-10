@@ -2,7 +2,10 @@ package no.nav.foreldrepenger.fordel.web.server.jetty;
 
 public interface AppKonfigurasjon {
     int DEFAULT_SERVER_PORT = 8090;
-    default int getServerPort() {return DEFAULT_SERVER_PORT;}
+
+    default int getServerPort() {
+        return DEFAULT_SERVER_PORT;
+    }
 
     String getContextPath();
 

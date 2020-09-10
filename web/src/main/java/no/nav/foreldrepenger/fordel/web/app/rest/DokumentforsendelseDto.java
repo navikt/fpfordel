@@ -28,8 +28,9 @@ public class DokumentforsendelseDto {
         this.filer = filer;
     }
 
-    DokumentforsendelseDto() { //NOSONAR ... is marked "javax.validation.constraints.NotNull" but is not initialized in this constructor.
-        //For Jackson
+    DokumentforsendelseDto() { // NOSONAR ... is marked "javax.validation.constraints.NotNull" but is not
+                               // initialized in this constructor.
+        // For Jackson
     }
 
     public UUID getForsendelsesId() {
@@ -82,8 +83,9 @@ class FilMetadataDto {
         this.dokumentTypeId = dokumentTypeId;
     }
 
-    FilMetadataDto() { //NOSONAR ... is marked "javax.validation.constraints.NotNull" but is not initialized in this constructor.
-        //For Jackson
+    FilMetadataDto() { // NOSONAR ... is marked "javax.validation.constraints.NotNull" but is not
+                       // initialized in this constructor.
+        // For Jackson
     }
 
     public String getContentId() {

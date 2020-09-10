@@ -24,12 +24,11 @@ public class JsonParseExceptionMapper implements ExceptionMapper<JsonParseExcept
         Feil feil = JsonMappingFeil.FACTORY.jsonParseFeil(exception.getMessage(), exception);
         feil.log(log);
         return Response
-            .status(Response.Status.BAD_REQUEST)
-            .entity(new FeilDto(feil.getFeilmelding()))
-            .type(MediaType.APPLICATION_JSON)
-            .build();
+                .status(Response.Status.BAD_REQUEST)
+                .entity(new FeilDto(feil.getFeilmelding()))
+                .type(MediaType.APPLICATION_JSON)
+                .build();
     }
-
 
     interface JsonMappingFeil extends DeklarerteFeil {
 

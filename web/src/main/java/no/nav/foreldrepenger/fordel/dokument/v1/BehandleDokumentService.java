@@ -131,8 +131,9 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
         if (Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
             var brukDokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokumentTypeId) ? DokumentTypeId.ANNET : dokumentTypeId;
-            if (!arkivTjeneste.oppdaterRettMangler(journalpost, aktørId, behandlingTema, brukDokumentTypeId))
+            if (!arkivTjeneste.oppdaterRettMangler(journalpost, aktørId, behandlingTema, brukDokumentTypeId)) {
                 ugyldigBrukerPrøvIgjen(arkivId);
+            }
             LOG.info(removeLineBreaks("Kaller tilJournalføring")); // NOSONAR
             try {
                 arkivTjeneste.oppdaterMedSak(journalpost.getJournalpostId(), saksnummer);
@@ -179,12 +180,15 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
     private static BehandlingTema validerOgVelgBehandlingTema(BehandlingTema behandlingTemaFagsak, BehandlingTema behandlingTemaDok,
             DokumentTypeId dokumentTypeId) {
-        if (BehandlingTema.UDEFINERT.equals(behandlingTemaDok))
+        if (BehandlingTema.UDEFINERT.equals(behandlingTemaDok)) {
             return behandlingTemaFagsak;
-        if (BehandlingTema.UDEFINERT.equals(behandlingTemaFagsak))
+        }
+        if (BehandlingTema.UDEFINERT.equals(behandlingTemaFagsak)) {
             return behandlingTemaDok;
-        if (!DokumentTypeId.erSøknadType(dokumentTypeId))
+        }
+        if (!DokumentTypeId.erSøknadType(dokumentTypeId)) {
             return behandlingTemaFagsak;
+        }
         if ((BehandlingTema.gjelderForeldrepenger(behandlingTemaFagsak) && !BehandlingTema.gjelderForeldrepenger(behandlingTemaDok)) ||
                 (BehandlingTema.gjelderEngangsstønad(behandlingTemaFagsak) && !BehandlingTema.gjelderEngangsstønad(behandlingTemaDok)) ||
                 (BehandlingTema.gjelderSvangerskapspenger(behandlingTemaFagsak) && !BehandlingTema.gjelderSvangerskapspenger(behandlingTemaDok))) {
@@ -252,7 +256,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
     }
 
     private static boolean erNullEllerTom(String s) {
-        return (s == null || s.isEmpty());
+        return ((s == null) || s.isEmpty());
     }
 
     private String validerXml(MottakMeldingDataWrapper dataWrapper, BehandlingTema behandlingTema,

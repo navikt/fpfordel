@@ -79,12 +79,15 @@ public class VurderJournalpostYtelseRestTjeneste {
                 throw new IllegalArgumentException("Journalpost ikke inngående " + journalpostId);
             }
             if (DokumentTypeId.erFørsteSøknadType(ajp.getHovedtype())) {
-                if (DokumentTypeId.erForeldrepengerRelatert(ajp.getHovedtype()))
+                if (DokumentTypeId.erForeldrepengerRelatert(ajp.getHovedtype())) {
                     return new JournalpostVurderingDto(BehandlingTema.FORELDREPENGER.getOffisiellKode(), true, false);
-                if (DokumentTypeId.erEngangsstønadRelatert(ajp.getHovedtype()))
+                }
+                if (DokumentTypeId.erEngangsstønadRelatert(ajp.getHovedtype())) {
                     return new JournalpostVurderingDto(BehandlingTema.ENGANGSSTØNAD.getOffisiellKode(), true, false);
-                if (DokumentTypeId.erSvangerskapspengerRelatert(ajp.getHovedtype()))
+                }
+                if (DokumentTypeId.erSvangerskapspengerRelatert(ajp.getHovedtype())) {
                     return new JournalpostVurderingDto(BehandlingTema.SVANGERSKAPSPENGER.getOffisiellKode(), true, false);
+                }
             }
             if (DokumentTypeId.INNTEKTSMELDING.equals(ajp.getHovedtype()) && ajp.getInnholderStrukturertInformasjon()) {
                 var taskdata = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
@@ -93,10 +96,12 @@ public class VurderJournalpostYtelseRestTjeneste {
                 mottattDokument.kopierTilMottakWrapper(testWrapper, aktørConsumer::hentAktørIdForPersonIdent);
                 BehandlingTema temaFraIM = testWrapper.getInntektsmeldingYtelse().map(BehandlingTema::fraTermNavn).orElse(BehandlingTema.UDEFINERT);
                 LOG.info("FPFORDEL VURDERING IM journalpost {} dokumenttype {} behtema {}", journalpostId, ajp.getHovedtype(), temaFraIM);
-                if (BehandlingTema.gjelderForeldrepenger(temaFraIM))
+                if (BehandlingTema.gjelderForeldrepenger(temaFraIM)) {
                     return new JournalpostVurderingDto(BehandlingTema.FORELDREPENGER.getOffisiellKode(), false, true);
-                if (BehandlingTema.gjelderSvangerskapspenger(temaFraIM))
+                }
+                if (BehandlingTema.gjelderSvangerskapspenger(temaFraIM)) {
                     return new JournalpostVurderingDto(BehandlingTema.SVANGERSKAPSPENGER.getOffisiellKode(), false, true);
+                }
             }
         } catch (Exception e) {
             LOG.info("FPFORDEL VURDERING feil", e);

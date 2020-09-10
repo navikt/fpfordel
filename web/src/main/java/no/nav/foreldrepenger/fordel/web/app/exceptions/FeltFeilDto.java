@@ -12,7 +12,7 @@ public class FeltFeilDto implements Serializable {
         this.navn = navn;
         this.melding = melding;
     }
-    
+
     public FeltFeilDto(String navn, String melding, String metainformasjon) {
         this.navn = navn;
         this.melding = melding;
@@ -26,7 +26,7 @@ public class FeltFeilDto implements Serializable {
     public String getMelding() {
         return melding;
     }
-    
+
     public String getMetainformasjon() {
         return metainformasjon;
     }

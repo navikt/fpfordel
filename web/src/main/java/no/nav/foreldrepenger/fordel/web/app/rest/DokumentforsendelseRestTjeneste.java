@@ -221,7 +221,7 @@ public class DokumentforsendelseRestTjeneste {
 
         String partFilename = getDirective(inputPart.getHeaders(), CONTENT_DISPOSITION, "filename");
         String finalFilename = partFilename != null ? partFilename.strip() : partFilename;
-        if (finalFilename != null && DokumentTypeId.ANNET.equals(filMetadata.getDokumentTypeId())) {
+        if ((finalFilename != null) && DokumentTypeId.ANNET.equals(filMetadata.getDokumentTypeId())) {
             LOG.info("Mottatt vedlegg av type ANNET med filename {}", partFilename);
         }
 

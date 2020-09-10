@@ -11,7 +11,7 @@ import javax.servlet.annotation.WebListener;
 public class ApplicationContextListener implements ServletContextListener {
 
     @Inject
-    private ApplicationServiceStarter applicationServiceStarter; //NOSONAR - vil ikke fungere med constructor innjection
+    private ApplicationServiceStarter applicationServiceStarter; // NOSONAR - vil ikke fungere med constructor innjection
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
