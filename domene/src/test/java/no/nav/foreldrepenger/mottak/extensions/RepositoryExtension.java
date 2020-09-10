@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.extensions;
 
 import java.lang.reflect.Method;
+import java.util.TimeZone;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -28,6 +29,7 @@ public class RepositoryExtension extends
     private static final Logger LOG = LoggerFactory.getLogger(RepositoryExtension.class);
 
     static {
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
         if (System.getenv("MAVEN_CMD_LINE_ARGS") == null) {
             // prøver alltid migrering hvis endring, ellers funker det dårlig i IDE.
             LOG.warn("Kjører migreringer");
