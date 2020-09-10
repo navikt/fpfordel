@@ -54,11 +54,12 @@ public class RepositoryExtension extends
                 trans = startTransaction();
                 invocation.proceed();
             } catch (Throwable e) {
+                throw new RuntimeException(e);
+            } finally {
                 if (trans != null) {
                     LOG.info("Ruller tilbake transaction");
                     trans.rollback();
                 }
-            } finally {
                 getEntityManager().clear();
             }
             return null;
