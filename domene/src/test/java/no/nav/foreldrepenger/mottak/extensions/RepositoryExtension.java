@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.fordel.dbstoette.Databaseskjemainitialisering;
 import no.nav.vedtak.felles.testutilities.cdi.WeldContext;
 import no.nav.vedtak.felles.testutilities.db.PersistenceUnitInitializer;
 import no.nav.vedtak.felles.testutilities.sikkerhet.DummySubjectHandler;
@@ -24,6 +25,21 @@ import no.nav.vedtak.felles.testutilities.sikkerhet.SubjectHandlerUtils;
 public class RepositoryExtension extends
         PersistenceUnitInitializer
         implements InvocationInterceptor, TestInstancePostProcessor, BeforeAllCallback, AfterAllCallback, BeforeEachCallback, AfterEachCallback {
+    private static final Logger LOG = LoggerFactory.getLogger(RepositoryExtension.class);
+
+    static {
+        if (System.getenv("MAVEN_CMD_LINE_ARGS") == null) {
+            // prøver alltid migrering hvis endring, ellers funker det dårlig i IDE.
+            LOG.warn("Kjører migreringer");
+            Databaseskjemainitialisering.migrerUnittestSkjemaer();
+        } else {
+            // Maven kjører testen
+            // kun kjør migreringer i migreringer modul
+        }
+
+        Databaseskjemainitialisering.settPlaceholdereOgJdniOppslag();
+
+    }
 
     @Override
     public void interceptTestMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> invocationContext,
@@ -45,8 +61,6 @@ public class RepositoryExtension extends
             return null;
         });
     }
-
-    private static final Logger LOG = LoggerFactory.getLogger(RepositoryExtension.class);
 
     private EntityTransaction startTransaction() {
         EntityTransaction transaction = getEntityManager().getTransaction();
