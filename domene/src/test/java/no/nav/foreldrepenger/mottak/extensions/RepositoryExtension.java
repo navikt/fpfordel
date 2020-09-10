@@ -51,12 +51,13 @@ public class RepositoryExtension extends
         WeldContext.getInstance().doWithScope(() -> {
             EntityTransaction trans = null;
             try {
-                // trans = startTransaction();
+                trans = startTransaction();
                 invocation.proceed();
             } catch (Throwable e) {
-                // if (trans != null) {
-                // trans.rollback();
-                // }
+                if (trans != null) {
+                    LOG.info("Ruller tilbake transaction");
+                    trans.rollback();
+                }
             } finally {
                 getEntityManager().clear();
             }
@@ -67,8 +68,9 @@ public class RepositoryExtension extends
 
     private EntityTransaction startTransaction() {
         EntityTransaction transaction = getEntityManager().getTransaction();
-
+        LOG.info("Starter transaction");
         transaction.begin();
+        LOG.info("Startet transaction OK");
         return transaction;
     }
 
