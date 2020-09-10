@@ -26,10 +26,10 @@ public class GraphQlError {
 
     @JsonCreator
     public GraphQlError(@JsonProperty("message") String message,
-                        @JsonProperty("locations") List<ErrorLocation> locations,
-                        @JsonProperty("exceptionType") String exceptionType,
-                        @JsonProperty("exception") String exception,
-                        @JsonProperty("path") List<String> path) {
+            @JsonProperty("locations") List<ErrorLocation> locations,
+            @JsonProperty("exceptionType") String exceptionType,
+            @JsonProperty("exception") String exception,
+            @JsonProperty("path") List<String> path) {
         this.message = message;
         this.locations = locations;
         this.exceptionType = exceptionType;

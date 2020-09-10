@@ -20,8 +20,7 @@ public class MapBehandlingstemaDokumentTypeId {
             Map.entry(DokumentTypeId.ETTERSENDT_SØKNAD_ENGANGSSTØNAD_ADOPSJON, BehandlingTema.ENGANGSSTØNAD_ADOPSJON),
             Map.entry(DokumentTypeId.ETTERSENDT_SØKNAD_ENGANGSSTØNAD_FØDSEL, BehandlingTema.ENGANGSSTØNAD_FØDSEL),
             Map.entry(DokumentTypeId.ETTERSENDT_FLEKSIBELT_UTTAK_FORELDREPENGER, BehandlingTema.FORELDREPENGER),
-            Map.entry(DokumentTypeId.ETTERSENDT_FORELDREPENGER_ENDRING_SØKNAD, BehandlingTema.FORELDREPENGER)
-    );
+            Map.entry(DokumentTypeId.ETTERSENDT_FORELDREPENGER_ENDRING_SØKNAD, BehandlingTema.FORELDREPENGER));
 
     private static final Map<BehandlingTema, Integer> BTEMA_RANK = Map.ofEntries(
             Map.entry(BehandlingTema.FORELDREPENGER_FØDSEL, 1),
@@ -31,8 +30,7 @@ public class MapBehandlingstemaDokumentTypeId {
             Map.entry(BehandlingTema.FORELDREPENGER, 5),
             Map.entry(BehandlingTema.ENGANGSSTØNAD, 6),
             Map.entry(BehandlingTema.SVANGERSKAPSPENGER, 7),
-            Map.entry(BehandlingTema.UDEFINERT, UDEF_RANK)
-    );
+            Map.entry(BehandlingTema.UDEFINERT, UDEF_RANK));
 
     private static final Map<Integer, BehandlingTema> RANK_BTEMA = Map.ofEntries(
             Map.entry(1, BehandlingTema.FORELDREPENGER_FØDSEL),
@@ -42,18 +40,19 @@ public class MapBehandlingstemaDokumentTypeId {
             Map.entry(5, BehandlingTema.FORELDREPENGER),
             Map.entry(6, BehandlingTema.ENGANGSSTØNAD),
             Map.entry(7, BehandlingTema.SVANGERSKAPSPENGER),
-            Map.entry(UDEF_RANK, BehandlingTema.UDEFINERT)
-    );
+            Map.entry(UDEF_RANK, BehandlingTema.UDEFINERT));
 
     public static BehandlingTema mapDokumenttype(DokumentTypeId type) {
-        if (type == null)
+        if (type == null) {
             return BehandlingTema.UDEFINERT;
+        }
         return DOKUMENT_BEHANDLING_TEMA.getOrDefault(type, BehandlingTema.UDEFINERT);
     }
 
     public static int behandlingstemaRank(BehandlingTema bt) {
-        if (bt == null)
+        if (bt == null) {
             return BTEMA_RANK.get(BehandlingTema.UDEFINERT);
+        }
         return BTEMA_RANK.getOrDefault(bt, UDEF_RANK);
     }
 

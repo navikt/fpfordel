@@ -12,7 +12,8 @@ class TaskStatusEventObserver {
 
     private MetrikkerTjeneste metrikkerTjeneste;
 
-    TaskStatusEventObserver() {} // WELD ctor
+    TaskStatusEventObserver() {
+    } // WELD ctor
 
     @Inject
     public TaskStatusEventObserver(MetrikkerTjeneste metrikkerTjeneste) {
@@ -21,13 +22,13 @@ class TaskStatusEventObserver {
 
     void observerProsessTasks(@Observes ProsessTaskEvent event) {
         // Gjentaker - ignorer
-        if (event.getGammelStatus() != null
+        if ((event.getGammelStatus() != null)
                 && ProsessTaskStatus.FEILET.equals(event.getGammelStatus())
                 && ProsessTaskStatus.FEILET.equals(event.getNyStatus())) {
             return;
         }
         // Feiler ikke lenger
-        if (event.getGammelStatus() != null && ProsessTaskStatus.FEILET.equals(event.getGammelStatus())) {
+        if ((event.getGammelStatus() != null) && ProsessTaskStatus.FEILET.equals(event.getGammelStatus())) {
             metrikkerTjeneste.logFeilProsessTask(event.getTaskType(), -1);
         }
         // Ny feil

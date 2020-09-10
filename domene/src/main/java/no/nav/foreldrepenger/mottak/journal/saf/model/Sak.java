@@ -20,8 +20,8 @@ public class Sak {
 
     @JsonCreator
     public Sak(@JsonProperty("arkivsaksnummer") String arkivsaksnummer,
-               @JsonProperty("fagsakId") String fagsakId,
-               @JsonProperty("fagsaksystem") String fagsaksystem) {
+            @JsonProperty("fagsakId") String fagsakId,
+            @JsonProperty("fagsaksystem") String fagsaksystem) {
         this.arkivsaksnummer = arkivsaksnummer;
         this.fagsakId = fagsakId;
         this.fagsaksystem = fagsaksystem;

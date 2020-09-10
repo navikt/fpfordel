@@ -20,8 +20,8 @@ public class Dokumentvariant {
 
     @JsonCreator
     public Dokumentvariant(@JsonProperty("variantformat") Variantformat variantformat,
-                           @JsonProperty("filtype") String filtype,
-                           @JsonProperty("fysiskDokument") String fysiskDokument) {
+            @JsonProperty("filtype") String filtype,
+            @JsonProperty("fysiskDokument") String fysiskDokument) {
         this.variantformat = variantformat;
         this.filtype = filtype;
         this.fysiskDokument = fysiskDokument;

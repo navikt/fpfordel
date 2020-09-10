@@ -68,7 +68,7 @@ public class VedlikeholdSchedulerTask implements ProsessTaskHandler {
         prosessTaskRepository.lagre(gruppeScheduler);
 
         // Ingenting å kjøre i helgene enn så lenge
-        if (DayOfWeek.FRIDAY.getValue() < dagensUkedag.getValue() || erFastInfotrygdStengtDag(dagensDato)) {
+        if ((DayOfWeek.FRIDAY.getValue() < dagensUkedag.getValue()) || erFastInfotrygdStengtDag(dagensDato)) {
             return;
         }
 

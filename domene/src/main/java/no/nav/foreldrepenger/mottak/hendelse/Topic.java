@@ -33,7 +33,8 @@ public class Topic<K, V> {
     }
 
     /**
-     * Genererer clientId basert på standard definert på https://confluence.adeo.no/display/AURA/Kafka#Kafka-TopicogSikkerhetskonfigurasjon
+     * Genererer clientId basert på standard definert på
+     * https://confluence.adeo.no/display/AURA/Kafka#Kafka-TopicogSikkerhetskonfigurasjon
      *
      * @return clientId
      */
@@ -42,7 +43,8 @@ public class Topic<K, V> {
     }
 
     /**
-     * Genererer clientId basert på standard definert på https://confluence.adeo.no/display/AURA/Kafka#Kafka-TopicogSikkerhetskonfigurasjon
+     * Genererer clientId basert på standard definert på
+     * https://confluence.adeo.no/display/AURA/Kafka#Kafka-TopicogSikkerhetskonfigurasjon
      *
      * @return clientId
      */
@@ -59,4 +61,3 @@ public class Topic<K, V> {
                 '}';
     }
 }
-

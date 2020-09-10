@@ -18,7 +18,7 @@ public class ErrorLocation {
 
     @JsonCreator
     public ErrorLocation(@JsonProperty("line") String line,
-                         @JsonProperty("column") String column) {
+            @JsonProperty("column") String column) {
         this.line = line;
         this.column = column;
     }

@@ -40,7 +40,7 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
 
     private Optional<String> getArbeidsgiverAktørId(Function<String, Optional<String>> aktørIdFinder) {
         JAXBElement<ArbeidsgiverPrivat> arbeidsgiver = getSkjema().getSkjemainnhold().getArbeidsgiverPrivat();
-        if (arbeidsgiver != null && arbeidsgiver.getValue() != null) {
+        if ((arbeidsgiver != null) && (arbeidsgiver.getValue() != null)) {
             return aktørIdFinder.apply(arbeidsgiver.getValue().getArbeidsgiverFnr());
         }
         return Optional.empty();
@@ -100,8 +100,8 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
     }
 
     private Optional<String> getArbeidsforholdsid() {
-        if (getSkjema().getSkjemainnhold().getArbeidsforhold() != null
-                && getSkjema().getSkjemainnhold().getArbeidsforhold().getValue().getArbeidsforholdId() != null) {
+        if ((getSkjema().getSkjemainnhold().getArbeidsforhold() != null)
+                && (getSkjema().getSkjemainnhold().getArbeidsforhold().getValue().getArbeidsforholdId() != null)) {
             return Optional.ofNullable(
                     getSkjema().getSkjemainnhold().getArbeidsforhold().getValue().getArbeidsforholdId().getValue());
         }

@@ -49,13 +49,13 @@ public class JournalføringHendelseHåndterer {
         var arkivId = payload.getJournalpostId().toString();
         var hendelseType = payload.getHendelsesType().toString();
         var mottaksKanal = payload.getMottaksKanal().toString();
-        var eksternReferanseId = payload.getKanalReferanseId() == null || payload.getKanalReferanseId().toString().isEmpty()
+        var eksternReferanseId = (payload.getKanalReferanseId() == null) || payload.getKanalReferanseId().toString().isEmpty()
                 ? null
                 : payload.getKanalReferanseId().toString();
 
         // EESSI har egen mottaksprosess m/BEH_SED-oppgaver. De uten kanalreferanse er
         // "klonet" av SBH og journalført fra Gosys.
-        if (EESSI.equals(mottaksKanal) || eksternReferanseId == null) {
+        if (EESSI.equals(mottaksKanal) || (eksternReferanseId == null)) {
             LOG.info("FPFORDEL Mottatt Journalføringhendelse ignorerer journalpost {} kanal {}", arkivId, mottaksKanal);
             return;
         }
@@ -90,7 +90,7 @@ public class JournalføringHendelseHåndterer {
 
     private static void setCallIdForHendelse(JournalfoeringHendelseRecord payload) {
         var hendelsesId = payload.getHendelsesId();
-        if (hendelsesId == null || hendelsesId.toString().isEmpty()) {
+        if ((hendelsesId == null) || hendelsesId.toString().isEmpty()) {
             MDCOperations.putCallId(UUID.randomUUID().toString());
         } else {
             MDCOperations.putCallId(hendelsesId.toString());

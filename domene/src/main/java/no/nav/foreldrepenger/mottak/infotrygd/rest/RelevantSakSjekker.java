@@ -86,7 +86,7 @@ public class RelevantSakSjekker {
         // Intensjon med FALSE for å unngå treff pga praksis i enheter med
         // informasjonssaker
         return sak -> sak.getIverksatt().map(fom::isBefore).orElse(false)
-                || (sak.getRegistrert() != null && fom.isBefore(sak.getRegistrert()));
+                || ((sak.getRegistrert() != null) && fom.isBefore(sak.getRegistrert()));
     }
 
 }

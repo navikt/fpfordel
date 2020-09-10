@@ -81,7 +81,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         LOG.info("Oppgave opprettet i Gosys med nummer: {}", oppgaveId);
 
         String forsendelseIdString = prosessTaskData.getPropertyValue(FORSENDELSE_ID_KEY);
-        if (forsendelseIdString != null && !forsendelseIdString.isEmpty()) {
+        if ((forsendelseIdString != null) && !forsendelseIdString.isEmpty()) {
             opprettSletteTask(prosessTaskData);
         }
     }
@@ -140,7 +140,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         }
         String beskrivelse = dokumentTypeId.getTermNavn();
         if (DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.equals(dokumentTypeId)
-                && data.getPropertyValue(MottakMeldingDataWrapper.FØRSTE_UTTAKSDAG_KEY) != null) {
+                && (data.getPropertyValue(MottakMeldingDataWrapper.FØRSTE_UTTAKSDAG_KEY) != null)) {
             String uttakStart = data.getPropertyValue(MottakMeldingDataWrapper.FØRSTE_UTTAKSDAG_KEY);
             beskrivelse = beskrivelse + " (" + uttakStart + ")";
         }
@@ -160,7 +160,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     // Sett frist til mandag hvis fristen er i helgen.
     private static LocalDate helgeJustertFrist(LocalDate dato) {
         if (dato.getDayOfWeek().getValue() > DayOfWeek.FRIDAY.getValue()) {
-            return dato.plusDays(1L + DayOfWeek.SUNDAY.getValue() - dato.getDayOfWeek().getValue());
+            return dato.plusDays((1L + DayOfWeek.SUNDAY.getValue()) - dato.getDayOfWeek().getValue());
         }
         return dato;
     }

@@ -37,7 +37,7 @@ public class DokumentMetadata {
 
     @Column(name = "FORSENDELSE_STATUS")
     private String status;
-    
+
     @Column(name = "FORSENDELSE_MOTTATT")
     private LocalDateTime forsendelseMottatt;
 
@@ -67,7 +67,7 @@ public class DokumentMetadata {
     public ForsendelseStatus getStatus() {
         return ForsendelseStatus.asEnumValue(status);
     }
-    
+
     public LocalDateTime getForsendelseMottatt() {
         return forsendelseMottatt;
     }
@@ -120,7 +120,7 @@ public class DokumentMetadata {
             this.status = status;
             return this;
         }
-        
+
         public Builder setForsendelseMottatt(LocalDateTime forsendelseMottatt) {
             this.forsendelseMottatt = forsendelseMottatt;
             return this;

@@ -22,8 +22,8 @@ public class OpprettJournalpostResponse {
 
     @JsonCreator
     public OpprettJournalpostResponse(@JsonProperty("journalpostId") String journalpostId,
-                                      @JsonProperty("journalpostferdigstilt") boolean journalpostferdigstilt,
-                                      @JsonProperty("dokumenter") List<DokumentInfoResponse> dokumenter) {
+            @JsonProperty("journalpostferdigstilt") boolean journalpostferdigstilt,
+            @JsonProperty("dokumenter") List<DokumentInfoResponse> dokumenter) {
         this.journalpostId = journalpostId;
         this.journalpostferdigstilt = journalpostferdigstilt;
         this.dokumenter = dokumenter;

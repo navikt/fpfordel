@@ -108,11 +108,10 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     @Override
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper dataWrapper) {
 
-        UUID forsendelseId = dataWrapper.getForsendelseId().get(); // NOSONAR verifisert at finnes i precondition
-
-        Optional<Dokument> hovedDokumentOpt = dokumentRepository.hentUnikDokument(forsendelseId, true,
+        UUID forsendelseId = dataWrapper.getForsendelseId().get();
+        var hovedDokumentOpt = dokumentRepository.hentUnikDokument(forsendelseId, true,
                 ArkivFilType.XML);
-        DokumentMetadata metadata = dokumentRepository.hentEksaktDokumentMetadata(forsendelseId);
+        var metadata = dokumentRepository.hentEksaktDokumentMetadata(forsendelseId);
 
         AtomicReference<Dokument> dokument = new AtomicReference<>();
         AtomicReference<BehandlingTema> behandlingTema = new AtomicReference<>();

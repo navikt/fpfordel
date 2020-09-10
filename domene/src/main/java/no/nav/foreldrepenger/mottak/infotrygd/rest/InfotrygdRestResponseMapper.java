@@ -18,7 +18,6 @@ import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
 
 public final class InfotrygdRestResponseMapper {
 
-
     public InfotrygdRestResponseMapper() {
     }
 

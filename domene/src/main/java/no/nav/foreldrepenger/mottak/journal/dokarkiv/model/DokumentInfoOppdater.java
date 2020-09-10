@@ -20,8 +20,8 @@ public class DokumentInfoOppdater {
 
     @JsonCreator
     public DokumentInfoOppdater(@JsonProperty("dokumentInfoId") String dokumentInfoId,
-                                @JsonProperty("tittel") String tittel,
-                                @JsonProperty("brevkode") String brevkode) {
+            @JsonProperty("tittel") String tittel,
+            @JsonProperty("brevkode") String brevkode) {
         this.dokumentInfoId = dokumentInfoId;
         this.tittel = tittel;
         this.brevkode = brevkode;
@@ -38,7 +38,6 @@ public class DokumentInfoOppdater {
     public String getBrevkode() {
         return brevkode;
     }
-
 
     @Override
     public String toString() {

@@ -59,7 +59,7 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
                 dataWrapper.setAnnenPartId(((AnnenForelderMedNorskIdent) annenForelder).getAktoerId());
             }
             Rettigheter rettigheter = ((Foreldrepenger) ytelse).getRettigheter();
-            if (rettigheter != null && rettigheter.isHarAnnenForelderRett()) {
+            if ((rettigheter != null) && rettigheter.isHarAnnenForelderRett()) {
                 dataWrapper.setAnnenPartHarRett(true);
             }
         }
@@ -99,8 +99,8 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
     }
 
     public void sjekkNødvendigeFeltEksisterer(UUID forsendelseId) {
-        if (getSkjema().getMottattDato() == null || getSkjema().getOmYtelse() == null
-                || getSkjema().getSoeker() == null) {
+        if ((getSkjema().getMottattDato() == null) || (getSkjema().getOmYtelse() == null)
+                || (getSkjema().getSoeker() == null)) {
             throw MeldingKonverteringFeil.FACTORY.ukjentFormatPåSøknad(forsendelseId).toException();
         }
     }
@@ -202,20 +202,20 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
     }
 
     private static BehandlingTema utledBehandlingTemaES(SoekersRelasjonTilBarnet relasjonTilBarnet) {
-        if (relasjonTilBarnet instanceof Foedsel || relasjonTilBarnet instanceof Termin) {
+        if ((relasjonTilBarnet instanceof Foedsel) || (relasjonTilBarnet instanceof Termin)) {
             return BehandlingTema.ENGANGSSTØNAD_FØDSEL;
         }
-        if (relasjonTilBarnet instanceof Adopsjon || relasjonTilBarnet instanceof Omsorgsovertakelse) {
+        if ((relasjonTilBarnet instanceof Adopsjon) || (relasjonTilBarnet instanceof Omsorgsovertakelse)) {
             return BehandlingTema.ENGANGSSTØNAD_ADOPSJON;
         }
         return BehandlingTema.ENGANGSSTØNAD;
     }
 
     private static BehandlingTema utledBehandlingTemaFP(SoekersRelasjonTilBarnet relasjonTilBarnet) {
-        if (relasjonTilBarnet instanceof Foedsel || relasjonTilBarnet instanceof Termin) {
+        if ((relasjonTilBarnet instanceof Foedsel) || (relasjonTilBarnet instanceof Termin)) {
             return BehandlingTema.FORELDREPENGER_FØDSEL;
         }
-        if (relasjonTilBarnet instanceof Adopsjon || relasjonTilBarnet instanceof Omsorgsovertakelse) {
+        if ((relasjonTilBarnet instanceof Adopsjon) || (relasjonTilBarnet instanceof Omsorgsovertakelse)) {
             return BehandlingTema.FORELDREPENGER_ADOPSJON;
         }
         return BehandlingTema.FORELDREPENGER;

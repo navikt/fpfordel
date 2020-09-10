@@ -116,7 +116,7 @@ public class Dokument extends BaseEntitet {
         }
 
         public Dokument.Builder setBeskrivelse(String beskrivelse) {
-            if (beskrivelse != null && beskrivelse.length() > 150) {
+            if ((beskrivelse != null) && (beskrivelse.length() > 150)) {
                 this.beskrivelse = beskrivelse.substring(0, 149);
             } else {
                 this.beskrivelse = beskrivelse;

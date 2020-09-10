@@ -33,8 +33,7 @@ public class MapNAVSkjemaDokumentTypeId {
             Map.entry(NAVSkjema.SKJEMAE_ENGANGSSTØNAD_FØDSEL, DokumentTypeId.ETTERSENDT_SØKNAD_ENGANGSSTØNAD_FØDSEL),
             Map.entry(NAVSkjema.SKJEMAE_FLEKSIBELT_UTTAK, DokumentTypeId.ETTERSENDT_FLEKSIBELT_UTTAK_FORELDREPENGER),
             Map.entry(NAVSkjema.SKJEMAE_FORELDREPENGER_ENDRING, DokumentTypeId.ETTERSENDT_FORELDREPENGER_ENDRING_SØKNAD),
-            Map.entry(NAVSkjema.SKJEMAE_KLAGE, DokumentTypeId.ETTERSENDT_KLAGE)
-    );
+            Map.entry(NAVSkjema.SKJEMAE_KLAGE, DokumentTypeId.ETTERSENDT_KLAGE));
 
     private static final Map<DokumentTypeId, NAVSkjema> DOKUMENT_TYPE_BREVKODE = Map.ofEntries(
             Map.entry(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER, NAVSkjema.SKJEMA_SVANGERSKAPSPENGER),
@@ -47,8 +46,7 @@ public class MapNAVSkjemaDokumentTypeId {
             Map.entry(DokumentTypeId.KLAGE_DOKUMENT, NAVSkjema.SKJEMA_KLAGE_DOKUMENT),
             Map.entry(DokumentTypeId.INNTEKTSMELDING, NAVSkjema.SKJEMA_INNTEKTSMELDING),
             Map.entry(DokumentTypeId.ANNET, NAVSkjema.SKJEMA_ANNEN_POST),
-            Map.entry(DokumentTypeId.UDEFINERT, NAVSkjema.UDEFINERT)
-    );
+            Map.entry(DokumentTypeId.UDEFINERT, NAVSkjema.UDEFINERT));
 
     private static final Map<DokumentTypeId, Integer> DOKUMENT_TYPE_RANK = Map.ofEntries(
             Map.entry(DokumentTypeId.INNTEKTSMELDING, 1),
@@ -61,24 +59,23 @@ public class MapNAVSkjemaDokumentTypeId {
             Map.entry(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON, 8),
             Map.entry(DokumentTypeId.KLAGE_DOKUMENT, 9),
             Map.entry(DokumentTypeId.ETTERSENDT_KLAGE, 10),
-            Map.entry(DokumentTypeId.TILBAKEKREV_UTTALELSE,11),
-            Map.entry(DokumentTypeId.LEGEERKLÆRING,20),
-            Map.entry(DokumentTypeId.DOK_INNLEGGELSE,21),
-            Map.entry(DokumentTypeId.DOKUMENTASJON_FORSVARSTJENESTE,22),
-            Map.entry(DokumentTypeId.DOKUMENTASJON_NAVTILTAK,23),
-            Map.entry(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL,30),
-            Map.entry(DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO,31),
-            Map.entry(DokumentTypeId.FØDSELSATTEST,32),
-            Map.entry(DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE,33),
-            Map.entry(DokumentTypeId.DOKUMENTASJON_ALENEOMSORG,34),
-            Map.entry(DokumentTypeId.DOK_FERIE,40),
-            Map.entry(DokumentTypeId.DOK_MORS_UTDANNING_ARBEID_SYKDOM,41),
-            Map.entry(DokumentTypeId.BESKRIVELSE_FUNKSJONSNEDSETTELSE,42),
-            Map.entry(DokumentTypeId.BEKREFTELSE_FRA_ARBEIDSGIVER,43),
-            Map.entry(DokumentTypeId.BEKREFTELSE_FRA_STUDIESTED,44),
+            Map.entry(DokumentTypeId.TILBAKEKREV_UTTALELSE, 11),
+            Map.entry(DokumentTypeId.LEGEERKLÆRING, 20),
+            Map.entry(DokumentTypeId.DOK_INNLEGGELSE, 21),
+            Map.entry(DokumentTypeId.DOKUMENTASJON_FORSVARSTJENESTE, 22),
+            Map.entry(DokumentTypeId.DOKUMENTASJON_NAVTILTAK, 23),
+            Map.entry(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL, 30),
+            Map.entry(DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO, 31),
+            Map.entry(DokumentTypeId.FØDSELSATTEST, 32),
+            Map.entry(DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE, 33),
+            Map.entry(DokumentTypeId.DOKUMENTASJON_ALENEOMSORG, 34),
+            Map.entry(DokumentTypeId.DOK_FERIE, 40),
+            Map.entry(DokumentTypeId.DOK_MORS_UTDANNING_ARBEID_SYKDOM, 41),
+            Map.entry(DokumentTypeId.BESKRIVELSE_FUNKSJONSNEDSETTELSE, 42),
+            Map.entry(DokumentTypeId.BEKREFTELSE_FRA_ARBEIDSGIVER, 43),
+            Map.entry(DokumentTypeId.BEKREFTELSE_FRA_STUDIESTED, 44),
             Map.entry(DokumentTypeId.ANNET, 98),
-            Map.entry(DokumentTypeId.UDEFINERT, UDEF_RANK)
-    );
+            Map.entry(DokumentTypeId.UDEFINERT, UDEF_RANK));
 
     private static final Map<Integer, DokumentTypeId> RANK_DOKUMENT_TYPE = Map.ofEntries(
             Map.entry(1, DokumentTypeId.INNTEKTSMELDING),
@@ -107,24 +104,26 @@ public class MapNAVSkjemaDokumentTypeId {
             Map.entry(43, DokumentTypeId.BEKREFTELSE_FRA_ARBEIDSGIVER),
             Map.entry(44, DokumentTypeId.BEKREFTELSE_FRA_STUDIESTED),
             Map.entry(98, DokumentTypeId.ANNET),
-            Map.entry(UDEF_RANK, DokumentTypeId.UDEFINERT)
-    );
+            Map.entry(UDEF_RANK, DokumentTypeId.UDEFINERT));
 
     public static DokumentTypeId mapBrevkode(NAVSkjema brevkode) {
-        if (brevkode == null)
+        if (brevkode == null) {
             return DokumentTypeId.UDEFINERT;
+        }
         return BREVKODE_DOKUMENT_TYPE.getOrDefault(brevkode, DokumentTypeId.UDEFINERT);
     }
 
     public static NAVSkjema mapDokumentTypeId(DokumentTypeId typeId) {
-        if (typeId == null)
+        if (typeId == null) {
             return NAVSkjema.UDEFINERT;
+        }
         return DOKUMENT_TYPE_BREVKODE.getOrDefault(typeId, NAVSkjema.UDEFINERT);
     }
 
     public static int dokumentTypeRank(DokumentTypeId dokumentTypeId) {
-        if (dokumentTypeId == null)
+        if (dokumentTypeId == null) {
             return DOKUMENT_TYPE_RANK.get(DokumentTypeId.UDEFINERT);
+        }
         return DOKUMENT_TYPE_RANK.getOrDefault(dokumentTypeId, GEN_RANK);
     }
 

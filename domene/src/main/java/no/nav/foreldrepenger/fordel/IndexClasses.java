@@ -70,7 +70,7 @@ public class IndexClasses {
             try (Stream<Path> paths = Files.walk(source)) {
                 paths.filter(Files::isRegularFile).forEach(f -> {
                     Path fileName = f.getFileName();
-                    if (fileName != null && fileName.toString().endsWith(".class")) {
+                    if ((fileName != null) && fileName.toString().endsWith(".class")) {
                         try (InputStream newInputStream = Files.newInputStream(f, StandardOpenOption.READ)) {
                             indexer.index(newInputStream);
                         } catch (IOException e) {

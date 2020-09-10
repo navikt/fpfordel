@@ -12,7 +12,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTypeInfo;
 import no.nav.vedtak.felles.prosesstask.impl.feilhåndtering.SimpelFeilhåndteringsalgoritme;
 import no.nav.vedtak.felles.prosesstask.spi.ForsinkelseStrategi;
 
-
 abstract class OverførTilGsakFeilhåndteringsalgoritme extends SimpelFeilhåndteringsalgoritme {
 
     private ProsessTaskRepository prosessTaskRepository;

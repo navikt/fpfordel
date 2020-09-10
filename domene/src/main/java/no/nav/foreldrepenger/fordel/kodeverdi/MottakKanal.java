@@ -25,8 +25,7 @@ public enum MottakKanal implements Kodeverdi {
      * Alle kodeverk må ha en verdi, det kan ikke være null i databasen. Denne koden
      * gjør samme nytten.
      */
-    UDEFINERT("-")
-    ;
+    UDEFINERT("-");
 
     public static final String KODEVERK = "MOTTAK_KANAL";
 
@@ -80,6 +79,5 @@ public enum MottakKanal implements Kodeverdi {
             }
         }
     }
-
 
 }

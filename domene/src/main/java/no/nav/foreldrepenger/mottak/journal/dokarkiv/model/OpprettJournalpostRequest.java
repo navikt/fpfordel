@@ -41,17 +41,17 @@ public class OpprettJournalpostRequest {
 
     @JsonCreator
     public OpprettJournalpostRequest(@JsonProperty("journalposttype") JournalpostType journalpostType,
-                                     @JsonProperty("tittel") String tittel,
-                                     @JsonProperty("kanal") String kanal,
-                                     @JsonProperty("tema") String tema,
-                                     @JsonProperty("behandlingstema") String behandlingstema,
-                                     @JsonProperty("journalfoerendeEnhet") String journalfoerendeEnhet,
-                                     @JsonProperty("datoMottatt") LocalDate datoMottatt,
-                                     @JsonProperty("eksternReferanseId") String eksternReferanseId,
-                                     @JsonProperty("bruker") Bruker bruker,
-                                     @JsonProperty("avsenderMottaker") AvsenderMottaker avsenderMottaker,
-                                     @JsonProperty("sak") Sak sak,
-                                     @JsonProperty("dokumenter") List<DokumentInfoOpprett> dokumenter) {
+            @JsonProperty("tittel") String tittel,
+            @JsonProperty("kanal") String kanal,
+            @JsonProperty("tema") String tema,
+            @JsonProperty("behandlingstema") String behandlingstema,
+            @JsonProperty("journalfoerendeEnhet") String journalfoerendeEnhet,
+            @JsonProperty("datoMottatt") LocalDate datoMottatt,
+            @JsonProperty("eksternReferanseId") String eksternReferanseId,
+            @JsonProperty("bruker") Bruker bruker,
+            @JsonProperty("avsenderMottaker") AvsenderMottaker avsenderMottaker,
+            @JsonProperty("sak") Sak sak,
+            @JsonProperty("dokumenter") List<DokumentInfoOpprett> dokumenter) {
         this.tittel = tittel;
         this.journalpostType = journalpostType;
         this.kanal = kanal;

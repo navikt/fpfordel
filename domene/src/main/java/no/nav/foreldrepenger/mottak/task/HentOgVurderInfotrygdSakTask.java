@@ -158,7 +158,7 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
     }
 
     private static boolean erMann(String fnr) {
-        return Character.digit(fnr.charAt(8), 10) % 2 != 0;
+        return (Character.digit(fnr.charAt(8), 10) % 2) != 0;
     }
 
     private static boolean gjelderIM(MottakMeldingDataWrapper wrapper) {

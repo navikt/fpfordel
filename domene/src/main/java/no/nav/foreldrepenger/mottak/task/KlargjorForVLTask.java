@@ -30,8 +30,8 @@ public class KlargjorForVLTask extends WrappedProsessTaskHandler {
 
     @Inject
     public KlargjorForVLTask(ProsessTaskRepository prosessTaskRepository,
-                             KlargjørForVLTjeneste klargjørForVLTjeneste,
-                             DokumentRepository dokumentRepository) {
+            KlargjørForVLTjeneste klargjørForVLTjeneste,
+            DokumentRepository dokumentRepository) {
         super(prosessTaskRepository);
         this.klargjørForVLTjeneste = klargjørForVLTjeneste;
         this.dokumentRepository = dokumentRepository;
@@ -72,7 +72,8 @@ public class KlargjorForVLTask extends WrappedProsessTaskHandler {
                 dataWrapper.getForsendelseId().orElse(null), dokumentKategori, journalEnhet, eksternReferanseId);
 
         if (forsendelseId.isPresent() && !erReinnsend) {
-            // Gi selvbetjening tid til å polle ferdig + Kafka-hendelse tid til å nå fram (og bli ignorert)
+            // Gi selvbetjening tid til å polle ferdig + Kafka-hendelse tid til å nå fram
+            // (og bli ignorert)
             return dataWrapper.nesteSteg(SlettForsendelseTask.TASKNAME, true, LocalDateTime.now().plusHours(2));
         }
         return null; // Siste steg, fpsak overtar nå

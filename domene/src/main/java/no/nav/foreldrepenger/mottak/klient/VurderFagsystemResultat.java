@@ -15,7 +15,9 @@ public class VurderFagsystemResultat {
     private String saksnummer;
 
     VurderFagsystemResultat(BehandlendeFagsystemDto data) {
-        if (data == null) return;
+        if (data == null) {
+            return;
+        }
         this.behandlesIVedtaksløsningen = data.isBehandlesIVedtaksløsningen();
         this.sjekkMotInfotrygd = data.isSjekkMotInfotrygd();
         this.manuellVurdering = data.isManuellVurdering();

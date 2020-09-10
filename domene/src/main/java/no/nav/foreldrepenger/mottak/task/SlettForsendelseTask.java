@@ -31,7 +31,7 @@ public class SlettForsendelseTask extends WrappedProsessTaskHandler {
 
     @Inject
     public SlettForsendelseTask(ProsessTaskRepository prosessTaskRepository,
-                                DokumentRepository dokumentRepository) {
+            DokumentRepository dokumentRepository) {
         super(prosessTaskRepository);
         this.dokumentRepository = dokumentRepository;
     }
@@ -51,7 +51,7 @@ public class SlettForsendelseTask extends WrappedProsessTaskHandler {
         if (forsendelseId.isPresent()) {
             Optional<DokumentMetadata> metadata = dokumentRepository.hentUnikDokumentMetadata(forsendelseId.get());
             if (metadata.isPresent() && metadata.get().getArkivId().isPresent()
-                    && metadata.get().getStatus() != ForsendelseStatus.PENDING) {
+                    && (metadata.get().getStatus() != ForsendelseStatus.PENDING)) {
                 dokumentRepository.slettForsendelse(forsendelseId.get());
             }
         }

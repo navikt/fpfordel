@@ -55,7 +55,6 @@ public enum Temagrupper implements Kodeverdi {
         return KODER.getOrDefault(kode, UDEFINERT);
     }
 
-
     @JsonProperty
     @Override
     public String getKodeverk() {

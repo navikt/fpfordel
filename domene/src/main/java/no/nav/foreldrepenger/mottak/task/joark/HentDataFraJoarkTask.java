@@ -116,8 +116,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
         if (dataWrapper.getAktørId().isEmpty()) {
-            var avsender = journalpost.getAvsenderIdent() == null ? "ikke satt" :
-                    aktørConsumer.hentAktørIdForPersonIdent(journalpost.getAvsenderIdent()).orElse("finnes ikke");
+            var avsender = journalpost.getAvsenderIdent() == null ? "ikke satt"
+                    : aktørConsumer.hentAktørIdForPersonIdent(journalpost.getAvsenderIdent()).orElse("finnes ikke");
             LOG.info("FPFORDEL HERK manglende bruker for journalpost {} type {} avsender {}",
                     dataWrapper.getArkivId(), journalpost.getHovedtype(), avsender);
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
@@ -137,8 +137,9 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         }
 
         if (!arkivTjeneste.oppdaterRettMangler(journalpost, dataWrapper.getAktørId().get(), dataWrapper.getBehandlingTema(),
-                dataWrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT)))
+                dataWrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT))) {
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+        }
 
         return dataWrapper.nesteSteg(HentOgVurderVLSakTask.TASKNAME);
     }
@@ -174,7 +175,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         String fnrBruker = aktørConsumer.hentPersonIdentForAktørId(aktørId)
                 .orElseThrow(() -> MottakMeldingFeil.FACTORY
                         .fantIkkePersonidentForAktørId(TASKNAME, dataWrapper.getId()).toException());
-        return Character.getNumericValue(fnrBruker.charAt(8)) % 2 != 0;
+        return (Character.getNumericValue(fnrBruker.charAt(8)) % 2) != 0;
     }
 
     private static boolean kreverStartdatoForInntektsmeldingenManuellBehandling(MottakMeldingDataWrapper dataWrapper) {

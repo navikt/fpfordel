@@ -24,10 +24,10 @@ public class Sak {
 
     @JsonCreator
     public Sak(@JsonProperty("fagsakId") String fagsakId,
-               @JsonProperty("fagsaksystem") String fagsaksystem,
-               @JsonProperty("sakstype") String sakstype,
-               @JsonProperty("arkivsaksnummer") String arkivsaksnummer,
-               @JsonProperty("arkivsaksystem") String arkivsaksystem) {
+            @JsonProperty("fagsaksystem") String fagsaksystem,
+            @JsonProperty("sakstype") String sakstype,
+            @JsonProperty("arkivsaksnummer") String arkivsaksnummer,
+            @JsonProperty("arkivsaksystem") String arkivsaksystem) {
         this.sakstype = sakstype;
         this.fagsakId = fagsakId;
         this.fagsaksystem = fagsaksystem;

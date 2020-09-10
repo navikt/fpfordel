@@ -81,8 +81,8 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
     }
 
     private Optional<String> getArbeidsforholdsid() {
-        if (getSkjema().getSkjemainnhold().getArbeidsforhold() != null
-                && getSkjema().getSkjemainnhold().getArbeidsforhold().getValue().getArbeidsforholdId() != null) {
+        if ((getSkjema().getSkjemainnhold().getArbeidsforhold() != null)
+                && (getSkjema().getSkjemainnhold().getArbeidsforhold().getValue().getArbeidsforholdId() != null)) {
             return Optional.ofNullable(
                     getSkjema().getSkjemainnhold().getArbeidsforhold().getValue().getArbeidsforholdId().getValue());
         }

@@ -27,8 +27,12 @@ public class Dokumentvariant {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if ((o == null) || (getClass() != o.getClass())) {
+            return false;
+        }
         Dokumentvariant that = (Dokumentvariant) o;
         return variantFormat == that.variantFormat;
     }

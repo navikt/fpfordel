@@ -34,12 +34,12 @@ public class OppdaterJournalpostRequest {
 
     @JsonCreator
     public OppdaterJournalpostRequest(@JsonProperty("tittel") String tittel,
-                                      @JsonProperty("tema") String tema,
-                                      @JsonProperty("behandlingstema") String behandlingstema,
-                                      @JsonProperty("bruker") Bruker bruker,
-                                      @JsonProperty("avsenderMottaker") AvsenderMottaker avsenderMottaker,
-                                      @JsonProperty("sak") Sak sak,
-                                      @JsonProperty("dokumenter") List<DokumentInfoOppdater> dokumenter) {
+            @JsonProperty("tema") String tema,
+            @JsonProperty("behandlingstema") String behandlingstema,
+            @JsonProperty("bruker") Bruker bruker,
+            @JsonProperty("avsenderMottaker") AvsenderMottaker avsenderMottaker,
+            @JsonProperty("sak") Sak sak,
+            @JsonProperty("dokumenter") List<DokumentInfoOppdater> dokumenter) {
         this.tittel = tittel;
         this.tema = tema;
         this.behandlingstema = behandlingstema;

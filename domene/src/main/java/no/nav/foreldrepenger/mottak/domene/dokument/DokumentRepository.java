@@ -48,7 +48,7 @@ public class DokumentRepository {
             entityManager.flush();
         } catch (PersistenceException e) {
             Throwable cause = e.getCause();
-            if (cause instanceof ConstraintViolationException &&
+            if ((cause instanceof ConstraintViolationException) &&
                     ((ConstraintViolationException) cause).getConstraintName()
                             .contains(DokumentMetadata.UNIQUE_FORSENDELSE_ID_CONSTRAINT)) {
                 throw DokumentFeil.FACTORY.constraintForsendelseId(dokumentMetadata.getForsendelseId()).toException();

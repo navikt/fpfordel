@@ -21,7 +21,8 @@ public abstract class MottattStrukturertDokument<S> {
         if (skjema instanceof no.seres.xsd.nav.inntektsmelding_m._20181211.InntektsmeldingM) { // NOSONAR
             return new no.nav.foreldrepenger.mottak.domene.v2.Inntektsmelding((no.seres.xsd.nav.inntektsmelding_m._20181211.InntektsmeldingM) skjema);
         }
-        if (skjema instanceof no.nav.vedtak.felles.xml.soeknad.v3.Soeknad) { // NOSONAR Dto plukker ut info for foreldrepenger, engangsstønad og endringssøknad
+        if (skjema instanceof no.nav.vedtak.felles.xml.soeknad.v3.Soeknad) { // NOSONAR Dto plukker ut info for foreldrepenger, engangsstønad og
+                                                                             // endringssøknad
             return new no.nav.foreldrepenger.mottak.domene.v3.Søknad((no.nav.vedtak.felles.xml.soeknad.v3.Soeknad) skjema);
         }
 
@@ -34,18 +35,21 @@ public abstract class MottattStrukturertDokument<S> {
     }
 
     /**
-     * Les nødvendige felter fra meldingen og kopier til angitt wrapper. Denne kalles etter semantisk validering
-     * av skjemaet gjennom <code>validerSkjemaSemantisk()</code>.
+     * Les nødvendige felter fra meldingen og kopier til angitt wrapper. Denne
+     * kalles etter semantisk validering av skjemaet gjennom
+     * <code>validerSkjemaSemantisk()</code>.
      *
      * @param dataWrapper data holder som skal populeres med verdier fra skjema
      */
     protected abstract void kopierVerdier(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder);
 
     /**
-     * Syntaktisk validering: validering av skjema mot XSD skal allerede være gjort ved lesing av xml.
+     * Syntaktisk validering: validering av skjema mot XSD skal allerede være gjort
+     * ved lesing av xml.
      * <p>
-     * Semantisk validering: hvis det er ting som må/bør valideres/sjekkes før data sendes videre, gjøres det her.
-     * Dette betyr blant annent konsistentsjekk av data mellom angitt {@link MottakMeldingDataWrapper} og skjema
+     * Semantisk validering: hvis det er ting som må/bør valideres/sjekkes før data
+     * sendes videre, gjøres det her. Dette betyr blant annent konsistentsjekk av
+     * data mellom angitt {@link MottakMeldingDataWrapper} og skjema
      * <p>
      * Hvis ingen slik validering er nødvendig, kan du bare returne.
      *

@@ -15,15 +15,17 @@ public final class ArkivUtil {
     }
 
     public static DokumentKategori utledKategoriFraDokumentType(DokumentTypeId doktype) {
-        if (DokumentTypeId.erSøknadType(doktype))
+        if (DokumentTypeId.erSøknadType(doktype)) {
             return DokumentKategori.SØKNAD;
-        if (DokumentTypeId.erKlageType(doktype))
+        }
+        if (DokumentTypeId.erKlageType(doktype)) {
             return DokumentKategori.KLAGE_ELLER_ANKE;
+        }
         return DokumentKategori.IKKE_TOLKBART_SKJEMA;
     }
 
     public static BehandlingTema behandlingTemaFraDokumentType(BehandlingTema behandlingTema,
-                                                               DokumentTypeId dokumentTypeId) {
+            DokumentTypeId dokumentTypeId) {
         int btRank = MapBehandlingstemaDokumentTypeId.behandlingstemaRank(behandlingTema);
         int dtRank = MapBehandlingstemaDokumentTypeId.behandlingstemaRank(MapBehandlingstemaDokumentTypeId.mapDokumenttype(dokumentTypeId));
 
@@ -31,7 +33,7 @@ public final class ArkivUtil {
     }
 
     public static BehandlingTema behandlingTemaFraDokumentTypeSet(BehandlingTema behandlingTema,
-                                                                  Collection<DokumentTypeId> typer) {
+            Collection<DokumentTypeId> typer) {
         int btRank = MapBehandlingstemaDokumentTypeId.behandlingstemaRank(behandlingTema);
         int dtRank = typer.stream()
                 .map(MapBehandlingstemaDokumentTypeId::mapDokumenttype)

@@ -24,9 +24,9 @@ public class DokumentInfoOpprett {
 
     @JsonCreator
     public DokumentInfoOpprett(@JsonProperty("tittel") String tittel,
-                               @JsonProperty("brevkode") String brevkode,
-                               @JsonProperty("dokumentKategori") String dokumentKategori,
-                               @JsonProperty("dokumentvarianter") List<Dokumentvariant> dokumentvarianter) {
+            @JsonProperty("brevkode") String brevkode,
+            @JsonProperty("dokumentKategori") String dokumentKategori,
+            @JsonProperty("dokumentvarianter") List<Dokumentvariant> dokumentvarianter) {
         this.tittel = tittel;
         this.brevkode = brevkode;
         this.dokumentKategori = dokumentKategori;

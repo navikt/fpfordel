@@ -26,10 +26,10 @@ public class DokumentInfo {
 
     @JsonCreator
     public DokumentInfo(@JsonProperty("dokumentInfoId") String dokumentInfoId,
-                        @JsonProperty("tittel") String tittel,
-                        @JsonProperty("brevkode") String brevkode,
-                        @JsonProperty("logiskeVedlegg") List<LogiskVedlegg> logiskeVedlegg,
-                        @JsonProperty("dokumentvarianter") List<Dokumentvariant> dokumentvarianter) {
+            @JsonProperty("tittel") String tittel,
+            @JsonProperty("brevkode") String brevkode,
+            @JsonProperty("logiskeVedlegg") List<LogiskVedlegg> logiskeVedlegg,
+            @JsonProperty("dokumentvarianter") List<Dokumentvariant> dokumentvarianter) {
         this.dokumentInfoId = dokumentInfoId;
         this.tittel = tittel;
         this.brevkode = brevkode;

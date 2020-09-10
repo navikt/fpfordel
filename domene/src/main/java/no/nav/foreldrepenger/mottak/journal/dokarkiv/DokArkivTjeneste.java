@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.journal.dokarkiv;
 
-
 import java.net.URI;
 
 import javax.enterprise.context.ApplicationScoped;

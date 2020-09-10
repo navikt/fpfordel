@@ -37,10 +37,10 @@ public class FagsakRestKlient {
 
     @Inject
     public FagsakRestKlient(OidcRestClient oidcRestClient,
-                            @KonfigVerdi(ENDPOINT_KEY_FINN_FAGSAK_INFOMASJON) URI endpoint,
-                            @KonfigVerdi(ENDPOINT_KEY_OPPRETT_SAK) URI endpoint2,
-                            @KonfigVerdi(ENDPOINT_KEY_KNYTT_SAK_OG_JOURNALPOST) URI endpoint3,
-                            @KonfigVerdi(ENDPOINT_KEY_VURDER_FAGSYSTEM) URI endpoint4) {
+            @KonfigVerdi(ENDPOINT_KEY_FINN_FAGSAK_INFOMASJON) URI endpoint,
+            @KonfigVerdi(ENDPOINT_KEY_OPPRETT_SAK) URI endpoint2,
+            @KonfigVerdi(ENDPOINT_KEY_KNYTT_SAK_OG_JOURNALPOST) URI endpoint3,
+            @KonfigVerdi(ENDPOINT_KEY_VURDER_FAGSYSTEM) URI endpoint4) {
         this.oidcRestClient = oidcRestClient;
         this.endpointSaksinfo = endpoint;
         this.endpointOpprett = endpoint2;

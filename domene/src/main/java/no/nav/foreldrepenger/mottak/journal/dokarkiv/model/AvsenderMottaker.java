@@ -18,11 +18,10 @@ public class AvsenderMottaker {
     @JsonProperty("navn")
     private String navn;
 
-
     @JsonCreator
     public AvsenderMottaker(@JsonProperty("id") String id,
-                            @JsonProperty("idType") AvsenderMottakerIdType idType,
-                            @JsonProperty("navn") String navn) {
+            @JsonProperty("idType") AvsenderMottakerIdType idType,
+            @JsonProperty("navn") String navn) {
         this.id = id;
         this.idType = idType;
         this.navn = navn;

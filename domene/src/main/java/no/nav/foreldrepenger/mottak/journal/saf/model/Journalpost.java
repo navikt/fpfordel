@@ -45,19 +45,19 @@ public class Journalpost {
 
     @JsonCreator
     public Journalpost(@JsonProperty("journalpostId") String journalpostId,
-                       @JsonProperty("journalposttype") String journalposttype,
-                       @JsonProperty("journalstatus") String journalstatus,
-                       @JsonProperty("datoOpprettet") LocalDateTime datoOpprettet,
-                       @JsonProperty("tittel") String tittel,
-                       @JsonProperty("kanal") String kanal,
-                       @JsonProperty("tema") String tema,
-                       @JsonProperty("behandlingstema") String behandlingstema,
-                       @JsonProperty("journalfoerendeEnhet") String journalfoerendeEnhet,
-                       @JsonProperty("eksternReferanseId") String eksternReferanseId,
-                       @JsonProperty("bruker") Bruker bruker,
-                       @JsonProperty("avsenderMottaker") AvsenderMottaker avsenderMottaker,
-                       @JsonProperty("sak") Sak sak,
-                       @JsonProperty("dokumenter") List<DokumentInfo> dokumenter) {
+            @JsonProperty("journalposttype") String journalposttype,
+            @JsonProperty("journalstatus") String journalstatus,
+            @JsonProperty("datoOpprettet") LocalDateTime datoOpprettet,
+            @JsonProperty("tittel") String tittel,
+            @JsonProperty("kanal") String kanal,
+            @JsonProperty("tema") String tema,
+            @JsonProperty("behandlingstema") String behandlingstema,
+            @JsonProperty("journalfoerendeEnhet") String journalfoerendeEnhet,
+            @JsonProperty("eksternReferanseId") String eksternReferanseId,
+            @JsonProperty("bruker") Bruker bruker,
+            @JsonProperty("avsenderMottaker") AvsenderMottaker avsenderMottaker,
+            @JsonProperty("sak") Sak sak,
+            @JsonProperty("dokumenter") List<DokumentInfo> dokumenter) {
         this.journalpostId = journalpostId;
         this.tittel = tittel;
         this.journalposttype = journalposttype;
@@ -131,8 +131,10 @@ public class Journalpost {
     }
 
     public boolean harArkivsaksnummer() {
-        if (sak == null) return false;
-        return sak.getArkivsaksnummer() != null && !sak.getArkivsaksnummer().trim().isEmpty();
+        if (sak == null) {
+            return false;
+        }
+        return (sak.getArkivsaksnummer() != null) && !sak.getArkivsaksnummer().trim().isEmpty();
     }
 
     @Override

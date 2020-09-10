@@ -5,7 +5,6 @@ import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static no.nav.vedtak.feil.LogLevel.WARN;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -16,7 +15,6 @@ import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
-import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentFeil;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
@@ -66,7 +64,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
     public void lagreDokument(Dokument dokument) {
         if (dokument.erHovedDokument() && ArkivFilType.XML.equals(dokument.getArkivFilType())) {
             // Sjekker om nødvendige elementer er satt
-            MottattStrukturertDokument<?> abstractDto = MeldingXmlParser.unmarshallXml(dokument.getKlartekstDokument());
+            var abstractDto = MeldingXmlParser.unmarshallXml(dokument.getKlartekstDokument());
             if (no.nav.foreldrepenger.mottak.domene.v3.Søknad.class.isInstance(abstractDto)) {
                 ((no.nav.foreldrepenger.mottak.domene.v3.Søknad) abstractDto)
                         .sjekkNødvendigeFeltEksisterer(dokument.getForsendelseId());
@@ -77,12 +75,11 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
 
     @Override
     public void validerDokumentforsendelse(UUID forsendelseId) {
-        DokumentMetadata dokumentMetadata = repository.hentEksaktDokumentMetadata(forsendelseId);
-        List<Dokument> dokumenter = repository.hentDokumenter(forsendelseId);
+        var dokumentMetadata = repository.hentEksaktDokumentMetadata(forsendelseId);
+        var dokumenter = repository.hentDokumenter(forsendelseId);
+        var hoveddokumenter = dokumenter.stream().filter(Dokument::erHovedDokument).collect(toSet());
 
-        Set<Dokument> hoveddokumenter = dokumenter.stream().filter(Dokument::erHovedDokument).collect(toSet());
-
-        Optional<String> avsenderId = finnAvsenderId(dokumentMetadata);
+        var avsenderId = finnAvsenderId(dokumentMetadata);
         if (hoveddokumenter.isEmpty()) {
             if (dokumentMetadata.getSaksnummer().isPresent()) {
                 opprettProsessTask(forsendelseId, avsenderId);
@@ -101,13 +98,13 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
 
     @Override
     public ForsendelseStatusDto finnStatusinformasjon(UUID forsendelseId) {
-        Optional<DokumentMetadata> metadataOpt = repository.hentUnikDokumentMetadata(forsendelseId);
+        var metadataOpt = repository.hentUnikDokumentMetadata(forsendelseId);
         if (metadataOpt.isEmpty()) {
             throw DokumentFeil.FACTORY.fantIkkeForsendelse(forsendelseId).toException();
         }
-        DokumentMetadata dokumentMetadata = metadataOpt.get();
-        ForsendelseStatus status = dokumentMetadata.getStatus();
-        ForsendelseStatusDto forsendelseStatusDto = new ForsendelseStatusDto(status);
+        var dokumentMetadata = metadataOpt.get();
+        var status = dokumentMetadata.getStatus();
+        var forsendelseStatusDto = new ForsendelseStatusDto(status);
 
         if (status == ForsendelseStatus.PENDING) {
             forsendelseStatusDto.setPollInterval(POLL_INTERVALL);
@@ -119,9 +116,9 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
     }
 
     private void opprettProsessTask(UUID forsendelseId, Optional<String> avsenderId) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(BehandleDokumentforsendelseTask.TASKNAME);
+        var prosessTaskData = new ProsessTaskData(BehandleDokumentforsendelseTask.TASKNAME);
         prosessTaskData.setCallIdFraEksisterende();
-        MottakMeldingDataWrapper dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
+        var dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
         dataWrapper.setForsendelseId(forsendelseId);
         avsenderId.ifPresent(dataWrapper::setAvsenderId);
 
@@ -131,7 +128,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
     private Optional<String> finnAvsenderId(DokumentMetadata metaData) {
         String ident = SubjectHandler.getSubjectHandler().getUid();
         if (ident != null) {
-            Optional<String> aktørIdent = aktørConsumer.hentAktørIdForPersonIdent(ident);
+            var aktørIdent = aktørConsumer.hentAktørIdForPersonIdent(ident);
             var metadataBruker = metaData.getBrukerId();
 
             if (!aktørIdent.map(metadataBruker::equals).orElse(Boolean.TRUE)) {

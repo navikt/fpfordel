@@ -34,8 +34,8 @@ public class MidlJournalføringTask extends WrappedProsessTaskHandler {
 
     @Inject
     public MidlJournalføringTask(ProsessTaskRepository prosessTaskRepository,
-                                 ArkivTjeneste arkivTjeneste,
-                                 DokumentRepository repo) {
+            ArkivTjeneste arkivTjeneste,
+            DokumentRepository repo) {
         super(prosessTaskRepository);
         this.arkivTjeneste = arkivTjeneste;
         this.repo = repo;
@@ -53,13 +53,15 @@ public class MidlJournalføringTask extends WrappedProsessTaskHandler {
     @Override
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper dataWrapper) {
         Optional<UUID> forsendelseId = dataWrapper.getForsendelseId();
-        if (dataWrapper.getArkivId() == null && forsendelseId.isPresent()) { // Vi har ikke journalpostID - journalfør
+        if ((dataWrapper.getArkivId() == null) && forsendelseId.isPresent()) { // Vi har ikke journalpostID - journalfør
             var opprettetJournalpost = arkivTjeneste.opprettJournalpost(forsendelseId.get(),
-                    dataWrapper.getAvsenderId().orElse(dataWrapper.getAktørId().orElseThrow(() -> new IllegalStateException("Hvor ble det av brukers id?"))));
+                    dataWrapper.getAvsenderId()
+                            .orElse(dataWrapper.getAktørId().orElseThrow(() -> new IllegalStateException("Hvor ble det av brukers id?"))));
             dataWrapper.setArkivId(opprettetJournalpost.getJournalpostId());
         }
         forsendelseId.ifPresent(fid -> repo.oppdaterForsendelseMedArkivId(fid, dataWrapper.getArkivId(), ForsendelseStatus.GOSYS));
-        forsendelseId.ifPresent(fid -> repo.lagreJournalpostLokal(dataWrapper.getArkivId(), MottakKanal.SELVBETJENING.getKode(), "MIDLERTIDIG", fid.toString()));
+        forsendelseId.ifPresent(
+                fid -> repo.lagreJournalpostLokal(dataWrapper.getArkivId(), MottakKanal.SELVBETJENING.getKode(), "MIDLERTIDIG", fid.toString()));
         return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
     }
 }

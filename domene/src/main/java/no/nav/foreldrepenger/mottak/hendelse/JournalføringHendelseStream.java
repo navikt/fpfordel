@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.hendelse;
 
-
 import java.time.Duration;
 import java.util.Map;
 
@@ -34,24 +33,23 @@ public class JournalføringHendelseStream implements KafkaIntegration, AppServic
 
     @Inject
     public JournalføringHendelseStream(JournalføringHendelseHåndterer journalføringHendelseHåndterer,
-                                       JournalføringHendelseProperties journalføringHendelseProperties) {
+            JournalføringHendelseProperties journalføringHendelseProperties) {
         this.topic = journalføringHendelseProperties.getTopic();
         this.stream = createKafkaStreams(topic, journalføringHendelseHåndterer, journalføringHendelseProperties);
     }
 
-
     @SuppressWarnings("resource")
     private static KafkaStreams createKafkaStreams(Topic<String, JournalfoeringHendelseRecord> topic,
-                                                   JournalføringHendelseHåndterer journalføringHendelseHåndterer,
-                                                   JournalføringHendelseProperties properties) {
-        if (properties.getSchemaRegistryUrl() != null && !properties.getSchemaRegistryUrl().isEmpty()) {
+            JournalføringHendelseHåndterer journalføringHendelseHåndterer,
+            JournalføringHendelseProperties properties) {
+        if ((properties.getSchemaRegistryUrl() != null) && !properties.getSchemaRegistryUrl().isEmpty()) {
             var schemaMap = Map.of("schema.registry.url", properties.getSchemaRegistryUrl());
             topic.getSerdeKey().configure(schemaMap, true);
             topic.getSerdeValue().configure(schemaMap, false);
         }
 
-
-        final Consumed<String, JournalfoeringHendelseRecord> consumed = Consumed.<String, JournalfoeringHendelseRecord>with(Topology.AutoOffsetReset.LATEST)
+        final Consumed<String, JournalfoeringHendelseRecord> consumed = Consumed
+                .<String, JournalfoeringHendelseRecord>with(Topology.AutoOffsetReset.LATEST)
                 .withKeySerde(topic.getSerdeKey())
                 .withValueSerde(topic.getSerdeValue());
 
@@ -64,7 +62,6 @@ public class JournalføringHendelseStream implements KafkaIntegration, AppServic
         final Topology topology = builder.build();
         return new KafkaStreams(topology, properties.getProperties());
     }
-
 
     private void addShutdownHooks() {
         stream.setStateListener((newState, oldState) -> {
@@ -100,7 +97,7 @@ public class JournalføringHendelseStream implements KafkaIntegration, AppServic
 
     @Override
     public boolean isAlive() {
-        return stream != null && stream.state().isRunningOrRebalancing();
+        return (stream != null) && stream.state().isRunningOrRebalancing();
     }
 
     @Override

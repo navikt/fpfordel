@@ -85,7 +85,7 @@ public class MottakMeldingDataWrapper {
     }
 
     public MottakMeldingDataWrapper nesteSteg(String stegnavn, LocalDateTime nesteKjøring) {
-        return nesteSteg(stegnavn,true, nesteKjøring);
+        return nesteSteg(stegnavn, true, nesteKjøring);
     }
 
     private void copyData(MottakMeldingDataWrapper fra) {
@@ -269,7 +269,7 @@ public class MottakMeldingDataWrapper {
     }
 
     public void setAdopsjonsbarnFodselsdatoer(List<LocalDate> datoer) {
-        if (datoer != null && !datoer.isEmpty()) {
+        if ((datoer != null) && !datoer.isEmpty()) {
             String datoList = datoer.stream()
                     .map(LocalDate::toString)
                     .collect(Collectors.joining(";"));

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.journal.saf;
 
-
 import java.net.URI;
 import java.util.List;
 import java.util.StringJoiner;
@@ -50,7 +49,7 @@ public class SafTjeneste {
         try {
             GraphQlRequest graphQlRequest = new GraphQlRequest(query, new Variables(journalpostId));
             GraphQlResponse graphQlResponse = restKlient.post(graphqlEndpoint, graphQlRequest, GraphQlResponse.class);
-            if (graphQlResponse.getData() == null || graphQlResponse.getData().getJournalpost() == null) {
+            if ((graphQlResponse.getData() == null) || (graphQlResponse.getData().getJournalpost() == null)) {
                 List<String> errorMessageList = graphQlResponse.getErrors().stream().map(GraphQlError::getMessage).collect(Collectors.toList());
                 StringJoiner stringJoiner = new StringJoiner(System.lineSeparator());
                 stringJoiner.add("Journalpost for journalpostId " + journalpostId + " er null.");
@@ -77,7 +76,7 @@ public class SafTjeneste {
         try {
             GraphQlTilknyttetRequest graphQlRequest = new GraphQlTilknyttetRequest(tilknyttedeQuery, new TilknyttetVariables(dokumentInfoId));
             GraphQlTilknyttetResponse graphQlResponse = restKlient.post(graphqlEndpoint, graphQlRequest, GraphQlTilknyttetResponse.class);
-            if (graphQlResponse.getData() == null || graphQlResponse.getData().getJournalposter() == null) {
+            if ((graphQlResponse.getData() == null) || (graphQlResponse.getData().getJournalposter() == null)) {
                 List<String> errorMessageList = graphQlResponse.getErrors().stream().map(GraphQlError::getMessage).collect(Collectors.toList());
                 StringJoiner stringJoiner = new StringJoiner(System.lineSeparator());
                 stringJoiner.add("Journalposter for dokumentInfoId " + dokumentInfoId + " er null.");

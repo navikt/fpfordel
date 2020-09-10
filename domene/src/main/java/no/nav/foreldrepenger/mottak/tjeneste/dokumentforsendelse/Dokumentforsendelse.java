@@ -7,7 +7,7 @@ import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 
 public class Dokumentforsendelse {
 
-    private DokumentMetadata metadata;
+    private final DokumentMetadata metadata;
     private Map<String, FilMetadata> filMetadataMap;
 
     public Dokumentforsendelse(DokumentMetadata metadata, Map<String, FilMetadata> filMetadataMap) {

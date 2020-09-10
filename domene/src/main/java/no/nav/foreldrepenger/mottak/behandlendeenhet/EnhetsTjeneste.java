@@ -86,7 +86,7 @@ public class EnhetsTjeneste {
 
     private static String validerOgVelgBehandlendeEnhet(List<ArbeidsfordelingResponse> response, String diskresjonskode, String geoTilknytning) {
         // Vi forventer å få én behandlende enhet.
-        if (response == null || response.size() != 1) {
+        if ((response == null) || (response.size() != 1)) {
             throw EnhetsTjeneste.EnhetsTjenesteFeil.FACTORY.finnerIkkeBehandlendeEnhet(geoTilknytning, diskresjonskode).toException();
         }
 
@@ -130,7 +130,7 @@ public class EnhetsTjeneste {
     }
 
     private static PersonIdent lagPersonIdent(String fnr) {
-        if (fnr == null || fnr.isEmpty()) {
+        if ((fnr == null) || fnr.isEmpty()) {
             throw new IllegalArgumentException("Fødselsnummer kan ikke være null eller tomt");
         }
 
@@ -150,7 +150,7 @@ public class EnhetsTjeneste {
         // D-nummer kan indentifiseres ved at første siffer er 4 større enn hva som
         // finnes i fødselsnumre
         char førsteTegn = fnr.charAt(0);
-        return førsteTegn >= '4' && førsteTegn <= '7';
+        return (førsteTegn >= '4') && (førsteTegn <= '7');
     }
 
     private interface EnhetsTjenesteFeil extends DeklarerteFeil {

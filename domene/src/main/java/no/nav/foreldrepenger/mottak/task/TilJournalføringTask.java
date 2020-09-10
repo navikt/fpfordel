@@ -34,7 +34,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 public class TilJournalføringTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.tilJournalforing";
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(TilJournalføringTask.class);
     private static final String AUTOMATISK_ENHET = "9999";
 
@@ -45,10 +45,10 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
 
     @Inject
     public TilJournalføringTask(ProsessTaskRepository prosessTaskRepository,
-                                ArkivTjeneste arkivTjeneste,
-                                HendelseProdusent hendelseProdusent,
-                                DokumentRepository dokumentRepository,
-                                AktørConsumerMedCache aktørConsumer) {
+            ArkivTjeneste arkivTjeneste,
+            HendelseProdusent hendelseProdusent,
+            DokumentRepository dokumentRepository,
+            AktørConsumerMedCache aktørConsumer) {
         super(prosessTaskRepository);
         this.arkivTjeneste = arkivTjeneste;
         this.dokumentRepository = dokumentRepository;
@@ -83,7 +83,8 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
                 return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
             }
         } else {
-            // Annet dokument fra dokumentmottak (scanning, altinn). Kan skippe unntakshåndtering. Bør feile.
+            // Annet dokument fra dokumentmottak (scanning, altinn). Kan skippe
+            // unntakshåndtering. Bør feile.
             try {
                 if (w.getInnkommendeSaksnummer().isEmpty()) {
                     arkivTjeneste.oppdaterMedSak(w.getArkivId(), saksnummer);
@@ -121,7 +122,8 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             LOG.info("FORDEL OPPRETT/FERDIG ikke ferdig for {} forsendelse {}", w.getArkivId(), forsendelseId);
             MottakMeldingFeil.FACTORY.feilJournalTilstandForventetTilstandEndelig().log(LOG);
             dokumentRepository.oppdaterForsendelseMedArkivId(forsendelseId, w.getArkivId(), ForsendelseStatus.GOSYS);
-            // Det kommer en midlertidig-hendelse på Kafka om et par sekunder. Unngå å reagere på den.
+            // Det kommer en midlertidig-hendelse på Kafka om et par sekunder. Unngå å
+            // reagere på den.
             dokumentRepository.lagreJournalpostLokal(w.getArkivId(), MottakKanal.SELVBETJENING.getKode(), "MIDLERTIDIG", forsendelseId.toString());
         }
         return opprettetJournalpost.isFerdigstilt();

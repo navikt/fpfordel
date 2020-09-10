@@ -62,8 +62,7 @@ public class ArkivTjeneste {
     // Fyll på med gjengangertitler som ikke omfattes av kodeverk DokumentTypeId
     private static final Map<String, DokumentTypeId> TITTEL_MAP = Map.of(
             "Klage", DokumentTypeId.KLAGE_DOKUMENT,
-            "Anke", DokumentTypeId.KLAGE_DOKUMENT
-    );
+            "Anke", DokumentTypeId.KLAGE_DOKUMENT);
 
     private SafTjeneste safTjeneste;
     private DokArkivTjeneste dokArkivTjeneste;
@@ -109,7 +108,7 @@ public class ArkivTjeneste {
         Set<DokumentTypeId> alleTyper = utledDokumentTyper(journalpost);
         BehandlingTema behandlingTema = utledBehandlingTema(journalpost.getBehandlingstema(), alleTyper);
         mapIdent(journalpost).ifPresent(builder::medBrukerAktørId);
-        if (journalpost.getAvsenderMottaker() != null && journalpost.getAvsenderMottaker().getType() != null) {
+        if ((journalpost.getAvsenderMottaker() != null) && (journalpost.getAvsenderMottaker().getType() != null)) {
             builder.medAvsender(journalpost.getAvsenderMottaker().getId(), journalpost.getAvsenderMottaker().getNavn());
         }
 
@@ -170,8 +169,8 @@ public class ArkivTjeneste {
                 BehandlingTema.UDEFINERT.equals(behandlingTema) ? journalpost.getBehandlingstema() : behandlingTema.getOffisiellKode(), alleTyper);
         var tittelMangler = false;
         var builder = OppdaterJournalpostRequest.ny();
-        if (journalpost.getAvsenderMottaker() == null || journalpost.getAvsenderMottaker().getId() == null
-                || journalpost.getAvsenderMottaker().getNavn() == null) {
+        if ((journalpost.getAvsenderMottaker() == null) || (journalpost.getAvsenderMottaker().getId() == null)
+                || (journalpost.getAvsenderMottaker().getNavn() == null)) {
             var fnr = aktørConsumer.hentPersonIdentForAktørId(aktørId).orElseThrow(() -> new IllegalStateException("Mangler fnr for aktørid"));
             var navn = brukersNavn(fnr);
             LOG.info("FPFORDEL oppdaterer manglende avsender for {}", journalpost.getJournalpostId());
@@ -189,29 +188,32 @@ public class ArkivTjeneste {
             LOG.info("FPFORDEL oppdaterer manglende tema for {}", journalpost.getJournalpostId());
             builder.medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode());
         }
-        if (journalpost.getBehandlingstema() == null && !BehandlingTema.UDEFINERT.equals(utledetBehandlingTema)) {
+        if ((journalpost.getBehandlingstema() == null) && !BehandlingTema.UDEFINERT.equals(utledetBehandlingTema)) {
             // Logges ikke da den nesten alltid oppdateres
             builder.medBehandlingstema(utledetBehandlingTema.getOffisiellKode());
         }
-        if (journalpost.getBruker() == null || journalpost.getBruker().getId() == null) {
+        if ((journalpost.getBruker() == null) || (journalpost.getBruker().getId() == null)) {
             LOG.info("FPFORDEL oppdaterer manglende bruker for {}", journalpost.getJournalpostId());
             builder.medBruker(aktørId);
         }
         var oppdaterDok = journalpost.getDokumenter().stream()
-                .filter(d -> d.getTittel() == null || d.getTittel().isEmpty())
+                .filter(d -> (d.getTittel() == null) || d.getTittel().isEmpty())
                 .filter(d -> d.getBrevkode() != null)
                 .map(d -> new DokumentInfoOppdater(d.getDokumentInfoId(), NAVSkjema.fraOffisiellKode(d.getBrevkode()).getTermNavn(), d.getBrevkode()))
                 .collect(Collectors.toList());
-        if (!oppdaterDok.isEmpty())
+        if (!oppdaterDok.isEmpty()) {
             LOG.info("FPFORDEL oppdaterer manglende dokumenttitler for {}", journalpost.getJournalpostId());
+        }
         oppdaterDok.forEach(builder::leggTilDokument);
         if (builder.harVerdier() && !dokArkivTjeneste.oppdaterJournalpost(journalpost.getJournalpostId(), builder.build())) {
             throw new IllegalStateException("FPFORDEL Kunne ikke oppdatere " + journalpost.getJournalpostId());
         }
         var resultat = !tittelMangler
-                && journalpost.getDokumenter().stream().filter(d -> d.getTittel() == null || d.getTittel().isEmpty()).count() == oppdaterDok.size();
-        if (!resultat)
+                && (journalpost.getDokumenter().stream().filter(d -> (d.getTittel() == null) || d.getTittel().isEmpty()).count() == oppdaterDok
+                        .size());
+        if (!resultat) {
             LOG.info("FPFORDEL oppdaterer gjenstår tittel eller dokumenttittel for {}", journalpost.getJournalpostId());
+        }
         return resultat;
     }
 
@@ -241,8 +243,9 @@ public class ArkivTjeneste {
     }
 
     private static Optional<DokumentTypeId> dokumentTypeFraKjenteTitler(String tittel) {
-        if (tittel == null)
+        if (tittel == null) {
             return Optional.empty();
+        }
         return Optional.ofNullable(TITTEL_MAP.get(tittel));
     }
 
@@ -293,20 +296,22 @@ public class ArkivTjeneste {
     }
 
     private String mapAktørIdTilFnr(String aktørId) {
-        if (aktørId == null)
+        if (aktørId == null) {
             return null;
+        }
         return aktørConsumer.hentPersonIdentForAktørId(aktørId)
                 .orElseThrow(() -> new IllegalStateException("Aktør uten personident"));
     }
 
     private String brukersNavn(String fnr) {
-        if (fnr == null)
+        if (fnr == null) {
             return null;
+        }
         PersonIdent personIdent = new PersonIdent();
         NorskIdent norskIdent = new NorskIdent();
         norskIdent.setIdent(fnr);
         Personidenter type = new Personidenter();
-        type.setValue(fnr.charAt(0) >= '4' && fnr.charAt(0) <= '7' ? "DNR" : "FNR");
+        type.setValue((fnr.charAt(0) >= '4') && (fnr.charAt(0) <= '7') ? "DNR" : "FNR");
         norskIdent.setType(type);
         personIdent.setIdent(norskIdent);
         HentPersonRequest request = new HentPersonRequest();
@@ -368,11 +373,12 @@ public class ArkivTjeneste {
 
     private static DokumentInfoOpprett lagDokumentForOpprett(Dokument dokument, Dokumentvariant struktuert) {
         List<Dokumentvariant> varianter = new ArrayList<>();
-        if (struktuert != null)
+        if (struktuert != null) {
             varianter.add(struktuert);
+        }
         varianter.add(new Dokumentvariant(Variantformat.ARKIV, dokument.getArkivFilType().getKode(), dokument.getBase64EncodetDokument()));
         var type = DokumentTypeId.UDEFINERT.equals(dokument.getDokumentTypeId()) ? DokumentTypeId.ANNET : dokument.getDokumentTypeId();
-        var tittel = DokumentTypeId.ANNET.equals(type) && dokument.getBeskrivelse() != null ? dokument.getBeskrivelse() : type.getTermNavn();
+        var tittel = DokumentTypeId.ANNET.equals(type) && (dokument.getBeskrivelse() != null) ? dokument.getBeskrivelse() : type.getTermNavn();
         var brevkode = MapNAVSkjemaDokumentTypeId.mapDokumentTypeId(type);
         final DokumentKategori kategori;
         if (DokumentTypeId.erSøknadType(type)) {

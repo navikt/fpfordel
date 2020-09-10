@@ -76,7 +76,7 @@ public class JournalføringHendelseProperties {
     }
 
     boolean harSattBrukernavn() {
-        return username != null && !username.isEmpty();
+        return (username != null) && !username.isEmpty();
     }
 
     String getApplicationId() {
@@ -84,8 +84,8 @@ public class JournalføringHendelseProperties {
     }
 
     private boolean harSattTrustStore() {
-        return trustStorePath != null && !trustStorePath.isEmpty()
-                && trustStorePassword != null && !trustStorePassword.isEmpty();
+        return (trustStorePath != null) && !trustStorePath.isEmpty()
+                && (trustStorePassword != null) && !trustStorePassword.isEmpty();
     }
 
     private String getTrustStorePath() {

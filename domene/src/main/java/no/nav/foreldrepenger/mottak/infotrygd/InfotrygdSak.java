@@ -28,7 +28,7 @@ public class InfotrygdSak {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof InfotrygdSak)) {
+        if ((obj == null) || !(obj instanceof InfotrygdSak)) {
             return false;
         }
         if (this == obj) {

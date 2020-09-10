@@ -34,7 +34,6 @@ public class ArkivJournalpost {
     private String dokumentInfoId;
     private String strukturertPayload;
 
-
     public ArkivJournalpost() {
     }
 
@@ -51,7 +50,7 @@ public class ArkivJournalpost {
     }
 
     public Optional<String> getSaksnummer() {
-        return original != null && original.getSak() != null ? Optional.ofNullable(original.getSak().getArkivsaksnummer()) : Optional.empty();
+        return (original != null) && (original.getSak() != null) ? Optional.ofNullable(original.getSak().getArkivsaksnummer()) : Optional.empty();
     }
 
     public Journalstatus getTilstand() {
@@ -119,7 +118,7 @@ public class ArkivJournalpost {
     }
 
     public boolean getInnholderStrukturertInformasjon() {
-        return strukturertPayload != null && !strukturertPayload.isEmpty();
+        return (strukturertPayload != null) && !strukturertPayload.isEmpty();
     }
 
     public static Builder getBuilder() {

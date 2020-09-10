@@ -28,7 +28,9 @@ public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler {
     public abstract void precondition(MottakMeldingDataWrapper dataWrapper);
 
     public void postcondition(@SuppressWarnings("unused") MottakMeldingDataWrapper dataWrapper) {
-        //Override i subtasks hvor det er krav til precondition. Det er typisk i tasker hvor tasken henter data og det er behov for å sjekke at alt er OK etter at task er kjørt.
+        // Override i subtasks hvor det er krav til precondition. Det er typisk i tasker
+        // hvor tasken henter data og det er behov for å sjekke at alt er OK etter at
+        // task er kjørt.
     }
 
     public abstract MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper dataWrapper);

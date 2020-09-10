@@ -52,7 +52,7 @@ public enum NAVSkjema implements Kodeverdi {
     SKJEMA_TILRETTELEGGING_N("SSVPN", "AT-474N", "LIKT SOM SKJEMA_TILRETTELEGGING_B"),
 
     // ANNET
-    FORSIDE_SVP_GAMMEL("SSVPG", "AT-474B","Tilrettelegging/omplassering pga graviditet / Søknad om svangerskapspenger til arbeidstaker"),
+    FORSIDE_SVP_GAMMEL("SSVPG", "AT-474B", "Tilrettelegging/omplassering pga graviditet / Søknad om svangerskapspenger til arbeidstaker"),
 
     UDEFINERT("-", null, "Ukjent type dokument");
 
