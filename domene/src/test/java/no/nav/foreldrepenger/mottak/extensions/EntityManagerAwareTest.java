@@ -1,10 +1,8 @@
-package no.nav.foreldrepenger.mottak.domene.dokument;
+package no.nav.foreldrepenger.mottak.extensions;
 
 import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareExtension;
 
 @ExtendWith(EntityManagerAwareExtension.class)
 public abstract class EntityManagerAwareTest {

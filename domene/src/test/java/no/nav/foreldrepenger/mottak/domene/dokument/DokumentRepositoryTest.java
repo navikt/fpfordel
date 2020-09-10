@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareTest;
 import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 
