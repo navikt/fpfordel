@@ -28,21 +28,6 @@ public class RepositoryExtension extends
         implements InvocationInterceptor, TestInstancePostProcessor, BeforeAllCallback, AfterAllCallback, BeforeEachCallback, AfterEachCallback {
     private static final Logger LOG = LoggerFactory.getLogger(RepositoryExtension.class);
 
-    static {
-        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
-        if (System.getenv("MAVEN_CMD_LINE_ARGS") == null) {
-            // prøver alltid migrering hvis endring, ellers funker det dårlig i IDE.
-            LOG.warn("Kjører migreringer");
-            Databaseskjemainitialisering.migrerUnittestSkjemaer();
-        } else {
-            // Maven kjører testen
-            // kun kjør migreringer i migreringer modul
-        }
-
-        Databaseskjemainitialisering.settPlaceholdereOgJdniOppslag();
-
-    }
-
     @Override
     public void interceptTestMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> invocationContext,
             ExtensionContext extensionContext) throws Throwable {
@@ -107,6 +92,12 @@ public class RepositoryExtension extends
     @Override
     protected void init() {
         LOG.info("Init ");
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
+        if (System.getenv("MAVEN_CMD_LINE_ARGS") == null) {
+            LOG.warn("Kjører migreringer");
+            Databaseskjemainitialisering.migrerUnittestSkjemaer();
+        }
+        Databaseskjemainitialisering.settPlaceholdereOgJdniOppslag();
     }
 
     @Override
