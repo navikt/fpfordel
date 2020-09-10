@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 
-public class DokumentRepositoryTest extends RepoAwareTest {
+public class DokumentRepositoryTest extends EntityManagerAwareTest {
 
     private static final UUID FORSENDELSE_ID = UUID.randomUUID();
     private static final String ARKIV_ID = "1234";

@@ -4,10 +4,10 @@ import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import no.nav.foreldrepenger.mottak.extensions.RepositoryExtension;
+import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareExtension;
 
-@ExtendWith(RepositoryExtension.class)
-public class RepoAwareTest {
+@ExtendWith(EntityManagerAwareExtension.class)
+public abstract class EntityManagerAwareTest {
 
     private EntityManager entityManager;
 
