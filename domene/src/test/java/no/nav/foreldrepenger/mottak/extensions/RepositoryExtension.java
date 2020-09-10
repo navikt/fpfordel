@@ -6,10 +6,6 @@ import java.util.TimeZone;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
-import org.junit.jupiter.api.extension.AfterAllCallback;
-import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.BeforeAllCallback;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.InvocationInterceptor;
 import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
@@ -23,9 +19,7 @@ import no.nav.vedtak.felles.testutilities.db.PersistenceUnitInitializer;
 import no.nav.vedtak.felles.testutilities.sikkerhet.DummySubjectHandler;
 import no.nav.vedtak.felles.testutilities.sikkerhet.SubjectHandlerUtils;
 
-public class RepositoryExtension extends
-        PersistenceUnitInitializer
-        implements InvocationInterceptor, TestInstancePostProcessor, BeforeAllCallback, AfterAllCallback, BeforeEachCallback, AfterEachCallback {
+public class RepositoryExtension extends PersistenceUnitInitializer implements InvocationInterceptor, TestInstancePostProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(RepositoryExtension.class);
 
     @Override
@@ -54,33 +48,8 @@ public class RepositoryExtension extends
 
     private EntityTransaction startTransaction() {
         EntityTransaction transaction = getEntityManager().getTransaction();
-        LOG.info("Starter transaction");
         transaction.begin();
-        LOG.info("Startet transaction OK");
         return transaction;
-    }
-
-    @Override
-    public void afterEach(ExtensionContext context) throws Exception {
-        LOG.info("After each");
-
-    }
-
-    @Override
-    public void beforeEach(ExtensionContext context) throws Exception {
-        LOG.info("Before each");
-
-    }
-
-    @Override
-    public void afterAll(ExtensionContext context) throws Exception {
-        LOG.info("After all");
-
-    }
-
-    @Override
-    public void beforeAll(ExtensionContext context) throws Exception {
-        LOG.info("Before all");
     }
 
     @Override
