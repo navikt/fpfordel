@@ -93,7 +93,8 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
     @Test
     public void skalHåndtereInntektsmeldingUtenStartdatoMedManuellJournalføring() throws Exception {
         var dokument = joarkTestsupport
-                .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING, "testsoknader/inntektsmelding-manual-uten-startdato-foreldrepenger-periode-sample.xml");
+                .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING,
+                        "testsoknader/inntektsmelding-manual-uten-startdato-foreldrepenger-periode-sample.xml");
 
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
 
@@ -109,7 +110,8 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
     @Test
     public void skalHåndtereInntektsmeldingUtenGyldigFNR() throws Exception {
         var dokument = joarkTestsupport
-                .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING, "testsoknader/inntektsmelding-manual-uten-startdato-foreldrepenger-periode-sample.xml");
+                .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING,
+                        "testsoknader/inntektsmelding-manual-uten-startdato-foreldrepenger-periode-sample.xml");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
 
         when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.empty());

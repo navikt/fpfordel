@@ -40,7 +40,6 @@ public class MeldingXmlParserTest {
         Path path = Paths.get(getClass().getClassLoader().getResource(filename).toURI());
         return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
     }
-    
 
     public static String retrieveNameSpaceOfXML(Source xmlSource) throws XMLStreamException {
         XMLInputFactory xmlif = XMLInputFactory.newInstance();

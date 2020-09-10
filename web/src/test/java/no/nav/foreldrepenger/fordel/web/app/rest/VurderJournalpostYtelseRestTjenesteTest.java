@@ -53,7 +53,7 @@ public class VurderJournalpostYtelseRestTjenesteTest {
     }
 
     @Test
-    public void skalVurdereInntektsmeldingForeldrepender()  {
+    public void skalVurdereInntektsmeldingForeldrepender() {
         var journalpost = byggJournalpost(DokumentTypeId.INNTEKTSMELDING, "testdata/inntektsmelding-foreldrepenger.xml");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(journalpost);
 
@@ -65,7 +65,7 @@ public class VurderJournalpostYtelseRestTjenesteTest {
     }
 
     @Test
-    public void skalVurdereInntektsmeldingSvangerskapspenger()  {
+    public void skalVurdereInntektsmeldingSvangerskapspenger() {
         var journalpost = byggJournalpost(DokumentTypeId.INNTEKTSMELDING, "testdata/inntektsmelding-svangerskapspenger.xml");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(journalpost);
 
@@ -89,7 +89,7 @@ public class VurderJournalpostYtelseRestTjenesteTest {
     }
 
     @Test
-    public void skalVurdereSøknadEngangsstønad()  {
+    public void skalVurdereSøknadEngangsstønad() {
         var journalpost = byggJournalpost(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL, null);
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(journalpost);
 
@@ -101,7 +101,7 @@ public class VurderJournalpostYtelseRestTjenesteTest {
     }
 
     @Test
-    public void skalGiUdefinertForVedlegg()  {
+    public void skalGiUdefinertForVedlegg() {
         var journalpost = byggJournalpost(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL, null);
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(journalpost);
 

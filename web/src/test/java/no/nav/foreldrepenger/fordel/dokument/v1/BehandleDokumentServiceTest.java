@@ -216,7 +216,8 @@ public class BehandleDokumentServiceTest {
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
         when(journalpost.getStrukturertPayload()).thenReturn(xml);
 
-        assertThrows(FunksjonellException.class, () -> behandleDokumentService.oppdaterOgFerdigstillJournalfoering(lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
+        assertThrows(FunksjonellException.class,
+                () -> behandleDokumentService.oppdaterOgFerdigstillJournalfoering(lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
     }
 
     @Test
@@ -228,7 +229,8 @@ public class BehandleDokumentServiceTest {
         String xml = readFile("testdata/selvb-soeknad-forp-uttak-før-konfigverdi.xml");
         when(journalpost.getStrukturertPayload()).thenReturn(xml);
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
-        var e = assertThrows(FunksjonellException.class, () -> behandleDokumentService.oppdaterOgFerdigstillJournalfoering(lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
+        var e = assertThrows(FunksjonellException.class,
+                () -> behandleDokumentService.oppdaterOgFerdigstillJournalfoering(lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
         assertThat(e.getFeil().getLøsningsforslag()).contains("2018");
     }
 
@@ -241,7 +243,8 @@ public class BehandleDokumentServiceTest {
         String xml = readFile("testdata/fp-adopsjon-far.xml");
         when(journalpost.getStrukturertPayload()).thenReturn(xml);
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
-        var e = assertThrows(FunksjonellException.class, () -> behandleDokumentService.oppdaterOgFerdigstillJournalfoering(lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
+        var e = assertThrows(FunksjonellException.class,
+                () -> behandleDokumentService.oppdaterOgFerdigstillJournalfoering(lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
         assertThat(e.getFeil().getLøsningsforslag()).contains("2018");
     }
 

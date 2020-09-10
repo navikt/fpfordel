@@ -34,7 +34,7 @@ public class RestApiTester {
 
     private static boolean erRestMetodeSomErUnntatt(Method method) {
         boolean unntatt = // Et unntak pr linje
-                (method.getParameterCount() == 1
+                ((method.getParameterCount() == 1)
                         && MultipartInput.class.isAssignableFrom(method.getParameterTypes()[0]));
         return unntatt;
     }

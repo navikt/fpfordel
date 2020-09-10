@@ -24,7 +24,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 public class KlargjorForVLTaskTest {
 
-
     private static final String ARKIV_ID = "234567";
     private static final String SAKSNUMMER = "234567";
 

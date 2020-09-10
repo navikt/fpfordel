@@ -88,8 +88,8 @@ public class JettyDevDbKonfigurasjon {
     }
 
     /**
-     * Migrering kjøres i vilkårlig rekkefølge. Hvis bruker/skjema angitt i {@link DBConnectionProperties}
-     * ikke finnes, opprettes den
+     * Migrering kjøres i vilkårlig rekkefølge. Hvis bruker/skjema angitt i
+     * {@link DBConnectionProperties} ikke finnes, opprettes den
      */
     static void kjørMigreringFor(List<JettyDevDbKonfigurasjon> connectionProperties) {
         connectionProperties.forEach(JettyDevDbKonfigurasjon::kjørMigrering);
@@ -101,7 +101,7 @@ public class JettyDevDbKonfigurasjon {
     }
 
     private static void migrer(DataSource dataSource,
-                               JettyDevDbKonfigurasjon connectionProperties) {
+            JettyDevDbKonfigurasjon connectionProperties) {
 
         class FlywayKonfig {
 
@@ -114,7 +114,6 @@ public class JettyDevDbKonfigurasjon {
                 }
                 return placeholders;
             }
-            
 
             String getMigrationScriptLocation(JettyDevDbKonfigurasjon connectionProperties) {
                 String relativePath = connectionProperties.getMigrationScriptsFilesystemRoot() + connectionProperties.getDatasource();
@@ -122,7 +121,7 @@ public class JettyDevDbKonfigurasjon {
                 File location = new File(baseDir, relativePath);
                 while (!location.exists()) {
                     baseDir = baseDir.getParentFile();
-                    if (baseDir == null || !baseDir.isDirectory()) {
+                    if ((baseDir == null) || !baseDir.isDirectory()) {
                         throw new IllegalArgumentException("Klarte ikke finne : " + baseDir);
                     }
                     location = new File(baseDir, relativePath);
@@ -141,8 +140,8 @@ public class JettyDevDbKonfigurasjon {
             flyway.setLocations(scriptLocation);
         } else {
             /**
-             * Default leter flyway etter classpath:db/migration.
-             * Her vet vi at vi ikke skal lete i classpath
+             * Default leter flyway etter classpath:db/migration. Her vet vi at vi ikke skal
+             * lete i classpath
              */
             flyway.setLocations("denne/stien/finnes/ikke");
         }

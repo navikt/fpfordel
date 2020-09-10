@@ -93,7 +93,7 @@ public class RestApiInputValideringDtoTest extends RestApiTester {
             Valid.class, Null.class, NotNull.class);
 
     @SuppressWarnings("rawtypes")
-    private static final Map<Class, List<List<Class<? extends Annotation>>>> UNNTATT_FRA_VALIDERING = new HashMap<Class, List<List<Class<? extends Annotation>>>>() {
+    private static final Map<Class, List<List<Class<? extends Annotation>>>> UNNTATT_FRA_VALIDERING = new HashMap<>() {
         {
 
             put(boolean.class, singletonList(emptyList()));
@@ -109,7 +109,7 @@ public class RestApiInputValideringDtoTest extends RestApiTester {
     };
 
     @SuppressWarnings("rawtypes")
-    private static final Map<Class, List<List<Class<? extends Annotation>>>> VALIDERINGSALTERNATIVER = new HashMap<Class, List<List<Class<? extends Annotation>>>>() {
+    private static final Map<Class, List<List<Class<? extends Annotation>>>> VALIDERINGSALTERNATIVER = new HashMap<>() {
         {
             put(String.class, asList(
                     asList(Pattern.class, Size.class),
@@ -188,7 +188,7 @@ public class RestApiInputValideringDtoTest extends RestApiTester {
         }
 
         besøkteKlasser.add(klasse);
-        if (klasse.getAnnotation(Entity.class) != null || klasse.getAnnotation(MappedSuperclass.class) != null) {
+        if ((klasse.getAnnotation(Entity.class) != null) || (klasse.getAnnotation(MappedSuperclass.class) != null)) {
             throw new AssertionError("Klassen " + klasse + " er en entitet, kan ikke brukes som DTO. Brukes i " + forrigeKlasse);
         }
 

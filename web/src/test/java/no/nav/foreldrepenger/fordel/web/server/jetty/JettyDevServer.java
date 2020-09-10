@@ -24,12 +24,13 @@ import no.nav.foreldrepenger.fordel.web.server.jetty.JettyDevDbKonfigurasjon.Con
 
 public class JettyDevServer extends JettyServer {
 
-    /** @see https://docs.oracle.com/en/java/javase/11/security/java-secure-socket-extension-jsse-reference-guide.html */
+    /**
+     * @see https://docs.oracle.com/en/java/javase/11/security/java-secure-socket-extension-jsse-reference-guide.html
+     */
     private static final String TRUSTSTORE_PASSW_PROP = "javax.net.ssl.trustStorePassword";
     private static final String TRUSTSTORE_PATH_PROP = "javax.net.ssl.trustStore";
     private static final String KEYSTORE_PASSW_PROP = "no.nav.modig.security.appcert.password";
     private static final String KEYSTORE_PATH_PROP = "no.nav.modig.security.appcert.keystore";
-
 
     public JettyDevServer() {
         super(new JettyDevKonfigurasjon());
@@ -77,12 +78,14 @@ public class JettyDevServer extends JettyServer {
         System.setProperty("conf", "src/main/resources/jetty/");
         super.konfigurerSikkerhet();
 
-        // truststore avgjør hva vi stoler på av sertifikater når vi gjør utadgående TLS kall
+        // truststore avgjør hva vi stoler på av sertifikater når vi gjør utadgående TLS
+        // kall
         initCryptoStoreConfig("truststore", TRUSTSTORE_PATH_PROP, TRUSTSTORE_PASSW_PROP, "changeit");
 
-        // keystore genererer sertifikat og TLS for innkommende kall. Bruker standard prop hvis definert, ellers faller tilbake på modig props
-        var keystoreProp = System.getProperty("javax.net.ssl.keyStore")!=null? "javax.net.ssl.keyStore" : KEYSTORE_PATH_PROP;
-        var keystorePasswProp = System.getProperty("javax.net.ssl.keyStorePassword")!=null? "javax.net.ssl.keyStorePassword" : KEYSTORE_PASSW_PROP;
+        // keystore genererer sertifikat og TLS for innkommende kall. Bruker standard
+        // prop hvis definert, ellers faller tilbake på modig props
+        var keystoreProp = System.getProperty("javax.net.ssl.keyStore") != null ? "javax.net.ssl.keyStore" : KEYSTORE_PATH_PROP;
+        var keystorePasswProp = System.getProperty("javax.net.ssl.keyStorePassword") != null ? "javax.net.ssl.keyStorePassword" : KEYSTORE_PASSW_PROP;
         initCryptoStoreConfig("keystore", keystoreProp, keystorePasswProp, "devillokeystore1234");
     }
 
@@ -97,8 +100,8 @@ public class JettyDevServer extends JettyServer {
                     + storeProperty.toUpperCase().replace('.', '_') + "\'");
         }
         String password = getProperty(storePasswordProperty, defaultPassword);
-        if(password==null) {
-            throw new IllegalStateException("Passord for å aksessere store "+storeName + " i " + storePath + " er null");
+        if (password == null) {
+            throw new IllegalStateException("Passord for å aksessere store " + storeName + " i " + storePath + " er null");
         }
 
         System.setProperty(storeProperty, storeFile.getAbsolutePath());
@@ -139,8 +142,8 @@ public class JettyDevServer extends JettyServer {
         https.addCustomizer(new SecureRequestCustomizer());
 
         ServerConnector sslConnector = new ServerConnector(server,
-            new SslConnectionFactory(sslContextFactory, "http/1.1"),
-            new HttpConnectionFactory(https));
+                new SslConnectionFactory(sslContextFactory, "http/1.1"),
+                new HttpConnectionFactory(https));
         sslConnector.setPort(appKonfigurasjon.getSslPort());
         connectors.add(sslConnector);
 

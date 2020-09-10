@@ -36,7 +36,8 @@ public class DokumentArkivTestUtil {
                 .build();
     }
 
-    public static Dokument lagDokumentBeskrivelse(UUID forsendelseId, DokumentTypeId dokumentTypeId, ArkivFilType arkivFilType, boolean erHoveddokument, String beskrivelse) {
+    public static Dokument lagDokumentBeskrivelse(UUID forsendelseId, DokumentTypeId dokumentTypeId, ArkivFilType arkivFilType,
+            boolean erHoveddokument, String beskrivelse) {
         return Dokument.builder()
                 .setForsendelseId(forsendelseId)
                 .setDokumentInnhold(BLOB, arkivFilType)

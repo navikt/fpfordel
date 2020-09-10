@@ -32,7 +32,7 @@ class JoarkTestsupport {
     }
 
     ArkivJournalpost.Builder lagArkivJournalpost(List<String> brukerListe,
-                                                 DokumentTypeId dokumentTypeId) {
+            DokumentTypeId dokumentTypeId) {
         return ArkivJournalpost.getBuilder()
                 .medJournalpostId(ARKIV_ID)
                 .medTilstand(Journalstatus.MOTTATT)
@@ -57,8 +57,9 @@ class JoarkTestsupport {
 
     ArkivJournalpost lagArkivJournalpostStrukturert(DokumentTypeId dokumentTypeId, String filename) {
         try {
-            if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId))
+            if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
                 return lagArkivJournalpost(Collections.emptyList(), dokumentTypeId).medStrukturertPayload(this.readFile(filename)).build();
+            }
             return lagArkivJournalpost(brukerListe, dokumentTypeId).medStrukturertPayload(this.readFile(filename)).build();
         } catch (Exception e) {
             throw new IllegalArgumentException("Manglende fil");

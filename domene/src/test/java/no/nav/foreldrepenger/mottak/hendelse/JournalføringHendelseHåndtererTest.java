@@ -90,7 +90,7 @@ public class JournalføringHendelseHåndtererTest {
 
     @Test
     public void testDokumentFraKloningIgnoreres() {
-        var builder = JournalfoeringHendelseRecord.newBuilder()
+        JournalfoeringHendelseRecord.newBuilder()
                 .setHendelsesId("12345").setVersjon(1)
                 .setHendelsesType("MidlertidigJournalført")
                 .setTemaNytt(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode()).setTemaGammelt("")

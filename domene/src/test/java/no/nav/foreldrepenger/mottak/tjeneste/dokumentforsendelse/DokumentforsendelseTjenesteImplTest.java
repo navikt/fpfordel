@@ -179,7 +179,7 @@ public class DokumentforsendelseTjenesteImplTest {
 
     @Test
     public void korrektAntallOgTyper__ett_hoveddokument_er_feil() {
-        Set<Dokument> hoveddokumenter = new HashSet<Dokument>() {
+        Set<Dokument> hoveddokumenter = new HashSet<>() {
             {
                 add(createDokument(ArkivFilType.XML, true));
             }
@@ -189,7 +189,7 @@ public class DokumentforsendelseTjenesteImplTest {
 
     @Test
     public void korrektAntallOgTyper__tre_hoveddokument_er_feil() {
-        Set<Dokument> hoveddokumenter = new HashSet<Dokument>() {
+        Set<Dokument> hoveddokumenter = new HashSet<>() {
             {
                 add(createDokument(ArkivFilType.XML, true));
                 add(createDokument(ArkivFilType.PDFA, true));
@@ -201,7 +201,7 @@ public class DokumentforsendelseTjenesteImplTest {
 
     @Test
     public void korrektAntallOgTyper__to_xml_hoveddokument_er_feil() {
-        Set<Dokument> hoveddokumenter = new HashSet<Dokument>() {
+        Set<Dokument> hoveddokumenter = new HashSet<>() {
             {
                 add(createDokument(ArkivFilType.XML, true));
                 add(createDokument(ArkivFilType.XML, true));
@@ -212,7 +212,7 @@ public class DokumentforsendelseTjenesteImplTest {
 
     @Test
     public void korrektAntallOgTyper__to_pdf_hoveddokument_er_feil() {
-        Set<Dokument> hoveddokumenter = new HashSet<Dokument>() {
+        Set<Dokument> hoveddokumenter = new HashSet<>() {
             {
                 add(createDokument(ArkivFilType.PDFA, true));
                 add(createDokument(ArkivFilType.PDFA, true));
@@ -223,7 +223,7 @@ public class DokumentforsendelseTjenesteImplTest {
 
     @Test
     public void korrektAntallOgTyper__ett_xml_og_ett_jpeg_hoveddokument_er_feil() {
-        Set<Dokument> hoveddokumenter = new HashSet<Dokument>() {
+        Set<Dokument> hoveddokumenter = new HashSet<>() {
             {
                 add(createDokument(ArkivFilType.XML, true));
                 add(createDokument(ArkivFilType.JPEG, true));
@@ -234,7 +234,7 @@ public class DokumentforsendelseTjenesteImplTest {
 
     @Test
     public void korrektAntallOgTyper__ett_xml_og_ett_pdf_hoveddokument_er_OK() {
-        Set<Dokument> hoveddokumenter = new HashSet<Dokument>() {
+        Set<Dokument> hoveddokumenter = new HashSet<>() {
             {
                 add(createDokument(ArkivFilType.XML, true));
                 add(createDokument(ArkivFilType.PDFA, true));

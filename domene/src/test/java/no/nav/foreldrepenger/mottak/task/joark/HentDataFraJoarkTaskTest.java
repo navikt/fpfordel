@@ -102,7 +102,7 @@ public class HentDataFraJoarkTaskTest {
         var dokument = joarkTestsupport
                 .lagJArkivJournalpostUstrukturert();
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
-        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(),any())).thenReturn(true);
+        when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
@@ -116,7 +116,7 @@ public class HentDataFraJoarkTaskTest {
         var dokument = joarkTestsupport
                 .lagJArkivJournalpostUstrukturert();
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
-        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(),any())).thenReturn(true);
+        when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
         assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(HentOgVurderVLSakTask.TASKNAME);
@@ -167,7 +167,7 @@ public class HentDataFraJoarkTaskTest {
     public void skal_sende_til_vl_hvis_dokmenttype_kan_håndteres() throws Exception {
         var dokument = joarkTestsupport.lagJArkivJournalpostUstrukturert();
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
-        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(),any())).thenReturn(true);
+        when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
         dataWrapper.setBehandlingTema(BehandlingTema.UDEFINERT);
         dataWrapper.setTema(Tema.UDEFINERT);
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
@@ -214,7 +214,6 @@ public class HentDataFraJoarkTaskTest {
         doReturn(Optional.of(fnrPåInntektsmelding)).when(aktørConsumer)
                 .hentPersonIdentForAktørId(eq(JoarkTestsupport.AKTØR_ID));
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
-
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 

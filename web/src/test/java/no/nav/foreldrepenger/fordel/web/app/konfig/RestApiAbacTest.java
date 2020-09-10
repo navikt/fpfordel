@@ -88,14 +88,14 @@ public class RestApiAbacTest {
     private static void assertAtIngenBrukerDummyVerdierPåBeskyttetRessurs(Method metode) {
         Class<?> klasse = metode.getDeclaringClass();
         BeskyttetRessurs annotation = metode.getAnnotation(BeskyttetRessurs.class);
-        if (annotation != null && !annotation.property().isEmpty()) {
+        if ((annotation != null) && !annotation.property().isEmpty()) {
             if (annotation.property().equals("abac.attributt.drift")) {
                 return;
             }
             fail(klasse.getSimpleName() + "." + metode.getName() + " @" + annotation.getClass().getSimpleName() + " bruker ikke-støttet property: "
                     + annotation.property());
         }
-        if (annotation != null && annotation.action() == BeskyttetRessursActionAttributt.DUMMY) {
+        if ((annotation != null) && (annotation.action() == BeskyttetRessursActionAttributt.DUMMY)) {
             fail(klasse.getSimpleName() + "." + metode.getName() + " Ikke bruk DUMMY-verdi for "
                     + BeskyttetRessursActionAttributt.class.getSimpleName());
         }

@@ -43,7 +43,7 @@ public class WrappedProsessTaskHandlerTest {
         verify(mockProsessTaskRepository, never()).lagre(any(ProsessTaskData.class));
     }
 
-    //-------
+    // -------
 
     private class MyWrappedProsessTaskHandler extends WrappedProsessTaskHandler {
 
@@ -53,7 +53,7 @@ public class WrappedProsessTaskHandlerTest {
 
         @Override
         public void precondition(MottakMeldingDataWrapper dataWrapper) {
-            //Alt er OK her :)
+            // Alt er OK her :)
         }
 
         @Override

@@ -20,7 +20,6 @@ public class PropertiesUtils {
 
     private static String VTP_FILNAVN_LOCAL = "es-vtp.properties";
 
-
     private PropertiesUtils() {
     }
 

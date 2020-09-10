@@ -94,7 +94,7 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
 
         OpprettOppgave request = captor.getValue().build();
         assertThat((String) Whitebox.getInternalState(request, "beskrivelse")).isEqualTo(beskrivelse);
-        assertThat((String)Whitebox.getInternalState(request, "oppgavetype")).isEqualTo(OPPGAVETYPER_JFR);
+        assertThat((String) Whitebox.getInternalState(request, "oppgavetype")).isEqualTo(OPPGAVETYPER_JFR);
     }
 
     @Test
@@ -107,7 +107,6 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
         taskData.setProperty(JOURNAL_ENHET, enhet);
         String beskrivelse = BehandlingTema.ENGANGSSTØNAD_FØDSEL.getTermNavn();
 
-
         ArgumentCaptor<OpprettOppgave.Builder> captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
         when(mockService.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
         when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), eq(Optional.of(enhet)), any())).thenReturn(enhet);
@@ -116,8 +115,8 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
 
         OpprettOppgave request = captor.getValue().build();
         assertThat((String) Whitebox.getInternalState(request, "beskrivelse")).isEqualTo(beskrivelse);
-        assertThat((String)Whitebox.getInternalState(request, "oppgavetype")).isEqualTo(OPPGAVETYPER_JFR);
-        assertThat((String)Whitebox.getInternalState(request, "tildeltEnhetsnr")).isEqualTo(enhet);
+        assertThat((String) Whitebox.getInternalState(request, "oppgavetype")).isEqualTo(OPPGAVETYPER_JFR);
+        assertThat((String) Whitebox.getInternalState(request, "tildeltEnhetsnr")).isEqualTo(enhet);
     }
 
     @Test

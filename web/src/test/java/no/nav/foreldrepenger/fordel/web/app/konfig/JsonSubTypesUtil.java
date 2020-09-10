@@ -16,8 +16,8 @@ public class JsonSubTypesUtil {
         }
 
         return Arrays.asList(jst.value()).stream()
-            .map(type -> type.value())
-            .collect(Collectors.toSet());
+                .map(type -> type.value())
+                .collect(Collectors.toSet());
     }
 
 }
