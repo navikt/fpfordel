@@ -16,8 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
-import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareTest;
 import no.nav.foreldrepenger.mottak.extensions.EntityManagerFPFordelAwareExtension;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
 @ExtendWith(EntityManagerFPFordelAwareExtension.class)
 public class PipRepositoryTest extends EntityManagerAwareTest {

@@ -12,7 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareTest;
 import no.nav.foreldrepenger.mottak.extensions.EntityManagerFPFordelAwareExtension;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.TekniskException;
@@ -25,6 +24,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTypeInfo;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 import no.nav.vedtak.felles.prosesstask.impl.SubjectProvider;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 import no.nav.vedtak.prosesstask.legacy.LegacySubjectProvider;
 
 @ExtendWith(EntityManagerFPFordelAwareExtension.class)
