@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.fordel.web.app.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -32,7 +33,6 @@ import org.junit.jupiter.api.Test;
 
 import com.google.common.net.HttpHeaders;
 
-import no.nav.foreldrepenger.fordel.web.app.exceptions.Valideringsfeil;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.DokumentforsendelseTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseIdDto;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
@@ -185,9 +185,7 @@ public class DokumentforsendelseRestTjenesteTest {
 
     @Test
     public void skal_kaste_valideringsfeil_hvis_ugyldig_uuid() {
-        ForsendelseIdDto dto = new ForsendelseIdDto("1234");
-        assertThatThrownBy(() -> tjeneste.finnStatusinformasjon(dto))
-                .isInstanceOf(Valideringsfeil.class);
+        assertThrows(IllegalArgumentException.class, () -> new ForsendelseIdDto("1234"));
     }
 
     @Test

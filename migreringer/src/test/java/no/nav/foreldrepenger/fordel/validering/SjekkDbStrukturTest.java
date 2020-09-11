@@ -13,20 +13,19 @@ import java.util.TimeZone;
 
 import javax.sql.DataSource;
 
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.fordel.dbstoette.DatasourceConfiguration;
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.mottak.extensions.EntityManagerFPFordelAwareExtension;
 import no.nav.vedtak.felles.lokal.dbstoette.ConnectionHandler;
 import no.nav.vedtak.felles.lokal.dbstoette.DBConnectionProperties;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
 /** Tester at alle migreringer følger standarder for navn og god praksis. */
-public class SjekkDbStrukturTest {
-
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+@ExtendWith(EntityManagerFPFordelAwareExtension.class)
+public class SjekkDbStrukturTest extends EntityManagerAwareTest {
 
     private static final String HJELP = "\n\nDu har nylig lagt til en ny tabell eller kolonne som ikke er dokumentert ihht. gjeldende regler for dokumentasjon."
             + "\nVennligst gå over sql scriptene og dokumenter tabellene på korrekt måte.";
@@ -35,7 +34,7 @@ public class SjekkDbStrukturTest {
 
     private static String schema;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         List<DBConnectionProperties> connectionProperties = DatasourceConfiguration.UNIT_TEST.get();
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));

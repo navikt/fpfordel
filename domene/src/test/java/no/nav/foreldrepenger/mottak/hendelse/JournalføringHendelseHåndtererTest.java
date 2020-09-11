@@ -5,24 +5,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
+import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareTest;
+import no.nav.foreldrepenger.mottak.extensions.EntityManagerFPFordelAwareExtension;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskInfo;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
-public class JournalføringHendelseHåndtererTest {
+@ExtendWith(EntityManagerFPFordelAwareExtension.class)
+public class JournalføringHendelseHåndtererTest extends EntityManagerAwareTest {
 
     private ProsessTaskRepository prosessTaskRepository;
     private DokumentRepository dokumentRepository;
@@ -32,13 +33,10 @@ public class JournalføringHendelseHåndtererTest {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
     }
 
-    @Rule
-    public RepositoryRule repoRule = new UnittestRepositoryRule();
-
-    @Before
+    @BeforeEach
     public void setup() {
-        prosessTaskRepository = new ProsessTaskRepositoryImpl(repoRule.getEntityManager(), null, null);
-        dokumentRepository = new DokumentRepository(repoRule.getEntityManager());
+        prosessTaskRepository = new ProsessTaskRepositoryImpl(getEntityManager(), null, null);
+        dokumentRepository = new DokumentRepository(getEntityManager());
         hendelseHåndterer = new JournalføringHendelseHåndterer(prosessTaskRepository, dokumentRepository);
     }
 
@@ -55,8 +53,7 @@ public class JournalføringHendelseHåndtererTest {
                 .setJournalpostStatus("M");
 
         hendelseHåndterer.handleMessage(null, builder.build());
-        repoRule.getRepository().flush();
-
+        getEntityManager().flush();
         List<ProsessTaskData> result = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         assertThat(result).as("Forventer at en prosesstask er lagt til").hasSize(1);
 
@@ -78,7 +75,7 @@ public class JournalføringHendelseHåndtererTest {
                 .setJournalpostStatus("M");
 
         hendelseHåndterer.handleMessage(null, builder.build());
-        repoRule.getRepository().flush();
+        getEntityManager().flush();
 
         List<ProsessTaskData> result = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         assertThat(result).as("Forventer at en prosesstask er lagt til").hasSize(1);

@@ -6,16 +6,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -28,13 +25,10 @@ import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
 
     private static final String ARKIV_ID = JoarkTestsupport.ARKIV_ID;
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     private ProsessTaskData taskData;
     private HentDataFraJoarkTask joarkTaskTestobjekt;
@@ -43,9 +37,9 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
     private AktørConsumerMedCache aktørConsumer;
     private ArkivTjeneste arkivTjeneste;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
+        // initMocks(this);
 
         ProsessTaskRepository ptr = mock(ProsessTaskRepository.class);
         aktørConsumer = mock(AktørConsumerMedCache.class);

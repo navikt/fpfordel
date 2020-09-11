@@ -8,8 +8,8 @@ import static org.mockito.Mockito.verify;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
@@ -41,7 +41,7 @@ public class KlargjorForVLTaskTest {
 
     private UUID forsendelseId;
 
-    @Before
+    @BeforeEach
     public void setup() {
         prosessTaskRepositoryMock = mock(ProsessTaskRepository.class);
         klargjørForVLTjeneste = mock(KlargjørForVLTjeneste.class);

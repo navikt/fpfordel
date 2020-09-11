@@ -1,8 +1,10 @@
 package no.nav.foreldrepenger.mottak.task;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -17,14 +19,11 @@ import java.util.TimeZone;
 
 import javax.enterprise.inject.Instance;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -37,20 +36,15 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+//@RunWith(CdiRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class HentOgVurderGsakSakTaskTest {
 
     private static final String BRUKER_FNR = "99999999899";
     private static final String ANNEN_PART_FNR = "99999999699";
     private static final String BRUKER_AKTØR_ID = "123";
     private static final String ANNEN_PART_ID = "124";
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
 
     @Mock
     Instance<Period> infotrygdSakGyldigPeriodeInstance;
@@ -70,16 +64,16 @@ public class HentOgVurderGsakSakTaskTest {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         ProsessTaskRepository mockProsessTaskRepository = mock(ProsessTaskRepository.class);
-        when(infotrygdSakGyldigPeriodeInstance.get()).thenReturn(Period.parse("P10M"));
-        when(infotrygdAnnenPartGyldigPeriodeInstance.get()).thenReturn(Period.parse("P18M"));
-        when(mockAktørConsumer.hentPersonIdentForAktørId(BRUKER_AKTØR_ID)).thenReturn(Optional.of(BRUKER_FNR));
-        when(mockAktørConsumer.hentAktørIdForPersonIdent(BRUKER_FNR)).thenReturn(Optional.of(BRUKER_AKTØR_ID));
+        lenient().when(infotrygdSakGyldigPeriodeInstance.get()).thenReturn(Period.parse("P10M"));
+        lenient().when(infotrygdAnnenPartGyldigPeriodeInstance.get()).thenReturn(Period.parse("P18M"));
+        lenient().when(mockAktørConsumer.hentPersonIdentForAktørId(BRUKER_AKTØR_ID)).thenReturn(Optional.of(BRUKER_FNR));
+        lenient().when(mockAktørConsumer.hentAktørIdForPersonIdent(BRUKER_FNR)).thenReturn(Optional.of(BRUKER_AKTØR_ID));
 
-        when(mockAktørConsumer.hentPersonIdentForAktørId(ANNEN_PART_ID)).thenReturn(Optional.of(ANNEN_PART_FNR));
-        when(mockAktørConsumer.hentAktørIdForPersonIdent(ANNEN_PART_FNR)).thenReturn(Optional.of(ANNEN_PART_ID));
+        lenient().when(mockAktørConsumer.hentPersonIdentForAktørId(ANNEN_PART_ID)).thenReturn(Optional.of(ANNEN_PART_FNR));
+        lenient().when(mockAktørConsumer.hentAktørIdForPersonIdent(ANNEN_PART_FNR)).thenReturn(Optional.of(ANNEN_PART_ID));
         RelevantSakSjekker relevansSjekker = new RelevantSakSjekker(svp, fp);
         task = new HentOgVurderInfotrygdSakTask(mockProsessTaskRepository, relevansSjekker, mockAktørConsumer);
 
@@ -119,7 +113,7 @@ public class HentOgVurderGsakSakTaskTest {
 
     @Test
     public void test_doTask_infotrygdsak_i_gsak_men_ikke_relevant_sak_i_infotrygd() {
-        when(ws.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(createInfotrygdSaker(false));
+        lenient().when(ws.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(createInfotrygdSaker(false));
 
         MottakMeldingDataWrapper wrapperIn = opprettMottaksMelding();
 
@@ -135,7 +129,7 @@ public class HentOgVurderGsakSakTaskTest {
     @Test
     public void test_doTask_gammel_infotrygdsak_i_gsak_skip_infotrygd() {
 
-        when(ws.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(new ArrayList<>());
+        lenient().when(ws.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(new ArrayList<>());
 
         MottakMeldingDataWrapper wrapperIn = opprettMottaksMelding();
 
@@ -151,7 +145,7 @@ public class HentOgVurderGsakSakTaskTest {
     @Test
     public void test_doTask_infotrygdsak_i_gsak_og_relevant_i_infotrygd() {
 
-        when(fp.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(createInfotrygdSaker(true));
+        lenient().when(fp.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(createInfotrygdSaker(true));
 
         when(fp.finnSakListe(eq(ANNEN_PART_FNR), any())).thenReturn(createInfotrygdSaker(true));
 
@@ -168,10 +162,7 @@ public class HentOgVurderGsakSakTaskTest {
                 new ProsessTaskData(HentOgVurderInfotrygdSakTask.TASKNAME));
         meldingDataWrapper.setArkivId("123454");
         meldingDataWrapper.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
-
-        expectedException.expect(TekniskException.class);
-
-        task.precondition(meldingDataWrapper);
+        assertThrows(TekniskException.class, () -> task.precondition(meldingDataWrapper));
     }
 
     @Test

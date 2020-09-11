@@ -5,8 +5,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -19,7 +19,7 @@ public class WrappedProsessTaskHandlerTest {
     private ProsessTaskData prosessTaskData;
     private MottakMeldingDataWrapper returnedDataWrapper;
 
-    @Before
+    @BeforeEach
     public void setup() {
         mockProsessTaskRepository = mock(ProsessTaskRepository.class);
         wrappedProsessTaskHandler = new MyWrappedProsessTaskHandler(mockProsessTaskRepository);
