@@ -13,7 +13,7 @@ import java.util.TimeZone;
 
 import javax.sql.DataSource;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -34,7 +34,7 @@ public class SjekkDbStrukturTest extends EntityManagerAwareTest {
 
     private static String schema;
 
-    @BeforeEach
+    @BeforeAll
     public static void setup() {
         List<DBConnectionProperties> connectionProperties = DatasourceConfiguration.UNIT_TEST.get();
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
