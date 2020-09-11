@@ -11,6 +11,7 @@ import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_FORE
 import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER;
 import static no.nav.foreldrepenger.fordel.kodeverdi.Tema.FORELDRE_OG_SVANGERSKAPSPENGER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -19,12 +20,12 @@ import static org.mockito.Mockito.verify;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -36,7 +37,7 @@ import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class HentOgVurderInfotrygdSakTaskTest {
 
     private static final String AKTØR_BRUKER = "1";
@@ -62,7 +63,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     @Mock
     private InfotrygdTjeneste fp;
 
-    @Before
+    @BeforeEach
     public void setup() {
         expectAktørFnrMappings();
     }
@@ -258,7 +259,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
         doWithPrecondition(w);
     }
 
-    @Test(expected = VLException.class)
+    @Test // (expected = VLException.class)
     public void skal_throw_exception_hvis_ukjent_behandlings_tema() throws Exception {
 
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
@@ -268,7 +269,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
         w.setBehandlingTema(BehandlingTema.UDEFINERT);
         w.setDokumentTypeId(SØKNAD_FORELDREPENGER_FØDSEL);
         w.setInntekstmeldingStartdato(now());
-        doWithPrecondition(w);
+        assertThrows(VLException.class, () -> doWithPrecondition(w));
     }
 
     private void doAndAssertOpprettet(MottakMeldingDataWrapper w) {

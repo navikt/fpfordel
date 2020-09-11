@@ -2,9 +2,8 @@ package no.nav.foreldrepenger.fordel.web.app.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,12 +11,11 @@ import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -28,26 +26,21 @@ import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class VurderJournalpostYtelseRestTjenesteTest {
 
     private static final String ARKIV_ID = "12345";
     private static final String AKTØR_ID = "9999999999999";
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
+    @Mock
     private ArkivTjeneste arkivTjeneste;
+    @Mock
     private AktørConsumerMedCache aktørConsumer;
     private VurderJournalpostYtelseRestTjeneste restTjeneste;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
-
-        aktørConsumer = mock(AktørConsumerMedCache.class);
-        arkivTjeneste = mock(ArkivTjeneste.class);
-        when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));
+        lenient().when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));
         restTjeneste = new VurderJournalpostYtelseRestTjeneste(arkivTjeneste, aktørConsumer);
 
     }

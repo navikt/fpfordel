@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -60,7 +60,7 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
     private OpprettGSakOppgaveTask task;
     private EnhetsTjeneste enhetsidTjeneste;
 
-    @Before
+    @BeforeEach
     public void setup() {
         prosessTaskRepository = Mockito.mock(ProsessTaskRepository.class);
         mockService = Mockito.mock(OppgaveRestKlient.class);

@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.task.xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -16,7 +17,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.exception.VLException;
 
@@ -29,11 +30,10 @@ public class MeldingXmlParserTest {
         assertThat(retrieveNameSpaceOfXML(s)).isEqualTo("http://seres.no/xsd/NAV/Inntektsmelding_M/20180924");
     }
 
-    @Test(expected = VLException.class)
+    @Test // (expected = VLException.class)
     public void skal_gi_exception_ved_ukjent_namespace() throws Exception {
         String xml = readFile("testsoknader/foedsel-mor-ukjent-namespace.xml");
-
-        MeldingXmlParser.unmarshallXml(xml);
+        assertThrows(VLException.class, () -> MeldingXmlParser.unmarshallXml(xml));
     }
 
     private String readFile(String filename) throws URISyntaxException, IOException {

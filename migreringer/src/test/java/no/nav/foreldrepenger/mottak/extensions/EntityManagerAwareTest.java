@@ -1,0 +1,20 @@
+package no.nav.foreldrepenger.mottak.extensions;
+
+import javax.persistence.EntityManager;
+
+import org.junit.jupiter.api.extension.ExtendWith;
+
+@ExtendWith(EntityManagerAwareExtension.class)
+public abstract class EntityManagerAwareTest {
+
+    private EntityManager entityManager;
+
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
+
+    public EntityManager getEntityManager() {
+        return entityManager;
+    }
+
+}

@@ -10,19 +10,20 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
+import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareExtension;
+import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareTest;
 
-public class PipRepositoryTest {
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+@ExtendWith(EntityManagerAwareExtension.class)
+public class PipRepositoryTest extends EntityManagerAwareTest {
 
-    private final PipRepository pipRepository = new PipRepository(repoRule.getEntityManager());
-    private final DokumentRepository dokumentRepository = new DokumentRepository(repoRule.getEntityManager());
+    private PipRepository pipRepository;
+    private DokumentRepository dokumentRepository;
 
     private String brukerId = "Dummy";
     private String brukerId2 = "Dummy 2";
@@ -31,6 +32,12 @@ public class PipRepositoryTest {
 
     static {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
+    }
+
+    @BeforeEach
+    public void before() {
+        pipRepository = new PipRepository(getEntityManager());
+        dokumentRepository = new DokumentRepository(getEntityManager());
     }
 
     @Test

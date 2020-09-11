@@ -6,14 +6,14 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import javax.inject.Inject;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import no.nav.foreldrepenger.fordel.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareExtension;
+import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareTest;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.feil.Feil;
@@ -22,23 +22,26 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskInfo;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTypeInfo;
+import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.prosesstask.impl.SubjectProvider;
+import no.nav.vedtak.prosesstask.legacy.LegacySubjectProvider;
 
-@RunWith(CdiRunner.class)
-public class OverførTilGsakFeilhåndteringsalgoritmeTest {
+@ExtendWith(EntityManagerAwareExtension.class)
+@ExtendWith(MockitoExtension.class)
+public class OverførTilGsakFeilhåndteringsalgoritmeTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-    @Inject
     private ProsessTaskRepository prosessTaskRepository;
 
+    @Mock
+    ProsessTaskEventPubliserer ss;
     private OverførTilGsakFeilhåndteringsalgoritme algoritme;
     private ProsessTaskTypeInfo type = lagType();
 
-    @Before
+    @BeforeEach
     public void opprettAlgoritme() {
+        SubjectProvider sp = new LegacySubjectProvider();
+        prosessTaskRepository = new ProsessTaskRepositoryImpl(getEntityManager(), sp, ss);
         algoritme = new OverførTilGsakMedBackoffFeilhåndteringsalgoritme(prosessTaskRepository);
     }
 
