@@ -19,14 +19,15 @@ public class EntityManagerFPFordelAwareExtension extends EntityManagerAwareExten
 
     @Override
     protected void init() {
-        LOG.info("Init ");
+        LOG.info("Init starter");
         SubjectHandlerUtils.useSubjectHandler(DummySubjectHandler.class);
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
         if (ENV.getProperty("maven.cmd.line.args") == null) {
-            LOG.warn("Kjører migreringer");
+            LOG.info("Kjører migreringer");
             migrerUnittestSkjemaer();
         }
         settPlaceholdereOgJdniOppslag();
+        LOG.info("Init ferdig");
     }
 
 }
