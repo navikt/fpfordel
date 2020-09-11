@@ -12,7 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareExtension;
+import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareFordelExtension;
 import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareTest;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.TekniskException;
@@ -27,7 +27,7 @@ import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 import no.nav.vedtak.felles.prosesstask.impl.SubjectProvider;
 import no.nav.vedtak.prosesstask.legacy.LegacySubjectProvider;
 
-@ExtendWith(EntityManagerAwareExtension.class)
+@ExtendWith(EntityManagerAwareFordelExtension.class)
 @ExtendWith(MockitoExtension.class)
 public class OverførTilGsakFeilhåndteringsalgoritmeTest extends EntityManagerAwareTest {
 

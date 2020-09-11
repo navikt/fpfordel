@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
-import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareExtension;
+import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareFordelExtension;
 import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareTest;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -22,7 +22,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
-@ExtendWith(EntityManagerAwareExtension.class)
+@ExtendWith(EntityManagerAwareFordelExtension.class)
 public class JournalføringHendelseHåndtererTest extends EntityManagerAwareTest {
 
     private ProsessTaskRepository prosessTaskRepository;

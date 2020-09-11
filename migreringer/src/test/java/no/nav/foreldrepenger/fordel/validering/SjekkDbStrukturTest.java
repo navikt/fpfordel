@@ -18,13 +18,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.fordel.dbstoette.DatasourceConfiguration;
-import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareExtension;
+import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareFordelExtension;
 import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareTest;
 import no.nav.vedtak.felles.lokal.dbstoette.ConnectionHandler;
 import no.nav.vedtak.felles.lokal.dbstoette.DBConnectionProperties;
 
 /** Tester at alle migreringer følger standarder for navn og god praksis. */
-@ExtendWith(EntityManagerAwareExtension.class)
+@ExtendWith(EntityManagerAwareFordelExtension.class)
 public class SjekkDbStrukturTest extends EntityManagerAwareTest {
 
     private static final String HJELP = "\n\nDu har nylig lagt til en ny tabell eller kolonne som ikke er dokumentert ihht. gjeldende regler for dokumentasjon."

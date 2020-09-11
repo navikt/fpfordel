@@ -4,7 +4,7 @@ import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 
-@ExtendWith(EntityManagerAwareExtension.class)
+@ExtendWith(EntityManagerAwareFordelExtension.class)
 public abstract class EntityManagerAwareTest {
 
     private EntityManager entityManager;

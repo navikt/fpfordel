@@ -23,7 +23,7 @@ import no.nav.vedtak.felles.testutilities.sikkerhet.SubjectHandlerUtils;
 import no.nav.vedtak.util.env.Environment;
 
 public class EntityManagerAwareExtension extends PersistenceUnitInitializer implements InvocationInterceptor, TestInstancePostProcessor {
-    private static final Logger LOG = LoggerFactory.getLogger(EntityManagerAwareExtension.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EntityManagerAwareFordelExtension.class);
     private static final Environment ENV = Environment.current();
 
     @Override
