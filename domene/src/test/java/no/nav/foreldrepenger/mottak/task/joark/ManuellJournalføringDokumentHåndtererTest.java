@@ -7,13 +7,15 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -27,14 +29,18 @@ import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
+@ExtendWith(MockitoExtension.class)
 public class ManuellJournalføringDokumentHåndtererTest {
 
     private static final String DEFAULT_TASK_FOR_MANUELL_JOURNALFØRING = OpprettGSakOppgaveTask.TASKNAME;
 
     private static final String ARKIV_ID = JoarkTestsupport.ARKIV_ID;
 
+    @Mock
     private ProsessTaskData taskData;
+    @Mock
     private ArkivTjeneste arkivTjeneste;
+    @Mock
     private AktørConsumerMedCache aktørConsumer;
     private HentDataFraJoarkTask joarkTaskTestobjekt;
     private MottakMeldingDataWrapper dataWrapper;
@@ -42,11 +48,7 @@ public class ManuellJournalføringDokumentHåndtererTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
-
         ProsessTaskRepository ptr = mock(ProsessTaskRepository.class);
-        arkivTjeneste = mock(ArkivTjeneste.class);
-        aktørConsumer = mock(AktørConsumerMedCache.class);
         joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, aktørConsumer, arkivTjeneste));
         when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));
         when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));

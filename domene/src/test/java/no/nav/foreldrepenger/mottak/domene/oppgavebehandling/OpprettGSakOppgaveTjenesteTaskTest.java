@@ -41,7 +41,6 @@ import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 public class OpprettGSakOppgaveTjenesteTaskTest {
 
@@ -93,8 +92,8 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
         task.doTask(taskData);
 
         OpprettOppgave request = captor.getValue().build();
-        assertThat((String) Whitebox.getInternalState(request, "beskrivelse")).isEqualTo(beskrivelse);
-        assertThat((String) Whitebox.getInternalState(request, "oppgavetype")).isEqualTo(OPPGAVETYPER_JFR);
+        assertThat(request.getBeskrivelse()).isEqualTo(beskrivelse);
+        assertThat(request.getOppgavetype()).isEqualTo(OPPGAVETYPER_JFR);
     }
 
     @Test
@@ -114,9 +113,9 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
         task.doTask(taskData);
 
         OpprettOppgave request = captor.getValue().build();
-        assertThat((String) Whitebox.getInternalState(request, "beskrivelse")).isEqualTo(beskrivelse);
-        assertThat((String) Whitebox.getInternalState(request, "oppgavetype")).isEqualTo(OPPGAVETYPER_JFR);
-        assertThat((String) Whitebox.getInternalState(request, "tildeltEnhetsnr")).isEqualTo(enhet);
+        assertThat(request.getBeskrivelse()).isEqualTo(beskrivelse);
+        assertThat(request.getOppgavetype()).isEqualTo(OPPGAVETYPER_JFR);
+        assertThat(request.getTildeltEnhetsnr()).isEqualTo(enhet);
     }
 
     @Test
@@ -144,6 +143,6 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
         task.doTask(taskData);
 
         OpprettOppgave request = captor.getValue().build();
-        assertThat((String) Whitebox.getInternalState(request, "beskrivelse")).isEqualTo(beskrivelse);
+        assertThat(request.getBeskrivelse()).isEqualTo(beskrivelse);
     }
 }
