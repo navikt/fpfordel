@@ -4,6 +4,7 @@ import static no.nav.foreldrepenger.mottak.task.joark.JoarkTestsupport.AKTØR_ID
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -50,8 +51,8 @@ public class ManuellJournalføringDokumentHåndtererTest {
     public void setUp() throws Exception {
         ProsessTaskRepository ptr = mock(ProsessTaskRepository.class);
         joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, aktørConsumer, arkivTjeneste));
-        when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));
-        when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));
+        lenient().when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));
+        lenient().when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));
         taskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
         taskData.setSekvens("1");
         dataWrapper = new MottakMeldingDataWrapper(taskData);
@@ -95,7 +96,7 @@ public class ManuellJournalføringDokumentHåndtererTest {
     public void skalHåndtereManuellJournalføringMedUgyldigFnr() throws Exception {
         var metadata = joarkTestsupport.lagArkivJournalpostUstrukturert(Collections.emptyList());
         doReturn(metadata).when(arkivTjeneste).hentArkivJournalpost(ARKIV_ID);
-        when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.empty());
+        lenient().when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.empty());
 
         BehandlingTema actualBehandlingTema = BehandlingTema.ENGANGSSTØNAD_FØDSEL;
         dataWrapper.setBehandlingTema(actualBehandlingTema);
