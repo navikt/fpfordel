@@ -3,7 +3,7 @@
     {
       "datasource": "defaultDS",
       "defaultSchema": "vl_fordeling_unit",
-      "schema": "${flyway.placeholders.vl_fordeling_schema_unit}",
+      "schema": "fpfordel_unit",
       "url": "jdbc:oracle:thin:@localhost:1521:XE",
       "default": true,
       "migrationScriptsFilesystemRoot": "migreringer/src/main/resources/db/migration/"

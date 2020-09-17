@@ -6,15 +6,15 @@ BEGIN
   SELECT count(*)
   INTO userexists
   FROM SYS.ALL_USERS
-  WHERE USERNAME = upper('${vl_fordeling_schema_unit}');
+  WHERE USERNAME = 'FPFORDEL_UNIT';
   IF (userexists = 0)
   THEN
-    EXECUTE IMMEDIATE ('CREATE USER ${vl_fordeling_schema_unit} IDENTIFIED BY ${vl_fordeling_schema_unit}');
+    EXECUTE IMMEDIATE ('CREATE USER FPFORDEL_UNIT IDENTIFIED BY fpfordel_unit');
   END IF;
 END;
 /
 
-GRANT CONNECT, RESOURCE, CREATE JOB, CREATE TABLE, CREATE SYNONYM, CREATE VIEW, CREATE MATERIALIZED VIEW TO ${vl_fordeling_schema_unit};
+GRANT CONNECT, RESOURCE, CREATE JOB, CREATE TABLE, CREATE SYNONYM, CREATE VIEW, CREATE MATERIALIZED VIEW TO fpfordel_unit;
 
 -- ###############################
 -- ### Opplegg for lokal jetty ###

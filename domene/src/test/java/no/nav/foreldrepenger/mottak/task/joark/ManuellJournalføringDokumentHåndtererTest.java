@@ -50,9 +50,8 @@ public class ManuellJournalføringDokumentHåndtererTest {
     @BeforeEach
     public void setUp() throws Exception {
         ProsessTaskRepository ptr = mock(ProsessTaskRepository.class);
+        lenient().when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));
         joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, aktørConsumer, arkivTjeneste));
-        lenient().when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));
-        lenient().when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));
         taskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
         taskData.setSekvens("1");
         dataWrapper = new MottakMeldingDataWrapper(taskData);

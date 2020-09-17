@@ -29,7 +29,7 @@
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
 
-        <felles.version>2.1.0-20200914091510-a7533b2</felles.version>
+        <felles.version>2.3.0-20200917192757-1496e84</felles.version>
         <prosesstask.version>2.4.3-20200821080802-12519de</prosesstask.version>
 
         <java.version>14</java.version>
@@ -230,7 +230,11 @@
                 <artifactId>encoder</artifactId>
                 <version>1.2.2</version>
             </dependency>
-         
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.13</version>
+            </dependency>
             <dependency>
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-runtime</artifactId>
@@ -353,7 +357,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.5</version>
+                    <version>0.8.6</version>
                     <executions>
                         <execution>
                             <goals>
