@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.mottak.task.VedlikeholdSchedulerTask;
 import no.nav.foreldrepenger.sikkerhet.abac.BeskyttetRessursAttributt;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskIdDto;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -162,27 +161,6 @@ public class ForvaltningRestTjeneste {
         if (!eksisterende) {
             ProsessTaskData taskData = new ProsessTaskData(VedlikeholdSchedulerTask.TASKTYPE);
             prosessTaskRepository.lagre(taskData);
-        }
-        return Response.ok().build();
-    }
-
-    @POST
-    @Path("/sett-task-ferdig")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Setter prosesstask til status FERDIG", tags = "Forvaltning", responses = {
-            @ApiResponse(responseCode = "200", description = "Task satt til ferdig."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
-    @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
-    public Response setTaskFerdig(
-            @TilpassetAbacAttributt(supplierClass = ForvaltningRestTjeneste.AbacDataSupplier.class) @Parameter(description = "Task som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto taskId) {
-        var data = prosessTaskRepository.finn(taskId.getProsessTaskId());
-        if (data != null) {
-            data.setStatus(ProsessTaskStatus.FERDIG);
-            data.setSisteFeil(null);
-            data.setSisteFeilKode(null);
-            prosessTaskRepository.lagre(data);
         }
         return Response.ok().build();
     }

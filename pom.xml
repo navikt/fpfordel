@@ -30,7 +30,7 @@
         <changelist>-SNAPSHOT</changelist>
 
         <felles.version>2.3.0-20200917192757-1496e84</felles.version>
-        <prosesstask.version>2.4.3-20200821080802-12519de</prosesstask.version>
+        <prosesstask.version>2.4.4-20200918181003-4bc2a52</prosesstask.version>
 
         <java.version>14</java.version>
         <argLine>-Xms256m -Dfile.encoding=UTF-8 -Dlog.level.no.nav=WARN</argLine> <!-- default argLine for surefire-plugin -->

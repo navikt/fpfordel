@@ -105,16 +105,6 @@ public class JettyDevDbKonfigurasjon {
 
         class FlywayKonfig {
 
-            Properties lesFlywayPlaceholders() {
-                Properties placeholders = new Properties();
-                for (String prop : System.getProperties().stringPropertyNames()) {
-                    if (prop.startsWith("flyway.placeholders.")) {
-                        placeholders.setProperty(prop, System.getProperty(prop));
-                    }
-                }
-                return placeholders;
-            }
-
             String getMigrationScriptLocation(JettyDevDbKonfigurasjon connectionProperties) {
                 String relativePath = connectionProperties.getMigrationScriptsFilesystemRoot() + connectionProperties.getDatasource();
                 File baseDir = new File(".").getAbsoluteFile();
@@ -145,7 +135,6 @@ public class JettyDevDbKonfigurasjon {
              */
             flyway.setLocations("denne/stien/finnes/ikke");
         }
-        flyway.configure(flywayKonfig.lesFlywayPlaceholders());
 
         try {
             flyway.migrate();
