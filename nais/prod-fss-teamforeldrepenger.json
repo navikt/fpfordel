@@ -30,7 +30,7 @@
 		"OIDC_OPENAM_ISSUERURL": "https://isso.adeo.no:443/isso/oauth2",
 		"OIDC_OPENAM_JWKSURL": "https://isso.adeo.no:443/isso/oauth2/connect/jwk_uri",
 		"OIDC_STS_ISSUER_URL": "https://security-token-service.nais.adeo.no",
-		"OIDC_STS_JWKS_URL": "https://security-token-service.nais.adeo.no/rest/v1/sts/jwks",
+		"OIDC_STS_JWKS_URL": "http://security-token-service.default/rest/v1/sts/jwks",
 		"OPENIDCONNECT_USERNAME": "fpfordel-p",
 		"OPENIDCONNECT_ISSOHOST": "https://isso.adeo.no:443/isso/oauth2",
 		"OPPGAVE_RS_URI": "http://oppgave.default/api/v1/oppgaver",
