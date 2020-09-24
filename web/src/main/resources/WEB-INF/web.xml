@@ -18,9 +18,6 @@
 
     <!-- Listeners her slik at vi kan styre rekkefølgen de kjøres i: -->
     <listener>
-        <listener-class>no.nav.foreldrepenger.fordel.web.app.startupinfo.AppStartupServletContextListener</listener-class>
-    </listener>
-    <listener>
         <listener-class>no.nav.vedtak.sikkerhet.jaspic.SamAutoRegistration</listener-class>
     </listener>
     <listener>
