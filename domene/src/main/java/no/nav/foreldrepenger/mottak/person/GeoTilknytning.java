@@ -1,6 +1,6 @@
-package no.nav.foreldrepenger.mottak.behandlendeenhet;
+package no.nav.foreldrepenger.mottak.person;
 
-class GeoTilknytning {
+public class GeoTilknytning {
     private final String tilknytning;
     private final String diskresjonskode;
 
@@ -9,11 +9,11 @@ class GeoTilknytning {
         this.diskresjonskode = diskresjonskode;
     }
 
-    String getTilknytning() {
+    public String getTilknytning() {
         return tilknytning;
     }
 
-    String getDiskresjonskode() {
+    public String getDiskresjonskode() {
         return diskresjonskode;
     }
 

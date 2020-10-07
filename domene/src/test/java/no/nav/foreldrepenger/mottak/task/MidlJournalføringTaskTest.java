@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.mottak.journal.dokarkiv.DokArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.JournalpostType;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostResponse;
+import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personnavn;
@@ -70,8 +71,8 @@ public class MidlJournalføringTaskTest {
         when(aktørConsumer.hentPersonIdentForAktørId(BRUKER_ID)).thenReturn(Optional.of(FNR));
         when(personConsumer.hentPersonResponse(any()))
                 .thenReturn(new HentPersonResponse().withPerson(new Person().withPersonnavn(new Personnavn().withSammensattNavn(NAVN))));
-
-        ArkivTjeneste arkivTjeneste = new ArkivTjeneste(null, dokArkivTjeneste, dokumentRepositoryMock, personConsumer, aktørConsumer);
+        var brukerTjeneste = new PersonTjeneste(personConsumer, null, aktørConsumer);
+        ArkivTjeneste arkivTjeneste = new ArkivTjeneste(null, dokArkivTjeneste, dokumentRepositoryMock, brukerTjeneste, aktørConsumer);
         task = new MidlJournalføringTask(prosessTaskRepositoryMock, arkivTjeneste, dokumentRepositoryMock);
 
     }

@@ -45,14 +45,9 @@ import no.nav.foreldrepenger.mottak.journal.saf.model.BrukerIdType;
 import no.nav.foreldrepenger.mottak.journal.saf.model.DokumentInfo;
 import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
 import no.nav.foreldrepenger.mottak.journal.saf.model.VariantFormat;
+import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personidenter;
-import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest;
-import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
-import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
 
 @ApplicationScoped
 public class ArkivTjeneste {
@@ -68,7 +63,7 @@ public class ArkivTjeneste {
     private DokArkivTjeneste dokArkivTjeneste;
     private DokumentRepository dokumentRepository;
     private AktørConsumerMedCache aktørConsumer;
-    private PersonConsumer personConsumer;
+    private PersonTjeneste personConsumer;
 
     ArkivTjeneste() {
         // CDI
@@ -78,7 +73,7 @@ public class ArkivTjeneste {
     public ArkivTjeneste(SafTjeneste safTjeneste,
             DokArkivTjeneste dokArkivTjeneste,
             DokumentRepository dokumentRepository,
-            PersonConsumer personConsumer,
+            PersonTjeneste personConsumer,
             AktørConsumerMedCache aktørConsumer) {
         this.safTjeneste = safTjeneste;
         this.dokArkivTjeneste = dokArkivTjeneste;
@@ -172,7 +167,7 @@ public class ArkivTjeneste {
         if ((journalpost.getAvsenderMottaker() == null) || (journalpost.getAvsenderMottaker().getId() == null)
                 || (journalpost.getAvsenderMottaker().getNavn() == null)) {
             var fnr = aktørConsumer.hentPersonIdentForAktørId(aktørId).orElseThrow(() -> new IllegalStateException("Mangler fnr for aktørid"));
-            var navn = brukersNavn(fnr);
+            var navn = personConsumer.hentNavn(fnr);
             LOG.info("FPFORDEL oppdaterer manglende avsender for {}", journalpost.getJournalpostId());
             builder.medAvsender(fnr, navn);
         }
@@ -303,27 +298,6 @@ public class ArkivTjeneste {
                 .orElseThrow(() -> new IllegalStateException("Aktør uten personident"));
     }
 
-    private String brukersNavn(String fnr) {
-        if (fnr == null) {
-            return null;
-        }
-        PersonIdent personIdent = new PersonIdent();
-        NorskIdent norskIdent = new NorskIdent();
-        norskIdent.setIdent(fnr);
-        Personidenter type = new Personidenter();
-        type.setValue((fnr.charAt(0) >= '4') && (fnr.charAt(0) <= '7') ? "DNR" : "FNR");
-        norskIdent.setType(type);
-        personIdent.setIdent(norskIdent);
-        HentPersonRequest request = new HentPersonRequest();
-        request.setAktoer(personIdent);
-        try {
-            HentPersonResponse response = personConsumer.hentPersonResponse(request);
-            return response.getPerson().getPersonnavn().getSammensattNavn();
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Fant ikke person", e);
-        }
-    }
-
     private OpprettJournalpostRequest lagOpprettRequest(UUID forsendelseId, String avsenderAktørId) {
         var metadata = dokumentRepository.hentEksaktDokumentMetadata(forsendelseId);
         var dokumenter = dokumentRepository.hentDokumenter(forsendelseId);
@@ -334,7 +308,7 @@ public class ArkivTjeneste {
         var tittel = DokumentTypeId.UDEFINERT.equals(hovedtype) ? DokumentTypeId.ANNET.getTermNavn() : hovedtype.getTermNavn();
         var bruker = new Bruker(metadata.getBrukerId(), BrukerIdType.AKTOERID);
         var ident = mapAktørIdTilFnr(avsenderAktørId);
-        var avsender = new AvsenderMottaker(ident, AvsenderMottakerIdType.FNR, brukersNavn(ident));
+        var avsender = new AvsenderMottaker(ident, AvsenderMottakerIdType.FNR, personConsumer.hentNavn(ident));
 
         var request = OpprettJournalpostRequest.nyInngående();
         request.setTittel(tittel);

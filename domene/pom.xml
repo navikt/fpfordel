@@ -137,6 +137,10 @@
             <artifactId>person-klient</artifactId>
         </dependency>
         <dependency>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+            <artifactId>pdl-klient</artifactId>
+        </dependency>
+        <dependency>
             <groupId>no.nav.foreldrepenger.kontrakter</groupId>
             <artifactId>fordel-v1</artifactId>
         </dependency>
