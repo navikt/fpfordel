@@ -37,7 +37,6 @@ import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
 import no.nav.vedtak.felles.integrasjon.pdl.Tema;
 import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
-import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class PersonTjeneste {
@@ -47,7 +46,7 @@ public class PersonTjeneste {
     private AktørConsumerMedCache aktørConsumer;
     private PersonConsumer personConsumer;
     private PdlKlient pdlKlient;
-    private boolean isProd = Environment.current().isProd();
+    private boolean isProd = false; //Environment.current().isProd();
 
     PersonTjeneste() {
         // CDI
