@@ -37,8 +37,6 @@ import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
 import no.nav.vedtak.felles.integrasjon.pdl.Tema;
 import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
-import no.nav.vedtak.util.env.Cluster;
-import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class PersonTjeneste {
@@ -48,7 +46,6 @@ public class PersonTjeneste {
     private AktørConsumerMedCache aktørConsumer;
     private PersonConsumer personConsumer;
     private PdlKlient pdlKlient;
-    private boolean isProd = !Cluster.LOCAL.equals(Environment.current().getCluster());
 
     PersonTjeneste() {
         // CDI
@@ -65,14 +62,14 @@ public class PersonTjeneste {
 
     public String hentNavn(String fnr) {
         var navn = brukersNavn(fnr);
-        if (isProd && navn != null) {
+        if (navn != null) {
             try {
                 var request = new HentPersonQueryRequest();
                 request.setIdent(fnr);
                 var projection = new PersonResponseProjection()
                         .navn(new NavnResponseProjection().forkortetNavn());
                 var person = pdlKlient.hentPerson(request, projection, Tema.FOR);
-                var pdlNavn = person.getNavn().stream().map(Navn::getForkortetNavn).findFirst().orElse(null);
+                var pdlNavn = person.getNavn().stream().map(PersonTjeneste::mapNavn).findFirst().orElse(null);
                 if (Objects.equals(navn, pdlNavn)) {
                     LOG.info("FPFORDEL PDL navn: sammensatt og forkortet navn likt");
                 } else {
@@ -85,6 +82,12 @@ public class PersonTjeneste {
         return navn;
     }
 
+    private static String mapNavn(Navn navn) {
+        if (navn.getForkortetNavn() != null)
+            return navn.getForkortetNavn();
+        return navn.getEtternavn() + " " + navn.getFornavn() + (navn.getMellomnavn() == null ? "" : " " + navn.getMellomnavn());
+    }
+
     public GeoTilknytning hentGeografiskTilknytning(String fnr) {
         HentGeografiskTilknytningRequest request = new HentGeografiskTilknytningRequest();
         request.setAktoer(lagPersonIdent(fnr));
@@ -94,9 +97,8 @@ public class PersonTjeneste {
                     ? response.getGeografiskTilknytning().getGeografiskTilknytning()
                     : null;
             String diskKode = response.getDiskresjonskode() != null ? response.getDiskresjonskode().getValue() : null;
-            if (isProd) {
-                pdlGTLogSammenlign(fnr, geoTilkn, diskKode);
-            }
+            pdlGTLogSammenlign(fnr, geoTilkn, diskKode);
+
             return new GeoTilknytning(geoTilkn, diskKode);
         } catch (HentGeografiskTilknytningSikkerhetsbegrensing e) {
             throw PersonTjeneste.PersonTjenesteFeil.FACTORY.enhetsTjenesteSikkerhetsbegrensing(e).toException();
