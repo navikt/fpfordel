@@ -37,6 +37,8 @@ import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
 import no.nav.vedtak.felles.integrasjon.pdl.Tema;
 import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
+import no.nav.vedtak.util.env.Cluster;
+import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class PersonTjeneste {
@@ -46,7 +48,7 @@ public class PersonTjeneste {
     private AktørConsumerMedCache aktørConsumer;
     private PersonConsumer personConsumer;
     private PdlKlient pdlKlient;
-    private boolean isProd = false; //Environment.current().isProd();
+    private boolean isProd = !Cluster.LOCAL.equals(Environment.current().getCluster());
 
     PersonTjeneste() {
         // CDI
@@ -160,6 +162,8 @@ public class PersonTjeneste {
     }
 
     private String getTilknytning(Person person) {
+        if (person.getGeografiskTilknytning() == null || person.getGeografiskTilknytning().getGtType() == null)
+            return null;
         var kode = person.getGeografiskTilknytning().getGtType();
         if (GtType.BYDEL.equals(kode))
             return person.getGeografiskTilknytning().getGtBydel();
