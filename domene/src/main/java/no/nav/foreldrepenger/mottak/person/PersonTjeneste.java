@@ -110,7 +110,7 @@ public class PersonTjeneste {
             var query = new HentPersonQueryRequest();
             query.setIdent(fnr);
             var projection = new PersonResponseProjection()
-                    .geografiskTilknytning(new GeografiskTilknytningResponseProjection().all$())
+                    .geografiskTilknytning(new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand())
                     .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
             var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
             var pdlDiskresjon = getDiskresjonskode(person);
