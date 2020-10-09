@@ -67,7 +67,8 @@ public class PersonTjeneste {
                 var request = new HentPersonQueryRequest();
                 request.setIdent(fnr);
                 var projection = new PersonResponseProjection()
-                        .navn(new NavnResponseProjection().forkortetNavn());
+                        .navn(new NavnResponseProjection().forkortetNavn()
+                        .fornavn().mellomnavn().etternavn());
                 var person = pdlKlient.hentPerson(request, projection, Tema.FOR);
                 var pdlNavn = person.getNavn().stream().map(PersonTjeneste::mapNavn).findFirst().orElse(null);
                 if (Objects.equals(navn, pdlNavn)) {
