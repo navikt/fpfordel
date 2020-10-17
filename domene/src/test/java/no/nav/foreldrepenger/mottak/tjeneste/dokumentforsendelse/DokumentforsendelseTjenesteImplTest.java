@@ -31,10 +31,10 @@ import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
+import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseIdDto;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.testutilities.sikkerhet.StaticSubjectHandler;
@@ -57,7 +57,7 @@ public class DokumentforsendelseTjenesteImplTest {
     @Mock
     private ProsessTaskRepository prosessTaskRepositoryMock;
     @Mock
-    private AktørConsumerMedCache aktørConsumerMock;
+    private AktørTjeneste aktørConsumerMock;
 
     private DokumentforsendelseTjenesteImpl tjeneste;
 

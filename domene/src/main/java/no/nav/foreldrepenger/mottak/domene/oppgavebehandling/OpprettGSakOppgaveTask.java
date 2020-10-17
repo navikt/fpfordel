@@ -25,9 +25,9 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Temagrupper;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
+import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.foreldrepenger.mottak.task.SlettForsendelseTask;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OppgaveRestKlient;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
@@ -54,14 +54,14 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     static final String OPPGAVETYPER_JFR = "JFR"; // Fra offisielt kodeverk
 
     private final EnhetsTjeneste enhetsidTjeneste;
-    private final AktørConsumerMedCache aktørConsumer;
+    private final AktørTjeneste aktørConsumer;
     private final ProsessTaskRepository prosessTaskRepository;
     private final OppgaveRestKlient restKlient;
 
     @Inject
     public OpprettGSakOppgaveTask(ProsessTaskRepository prosessTaskRepository,
             EnhetsTjeneste enhetsidTjeneste,
-            AktørConsumerMedCache aktørConsumer,
+            AktørTjeneste aktørConsumer,
             OppgaveRestKlient restKlient) {
         this.enhetsidTjeneste = enhetsidTjeneste;
         this.aktørConsumer = aktørConsumer;

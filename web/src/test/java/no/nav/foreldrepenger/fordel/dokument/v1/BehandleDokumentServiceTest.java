@@ -4,6 +4,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,7 +20,10 @@ import java.util.TimeZone;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -31,12 +35,13 @@ import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
+import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.OppdaterOgFerdigstillJournalfoeringUgyldigInput;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.meldinger.OppdaterOgFerdigstillJournalfoeringRequest;
 import no.nav.vedtak.exception.FunksjonellException;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 
+@ExtendWith(MockitoExtension.class)
 public class BehandleDokumentServiceTest {
 
     static {
@@ -51,16 +56,21 @@ public class BehandleDokumentServiceTest {
     private static final String AKTØR_ID = "9000000000009";
     private static final String BRUKER_FNR = "99999999899";
 
+    @Mock
     private ArkivTjeneste arkivTjeneste;
+    @Mock
     private KlargjørForVLTjeneste klargjørForVLTjenesteMock;
+    @Mock
     private FagsakRestKlient fagsakRestKlientMock;
-    private AktørConsumerMedCache aktørConsumer;
+    @Mock
+    private AktørTjeneste aktørConsumer;
 
     private BehandlingTema engangsstønadFødsel;
     private BehandlingTema foreldrepengerFødsel;
     private BehandlingTema foreldrepengerAdopsjon;
     private BehandlingTema foreldrepenger;
     private BehandlingTema engangsstønad;
+    @Mock
     private ArkivJournalpost journalpost;
 
     @BeforeEach
@@ -72,52 +82,45 @@ public class BehandleDokumentServiceTest {
         foreldrepenger = BehandlingTema.FORELDREPENGER;
         DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
 
-        fagsakRestKlientMock = mock(FagsakRestKlient.class);
-
-        when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
+        lenient().when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, engangsstønad.getOffisiellKode())));
 
-        journalpost = mock(ArkivJournalpost.class);
-        when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
-        when(journalpost.getJournalposttype()).thenReturn(Journalposttype.INNGÅENDE);
-        when(journalpost.getHovedtype()).thenReturn(dokumentTypeId);
+        lenient().when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
+        lenient().when(journalpost.getJournalposttype()).thenReturn(Journalposttype.INNGÅENDE);
+        lenient().when(journalpost.getHovedtype()).thenReturn(dokumentTypeId);
 
-        arkivTjeneste = mock(ArkivTjeneste.class);
-        when(arkivTjeneste.hentArkivJournalpost(JOURNALPOST_ID)).thenReturn(journalpost);
+        lenient().when(arkivTjeneste.hentArkivJournalpost(JOURNALPOST_ID)).thenReturn(journalpost);
 
-        klargjørForVLTjenesteMock = mock(KlargjørForVLTjeneste.class);
-
-        aktørConsumer = mock(AktørConsumerMedCache.class);
         when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.empty());
-        when(aktørConsumer.hentAktørIdForPersonIdent(BRUKER_FNR)).thenReturn(Optional.of(AKTØR_ID));
+        lenient().when(aktørConsumer.hentAktørIdForPersonIdent(BRUKER_FNR)).thenReturn(Optional.of(AKTØR_ID));
 
         behandleDokumentService = new BehandleDokumentService(klargjørForVLTjenesteMock,
                 fagsakRestKlientMock, aktørConsumer, arkivTjeneste, mock(DokumentRepository.class));
     }
 
     @Test
-    public void skalValiderePåkrevdInput_enhetId() throws Exception {
+    public void skalValiderePåkrevdInput_enhetId() {
         var e = assertThrows(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class,
                 () -> behandleDokumentService.oppdaterOgFerdigstillJournalfoering(lagRequest(null, JOURNALPOST_ID, SAKSNUMMER)));
         assertThat(e.getMessage().contains(BehandleDokumentService.ENHET_MANGLER));
     }
 
     @Test
-    public void skalValiderePåkrevdInput_journalpostId() throws Exception {
+    public void skalValiderePåkrevdInput_journalpostId() {
         var e = assertThrows(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class,
                 () -> behandleDokumentService.oppdaterOgFerdigstillJournalfoering(lagRequest(ENHETID, null, SAKSNUMMER)));
         assertThat(e.getMessage().contains(BehandleDokumentService.JOURNALPOST_MANGLER));
     }
 
     @Test
-    public void skalValiderePåkrevdInput_saksnummer() throws Exception {
+    public void skalValiderePåkrevdInput_saksnummer() {
         var e = assertThrows(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class,
                 () -> behandleDokumentService.oppdaterOgFerdigstillJournalfoering(lagRequest(ENHETID, JOURNALPOST_ID, null)));
         assertThat(e.getMessage().contains(BehandleDokumentService.SAKSNUMMER_UGYLDIG));
     }
 
     @Test
-    public void skalValidereAtFagsakFinnes() throws Exception {
+    public void skalValidereAtFagsakFinnes() {
         when(fagsakRestKlientMock.finnFagsakInfomasjon(any()))
                 .thenReturn(Optional.empty());
         var e = assertThrows(FunksjonellException.class,
@@ -127,7 +130,7 @@ public class BehandleDokumentServiceTest {
     }
 
     @Test
-    public void skalIkkeJournalføreKlagerPåSakUtenBehandling() throws Exception {
+    public void skalIkkeJournalføreKlagerPåSakUtenBehandling() {
 
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional
@@ -150,7 +153,7 @@ public class BehandleDokumentServiceTest {
     }
 
     @Test
-    public void skalIkkeJournalførePapirsøknadSakAnnenYtelse() throws Exception {
+    public void skalIkkeJournalførePapirsøknadSakAnnenYtelse() {
 
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional
@@ -177,7 +180,7 @@ public class BehandleDokumentServiceTest {
     }
 
     @Test
-    public void skalGiUnntakNårDetFinnesManglerSomIkkeKanRettes() throws Exception {
+    public void skalGiUnntakNårDetFinnesManglerSomIkkeKanRettes() {
         assertThrows(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class,
                 () -> behandleDokumentService.oppdaterOgFerdigstillJournalfoering(lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
     }

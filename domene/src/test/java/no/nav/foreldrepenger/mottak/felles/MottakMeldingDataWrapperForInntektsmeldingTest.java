@@ -26,14 +26,14 @@ public class MottakMeldingDataWrapperForInntektsmeldingTest {
     }
 
     @Test
-    public void skal_kunne_sette_inn_startdatoForeldrepengerPeriode_og_hente_ut_igjen() throws Exception {
+    public void skal_kunne_sette_inn_startdatoForeldrepengerPeriode_og_hente_ut_igjen() {
         final LocalDate actualDate = LocalDate.now();
         testObjekt.setFørsteUttakssdag(actualDate);
         assertThat(testObjekt.getFørsteUttaksdag().get()).isEqualTo(actualDate);
     }
 
     @Test
-    public void skal_kunne_sette_inn_årsakTilInnsending_og_hente_ut_igjen() throws Exception {
+    public void skal_kunne_sette_inn_årsakTilInnsending_og_hente_ut_igjen() {
         final String actualÅrsak = "Endring";
         testObjekt.setÅrsakTilInnsending(actualÅrsak);
         assertThat(testObjekt.getÅrsakTilInnsending().get()).isEqualTo(actualÅrsak);

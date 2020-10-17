@@ -45,7 +45,7 @@ public class EnhetsTjenesteTest {
     @BeforeEach
     public void setup() {
         when(arbeidsfordelingTjeneste.hentAlleAktiveEnheter(any())).thenReturn(List.of(FORDELING_ENHET));
-        var personTjeneste = new PersonTjeneste(personConsumer, null, null);
+        var personTjeneste = new PersonTjeneste(personConsumer, null);
         enhetsTjeneste = new EnhetsTjeneste(personTjeneste, arbeidsfordelingTjeneste);
     }
 

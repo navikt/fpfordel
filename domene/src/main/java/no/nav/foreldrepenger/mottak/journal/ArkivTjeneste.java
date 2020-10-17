@@ -45,9 +45,9 @@ import no.nav.foreldrepenger.mottak.journal.saf.model.BrukerIdType;
 import no.nav.foreldrepenger.mottak.journal.saf.model.DokumentInfo;
 import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
 import no.nav.foreldrepenger.mottak.journal.saf.model.VariantFormat;
+import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 
 @ApplicationScoped
 public class ArkivTjeneste {
@@ -62,7 +62,7 @@ public class ArkivTjeneste {
     private SafTjeneste safTjeneste;
     private DokArkivTjeneste dokArkivTjeneste;
     private DokumentRepository dokumentRepository;
-    private AktørConsumerMedCache aktørConsumer;
+    private AktørTjeneste aktørConsumer;
     private PersonTjeneste personConsumer;
 
     ArkivTjeneste() {
@@ -74,7 +74,7 @@ public class ArkivTjeneste {
             DokArkivTjeneste dokArkivTjeneste,
             DokumentRepository dokumentRepository,
             PersonTjeneste personConsumer,
-            AktørConsumerMedCache aktørConsumer) {
+                         AktørTjeneste aktørConsumer) {
         this.safTjeneste = safTjeneste;
         this.dokArkivTjeneste = dokArkivTjeneste;
         this.dokumentRepository = dokumentRepository;

@@ -110,7 +110,7 @@ public class DokumentforsendelseRestTjenesteTest {
     }
 
     @Test
-    public void skal_kaste_teknisk_exception_hvis_metadata_har_flere_filer_enn_lastet_opp() throws Exception {
+    public void skal_kaste_teknisk_exception_hvis_metadata_har_flere_filer_enn_lastet_opp() {
         List<InputPart> inputParts = new ArrayList<>();
         Collections.addAll(inputParts, metadataPart, hoveddokumentPart, hoveddokumentPartPdf);
         when(input.getParts()).thenReturn(inputParts);
@@ -135,7 +135,7 @@ public class DokumentforsendelseRestTjenesteTest {
     }
 
     @Test
-    public void skal_kaste_teknisk_exception_hvis_hoveddokument_mangler_name() throws Exception {
+    public void skal_kaste_teknisk_exception_hvis_hoveddokument_mangler_name() {
         MultivaluedMap<String, String> map = new MultivaluedMapImpl<>();
         map.put("Content-Disposition", Arrays.asList("mangler ; foo=name"));
         when(hoveddokumentPart.getHeaders()).thenReturn(map);
@@ -146,7 +146,7 @@ public class DokumentforsendelseRestTjenesteTest {
     }
 
     @Test
-    public void skal_kaste_teknisk_exception_hvis_vedlegg_ikke_er_mediatype_pdf() throws Exception {
+    public void skal_kaste_teknisk_exception_hvis_vedlegg_ikke_er_mediatype_pdf() {
         when(vedleggPart.getMediaType()).thenReturn(MediaType.APPLICATION_XML_TYPE);
 
         assertThatThrownBy(() -> tjeneste.uploadFile(input))

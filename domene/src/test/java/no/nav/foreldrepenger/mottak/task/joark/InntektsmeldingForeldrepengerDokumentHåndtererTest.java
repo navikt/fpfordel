@@ -12,6 +12,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
@@ -20,8 +21,8 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
+import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -34,16 +35,15 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
     private HentDataFraJoarkTask joarkTaskTestobjekt;
     private MottakMeldingDataWrapper dataWrapper;
     private JoarkTestsupport joarkTestsupport = new JoarkTestsupport();
-    private AktørConsumerMedCache aktørConsumer;
+    @Mock
+    private AktørTjeneste aktørConsumer;
+    @Mock
     private ArkivTjeneste arkivTjeneste;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         // initMocks(this);
-
         ProsessTaskRepository ptr = mock(ProsessTaskRepository.class);
-        aktørConsumer = mock(AktørConsumerMedCache.class);
-        arkivTjeneste = mock(ArkivTjeneste.class);
         joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, aktørConsumer, arkivTjeneste));
         when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));
         taskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
@@ -54,7 +54,7 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
     }
 
     @Test
-    public void skalHåndtereIntekksmeldingForeldrepengerManuellJournalføringDokumentHåndterer() throws Exception {
+    public void skalHåndtereIntekksmeldingForeldrepengerManuellJournalføringDokumentHåndterer() {
         var dokument = joarkTestsupport
                 .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING, "testsoknader/inntektsmelding-manual-sample.xml");
 
@@ -70,7 +70,7 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
     }
 
     @Test
-    public void skalHåndtereIntekksmeldingForeldrepengerElektronikJournalføringDokumentHåndterer() throws Exception {
+    public void skalHåndtereIntekksmeldingForeldrepengerElektronikJournalføringDokumentHåndterer() {
         var dokument = joarkTestsupport
                 .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING, "testsoknader/inntektsmelding-elektronisk-sample.xml");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
@@ -85,7 +85,7 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
     }
 
     @Test
-    public void skalHåndtereInntektsmeldingUtenStartdatoMedManuellJournalføring() throws Exception {
+    public void skalHåndtereInntektsmeldingUtenStartdatoMedManuellJournalføring() {
         var dokument = joarkTestsupport
                 .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING,
                         "testsoknader/inntektsmelding-manual-uten-startdato-foreldrepenger-periode-sample.xml");
@@ -102,7 +102,7 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
     }
 
     @Test
-    public void skalHåndtereInntektsmeldingUtenGyldigFNR() throws Exception {
+    public void skalHåndtereInntektsmeldingUtenGyldigFNR() {
         var dokument = joarkTestsupport
                 .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING,
                         "testsoknader/inntektsmelding-manual-uten-startdato-foreldrepenger-periode-sample.xml");

@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
+import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 public class VurderJournalpostYtelseRestTjenesteTest {
@@ -35,7 +35,7 @@ public class VurderJournalpostYtelseRestTjenesteTest {
     @Mock
     private ArkivTjeneste arkivTjeneste;
     @Mock
-    private AktørConsumerMedCache aktørConsumer;
+    private AktørTjeneste aktørConsumer;
     private VurderJournalpostYtelseRestTjeneste restTjeneste;
 
     @BeforeEach
