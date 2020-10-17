@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
+import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
 import no.nav.foreldrepenger.mottak.task.MidlJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.OpprettSakTask;
@@ -40,7 +41,6 @@ import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
@@ -51,7 +51,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.behandleDokumentForsendelse";
 
-    private final AktørConsumerMedCache aktørConsumer;
+    private final AktørTjeneste aktørConsumer;
     private final FagsakRestKlient fagsakRestKlient;
     private final DokumentRepository dokumentRepository;
     private static final LocalDate konfigVerdiStartdatoForeldrepenger = KonfigVerdier.ENDRING_BEREGNING_DATO;
@@ -60,9 +60,9 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     @Inject
     public BehandleDokumentforsendelseTask(ProsessTaskRepository prosessTaskRepository,
-            AktørConsumerMedCache aktørConsumer,
-            FagsakRestKlient fagsakRestKlient,
-            DokumentRepository dokumentRepository) {
+                                           AktørTjeneste aktørConsumer,
+                                           FagsakRestKlient fagsakRestKlient,
+                                           DokumentRepository dokumentRepository) {
         super(prosessTaskRepository);
         this.aktørConsumer = aktørConsumer;
         this.fagsakRestKlient = fagsakRestKlient;

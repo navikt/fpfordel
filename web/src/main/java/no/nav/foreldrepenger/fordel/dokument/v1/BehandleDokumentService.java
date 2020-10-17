@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
+import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.foreldrepenger.mottak.task.KlargjorForVLTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
@@ -45,7 +46,6 @@ import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebService;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.konfig.Tid;
@@ -75,14 +75,14 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
     private final KlargjørForVLTjeneste klargjørForVLTjeneste;
     private final FagsakRestKlient fagsakRestKlient;
-    private final AktørConsumerMedCache aktørConsumer;
+    private final AktørTjeneste aktørConsumer;
     private final ArkivTjeneste arkivTjeneste;
     private final DokumentRepository dokumentRepository;
 
     @Inject
     public BehandleDokumentService(KlargjørForVLTjeneste klargjørForVLTjeneste,
             FagsakRestKlient fagsakRestKlient,
-            AktørConsumerMedCache aktørConsumer,
+            AktørTjeneste aktørConsumer,
             ArkivTjeneste arkivTjeneste,
             DokumentRepository dokumentRepository) {
         this.klargjørForVLTjeneste = klargjørForVLTjeneste;

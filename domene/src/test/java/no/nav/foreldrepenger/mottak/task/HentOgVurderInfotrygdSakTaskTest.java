@@ -32,8 +32,8 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
 import no.nav.foreldrepenger.mottak.infotrygd.rest.RelevantSakSjekker;
+import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.vedtak.exception.VLException;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -57,7 +57,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     @Mock
     private ProsessTaskRepository prosessTaskRepository;
     @Mock
-    private AktørConsumerMedCache aktør;
+    private AktørTjeneste aktør;
     @Mock
     private InfotrygdTjeneste svp;
     @Mock
@@ -69,7 +69,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void skal_finne_relevant_registrert_infotrygdsak_for_inntektsmelding() throws Exception {
+    public void skal_finne_relevant_registrert_infotrygdsak_for_inntektsmelding() {
         var it1 = new InfotrygdSak(now().minusYears(2),
                 now().minusYears(2));
         var it2 = new InfotrygdSak(now().minusMonths(1), now().minusMonths(1));
@@ -84,7 +84,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void skal_finne_relevant_iverksatt_infotrygdsak_for_inntektsmelding_bruker1() throws Exception {
+    public void skal_finne_relevant_iverksatt_infotrygdsak_for_inntektsmelding_bruker1() {
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         var it2 = new InfotrygdSak(now().minusDays(1), now().minusDays(1));
         expectIT(FNR_BRUKER_1, it1, it2);
@@ -98,7 +98,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void skal_finne_relevant_infotrygdsak_for_inntektsmelding_avsluttet_vedtak() throws Exception {
+    public void skal_finne_relevant_infotrygdsak_for_inntektsmelding_avsluttet_vedtak() {
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         var it2 = new InfotrygdSak(now().minusDays(50), now().minusDays(50));
         expectIT(FNR_BRUKER, it1, it2);
@@ -112,7 +112,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void skal_ikke_lenger_sjekke_infotrygdsak_for_engangsstønad() throws Exception {
+    public void skal_ikke_lenger_sjekke_infotrygdsak_for_engangsstønad() {
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         var it2 = new InfotrygdSak(now().minusDays(1), now().minusDays(1));
         expectIT(FNR_BRUKER, it1, it2);
@@ -126,7 +126,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void skal_finne_relevant_infotrygdsak_for_foreldrepenger() throws Exception {
+    public void skal_finne_relevant_infotrygdsak_for_foreldrepenger() {
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         var it2 = new InfotrygdSak(now().minusDays(1), now().minusDays(1));
         expectIT(FNR_ANNEN_PART, it1, it2);
@@ -141,7 +141,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void skal_opprette_sak_når_ingen_sak_for_foreldrepenger() throws Exception {
+    public void skal_opprette_sak_når_ingen_sak_for_foreldrepenger() {
 
         var w = dataWrapper(AKTØR_BRUKER);
         w.setBehandlingTema(FORELDREPENGER_FØDSEL);
@@ -152,7 +152,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void skal_opprette_sak_når_ingen_sak_for_svangerskapspenger() throws Exception {
+    public void skal_opprette_sak_når_ingen_sak_for_svangerskapspenger() {
 
         var w = dataWrapper(AKTØR_BRUKER);
         w.setBehandlingTema(SVANGERSKAPSPENGER);
@@ -162,7 +162,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void skal_til_gosys_når_det_finnes_sak_for_svangerskapspenger() throws Exception {
+    public void skal_til_gosys_når_det_finnes_sak_for_svangerskapspenger() {
 
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         var it2 = new InfotrygdSak(now().minusMonths(1), now().minusMonths(1));
@@ -177,7 +177,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void skal_finne_relevant_registrert_infotrygdsak_for_inntektsmelding_svangerskapspenger() throws Exception {
+    public void skal_finne_relevant_registrert_infotrygdsak_for_inntektsmelding_svangerskapspenger() {
 
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         var it2 = new InfotrygdSak(now().minusMonths(1), now().minusMonths(1));
@@ -192,7 +192,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void skal_finne_relevant_infotrygdsak_for_medmor_foreldrepenger() throws Exception {
+    public void skal_finne_relevant_infotrygdsak_for_medmor_foreldrepenger() {
 
         var it = new InfotrygdSak(null, now().minusMonths(7));
         expectIT(FNR_ANNEN_PART_2, it);
@@ -207,7 +207,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void skal_ikke_sjekke_infotrygdsak_for_fedre_foreldrepenger() throws Exception {
+    public void skal_ikke_sjekke_infotrygdsak_for_fedre_foreldrepenger() {
 
         var w = dataWrapper(AKTØR_BRUKER_1);
         w.setBehandlingTema(FORELDREPENGER_FØDSEL);
@@ -236,7 +236,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void neste_steg_skal_være_opprettsak_hvis_relevant_infotrygdsak_ikke_finnes() throws Exception {
+    public void neste_steg_skal_være_opprettsak_hvis_relevant_infotrygdsak_ikke_finnes() {
 
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         expectIT(FNR_BRUKER, it1);
@@ -248,19 +248,8 @@ public class HentOgVurderInfotrygdSakTaskTest {
         doAndAssertOpprettet(w);
     }
 
-    public void neste_steg_skal_throw_exception_hvis_annen_part_er_ikke_funnet() throws Exception {
-
-        var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
-        expectIT(FNR_ANNEN_PART, it1);
-
-        var w = dataWrapper(AKTØR_BRUKER);
-        w.setBehandlingTema(FORELDREPENGER);
-        w.setDokumentTypeId(SØKNAD_FORELDREPENGER_FØDSEL);
-        doWithPrecondition(w);
-    }
-
-    @Test // (expected = VLException.class)
-    public void skal_throw_exception_hvis_ukjent_behandlings_tema() throws Exception {
+    @Test
+    public void skal_throw_exception_hvis_ukjent_behandlings_tema() {
 
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         expectIT(FNR_ANNEN_PART, it1);

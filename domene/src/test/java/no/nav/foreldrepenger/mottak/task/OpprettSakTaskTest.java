@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,7 +18,9 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
@@ -29,12 +31,13 @@ import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
 import no.nav.foreldrepenger.mottak.klient.VurderFagsystemResultat;
+import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
+@ExtendWith(MockitoExtension.class)
 public class OpprettSakTaskTest {
 
     public static final String FNR = "99999999999";
@@ -42,24 +45,19 @@ public class OpprettSakTaskTest {
 
     @Mock
     private ProsessTaskRepository prosessTaskRepositoryMock;
-
     @Mock
     private FagsakRestKlient fagsakRestKlient;
-
     @Mock
-    private AktørConsumerMedCache aktørConsumer;
+    private AktørTjeneste aktørConsumer;
 
     private OpprettSakTask task;
 
     @BeforeEach
-    public void setUp() throws Exception {
-        prosessTaskRepositoryMock = mock(ProsessTaskRepository.class);
-        aktørConsumer = mock(AktørConsumerMedCache.class);
-        when(aktørConsumer.hentAktørIdForPersonIdent(FNR)).thenReturn(Optional.of(AKTØR_ID));
-        fagsakRestKlient = mock(FagsakRestKlient.class);
+    public void setUp() {
+        lenient().when(aktørConsumer.hentAktørIdForPersonIdent(FNR)).thenReturn(Optional.of(AKTØR_ID));
         VurderFagsystemResultat vurderFagsystemRespons = new VurderFagsystemResultat();
         vurderFagsystemRespons.setBehandlesIVedtaksløsningen(true);
-        when(fagsakRestKlient.vurderFagsystem(any())).thenReturn(vurderFagsystemRespons);
+        lenient().when(fagsakRestKlient.vurderFagsystem(any())).thenReturn(vurderFagsystemRespons);
         task = new OpprettSakTask(prosessTaskRepositoryMock, fagsakRestKlient);
     }
 
@@ -94,7 +92,7 @@ public class OpprettSakTaskTest {
     }
 
     @Test
-    public void test_doTask_fødsel_ustrukturert() throws Exception {
+    public void test_doTask_fødsel_ustrukturert() {
         ProsessTaskData prosessTaskData = new ProsessTaskData(OpprettSakTask.TASKNAME);
         prosessTaskData.setSekvens("1");
 
@@ -122,7 +120,7 @@ public class OpprettSakTaskTest {
     }
 
     @Test
-    public void test_doTask_anke_klage() throws Exception {
+    public void test_doTask_anke_klage() {
         ProsessTaskData innData = new ProsessTaskData(OpprettSakTask.TASKNAME);
         innData.setSekvens("1");
 
@@ -139,7 +137,7 @@ public class OpprettSakTaskTest {
     }
 
     @Test
-    public void test_doTask_uten_dokumentkategori() throws Exception {
+    public void test_doTask_uten_dokumentkategori() {
         ProsessTaskData innData = new ProsessTaskData(OpprettSakTask.TASKNAME);
         innData.setSekvens("1");
 
@@ -153,20 +151,20 @@ public class OpprettSakTaskTest {
     }
 
     @Test
-    public void test_validerDatagrunnlag_skal_feile_ved_manglende_personId() throws Exception {
+    public void test_validerDatagrunnlag_skal_feile_ved_manglende_personId() {
         MottakMeldingDataWrapper meldingDataWrapper = new MottakMeldingDataWrapper(new ProsessTaskData(OpprettSakTask.TASKNAME));
         assertThrows(TekniskException.class, () -> task.precondition(meldingDataWrapper));
     }
 
     @Test
-    public void test_validerDatagrunnlag_skal_feile_ved_manglende_behandlingstema() throws Exception {
+    public void test_validerDatagrunnlag_skal_feile_ved_manglende_behandlingstema() {
         MottakMeldingDataWrapper meldingDataWrapper = new MottakMeldingDataWrapper(new ProsessTaskData(OpprettSakTask.TASKNAME));
         meldingDataWrapper.setAktørId("123");
         assertThrows(TekniskException.class, () -> task.precondition(meldingDataWrapper));
     }
 
     @Test
-    public void test_validerDatagrunnlag_uten_feil() throws Exception {
+    public void test_validerDatagrunnlag_uten_feil() {
         ProsessTaskData prosessTaskData = new ProsessTaskData(OpprettSakTask.TASKNAME);
         MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(prosessTaskData);
 

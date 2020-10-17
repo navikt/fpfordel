@@ -6,7 +6,6 @@ import static no.nav.foreldrepenger.mottak.task.MidlJournalføringTask.TASKNAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -16,8 +15,10 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -31,16 +32,17 @@ import no.nav.foreldrepenger.mottak.journal.dokarkiv.DokArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.JournalpostType;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostResponse;
+import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personnavn;
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
+@ExtendWith(MockitoExtension.class)
 public class MidlJournalføringTaskTest {
     private static final String FNR = "90000000009";
     private static final String NAVN = "Kari Etternavn";
@@ -52,7 +54,7 @@ public class MidlJournalføringTaskTest {
     @Mock
     private DokArkivTjeneste dokArkivTjeneste;
     @Mock
-    private AktørConsumerMedCache aktørConsumer;
+    private AktørTjeneste aktørConsumer;
     @Mock
     private PersonConsumer personConsumer;
 
@@ -62,16 +64,10 @@ public class MidlJournalføringTaskTest {
     @BeforeEach
     public void setup() throws Exception {
         forsendelseId = UUID.randomUUID();
-        prosessTaskRepositoryMock = mock(ProsessTaskRepository.class);
-        dokumentRepositoryMock = mock(DokumentRepository.class);
-        dokArkivTjeneste = mock(DokArkivTjeneste.class);
-        aktørConsumer = mock(AktørConsumerMedCache.class);
-        personConsumer = mock(PersonConsumer.class);
-        when(aktørConsumer.hentAktørIdForPersonIdent(FNR)).thenReturn(Optional.of(BRUKER_ID));
         when(aktørConsumer.hentPersonIdentForAktørId(BRUKER_ID)).thenReturn(Optional.of(FNR));
         when(personConsumer.hentPersonResponse(any()))
                 .thenReturn(new HentPersonResponse().withPerson(new Person().withPersonnavn(new Personnavn().withSammensattNavn(NAVN))));
-        var brukerTjeneste = new PersonTjeneste(personConsumer, null, aktørConsumer);
+        var brukerTjeneste = new PersonTjeneste(personConsumer, null);
         ArkivTjeneste arkivTjeneste = new ArkivTjeneste(null, dokArkivTjeneste, dokumentRepositoryMock, brukerTjeneste, aktørConsumer);
         task = new MidlJournalføringTask(prosessTaskRepositoryMock, arkivTjeneste, dokumentRepositoryMock);
 

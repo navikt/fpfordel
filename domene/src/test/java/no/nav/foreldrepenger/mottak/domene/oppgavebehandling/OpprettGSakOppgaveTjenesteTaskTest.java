@@ -31,10 +31,9 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
-import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
+import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OppgaveRestKlient;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
@@ -46,7 +45,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 @ExtendWith(MockitoExtension.class)
 public class OpprettGSakOppgaveTjenesteTaskTest {
 
-    private static final String SAKSNUMMER = "9876543";
     private static final Oppgave OPPGAVE = new Oppgave(99L, null, null, null, null,
             Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), null, null, null, 1, "4806",
             LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET);
@@ -56,9 +54,7 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
     @Mock
     private OppgaveRestKlient mockService;
     @Mock
-    private DokumentRepository dokumentRepository;
-    @Mock
-    private AktørConsumerMedCache aktørConsumer;
+    private AktørTjeneste aktørConsumer;
 
     private String fordelingsOppgaveEnhetsId = "4825";
 

@@ -25,9 +25,9 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
+import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -43,14 +43,14 @@ public class HentDataFraJoarkTaskTest {
     @Mock
     ProsessTaskRepository ptr;
     @Mock
-    private AktørConsumerMedCache aktørConsumer;
+    private AktørTjeneste aktørConsumer;
     @Mock
     private ArkivTjeneste arkivTjeneste;
 
     private JoarkTestsupport joarkTestsupport = new JoarkTestsupport();
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         lenient().doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(aktørConsumer).hentAktørIdForPersonIdent(any());
         joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, aktørConsumer, arkivTjeneste));
         taskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
@@ -60,7 +60,7 @@ public class HentDataFraJoarkTaskTest {
     }
 
     @Test
-    public void skal_sende_til_manuell_behandling_ved_tom_dokumentlist() throws Exception {
+    public void skal_sende_til_manuell_behandling_ved_tom_dokumentlist() {
         var dokument = joarkTestsupport.lagJArkivJournalpostUstrukturert(DokumentTypeId.UDEFINERT);
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
 
@@ -74,7 +74,7 @@ public class HentDataFraJoarkTaskTest {
     }
 
     @Test
-    public void skal_sende_til_manuell_behandling_ved_manglende_bruker() throws Exception {
+    public void skal_sende_til_manuell_behandling_ved_manglende_bruker() {
         var dokument = joarkTestsupport
                 .lagArkivJournalpostUstrukturert(Collections.emptyList());
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
@@ -90,7 +90,7 @@ public class HentDataFraJoarkTaskTest {
     }
 
     @Test
-    public void skal_sende_til_vl_es_fødsel() throws Exception {
+    public void skal_sende_til_vl_es_fødsel() {
         dataWrapper.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         var dokument = joarkTestsupport
@@ -104,7 +104,7 @@ public class HentDataFraJoarkTaskTest {
     }
 
     @Test
-    public void skal_sende_til_vl_es_adopsjon() throws Exception {
+    public void skal_sende_til_vl_es_adopsjon() {
         dataWrapper.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_ADOPSJON);
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         var dokument = joarkTestsupport
@@ -117,7 +117,7 @@ public class HentDataFraJoarkTaskTest {
     }
 
     @Test
-    public void skal_sende_til_vl_fp_im_2019() throws Exception {
+    public void skal_sende_til_vl_fp_im_2019() {
         dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         var dokument = joarkTestsupport
@@ -131,7 +131,7 @@ public class HentDataFraJoarkTaskTest {
     }
 
     @Test
-    public void skal_sende_til_manuell_fp_im_2018() throws Exception {
+    public void skal_sende_til_manuell_fp_im_2018() {
         dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         var dokument = joarkTestsupport
@@ -145,7 +145,7 @@ public class HentDataFraJoarkTaskTest {
     }
 
     @Test
-    public void skal_sende_til_manuell_behandling_hvis_behandlingstema_er_undefinert() throws Exception {
+    public void skal_sende_til_manuell_behandling_hvis_behandlingstema_er_undefinert() {
         var dokument = joarkTestsupport
                 .lagJArkivJournalpostUstrukturert(DokumentTypeId.UDEFINERT);
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
@@ -158,7 +158,7 @@ public class HentDataFraJoarkTaskTest {
     }
 
     @Test
-    public void skal_sende_til_vl_hvis_dokmenttype_kan_håndteres() throws Exception {
+    public void skal_sende_til_vl_hvis_dokmenttype_kan_håndteres() {
         var dokument = joarkTestsupport.lagJArkivJournalpostUstrukturert();
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
         when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
@@ -170,7 +170,7 @@ public class HentDataFraJoarkTaskTest {
     }
 
     @Test
-    public void skal_sende_inntektsmelding_for_far_til_sjekk_vl() throws Exception {
+    public void skal_sende_inntektsmelding_for_far_til_sjekk_vl() {
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);
         var dokument = joarkTestsupport
@@ -183,7 +183,7 @@ public class HentDataFraJoarkTaskTest {
     }
 
     @Test
-    public void skal_sende_inntektsmelding_til_vl_hvis_gjelder_svangerskapspenger() throws Exception {
+    public void skal_sende_inntektsmelding_til_vl_hvis_gjelder_svangerskapspenger() {
 
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         dataWrapper.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
@@ -199,7 +199,7 @@ public class HentDataFraJoarkTaskTest {
     }
 
     @Test
-    public void skal_sende_inntektsmelding_for_far_om_svangerskapspenger_til_manuell_behandling() throws Exception {
+    public void skal_sende_inntektsmelding_for_far_om_svangerskapspenger_til_manuell_behandling() {
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         dataWrapper.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
         var dokument = joarkTestsupport
@@ -215,13 +215,13 @@ public class HentDataFraJoarkTaskTest {
     }
 
     @Test
-    public void test_validerDatagrunnlag_skal_feile_ved_manglende_arkiv_id() throws Exception {
+    public void test_validerDatagrunnlag_skal_feile_ved_manglende_arkiv_id() {
         dataWrapper.setArkivId("");
         assertThrows(TekniskException.class, () -> doTaskWithPrecondition(dataWrapper));
     }
 
     @Test
-    public void test_validerDatagrunnlag_uten_feil() throws Exception {
+    public void test_validerDatagrunnlag_uten_feil() {
         dataWrapper.setArkivId("123456");
         joarkTaskTestobjekt.precondition(dataWrapper);
     }

@@ -4,37 +4,36 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.kafka.LoggingHendelseProdusent;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
-import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
 import no.nav.foreldrepenger.mottak.journal.OpprettetJournalpost;
+import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.VLException;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
+@ExtendWith(MockitoExtension.class)
 public class TilJournalføringTaskTest {
     private static final String ARKIV_ID = "234567";
     private static final String SAKSNUMMER = "9876543";
@@ -48,7 +47,7 @@ public class TilJournalføringTaskTest {
     @Mock
     private DokumentRepository dokumentRepositoryMock;
     @Mock
-    private AktørConsumerMedCache aktørConsumerMock;
+    private AktørTjeneste aktørConsumerMock;
 
     private TilJournalføringTask task;
     private ProsessTaskData ptd;
@@ -57,11 +56,7 @@ public class TilJournalføringTaskTest {
     @BeforeEach
     public void setup() {
         forsendelseId = UUID.randomUUID();
-        prosessTaskRepositoryMock = mock(ProsessTaskRepository.class);
-        dokumentRepositoryMock = mock(DokumentRepository.class);
-        aktørConsumerMock = mock(AktørConsumerMedCache.class);
-        arkivTjeneste = mock(ArkivTjeneste.class);
-        when(aktørConsumerMock.hentPersonIdentForAktørId(AKTØR_ID)).thenReturn(Optional.of(BRUKER_FNR));
+        lenient().when(aktørConsumerMock.hentPersonIdentForAktørId(AKTØR_ID)).thenReturn(Optional.of(BRUKER_FNR));
 
         task = new TilJournalføringTask(prosessTaskRepositoryMock, arkivTjeneste,
                 new LoggingHendelseProdusent(), dokumentRepositoryMock, aktørConsumerMock);
@@ -72,7 +67,7 @@ public class TilJournalføringTaskTest {
     }
 
     @Test
-    public void skal_teste_precondition() throws Exception {
+    public void skal_teste_precondition() {
         MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
 
         try {
@@ -105,7 +100,7 @@ public class TilJournalføringTaskTest {
     }
 
     @Test
-    public void test_utfor_uten_mangler() throws Exception {
+    public void test_utfor_uten_mangler() {
 
         MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
         data.setArkivId(ARKIV_ID);
@@ -193,7 +188,7 @@ public class TilJournalføringTaskTest {
     }
 
     @Test
-    public void test_validerDatagrunnlag_uten_feil() throws Exception {
+    public void test_validerDatagrunnlag_uten_feil() {
         ProsessTaskData prosessTaskData = ptd;
         MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(prosessTaskData);
 
@@ -206,13 +201,7 @@ public class TilJournalføringTaskTest {
     public void test_skalVedJournalføringAvDokumentForsendelseFåJournalTilstandEndeligJournalført() {
         MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
 
-        List<Dokument> dokumenter = DokumentArkivTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId,
-                DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
-
         when(arkivTjeneste.opprettJournalpost(forsendelseId, AKTØR_ID, SAKSNUMMER)).thenReturn(new OpprettetJournalpost(ARKIV_ID, true));
-        when(dokumentRepositoryMock.hentEksaktDokumentMetadata(any(UUID.class)))
-                .thenReturn(DokumentArkivTestUtil.lagMetadata(forsendelseId, SAKSNUMMER));
-        when(dokumentRepositoryMock.hentDokumenter(any(UUID.class))).thenReturn(dokumenter);
 
         data.setForsendelseId(forsendelseId);
         data.setAktørId(AKTØR_ID);
@@ -233,14 +222,7 @@ public class TilJournalføringTaskTest {
     public void test_skalTilManuellNårJournalTilstandIkkeErEndelig() {
         MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
 
-        List<Dokument> dokumenter = DokumentArkivTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId,
-                DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
-
         when(arkivTjeneste.opprettJournalpost(forsendelseId, AKTØR_ID, SAKSNUMMER)).thenReturn(new OpprettetJournalpost(ARKIV_ID, false));
-
-        when(dokumentRepositoryMock.hentEksaktDokumentMetadata(any(UUID.class)))
-                .thenReturn(DokumentArkivTestUtil.lagMetadata(forsendelseId, SAKSNUMMER));
-        when(dokumentRepositoryMock.hentDokumenter(any(UUID.class))).thenReturn(dokumenter);
 
         data.setForsendelseId(forsendelseId);
         data.setAktørId(AKTØR_ID);

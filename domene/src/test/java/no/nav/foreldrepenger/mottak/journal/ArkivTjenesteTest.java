@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,7 +16,10 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
@@ -27,13 +29,14 @@ import no.nav.foreldrepenger.mottak.journal.dokarkiv.DokArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostResponse;
 import no.nav.foreldrepenger.mottak.journal.saf.SafTjeneste;
+import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personnavn;
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
 
+@ExtendWith(MockitoExtension.class)
 public class ArkivTjenesteTest {
 
     private static final String SAK_ID = "456";
@@ -41,19 +44,23 @@ public class ArkivTjenesteTest {
 
     private ArkivTjeneste arkivTjeneste; // objektet vi tester
     // Mocks
-    private SafTjeneste safTjeneste = mock(SafTjeneste.class);
-    private DokArkivTjeneste dokArkivTjeneste = mock(DokArkivTjeneste.class);
-    private DokumentRepository dokumentRepository = mock(DokumentRepository.class);
-    private PersonConsumer personConsumer = mock(PersonConsumer.class);
-    private AktørConsumerMedCache aktørConsumer = mock(AktørConsumerMedCache.class);
+    @Mock
+    private SafTjeneste safTjeneste;
+    @Mock
+    private DokArkivTjeneste dokArkivTjeneste;
+    @Mock
+    private DokumentRepository dokumentRepository;
+    @Mock
+    private PersonConsumer personConsumer;
+    @Mock
+    private AktørTjeneste aktørConsumer;
 
     @BeforeEach
     public void setup() throws Exception {
         when(personConsumer.hentPersonResponse(any()))
                 .thenReturn(new HentPersonResponse().withPerson(new Person().withPersonnavn(new Personnavn().withSammensattNavn("For Etternavn"))));
         when(aktørConsumer.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(AVSENDER_ID));
-        when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(DokumentArkivTestUtil.BRUKER_ID));
-        var brukerTjeneste = new PersonTjeneste(personConsumer, null, aktørConsumer);
+        var brukerTjeneste = new PersonTjeneste(personConsumer, null);
         arkivTjeneste = new ArkivTjeneste(safTjeneste, dokArkivTjeneste, dokumentRepository, brukerTjeneste, aktørConsumer);
     }
 

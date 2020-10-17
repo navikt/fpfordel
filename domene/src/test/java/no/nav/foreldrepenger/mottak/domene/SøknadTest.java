@@ -4,19 +4,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.domene.v3.Søknad;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
+import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.Endringssoeknad;
 import no.nav.vedtak.felles.xml.soeknad.engangsstoenad.v3.Engangsstønad;
@@ -33,6 +35,7 @@ import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Fordeling;
 import no.nav.vedtak.felles.xml.soeknad.v3.OmYtelse;
 import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
 
+@ExtendWith(MockitoExtension.class)
 public class SøknadTest {
 
     private static String AKTØR_ID = "9000000000009";
@@ -40,7 +43,8 @@ public class SøknadTest {
 
     Soeknad søknad;
     Bruker bruker;
-    AktørConsumerMedCache aktørConsumer;
+    @Mock
+    AktørTjeneste aktørConsumer;
     MottakMeldingDataWrapper test;
     Søknad søknadXmlWrapper;
 
@@ -51,7 +55,6 @@ public class SøknadTest {
         bruker.setAktoerId(AKTØR_ID);
         søknad.setSoeker(bruker);
         søknad.setMottattDato(LocalDate.of(2018, 3, 8));
-        aktørConsumer = mock(AktørConsumerMedCache.class);
         test = new MottakMeldingDataWrapper(new ProsessTaskData("TEST"));
         test.setAktørId(AKTØR_ID);
         søknadXmlWrapper = (Søknad) MottattStrukturertDokument.toXmlWrapper(søknad);

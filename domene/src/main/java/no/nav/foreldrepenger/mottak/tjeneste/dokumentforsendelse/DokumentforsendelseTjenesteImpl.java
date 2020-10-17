@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.mottak.domene.dokument.DokumentFeil;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
+import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.foreldrepenger.mottak.task.dokumentforsendelse.BehandleDokumentforsendelseTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
@@ -28,7 +29,6 @@ import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
@@ -42,14 +42,14 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
 
     private DokumentRepository repository;
     private ProsessTaskRepository prosessTaskRepository;
-    private AktørConsumerMedCache aktørConsumer;
+    private AktørTjeneste aktørConsumer;
 
     public DokumentforsendelseTjenesteImpl() {
     }
 
     @Inject
     public DokumentforsendelseTjenesteImpl(DokumentRepository repository,
-            ProsessTaskRepository prosessTaskRepository, AktørConsumerMedCache aktørConsumer) {
+            ProsessTaskRepository prosessTaskRepository, AktørTjeneste aktørConsumer) {
         this.repository = repository;
         this.prosessTaskRepository = prosessTaskRepository;
         this.aktørConsumer = aktørConsumer;

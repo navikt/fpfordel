@@ -32,8 +32,8 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
 import no.nav.foreldrepenger.mottak.infotrygd.rest.RelevantSakSjekker;
+import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -58,7 +58,7 @@ public class HentOgVurderGsakSakTaskTest {
     @Mock
     private InfotrygdTjeneste fp;
     @Mock
-    private AktørConsumerMedCache mockAktørConsumer;
+    private AktørTjeneste mockAktørConsumer;
 
     static {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
@@ -157,7 +157,7 @@ public class HentOgVurderGsakSakTaskTest {
     }
 
     @Test
-    public void test_validerDatagrunnlag_skal_feile_ved_manglende_temakode_og_behandlingstype() throws Exception {
+    public void test_validerDatagrunnlag_skal_feile_ved_manglende_temakode_og_behandlingstype() {
         MottakMeldingDataWrapper meldingDataWrapper = new MottakMeldingDataWrapper(
                 new ProsessTaskData(HentOgVurderInfotrygdSakTask.TASKNAME));
         meldingDataWrapper.setArkivId("123454");
@@ -166,7 +166,7 @@ public class HentOgVurderGsakSakTaskTest {
     }
 
     @Test
-    public void test_validerDatagrunnlag_uten_feil() throws Exception {
+    public void test_validerDatagrunnlag_uten_feil() {
         MottakMeldingDataWrapper meldingIn = opprettMottaksMelding();
         meldingIn.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         task.precondition(meldingIn);

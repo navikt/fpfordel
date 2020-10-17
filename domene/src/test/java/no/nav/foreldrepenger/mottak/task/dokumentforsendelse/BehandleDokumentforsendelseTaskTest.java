@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -24,6 +24,9 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -35,14 +38,15 @@ import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
+import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
 import no.nav.foreldrepenger.mottak.task.MidlJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
+@ExtendWith(MockitoExtension.class)
 public class BehandleDokumentforsendelseTaskTest {
 
     // TODO (Humle): enhetstestene/test XML må oppdateres når vi har reell søknads
@@ -56,10 +60,14 @@ public class BehandleDokumentforsendelseTaskTest {
     private static final String FIL_SØKNAD_ENDRING = "selvb-soeknad-endring.xml";
     private static final String FIL_SØKNAD_FORP_UTTAK_FØR_KONFIGVERDI = "selvb-soeknad-forp-uttak-før-konfigverdi.xml";
 
-    private ProsessTaskRepository prosessTaskRepository = mock(ProsessTaskRepository.class);
-    private AktørConsumerMedCache aktørConsumer = mock(AktørConsumerMedCache.class);
-    private FagsakRestKlient fagsakRestKlient = mock(FagsakRestKlient.class);
-    private DokumentRepository dokumentRepository = mock(DokumentRepository.class);
+    @Mock
+    private ProsessTaskRepository prosessTaskRepository;
+    @Mock
+    private AktørTjeneste aktørConsumer;
+    @Mock
+    private FagsakRestKlient fagsakRestKlient;
+    @Mock
+    private DokumentRepository dokumentRepository;
 
     private BehandleDokumentforsendelseTask fordelDokTask;
     private ProsessTaskData ptd;
@@ -71,7 +79,7 @@ public class BehandleDokumentforsendelseTaskTest {
         ptd = new ProsessTaskData(BehandleDokumentforsendelseTask.TASKNAME);
         ptd.setSekvens("1");
 
-        when(aktørConsumer.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(PERSON_IDENT));
+        lenient().when(aktørConsumer.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(PERSON_IDENT));
     }
 
     @Test
@@ -159,7 +167,6 @@ public class BehandleDokumentforsendelseTaskTest {
         when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any()))
                 .thenReturn(Optional.of(dokumentEndring));
         when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(genMetadata("123", AKTØR_ID));
-        when(dokumentRepository.hentDokumenter(any(UUID.class))).thenReturn(Collections.singletonList(dokumentEndring));
         when(fagsakRestKlient.finnFagsakInfomasjon(any(SaksnummerDto.class)))
                 .thenReturn(genFagsakInformasjon("ab0047"));
 
@@ -180,7 +187,6 @@ public class BehandleDokumentforsendelseTaskTest {
         when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any()))
                 .thenReturn(Optional.of(dokumentEndring));
         when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(genMetadata("123", AKTØR_ID));
-        when(dokumentRepository.hentDokumenter(any(UUID.class))).thenReturn(Collections.singletonList(dokumentEndring));
         when(fagsakRestKlient.finnFagsakInfomasjon(any(SaksnummerDto.class))).thenReturn(Optional.empty());
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);

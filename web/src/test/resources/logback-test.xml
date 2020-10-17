@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d [%-5level] [%thread] %logger{5} - [%X{consumerId}, %X{callId}, %X{userId}] - %m%n</pattern>
+            <!-- pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern -->
+        </encoder>
+    </appender>
+
+    <logger name="no.nav" level="${log.level.no.nav:-INFO}" />
+	
+    <logger name="org.hibernate.SQL" level="${org.hibernate.SQL:-WARN}" />
+    <logger name="com.zaxxer.hikari" level="${org.zaxxer.hikari:-WARN}" />
+    <logger name="org.hibernate.type" level="${org.hibernate.type:-WARN}" />
+    <logger name="org.hibernate" level="${org.hibernate:-WARN}" />
+    <logger name="ch.qos.logback" level="${ch.qos.logback:-WARN}" />
+    <logger name="org.flywaydb" level="${org.flywaydb:-INFO}" />
+    
+    <logger name="org.apache" level="${org.apache:-ERROR}" />
+    
+    <logger name="org.jboss.weld" level="${org.jboss.weld:-WARN}" />
+    <logger name="org.jboss.resteasy" level="${org.jboss.resteasy:-WARN}" />
+    
+    <logger name="org.eclipse.jetty" level="${org.eclipse.jetty:-WARN}" />
+
+    <logger name="no.nav.modig" level="${log.level.no.nav.modig:-WARN}" />
+    <!-- denne logger passord på INFO nivå!-->
+    <logger name="no.nav.modig.core.test.PropertySetter" level="${log.level.no.nav.modig.core.test.PropertySetter:-WARN}" />
+
+    <root level="${log.level.root:-WARN}">
+        <appender-ref ref="stdout"/>
+    </root>
+</configuration>

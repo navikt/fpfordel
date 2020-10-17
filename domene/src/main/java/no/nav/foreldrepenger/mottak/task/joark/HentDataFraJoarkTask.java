@@ -22,10 +22,10 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
+import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
@@ -45,12 +45,12 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(HentDataFraJoarkTask.class);
 
-    private final AktørConsumerMedCache aktørConsumer;
+    private final AktørTjeneste aktørConsumer;
     private final ArkivTjeneste arkivTjeneste;
 
     @Inject
     public HentDataFraJoarkTask(ProsessTaskRepository prosessTaskRepository,
-            AktørConsumerMedCache aktørConsumer,
+                                AktørTjeneste aktørConsumer,
             ArkivTjeneste arkivTjeneste) {
         super(prosessTaskRepository);
         this.aktørConsumer = aktørConsumer;

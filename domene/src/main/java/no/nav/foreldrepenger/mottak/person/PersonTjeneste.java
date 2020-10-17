@@ -33,7 +33,6 @@ import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.ManglerTilgangFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
 import no.nav.vedtak.felles.integrasjon.pdl.Tema;
 import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
@@ -43,7 +42,6 @@ public class PersonTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(PersonTjeneste.class);
 
-    private AktørConsumerMedCache aktørConsumer;
     private PersonConsumer personConsumer;
     private PdlKlient pdlKlient;
 
@@ -53,10 +51,8 @@ public class PersonTjeneste {
 
     @Inject
     public PersonTjeneste(PersonConsumer personConsumer,
-                          PdlKlient pdlKlient,
-                          AktørConsumerMedCache aktørConsumer) {
+                          PdlKlient pdlKlient) {
         this.personConsumer = personConsumer;
-        this.aktørConsumer = aktørConsumer;
         this.pdlKlient = pdlKlient;
     }
 

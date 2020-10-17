@@ -33,7 +33,7 @@ public class MottakMeldingDataWrapperTest {
     }
 
     @Test
-    public void test_kan_opprette_og_kopiere_wrapper_uten_eksisterende_properties() throws Exception {
+    public void test_kan_opprette_og_kopiere_wrapper_uten_eksisterende_properties() {
         assertThat(wrapper.hentAlleProsessTaskVerdier()).as("Forventer at wrapper i utgangspunktet blir opprettet uten properties").isEmpty();
 
         MottakMeldingDataWrapper wrapperNesteSteg = wrapper.nesteSteg(PROSESSTASK_STEG2);
@@ -41,7 +41,7 @@ public class MottakMeldingDataWrapperTest {
     }
 
     @Test
-    public void test_beholder_properties_og_payload_fra_forrige_steg() throws Exception {
+    public void test_beholder_properties_og_payload_fra_forrige_steg() {
         wrapper.setArkivId("arkiv_1234");
         wrapper.setPayload("<xml>test</xml>");
 
@@ -51,7 +51,7 @@ public class MottakMeldingDataWrapperTest {
     }
 
     @Test
-    public void test_overskriv_eksisterende_property() throws Exception {
+    public void test_overskriv_eksisterende_property() {
         final String INITIELL_ARKIVID = "arkiv_1234";
         final String NY_ARKIVID = "nyid_987";
         wrapper.setArkivId(INITIELL_ARKIVID);
@@ -63,7 +63,7 @@ public class MottakMeldingDataWrapperTest {
     }
 
     @Test
-    public void test_property_fra_flere_steg_blir_kopiert() throws Exception {
+    public void test_property_fra_flere_steg_blir_kopiert() {
         final String ARKIVID = "arkiv_1234";
         final Tema TEMA = Tema.FORELDRE_OG_SVANGERSKAPSPENGER;
 
@@ -80,14 +80,14 @@ public class MottakMeldingDataWrapperTest {
     }
 
     @Test
-    public void test_skal_kunne_sette_behandlingstemakode_og_hente_ut_igjen() throws Exception {
+    public void test_skal_kunne_sette_behandlingstemakode_og_hente_ut_igjen() {
         wrapper.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
 
         assertThat(wrapper.getBehandlingTema().getKode()).isEqualTo(BehandlingTema.ENGANGSSTØNAD_FØDSEL.getKode());
     }
 
     @Test
-    public void test_skal_kunne_sette_dokumenttypeid_og_hente_ut_igjen() throws Exception {
+    public void test_skal_kunne_sette_dokumenttypeid_og_hente_ut_igjen() {
         wrapper.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
 
         assertThat(wrapper.getDokumentTypeId())
@@ -95,7 +95,7 @@ public class MottakMeldingDataWrapperTest {
     }
 
     @Test
-    public void test_skal_kunne_sette_aktørid_og_hente_ut_igjen() throws Exception {
+    public void test_skal_kunne_sette_aktørid_og_hente_ut_igjen() {
         final String aktørId = "1";
         wrapper.setAktørId(aktørId);
 
@@ -103,7 +103,7 @@ public class MottakMeldingDataWrapperTest {
     }
 
     @Test
-    public void skal_få_samme_dato_tilbake() throws Exception {
+    public void skal_få_samme_dato_tilbake() {
         LocalDate now = LocalDate.now();
         LocalDate dato1 = now.minusDays(1);
         LocalDate dato2 = now.minusMonths(1);
@@ -121,7 +121,7 @@ public class MottakMeldingDataWrapperTest {
     }
 
     @Test
-    public void test_skal_gi_prosess_task_id() throws Exception {
+    public void test_skal_gi_prosess_task_id() {
 
         eksisterendeData.setId(1377L);
         MottakMeldingDataWrapper wrapper = new MottakMeldingDataWrapper(eksisterendeData);
@@ -130,7 +130,7 @@ public class MottakMeldingDataWrapperTest {
     }
 
     @Test
-    public void test_skal_gi_null_prosess_task_id_for_log() throws Exception {
+    public void test_skal_gi_null_prosess_task_id_for_log() {
 
         eksisterendeData.setId(null);
         MottakMeldingDataWrapper wrapper = new MottakMeldingDataWrapper(eksisterendeData);
