@@ -29,8 +29,8 @@ public class AktørTjeneste {
     private static final int DEFAULT_CACHE_SIZE = 1000;
     private static final long DEFAULT_CACHE_TIMEOUT = TimeUnit.MILLISECONDS.convert(8, TimeUnit.HOURS);
 
-    private LRUCache<String, Optional<String>> cacheAktørIdTilIdent;
-    private LRUCache<String, Optional<String>> cacheIdentTilAktørId;
+    private LRUCache<String, String> cacheAktørIdTilIdent;
+    private LRUCache<String, String> cacheIdentTilAktørId;
 
     private AktørConsumer aktørConsumer;
     private PdlKlient pdlKlient;
@@ -49,24 +49,31 @@ public class AktørTjeneste {
     }
 
     public Optional<String> hentAktørIdForPersonIdent(String personIdent) {
-        Optional<String> fraCache = cacheIdentTilAktørId.get(personIdent);
-        if (fraCache != null) { //NOSONAR trenger null-sjekk selv om bruker optional. Null betyr "finnes ikke i cache". Optional.empty betyr "finnes ikke i TPS"
-            return fraCache;
+        var fraCache = cacheIdentTilAktørId.get(personIdent);
+        if (fraCache != null) {
+            return Optional.of(fraCache);
         }
         Optional<String> aktørId = aktørConsumer.hentAktørIdForPersonIdent(personIdent);
-        aktørId.ifPresent(a -> hentAktørIdFraPDL(personIdent, a));
-        cacheIdentTilAktørId.put(personIdent, aktørId);
+        aktørId.ifPresent(a -> {
+            hentAktørIdFraPDL(personIdent, a);
+            // Kan ikke legge til i cache aktørId -> ident ettersom ident kan være ikke-current
+            cacheIdentTilAktørId.put(personIdent, a);
+        });
         return aktørId;
     }
 
     public Optional<String> hentPersonIdentForAktørId(String aktørId) {
-        Optional<String> fraCache = cacheAktørIdTilIdent.get(aktørId);
-        if (fraCache != null) { //NOSONAR trenger null-sjekk selv om bruker optional. Null betyr "finnes ikke i cache". Optional.empty betyr "finnes ikke i TPS"
-            return fraCache;
+        var fraCache = cacheAktørIdTilIdent.get(aktørId);
+        if (fraCache != null) {
+            return Optional.of(fraCache);
         }
         Optional<String> ident = aktørConsumer.hentPersonIdentForAktørId(aktørId);
-        ident.ifPresent(i -> hentPersonIdentFraPDL(aktørId, i));
-        cacheAktørIdTilIdent.put(aktørId, ident);
+        ident.ifPresent(i -> {
+            hentPersonIdentFraPDL(aktørId, i);
+            cacheAktørIdTilIdent.put(aktørId, i);
+            cacheIdentTilAktørId.put(i, aktørId); // OK her, men ikke over ettersom dette er gjeldende mapping
+        });
+
         return ident;
     }
 

@@ -77,12 +77,13 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
             throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
                     AKTØR_ID_KEY, w.getId()).toException();
         }
+        /* Midlertidig pga feil i fpsak
         if (gjelderForeldrepenger(w) && !gjelderIM(w)) {
             if (w.getAnnenPartId().isEmpty()) {
                 throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
                         ANNEN_PART_ID_KEY, w.getId()).toException();
             }
-        }
+        }*/
     }
 
     @Override
@@ -114,6 +115,9 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
     private MottakMeldingDataWrapper nesteStegForForeldrepenger(MottakMeldingDataWrapper w) {
         // Her sjekker vi annen part - unngå at løpende fedrekvoter gir manuell
         // journalføring
+        if (w.getAnnenPartId().isEmpty()) {
+            return nesteStegOpprettet(w);
+        }
         String annenPart = fnrAnnenPart(w);
         if (erMann(annenPart)) {
             return nesteStegOpprettet(w);
