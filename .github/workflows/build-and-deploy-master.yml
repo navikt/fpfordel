@@ -1,7 +1,7 @@
 name: Build, push, and deploy
 
 on:
-  pull_request:
+  push:
     branches:
       - master
 env:
@@ -65,47 +65,44 @@ jobs:
           echo  $GITHUB_TOKEN | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
           docker push ${IMAGE_BASE}:${TAG}
 
-      - name: Set build version2
-        run: |
-          echo "BUILD_VERSIONs=$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
-#      - name: Lukk gamle bygg-issues
-#        if: success()
-#        uses: actions/github-script@v3
-#        with:
-#          github-token: ${{ secrets.GITHUB_TOKEN }}
-#          script: |
-#            github.issues.listForRepo({
-#              owner: context.repo.owner,
-#              repo: context.repo.repo,
-#              state: 'open',
-#              labels: ['bygg']
-#            }).then(response => {
-#              response.data.forEach(issue => {
-#                github.issues.update({
-#                  owner: context.repo.owner,
-#                  repo: context.repo.repo,
-#                  issue_number: issue.number,
-#                  state: 'closed'
-#                });
-#              });
-#            });
-#
-#      - name: Opprett issue, trigg deploy til dev-fss
-#        if: success()
-#        uses: actions/github-script@v3
-#        with:
-#          github-token: ${{secrets.NOTIFICATION}}
-#          script: |
-#              github.issues.create( {
-#                owner: context.issue.owner,
-#                repo: context.issue.repo,
-#                labels: ['bygg'],
-#                title: 'Deploy av ${{ env.TAG }}'})
-#              .then(response => {
-#                      const issue = { owner: context.issue.owner,
-#                      repo: context.issue.repo,
-#                      issue_number: response.data.number }
-#                     github.issues.createComment({...issue,
-#                            title: 'Deploy av ${{ env.TAG }}',
-#                            body: '/promote dev-fss '})
-#               });
+      - name: Lukk gamle bygg-issues
+        if: success()
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: ['bygg']
+            }).then(response => {
+              response.data.forEach(issue => {
+                github.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  state: 'closed'
+                });
+              });
+            });
+
+      - name: Opprett issue, trigg deploy til dev-fss
+        if: success()
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.NOTIFICATION}}
+          script: |
+              github.issues.create( {
+                owner: context.issue.owner,
+                repo: context.issue.repo,
+                labels: ['bygg'],
+                title: 'Deploy av ${{ env.TAG }}'})
+              .then(response => {
+                      const issue = { owner: context.issue.owner,
+                      repo: context.issue.repo,
+                      issue_number: response.data.number }
+                     github.issues.createComment({...issue,
+                            title: 'Deploy av ${{ env.TAG }}',
+                            body: '/promote dev-fss '})
+               });
