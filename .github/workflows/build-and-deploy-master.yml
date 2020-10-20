@@ -3,41 +3,39 @@ name: Build, push, and deploy
 on:
   push:
     branches:
-      - master 
+      - master
 env:
   APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
   ORACLE_IMAGE: docker.pkg.github.com/navikt/fpsak-autotest/oracle-flattened
   CLUSTER: dev-fss
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   IMAGE_BASE: docker.pkg.github.com/${{ github.repository }}/fpfordel
-         
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-     
+
       - name: Sjekk ut kode
         uses: actions/checkout@v2
       - run:  git fetch --prune --unshallow
-    
+
       - name: Cache maven repository
         uses: actions/cache@v2
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
-     
+
       - name: Setup Java 14
         uses: actions/setup-java@v1
         with:
           java-version: 14
-          
-      - name: Hent tag    
-        run: | 
-          echo 'TAG<<EOF' >> $GITHUB_ENV
-          git log -1 --pretty=%ad --date=format:%Y%m%d%H%M%S-`echo $GITHUB_SHA | cut -c1-7`  >> $GITHUB_ENV
-          echo 'EOF' >> $GITHUB_ENV 
-                   
+
+      - name: Set build version
+        run: |
+          echo "BUILD_VERSION=$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+
       - name: Hent og start Oracle image
         env:
           GITHUB_TOKEN: ${{ secrets.NOTIFICATION }}
@@ -50,25 +48,25 @@ jobs:
           rm -f nohup.out
           docker-compose -f oracle/docker-compose.yml up oracle >nohup.out 2>&1 &
           sh -c 'tail -n +0 -f nohup.out | { sed "/Disconnected/q" && kill $$; }' || true
-    
+
       - name: Kompiler
         run: |
-          echo "IMAGE=$IMAGE_BASE:$TAG" >> $GITHUB_ENV
-          mvn jacoco:prepare-agent install -e --batch-mode --settings .github/workflows/.m2/settings.xml   -Djacoco.destFile=$(pwd)/target/jacoco.exec
+          mvn jacoco:prepare-agent install -e --batch-mode --settings .github/workflows/.m2/settings.xml -Dchangelist= -Dsha1=-${BUILD_VERSION} -Dfile.encoding=UTF-8 -Djacoco.destFile=$(pwd)/target/jacoco.exec
           mvn jacoco:report sonar:sonar -e --batch-mode --settings .github/workflows/.m2/settings.xml -Djacoco.dataFile=$(pwd)/target/jacoco.exec  -Dsonar.login=${SONAR} -Dsonar.projectKey=navikt_fpfordel
+          echo "TAG=$(mvn help:evaluate --batch-mode --settings .github/workflows/.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_PASSWORD: ${{ secrets.NOTIFICATION }}
-          SONAR: ${{ secrets.SONAR }}  
-     
-    
-      - name: Bygg, tag og push Docker image  
+          SONAR: ${{ secrets.SONAR }}
+
+      - name: Bygg, tag og push Docker image
         run: |
-          docker build  --tag $IMAGE .
+          docker build --pull --tag ${IMAGE_BASE}:${TAG} .
           echo  $GITHUB_TOKEN | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
-          docker push $IMAGE_BASE  
-          
+          docker push ${IMAGE_BASE}:${TAG}
+
       - name: Lukk gamle bygg-issues
+        if: success()
         uses: actions/github-script@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -87,8 +85,8 @@ jobs:
                   state: 'closed'
                 });
               });
-            });     
-      
+            });
+
       - name: Opprett issue, trigg deploy til dev-fss
         if: success()
         uses: actions/github-script@v3
