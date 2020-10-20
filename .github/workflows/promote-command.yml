@@ -6,55 +6,45 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   IMAGE_BASE: docker.pkg.github.com/${{ github.repository }}/fpfordel
   NAMESPACE: teamforeldrepenger
-      
+
 jobs:
   promote:
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Sett variabler for cluster og tag
+      - name: Set variabler for image, namespace og cluster
         run: |
-         echo 'TAG<<EOF' >> $GITHUB_ENV
-         echo ${{ github.event.client_payload.github.payload.issue.title }} | awk '{print $NF}' | awk -F- '{print $NF}'   >> $GITHUB_ENV
-         echo 'EOF' >> $GITHUB_ENV
-         
-         echo 'NAME<<EOF' >> $GITHUB_ENV
-         echo ${{ github.event.client_payload.github.payload.issue.title }} | awk '{print $NF}'   >> $GITHUB_ENV
-         echo 'EOF' >> $GITHUB_ENV
-               
-         echo "CLUSTER=${{github.event.client_payload.slash_command.arg1}}" >> $GITHUB_ENV
-         
-      - name: Sett variabel for image
-        run: |
-         echo IMAGE=$IMAGE_BASE:$NAME >> $GITHUB_ENV
-                                      
+          echo "TAG=$(echo ${{ github.event.client_payload.github.payload.issue.title }} | awk '{print $NF}' | awk -F- '{print $NF}')" >> $GITHUB_ENV
+          echo "IMAGE=$IMAGE_BASE:$(echo ${{ github.event.client_payload.github.payload.issue.title }} | awk '{print $NF}')" >> $GITHUB_ENV
+          echo "CLUSTER=${{ github.event.client_payload.slash_command.arg1 }}" >> $GITHUB_ENV
+
       - name: Sjekk ut kode
         uses: actions/checkout@v1
         with:
           ref: ${{ env.TAG }}
-    
+
       - name: Promoter til cluster og namespace
         uses: nais/deploy/actions/deploy@v1
         env:
+          PRINT_PAYLOAD: true
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: ${{ env.CLUSTER }}
           RESOURCE: nais/naiserator.yaml
-          VARS: nais/${{ env.CLUSTER }}-${{ env.NAMESPACE }}.json 
-          
+          VARS: nais/${{ env.CLUSTER }}-${{ env.NAMESPACE }}.json
+
       - name: Oppdater kommentar med deployment status ved feil
         if: failure()
         uses: actions/github-script@v3
         with:
-          github-token: ${{secrets.NOTIFICATION}}
+          github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const issue = { owner: context.issue.owner,
                             repo: context.issue.repo,
                             issue_number: ${{ github.event.client_payload.github.payload.issue.number }} }
             github.issues.createComment({...issue,
                                     title: 'Deploy av ${{ env.TAG }}',
-                                    body: '>promote ${{ github.event.client_payload.slash_command.args }} feilet'})
-            github.issues.addLabels({...issue, labels: ['deployment-failed','${{ env.CLUSTER }}:${{ env.NAMESPACE }}']})
-   
+                                    body: 'promote til ${{ github.event.client_payload.slash_command.args }} feilet'})
+
       - name: Oppdater kommentar med deployment status
         if: success()
         uses: actions/github-script@v3
@@ -65,5 +55,6 @@ jobs:
                             repo: context.issue.repo,
                             issue_number: ${{ github.event.client_payload.github.payload.issue.number }} }
             github.issues.createComment({...issue,
-                                    body: '>promote ${{ github.event.client_payload.slash_command.args }} var OK'})
-            github.issues.addLabels({...issue, labels: ['${{ env.CLUSTER }}:${{ env.NAMESPACE }}']})
+                                    body: 'promote til ${{ github.event.client_payload.slash_command.args }} utført'})
+            github.issues.addLabels({...issue, labels: ['deployment','${{ env.CLUSTER }}-${{ env.NAMESPACE }}']})
+
