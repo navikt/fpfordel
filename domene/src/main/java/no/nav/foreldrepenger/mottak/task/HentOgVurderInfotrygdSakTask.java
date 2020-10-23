@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.infotrygd.rest.RelevantSakSjekker;
-import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
+import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -46,13 +46,13 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.hentOgVurderInfotrygdSak";
 
-    private final AktørTjeneste aktør;
+    private final PersonTjeneste aktør;
     private final RelevantSakSjekker relevansSjekker;
 
     @Inject
     public HentOgVurderInfotrygdSakTask(ProsessTaskRepository prosessTaskRepository,
             RelevantSakSjekker relevansSjekker,
-            AktørTjeneste aktør) {
+            PersonTjeneste aktør) {
         super(prosessTaskRepository);
         this.relevansSjekker = relevansSjekker;
         this.aktør = aktør;
@@ -77,13 +77,12 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
             throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
                     AKTØR_ID_KEY, w.getId()).toException();
         }
-        /* Midlertidig pga feil i fpsak
         if (gjelderForeldrepenger(w) && !gjelderIM(w)) {
             if (w.getAnnenPartId().isEmpty()) {
                 throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
                         ANNEN_PART_ID_KEY, w.getId()).toException();
             }
-        }*/
+        }
     }
 
     @Override
@@ -99,17 +98,9 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
             return nesteStegForForeldrepenger(w);
         }
         if (gjelderSvangerskapspenger(w)) {
-            return nesteStegForSvangerskapspenger(w);
+            return nesteStegOpprettet(w);
         }
         throw MottakMeldingFeil.FACTORY.ukjentBehandlingstema(w.getBehandlingTema().getKode()).toException();
-    }
-
-    private MottakMeldingDataWrapper nesteStegForSvangerskapspenger(MottakMeldingDataWrapper w) {
-        if (skalMidlertidigJournalføre(w, fnr(w), LocalDate.now().minus(INFOTRYGD_SAK_GYLDIG_PERIODE))) {
-            LOGGER.info("FPFORDEL VINFOTRYGD svp journalpost {}", w.getArkivId());
-            return midlertidigJournalført(w);
-        }
-        return nesteStegOpprettet(w);
     }
 
     private MottakMeldingDataWrapper nesteStegForForeldrepenger(MottakMeldingDataWrapper w) {

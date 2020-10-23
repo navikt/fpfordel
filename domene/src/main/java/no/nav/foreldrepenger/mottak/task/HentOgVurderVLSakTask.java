@@ -129,7 +129,7 @@ public class HentOgVurderVLSakTask extends WrappedProsessTaskHandler {
         Optional<Boolean> annenPartHarRett = dataWrapper.getAnnenPartHarRett();
         if (annenPartHarRett.orElse(Boolean.FALSE)) {
             LocalDate barnFødselsdato = dataWrapper.getBarnFodselsdato()
-                    .orElse(dataWrapper.getBarnTermindato().orElse(Tid.TIDENES_ENDE));
+                    .orElseGet(() -> dataWrapper.getBarnTermindato().orElse(Tid.TIDENES_ENDE));
             return KonfigVerdier.ENDRING_BEREGNING_DATO.isAfter(barnFødselsdato);
         }
         return false;

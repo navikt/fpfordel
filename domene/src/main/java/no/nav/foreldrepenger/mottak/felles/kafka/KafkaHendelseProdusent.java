@@ -56,7 +56,7 @@ public class KafkaHendelseProdusent implements HendelseProdusent {
     private ProducerRecord<String, String> meldingFra(Object objekt, String nøkkel) {
         return new ProducerRecord<>(topic, null, nøkkel, jsonFra(objekt, KafkaFeil.FEILFACTORY::kanIkkeSerialisere),
                 new RecordHeaders().add(CALLID_NAME,
-                        Optional.ofNullable(getCallId()).orElse(generateCallId()).getBytes()));
+                        Optional.ofNullable(getCallId()).orElseGet(() -> generateCallId()).getBytes()));
     }
 
     private static String jsonFra(Object object, Function<JsonProcessingException, Feil> feilFactory) {

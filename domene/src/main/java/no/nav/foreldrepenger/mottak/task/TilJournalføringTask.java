@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.felles.kafka.HendelseProdusent;
 import no.nav.foreldrepenger.mottak.felles.kafka.SøknadFordeltOgJournalførtHendelse;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
-import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
+import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -40,7 +40,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
 
     private final ArkivTjeneste arkivTjeneste;
     private final DokumentRepository dokumentRepository;
-    private final AktørTjeneste aktør;
+    private final PersonTjeneste aktør;
     private final HendelseProdusent hendelseProdusent;
 
     @Inject
@@ -48,7 +48,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             ArkivTjeneste arkivTjeneste,
             HendelseProdusent hendelseProdusent,
             DokumentRepository dokumentRepository,
-            AktørTjeneste aktørConsumer) {
+            PersonTjeneste aktørConsumer) {
         super(prosessTaskRepository);
         this.arkivTjeneste = arkivTjeneste;
         this.dokumentRepository = dokumentRepository;
@@ -113,7 +113,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
 
     private boolean opprettJournalpostFerdigstill(MottakMeldingDataWrapper w, String saksnummer) {
         UUID forsendelseId = w.getForsendelseId().orElseThrow(IllegalStateException::new);
-        var avsenderId = w.getAvsenderId().orElse(w.getAktørId().orElseThrow(() -> new IllegalStateException("Hvor ble det av brukers id?")));
+        var avsenderId = w.getAvsenderId().orElseGet(() -> w.getAktørId().orElseThrow(() -> new IllegalStateException("Hvor ble det av brukers id?")));
 
         var opprettetJournalpost = arkivTjeneste.opprettJournalpost(forsendelseId, avsenderId, saksnummer);
         w.setArkivId(opprettetJournalpost.getJournalpostId());

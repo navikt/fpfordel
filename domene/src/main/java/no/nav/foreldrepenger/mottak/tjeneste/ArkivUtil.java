@@ -39,7 +39,7 @@ public final class ArkivUtil {
                 .map(MapBehandlingstemaDokumentTypeId::mapDokumenttype)
                 .map(MapBehandlingstemaDokumentTypeId::behandlingstemaRank)
                 .min(Comparator.naturalOrder())
-                .orElse(MapBehandlingstemaDokumentTypeId.behandlingstemaRank(null));
+                .orElseGet(() -> MapBehandlingstemaDokumentTypeId.behandlingstemaRank(null));
 
         return MapBehandlingstemaDokumentTypeId.behandlingstemaFromRank(Math.min(btRank, dtRank));
     }

@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Temagrupper;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.foreldrepenger.mottak.task.SlettForsendelseTask;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OppgaveRestKlient;
@@ -54,17 +53,14 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     static final String OPPGAVETYPER_JFR = "JFR"; // Fra offisielt kodeverk
 
     private final EnhetsTjeneste enhetsidTjeneste;
-    private final AktørTjeneste aktørConsumer;
     private final ProsessTaskRepository prosessTaskRepository;
     private final OppgaveRestKlient restKlient;
 
     @Inject
     public OpprettGSakOppgaveTask(ProsessTaskRepository prosessTaskRepository,
             EnhetsTjeneste enhetsidTjeneste,
-            AktørTjeneste aktørConsumer,
             OppgaveRestKlient restKlient) {
         this.enhetsidTjeneste = enhetsidTjeneste;
-        this.aktørConsumer = aktørConsumer;
         this.prosessTaskRepository = prosessTaskRepository;
         this.restKlient = restKlient;
     }
@@ -102,7 +98,6 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
     private String opprettOppgave(ProsessTaskData prosessTaskData, BehandlingTema behandlingTema,
             DokumentTypeId dokumentTypeId) {
-        final Optional<String> fødselsnr = hentPersonidentifikatorFraTaskData(prosessTaskData.getAktørId());
         final String enhetInput = prosessTaskData.getPropertyValue(JOURNAL_ENHET);
         // Oppgave har ikke mapping for alle undertyper fødsel/adopsjon
         final String brukBT = BehandlingTema.forYtelseUtenFamilieHendelse(behandlingTema).getOffisiellKode();
@@ -112,7 +107,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         // Overstyr saker fra NFP+NK, deretter egen logikk hvis fødselsnummer ikke er
         // oppgitt
         final String enhetId = enhetsidTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, behandlingTema,
-                Optional.ofNullable(enhetInput), fødselsnr);
+                Optional.ofNullable(enhetInput), prosessTaskData.getAktørId());
         final String beskrivelse = lagBeskrivelse(behandlingTema, dokumentTypeId, prosessTaskData);
 
         var request = OpprettOppgave.getBuilder()
@@ -163,12 +158,5 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
             return dato.plusDays((1L + DayOfWeek.SUNDAY.getValue()) - dato.getDayOfWeek().getValue());
         }
         return dato;
-    }
-
-    private Optional<String> hentPersonidentifikatorFraTaskData(String aktørId) {
-        if (aktørId == null) {
-            return Optional.empty();
-        }
-        return aktørConsumer.hentPersonIdentForAktørId(aktørId);
     }
 }
