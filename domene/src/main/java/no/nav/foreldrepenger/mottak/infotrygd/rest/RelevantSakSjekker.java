@@ -12,12 +12,10 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
 import no.nav.foreldrepenger.mottak.infotrygd.rest.fp.FP;
-import no.nav.foreldrepenger.mottak.infotrygd.rest.svp.SVP;
 
 @ApplicationScoped
 public class RelevantSakSjekker {
 
-    private InfotrygdTjeneste svp;
     private InfotrygdTjeneste fp;
 
     RelevantSakSjekker() {
@@ -25,10 +23,7 @@ public class RelevantSakSjekker {
     }
 
     @Inject
-    public RelevantSakSjekker(
-            @SVP InfotrygdTjeneste svp,
-            @FP InfotrygdTjeneste fp) {
-        this.svp = svp;
+    public RelevantSakSjekker(@FP InfotrygdTjeneste fp) {
         this.fp = fp;
     }
 
@@ -45,9 +40,6 @@ public class RelevantSakSjekker {
         if (BehandlingTema.gjelderForeldrepenger(tema)) {
             return erITSakRelevantForFP(fnr, fom);
         }
-        if (BehandlingTema.gjelderSvangerskapspenger(tema)) {
-            return erITSakRelevantForSVP(fnr, fom);
-        }
         return false;
     }
 
@@ -55,19 +47,11 @@ public class RelevantSakSjekker {
         if (BehandlingTema.gjelderForeldrepenger(tema)) {
             return erFpRelevantForIM(fnr, fom);
         }
-        if (BehandlingTema.gjelderSvangerskapspenger(tema)) {
-            return erITSakRelevantForSVP(fnr, fom);
-        }
         return false;
     }
 
     private boolean erITSakRelevantForFP(String fnr, LocalDate fom) {
         return restSaker(fp, fnr, fom).stream()
-                .anyMatch(svpFpRelevantTidFilter(fom));
-    }
-
-    private boolean erITSakRelevantForSVP(String fnr, LocalDate fom) {
-        return restSaker(svp, fnr, fom).stream()
                 .anyMatch(svpFpRelevantTidFilter(fom));
     }
 

@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.kafka.LoggingHendelseProdusent;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.OpprettetJournalpost;
-import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
+import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -47,7 +47,7 @@ public class TilJournalføringTaskTest {
     @Mock
     private DokumentRepository dokumentRepositoryMock;
     @Mock
-    private AktørTjeneste aktørConsumerMock;
+    private PersonTjeneste aktørConsumerMock;
 
     private TilJournalføringTask task;
     private ProsessTaskData ptd;

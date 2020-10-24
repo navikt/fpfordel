@@ -4,7 +4,7 @@ public class GeoTilknytning {
     private final String tilknytning;
     private final String diskresjonskode;
 
-    GeoTilknytning(String geografiskTilknytning, String diskresjonskode) {
+    public GeoTilknytning(String geografiskTilknytning, String diskresjonskode) {
         this.tilknytning = geografiskTilknytning;
         this.diskresjonskode = diskresjonskode;
     }

@@ -26,7 +26,7 @@ import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRe
 @ApplicationScoped
 public class EnhetsTjeneste {
 
-    private PersonTjeneste personConsumer;
+    private PersonTjeneste personTjeneste;
     private ArbeidsfordelingRestKlient norgKlient;
 
     private static final String TEMAGRUPPE = Temagrupper.FAMILIEYTELSER.getKode(); // Kodeverk Temagrupper - dekker FOR + OMS
@@ -44,25 +44,28 @@ public class EnhetsTjeneste {
     }
 
     @Inject
-    public EnhetsTjeneste(PersonTjeneste personConsumer,
-            ArbeidsfordelingRestKlient norgKlient) {
-        this.personConsumer = personConsumer;
+    public EnhetsTjeneste(PersonTjeneste personTjeneste,
+                          ArbeidsfordelingRestKlient norgKlient) {
+        this.personTjeneste = personTjeneste;
         this.norgKlient = norgKlient;
     }
 
-    public String hentFordelingEnhetId(Tema tema, BehandlingTema behandlingTema, Optional<String> enhetInput,
-            Optional<String> fnr) {
+    public String hentFordelingEnhetId(Tema tema, BehandlingTema behandlingTema, Optional<String> enhetInput, String aktørId) {
         oppdaterEnhetCache();
         if (enhetInput.map(alleJournalførendeEnheter::contains).orElse(Boolean.FALSE)) {
             return enhetInput.get();
         }
 
-        return fnr.map(f -> hentEnhetId(f, behandlingTema, tema))
-                .orElse(nfpJournalførendeEnheter.get(LocalDateTime.now().getSecond() % nfpJournalførendeEnheter.size()));
+        return Optional.ofNullable(aktørId).map(a -> hentEnhetId(a, behandlingTema, tema))
+                .orElseGet(this::tilfeldigNfpEnhet);
     }
 
-    private String hentEnhetId(String fnr, BehandlingTema behandlingTema, Tema tema) {
-        GeoTilknytning geoTilknytning = personConsumer.hentGeografiskTilknytning(fnr);
+    private String hentEnhetId(String aktørId, BehandlingTema behandlingTema, Tema tema) {
+        GeoTilknytning geoTilknytning = personTjeneste.hentGeografiskTilknytning(aktørId);
+
+        if (geoTilknytning.getDiskresjonskode() == null && geoTilknytning.getTilknytning() == null) {
+            return tilfeldigNfpEnhet();
+        }
 
         var request = ArbeidsfordelingRequest.ny()
                 .medTemagruppe(TEMAGRUPPE)
@@ -79,11 +82,15 @@ public class EnhetsTjeneste {
 
     private static String validerOgVelgBehandlendeEnhet(List<ArbeidsfordelingResponse> response, String diskresjonskode, String geoTilknytning) {
         // Vi forventer å få én behandlende enhet.
-        if ((response == null) || (response.size() != 1)) {
+        if (response == null || response.size() != 1) {
             throw EnhetsTjeneste.EnhetsTjenesteFeil.FACTORY.finnerIkkeBehandlendeEnhet(geoTilknytning, diskresjonskode).toException();
         }
 
         return response.get(0).getEnhetNr();
+    }
+
+    private String tilfeldigNfpEnhet() {
+        return nfpJournalførendeEnheter.get(LocalDateTime.now().getSecond() % nfpJournalførendeEnheter.size());
     }
 
     private void oppdaterEnhetCache() {

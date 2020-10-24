@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.mottak.domene.dokument.DokumentFeil;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
+import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 import no.nav.foreldrepenger.mottak.task.dokumentforsendelse.BehandleDokumentforsendelseTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
@@ -42,14 +42,14 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
 
     private DokumentRepository repository;
     private ProsessTaskRepository prosessTaskRepository;
-    private AktørTjeneste aktørConsumer;
+    private PersonTjeneste aktørConsumer;
 
     public DokumentforsendelseTjenesteImpl() {
     }
 
     @Inject
     public DokumentforsendelseTjenesteImpl(DokumentRepository repository,
-            ProsessTaskRepository prosessTaskRepository, AktørTjeneste aktørConsumer) {
+            ProsessTaskRepository prosessTaskRepository, PersonTjeneste aktørConsumer) {
         this.repository = repository;
         this.prosessTaskRepository = prosessTaskRepository;
         this.aktørConsumer = aktørConsumer;

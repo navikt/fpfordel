@@ -32,13 +32,8 @@ import no.nav.foreldrepenger.mottak.journal.dokarkiv.DokArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.JournalpostType;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostResponse;
-import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personnavn;
-import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse;
-import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -54,9 +49,7 @@ public class MidlJournalføringTaskTest {
     @Mock
     private DokArkivTjeneste dokArkivTjeneste;
     @Mock
-    private AktørTjeneste aktørConsumer;
-    @Mock
-    private PersonConsumer personConsumer;
+    private PersonTjeneste personTjeneste;
 
     private MidlJournalføringTask task;
     private UUID forsendelseId;
@@ -64,11 +57,9 @@ public class MidlJournalføringTaskTest {
     @BeforeEach
     public void setup() throws Exception {
         forsendelseId = UUID.randomUUID();
-        when(aktørConsumer.hentPersonIdentForAktørId(BRUKER_ID)).thenReturn(Optional.of(FNR));
-        when(personConsumer.hentPersonResponse(any()))
-                .thenReturn(new HentPersonResponse().withPerson(new Person().withPersonnavn(new Personnavn().withSammensattNavn(NAVN))));
-        var brukerTjeneste = new PersonTjeneste(personConsumer, null);
-        ArkivTjeneste arkivTjeneste = new ArkivTjeneste(null, dokArkivTjeneste, dokumentRepositoryMock, brukerTjeneste, aktørConsumer);
+        when(personTjeneste.hentPersonIdentForAktørId(BRUKER_ID)).thenReturn(Optional.of(FNR));
+        when(personTjeneste.hentNavn(any())).thenReturn(NAVN);
+        ArkivTjeneste arkivTjeneste = new ArkivTjeneste(null, dokArkivTjeneste, dokumentRepositoryMock, personTjeneste);
         task = new MidlJournalføringTask(prosessTaskRepositoryMock, arkivTjeneste, dokumentRepositoryMock);
 
     }

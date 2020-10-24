@@ -33,7 +33,6 @@ import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
-import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OppgaveRestKlient;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
@@ -53,8 +52,6 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
     private ProsessTaskRepository prosessTaskRepository;
     @Mock
     private OppgaveRestKlient mockService;
-    @Mock
-    private AktørTjeneste aktørConsumer;
 
     private String fordelingsOppgaveEnhetsId = "4825";
 
@@ -65,7 +62,7 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
     @BeforeEach
     public void setup() {
         when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), any(), any())).thenReturn(fordelingsOppgaveEnhetsId);
-        task = new OpprettGSakOppgaveTask(prosessTaskRepository, enhetsidTjeneste, aktørConsumer, mockService);
+        task = new OpprettGSakOppgaveTask(prosessTaskRepository, enhetsidTjeneste, mockService);
     }
 
     @Test
@@ -85,7 +82,6 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
 
         ArgumentCaptor<OpprettOppgave.Builder> captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
         when(mockService.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
-        when(aktørConsumer.hentPersonIdentForAktørId(aktørId)).thenReturn(Optional.of(fodselsnummer));
 
         task.doTask(taskData);
 

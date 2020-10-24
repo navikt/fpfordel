@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
-import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
+import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseIdDto;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.TekniskException;
@@ -57,7 +57,7 @@ public class DokumentforsendelseTjenesteImplTest {
     @Mock
     private ProsessTaskRepository prosessTaskRepositoryMock;
     @Mock
-    private AktørTjeneste aktørConsumerMock;
+    private PersonTjeneste aktørConsumerMock;
 
     private DokumentforsendelseTjenesteImpl tjeneste;
 

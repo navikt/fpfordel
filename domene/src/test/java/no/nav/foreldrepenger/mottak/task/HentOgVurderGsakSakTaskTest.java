@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
 import no.nav.foreldrepenger.mottak.infotrygd.rest.RelevantSakSjekker;
-import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
+import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -54,11 +54,9 @@ public class HentOgVurderGsakSakTaskTest {
     @Mock
     private InfotrygdTjeneste ws;
     @Mock
-    private InfotrygdTjeneste svp;
-    @Mock
     private InfotrygdTjeneste fp;
     @Mock
-    private AktørTjeneste mockAktørConsumer;
+    private PersonTjeneste mockAktørConsumer;
 
     static {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
@@ -74,7 +72,7 @@ public class HentOgVurderGsakSakTaskTest {
 
         lenient().when(mockAktørConsumer.hentPersonIdentForAktørId(ANNEN_PART_ID)).thenReturn(Optional.of(ANNEN_PART_FNR));
         lenient().when(mockAktørConsumer.hentAktørIdForPersonIdent(ANNEN_PART_FNR)).thenReturn(Optional.of(ANNEN_PART_ID));
-        RelevantSakSjekker relevansSjekker = new RelevantSakSjekker(svp, fp);
+        RelevantSakSjekker relevansSjekker = new RelevantSakSjekker(fp);
         task = new HentOgVurderInfotrygdSakTask(mockProsessTaskRepository, relevansSjekker, mockAktørConsumer);
 
     }

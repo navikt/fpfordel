@@ -29,12 +29,7 @@ import no.nav.foreldrepenger.mottak.journal.dokarkiv.DokArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostResponse;
 import no.nav.foreldrepenger.mottak.journal.saf.SafTjeneste;
-import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personnavn;
-import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse;
-import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
 
 @ExtendWith(MockitoExtension.class)
 public class ArkivTjenesteTest {
@@ -51,17 +46,13 @@ public class ArkivTjenesteTest {
     @Mock
     private DokumentRepository dokumentRepository;
     @Mock
-    private PersonConsumer personConsumer;
-    @Mock
-    private AktørTjeneste aktørConsumer;
+    private PersonTjeneste personTjeneste;
 
     @BeforeEach
-    public void setup() throws Exception {
-        when(personConsumer.hentPersonResponse(any()))
-                .thenReturn(new HentPersonResponse().withPerson(new Person().withPersonnavn(new Personnavn().withSammensattNavn("For Etternavn"))));
-        when(aktørConsumer.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(AVSENDER_ID));
-        var brukerTjeneste = new PersonTjeneste(personConsumer, null);
-        arkivTjeneste = new ArkivTjeneste(safTjeneste, dokArkivTjeneste, dokumentRepository, brukerTjeneste, aktørConsumer);
+    public void setup() {
+        when(personTjeneste.hentNavn(any())).thenReturn("For Etternavn");
+        when(personTjeneste.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(AVSENDER_ID));
+        arkivTjeneste = new ArkivTjeneste(safTjeneste, dokArkivTjeneste, dokumentRepository, personTjeneste);
     }
 
     @Test

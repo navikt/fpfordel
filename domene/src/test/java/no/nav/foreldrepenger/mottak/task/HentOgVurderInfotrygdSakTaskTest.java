@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
 import no.nav.foreldrepenger.mottak.infotrygd.rest.RelevantSakSjekker;
-import no.nav.foreldrepenger.mottak.person.AktørTjeneste;
+import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -57,9 +57,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     @Mock
     private ProsessTaskRepository prosessTaskRepository;
     @Mock
-    private AktørTjeneste aktør;
-    @Mock
-    private InfotrygdTjeneste svp;
+    private PersonTjeneste aktør;
     @Mock
     private InfotrygdTjeneste fp;
 
@@ -159,36 +157,6 @@ public class HentOgVurderInfotrygdSakTaskTest {
         w.setDokumentTypeId(SØKNAD_SVANGERSKAPSPENGER);
 
         doAndAssertOpprettet(w);
-    }
-
-    @Test
-    public void skal_til_gosys_når_det_finnes_sak_for_svangerskapspenger() {
-
-        var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
-        var it2 = new InfotrygdSak(now().minusMonths(1), now().minusMonths(1));
-        expectIT(FNR_BRUKER_1, it1, it2);
-        expectITRest(FNR_BRUKER_1, it2);
-
-        var w = dataWrapper(AKTØR_BRUKER_1);
-        w.setBehandlingTema(SVANGERSKAPSPENGER);
-        w.setDokumentTypeId(SØKNAD_SVANGERSKAPSPENGER);
-
-        doAndAssertJournalført(w);
-    }
-
-    @Test
-    public void skal_finne_relevant_registrert_infotrygdsak_for_inntektsmelding_svangerskapspenger() {
-
-        var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
-        var it2 = new InfotrygdSak(now().minusMonths(1), now().minusMonths(1));
-        expectIT(FNR_BRUKER_1, it1, it2);
-        expectITRest(FNR_BRUKER_1, it2);
-
-        var w = dataWrapper(AKTØR_BRUKER_1);
-        w.setBehandlingTema(SVANGERSKAPSPENGER);
-        w.setDokumentTypeId(INNTEKTSMELDING);
-
-        doAndAssertJournalført(w);
     }
 
     @Test
@@ -293,7 +261,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
 
     private HentOgVurderInfotrygdSakTask task() {
         return new HentOgVurderInfotrygdSakTask(prosessTaskRepository,
-                new RelevantSakSjekker(svp, fp),
+                new RelevantSakSjekker(fp),
                 aktør);
     }
 
@@ -313,12 +281,10 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     private void expectIT(String fnr, InfotrygdSak... itsaker) {
-        lenient().when(svp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
         lenient().when(fp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
     }
 
     private void expectITRest(String fnr, InfotrygdSak... itsaker) {
-        lenient().when(svp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
         lenient().when(fp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
     }
 
