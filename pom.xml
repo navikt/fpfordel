@@ -30,7 +30,7 @@
         <changelist>-SNAPSHOT</changelist>
 
         <felles.version>2.4.0-20201027143846-6db6c49</felles.version>
-        <prosesstask.version>2.4.4-20201008065023-4841974</prosesstask.version>
+        <prosesstask.version>2.4.4-20201027074132-8c0eb31</prosesstask.version>
 
         <java.version>14</java.version>
         <argLine>-Xms256m -Dfile.encoding=UTF-8 -Dlog.level.no.nav=WARN</argLine> <!-- default argLine for surefire-plugin -->
@@ -210,6 +210,11 @@
             </dependency>
 
             <!-- Transitive avhengighet resolution for å sikre bestemt versjon -->
+            <dependency>
+                <groupId>org.jboss.resteasy</groupId>
+                <artifactId>resteasy-multipart-provider</artifactId>
+                <version>4.5.8.Final</version>
+            </dependency>
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
