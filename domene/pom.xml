@@ -146,8 +146,8 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-jaxrs</artifactId>
-            <scope>provided</scope>
+            <artifactId>resteasy-core</artifactId>
+            <version>4.5.8.FINAL</version>
         </dependency>
 
         <!-- Test avhengigheter -->
