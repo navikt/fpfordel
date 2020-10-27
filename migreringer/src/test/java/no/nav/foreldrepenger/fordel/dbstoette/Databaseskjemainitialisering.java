@@ -24,7 +24,7 @@ public final class Databaseskjemainitialisering {
 
     private static final Logger log = LoggerFactory.getLogger(Databaseskjemainitialisering.class);
     private static final String TMP_DIR = "java.io.tmpdir";
-    private static final String SEMAPHORE_FIL_PREFIX = "no.nav.vedtak.felle s.behandlingsprosess";
+    private static final String SEMAPHORE_FIL_PREFIX = "no.nav.vedtak.felles.behandlingsprosess";
     private static final String SEMAPHORE_FIL_SUFFIX = "no.nav.vedtak.felles.behandlingsprosess";
 
     private static final Pattern placeholderPattern = Pattern.compile("\\$\\{(.*)\\}");
