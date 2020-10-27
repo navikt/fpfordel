@@ -46,6 +46,11 @@
         <dependencies>
             <!-- Felles biblioteker - Importerte avhengigheter -->
             <dependency>
+                <groupId>org.jboss.resteasy</groupId>
+                <artifactId>resteasy-multipart-provider</artifactId>
+                <version>4.5.8.Final</version>
+            </dependency>
+            <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>felles</artifactId>
                 <version>${felles.version}</version>
