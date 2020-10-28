@@ -38,7 +38,6 @@
 		"OPPGAVE_RS_URI": "http://oppgave.default/api/v1/oppgaver",
 		"PERSON_V3_URL": "https://wasapp-q1.adeo.no/tpsws/ws/Person/v3",
 		"SAF_BASE_URL" : "http://saf.q1",
-		"PDL_BASE_URL" : "http://pdl-api.default",
 		"SECURITYTOKENSERVICE_URL": "https://sts-q1.preprod.local/SecurityTokenServiceProvider/",
 	    "TILBAKE_MOTTAJOURNALPOST_URL": "http://fptilbake/fptilbake/api/fordel/journalpost",
 		"SENSU_HOST": "sensu.nais",
