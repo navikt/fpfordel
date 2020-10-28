@@ -12,7 +12,6 @@
 		"ARBEIDSFORDELING_RS_URL": "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter",
 		"DOKARKIV_BASE_URL": "http://dokarkiv.default/rest/journalpostapi/v1/journalpost",
 		"FP_STATUSINFORMASJON_URL": "http://fpinfo/fpinfo/api/dokumentforsendelse/status",
-		"TILBAKE_MOTTAJOURNALPOST_URL": "http://fptilbake/fptilbake/api/fordel/journalpost",
 		"KAFKA_BOOTSTRAP_SERVERS": "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443",
 		"KAFKA_SCHEMA_REGISTRY_URL": "http://kafka-schema-registry.tpa:8081",
 		"KAFKA_TOPIC_JOURNAL_HENDELSE": "aapen-dok-journalfoering-v1-p",
