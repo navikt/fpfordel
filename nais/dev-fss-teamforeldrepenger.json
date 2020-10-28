@@ -31,6 +31,7 @@
 		"OPENIDCONNECT_ISSOHOST": "https://isso-q.adeo.no:443/isso/oauth2",
 		"PERSON_V3_URL": "https://wasapp-q1.adeo.no/tpsws/ws/Person/v3",
 		"SAF_BASE_URL" : "http://saf.q1",
+		"PDL_BASE_URL" : "http://pdl-api.default",
 		"SECURITYTOKENSERVICE_URL": "https://sts-q1.preprod.local/SecurityTokenServiceProvider/",
 		"SENSU_HOST": "sensu.nais",
 		"SENSU_PORT": "3030"
