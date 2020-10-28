@@ -29,7 +29,7 @@
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
 
-        <felles.version>2.4.0-20201028094059-50b5859</felles.version>
+        <felles.version>2.4.0-20201028135656-72f4d80</felles.version>
         <prosesstask.version>2.4.4-20201027074132-8c0eb31</prosesstask.version>
 
         <java.version>14</java.version>
