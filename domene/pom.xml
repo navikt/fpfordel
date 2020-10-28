@@ -144,11 +144,7 @@
             <groupId>no.nav.foreldrepenger.kontrakter</groupId>
             <artifactId>soeknad-v3</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-core</artifactId>
-        </dependency>
-
+      
         <!-- Test avhengigheter -->
         <dependency>
             <groupId>no.nav.foreldrepenger.fordel</groupId>
