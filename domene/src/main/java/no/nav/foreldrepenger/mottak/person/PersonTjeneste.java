@@ -87,6 +87,7 @@ public class PersonTjeneste {
         return person.getNavn().stream().map(PersonTjeneste::mapNavn).findFirst().orElseThrow();
     }
 
+    // OBS: Ikke bruk denne!!! PDL kommer til å lage et nytt skjema og nytt kall hentGeografiskTilknytning.
     public GeoTilknytning hentGeografiskTilknytning(String aktørId) {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId);

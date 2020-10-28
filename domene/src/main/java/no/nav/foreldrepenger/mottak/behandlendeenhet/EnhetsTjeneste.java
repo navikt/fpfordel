@@ -14,18 +14,28 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Temagrupper;
 import no.nav.foreldrepenger.mottak.person.GeoTilknytning;
 import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
+import no.nav.tjeneste.virksomhet.person.v3.binding.HentGeografiskTilknytningPersonIkkeFunnet;
+import no.nav.tjeneste.virksomhet.person.v3.binding.HentGeografiskTilknytningSikkerhetsbegrensing;
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent;
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent;
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personidenter;
+import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningRequest;
+import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningResponse;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
+import no.nav.vedtak.feil.deklarasjon.ManglerTilgangFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRequest;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingResponse;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRestKlient;
+import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
 
 @ApplicationScoped
 public class EnhetsTjeneste {
 
+    private PersonConsumer personConsumer;
     private PersonTjeneste personTjeneste;
     private ArbeidsfordelingRestKlient norgKlient;
 
@@ -44,8 +54,10 @@ public class EnhetsTjeneste {
     }
 
     @Inject
-    public EnhetsTjeneste(PersonTjeneste personTjeneste,
+    public EnhetsTjeneste(PersonConsumer personConsumer,
+                          PersonTjeneste personTjeneste,
                           ArbeidsfordelingRestKlient norgKlient) {
+        this.personConsumer = personConsumer;
         this.personTjeneste = personTjeneste;
         this.norgKlient = norgKlient;
     }
@@ -61,7 +73,9 @@ public class EnhetsTjeneste {
     }
 
     private String hentEnhetId(String aktørId, BehandlingTema behandlingTema, Tema tema) {
-        GeoTilknytning geoTilknytning = personTjeneste.hentGeografiskTilknytning(aktørId);
+        GeoTilknytning geoTilknytning = personTjeneste.hentPersonIdentForAktørId(aktørId)
+                .map(this::hentGeografiskTilknytning)
+                .orElse(new GeoTilknytning(null, null));
 
         if (geoTilknytning.getDiskresjonskode() == null && geoTilknytning.getTilknytning() == null) {
             return tilfeldigNfpEnhet();
@@ -112,11 +126,60 @@ public class EnhetsTjeneste {
         }
     }
 
+    private GeoTilknytning hentGeografiskTilknytning(String fnr) {
+        HentGeografiskTilknytningRequest request = new HentGeografiskTilknytningRequest();
+        request.setAktoer(lagPersonIdent(fnr));
+        try {
+            HentGeografiskTilknytningResponse response = personConsumer.hentGeografiskTilknytning(request);
+            String geoTilkn = response.getGeografiskTilknytning() != null
+                    ? response.getGeografiskTilknytning().getGeografiskTilknytning()
+                    : null;
+            String diskKode = response.getDiskresjonskode() != null ? response.getDiskresjonskode().getValue() : null;
+
+            return new GeoTilknytning(geoTilkn, diskKode);
+        } catch (HentGeografiskTilknytningSikkerhetsbegrensing e) {
+            throw EnhetsTjenesteFeil.FACTORY.enhetsTjenesteSikkerhetsbegrensing(e).toException();
+        } catch (HentGeografiskTilknytningPersonIkkeFunnet e) {
+            throw EnhetsTjenesteFeil.FACTORY.enhetsTjenestePersonIkkeFunnet(e).toException();
+        }
+    }
+
+    private static PersonIdent lagPersonIdent(String fnr) {
+        if ((fnr == null) || fnr.isEmpty()) {
+            throw new IllegalArgumentException("Fødselsnummer kan ikke være null eller tomt");
+        }
+
+        PersonIdent personIdent = new PersonIdent();
+        NorskIdent norskIdent = new NorskIdent();
+        norskIdent.setIdent(fnr);
+
+        Personidenter type = new Personidenter();
+        type.setValue(erDNr(fnr) ? "DNR" : "FNR");
+        norskIdent.setType(type);
+
+        personIdent.setIdent(norskIdent);
+        return personIdent;
+    }
+
+    private static boolean erDNr(String fnr) {
+        // D-nummer kan indentifiseres ved at første siffer er 4 større enn hva som
+        // finnes i fødselsnumre
+        char førsteTegn = fnr.charAt(0);
+        return (førsteTegn >= '4') && (førsteTegn <= '7');
+    }
+
+
     private interface EnhetsTjenesteFeil extends DeklarerteFeil {
 
         EnhetsTjeneste.EnhetsTjenesteFeil FACTORY = FeilFactory.create(EnhetsTjeneste.EnhetsTjenesteFeil.class);
 
         @TekniskFeil(feilkode = "FP-669566", feilmelding = "Finner ikke behandlende enhet for geografisk tilknytning %s, diskresjonskode %s", logLevel = LogLevel.ERROR)
         Feil finnerIkkeBehandlendeEnhet(String geografiskTilknytning, String diskresjonskode);
+
+        @TekniskFeil(feilkode = "FP-070668", feilmelding = "Person ikke funnet ved hentGeografiskTilknytning eller relasjoner", logLevel = LogLevel.ERROR)
+        Feil enhetsTjenestePersonIkkeFunnet(Exception e);
+
+        @ManglerTilgangFeil(feilkode = "FP-509290", feilmelding = "Mangler tilgang til å utføre hentGeografiskTilknytning eller hentrelasjoner", logLevel = LogLevel.ERROR)
+        Feil enhetsTjenesteSikkerhetsbegrensing(Exception e);
     }
 }
