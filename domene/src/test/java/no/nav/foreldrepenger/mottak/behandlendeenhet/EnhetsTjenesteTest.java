@@ -3,7 +3,10 @@ package no.nav.foreldrepenger.mottak.behandlendeenhet;
 import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.FORELDREPENGER;
 import static no.nav.foreldrepenger.fordel.kodeverdi.Tema.FORELDRE_OG_SVANGERSKAPSPENGER;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -15,14 +18,23 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.mottak.person.GeoTilknytning;
 import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
+import no.nav.tjeneste.virksomhet.person.v3.binding.HentGeografiskTilknytningPersonIkkeFunnet;
+import no.nav.tjeneste.virksomhet.person.v3.binding.HentGeografiskTilknytningSikkerhetsbegrensing;
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Bydel;
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Diskresjonskoder;
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Kommune;
+import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningResponse;
+import no.nav.vedtak.exception.ManglerTilgangException;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingResponse;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRestKlient;
+import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
 
 @ExtendWith(MockitoExtension.class)
 public class EnhetsTjenesteTest {
     private static final String AKTØR_ID = "9999999999999";
+    private static final String FNR = "99999999999";
     private static final ArbeidsfordelingResponse ENHET = new ArbeidsfordelingResponse("4801", "Enhet", "Aktiv", "FPY");
     private static final ArbeidsfordelingResponse FORDELING_ENHET = new ArbeidsfordelingResponse("4825", "Oslo", "Aktiv", "FPY");
     public static final String GEOGRAFISK_TILKNYTNING = "test";
@@ -31,19 +43,25 @@ public class EnhetsTjenesteTest {
     @Mock
     private ArbeidsfordelingRestKlient arbeidsfordelingTjeneste;
     @Mock
+    private PersonConsumer personConsumer;
+    @Mock
     private PersonTjeneste personTjeneste;
 
     @BeforeEach
     public void setup() {
+        lenient().when(personTjeneste.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(FNR));
         when(arbeidsfordelingTjeneste.hentAlleAktiveEnheter(any())).thenReturn(List.of(FORDELING_ENHET));
-        enhetsTjeneste = new EnhetsTjeneste(personTjeneste, arbeidsfordelingTjeneste);
+        enhetsTjeneste = new EnhetsTjeneste(personConsumer, personTjeneste, arbeidsfordelingTjeneste);
     }
 
     @Test
-    public void skal_returnere_enhetid() {
+    public void skal_returnere_enhetid() throws Exception {
 
-        var response = new GeoTilknytning(GEOGRAFISK_TILKNYTNING, null);
-        when(personTjeneste.hentGeografiskTilknytning(any())).thenReturn(response);
+        var response = new HentGeografiskTilknytningResponse();
+        var geografiskTilknytning = new Bydel();
+        geografiskTilknytning.setGeografiskTilknytning(GEOGRAFISK_TILKNYTNING);
+        response.setGeografiskTilknytning(geografiskTilknytning);
+        when(personConsumer.hentGeografiskTilknytning(any())).thenReturn(response);
         when(arbeidsfordelingTjeneste.finnEnhet(any())).thenReturn(List.of(ENHET));
 
         String enhetId = enhetsTjeneste.hentFordelingEnhetId(FORELDRE_OG_SVANGERSKAPSPENGER, FORELDREPENGER, Optional.empty(), AKTØR_ID);
@@ -53,10 +71,13 @@ public class EnhetsTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_enhetid_og_kalle_arbeidsfordelingstjeneste_med_geografisk_tilknytning() {
+    public void skal_returnere_enhetid_og_kalle_arbeidsfordelingstjeneste_med_geografisk_tilknytning() throws Exception {
 
-        var response = new GeoTilknytning(GEOGRAFISK_TILKNYTNING, null);
-        when(personTjeneste.hentGeografiskTilknytning(any())).thenReturn(response);
+        var response = new HentGeografiskTilknytningResponse();
+        var geografiskTilknytning = new Kommune();
+        geografiskTilknytning.setGeografiskTilknytning(GEOGRAFISK_TILKNYTNING);
+        response.setGeografiskTilknytning(geografiskTilknytning);
+        when(personConsumer.hentGeografiskTilknytning(any())).thenReturn(response);
         when(arbeidsfordelingTjeneste.finnEnhet(any())).thenReturn(List.of(ENHET));
 
         String enhetId = enhetsTjeneste.hentFordelingEnhetId(FORELDRE_OG_SVANGERSKAPSPENGER, FORELDREPENGER, Optional.empty(), AKTØR_ID);
@@ -66,10 +87,13 @@ public class EnhetsTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_enhetid_og_kalle_arbeidsfordelingstjeneste_med_diskresjonskode() {
+    public void skal_returnere_enhetid_og_kalle_arbeidsfordelingstjeneste_med_diskresjonskode() throws Exception {
 
-        var response = new GeoTilknytning(GEOGRAFISK_TILKNYTNING, DISKRESJONSKODE);
-        when(personTjeneste.hentGeografiskTilknytning(any())).thenReturn(response);
+        var response = new HentGeografiskTilknytningResponse();
+        var diskresjonskoder = new Diskresjonskoder();
+        diskresjonskoder.setValue(DISKRESJONSKODE);
+        response.setDiskresjonskode(diskresjonskoder);
+        when(personConsumer.hentGeografiskTilknytning(any())).thenReturn(response);
         when(arbeidsfordelingTjeneste.finnEnhet(any())).thenReturn(List.of(ENHET));
 
         String enhetId = enhetsTjeneste.hentFordelingEnhetId(FORELDRE_OG_SVANGERSKAPSPENGER, FORELDREPENGER, Optional.empty(), AKTØR_ID);
@@ -79,9 +103,12 @@ public class EnhetsTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_enhetid_journalføring() {
-        var response = new GeoTilknytning(GEOGRAFISK_TILKNYTNING, DISKRESJONSKODE);
-        when(personTjeneste.hentGeografiskTilknytning(any())).thenReturn(response);
+    public void skal_returnere_enhetid_journalføring() throws Exception {
+        var response = new HentGeografiskTilknytningResponse();
+        var diskresjonskoder = new Diskresjonskoder();
+        diskresjonskoder.setValue(DISKRESJONSKODE);
+        response.setDiskresjonskode(diskresjonskoder);
+        when(personConsumer.hentGeografiskTilknytning(any())).thenReturn(response);
         when(arbeidsfordelingTjeneste.finnEnhet(any())).thenReturn(List.of(ENHET));
 
         String enhetId = enhetsTjeneste.hentFordelingEnhetId(FORELDRE_OG_SVANGERSKAPSPENGER, FORELDREPENGER, Optional.empty(), AKTØR_ID);
@@ -96,6 +123,26 @@ public class EnhetsTjenesteTest {
         String enhetId = enhetsTjeneste.hentFordelingEnhetId(FORELDRE_OG_SVANGERSKAPSPENGER, FORELDREPENGER, Optional.empty(), null);
         assertThat(enhetId).isNotNull();
         assertThat(enhetId).isEqualTo(FORDELING_ENHET.getEnhetNr());
+    }
+
+    @Test
+    public void skal_kaste_sikkerhetsbegrening() throws Exception {
+        when(personConsumer.hentGeografiskTilknytning(any())).thenThrow(new HentGeografiskTilknytningSikkerhetsbegrensing(null, null));
+        var e = assertThrows(ManglerTilgangException.class,
+                () -> enhetsTjeneste.hentFordelingEnhetId(FORELDRE_OG_SVANGERSKAPSPENGER, FORELDREPENGER, Optional.empty(),
+                        AKTØR_ID));
+        assertThat(e.getMessage().contains("FP-509290")).isTrue();
+
+    }
+
+    @Test
+    public void skal_kaste_person_ikke_funnet() throws HentGeografiskTilknytningPersonIkkeFunnet, HentGeografiskTilknytningSikkerhetsbegrensing {
+        when(personConsumer.hentGeografiskTilknytning(any())).thenThrow(new HentGeografiskTilknytningPersonIkkeFunnet(null, null));
+        var e = assertThrows(TekniskException.class,
+                () -> enhetsTjeneste.hentFordelingEnhetId(FORELDRE_OG_SVANGERSKAPSPENGER, FORELDREPENGER, Optional.empty(),
+                        AKTØR_ID));
+        assertTrue(e.getMessage().contains("FP-070668"));
+
     }
 
 }
