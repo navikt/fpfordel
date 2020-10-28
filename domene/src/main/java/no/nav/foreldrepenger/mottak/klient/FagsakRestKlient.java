@@ -25,6 +25,10 @@ public class FagsakRestKlient {
     private static final String ENDPOINT_KEY_OPPRETT_SAK = "fpsak_opprett_sak.url";
     private static final String ENDPOINT_KEY_KNYTT_SAK_OG_JOURNALPOST = "fpsak_journalpostknyttning.url";
     private static final String ENDPOINT_KEY_VURDER_FAGSYSTEM = "fpsak_vurderFagsystem.url";
+    private static final String DEFAULT_JOURNALPOSTTILKNYTNING = "http://fpsak/fpsak/api/fordel/fagsak/knyttJournalpost";
+    private static final String DEFAULT_FAGSAKINFORMASJON = "http://fpsak/fpsak/api/fordel/fagsak/informasjon";
+    private static final String DEFAULT_FAGSAK_OPPRETT = "http://fpsak/fpsak/api/fordel/fagsak/opprett";
+    private static final String DEFAULT_VURDER_FAGSYSTEM = "http://fpsak/fpsak/api/fordel/vurderFagsystem";
 
     private OidcRestClient oidcRestClient;
     private URI endpointSaksinfo;
@@ -37,15 +41,15 @@ public class FagsakRestKlient {
 
     @Inject
     public FagsakRestKlient(OidcRestClient oidcRestClient,
-            @KonfigVerdi(ENDPOINT_KEY_FINN_FAGSAK_INFOMASJON) URI endpoint,
-            @KonfigVerdi(ENDPOINT_KEY_OPPRETT_SAK) URI endpoint2,
-            @KonfigVerdi(ENDPOINT_KEY_KNYTT_SAK_OG_JOURNALPOST) URI endpoint3,
-            @KonfigVerdi(ENDPOINT_KEY_VURDER_FAGSYSTEM) URI endpoint4) {
+            @KonfigVerdi(value = ENDPOINT_KEY_FINN_FAGSAK_INFOMASJON, defaultVerdi = DEFAULT_FAGSAKINFORMASJON) URI finnSakURI,
+            @KonfigVerdi(value = ENDPOINT_KEY_OPPRETT_SAK, defaultVerdi = DEFAULT_FAGSAK_OPPRETT) URI opprettURI,
+            @KonfigVerdi(value = ENDPOINT_KEY_KNYTT_SAK_OG_JOURNALPOST, defaultVerdi = DEFAULT_JOURNALPOSTTILKNYTNING) URI knyttURI,
+            @KonfigVerdi(value = ENDPOINT_KEY_VURDER_FAGSYSTEM, defaultVerdi = DEFAULT_VURDER_FAGSYSTEM) URI vurderURI) {
         this.oidcRestClient = oidcRestClient;
-        this.endpointSaksinfo = endpoint;
-        this.endpointOpprett = endpoint2;
-        this.endpointJournalpostknyttning = endpoint3;
-        this.endpointVurderFagsystem = endpoint4;
+        this.endpointSaksinfo = finnSakURI;
+        this.endpointOpprett = opprettURI;
+        this.endpointJournalpostknyttning = knyttURI;
+        this.endpointVurderFagsystem = vurderURI;
     }
 
     public Optional<FagsakInfomasjonDto> finnFagsakInfomasjon(SaksnummerDto saksnummerDto) {
