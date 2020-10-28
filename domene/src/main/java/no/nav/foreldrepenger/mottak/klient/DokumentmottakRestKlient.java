@@ -11,6 +11,8 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
 public class DokumentmottakRestKlient {
+    private static final String DEFAULT_MOTTAK_URI = "http://fpsak/fpsak/api/fordel/journalpost";
+
     private static final String ENDPOINT_KEY = "fpsak_mottaJournalpost.url";
 
     private OidcRestClient oidcRestClient;
@@ -20,7 +22,8 @@ public class DokumentmottakRestKlient {
     }
 
     @Inject
-    public DokumentmottakRestKlient(OidcRestClient oidcRestClient, @KonfigVerdi(ENDPOINT_KEY) URI endpoint) {
+    public DokumentmottakRestKlient(OidcRestClient oidcRestClient,
+            @KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_MOTTAK_URI) URI endpoint) {
         this.oidcRestClient = oidcRestClient;
         this.endpoint = endpoint;
     }
