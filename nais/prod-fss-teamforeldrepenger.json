@@ -25,7 +25,6 @@
 		"OIDC_STS_JWKS_URL": "http://security-token-service.default/rest/v1/sts/jwks",
 		"OPENIDCONNECT_USERNAME": "fpfordel-p",
 		"OPENIDCONNECT_ISSOHOST": "https://isso.adeo.no:443/isso/oauth2",
-		"OPPGAVE_RS_URI": "http://oppgave.default/api/v1/oppgaver",
 		"PERSON_V3_URL": "https://wasapp.adeo.no/tpsws/ws/Person/v3",
 		"SAF_BASE_URL" : "https://saf.nais.adeo.no",
 		"SECURITYTOKENSERVICE_URL": "https://sts.adeo.no/SecurityTokenServiceProvider/",
