@@ -11,7 +11,6 @@
 		"https://fpfordel-q1.nais.preprod.local"
 	],
 	"env": {
-		"ABAC_PDP_ENDPOINT_URL": "http://abac-foreldrepenger.default/application/authorize",
 		"AKTOER_V2_URL": "https://app-q1.adeo.no/aktoerregister/ws/Aktoer/v2",
 		"APPDYNAMICS_AGENT_ACCOUNT_NAME": "NON-PROD",
 		"ARBEIDSFORDELING_RS_URL": "https://app-q1.adeo.no/norg2/api/v1/arbeidsfordeling/enheter",
