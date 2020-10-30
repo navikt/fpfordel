@@ -15,6 +15,7 @@
 		"KAFKA_SCHEMA_REGISTRY_URL": "http://kafka-schema-registry.tpa:8081",
 		"KAFKA_TOPIC_JOURNAL_HENDELSE": "aapen-dok-journalfoering-v1-p",
 		"LOADBALANCER_URL": "https://fpfordel.nais.adeo.no",
+		"OIDC_AAD_B2C_HOSTURL": "https://NOT-USED.adeo.internal",
 		"OIDC_OPENAM_ISSUERURL": "https://isso.adeo.no:443/isso/oauth2",
 		"OIDC_OPENAM_JWKSURL": "https://isso.adeo.no:443/isso/oauth2/connect/jwk_uri",
 		"OIDC_STS_ISSUER_URL": "http://security-token-service.default",
