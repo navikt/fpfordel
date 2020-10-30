@@ -51,6 +51,7 @@ spec:
     requests:
       cpu: 200m
       memory: 1024Mi
+  webproxy: true
   vault:
     enabled: true
     paths:
