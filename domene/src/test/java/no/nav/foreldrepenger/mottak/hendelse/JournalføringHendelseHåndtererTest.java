@@ -2,27 +2,25 @@ package no.nav.foreldrepenger.mottak.hendelse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.TimeZone;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
-import no.nav.foreldrepenger.mottak.extensions.FPfordelEntityManagerAwareExtension;
+import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareTest;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskInfo;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
-import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@ExtendWith(FPfordelEntityManagerAwareExtension.class)
 public class JournalføringHendelseHåndtererTest extends EntityManagerAwareTest {
 
     private ProsessTaskRepository prosessTaskRepository;
@@ -86,14 +84,38 @@ public class JournalføringHendelseHåndtererTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void testDokumentFraKloningIgnoreres() {
-        JournalfoeringHendelseRecord.newBuilder()
+    public void testDokumentFraKloningUtsettes() {
+        var builder =JournalfoeringHendelseRecord.newBuilder()
                 .setHendelsesId("12345").setVersjon(1)
                 .setHendelsesType("MidlertidigJournalført")
                 .setTemaNytt(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode()).setTemaGammelt("")
                 .setMottaksKanal(MottakKanal.SELVBETJENING.getKode())
+                .setKanalReferanseId("")
                 .setJournalpostId(12345L)
                 .setJournalpostStatus("M");
+
+        hendelseHåndterer.handleMessage(null, builder.build());
+        getEntityManager().flush();
+
+        List<ProsessTaskData> result = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        assertThat(result).as("Forventer at en prosesstask er lagt til").hasSize(1);
+        ProsessTaskInfo prosessTaskData = result.get(0);
+        assertThat(prosessTaskData.getNesteKjøringEtter()).isAfter(LocalDateTime.now().plusHours(12));
+    }
+
+    @Test
+    public void testDokumentFraEESSIIgnoreres() {
+        var builder =JournalfoeringHendelseRecord.newBuilder()
+                .setHendelsesId("12345").setVersjon(1)
+                .setHendelsesType("MidlertidigJournalført")
+                .setTemaNytt(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode()).setTemaGammelt("")
+                .setMottaksKanal(MottakKanal.EESSI.getKode())
+                .setKanalReferanseId("minfil.pdf")
+                .setJournalpostId(12345L)
+                .setJournalpostStatus("M");
+
+        hendelseHåndterer.handleMessage(null, builder.build());
+        getEntityManager().flush();
 
         List<ProsessTaskData> result = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         assertThat(result).as("Forventer at en prosesstask er lagt til").isEmpty();
