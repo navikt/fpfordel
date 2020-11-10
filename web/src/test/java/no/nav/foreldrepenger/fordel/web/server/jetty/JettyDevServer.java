@@ -12,6 +12,8 @@ import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.LoggerFactory;
@@ -20,7 +22,7 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
-import no.nav.foreldrepenger.fordel.web.server.jetty.JettyDevDbKonfigurasjon.ConnectionHandler;
+import no.nav.foreldrepenger.fordel.dbstoette.Databaseskjemainitialisering;
 
 public class JettyDevServer extends JettyServer {
 
@@ -32,61 +34,23 @@ public class JettyDevServer extends JettyServer {
     private static final String KEYSTORE_PASSW_PROP = "no.nav.modig.security.appcert.password";
     private static final String KEYSTORE_PATH_PROP = "no.nav.modig.security.appcert.keystore";
 
+    private static final String VTP_ARGUMENT = "--vtp";
+    private static boolean vtp;
+
     public JettyDevServer() {
         super(new JettyDevKonfigurasjon());
     }
 
     public static void main(String[] args) throws Exception {
+        for (String arg : args) {
+            if (arg.equals(VTP_ARGUMENT)) {
+                vtp = true;
+                break;
+            }
+        }
+
         JettyDevServer devServer = new JettyDevServer();
         devServer.bootStrap();
-    }
-
-    @Override
-    protected void konfigurer() throws Exception {
-        konfigurerLogback();
-        super.konfigurer();
-    }
-
-    protected void konfigurerLogback() throws IOException {
-        new File("./logs").mkdirs();
-        System.setProperty("APP_LOG_HOME", "./logs");
-        File logbackConfig = PropertiesUtils.lagLogbackConfig();
-
-        LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-
-        try {
-            JoranConfigurator configurator = new JoranConfigurator();
-            configurator.setContext(context);
-            // Call context.reset() to clear any previous configuration, e.g. default
-            // configuration. For multi-step configuration, omit calling context.reset().
-            context.reset();
-            configurator.doConfigure(logbackConfig.getAbsolutePath());
-        } catch (JoranException je) {
-            // StatusPrinter will handle this
-        }
-        StatusPrinter.printInCaseOfErrorsOrWarnings(context);
-    }
-
-    @Override
-    protected void konfigurerMiljø() throws Exception {
-        System.setProperty("develop-local", "true");
-        PropertiesUtils.initProperties();
-    }
-
-    @Override
-    protected void konfigurerSikkerhet() {
-        System.setProperty("conf", "src/main/resources/jetty/");
-        super.konfigurerSikkerhet();
-
-        // truststore avgjør hva vi stoler på av sertifikater når vi gjør utadgående TLS
-        // kall
-        initCryptoStoreConfig("truststore", TRUSTSTORE_PATH_PROP, TRUSTSTORE_PASSW_PROP, "changeit");
-
-        // keystore genererer sertifikat og TLS for innkommende kall. Bruker standard
-        // prop hvis definert, ellers faller tilbake på modig props
-        var keystoreProp = System.getProperty("javax.net.ssl.keyStore") != null ? "javax.net.ssl.keyStore" : KEYSTORE_PATH_PROP;
-        var keystorePasswProp = System.getProperty("javax.net.ssl.keyStorePassword") != null ? "javax.net.ssl.keyStorePassword" : KEYSTORE_PASSW_PROP;
-        initCryptoStoreConfig("keystore", keystoreProp, keystorePasswProp, "devillokeystore1234");
     }
 
     private static String initCryptoStoreConfig(String storeName, String storeProperty, String storePasswordProperty, String defaultPassword) {
@@ -119,13 +83,61 @@ public class JettyDevServer extends JettyServer {
     }
 
     @Override
-    protected void konfigurerJndi() throws Exception {
-        ConnectionHandler.settOppJndiDataSource(PropertiesUtils.getDBConnectionProperties());
+    protected void konfigurer() throws Exception {
+        konfigurerLogback();
+        super.konfigurer();
+    }
+
+    protected void konfigurerLogback() throws IOException {
+        new File("./logs").mkdirs();
+        System.setProperty("APP_LOG_HOME", "./logs");
+        File logbackConfig = PropertiesUtils.lagLogbackConfig();
+
+        LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+
+        try {
+            JoranConfigurator configurator = new JoranConfigurator();
+            configurator.setContext(context);
+            // Call context.reset() to clear any previous configuration, e.g. default
+            // configuration. For multi-step configuration, omit calling context.reset().
+            context.reset();
+            configurator.doConfigure(logbackConfig.getAbsolutePath());
+        } catch (JoranException je) {
+            // StatusPrinter will handle this
+        }
+        StatusPrinter.printInCaseOfErrorsOrWarnings(context);
     }
 
     @Override
-    protected void migrerDatabaser() throws IOException {
-        JettyDevDbKonfigurasjon.kjørMigreringFor(PropertiesUtils.getDBConnectionProperties());
+    protected void konfigurerMiljø() {
+        System.setProperty("develop-local", "true");
+        PropertiesUtils.initProperties(JettyDevServer.vtp);
+    }
+
+    @Override
+    protected void konfigurerSikkerhet() {
+        System.setProperty("conf", "src/main/resources/jetty/");
+        super.konfigurerSikkerhet();
+
+        // truststore avgjør hva vi stoler på av sertifikater når vi gjør utadgående TLS
+        // kall
+        initCryptoStoreConfig("truststore", TRUSTSTORE_PATH_PROP, TRUSTSTORE_PASSW_PROP, "changeit");
+
+        // keystore genererer sertifikat og TLS for innkommende kall. Bruker standard
+        // prop hvis definert, ellers faller tilbake på modig props
+        var keystoreProp = System.getProperty("javax.net.ssl.keyStore") != null ? "javax.net.ssl.keyStore" : KEYSTORE_PATH_PROP;
+        var keystorePasswProp = System.getProperty("javax.net.ssl.keyStorePassword") != null ? "javax.net.ssl.keyStorePassword" : KEYSTORE_PASSW_PROP;
+        initCryptoStoreConfig("keystore", keystoreProp, keystorePasswProp, "devillokeystore1234");
+    }
+
+    @Override
+    protected void konfigurerJndi() {
+        Databaseskjemainitialisering.settJdniOppslag();
+    }
+
+    @Override
+    protected void migrerDatabaser() {
+        Databaseskjemainitialisering.migrer();
     }
 
     @SuppressWarnings("resource")
@@ -164,4 +176,10 @@ public class JettyDevServer extends JettyServer {
         return webInfClasses;
     }
 
+    @Override
+    protected ResourceCollection createResourceCollection() {
+        return new ResourceCollection(
+                Resource.newClassPathResource("META-INF/resources/webjars/"),
+                Resource.newClassPathResource("/web"));
+    }
 }

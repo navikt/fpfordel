@@ -22,6 +22,7 @@ class JoarkTestsupport {
     static final String DOKUMENT_ID = "456";
     static final String BRUKER_FNR = "99999999899";
     static final String AKTØR_ID = "9000000000009";
+    static final String RANDOM_REF = "eksternReferanse";
     static final List<String> brukerListe = Collections.singletonList(AKTØR_ID);
 
     final ProsessTaskData taskData;
@@ -34,6 +35,7 @@ class JoarkTestsupport {
     ArkivJournalpost.Builder lagArkivJournalpost(List<String> brukerListe,
             DokumentTypeId dokumentTypeId) {
         return ArkivJournalpost.getBuilder()
+                .medEksternReferanseId(RANDOM_REF)
                 .medJournalpostId(ARKIV_ID)
                 .medTilstand(Journalstatus.MOTTATT)
                 .medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER)
