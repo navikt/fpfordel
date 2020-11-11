@@ -86,7 +86,9 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
         // Disse 2 + behandlingstema er normalt satt fra før
         dataWrapper.setTema(journalpost.getTema());
-        dataWrapper.setEksternReferanseId(journalpost.getEksternReferanseId());
+        if (dataWrapper.getEksternReferanseId().isEmpty()) {
+            dataWrapper.setEksternReferanseId(journalpost.getEksternReferanseId());
+        }
 
         dataWrapper.setForsendelseMottattTidspunkt(journalpost.getDatoOpprettet());
         dataWrapper.setDokumentTypeId(journalpost.getHovedtype());
@@ -109,6 +111,11 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             dataWrapper.setForsendelseMottattTidspunkt(LocalDateTime.now());
         }
 
+        // Journalposter uten kanalreferanse er "klonet" av SBH og forsøkt journalført fra Gosys. Håndteres manuelt hvis de kommer helt hit
+        if (dataWrapper.getEksternReferanseId().isEmpty()) {
+            LOG.info("FPFORDEL HERK journalpost uten kanalreferane {} med {}", journalpost.getJournalpostId(), journalpost.getTilstand());
+            return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+        }
         // Vesentlige mangler
         if (!Tema.FORELDRE_OG_SVANGERSKAPSPENGER.equals(dataWrapper.getTema())) {
             LOG.warn("FPFORDEL HERK feil tema for journalpost {} tema {}",

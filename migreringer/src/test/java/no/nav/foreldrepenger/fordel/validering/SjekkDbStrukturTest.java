@@ -5,41 +5,30 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import javax.sql.DataSource;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
-import no.nav.foreldrepenger.fordel.dbstoette.DatasourceConfiguration;
-import no.nav.foreldrepenger.mottak.extensions.EntityManagerFPFordelAwareExtension;
-import no.nav.vedtak.felles.lokal.dbstoette.ConnectionHandler;
-import no.nav.vedtak.felles.lokal.dbstoette.DBConnectionProperties;
-import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
+import no.nav.foreldrepenger.fordel.dbstoette.Databaseskjemainitialisering;
+import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareTest;
 
 /** Tester at alle migreringer følger standarder for navn og god praksis. */
-@ExtendWith(EntityManagerFPFordelAwareExtension.class)
 public class SjekkDbStrukturTest extends EntityManagerAwareTest {
 
     private static final String HJELP = "\n\nDu har nylig lagt til en ny tabell eller kolonne som ikke er dokumentert ihht. gjeldende regler for dokumentasjon."
             + "\nVennligst gå over sql scriptene og dokumenter tabellene på korrekt måte.";
 
     private static DataSource ds;
-
     private static String schema;
 
     @BeforeAll
     public static void setup() {
-        List<DBConnectionProperties> connectionProperties = DatasourceConfiguration.UNIT_TEST.get();
-        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
-        DBConnectionProperties dbconp = DBConnectionProperties.finnDefault(connectionProperties).get();
-        ds = ConnectionHandler.opprettFra(dbconp);
+        var dbconp = Databaseskjemainitialisering.defaultPropertiesUnitTest();
+        ds = Databaseskjemainitialisering.ds(dbconp);
         schema = dbconp.getSchema();
     }
 
@@ -48,8 +37,8 @@ public class SjekkDbStrukturTest extends EntityManagerAwareTest {
         String sql = "SELECT table_name FROM all_tab_comments WHERE (comments IS NULL OR comments in ('', 'MISSING COLUMN COMMENT')) AND owner=sys_context('userenv', 'current_schema') AND table_name NOT LIKE 'schema_%' AND table_name not like '%_MOCK'";
         List<String> avvik = new ArrayList<>();
         try (Connection conn = ds.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql);
-                ResultSet rs = stmt.executeQuery()) {
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 avvik.add(rs.getString(1));
@@ -77,12 +66,13 @@ public class SjekkDbStrukturTest extends EntityManagerAwareTest {
                 + "                      AND constraint_type IN ('P','R') "
                 + "                      AND a.owner = t.owner "
                 + "                      AND b.owner = a.owner) "
-                + "   AND upper(t.column_name) NOT IN ('OPPRETTET_TID','ENDRET_TID','OPPRETTET_AV','ENDRET_AV','VERSJON','BESKRIVELSE','NAVN','FOM', 'TOM','LAND', 'LANDKODE', 'KL_LANDKODE', 'KL_LANDKODER', 'AKTIV') "
+                + "   AND upper(t.column_name) NOT IN ('OPPRETTET_TID','ENDRET_TID','OPPRETTET_AV','ENDRET_AV','VERSJON','BESKRIVELSE','NAVN','FOM', 'TOM', 'LANDKODE', 'KL_LANDKODE', 'AKTIV') "
+                + "   AND upper(t.column_name) NOT LIKE 'KLx_%' ESCAPE 'x'"
                 + " ORDER BY t.table_name, t.column_name ";
 
         try (Connection conn = ds.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql);
-                ResultSet rs = stmt.executeQuery()) {
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 avvik.add("\n" + rs.getString(1));
@@ -90,18 +80,15 @@ public class SjekkDbStrukturTest extends EntityManagerAwareTest {
 
         }
 
-        assertThat(avvik).withFailMessage("Mangler dokumentasjon for %s kolonner. %s\n %s", avvik.size(), avvik, HJELP)
-                .isEmpty();
+        assertThat(avvik).withFailMessage("Mangler dokumentasjon for %s kolonner. %s\n %s", avvik.size(), avvik, HJELP).isEmpty();
     }
 
     @Test
     public void sjekk_at_alle_FK_kolonner_har_fornuftig_indekser() throws Exception {
         String sql = "SELECT "
-                + "  uc.table_name, uc.constraint_name, LISTAGG(dcc.column_name, ',') WITHIN GROUP (ORDER BY dcc.position) as columns"
-                +
+                + "  uc.table_name, uc.constraint_name, LISTAGG(dcc.column_name, ',') WITHIN GROUP (ORDER BY dcc.position) as columns" +
                 " FROM all_Constraints Uc" +
-                "   INNER JOIN all_cons_columns dcc ON dcc.constraint_name  =uc.constraint_name AND dcc.owner=uc.owner"
-                +
+                "   INNER JOIN all_cons_columns dcc ON dcc.constraint_name  =uc.constraint_name AND dcc.owner=uc.owner" +
                 " WHERE Uc.Constraint_Type='R'" +
                 "   AND Uc.Owner            = upper(?)" +
                 "   AND Dcc.Column_Name NOT LIKE 'KL_%'" +
@@ -123,7 +110,7 @@ public class SjekkDbStrukturTest extends EntityManagerAwareTest {
         List<String> avvik = new ArrayList<>();
         StringBuilder tekst = new StringBuilder();
         try (Connection conn = ds.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql);) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, schema);
 
@@ -148,8 +135,7 @@ public class SjekkDbStrukturTest extends EntityManagerAwareTest {
     public void skal_ha_KL_prefiks_for_kodeverk_kolonne_i_source_tabell() throws Exception {
         String sql = "Select cola.table_name, cola.column_name From All_Constraints Uc  " +
                 "Inner Join All_Cons_Columns Cola On Cola.Constraint_Name=Uc.Constraint_Name And Cola.Owner=Uc.Owner " +
-                "Inner Join All_Cons_Columns Colb On Colb.Constraint_Name=Uc.r_Constraint_Name And Colb.Owner=Uc.Owner "
-                +
+                "Inner Join All_Cons_Columns Colb On Colb.Constraint_Name=Uc.r_Constraint_Name And Colb.Owner=Uc.Owner " +
                 " " +
                 "Where Uc.Constraint_Type='R' And Uc.Owner= upper(?) " +
                 "And Colb.Column_Name='KODEVERK' And Colb.Table_Name='KODELISTE' " +
@@ -159,72 +145,15 @@ public class SjekkDbStrukturTest extends EntityManagerAwareTest {
 
         List<String> avvik = new ArrayList<>();
         StringBuilder tekst = new StringBuilder();
-        opprettAvvikOgTekst(sql, avvik, tekst);
-
-        int sz = avvik.size();
-        String feilTekst = "Feil navn på kolonner som refererer KODELISTE, skal ha 'KL_' prefiks. Antall feil=";
-
-        assertThat(avvik).withFailMessage(feilTekst + sz + ".\n\nTabell, kolonne\n" + tekst).isEmpty();
-
-    }
-
-    @Test
-    public void skal_ha_virtual_column_defnisjon_for_kodeverk_kolonne_i_source_tabell() throws Exception {
-        String sql = "SELECT T.TABLE_NAME, T.CONSTRAINT_NAME, LISTAGG(COLC.COLUMN_NAME, ',') WITHIN GROUP (ORDER BY COLC.POSITION) AS COLUMNS FROM ALL_CONSTRAINTS T\n"
-                +
-                "INNER JOIN ALL_CONS_COLUMNS COLC ON COLC.CONSTRAINT_NAME=T.CONSTRAINT_NAME AND COLC.TABLE_NAME = T.TABLE_NAME AND COLC.OWNER=T.OWNER \n"
-                +
-                "WHERE T.OWNER = UPPER(?) AND COLC.OWNER = UPPER(?) \n" +
-                "AND EXISTS\n" +
-                "  (SELECT 1 FROM ALL_CONSTRAINTS UC\n" +
-                "    INNER JOIN ALL_CONS_COLUMNS COLA ON COLA.CONSTRAINT_NAME=UC.CONSTRAINT_NAME AND COLA.OWNER =UC.OWNER \n"
-                +
-                "    INNER JOIN ALL_CONS_COLUMNS COLB ON COLB.CONSTRAINT_NAME=UC.R_CONSTRAINT_NAME AND COLB.OWNER =UC.OWNER AND COLB.OWNER=UC.OWNER AND COLB.OWNER=COLA.OWNER\n"
-                +
-                "    INNER JOIN ALL_TAB_COLS AT ON AT.COLUMN_NAME       =COLA.COLUMN_NAME AND AT.TABLE_NAME       =COLA.TABLE_NAME AND AT.OWNER =COLA.OWNER\n"
-                +
-                "    WHERE UC.CONSTRAINT_TYPE=T.CONSTRAINT_TYPE AND UC.CONSTRAINT_NAME = T.CONSTRAINT_NAME AND UC.OWNER = T.OWNER\n"
-                +
-                "      AND COLA.TABLE_NAME = T.TABLE_NAME AND T.TABLE_NAME=COLA.TABLE_NAME AND COLA.owner=T.OWNER AND COLA.CONSTRAINT_NAME=T.CONSTRAINT_NAME AND COLB.OWNER=T.OWNER \n"
-                +
-                "      AND COLB.COLUMN_NAME    ='KODEVERK' AND COLB.TABLE_NAME ='KODELISTE' AND COLB.POSITION =COLA.POSITION\n"
-                +
-                "      AND COLA.TABLE_NAME NOT LIKE 'KODELI%'\n" +
-                "      AND AT.VIRTUAL_COLUMN='NO'\n" +
-                "      AND UC.OWNER = UPPER(?) AND AT.OWNER = UPPER(?) AND COLA.OWNER = UPPER(?) AND COLB.OWNER = UPPER(?) \n"
-                +
-                "  )\n" +
-                "\n" +
-                "GROUP BY T.TABLE_NAME, T.CONSTRAINT_NAME\n" +
-                "ORDER BY 1, 2";
-
-        List<String> avvik = new ArrayList<>();
-        StringBuilder tekst = new StringBuilder();
         try (Connection conn = ds.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql);) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, schema);
-            stmt.setString(2, schema);
-            stmt.setString(3, schema);
-            stmt.setString(4, schema);
-            stmt.setString(5, schema);
-            stmt.setString(6, schema);
 
             try (ResultSet rs = stmt.executeQuery()) {
 
                 while (rs.next()) {
-                    String table = rs.getString(1);
-                    String fk = rs.getString(2);
-                    String cols = rs.getString(3);
-
-                    if (ignoreColumn(table, cols)) {
-                        continue;
-                    }
-
-                    @SuppressWarnings("unused")
-                    String klCol = cols.split(",\\s*")[1];
-
-                    String t = table + ", " + fk + ", " + cols;
+                    String t = rs.getString(1) + ", " + rs.getString(2);
                     avvik.add(t);
                     tekst.append(t).append("\n");
                 }
@@ -233,28 +162,10 @@ public class SjekkDbStrukturTest extends EntityManagerAwareTest {
         }
 
         int sz = avvik.size();
-        String feilTekst = "Feil definisjon på kolonner som refererer KODELISTE, definieres som virtual column, ikke med default eller annet. Antall feil=";
+        String feilTekst = "Feil navn på kolonner som refererer KODELISTE, skal ha 'KL_' prefiks. Antall feil=";
 
         assertThat(avvik).withFailMessage(feilTekst + sz + ".\n\nTabell, kolonne\n" + tekst).isEmpty();
 
-    }
-
-    private static boolean ignoreColumn(String table, String cols) {
-        String[][] ignored = new String[][] {
-                { "IAY_INNTEKTSPOST", "KL_YTELSE_TYPE" },
-                { "YF_FORDELING_PERIODE", "KL_AARSAK_TYPE" },
-                { "UTTAK_RESULTAT_PERIODE", "KL_PERIODE_RESULTAT_AARSAK" },
-        };
-
-        table = table.toUpperCase(Locale.getDefault());
-        cols = cols.toUpperCase(Locale.getDefault());
-
-        for (String[] ignore : ignored) {
-            if (ignore[0].equals(table) && cols.contains(ignore[1])) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Test
@@ -268,7 +179,7 @@ public class SjekkDbStrukturTest extends EntityManagerAwareTest {
         List<String> avvik = new ArrayList<>();
         StringBuilder tekst = new StringBuilder();
         try (Connection conn = ds.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql);) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, schema);
 
@@ -297,7 +208,21 @@ public class SjekkDbStrukturTest extends EntityManagerAwareTest {
 
         List<String> avvik = new ArrayList<>();
         StringBuilder tekst = new StringBuilder();
-        opprettAvvikOgTekst(sql, avvik, tekst);
+        try (Connection conn = ds.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, schema);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                while (rs.next()) {
+                    String t = rs.getString(1) + ", " + rs.getString(2);
+                    avvik.add(t);
+                    tekst.append(t).append("\n");
+                }
+            }
+
+        }
 
         int sz = avvik.size();
         String feilTekst = "Feil eller mangelende definisjon av foreign key (skal hete 'FK_<tabell navn>_<løpenummer>'). Antall feil=";
@@ -316,7 +241,21 @@ public class SjekkDbStrukturTest extends EntityManagerAwareTest {
 
         List<String> avvik = new ArrayList<>();
         StringBuilder tekst = new StringBuilder();
-        opprettAvvikOgTekst(sql, avvik, tekst);
+        try (Connection conn = ds.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, schema);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                while (rs.next()) {
+                    String t = rs.getString(1) + ", " + rs.getString(2);
+                    avvik.add(t);
+                    tekst.append(t).append("\n");
+                }
+            }
+
+        }
 
         int sz = avvik.size();
         String feilTekst = "Feil navngiving av index.  Primary Keys skal ha prefiks PK_, andre unike indekser prefiks UIDX_, vanlige indekser prefiks IDX_. Antall feil=";
@@ -338,14 +277,10 @@ public class SjekkDbStrukturTest extends EntityManagerAwareTest {
                 ", atr.CHAR_USED as KOL_B_CHAR_USED\n" +
                 "FROM ALL_CONSTRAINTS T \n" +
                 "INNER JOIN ALL_CONSTRAINTS R ON R.OWNER=T.OWNER AND R.CONSTRAINT_NAME = T.R_CONSTRAINT_NAME\n" +
-                "INNER JOIN ALL_CONS_COLUMNS TCC ON TCC.TABLE_NAME=T.TABLE_NAME AND TCC.OWNER=T.OWNER AND TCC.CONSTRAINT_NAME=T.CONSTRAINT_NAME \n"
-                +
-                "INNER JOIN ALL_CONS_COLUMNS RCC ON RCC.TABLE_NAME = R.TABLE_NAME AND RCC.OWNER=R.OWNER AND RCC.CONSTRAINT_NAME=R.CONSTRAINT_NAME\n"
-                +
-                "INNER JOIN ALL_TAB_COLS ATT ON ATT.COLUMN_NAME=TCC.COLUMN_NAME AND ATT.OWNER=TCC.OWNER AND Att.TABLE_NAME=TCC.TABLE_NAME\n"
-                +
-                "inner join all_tab_cols atr on atr.column_name=rcc.column_name and atr.owner=rcc.owner and atr.table_name=rcc.table_name\n"
-                +
+                "INNER JOIN ALL_CONS_COLUMNS TCC ON TCC.TABLE_NAME=T.TABLE_NAME AND TCC.OWNER=T.OWNER AND TCC.CONSTRAINT_NAME=T.CONSTRAINT_NAME \n" +
+                "INNER JOIN ALL_CONS_COLUMNS RCC ON RCC.TABLE_NAME = R.TABLE_NAME AND RCC.OWNER=R.OWNER AND RCC.CONSTRAINT_NAME=R.CONSTRAINT_NAME\n" +
+                "INNER JOIN ALL_TAB_COLS ATT ON ATT.COLUMN_NAME=TCC.COLUMN_NAME AND ATT.OWNER=TCC.OWNER AND Att.TABLE_NAME=TCC.TABLE_NAME\n" +
+                "inner join all_tab_cols atr on atr.column_name=rcc.column_name and atr.owner=rcc.owner and atr.table_name=rcc.table_name\n" +
                 "WHERE T.OWNER=upper(?) AND T.CONSTRAINT_TYPE='R'\n" +
                 "AND TCC.POSITION = RCC.POSITION\n" +
                 "AND TCC.POSITION IS NOT NULL AND RCC.POSITION IS NOT NULL\n" +
@@ -356,16 +291,15 @@ public class SjekkDbStrukturTest extends EntityManagerAwareTest {
         List<String> avvik = new ArrayList<>();
         StringBuilder tekst = new StringBuilder();
         try (Connection conn = ds.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql);) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, schema);
 
             try (ResultSet rs = stmt.executeQuery()) {
 
                 while (rs.next()) {
-                    String t = rs.getString(1) + ", " + rs.getString(2) + ", " + rs.getString(3) + ", "
-                            + rs.getString(4) + ", " + rs.getString(5) + ", " + rs.getString(6) + ", " + rs.getString(7)
-                            + ", " + rs.getString(8) + ", " + rs.getString(9);
+                    String t = rs.getString(1) + ", " + rs.getString(2) + ", " + rs.getString(3) + ", " + rs.getString(4) + ", " + rs.getString(5)
+                            + ", " + rs.getString(6) + ", " + rs.getString(7) + ", " + rs.getString(8) + ", " + rs.getString(9);
                     avvik.add(t);
                     tekst.append(t).append("\n");
                 }
@@ -392,15 +326,14 @@ public class SjekkDbStrukturTest extends EntityManagerAwareTest {
         List<String> avvik = new ArrayList<>();
         StringBuilder tekst = new StringBuilder();
         try (Connection conn = ds.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql);) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, schema);
 
             try (ResultSet rs = stmt.executeQuery()) {
 
                 while (rs.next()) {
-                    String t = rs.getString(1) + ", " + rs.getString(2) + ", " + rs.getString(3) + ", "
-                            + rs.getString(4) + ", " + rs.getString(5);
+                    String t = rs.getString(1) + ", " + rs.getString(2) + ", " + rs.getString(3) + ", " + rs.getString(4) + ", " + rs.getString(5);
                     avvik.add(t);
                     tekst.append(t).append("\n");
                 }
@@ -422,18 +355,8 @@ public class SjekkDbStrukturTest extends EntityManagerAwareTest {
 
         List<String> avvik = new ArrayList<>();
         StringBuilder tekst = new StringBuilder();
-        opprettAvvikOgTekst(sql, avvik, tekst);
-
-        int sz = avvik.size();
-        String feilTekst = "Feil bruk av datatype, skal ikke ha FLOAT eller DOUBLE (bruk NUMBER for alle desimaltall, spesielt der penger representeres). Antall feil=";
-
-        assertThat(avvik).withFailMessage(feilTekst + +sz + "\n\nTabell, Kolonne, Datatype\n" + tekst).isEmpty();
-
-    }
-
-    private static void opprettAvvikOgTekst(String sql, List<String> avvik, StringBuilder tekst) throws SQLException {
         try (Connection conn = ds.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql);) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, schema);
 
@@ -447,6 +370,34 @@ public class SjekkDbStrukturTest extends EntityManagerAwareTest {
             }
 
         }
+
+        int sz = avvik.size();
+        String feilTekst = "Feil bruk av datatype, skal ikke ha FLOAT eller DOUBLE (bruk NUMBER for alle desimaltall, spesielt der penger representeres). Antall feil=";
+
+        assertThat(avvik).withFailMessage(feilTekst + +sz + "\n\nTabell, Kolonne, Datatype\n" + tekst).isEmpty();
+
     }
 
+    @Test
+    public void sjekk_at_status_verdiene_i_prosess_task_tabellen_er_også_i_pollingSQL() throws Exception {
+        String sql = "SELECT SEARCH_CONDITION\n" +
+                "FROM all_constraints\n" +
+                "WHERE table_name = 'PROSESS_TASK'\n" +
+                "AND constraint_name = 'CHK_PROSESS_TASK_STATUS'\n" +
+                "AND owner = sys_context('userenv','current_schema')";
+
+        List<String> statusVerdier = new ArrayList<>();
+        try (Connection conn = ds.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                statusVerdier.add(rs.getString(1));
+            }
+
+        }
+        String feilTekst = "Ved innføring av ny stause må sqlen i TaskManager_pollTask.sql må oppdateres ";
+        assertThat(statusVerdier).withFailMessage(feilTekst)
+                .containsExactly("status in ('KLAR', 'FEILET', 'VENTER_SVAR', 'SUSPENDERT', 'VETO', 'FERDIG', 'KJOERT')");
+    }
 }

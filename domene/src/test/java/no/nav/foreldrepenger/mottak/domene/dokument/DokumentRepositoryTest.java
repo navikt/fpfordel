@@ -10,16 +10,13 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.mottak.extensions.EntityManagerFPFordelAwareExtension;
+import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareTest;
 import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
-import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@ExtendWith(EntityManagerFPFordelAwareExtension.class)
 public class DokumentRepositoryTest extends EntityManagerAwareTest {
 
     private static final UUID FORSENDELSE_ID = UUID.randomUUID();

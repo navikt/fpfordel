@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.mottak.hendelse;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -53,9 +54,8 @@ public class JournalføringHendelseHåndterer {
                 ? null
                 : payload.getKanalReferanseId().toString();
 
-        // EESSI har egen mottaksprosess m/BEH_SED-oppgaver. De uten kanalreferanse er
-        // "klonet" av SBH og journalført fra Gosys.
-        if (EESSI.equals(mottaksKanal) || (eksternReferanseId == null)) {
+        // EESSI har egen mottaksprosess m/BEH_SED-oppgaver.
+        if (EESSI.equals(mottaksKanal)) {
             LOG.info("FPFORDEL Mottatt Journalføringhendelse ignorerer journalpost {} kanal {}", arkivId, mottaksKanal);
             return;
         }
@@ -64,7 +64,7 @@ public class JournalføringHendelseHåndterer {
 
         // All journalføring av innsendinger fra SB gir en Midlertidig-hendelse. De skal
         // vi ikke reagere på før evt full refaktorering
-        if (dokumentRepository.erLokalForsendelse(eksternReferanseId)) {
+        if (eksternReferanseId != null && dokumentRepository.erLokalForsendelse(eksternReferanseId)) {
             LOG.info("FPFORDEL Mottatt Hendelse egen journalføring callid {}", arkivId);
             return;
         }
@@ -84,8 +84,16 @@ public class JournalføringHendelseHåndterer {
         melding.setTema(Tema.fraOffisiellKode(payload.getTemaNytt().toString()));
         melding.setBehandlingTema(
                 BehandlingTema.fraOffisiellKode(payload.getBehandlingstema() != null ? payload.getBehandlingstema().toString() : null));
-        melding.setEksternReferanseId(eksternReferanse);
-        taskRepository.lagre(melding.getProsessTaskData());
+        if (eksternReferanse != null) {
+            melding.setEksternReferanseId(eksternReferanse);
+        }
+        var oppdatertTaskdata = melding.getProsessTaskData();
+        // De uten kanalreferanse er "klonet" av SBH og journalført fra Gosys. Normalt blir de journalført, men det feiler av og til pga tilgang.
+        // Håndterer disse journalpostene senere (18h) i tilfelle SBH skal ha klart å ordne ting selv - hvis ikke blir det oppgave av dem.
+        if (eksternReferanse == null) {
+            oppdatertTaskdata.setNesteKjøringEtter(LocalDateTime.now().plusHours(18));
+        }
+        taskRepository.lagre(oppdatertTaskdata);
     }
 
     private static void setCallIdForHendelse(JournalfoeringHendelseRecord payload) {
