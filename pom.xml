@@ -526,4 +526,10 @@
             <url>https://maven.pkg.github.com/navikt/fpfordel</url>
         </repository>
     </distributionManagement>
+    <repositories>
+        <repository>
+            <id>confluent</id>
+            <url>https://packages.confluent.io/maven/</url>
+        </repository>
+    </repositories>
 </project>
