@@ -1,4 +1,4 @@
-FROM navikt/java:14-appdynamics
+FROM navikt/java:15-appdynamics
 
 ENV APPD_ENABLED=true
 ENV APP_NAME=fpfordel
