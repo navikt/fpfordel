@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
     <name>Fordel :: Web :: Applikasjon</name>
     <properties>
-        <swagger-ui.version>3.36.2</swagger-ui.version>
+        <swagger-ui.version>3.37.0</swagger-ui.version>
         <org.jvnet.jaxb2.version>0.11.1</org.jvnet.jaxb2.version>
         <wsdl.directory>src/main/wsdl</wsdl.directory>
     </properties>
