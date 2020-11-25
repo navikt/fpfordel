@@ -28,7 +28,7 @@
         <revision>2.0</revision>
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
-        <felles.version>2.4.0-20201103095947-cd9cca7</felles.version>
+        <felles.version>2.4.0-20201125100519-780282a</felles.version>
         <prosesstask.version>2.4.4-20201105215118-94e3e21</prosesstask.version>
 
         <java.version>15</java.version>
