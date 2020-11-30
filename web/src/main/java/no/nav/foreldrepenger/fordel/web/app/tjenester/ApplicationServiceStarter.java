@@ -31,7 +31,10 @@ public class ApplicationServiceStarter {
 
     @Inject
     public ApplicationServiceStarter(@Any Instance<AppServiceHandler> serviceHandlers) {
-        serviceHandlers.forEach(handler -> serviceMap.put(handler, new AtomicBoolean()));
+        var i = serviceHandlers.iterator();
+        while (i.hasNext()) {
+            serviceMap.put(i.next(), new AtomicBoolean());
+        }
         serviceHandlers.stream().filter(sh -> sh instanceof KafkaIntegration).map(sh -> (KafkaIntegration) sh).forEach(kafkaList::add);
     }
 
