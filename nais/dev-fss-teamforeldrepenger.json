@@ -26,7 +26,7 @@
 		"OPENIDCONNECT_USERNAME": "fpfordel-q1",		
 		"OPENIDCONNECT_ISSOHOST": "https://isso-q.adeo.no:443/isso/oauth2",
 		"PERSON_V3_URL": "https://wasapp-q1.adeo.no/tpsws/ws/Person/v3",
-		"OPPGAVE_RS_URI": "https://oppgave-q1.intern.dev.adeo.no/api/v1/oppgaver",
+		"OPPGAVE_RS_URI": "http://oppgave-q1.oppgavehandtering/api/v1/oppgaver",
 		"SAF_BASE_URL" : "http://saf.q1",
 		"PDL_BASE_URL" : "http://pdl-api.default",
 		"SECURITYTOKENSERVICE_URL": "https://sts-q1.preprod.local/SecurityTokenServiceProvider/",
