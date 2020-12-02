@@ -7,7 +7,6 @@
 	"ingresses": [ "https://fpfordel.nais.adeo.no" ],
 	"env": {
 		"ABAC_ATTRIBUTT_DRIFT": "no.nav.abac.attributter.foreldrepenger.drift",
-		"AKTOER_V2_URL": "https://app.adeo.no/aktoerregister/ws/Aktoer/v2",
 		"APPDYNAMICS_AGENT_ACCOUNT_NAME": "PROD",
 		"ARBEIDSFORDELING_RS_URL": "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter",
 		"DOKARKIV_BASE_URL": "http://dokarkiv.default/rest/journalpostapi/v1/journalpost",
@@ -23,6 +22,7 @@
 		"OPENIDCONNECT_USERNAME": "fpfordel-p",
 		"OPENIDCONNECT_ISSOHOST": "https://isso.adeo.no:443/isso/oauth2",
 		"PERSON_V3_URL": "https://wasapp.adeo.no/tpsws/ws/Person/v3",
+		"OPPGAVE_RS_URI": "https://oppgave.adeo.no/api/v1/oppgaver",
 		"SAF_BASE_URL" : "https://saf.nais.adeo.no",
 		"PDL_BASE_URL" : "http://pdl-api.default",
 		"SECURITYTOKENSERVICE_URL": "https://sts.adeo.no/SecurityTokenServiceProvider/",
