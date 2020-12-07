@@ -80,9 +80,10 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 @RequestScoped
 @Transactional
 public class DokumentforsendelseRestTjeneste {
-    private static final String DEFAULT_URI = "http://fpinfo/fpinfo/api/dokumentforsendelse/status";
-
     static final String SERVICE_PATH = "/dokumentforsendelse";
+
+    private static final String DEFAULT_FPINFO_BASE_URI = "http://fpinfo";
+    private static final String DEFAULT_STATUS_PATH = "/fpinfo/api/dokumentforsendelse/status";
 
     private static final String PART_KEY_METADATA = "metadata";
     private static final String PART_KEY_HOVEDDOKUMENT = "hoveddokument";
@@ -97,7 +98,6 @@ public class DokumentforsendelseRestTjeneste {
 
     private DokumentforsendelseTjeneste service;
 
-    private static final String KEY_FP_STATUSINFORMASJON = "fp.statusinformasjon.url";
     private URI fpStatusUrl;
 
     public DokumentforsendelseRestTjeneste() { // For Rest-CDI
@@ -105,9 +105,9 @@ public class DokumentforsendelseRestTjeneste {
 
     @Inject
     public DokumentforsendelseRestTjeneste(DokumentforsendelseTjeneste service,
-            @KonfigVerdi(value = KEY_FP_STATUSINFORMASJON, defaultVerdi = DEFAULT_URI) URI fpStatusUrl) {
+                                           @KonfigVerdi(value = "FPINFO_BASE_URL", defaultVerdi = DEFAULT_FPINFO_BASE_URI) URI endpoint) {
         this.service = service;
-        this.fpStatusUrl = fpStatusUrl;
+        this.fpStatusUrl = URI.create(endpoint.toString() + DEFAULT_STATUS_PATH);
     }
 
     @POST

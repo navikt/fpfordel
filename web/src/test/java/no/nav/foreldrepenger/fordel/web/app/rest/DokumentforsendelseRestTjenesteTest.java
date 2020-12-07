@@ -8,13 +8,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -57,7 +57,7 @@ public class DokumentforsendelseRestTjenesteTest {
     public void setUp() throws Exception {
         dokumentTjenesteMock = mock(DokumentforsendelseTjeneste.class);
         when(dokumentTjenesteMock.finnStatusinformasjon(any(UUID.class))).thenReturn(new ForsendelseStatusDto(ForsendelseStatus.PENDING));
-        tjeneste = new DokumentforsendelseRestTjeneste(dokumentTjenesteMock, null);
+        tjeneste = new DokumentforsendelseRestTjeneste(dokumentTjenesteMock, URI.create("http://fpinfo"));
 
         // default mocking
         input = mock(MultipartInput.class);
@@ -83,7 +83,7 @@ public class DokumentforsendelseRestTjenesteTest {
     @Test
     public void skal_kaste_teknisk_exception_hvis_metadata_ikke_er_første_part() {
         MultivaluedMap<String, String> map = new MultivaluedMapImpl<>();
-        map.put("Content-Disposition", Arrays.asList("ikke_metadata"));
+        map.put("Content-Disposition", List.of("ikke_metadata"));
         when(metadataPart.getHeaders()).thenReturn(map);
 
         assertThatThrownBy(() -> tjeneste.uploadFile(input))
@@ -137,7 +137,7 @@ public class DokumentforsendelseRestTjenesteTest {
     @Test
     public void skal_kaste_teknisk_exception_hvis_hoveddokument_mangler_name() {
         MultivaluedMap<String, String> map = new MultivaluedMapImpl<>();
-        map.put("Content-Disposition", Arrays.asList("mangler ; foo=name"));
+        map.put("Content-Disposition", List.of("mangler ; foo=name"));
         when(hoveddokumentPart.getHeaders()).thenReturn(map);
 
         assertThatThrownBy(() -> tjeneste.uploadFile(input))
@@ -226,8 +226,8 @@ public class DokumentforsendelseRestTjenesteTest {
         InputPart part = mock(InputPart.class);
         MultivaluedMap<String, String> map = new MultivaluedMapImpl<>();
         map.put("Content-Disposition",
-                Arrays.asList("attachment; name=\"" + contentDispositionName + "\"; filename=\"" + "Farskap\""));
-        contentId.ifPresent(id -> map.put("Content-ID", Arrays.asList(id)));
+                List.of("attachment; name=\"" + contentDispositionName + "\"; filename=\"" + "Farskap\""));
+        contentId.ifPresent(id -> map.put("Content-ID", List.of(id)));
         when(part.getHeaders()).thenReturn(map);
         return part;
     }
