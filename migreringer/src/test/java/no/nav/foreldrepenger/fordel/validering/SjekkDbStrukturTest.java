@@ -27,9 +27,9 @@ public class SjekkDbStrukturTest extends EntityManagerAwareTest {
 
     @BeforeAll
     public static void setup() {
-        var dbconp = Databaseskjemainitialisering.defaultPropertiesUnitTest();
-        ds = Databaseskjemainitialisering.ds(dbconp);
-        schema = dbconp.getSchema();
+        var dbconp = Databaseskjemainitialisering.DEFAULT_DS_PROPERTIES;
+        ds = dbconp.dataSource();
+        schema = dbconp.schema();
     }
 
     @Test

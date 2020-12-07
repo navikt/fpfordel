@@ -12,21 +12,23 @@ import no.nav.vedtak.util.env.Environment;
 
 class DataSourceKonfig {
 
-    private static final String MIGRATIONS_LOCATION = "classpath:/db/migration/";
-    private final DBConnProp defaultDatasource;
-    private final List<DBConnProp> dataSources;
     private static final Environment ENV = Environment.current();
 
+    private final DBConnProp defaultDS;
+    private final List<DBConnProp> dataSources;
+
     DataSourceKonfig() {
-        defaultDatasource = new DBConnProp(createDatasource("defaultDS"), MIGRATIONS_LOCATION + "defaultDS");
-        dataSources = List.of(defaultDatasource);
+        var defaultDSName = "defaultDS";
+        this.defaultDS = new DBConnProp(ds(defaultDSName), defaultDSName);
+        dataSources = List.of(defaultDS);
     }
 
-    private static DataSource createDatasource(String dataSourceName) {
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(ENV.getRequiredProperty(dataSourceName + ".url"));
-        config.setUsername(ENV.getRequiredProperty(dataSourceName + ".username"));
-        config.setPassword(ENV.getRequiredProperty(dataSourceName + ".password"));
+    private static DataSource ds(String dataSourceName) {
+        var config = new HikariConfig();
+        config.setJdbcUrl(ENV.getProperty(dataSourceName + ".url"));
+        config.setUsername(ENV.getProperty(dataSourceName + ".username"));
+        config.setPassword(ENV.getProperty(dataSourceName + ".password"));
+
         config.setConnectionTimeout(1000);
         config.setMinimumIdle(5);
         config.setMaximumPoolSize(30);
@@ -39,30 +41,17 @@ class DataSourceKonfig {
         return new HikariDataSource(config);
     }
 
-    DBConnProp getDefaultDatasource() {
-        return defaultDatasource;
-    }
-
     List<DBConnProp> getDataSources() {
         return dataSources;
     }
 
-    static final class DBConnProp {
-        private final DataSource datasource;
-        private final String migrationScripts;
-
-        public DBConnProp(DataSource datasource, String migrationScripts) {
-            this.datasource = datasource;
-            this.migrationScripts = migrationScripts;
-        }
-
-        public DataSource getDatasource() {
-            return datasource;
-        }
-
-        public String getMigrationScripts() {
-            return migrationScripts;
-        }
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [defaultDS=" + defaultDS + ", dataSources=" + dataSources + "]";
     }
 
+    public DataSource defaultDS() {
+        return defaultDS.getDatasource();
+    }
 }
+
