@@ -83,7 +83,7 @@ public class DokumentforsendelseRestTjeneste {
     static final String SERVICE_PATH = "/dokumentforsendelse";
 
     private static final String DEFAULT_FPINFO_BASE_URI = "http://fpinfo";
-    private static final String DEFAULT_STATUS_PATH = "/fpinfo/api/dokumentforsendelse/status";
+    private static final String DOKUMENTFORSENDELSE_STATUS_PATH = "/fpinfo/api/dokumentforsendelse/status";
 
     private static final String PART_KEY_METADATA = "metadata";
     private static final String PART_KEY_HOVEDDOKUMENT = "hoveddokument";
@@ -107,7 +107,7 @@ public class DokumentforsendelseRestTjeneste {
     public DokumentforsendelseRestTjeneste(DokumentforsendelseTjeneste service,
                                            @KonfigVerdi(value = "fpinfo.base.url", defaultVerdi = DEFAULT_FPINFO_BASE_URI) URI endpoint) {
         this.service = service;
-        this.fpStatusUrl = URI.create(endpoint.toString() + DEFAULT_STATUS_PATH);
+        this.fpStatusUrl = URI.create(endpoint.toString() + DOKUMENTFORSENDELSE_STATUS_PATH);
     }
 
     @POST

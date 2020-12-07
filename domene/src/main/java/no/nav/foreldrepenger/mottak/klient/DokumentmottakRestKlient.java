@@ -12,7 +12,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 @ApplicationScoped
 public class DokumentmottakRestKlient {
     private static final String DEFAULT_FPSAK_BASE_URI = "http://fpsak";
-    private static final String DEFAULT_MOTTAK_PATH = "/fpsak/api/fordel/journalpost";
+    private static final String FPSAK_MOTTAK_JOURNALPOST_PATH = "/fpsak/api/fordel/journalpost";
 
     private OidcRestClient oidcRestClient;
     private URI endpoint;
@@ -24,7 +24,7 @@ public class DokumentmottakRestKlient {
     public DokumentmottakRestKlient(OidcRestClient oidcRestClient,
                                     @KonfigVerdi(value = "fpsak.base.url", defaultVerdi = DEFAULT_FPSAK_BASE_URI) URI endpoint) {
         this.oidcRestClient = oidcRestClient;
-        this.endpoint = URI.create(endpoint.toString() + DEFAULT_MOTTAK_PATH);
+        this.endpoint = URI.create(endpoint.toString() + FPSAK_MOTTAK_JOURNALPOST_PATH);
     }
 
     public void send(JournalpostMottakDto journalpostMottakDto) {

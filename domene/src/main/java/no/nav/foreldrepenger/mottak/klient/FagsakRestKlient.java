@@ -22,10 +22,10 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 @ApplicationScoped
 public class FagsakRestKlient {
     private static final String DEFAULT_FPSAK_BASE_URI = "http://fpsak";
-    private static final String DEFAULT_JOURNALPOSTTILKNYTNING_PATH = "/fpsak/api/fordel/fagsak/knyttJournalpost";
-    private static final String DEFAULT_FAGSAKINFORMASJON_PATH = "/fpsak/api/fordel/fagsak/informasjon";
-    private static final String DEFAULT_FAGSAK_OPPRETT_PATH = "/fpsak/api/fordel/fagsak/opprett";
-    private static final String DEFAULT_VURDER_FAGSYSTEM_PATH = "/fpsak/api/fordel/vurderFagsystem";
+    private static final String JOURNALPOSTTILKNYTNING_PATH = "/fpsak/api/fordel/fagsak/knyttJournalpost";
+    private static final String FAGSAKINFORMASJON_PATH = "/fpsak/api/fordel/fagsak/informasjon";
+    private static final String FAGSAK_OPPRETT_PATH = "/fpsak/api/fordel/fagsak/opprett";
+    private static final String VURDER_FAGSYSTEM_PATH = "/fpsak/api/fordel/vurderFagsystem";
 
     private OidcRestClient oidcRestClient;
     private URI endpointSaksinfo;
@@ -40,10 +40,10 @@ public class FagsakRestKlient {
     public FagsakRestKlient(OidcRestClient oidcRestClient,
             @KonfigVerdi(value = "fpsak.base.url", defaultVerdi = DEFAULT_FPSAK_BASE_URI) URI endpoint) {
         this.oidcRestClient = oidcRestClient;
-        this.endpointSaksinfo = URI.create(endpoint.toString() + DEFAULT_FAGSAKINFORMASJON_PATH);
-        this.endpointOpprett = URI.create(endpoint.toString() + DEFAULT_FAGSAK_OPPRETT_PATH);
-        this.endpointJournalpostknyttning = URI.create(endpoint.toString() + DEFAULT_JOURNALPOSTTILKNYTNING_PATH);
-        this.endpointVurderFagsystem = URI.create(endpoint.toString() + DEFAULT_VURDER_FAGSYSTEM_PATH);
+        this.endpointSaksinfo = URI.create(endpoint.toString() + FAGSAKINFORMASJON_PATH);
+        this.endpointOpprett = URI.create(endpoint.toString() + FAGSAK_OPPRETT_PATH);
+        this.endpointJournalpostknyttning = URI.create(endpoint.toString() + JOURNALPOSTTILKNYTNING_PATH);
+        this.endpointVurderFagsystem = URI.create(endpoint.toString() + VURDER_FAGSYSTEM_PATH);
     }
 
     public Optional<FagsakInfomasjonDto> finnFagsakInfomasjon(SaksnummerDto saksnummerDto) {
