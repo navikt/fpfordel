@@ -38,7 +38,7 @@ public class FagsakRestKlient {
 
     @Inject
     public FagsakRestKlient(OidcRestClient oidcRestClient,
-            @KonfigVerdi(value = "FPSAK_BASE_URL", defaultVerdi = DEFAULT_FPSAK_BASE_URI) URI endpoint) {
+            @KonfigVerdi(value = "fpsak.base.url", defaultVerdi = DEFAULT_FPSAK_BASE_URI) URI endpoint) {
         this.oidcRestClient = oidcRestClient;
         this.endpointSaksinfo = URI.create(endpoint.toString() + DEFAULT_FAGSAKINFORMASJON_PATH);
         this.endpointOpprett = URI.create(endpoint.toString() + DEFAULT_FAGSAK_OPPRETT_PATH);

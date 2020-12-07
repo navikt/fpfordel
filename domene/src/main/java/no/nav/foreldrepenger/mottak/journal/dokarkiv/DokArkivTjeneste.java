@@ -32,7 +32,7 @@ public class DokArkivTjeneste {
     }
 
     @Inject
-    public DokArkivTjeneste(@KonfigVerdi(value = "DOKARKIV_BASE_URL", defaultVerdi = DEFAULT_URI) URI endpoint, OidcRestClient restKlient) {
+    public DokArkivTjeneste(@KonfigVerdi(value = "dokarkiv.base.url", defaultVerdi = DEFAULT_URI) URI endpoint, OidcRestClient restKlient) {
         this.dokarkiv = endpoint;
         this.uriString = endpoint.toString();
         this.restKlient = restKlient;

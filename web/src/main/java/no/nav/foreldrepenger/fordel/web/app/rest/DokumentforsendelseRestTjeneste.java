@@ -105,7 +105,7 @@ public class DokumentforsendelseRestTjeneste {
 
     @Inject
     public DokumentforsendelseRestTjeneste(DokumentforsendelseTjeneste service,
-                                           @KonfigVerdi(value = "FPINFO_BASE_URL", defaultVerdi = DEFAULT_FPINFO_BASE_URI) URI endpoint) {
+                                           @KonfigVerdi(value = "fpinfo.base.url", defaultVerdi = DEFAULT_FPINFO_BASE_URI) URI endpoint) {
         this.service = service;
         this.fpStatusUrl = URI.create(endpoint.toString() + DEFAULT_STATUS_PATH);
     }

@@ -22,7 +22,7 @@ public class DokumentmottakRestKlient {
 
     @Inject
     public DokumentmottakRestKlient(OidcRestClient oidcRestClient,
-                                    @KonfigVerdi(value = "FPSAK_BASE_URL", defaultVerdi = DEFAULT_FPSAK_BASE_URI) URI endpoint) {
+                                    @KonfigVerdi(value = "fpsak.base.url", defaultVerdi = DEFAULT_FPSAK_BASE_URI) URI endpoint) {
         this.oidcRestClient = oidcRestClient;
         this.endpoint = URI.create(endpoint.toString() + DEFAULT_MOTTAK_PATH);
     }
