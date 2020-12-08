@@ -21,14 +21,11 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
 public class FagsakRestKlient {
-    private static final String ENDPOINT_KEY_FINN_FAGSAK_INFOMASJON = "fpsak_saksinformasjon.url";
-    private static final String ENDPOINT_KEY_OPPRETT_SAK = "fpsak_opprett_sak.url";
-    private static final String ENDPOINT_KEY_KNYTT_SAK_OG_JOURNALPOST = "fpsak_journalpostknyttning.url";
-    private static final String ENDPOINT_KEY_VURDER_FAGSYSTEM = "fpsak_vurderFagsystem.url";
-    private static final String DEFAULT_JOURNALPOSTTILKNYTNING = "http://fpsak/fpsak/api/fordel/fagsak/knyttJournalpost";
-    private static final String DEFAULT_FAGSAKINFORMASJON = "http://fpsak/fpsak/api/fordel/fagsak/informasjon";
-    private static final String DEFAULT_FAGSAK_OPPRETT = "http://fpsak/fpsak/api/fordel/fagsak/opprett";
-    private static final String DEFAULT_VURDER_FAGSYSTEM = "http://fpsak/fpsak/api/fordel/vurderFagsystem";
+    private static final String DEFAULT_FPSAK_BASE_URI = "http://fpsak";
+    private static final String JOURNALPOSTTILKNYTNING_PATH = "/fpsak/api/fordel/fagsak/knyttJournalpost";
+    private static final String FAGSAKINFORMASJON_PATH = "/fpsak/api/fordel/fagsak/informasjon";
+    private static final String FAGSAK_OPPRETT_PATH = "/fpsak/api/fordel/fagsak/opprett";
+    private static final String VURDER_FAGSYSTEM_PATH = "/fpsak/api/fordel/vurderFagsystem";
 
     private OidcRestClient oidcRestClient;
     private URI endpointSaksinfo;
@@ -41,15 +38,12 @@ public class FagsakRestKlient {
 
     @Inject
     public FagsakRestKlient(OidcRestClient oidcRestClient,
-            @KonfigVerdi(value = ENDPOINT_KEY_FINN_FAGSAK_INFOMASJON, defaultVerdi = DEFAULT_FAGSAKINFORMASJON) URI finnSakURI,
-            @KonfigVerdi(value = ENDPOINT_KEY_OPPRETT_SAK, defaultVerdi = DEFAULT_FAGSAK_OPPRETT) URI opprettURI,
-            @KonfigVerdi(value = ENDPOINT_KEY_KNYTT_SAK_OG_JOURNALPOST, defaultVerdi = DEFAULT_JOURNALPOSTTILKNYTNING) URI knyttURI,
-            @KonfigVerdi(value = ENDPOINT_KEY_VURDER_FAGSYSTEM, defaultVerdi = DEFAULT_VURDER_FAGSYSTEM) URI vurderURI) {
+            @KonfigVerdi(value = "fpsak.base.url", defaultVerdi = DEFAULT_FPSAK_BASE_URI) URI endpoint) {
         this.oidcRestClient = oidcRestClient;
-        this.endpointSaksinfo = finnSakURI;
-        this.endpointOpprett = opprettURI;
-        this.endpointJournalpostknyttning = knyttURI;
-        this.endpointVurderFagsystem = vurderURI;
+        this.endpointSaksinfo = URI.create(endpoint.toString() + FAGSAKINFORMASJON_PATH);
+        this.endpointOpprett = URI.create(endpoint.toString() + FAGSAK_OPPRETT_PATH);
+        this.endpointJournalpostknyttning = URI.create(endpoint.toString() + JOURNALPOSTTILKNYTNING_PATH);
+        this.endpointVurderFagsystem = URI.create(endpoint.toString() + VURDER_FAGSYSTEM_PATH);
     }
 
     public Optional<FagsakInfomasjonDto> finnFagsakInfomasjon(SaksnummerDto saksnummerDto) {

@@ -11,8 +11,8 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
 public class TilbakekrevingRestKlient {
-    private static final String ENDPOINT_KEY = "tilbake_mottaJournalpost.url";
-    private static final String DEFAULT_URI = "http://fptilbake/fptilbake/api/fordel/journalpost";
+    private static final String DEFAULT_TILBAKE_BASE_URI = "http://fptilbake";
+    private static final String JOURNALPOST_PATH = "/fptilbake/api/fordel/journalpost";
 
     private OidcRestClient oidcRestClient;
     private URI endpoint;
@@ -22,9 +22,9 @@ public class TilbakekrevingRestKlient {
 
     @Inject
     public TilbakekrevingRestKlient(OidcRestClient oidcRestClient,
-            @KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
+                                    @KonfigVerdi(value = "fptilbake.base.url", defaultVerdi = DEFAULT_TILBAKE_BASE_URI) URI endpoint) {
         this.oidcRestClient = oidcRestClient;
-        this.endpoint = endpoint;
+        this.endpoint = URI.create(endpoint.toString() + JOURNALPOST_PATH);
     }
 
     public void send(JournalpostMottakDto journalpostMottakDto) {

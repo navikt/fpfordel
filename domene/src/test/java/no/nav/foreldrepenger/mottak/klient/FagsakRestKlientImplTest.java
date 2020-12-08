@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -44,7 +45,7 @@ public class FagsakRestKlientImplTest {
         LocalDateTime nå = LocalDateTime.now();
 
         oidcRestClient = mock(OidcRestClient.class);
-        fagsakRestKlient = new FagsakRestKlient(oidcRestClient, null, null, null, null);
+        fagsakRestKlient = new FagsakRestKlient(oidcRestClient, URI.create("http://fpsak"));
         ArgumentCaptor<VurderFagsystemDto> captor = ArgumentCaptor.forClass(VurderFagsystemDto.class);
         when(oidcRestClient.post(any(), captor.capture(), any())).thenReturn(null);
 

@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.sql.DataSource;
 
 import org.eclipse.jetty.plus.jndi.EnvEntry;
+import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,110 +21,62 @@ import no.nav.vedtak.util.env.Environment;
  */
 public final class Databaseskjemainitialisering {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Databaseskjemainitialisering.class);
     private static final Environment ENV = Environment.current();
 
-    public static final List<DBProperties> UNIT_TEST = List.of(cfg("fpfordel.unit"));
-
-    public static final List<DBProperties> DBA = List.of(cfg("fpfordel.dba"), cfg("fpfordel.default"));
-
-    private static final Logger LOG = LoggerFactory.getLogger(Databaseskjemainitialisering.class);
+    public static final DBProperties DEFAULT_DS_PROPERTIES = dbProperties("defaultDS", "fpfordel");
+    public static final DBProperties DVH_DS_PROPERTIES = dbProperties("defaultDS", "fpfordel_unit");
+    public static final String URL_DEFAULT = "jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=tcp) (HOST=127.0.0.1)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=XE)))";
 
     public static void main(String[] args) {
         migrer();
-        migrerUnit();
     }
 
     public static void migrer() {
-        try {
-            migrer(DBA);
-        } catch (Exception e) {
-            throw new RuntimeException("Feil under migrering av lokale skjema", e);
-        }
+        migrer(DEFAULT_DS_PROPERTIES);
+        migrer(DVH_DS_PROPERTIES);
     }
 
-    public static void migrerUnit() {
-        try {
-            migrer(UNIT_TEST);
-        } catch (Exception e) {
-            throw new RuntimeException("Feil under migrering av enhetstest-skjema", e);
-        }
+    private static DBProperties dbProperties(String dsName, String schema) {
+        return new DBProperties(dsName, schema, ds(dsName, schema), getScriptLocation(dsName));
     }
 
     public static void settJdniOppslag() {
         try {
-            var props = defaultProperties();
-            new EnvEntry("jdbc/" + props.getDatasource(), ds(props));
+            var props = DEFAULT_DS_PROPERTIES;
+            new EnvEntry("jdbc/" + props.dsName(), props.dataSource());
         } catch (Exception e) {
             throw new RuntimeException("Feil under registrering av JDNI-entry for default datasource", e);
         }
     }
 
-    public static void settJdniOppslagUnitTest() {
-        try {
-            var props = defaultPropertiesUnitTest();
-            new EnvEntry("jdbc/" + props.getDatasource(), ds(props));
-        } catch (Exception e) {
-            throw new RuntimeException("Feil under registrering av JDNI-entry for default datasource", e);
+    private static void migrer(DBProperties dbProperties) {
+        LOG.info("Migrerer {}", dbProperties.schema());
+        Flyway flyway = new Flyway();
+        flyway.setBaselineOnMigrate(true);
+        flyway.setDataSource(dbProperties.dataSource());
+        flyway.setTable("schema_version");
+        flyway.setLocations(dbProperties.scriptLocation());
+        flyway.setCleanOnValidationError(true);
+        if (!ENV.isLocal()) {
+            throw new IllegalStateException("Forventer at denne migreringen bare kjøres lokalt");
         }
+        flyway.migrate();
     }
 
-    public static DBProperties defaultPropertiesUnitTest() {
-        return UNIT_TEST.stream()
-                .filter(DBProperties::isDefaultDataSource)
-                .findFirst()
-                .orElseThrow();
-    }
-
-    public static DBProperties defaultProperties() {
-        return DBA.stream()
-                .filter(DBProperties::isDefaultDataSource)
-                .findFirst()
-                .orElseThrow();
-    }
-
-    private static void migrer(List<DBProperties> props) {
-        props.forEach(p -> migrer(ds(p), p));
-    }
-
-    private static void migrer(DataSource ds, DBProperties props) {
-        var cfg = new FlywayKonfig(ds);
-        if (!cfg
-                .medUsername(props.getUser())
-                .medSqlLokasjon(scriptLocation(props))
-                .medCleanup(props.isMigrateClean())
-                .medMetadataTabell(props.getVersjonstabell())
-                .migrerDb()) {
-            LOG.warn(
-                    "Kunne ikke starte inkrementell oppdatering av databasen. Det finnes trolig endringer i allerede kjørte script.\nKjører full migrering...");
-            if (!cfg.medCleanup(true).migrerDb()) {
-                throw new IllegalStateException("\n\nFeil i script. Avslutter...");
-            }
+    private static String getScriptLocation(String dsName) {
+        if (DBTestUtil.kjøresAvMaven()) {
+            return classpathScriptLocation(dsName);
         }
+        return fileScriptLocation(dsName);
     }
 
-    private static DBProperties cfg(String prefix) {
-        String schema = ENV.getRequiredProperty(prefix + ".schema");
-        return new DBProperties.Builder()
-                .user(schema)
-                .versjonstabell("schema_version")
-                .password(schema)
-                .datasource(ENV.getRequiredProperty(prefix + ".datasource"))
-                .schema(schema)
-                .defaultSchema(ENV.getProperty(prefix + ".defaultschema", schema))
-                .defaultDataSource(ENV.getProperty(prefix + ".default", boolean.class, false))
-                .migrateClean(ENV.getProperty(prefix + ".migrateclean", boolean.class, true))
-                .url(ENV.getRequiredProperty(prefix + ".url"))
-                .migrationScriptsFilesystemRoot(ENV.getRequiredProperty(prefix + ".ms")).build();
+    private static String classpathScriptLocation(String dsName) {
+        return "classpath:/db/migration/" + dsName;
     }
 
-    private static String scriptLocation(DBProperties props) {
-        return Optional.ofNullable(props.getMigrationScriptsClasspathRoot())
-                .map(p -> "classpath:/" + p + "/" + props.getSchema())
-                .orElse(fileScriptLocation(props));
-    }
-
-    private static String fileScriptLocation(DBProperties props) {
-        String relativePath = props.getMigrationScriptsFilesystemRoot() + props.getDatasource();
+    private static String fileScriptLocation(String dsName) {
+        String relativePath = "migreringer/src/main/resources/db/migration/" + dsName;
         File baseDir = new File(".").getAbsoluteFile();
         File location = new File(baseDir, relativePath);
         while (!location.exists()) {
@@ -133,30 +86,54 @@ public final class Databaseskjemainitialisering {
             }
             location = new File(baseDir, relativePath);
         }
-
         return "filesystem:" + location.getPath();
     }
 
-    public static DataSource ds(DBProperties props) {
-        var ds = new HikariDataSource(hikariConfig(props));
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ds.close();
-            }
-        }));
+    private static DataSource ds(String dsName, String schema) {
+        var ds = new HikariDataSource(hikariConfig(dsName, schema));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> ds.close()));
         return ds;
     }
 
-    private static HikariConfig hikariConfig(DBProperties props) {
+    private static HikariConfig hikariConfig(String dsName, String schema) {
         var cfg = new HikariConfig();
-        cfg.setJdbcUrl(props.getUrl());
-        cfg.setUsername(props.getUser());
-        cfg.setPassword(props.getPassword());
-        cfg.setConnectionTimeout(1000);
+        cfg.setJdbcUrl(ENV.getProperty(dsName + ".url", URL_DEFAULT));
+        cfg.setUsername(ENV.getProperty(dsName + ".username", schema));
+        cfg.setPassword(ENV.getProperty(dsName + ".password", schema));
+        cfg.setConnectionTimeout(10000);
         cfg.setMinimumIdle(0);
         cfg.setMaximumPoolSize(4);
         cfg.setAutoCommit(false);
         return cfg;
+    }
+
+    public static class DBProperties {
+        private final String schema;
+        private final DataSource dataSource;
+        private final String scriptLocation;
+        private final String dsName;
+
+        private DBProperties(String dsName, String schema, DataSource dataSource, String scriptLocation) {
+            this.dsName = dsName;
+            this.schema = schema;
+            this.dataSource = dataSource;
+            this.scriptLocation = scriptLocation;
+        }
+
+        public String dsName() {
+            return dsName;
+        }
+
+        public String schema() {
+            return schema;
+        }
+
+        public DataSource dataSource() {
+            return dataSource;
+        }
+
+        public String scriptLocation() {
+            return scriptLocation;
+        }
     }
 }
