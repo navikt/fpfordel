@@ -35,6 +35,11 @@ public final class MeldingXmlParser {
     private MeldingXmlParser() {
     }
 
+    public static boolean erXmlMedKjentNamespace(String xml) {
+        var nsName = ns(xml);
+        return nsName != null && UNMARSHALL_FUNCTIONS.get(nsName) != null;
+    }
+
     public static MottattStrukturertDokument<?> unmarshallXml(String xml) {
         return Optional.ofNullable(UNMARSHALL_FUNCTIONS.get(ns(xml)))
                 .map(f -> {
