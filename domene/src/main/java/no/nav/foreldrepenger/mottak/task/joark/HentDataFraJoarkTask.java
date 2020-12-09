@@ -103,6 +103,13 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         });
 
         if (journalpost.getInnholderStrukturertInformasjon()) {
+            if (!MeldingXmlParser.erXmlMedKjentNamespace(journalpost.getStrukturertPayload())) {
+                var jptittel = journalpost.getOriginalJournalpost().getTittel();
+                var doktittel = journalpost.getOriginalJournalpost().getDokumenter().get(0).getTittel();
+                var prefix = journalpost.getStrukturertPayload().substring(0, Math.min(40, journalpost.getStrukturertPayload().length()));
+                LOG.warn("Journalpost med ukjent strukturert innholg {} {} {}", jptittel, doktittel, prefix);
+                throw new IllegalStateException("Ukjent type strukturert dokument");
+            }
             MottattStrukturertDokument<?> mottattDokument = MeldingXmlParser.unmarshallXml(journalpost.getStrukturertPayload());
             mottattDokument.kopierTilMottakWrapper(dataWrapper, aktørConsumer::hentAktørIdForPersonIdent);
             dataWrapper.setPayload(journalpost.getStrukturertPayload());
