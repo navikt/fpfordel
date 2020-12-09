@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.mottak.task.joark;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.enterprise.context.Dependent;
@@ -105,14 +106,20 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         if (journalpost.getInnholderStrukturertInformasjon()) {
             if (!MeldingXmlParser.erXmlMedKjentNamespace(journalpost.getStrukturertPayload())) {
                 var jptittel = journalpost.getOriginalJournalpost().getTittel();
-                var doktittel = journalpost.getOriginalJournalpost().getDokumenter().get(0).getTittel();
-                var prefix = journalpost.getStrukturertPayload().substring(0, Math.min(40, journalpost.getStrukturertPayload().length()));
-                LOG.warn("Journalpost med ukjent strukturert innholg {} {} {}", jptittel, doktittel, prefix);
-                throw new IllegalStateException("Ukjent type strukturert dokument");
+                // kast feil for ukjent innhold som antagelig er XML (og vi kanskje bør håndtere). ignorer andre
+                if (!journalpost.getStrukturertPayload().isBlank() &&
+                        Objects.equals('<', journalpost.getStrukturertPayload().trim().charAt(0))) {
+                    var doktittel = journalpost.getOriginalJournalpost().getDokumenter().get(0).getTittel();
+                    var prefix = journalpost.getStrukturertPayload().substring(0, Math.min(40, journalpost.getStrukturertPayload().length()));
+                    LOG.warn("Journalpost med ukjent strukturert innhold {} {} {}", jptittel, doktittel, prefix);
+                    throw new IllegalStateException("Ukjent type strukturert dokument");
+                }
+                LOG.info("FPFORDEL journalpost med non-xml strukturert innhold {}", jptittel);
+            } else {
+                MottattStrukturertDokument<?> mottattDokument = MeldingXmlParser.unmarshallXml(journalpost.getStrukturertPayload());
+                mottattDokument.kopierTilMottakWrapper(dataWrapper, aktørConsumer::hentAktørIdForPersonIdent);
+                dataWrapper.setPayload(journalpost.getStrukturertPayload());
             }
-            MottattStrukturertDokument<?> mottattDokument = MeldingXmlParser.unmarshallXml(journalpost.getStrukturertPayload());
-            mottattDokument.kopierTilMottakWrapper(dataWrapper, aktørConsumer::hentAktørIdForPersonIdent);
-            dataWrapper.setPayload(journalpost.getStrukturertPayload());
         }
         if (dataWrapper.getForsendelseMottattTidspunkt().isEmpty()) {
             dataWrapper.setForsendelseMottattTidspunkt(LocalDateTime.now());
