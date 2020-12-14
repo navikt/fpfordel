@@ -23,12 +23,11 @@
     </licenses>
 
     <properties>
-        <junit5.version>5.7.0</junit5.version>
         <tjenestespesifikasjon.version>1.2019.12.18-12.22-ce897c4eb2c1</tjenestespesifikasjon.version>
         <revision>2.0</revision>
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
-        <felles.version>2.5.0-20201130142225-9738df0</felles.version>
+        <felles.version>3.0.0-SNAPSHOT</felles.version>
         <prosesstask.version>2.4.4-20201105215118-94e3e21</prosesstask.version>
 
         <java.version>15</java.version>
@@ -41,7 +40,6 @@
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.organization>navit</sonar.organization>
     </properties>
-
     <dependencyManagement>
         <dependencies>
             <!-- Felles biblioteker - Importerte avhengigheter -->
@@ -304,26 +302,9 @@
     </dependencyManagement>
 
     <dependencies>
-
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-testutilities</artifactId>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.junit.vintage</groupId>
-                    <artifactId>junit-vintage-engine</artifactId>
-                </exclusion>
-                <exclusion>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit5.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -363,11 +344,9 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>3.6.28</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
         <resources>
             <!-- filtrerer for å sette opp swagger versjon korrekt -->
@@ -532,4 +511,35 @@
             <url>https://packages.confluent.io/maven/</url>
         </repository>
     </repositories>
+    <profiles>
+        <profile>
+            <id>deploy</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>3.0.0-M3</version>
+                        <executions>
+                            <execution>
+                                <id>enforce-no-snapshots</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <phase>validate</phase>
+                                <configuration>
+                                    <rules>
+                                        <requireReleaseDeps>
+                                            <message>No Snapshots Allowed!</message>
+                                        </requireReleaseDeps>
+                                    </rules>
+                                    <fail>true</fail>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
