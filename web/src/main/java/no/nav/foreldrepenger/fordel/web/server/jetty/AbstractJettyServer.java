@@ -155,7 +155,7 @@ abstract class AbstractJettyServer {
                 .distinct()
                 .collect(Collectors.toList());
 
-        metaData.setWebInfClassesDirs(resources);
+        metaData.setWebInfClassesResources(resources);
     }
 
     protected abstract List<Class<?>> getWebInfClasses();
@@ -170,7 +170,6 @@ abstract class AbstractJettyServer {
         return httpConfig;
 
     }
-
 
     private static SecurityHandler createSecurityHandler() {
         ConstraintSecurityHandler securityHandler = new ConstraintSecurityHandler();

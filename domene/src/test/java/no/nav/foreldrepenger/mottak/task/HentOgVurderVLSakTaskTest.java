@@ -35,8 +35,7 @@ public class HentOgVurderVLSakTaskTest {
         MottakMeldingDataWrapper dataWrapper = lagDataWrapper();
         dataWrapper.setAktørId(null);
         HentOgVurderVLSakTask task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
-        var e = assertThrows(TekniskException.class, () -> task.precondition(dataWrapper));
-        assertTrue(e.getMessage().contains("FP-941984"));
+        assertTrue(assertThrows(TekniskException.class, () -> task.precondition(dataWrapper)).getMessage().contains("FP-941984"));
     }
 
     @Test

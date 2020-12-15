@@ -68,7 +68,6 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
     @Test
     public void testServiceTask_journalforingsoppgave() {
 
-        final String fodselsnummer = "99999999899";
         final String aktørId = "9000000000009";
         final BehandlingTema behandlingTema = BehandlingTema.ENGANGSSTØNAD_FØDSEL;
 

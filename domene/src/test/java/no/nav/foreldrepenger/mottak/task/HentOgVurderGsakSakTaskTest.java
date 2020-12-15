@@ -37,7 +37,6 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
-//@RunWith(CdiRunner.class)
 @ExtendWith(MockitoExtension.class)
 public class HentOgVurderGsakSakTaskTest {
 

@@ -18,8 +18,14 @@ jobs:
           echo "IMAGE=$IMAGE_BASE:$(echo ${{ github.event.client_payload.github.payload.issue.title }} | awk '{print $NF}')" >> $GITHUB_ENV
           echo "CLUSTER=${{github.event.client_payload.slash_command.args.unnamed.arg1}}" >> $GITHUB_ENV
  
+      - name: Nekt snapshot versjoner i prod
+        if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1} == 'prod-fss'  }}
+        run: |
+          mvn  -settings .github/workflows/.m2/settings.xml -P deploy validate
+
       - name: Sjekk ut kode
         uses: actions/checkout@v1
+        if: success()
         with:
           ref: ${{ env.TAG }}
 
