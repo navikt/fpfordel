@@ -8,16 +8,20 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareTest;
+import no.nav.foreldrepenger.mottak.extensions.FPfordelEntityManagerAwareExtension;
 import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 
-public class DokumentRepositoryTest extends EntityManagerAwareTest {
+@ExtendWith(FPfordelEntityManagerAwareExtension.class)
+public class DokumentRepositoryTest {
 
     private static final UUID FORSENDELSE_ID = UUID.randomUUID();
     private static final String ARKIV_ID = "1234";
@@ -28,8 +32,8 @@ public class DokumentRepositoryTest extends EntityManagerAwareTest {
     }
 
     @BeforeEach
-    public void beforeAll() {
-        repo = new DokumentRepository(getEntityManager());
+    public void beforeAll(EntityManager em) {
+        repo = new DokumentRepository(em);
     }
 
     @Test

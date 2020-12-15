@@ -7,17 +7,20 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.UUID;
+
+import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
-import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareTest;
+import no.nav.foreldrepenger.mottak.extensions.FPfordelEntityManagerAwareExtension;
 
-public class PipRepositoryTest extends EntityManagerAwareTest {
+@ExtendWith(FPfordelEntityManagerAwareExtension.class)
+public class PipRepositoryTest {
 
     private PipRepository pipRepository;
     private DokumentRepository dokumentRepository;
@@ -27,14 +30,10 @@ public class PipRepositoryTest extends EntityManagerAwareTest {
     private UUID forsendelseId = UUID.randomUUID();
     private UUID forsendelseId2 = UUID.randomUUID();
 
-    static {
-        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
-    }
-
     @BeforeEach
-    public void before() {
-        pipRepository = new PipRepository(getEntityManager());
-        dokumentRepository = new DokumentRepository(getEntityManager());
+    public void before(EntityManager em) {
+        pipRepository = new PipRepository(em);
+        dokumentRepository = new DokumentRepository(em);
     }
 
     @Test

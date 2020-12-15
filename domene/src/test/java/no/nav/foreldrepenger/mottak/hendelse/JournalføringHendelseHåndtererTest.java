@@ -4,16 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.TimeZone;
+
+import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
-import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareTest;
+import no.nav.foreldrepenger.mottak.extensions.FPfordelEntityManagerAwareExtension;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskInfo;
@@ -21,25 +23,22 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
-public class JournalføringHendelseHåndtererTest extends EntityManagerAwareTest {
+@ExtendWith(FPfordelEntityManagerAwareExtension.class)
+public class JournalføringHendelseHåndtererTest {
 
     private ProsessTaskRepository prosessTaskRepository;
     private DokumentRepository dokumentRepository;
     private JournalføringHendelseHåndterer hendelseHåndterer;
 
-    static {
-        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
-    }
-
     @BeforeEach
-    public void setup() {
-        prosessTaskRepository = new ProsessTaskRepositoryImpl(getEntityManager(), null, null);
-        dokumentRepository = new DokumentRepository(getEntityManager());
+    public void setup(EntityManager em) {
+        prosessTaskRepository = new ProsessTaskRepositoryImpl(em, null, null);
+        dokumentRepository = new DokumentRepository(em);
         hendelseHåndterer = new JournalføringHendelseHåndterer(prosessTaskRepository, dokumentRepository);
     }
 
     @Test
-    public void testSoknadEngangstonadOppretterKorrektTask() {
+    public void testSoknadEngangstonadOppretterKorrektTask(EntityManager em) {
         var builder = JournalfoeringHendelseRecord.newBuilder()
                 .setHendelsesId("12345").setVersjon(1)
                 .setHendelsesType("MidlertidigJournalført")
@@ -51,7 +50,7 @@ public class JournalføringHendelseHåndtererTest extends EntityManagerAwareTest
                 .setJournalpostStatus("M");
 
         hendelseHåndterer.handleMessage(null, builder.build());
-        getEntityManager().flush();
+        em.flush();
         List<ProsessTaskData> result = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         assertThat(result).as("Forventer at en prosesstask er lagt til").hasSize(1);
 
@@ -62,7 +61,7 @@ public class JournalføringHendelseHåndtererTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void testSoknadUkjentTypeSendesLikevelTilNesteSteg() {
+    public void testSoknadUkjentTypeSendesLikevelTilNesteSteg(EntityManager em) {
         var builder = JournalfoeringHendelseRecord.newBuilder()
                 .setHendelsesId("12345").setVersjon(1)
                 .setHendelsesType("MidlertidigJournalført")
@@ -73,7 +72,7 @@ public class JournalføringHendelseHåndtererTest extends EntityManagerAwareTest
                 .setJournalpostStatus("M");
 
         hendelseHåndterer.handleMessage(null, builder.build());
-        getEntityManager().flush();
+        em.flush();
 
         List<ProsessTaskData> result = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         assertThat(result).as("Forventer at en prosesstask er lagt til").hasSize(1);
@@ -84,8 +83,8 @@ public class JournalføringHendelseHåndtererTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void testDokumentFraKloningUtsettes() {
-        var builder =JournalfoeringHendelseRecord.newBuilder()
+    public void testDokumentFraKloningUtsettes(EntityManager em) {
+        var builder = JournalfoeringHendelseRecord.newBuilder()
                 .setHendelsesId("12345").setVersjon(1)
                 .setHendelsesType("MidlertidigJournalført")
                 .setTemaNytt(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode()).setTemaGammelt("")
@@ -95,7 +94,7 @@ public class JournalføringHendelseHåndtererTest extends EntityManagerAwareTest
                 .setJournalpostStatus("M");
 
         hendelseHåndterer.handleMessage(null, builder.build());
-        getEntityManager().flush();
+        em.flush();
 
         List<ProsessTaskData> result = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         assertThat(result).as("Forventer at en prosesstask er lagt til").hasSize(1);
@@ -104,8 +103,8 @@ public class JournalføringHendelseHåndtererTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void testDokumentFraEESSIIgnoreres() {
-        var builder =JournalfoeringHendelseRecord.newBuilder()
+    public void testDokumentFraEESSIIgnoreres(EntityManager em) {
+        var builder = JournalfoeringHendelseRecord.newBuilder()
                 .setHendelsesId("12345").setVersjon(1)
                 .setHendelsesType("MidlertidigJournalført")
                 .setTemaNytt(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode()).setTemaGammelt("")
@@ -115,7 +114,7 @@ public class JournalføringHendelseHåndtererTest extends EntityManagerAwareTest
                 .setJournalpostStatus("M");
 
         hendelseHåndterer.handleMessage(null, builder.build());
-        getEntityManager().flush();
+        em.flush();
 
         List<ProsessTaskData> result = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         assertThat(result).as("Forventer at en prosesstask er lagt til").isEmpty();

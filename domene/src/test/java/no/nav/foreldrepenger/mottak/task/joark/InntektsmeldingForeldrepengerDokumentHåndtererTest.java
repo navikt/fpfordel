@@ -42,7 +42,6 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
 
     @BeforeEach
     public void setUp() {
-        // initMocks(this);
         ProsessTaskRepository ptr = mock(ProsessTaskRepository.class);
         joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, aktørConsumer, arkivTjeneste));
         when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));

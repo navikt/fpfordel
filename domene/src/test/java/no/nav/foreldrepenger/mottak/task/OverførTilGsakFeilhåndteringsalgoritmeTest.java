@@ -6,13 +6,14 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareTest;
+import no.nav.foreldrepenger.mottak.extensions.FPfordelEntityManagerAwareExtension;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.feil.Feil;
@@ -26,8 +27,8 @@ import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 import no.nav.vedtak.felles.prosesstask.impl.SubjectProvider;
 import no.nav.vedtak.prosesstask.legacy.LegacySubjectProvider;
 
-@ExtendWith(MockitoExtension.class)
-public class OverførTilGsakFeilhåndteringsalgoritmeTest extends EntityManagerAwareTest {
+@ExtendWith(FPfordelEntityManagerAwareExtension.class)
+public class OverførTilGsakFeilhåndteringsalgoritmeTest {
 
     private ProsessTaskRepository prosessTaskRepository;
 
@@ -37,9 +38,9 @@ public class OverførTilGsakFeilhåndteringsalgoritmeTest extends EntityManagerA
     private ProsessTaskTypeInfo type = lagType();
 
     @BeforeEach
-    public void opprettAlgoritme() {
+    public void opprettAlgoritme(EntityManager em) {
         SubjectProvider sp = new LegacySubjectProvider();
-        prosessTaskRepository = new ProsessTaskRepositoryImpl(getEntityManager(), sp, ss);
+        prosessTaskRepository = new ProsessTaskRepositoryImpl(em, sp, ss);
         algoritme = new OverførTilGsakMedBackoffFeilhåndteringsalgoritme(prosessTaskRepository);
     }
 
