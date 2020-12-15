@@ -155,7 +155,8 @@ abstract class AbstractJettyServer {
                 .distinct()
                 .collect(Collectors.toList());
 
-        metaData.setWebInfClassesResources(resources);
+        metaData.setWebInfClassesDirs(resources);
+        // metaData.setWebInfClassesResources(resources);
     }
 
     protected abstract List<Class<?>> getWebInfClasses();

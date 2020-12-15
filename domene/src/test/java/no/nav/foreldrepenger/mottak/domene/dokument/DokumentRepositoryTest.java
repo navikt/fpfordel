@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.TimeZone;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
@@ -27,9 +26,6 @@ public class DokumentRepositoryTest {
     private static final String ARKIV_ID = "1234";
 
     private DokumentRepository repo;
-    static {
-        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
-    }
 
     @BeforeEach
     public void beforeAll(EntityManager em) {
