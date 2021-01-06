@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.fordel.ReadFileFromClassPathHelper;
@@ -21,7 +20,7 @@ import no.nav.foreldrepenger.mottak.journal.saf.model.VariantFormat;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-@ApplicationScoped
+//@ApplicationScoped
 public class LegacySafTjeneste implements SafTjeneste {
 
     private static final String DEFAULT_URI = "http://saf.default";
