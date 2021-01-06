@@ -24,6 +24,7 @@ import no.nav.pdl.Identliste;
 import no.nav.pdl.Navn;
 import no.nav.pdl.Person;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
+import no.nav.vedtak.felles.integrasjon.pdl.PdlKlientMedCache;
 
 @ExtendWith(MockitoExtension.class)
 public class PersonTjenesteTest {
@@ -32,11 +33,14 @@ public class PersonTjenesteTest {
 
     private PersonTjeneste personTjeneste;
     @Mock
+    private PdlKlientMedCache pdlKlientMedCache;
+    @Mock
     private PdlKlient pdlKlient;
 
     @BeforeEach
     public void setup() {
-        personTjeneste = new PersonTjeneste(pdlKlient);
+        when(pdlKlientMedCache.getDelegate()).thenReturn(pdlKlient);
+        personTjeneste = new PersonTjeneste(pdlKlientMedCache);
     }
 
     @Test
@@ -45,7 +49,6 @@ public class PersonTjenesteTest {
         when(pdlKlient.hentIdenter(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any(), any())).thenReturn(response);
 
         Optional<String> fnr = personTjeneste.hentPersonIdentForAktørId(AKTØR_ID);
-
         assertThat(fnr).isPresent();
         assertThat(fnr).hasValueSatisfying(v -> assertThat(v).isEqualTo(FNR));
     }
@@ -128,7 +131,7 @@ public class PersonTjenesteTest {
     @Test
     public void skal_returnere_gt_land() {
         var responsebeskyttelse = new Adressebeskyttelse(AdressebeskyttelseGradering.STRENGT_FORTROLIG, null, null);
-        var responsegt = new GeografiskTilknytning(GtType.UTLAND, null, null , "POL", null);
+        var responsegt = new GeografiskTilknytning(GtType.UTLAND, null, null, "POL", null);
         var response = new Person();
         response.setAdressebeskyttelse(List.of(responsebeskyttelse));
         response.setGeografiskTilknytning(responsegt);
