@@ -36,17 +36,14 @@ public class PersonTjenesteTest {
 
     private PersonTjeneste personTjeneste;
     @Mock
-    private PdlKlientMedCache pdlKlientMedCache;
-    @Mock
     private PdlKlient pdlKlient;
 
     @BeforeEach
     public void setup() {
-        when(pdlKlientMedCache.getDelegate()).thenReturn(pdlKlient);
-        personTjeneste = new PersonTjeneste(pdlKlientMedCache);
+        personTjeneste = new PersonTjeneste(new PdlKlientMedCache(pdlKlient));
     }
 
-    // @Test
+    @Test
     public void skal_returnere_fnr() {
         var response = new Identliste(List.of(new IdentInformasjon(FNR, IdentGruppe.FOLKEREGISTERIDENT, false)));
         when(pdlKlient.hentIdenter(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any(), any())).thenReturn(response);
@@ -55,7 +52,7 @@ public class PersonTjenesteTest {
         assertThat(fnr).hasValueSatisfying(v -> assertThat(v).isEqualTo(FNR));
     }
 
-    // @Test
+    @Test
     public void skal_returnere_aktørid() {
         var response = new Identliste(List.of(new IdentInformasjon(AKTØR_ID, IdentGruppe.AKTORID, false)));
         when(pdlKlient.hentIdenter(argThat(a -> a.getInput().get("ident").equals(FNR)), any(), any())).thenReturn(response);
