@@ -27,11 +27,11 @@
         <revision>2.0</revision>
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
-        <felles.version>3.0.20</felles.version>
+        <felles.version>3.0.22</felles.version>
         <prosesstask.version>2.4.4-20201105215118-94e3e21</prosesstask.version>
 
         <java.version>15</java.version>
-        <argLine>-Xms256m -Dfile.encoding=UTF-8 -Dlog.level.no.nav=WARN</argLine> <!-- default argLine for surefire-plugin -->
+        <argLine>-Xms256m -Dfile.encoding=UTF-8</argLine> <!-- default argLine for surefire-plugin -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <prometheus.version>0.9.0</prometheus.version>
