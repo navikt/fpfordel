@@ -67,9 +67,7 @@ public class PersonTjenesteTest {
     public void skal_returnere_empty_uten_match() {
         var response = new Identliste(List.of());
         when(pdlKlient.hentIdenter(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any(), any())).thenReturn(response);
-
         Optional<String> fnr = personTjeneste.hentPersonIdentForAktørId(AKTØR_ID);
-
         assertThat(fnr).isEmpty();
     }
 
