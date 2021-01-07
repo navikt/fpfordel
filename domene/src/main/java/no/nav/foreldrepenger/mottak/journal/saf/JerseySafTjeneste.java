@@ -5,6 +5,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
@@ -86,12 +87,12 @@ public class JerseySafTjeneste extends AbstractJerseyOidcRestClient implements S
     @Override
     public String hentDokument(String journalpostId, String dokumentInfoId, VariantFormat variantFormat) {
         try {
-            LOG.info("Henter dokument  {}/{}/{}", journalpostId, dokumentInfoId, variantFormat);
+            LOG.info("Henter dokument  for {} {} {}", journalpostId, dokumentInfoId, variantFormat);
             var doc = client.target(base)
                     .path(DOKUMENT_PATH)
-                    .resolveTemplate("journalpostId", journalpostId)
-                    .resolveTemplate("dokumentInfoId", dokumentInfoId)
-                    .resolveTemplate("variantFormat", variantFormat.name())
+                    .resolveTemplates(Map.of("journalpostId", journalpostId,
+                            "dokumentInfoId", dokumentInfoId,
+                            "variantFormat", variantFormat.name()))
                     .request(APPLICATION_JSON_TYPE)
                     .get(String.class);
             LOG.info("Hentet dokument OK");
@@ -104,7 +105,7 @@ public class JerseySafTjeneste extends AbstractJerseyOidcRestClient implements S
     @Override
     public List<Journalpost> hentEksternReferanseId(String dokumentInfoId) {
         try {
-            LOG.info("Henter hentEksternReferanseId  {}", dokumentInfoId);
+            LOG.info("Henter ekstern referanseId for {}", dokumentInfoId);
             var req = new GraphQlTilknyttetRequest(tilknyttedeQuery, new TilknyttetVariables(dokumentInfoId));
             var res = client.target(base)
                     .path(GRAPHQL_PATH)

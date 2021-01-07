@@ -19,6 +19,7 @@ import static org.apache.http.HttpHeaders.ACCEPT;
 import static org.apache.http.HttpHeaders.AUTHORIZATION;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.http.HttpStatus.SC_OK;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 
@@ -36,8 +37,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 
+import no.nav.foreldrepenger.mottak.journal.saf.graphql.GrapQlData;
 import no.nav.foreldrepenger.mottak.journal.saf.graphql.GraphQlError;
 import no.nav.foreldrepenger.mottak.journal.saf.graphql.GraphQlResponse;
+import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.OidcTokenRequestFilter;
 
 @ExtendWith(MockitoExtension.class)
@@ -80,13 +83,24 @@ public class TestJerseyClient {
     }
 
     @Test
-    public void testHentJournalpostFeiler() throws Exception {
+    public void testHentJournalpostFeiler() {
         stubFor(headers(post(urlPathEqualTo(GRAPHQL_PATH)))
                 .willReturn(aResponse()
                         .withStatus(SC_OK)
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
                         .withBody(body(feil()))));
         assertThrows(SafException.class, () -> client.hentJournalpostInfo("1"));
+    }
+
+    @Test
+    public void testHentJournalpostOK() {
+        stubFor(headers(post(urlPathEqualTo(GRAPHQL_PATH)))
+                .willReturn(aResponse()
+                        .withStatus(SC_OK)
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                        .withBody(body(ok()))));
+        var p = client.hentJournalpostInfo("1");
+        assertEquals(p, journalpost());
     }
 
     private static MappingBuilder headers(MappingBuilder p) {
@@ -106,5 +120,13 @@ public class TestJerseyClient {
 
     private static GraphQlResponse feil() {
         return new GraphQlResponse(null, List.of(new GraphQlError("Oops", null, "1", "1", null)));
+    }
+
+    private static GraphQlResponse ok() {
+        return new GraphQlResponse(new GrapQlData(journalpost()), List.of());
+    }
+
+    private static Journalpost journalpost() {
+        return new Journalpost("1", "2", "3", null, "4", "5", "6", "7", "8", "9", null, null, null, null);
     }
 }
