@@ -27,7 +27,7 @@
         <revision>2.0</revision>
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
-        <felles.version>3.0.22</felles.version>
+        <felles.version>3.0.24</felles.version>
         <prosesstask.version>2.4.4-20201105215118-94e3e21</prosesstask.version>
 
         <java.version>15</java.version>
@@ -42,7 +42,12 @@
     </properties>
     <dependencyManagement>
         <dependencies>
-            <!-- Felles biblioteker - Importerte avhengigheter -->
+            <dependency>
+                <groupId>com.github.tomakehurst</groupId>
+                <artifactId>wiremock</artifactId>
+                <version>2.27.2</version>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>felles</artifactId>

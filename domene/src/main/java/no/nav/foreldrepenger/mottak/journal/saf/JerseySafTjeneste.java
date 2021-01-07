@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.client.ClientRequestFilter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +32,8 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 public class JerseySafTjeneste extends AbstractJerseyOidcRestClient implements SafTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(JerseySafTjeneste.class);
-    private static final String GRAPHQL_PATH = "graphql";
-    private static final String DOKUMENT_PATH = "/rest/hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}";
+    static final String GRAPHQL_PATH = "/graphql";
+    static final String DOKUMENT_PATH = "/rest/hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}";
     private static final String DEFAULT_URI = "http://saf.default";
 
     private URI base;
@@ -40,11 +41,19 @@ public class JerseySafTjeneste extends AbstractJerseyOidcRestClient implements S
     private String tilknyttedeQuery;
 
     JerseySafTjeneste() {
-        // CDI
     }
 
     @Inject
     public JerseySafTjeneste(@KonfigVerdi(value = "saf.base.url", defaultVerdi = DEFAULT_URI) URI base) {
+        this(base, new ClientRequestFilter[0]);
+    }
+
+    JerseySafTjeneste(String base, ClientRequestFilter... filters) {
+        this(URI.create(base), filters);
+    }
+
+    private JerseySafTjeneste(URI base, ClientRequestFilter... filters) {
+        super(filters);
         this.base = base;
         this.query = ReadFileFromClassPathHelper.hent("saf/journalpostQuery.graphql");
         this.tilknyttedeQuery = ReadFileFromClassPathHelper.hent("saf/tilknyttedeJournalposterQuery.graphql");
