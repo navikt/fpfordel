@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.fordel.dbstoette;
 
 import java.io.File;
-import java.util.List;
-import java.util.Optional;
 
 import javax.sql.DataSource;
 
