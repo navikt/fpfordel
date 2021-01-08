@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.NAVSkjema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.DokArkivTjeneste;
+import no.nav.foreldrepenger.mottak.journal.dokarkiv.DokArkiv;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.AvsenderMottaker;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.AvsenderMottakerIdType;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.Bruker;
@@ -59,7 +59,7 @@ public class ArkivTjeneste {
             "Anke", DokumentTypeId.KLAGE_DOKUMENT);
 
     private SafTjeneste safTjeneste;
-    private DokArkivTjeneste dokArkivTjeneste;
+    private DokArkiv dokArkivTjeneste;
     private DokumentRepository dokumentRepository;
     private PersonTjeneste personTjeneste;
 
@@ -69,7 +69,7 @@ public class ArkivTjeneste {
 
     @Inject
     public ArkivTjeneste(SafTjeneste safTjeneste,
-            DokArkivTjeneste dokArkivTjeneste,
+            DokArkiv dokArkivTjeneste,
             DokumentRepository dokumentRepository,
             PersonTjeneste personTjeneste) {
         this.safTjeneste = safTjeneste;

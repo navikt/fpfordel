@@ -27,7 +27,7 @@
         <revision>2.0</revision>
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
-        <felles.version>3.0.24</felles.version>
+        <felles.version>3.0.26</felles.version>
         <prosesstask.version>2.4.4-20201105215118-94e3e21</prosesstask.version>
 
         <java.version>15</java.version>
@@ -350,12 +350,10 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
             <scope>test</scope>
-            <version>3.6.28</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.7.0</version>
         </dependency>
     </dependencies>
     <build>

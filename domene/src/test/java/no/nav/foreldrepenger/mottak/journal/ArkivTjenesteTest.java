@@ -25,10 +25,10 @@ import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.DokArkivTjeneste;
+import no.nav.foreldrepenger.mottak.journal.dokarkiv.DokArkiv;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostResponse;
-import no.nav.foreldrepenger.mottak.journal.saf.LegacySafTjeneste;
+import no.nav.foreldrepenger.mottak.journal.saf.SafTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,9 +40,9 @@ public class ArkivTjenesteTest {
     private ArkivTjeneste arkivTjeneste; // objektet vi tester
     // Mocks
     @Mock
-    private LegacySafTjeneste safTjeneste;
+    private SafTjeneste safTjeneste;
     @Mock
-    private DokArkivTjeneste dokArkivTjeneste;
+    private DokArkiv dokArkivTjeneste;
     @Mock
     private DokumentRepository dokumentRepository;
     @Mock

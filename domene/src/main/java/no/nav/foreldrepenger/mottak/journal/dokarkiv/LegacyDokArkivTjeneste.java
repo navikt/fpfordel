@@ -17,27 +17,28 @@ import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
-public class DokArkivTjeneste {
+public class LegacyDokArkivTjeneste implements DokArkiv {
 
     private static final String DEFAULT_URI = "http://dokarkiv.default/rest/journalpostapi/v1/journalpost";
 
-    private static final Logger LOG = LoggerFactory.getLogger(DokArkivTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LegacyDokArkivTjeneste.class);
 
     private URI dokarkiv;
     private String uriString;
     private OidcRestClient restKlient;
 
-    DokArkivTjeneste() {
+    LegacyDokArkivTjeneste() {
         // CDI
     }
 
     @Inject
-    public DokArkivTjeneste(@KonfigVerdi(value = "dokarkiv.base.url", defaultVerdi = DEFAULT_URI) URI endpoint, OidcRestClient restKlient) {
+    public LegacyDokArkivTjeneste(@KonfigVerdi(value = "dokarkiv.base.url", defaultVerdi = DEFAULT_URI) URI endpoint, OidcRestClient restKlient) {
         this.dokarkiv = endpoint;
         this.uriString = endpoint.toString();
         this.restKlient = restKlient;
     }
 
+    @Override
     public OpprettJournalpostResponse opprettJournalpost(OpprettJournalpostRequest request, boolean ferdigstill) {
         try {
             var opprett = ferdigstill ? new URIBuilder(dokarkiv).addParameter("forsoekFerdigstill", "true").build() : dokarkiv;
@@ -48,6 +49,7 @@ public class DokArkivTjeneste {
         }
     }
 
+    @Override
     public boolean oppdaterJournalpost(String journalpostId, OppdaterJournalpostRequest request) {
         try {
             var oppdater = URI.create(uriString + String.format("/%s", journalpostId));
@@ -59,6 +61,7 @@ public class DokArkivTjeneste {
         }
     }
 
+    @Override
     public boolean ferdigstillJournalpost(String journalpostId, String enhet) {
         try {
             var ferdigstill = URI.create(uriString + String.format("/%s/ferdigstill", journalpostId));

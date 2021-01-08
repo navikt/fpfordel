@@ -94,6 +94,7 @@ public class TestJerseyClient {
 
     @Test
     public void testHentJournalpostOK() {
+
         stubFor(headers(post(urlPathEqualTo(GRAPHQL_PATH)))
                 .willReturn(aResponse()
                         .withStatus(SC_OK)
