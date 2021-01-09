@@ -21,29 +21,29 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
-public class DokArkivJerseyTjeneste extends AbstractJerseyOidcRestClient implements DokArkiv {
+public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient implements DokArkiv {
 
     private static final String DEFAULT_URI = "http://dokarkiv.default/rest/journalpostapi/v1/journalpost";
     private static final String OPPDATER_PATH = "/{journalpostId}";
     private static final String FERDIGSTILL_PATH = OPPDATER_PATH + "/ferdigstill";
-    private static final Logger LOG = LoggerFactory.getLogger(DokArkivJerseyTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JerseyDokArkivTjeneste.class);
 
     private URI dokarkiv;
 
-    DokArkivJerseyTjeneste() {
+    JerseyDokArkivTjeneste() {
         // CDI
     }
 
     @Inject
-    public DokArkivJerseyTjeneste(@KonfigVerdi(value = "dokarkiv.base.url", defaultVerdi = DEFAULT_URI) URI endpoint) {
+    public JerseyDokArkivTjeneste(@KonfigVerdi(value = "dokarkiv.base.url", defaultVerdi = DEFAULT_URI) URI endpoint) {
         this(endpoint, new ClientRequestFilter[0]);
     }
 
-    DokArkivJerseyTjeneste(String base, ClientRequestFilter... filters) {
+    JerseyDokArkivTjeneste(String base, ClientRequestFilter... filters) {
         this(URI.create(base), filters);
     }
 
-    public DokArkivJerseyTjeneste(URI endpoint, ClientRequestFilter... filters) {
+    public JerseyDokArkivTjeneste(URI endpoint, ClientRequestFilter... filters) {
         super(filters);
         this.dokarkiv = endpoint;
     }
@@ -69,7 +69,12 @@ public class DokArkivJerseyTjeneste extends AbstractJerseyOidcRestClient impleme
     public boolean oppdaterJournalpost(String journalpostId, OppdaterJournalpostRequest request) {
         try {
             LOG.info("Oppdaterer journalpost");
-            put(fromUri(dokarkiv).path(OPPDATER_PATH).build(journalpostId), request);
+            client.target(dokarkiv)
+                    .path(OPPDATER_PATH)
+                    .resolveTemplate("journalpostId", journalpostId)
+                    .request(APPLICATION_JSON_TYPE)
+                    .buildPut(json(request))
+                    .invoke(Void.class);
             LOG.info("Oppdatert journalpost OK");
             return true;
         } catch (Exception e) {

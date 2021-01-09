@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,6 +20,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
@@ -29,7 +30,7 @@ import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
+import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.klient.VurderFagsystemResultat;
 import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
@@ -38,6 +39,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class OpprettSakTaskTest {
 
     public static final String FNR = "99999999999";
@@ -46,7 +48,7 @@ public class OpprettSakTaskTest {
     @Mock
     private ProsessTaskRepository prosessTaskRepositoryMock;
     @Mock
-    private FagsakRestKlient fagsakRestKlient;
+    private FagsakTjeneste fagsakRestKlient;
     @Mock
     private PersonTjeneste aktørConsumer;
 
@@ -54,10 +56,10 @@ public class OpprettSakTaskTest {
 
     @BeforeEach
     public void setUp() {
-        lenient().when(aktørConsumer.hentAktørIdForPersonIdent(FNR)).thenReturn(Optional.of(AKTØR_ID));
+        when(aktørConsumer.hentAktørIdForPersonIdent(FNR)).thenReturn(Optional.of(AKTØR_ID));
         VurderFagsystemResultat vurderFagsystemRespons = new VurderFagsystemResultat();
         vurderFagsystemRespons.setBehandlesIVedtaksløsningen(true);
-        lenient().when(fagsakRestKlient.vurderFagsystem(any())).thenReturn(vurderFagsystemRespons);
+        when(fagsakRestKlient.vurderFagsystem(any())).thenReturn(vurderFagsystemRespons);
         task = new OpprettSakTask(prosessTaskRepositoryMock, fagsakRestKlient);
     }
 

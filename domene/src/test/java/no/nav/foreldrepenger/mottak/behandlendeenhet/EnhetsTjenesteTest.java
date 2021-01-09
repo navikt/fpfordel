@@ -6,7 +6,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -17,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentGeografiskTilknytningPersonIkkeFunnet;
@@ -32,6 +33,7 @@ import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRe
 import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class EnhetsTjenesteTest {
     private static final String AKTØR_ID = "9999999999999";
     private static final String FNR = "99999999999";
@@ -49,7 +51,7 @@ public class EnhetsTjenesteTest {
 
     @BeforeEach
     public void setup() {
-        lenient().when(personTjeneste.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(FNR));
+        when(personTjeneste.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(FNR));
         when(arbeidsfordelingTjeneste.hentAlleAktiveEnheter(any())).thenReturn(List.of(FORDELING_ENHET));
         enhetsTjeneste = new EnhetsTjeneste(personConsumer, personTjeneste, arbeidsfordelingTjeneste);
     }

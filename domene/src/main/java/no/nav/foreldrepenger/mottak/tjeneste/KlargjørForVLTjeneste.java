@@ -14,22 +14,23 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
-import no.nav.foreldrepenger.mottak.klient.DokumentmottakRestKlient;
-import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
-import no.nav.foreldrepenger.mottak.klient.TilbakekrevingRestKlient;
+import no.nav.foreldrepenger.mottak.klient.Fagsak;
+import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
+import no.nav.foreldrepenger.mottak.klient.JournalpostSender;
+import no.nav.foreldrepenger.mottak.klient.Tilbake;
 
 @ApplicationScoped
 public class KlargjørForVLTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(KlargjørForVLTjeneste.class);
 
-    private DokumentmottakRestKlient restKlient;
-    private FagsakRestKlient fagsakRestKlient;
-    private TilbakekrevingRestKlient tilbakekrevingRestKlient;
+    private JournalpostSender restKlient;
+    private FagsakTjeneste fagsakRestKlient;
+    private JournalpostSender tilbakekrevingRestKlient;
 
     @Inject
-    public KlargjørForVLTjeneste(DokumentmottakRestKlient restKlient, FagsakRestKlient fagsakRestKlient,
-            TilbakekrevingRestKlient tilbakekrevingRestKlient) {
+    public KlargjørForVLTjeneste(@Fagsak JournalpostSender restKlient, FagsakTjeneste fagsakRestKlient,
+            @Tilbake JournalpostSender tilbakekrevingRestKlient) {
         this.restKlient = restKlient;
         this.fagsakRestKlient = fagsakRestKlient;
         this.tilbakekrevingRestKlient = tilbakekrevingRestKlient;

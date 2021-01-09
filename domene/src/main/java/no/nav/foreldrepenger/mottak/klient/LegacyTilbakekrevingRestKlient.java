@@ -10,25 +10,28 @@ import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
-public class DokumentmottakRestKlient {
-    private static final String DEFAULT_FPSAK_BASE_URI = "http://fpsak";
-    private static final String FPSAK_MOTTAK_JOURNALPOST_PATH = "/fpsak/api/fordel/journalpost";
+@Deprecated
+@Tilbake
+public class LegacyTilbakekrevingRestKlient implements JournalpostSender {
+    private static final String DEFAULT_TILBAKE_BASE_URI = "http://fptilbake";
+    private static final String JOURNALPOST_PATH = "/fptilbake/api/fordel/journalpost";
 
     private OidcRestClient oidcRestClient;
     private URI endpoint;
 
-    public DokumentmottakRestKlient() {
+    public LegacyTilbakekrevingRestKlient() {
     }
 
     @Inject
-    public DokumentmottakRestKlient(OidcRestClient oidcRestClient,
-                                    @KonfigVerdi(value = "fpsak.base.url", defaultVerdi = DEFAULT_FPSAK_BASE_URI) URI endpoint) {
+    public LegacyTilbakekrevingRestKlient(OidcRestClient oidcRestClient,
+            @KonfigVerdi(value = "fptilbake.base.url", defaultVerdi = DEFAULT_TILBAKE_BASE_URI) URI endpoint) {
         this.oidcRestClient = oidcRestClient;
-        this.endpoint = URI.create(endpoint.toString() + FPSAK_MOTTAK_JOURNALPOST_PATH);
+        this.endpoint = URI.create(endpoint.toString() + JOURNALPOST_PATH);
     }
 
+    @Override
     public void send(JournalpostMottakDto journalpostMottakDto) {
         oidcRestClient.post(endpoint, journalpostMottakDto);
-    }
 
+    }
 }

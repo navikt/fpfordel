@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
-import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
+import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.klient.VurderFagsystemResultat;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -31,11 +31,11 @@ public class OpprettSakTask extends WrappedProsessTaskHandler {
     public static final String TASKNAME = "fordeling.opprettSak";
     private static final Logger LOG = LoggerFactory.getLogger(OpprettSakTask.class);
 
-    private final FagsakRestKlient fagsakRestKlient;
+    private final FagsakTjeneste fagsakRestKlient;
 
     @Inject
     public OpprettSakTask(ProsessTaskRepository prosessTaskRepository,
-            FagsakRestKlient fagsakRestKlient) {
+            FagsakTjeneste fagsakRestKlient) {
         super(prosessTaskRepository);
         this.fagsakRestKlient = fagsakRestKlient;
     }

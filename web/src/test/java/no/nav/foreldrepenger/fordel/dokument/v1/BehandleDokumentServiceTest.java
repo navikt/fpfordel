@@ -34,7 +34,7 @@ import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
-import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
+import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.OppdaterOgFerdigstillJournalfoeringUgyldigInput;
@@ -61,7 +61,7 @@ public class BehandleDokumentServiceTest {
     @Mock
     private KlargjørForVLTjeneste klargjørForVLTjenesteMock;
     @Mock
-    private FagsakRestKlient fagsakRestKlientMock;
+    private FagsakTjeneste fagsakRestKlientMock;
     @Mock
     private PersonTjeneste aktørConsumer;
 

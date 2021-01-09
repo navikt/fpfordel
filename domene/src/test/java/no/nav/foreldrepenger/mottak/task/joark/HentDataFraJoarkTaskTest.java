@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -18,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -32,6 +33,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class HentDataFraJoarkTaskTest {
 
     private static final String ARKIV_ID = JoarkTestsupport.ARKIV_ID;
@@ -51,7 +53,7 @@ public class HentDataFraJoarkTaskTest {
 
     @BeforeEach
     public void setUp() {
-        lenient().doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(aktørConsumer).hentAktørIdForPersonIdent(any());
+        doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(aktørConsumer).hentAktørIdForPersonIdent(any());
         joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, aktørConsumer, arkivTjeneste));
         taskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
         taskData.setSekvens("1");

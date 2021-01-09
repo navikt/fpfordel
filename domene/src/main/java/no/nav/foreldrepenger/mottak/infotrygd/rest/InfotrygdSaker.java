@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.InfotrygdSakerConsumer;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 
+@Deprecated
 public abstract class InfotrygdSaker extends InfotrygdSakerConsumer implements InfotrygdTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(InfotrygdSaker.class);
 

@@ -37,8 +37,7 @@ public class ArkivTjenesteTest {
     private static final String SAK_ID = "456";
     private static final String AVSENDER_ID = "3000";
 
-    private ArkivTjeneste arkivTjeneste; // objektet vi tester
-    // Mocks
+    private ArkivTjeneste arkivTjeneste;
     @Mock
     private SafTjeneste safTjeneste;
     @Mock
@@ -75,7 +74,7 @@ public class ArkivTjenesteTest {
         OpprettJournalpostRequest captured = captor.getValue();
         assertThat(captured.getEksternReferanseId()).isEqualTo(forsendelseId.toString());
         assertThat(captured.getDokumenter()).hasSize(2);
-        assertThat(captured.getDokumenter().get(0).getDokumentvarianter()).hasSize(2);
+        assertThat(captured.getDokumenter().get(0).dokumentvarianter()).hasSize(2);
         assertThat(captured.getJournalfoerendeEnhet()).isEqualTo("9999");
         assertThat(captured.getTittel()).isEqualTo(SØKNAD_FORELDREPENGER_FØDSEL.getTermNavn());
         assertThat(resultat.getJournalpostId()).isEqualTo(DokumentArkivTestUtil.JOURNALPOST_ID);

@@ -22,23 +22,19 @@ public class DokumentTest {
     @Test
     public void test_skalBase64EncodeDokumentInnhold() {
         String forventet = Base64.getEncoder().encodeToString(TEST_BYTES);
-
         Dokument dokument = lagDokument(ArkivFilType.PDFA);
-
         assertThat(dokument.getBase64EncodetDokument()).isEqualTo(forventet);
     }
 
     @Test
     public void test_skalKunneHenteKlartekstAvXML() {
         Dokument dokument = lagDokument(ArkivFilType.XML);
-
         assertThat(dokument.getKlartekstDokument()).isEqualTo(TEST_STRING);
     }
 
     @Test
     public void test_skalKasteFeilVedHentingAvKlartekstPåBinærDokument() {
         Dokument dokument = lagDokument(ArkivFilType.PDFA);
-
         var e = assertThrows(IllegalStateException.class, () -> dokument.getKlartekstDokument());
         assertTrue(e.getMessage().contains("Utviklerfeil"));
     }
@@ -51,5 +47,4 @@ public class DokumentTest {
                 .setDokumentInnhold(TEST_BYTES, arkivFilType)
                 .build();
     }
-
 }

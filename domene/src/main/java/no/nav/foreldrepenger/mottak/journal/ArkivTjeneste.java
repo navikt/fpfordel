@@ -83,9 +83,9 @@ public class ArkivTjeneste {
 
         var builder = ArkivJournalpost.getBuilder().medJournalpost(journalpost).medJournalpostId(journalpostId);
 
-        var infoList = journalpost.getDokumenter().stream()
-                .filter(it -> it.getDokumentvarianter().stream().anyMatch(at -> VariantFormat.ORIGINAL.equals(at.getVariantFormat())))
-                .map(DokumentInfo::getDokumentInfoId)
+        var infoList = journalpost.dokumenter().stream()
+                .filter(it -> it.dokumentvarianter().stream().anyMatch(at -> VariantFormat.ORIGINAL.equals(at.variantFormat())))
+                .map(DokumentInfo::dokumentInfoId)
                 .collect(Collectors.toList());
 
         if (infoList.size() > 1) {
@@ -97,41 +97,41 @@ public class ArkivTjeneste {
         }
 
         Set<DokumentTypeId> alleTyper = utledDokumentTyper(journalpost);
-        BehandlingTema behandlingTema = utledBehandlingTema(journalpost.getBehandlingstema(), alleTyper);
+        BehandlingTema behandlingTema = utledBehandlingTema(journalpost.behandlingstema(), alleTyper);
         mapIdent(journalpost).ifPresent(builder::medBrukerAktørId);
-        if ((journalpost.getAvsenderMottaker() != null) && (journalpost.getAvsenderMottaker().getType() != null)) {
-            builder.medAvsender(journalpost.getAvsenderMottaker().getId(), journalpost.getAvsenderMottaker().getNavn());
+        if ((journalpost.avsenderMottaker() != null) && (journalpost.avsenderMottaker().type() != null)) {
+            builder.medAvsender(journalpost.avsenderMottaker().id(), journalpost.avsenderMottaker().navn());
         }
 
-        return builder.medKanal(journalpost.getKanal())
-                .medJournalposttype(Journalposttype.fraKodeDefaultUdefinert(journalpost.getJournalposttype()))
-                .medTilstand(Journalstatus.fraKodeDefaultUdefinert(journalpost.getJournalstatus()))
+        return builder.medKanal(journalpost.kanal())
+                .medJournalposttype(Journalposttype.fraKodeDefaultUdefinert(journalpost.journalposttype()))
+                .medTilstand(Journalstatus.fraKodeDefaultUdefinert(journalpost.journalstatus()))
                 .medAlleTyper(alleTyper)
                 .medHovedtype(utledHovedDokumentType(alleTyper))
-                .medTema(Tema.fraOffisiellKode(journalpost.getTema()))
-                .medBehandlingstema(BehandlingTema.fraOffisiellKode(journalpost.getBehandlingstema()))
+                .medTema(Tema.fraOffisiellKode(journalpost.tema()))
+                .medBehandlingstema(BehandlingTema.fraOffisiellKode(journalpost.behandlingstema()))
                 .medUtledetBehandlingstema(behandlingTema)
-                .medJournalfoerendeEnhet(journalpost.getJournalfoerendeEnhet())
-                .medDatoOpprettet(journalpost.getDatoOpprettet())
-                .medEksternReferanseId(journalpost.getEksternReferanseId())
+                .medJournalfoerendeEnhet(journalpost.journalfoerendeEnhet())
+                .medDatoOpprettet(journalpost.datoOpprettet())
+                .medEksternReferanseId(journalpost.eksternReferanseId())
                 .build();
     }
 
     public Optional<String> hentEksternReferanseId(Journalpost journalpost) {
-        var dokumentInfoId = journalpost.getDokumenter().get(0).getDokumentInfoId();
+        var dokumentInfoId = journalpost.dokumenter().get(0).dokumentInfoId();
         var referanse = safTjeneste.hentEksternReferanseId(dokumentInfoId).stream()
-                .map(Journalpost::getEksternReferanseId)
+                .map(Journalpost::eksternReferanseId)
                 .filter(Objects::nonNull)
                 .findFirst();
         var loggtekst = referanse.orElse("ingen");
-        LOG.info("FPFORDEL hentEksternReferanseId fant referanse {} for journalpost {}", loggtekst, journalpost.getJournalpostId());
+        LOG.info("FPFORDEL hentEksternReferanseId fant referanse {} for journalpost {}", loggtekst, journalpost.journalpostId());
         return referanse;
     }
 
     public OpprettetJournalpost opprettJournalpost(UUID forsendelse, String avsenderAktørId) {
         var request = lagOpprettRequest(forsendelse, avsenderAktørId);
         var response = dokArkivTjeneste.opprettJournalpost(request, false);
-        return new OpprettetJournalpost(response.getJournalpostId(), response.getJournalpostferdigstilt());
+        return new OpprettetJournalpost(response.journalpostId(), response.journalpostferdigstilt());
     }
 
     public OpprettetJournalpost opprettJournalpost(UUID forsendelse, String avsenderAktørId, String saksnummer) {
@@ -139,7 +139,7 @@ public class ArkivTjeneste {
         request.setSak(new Sak(null, null, "ARKIVSAK", saksnummer, "GSAK"));
         request.setJournalfoerendeEnhet("9999");
         var response = dokArkivTjeneste.opprettJournalpost(request, true);
-        return new OpprettetJournalpost(response.getJournalpostId(), response.getJournalpostferdigstilt());
+        return new OpprettetJournalpost(response.journalpostId(), response.journalpostferdigstilt());
     }
 
     public void oppdaterBehandlingstemaBruker(String journalpostId, String behandlingstema, String aktørId) {
@@ -157,53 +157,53 @@ public class ArkivTjeneste {
         Set<DokumentTypeId> alleTyper = arkivJournalpost.getAlleTyper();
         var hovedtype = DokumentTypeId.UDEFINERT.equals(arkivJournalpost.getHovedtype()) ? defaultDokumentTypeId : arkivJournalpost.getHovedtype();
         var utledetBehandlingTema = utledBehandlingTema(
-                BehandlingTema.UDEFINERT.equals(behandlingTema) ? journalpost.getBehandlingstema() : behandlingTema.getOffisiellKode(), alleTyper);
+                BehandlingTema.UDEFINERT.equals(behandlingTema) ? journalpost.behandlingstema() : behandlingTema.getOffisiellKode(), alleTyper);
         var tittelMangler = false;
         var builder = OppdaterJournalpostRequest.ny();
-        if ((journalpost.getAvsenderMottaker() == null) || (journalpost.getAvsenderMottaker().getId() == null)
-                || (journalpost.getAvsenderMottaker().getNavn() == null)) {
+        if ((journalpost.avsenderMottaker() == null) || (journalpost.avsenderMottaker().id() == null)
+                || (journalpost.avsenderMottaker().navn() == null)) {
             var fnr = personTjeneste.hentPersonIdentForAktørId(aktørId).orElseThrow(() -> new IllegalStateException("Mangler fnr for aktørid"));
             var navn = personTjeneste.hentNavn(aktørId);
-            LOG.info("FPFORDEL oppdaterer manglende avsender for {}", journalpost.getJournalpostId());
+            LOG.info("FPFORDEL oppdaterer manglende avsender for {}", journalpost.journalpostId());
             builder.medAvsender(fnr, navn);
         }
-        if (journalpost.getTittel() == null) {
+        if (journalpost.tittel() == null) {
             if (DokumentTypeId.UDEFINERT.equals(hovedtype)) {
                 tittelMangler = true;
             } else {
-                LOG.info("FPFORDEL oppdaterer manglende tittel for {}", journalpost.getJournalpostId());
+                LOG.info("FPFORDEL oppdaterer manglende tittel for {}", journalpost.journalpostId());
                 builder.medTittel(hovedtype.getTermNavn());
             }
         }
-        if (journalpost.getTema() == null) {
-            LOG.info("FPFORDEL oppdaterer manglende tema for {}", journalpost.getJournalpostId());
+        if (journalpost.tema() == null) {
+            LOG.info("FPFORDEL oppdaterer manglende tema for {}", journalpost.journalpostId());
             builder.medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode());
         }
-        if ((journalpost.getBehandlingstema() == null) && !BehandlingTema.UDEFINERT.equals(utledetBehandlingTema)) {
+        if ((journalpost.behandlingstema() == null) && !BehandlingTema.UDEFINERT.equals(utledetBehandlingTema)) {
             // Logges ikke da den nesten alltid oppdateres
             builder.medBehandlingstema(utledetBehandlingTema.getOffisiellKode());
         }
-        if ((journalpost.getBruker() == null) || (journalpost.getBruker().getId() == null)) {
-            LOG.info("FPFORDEL oppdaterer manglende bruker for {}", journalpost.getJournalpostId());
+        if ((journalpost.bruker() == null) || (journalpost.bruker().id() == null)) {
+            LOG.info("FPFORDEL oppdaterer manglende bruker for {}", journalpost.journalpostId());
             builder.medBruker(aktørId);
         }
-        var oppdaterDok = journalpost.getDokumenter().stream()
-                .filter(d -> (d.getTittel() == null) || d.getTittel().isEmpty())
-                .filter(d -> d.getBrevkode() != null)
-                .map(d -> new DokumentInfoOppdater(d.getDokumentInfoId(), NAVSkjema.fraOffisiellKode(d.getBrevkode()).getTermNavn(), d.getBrevkode()))
+        var oppdaterDok = journalpost.dokumenter().stream()
+                .filter(d -> (d.tittel() == null) || d.tittel().isEmpty())
+                .filter(d -> d.brevkode() != null)
+                .map(d -> new DokumentInfoOppdater(d.dokumentInfoId(), NAVSkjema.fraOffisiellKode(d.brevkode()).getTermNavn(), d.brevkode()))
                 .collect(Collectors.toList());
         if (!oppdaterDok.isEmpty()) {
-            LOG.info("FPFORDEL oppdaterer manglende dokumenttitler for {}", journalpost.getJournalpostId());
+            LOG.info("FPFORDEL oppdaterer manglende dokumenttitler for {}", journalpost.journalpostId());
         }
         oppdaterDok.forEach(builder::leggTilDokument);
-        if (builder.harVerdier() && !dokArkivTjeneste.oppdaterJournalpost(journalpost.getJournalpostId(), builder.build())) {
-            throw new IllegalStateException("FPFORDEL Kunne ikke oppdatere " + journalpost.getJournalpostId());
+        if (builder.harVerdier() && !dokArkivTjeneste.oppdaterJournalpost(journalpost.journalpostId(), builder.build())) {
+            throw new IllegalStateException("FPFORDEL Kunne ikke oppdatere " + journalpost.journalpostId());
         }
         var resultat = !tittelMangler
-                && (journalpost.getDokumenter().stream().filter(d -> (d.getTittel() == null) || d.getTittel().isEmpty()).count() == oppdaterDok
+                && (journalpost.dokumenter().stream().filter(d -> (d.tittel() == null) || d.tittel().isEmpty()).count() == oppdaterDok
                         .size());
         if (!resultat) {
-            LOG.info("FPFORDEL oppdaterer gjenstår tittel eller dokumenttittel for {}", journalpost.getJournalpostId());
+            LOG.info("FPFORDEL oppdaterer gjenstår tittel eller dokumenttittel for {}", journalpost.journalpostId());
         }
         return resultat;
     }
@@ -243,17 +243,17 @@ public class ArkivTjeneste {
     private static Set<DokumentTypeId> utledDokumentTyper(Journalpost journalpost) {
         Set<DokumentTypeId> alletyper = new HashSet<>();
         Set<NAVSkjema> allebrevkoder = new HashSet<>();
-        alletyper.add(DokumentTypeId.fraTermNavn(journalpost.getTittel()));
-        allebrevkoder.add(NAVSkjema.fraTermNavn(journalpost.getTittel()));
-        dokumentTypeFraKjenteTitler(journalpost.getTittel()).ifPresent(alletyper::add);
-        journalpost.getDokumenter().forEach(d -> {
-            alletyper.add(DokumentTypeId.fraTermNavn(d.getTittel()));
-            d.getLogiskeVedlegg().forEach(v -> alletyper.add(DokumentTypeId.fraTermNavn(v.getTittel())));
-            dokumentTypeFraKjenteTitler(d.getTittel()).ifPresent(alletyper::add);
-            d.getLogiskeVedlegg().forEach(v -> dokumentTypeFraKjenteTitler(v.getTittel()).ifPresent(alletyper::add));
-            allebrevkoder.add(NAVSkjema.fraOffisiellKode(d.getBrevkode()));
-            allebrevkoder.add(NAVSkjema.fraTermNavn(d.getTittel()));
-            d.getLogiskeVedlegg().forEach(v -> allebrevkoder.add(NAVSkjema.fraTermNavn(v.getTittel())));
+        alletyper.add(DokumentTypeId.fraTermNavn(journalpost.tittel()));
+        allebrevkoder.add(NAVSkjema.fraTermNavn(journalpost.tittel()));
+        dokumentTypeFraKjenteTitler(journalpost.tittel()).ifPresent(alletyper::add);
+        journalpost.dokumenter().forEach(d -> {
+            alletyper.add(DokumentTypeId.fraTermNavn(d.tittel()));
+            d.logiskeVedlegg().forEach(v -> alletyper.add(DokumentTypeId.fraTermNavn(v.tittel())));
+            dokumentTypeFraKjenteTitler(d.tittel()).ifPresent(alletyper::add);
+            d.logiskeVedlegg().forEach(v -> dokumentTypeFraKjenteTitler(v.tittel()).ifPresent(alletyper::add));
+            allebrevkoder.add(NAVSkjema.fraOffisiellKode(d.brevkode()));
+            allebrevkoder.add(NAVSkjema.fraTermNavn(d.tittel()));
+            d.logiskeVedlegg().forEach(v -> allebrevkoder.add(NAVSkjema.fraTermNavn(v.tittel())));
         });
         allebrevkoder.forEach(b -> alletyper.add(MapNAVSkjemaDokumentTypeId.mapBrevkode(b)));
         return alletyper;
@@ -272,18 +272,18 @@ public class ArkivTjeneste {
     }
 
     private Optional<String> mapIdent(Journalpost journalpost) {
-        var bruker = journalpost.getBruker();
+        var bruker = journalpost.bruker();
         if (bruker == null) {
             return Optional.empty();
         }
         if (bruker.erAktoerId()) {
-            return Optional.of(bruker.getId());
-        } else if (BrukerIdType.FNR.equals(bruker.getType())) {
-            return personTjeneste.hentAktørIdForPersonIdent(bruker.getId());
-        } else if (BrukerIdType.ORGNR.equals(bruker.getType())) {
+            return Optional.of(bruker.id());
+        } else if (BrukerIdType.FNR.equals(bruker.type())) {
+            return personTjeneste.hentAktørIdForPersonIdent(bruker.id());
+        } else if (BrukerIdType.ORGNR.equals(bruker.type())) {
             return Optional.empty();
         }
-        throw new IllegalArgumentException("Ukjent brukerType=" + bruker.getType());
+        throw new IllegalArgumentException("Ukjent brukerType=" + bruker.type());
     }
 
     private OpprettJournalpostRequest lagOpprettRequest(UUID forsendelseId, String avsenderAktørId) {

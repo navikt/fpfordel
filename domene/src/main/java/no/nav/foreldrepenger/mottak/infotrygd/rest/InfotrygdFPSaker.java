@@ -1,17 +1,15 @@
-package no.nav.foreldrepenger.mottak.infotrygd.rest.fp;
+package no.nav.foreldrepenger.mottak.infotrygd.rest;
 
 import java.net.URI;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.mottak.infotrygd.rest.InfotrygdRestResponseMapper;
-import no.nav.foreldrepenger.mottak.infotrygd.rest.InfotrygdSaker;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
-@FP
+@Deprecated
 public class InfotrygdFPSaker extends InfotrygdSaker {
 
     private static final String DEFAULT_URI = "http://infotrygd-foreldrepenger.default/saker";

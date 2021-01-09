@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -27,6 +26,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -37,7 +38,7 @@ import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
+import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
 import no.nav.foreldrepenger.mottak.task.MidlJournalføringTask;
@@ -47,10 +48,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class BehandleDokumentforsendelseTaskTest {
-
-    // TODO (Humle): enhetstestene/test XML må oppdateres når vi har reell søknads
-    // XML tilgjengelig
 
     private static final UUID FORSENDELSE_ID = UUID.randomUUID();
     private static final String AKTØR_ID = "9000000000009";
@@ -65,7 +64,7 @@ public class BehandleDokumentforsendelseTaskTest {
     @Mock
     private PersonTjeneste aktørConsumer;
     @Mock
-    private FagsakRestKlient fagsakRestKlient;
+    private FagsakTjeneste fagsakRestKlient;
     @Mock
     private DokumentRepository dokumentRepository;
 
@@ -79,7 +78,7 @@ public class BehandleDokumentforsendelseTaskTest {
         ptd = new ProsessTaskData(BehandleDokumentforsendelseTask.TASKNAME);
         ptd.setSekvens("1");
 
-        lenient().when(aktørConsumer.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(PERSON_IDENT));
+        when(aktørConsumer.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(PERSON_IDENT));
     }
 
     @Test

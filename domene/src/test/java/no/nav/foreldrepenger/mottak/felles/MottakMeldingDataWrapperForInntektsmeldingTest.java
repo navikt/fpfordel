@@ -21,7 +21,6 @@ public class MottakMeldingDataWrapperForInntektsmeldingTest {
     public void setUp() {
         eksisterendeData = new ProsessTaskData(PROSESSTASK_STEG1);
         eksisterendeData.setSekvens("1");
-
         testObjekt = new MottakMeldingDataWrapper(eksisterendeData);
     }
 

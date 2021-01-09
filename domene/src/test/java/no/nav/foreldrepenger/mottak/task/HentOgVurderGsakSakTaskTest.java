@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -24,6 +23,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -38,6 +39,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class HentOgVurderGsakSakTaskTest {
 
     private static final String BRUKER_FNR = "99999999899";
@@ -64,13 +66,13 @@ public class HentOgVurderGsakSakTaskTest {
     @BeforeEach
     public void setup() {
         ProsessTaskRepository mockProsessTaskRepository = mock(ProsessTaskRepository.class);
-        lenient().when(infotrygdSakGyldigPeriodeInstance.get()).thenReturn(Period.parse("P10M"));
-        lenient().when(infotrygdAnnenPartGyldigPeriodeInstance.get()).thenReturn(Period.parse("P18M"));
-        lenient().when(mockAktørConsumer.hentPersonIdentForAktørId(BRUKER_AKTØR_ID)).thenReturn(Optional.of(BRUKER_FNR));
-        lenient().when(mockAktørConsumer.hentAktørIdForPersonIdent(BRUKER_FNR)).thenReturn(Optional.of(BRUKER_AKTØR_ID));
+        when(infotrygdSakGyldigPeriodeInstance.get()).thenReturn(Period.parse("P10M"));
+        when(infotrygdAnnenPartGyldigPeriodeInstance.get()).thenReturn(Period.parse("P18M"));
+        when(mockAktørConsumer.hentPersonIdentForAktørId(BRUKER_AKTØR_ID)).thenReturn(Optional.of(BRUKER_FNR));
+        when(mockAktørConsumer.hentAktørIdForPersonIdent(BRUKER_FNR)).thenReturn(Optional.of(BRUKER_AKTØR_ID));
 
-        lenient().when(mockAktørConsumer.hentPersonIdentForAktørId(ANNEN_PART_ID)).thenReturn(Optional.of(ANNEN_PART_FNR));
-        lenient().when(mockAktørConsumer.hentAktørIdForPersonIdent(ANNEN_PART_FNR)).thenReturn(Optional.of(ANNEN_PART_ID));
+        when(mockAktørConsumer.hentPersonIdentForAktørId(ANNEN_PART_ID)).thenReturn(Optional.of(ANNEN_PART_FNR));
+        when(mockAktørConsumer.hentAktørIdForPersonIdent(ANNEN_PART_FNR)).thenReturn(Optional.of(ANNEN_PART_ID));
         RelevantSakSjekker relevansSjekker = new RelevantSakSjekker(fp);
         task = new HentOgVurderInfotrygdSakTask(mockProsessTaskRepository, relevansSjekker, mockAktørConsumer);
 
@@ -110,7 +112,7 @@ public class HentOgVurderGsakSakTaskTest {
 
     @Test
     public void test_doTask_infotrygdsak_i_gsak_men_ikke_relevant_sak_i_infotrygd() {
-        lenient().when(ws.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(createInfotrygdSaker(false));
+        when(ws.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(createInfotrygdSaker(false));
 
         MottakMeldingDataWrapper wrapperIn = opprettMottaksMelding();
 
@@ -126,7 +128,7 @@ public class HentOgVurderGsakSakTaskTest {
     @Test
     public void test_doTask_gammel_infotrygdsak_i_gsak_skip_infotrygd() {
 
-        lenient().when(ws.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(new ArrayList<>());
+        when(ws.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(new ArrayList<>());
 
         MottakMeldingDataWrapper wrapperIn = opprettMottaksMelding();
 
@@ -142,7 +144,7 @@ public class HentOgVurderGsakSakTaskTest {
     @Test
     public void test_doTask_infotrygdsak_i_gsak_og_relevant_i_infotrygd() {
 
-        lenient().when(fp.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(createInfotrygdSaker(true));
+        when(fp.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(createInfotrygdSaker(true));
 
         when(fp.finnSakListe(eq(ANNEN_PART_FNR), any())).thenReturn(createInfotrygdSaker(true));
 

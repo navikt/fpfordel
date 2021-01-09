@@ -90,8 +90,8 @@ public class MidlJournalføringTaskTest {
         verify(dokumentRepositoryMock).oppdaterForsendelseMedArkivId(any(UUID.class), any(), any(ForsendelseStatus.class));
 
         OpprettJournalpostRequest request = dokCapture.getValue();
-        assertThat(request.getBruker().getId()).isEqualTo(BRUKER_ID);
-        assertThat(request.getAvsenderMottaker().getNavn()).isEqualTo(NAVN);
+        assertThat(request.getBruker().id()).isEqualTo(BRUKER_ID);
+        assertThat(request.getAvsenderMottaker().navn()).isEqualTo(NAVN);
         assertThat(request.getJournalpostType()).isEqualTo(JournalpostType.INNGAAENDE);
         assertThat(target.getArkivId()).isEqualTo(JOURNALPOST_ID);
     }

@@ -20,7 +20,8 @@ import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
-public class FagsakRestKlient {
+@Deprecated
+public class LegacyFagsakRestKlient implements FagsakTjeneste {
     private static final String DEFAULT_FPSAK_BASE_URI = "http://fpsak";
     private static final String JOURNALPOSTTILKNYTNING_PATH = "/fpsak/api/fordel/fagsak/knyttJournalpost";
     private static final String FAGSAKINFORMASJON_PATH = "/fpsak/api/fordel/fagsak/informasjon";
@@ -33,11 +34,11 @@ public class FagsakRestKlient {
     private URI endpointJournalpostknyttning;
     private URI endpointVurderFagsystem;
 
-    public FagsakRestKlient() {
+    public LegacyFagsakRestKlient() {
     }
 
     @Inject
-    public FagsakRestKlient(OidcRestClient oidcRestClient,
+    public LegacyFagsakRestKlient(OidcRestClient oidcRestClient,
             @KonfigVerdi(value = "fpsak.base.url", defaultVerdi = DEFAULT_FPSAK_BASE_URI) URI endpoint) {
         this.oidcRestClient = oidcRestClient;
         this.endpointSaksinfo = URI.create(endpoint.toString() + FAGSAKINFORMASJON_PATH);
@@ -46,42 +47,46 @@ public class FagsakRestKlient {
         this.endpointVurderFagsystem = URI.create(endpoint.toString() + VURDER_FAGSYSTEM_PATH);
     }
 
+    @Override
     public Optional<FagsakInfomasjonDto> finnFagsakInfomasjon(SaksnummerDto saksnummerDto) {
         return oidcRestClient.postReturnsOptional(endpointSaksinfo, saksnummerDto, FagsakInfomasjonDto.class);
     }
 
+    @Override
     public SaksnummerDto opprettSak(OpprettSakDto opprettSakDto) {
         return oidcRestClient.post(endpointOpprett, opprettSakDto, SaksnummerDto.class);
     }
 
+    @Override
     public void knyttSakOgJournalpost(JournalpostKnyttningDto journalpostKnyttningDto) {
         oidcRestClient.post(endpointJournalpostknyttning, journalpostKnyttningDto);
     }
 
-    public VurderFagsystemResultat vurderFagsystem(MottakMeldingDataWrapper dataWrapper) {
-        String aktørId = dataWrapper.getAktørId().get();
-        boolean strukturertSøknad = dataWrapper.erStrukturertDokument().orElse(Boolean.FALSE);
-        DokumentTypeId dokumentTypeId = dataWrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT);
-        DokumentKategori dokumentKategori = dataWrapper.getDokumentKategori().orElse(DokumentKategori.UDEFINERT);
-        String behandlingTemaString = BehandlingTema.UDEFINERT.equals(dataWrapper.getBehandlingTema())
-                ? dataWrapper.getBehandlingTema().getKode()
-                : dataWrapper.getBehandlingTema().getOffisiellKode();
+    @Override
+    public VurderFagsystemResultat vurderFagsystem(MottakMeldingDataWrapper w) {
+        String aktørId = w.getAktørId().get();
+        boolean strukturertSøknad = w.erStrukturertDokument().orElse(Boolean.FALSE);
+        DokumentTypeId dokumentTypeId = w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT);
+        DokumentKategori dokumentKategori = w.getDokumentKategori().orElse(DokumentKategori.UDEFINERT);
+        String behandlingTemaString = BehandlingTema.UDEFINERT.equals(w.getBehandlingTema())
+                ? w.getBehandlingTema().getKode()
+                : w.getBehandlingTema().getOffisiellKode();
 
-        VurderFagsystemDto dto = new VurderFagsystemDto(dataWrapper.getArkivId(), strukturertSøknad, aktørId,
+        VurderFagsystemDto dto = new VurderFagsystemDto(w.getArkivId(), strukturertSøknad, aktørId,
                 behandlingTemaString);
-        dto.setAdopsjonsBarnFodselsdatoer(dataWrapper.getAdopsjonsbarnFodselsdatoer());
-        dataWrapper.getBarnTermindato().ifPresent(dto::setBarnTermindato);
-        dataWrapper.getBarnFodselsdato().ifPresent(dto::setBarnFodselsdato);
-        dataWrapper.getOmsorgsovertakelsedato().ifPresent(dto::setOmsorgsovertakelsedato);
-        dataWrapper.getÅrsakTilInnsending().ifPresent(dto::setÅrsakInnsendingInntektsmelding);
-        dataWrapper.getAnnenPartId().ifPresent(dto::setAnnenPart);
-        dataWrapper.getSaksnummer().ifPresent(dto::setSaksnummer);
-        dataWrapper.getVirksomhetsnummer().ifPresent(dto::setVirksomhetsnummer);
-        dataWrapper.getArbeidsgiverAktørId().ifPresent(dto::setArbeidsgiverAktørId);
-        dataWrapper.getArbeidsforholdsid().ifPresent(dto::setArbeidsforholdsid);
-        dataWrapper.getInntektsmeldingStartDato().ifPresent(dto::setStartDatoForeldrepengerInntektsmelding);
-        dataWrapper.getForsendelseMottattTidspunkt().ifPresent(dto::setForsendelseMottattTidspunkt);
-        dto.setForsendelseMottatt(dataWrapper.getForsendelseMottatt());
+        dto.setAdopsjonsBarnFodselsdatoer(w.getAdopsjonsbarnFodselsdatoer());
+        w.getBarnTermindato().ifPresent(dto::setBarnTermindato);
+        w.getBarnFodselsdato().ifPresent(dto::setBarnFodselsdato);
+        w.getOmsorgsovertakelsedato().ifPresent(dto::setOmsorgsovertakelsedato);
+        w.getÅrsakTilInnsending().ifPresent(dto::setÅrsakInnsendingInntektsmelding);
+        w.getAnnenPartId().ifPresent(dto::setAnnenPart);
+        w.getSaksnummer().ifPresent(dto::setSaksnummer);
+        w.getVirksomhetsnummer().ifPresent(dto::setVirksomhetsnummer);
+        w.getArbeidsgiverAktørId().ifPresent(dto::setArbeidsgiverAktørId);
+        w.getArbeidsforholdsid().ifPresent(dto::setArbeidsforholdsid);
+        w.getInntektsmeldingStartDato().ifPresent(dto::setStartDatoForeldrepengerInntektsmelding);
+        w.getForsendelseMottattTidspunkt().ifPresent(dto::setForsendelseMottattTidspunkt);
+        dto.setForsendelseMottatt(w.getForsendelseMottatt());
         dto.setDokumentTypeIdOffisiellKode(dokumentTypeId.getOffisiellKode());
         dto.setDokumentKategoriOffisiellKode(dokumentKategori.getOffisiellKode());
 
@@ -90,8 +95,8 @@ public class FagsakRestKlient {
         // mottatt søknad til manuell journalføring i fpsak, sender vi her første
         // uttaksdag i et
         // felt som brukes til det samme for inntektsmelding. Kontrakten bør endres
-        if (DokumentKategori.SØKNAD.equals(dataWrapper.getDokumentKategori().orElse(DokumentKategori.UDEFINERT))) {
-            dataWrapper.getFørsteUttaksdag().ifPresent(dto::setStartDatoForeldrepengerInntektsmelding);
+        if (DokumentKategori.SØKNAD.equals(w.getDokumentKategori().orElse(DokumentKategori.UDEFINERT))) {
+            w.getFørsteUttaksdag().ifPresent(dto::setStartDatoForeldrepengerInntektsmelding);
         }
 
         BehandlendeFagsystemDto res = oidcRestClient.post(endpointVurderFagsystem, dto, BehandlendeFagsystemDto.class);

@@ -10,11 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.dbstoette.DBTestUtil;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareExtension;
-import no.nav.vedtak.util.env.Environment;
 
 public class FPfordelEntityManagerAwareExtension extends EntityManagerAwareExtension {
     private static final Logger LOG = LoggerFactory.getLogger(FPfordelEntityManagerAwareExtension.class);
-    private static final boolean isNotRunningUnderMaven = Environment.current().getProperty("maven.cmd.line.args") == null;
 
     static {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));

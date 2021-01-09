@@ -14,8 +14,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +26,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -38,6 +40,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class HentOgVurderInfotrygdSakTaskTest {
 
     private static final String AKTØR_BRUKER = "1";
@@ -281,15 +284,11 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     private void expectIT(String fnr, InfotrygdSak... itsaker) {
-        lenient().when(fp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
-    }
-
-    private void expectITRest(String fnr, InfotrygdSak... itsaker) {
-        lenient().when(fp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
+        when(fp.finnSakListe(eq(fnr), any())).thenReturn(List.of(itsaker));
     }
 
     private void expect(String aktørId, String fnr) {
-        lenient().when(aktør.hentPersonIdentForAktørId(eq(aktørId))).thenReturn(Optional.of(fnr));
+        when(aktør.hentPersonIdentForAktørId(eq(aktørId))).thenReturn(Optional.of(fnr));
     }
 
 }

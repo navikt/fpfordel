@@ -49,7 +49,7 @@ public class JournalføringHendelseHåndtererTest {
                 .setJournalpostId(12345L)
                 .setJournalpostStatus("M");
 
-        hendelseHåndterer.handleMessage(null, builder.build());
+        hendelseHåndterer.handleMessage(builder.build());
         em.flush();
         List<ProsessTaskData> result = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         assertThat(result).as("Forventer at en prosesstask er lagt til").hasSize(1);
@@ -71,9 +71,8 @@ public class JournalføringHendelseHåndtererTest {
                 .setJournalpostId(12345L)
                 .setJournalpostStatus("M");
 
-        hendelseHåndterer.handleMessage(null, builder.build());
+        hendelseHåndterer.handleMessage(builder.build());
         em.flush();
-
         List<ProsessTaskData> result = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         assertThat(result).as("Forventer at en prosesstask er lagt til").hasSize(1);
         ProsessTaskInfo prosessTaskData = result.get(0);
@@ -93,7 +92,7 @@ public class JournalføringHendelseHåndtererTest {
                 .setJournalpostId(12345L)
                 .setJournalpostStatus("M");
 
-        hendelseHåndterer.handleMessage(null, builder.build());
+        hendelseHåndterer.handleMessage(builder.build());
         em.flush();
 
         List<ProsessTaskData> result = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -113,7 +112,7 @@ public class JournalføringHendelseHåndtererTest {
                 .setJournalpostId(12345L)
                 .setJournalpostStatus("M");
 
-        hendelseHåndterer.handleMessage(null, builder.build());
+        hendelseHåndterer.handleMessage(builder.build());
         em.flush();
 
         List<ProsessTaskData> result = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
