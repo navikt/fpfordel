@@ -22,7 +22,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
+import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.task.KlargjorForVLTask;
 import no.nav.foreldrepenger.mottak.task.MidlJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
@@ -41,7 +41,7 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 public class ForvaltningRestTjeneste {
 
     private ProsessTaskRepository prosessTaskRepository;
-    FagsakRestKlient fagsakRestKlient;
+    FagsakTjeneste fagsakRestKlient;
 
     public ForvaltningRestTjeneste() {
         // CDI
@@ -49,7 +49,7 @@ public class ForvaltningRestTjeneste {
 
     @Inject
     public ForvaltningRestTjeneste(ProsessTaskRepository prosessTaskRepository,
-            FagsakRestKlient fagsakRestKlient) {
+            FagsakTjeneste fagsakRestKlient) {
         this.prosessTaskRepository = prosessTaskRepository;
         this.fagsakRestKlient = fagsakRestKlient;
     }

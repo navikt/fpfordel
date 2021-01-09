@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.task;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,7 +11,9 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -25,6 +26,7 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Forsendelse
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
+@ExtendWith(MockitoExtension.class)
 public class SlettForsendelseTaskTest {
     private static final String SAKSNUMMER = "9876543";
     private static final String AKTØR_ID = "9000000000009";
@@ -41,11 +43,7 @@ public class SlettForsendelseTaskTest {
     @BeforeEach
     public void setup() {
         forsendelseId = UUID.randomUUID();
-        prosessTaskRepositoryMock = mock(ProsessTaskRepository.class);
-        dokumentRepositoryMock = mock(DokumentRepository.class);
-
         task = new SlettForsendelseTask(prosessTaskRepositoryMock, dokumentRepositoryMock);
-
         ptd = new ProsessTaskData(SlettForsendelseTask.TASKNAME);
         ptd.setSekvens("1");
     }

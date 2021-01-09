@@ -44,7 +44,7 @@ public class JournalføringHendelseHåndterer {
         this.dokumentRepository = dokumentRepository;
     }
 
-    void handleMessage(String key, JournalfoeringHendelseRecord payload) {
+    void handleMessage(JournalfoeringHendelseRecord payload) {
         setCallIdForHendelse(payload);
 
         var arkivId = payload.getJournalpostId().toString();
@@ -88,8 +88,10 @@ public class JournalføringHendelseHåndterer {
             melding.setEksternReferanseId(eksternReferanse);
         }
         var oppdatertTaskdata = melding.getProsessTaskData();
-        // De uten kanalreferanse er "klonet" av SBH og journalført fra Gosys. Normalt blir de journalført, men det feiler av og til pga tilgang.
-        // Håndterer disse journalpostene senere (18h) i tilfelle SBH skal ha klart å ordne ting selv - hvis ikke blir det oppgave av dem.
+        // De uten kanalreferanse er "klonet" av SBH og journalført fra Gosys. Normalt
+        // blir de journalført, men det feiler av og til pga tilgang.
+        // Håndterer disse journalpostene senere (18h) i tilfelle SBH skal ha klart å
+        // ordne ting selv - hvis ikke blir det oppgave av dem.
         if (eksternReferanse == null) {
             oppdatertTaskdata.setNesteKjøringEtter(LocalDateTime.now().plusHours(18));
         }

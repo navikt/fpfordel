@@ -46,11 +46,11 @@ public class ArkivJournalpost {
     }
 
     public Optional<String> getTittel() {
-        return original != null ? Optional.ofNullable(original.getTittel()) : Optional.empty();
+        return original != null ? Optional.ofNullable(original.tittel()) : Optional.empty();
     }
 
     public Optional<String> getSaksnummer() {
-        return (original != null) && (original.getSak() != null) ? Optional.ofNullable(original.getSak().getArkivsaksnummer()) : Optional.empty();
+        return (original != null) && (original.sak() != null) ? Optional.ofNullable(original.sak().arkivsaksnummer()) : Optional.empty();
     }
 
     public Journalstatus getTilstand() {

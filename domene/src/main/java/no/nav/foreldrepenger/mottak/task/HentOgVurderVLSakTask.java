@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
-import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
+import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.klient.VurderFagsystemResultat;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -52,11 +52,11 @@ public class HentOgVurderVLSakTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.hentOgVurderVLSak";
 
-    private final FagsakRestKlient fagsakRestKlient;
+    private final FagsakTjeneste fagsakRestKlient;
 
     @Inject
     public HentOgVurderVLSakTask(ProsessTaskRepository prosessTaskRepository,
-            FagsakRestKlient fagsakRestKlient) {
+            FagsakTjeneste fagsakRestKlient) {
         super(prosessTaskRepository);
         this.fagsakRestKlient = fagsakRestKlient;
     }

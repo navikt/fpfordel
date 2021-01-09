@@ -51,7 +51,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     @Inject
     public HentDataFraJoarkTask(ProsessTaskRepository prosessTaskRepository,
-                                PersonTjeneste aktørConsumer,
+            PersonTjeneste aktørConsumer,
             ArkivTjeneste arkivTjeneste) {
         super(prosessTaskRepository);
         this.aktørConsumer = aktørConsumer;
@@ -105,11 +105,12 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
         if (journalpost.getInnholderStrukturertInformasjon()) {
             if (!MeldingXmlParser.erXmlMedKjentNamespace(journalpost.getStrukturertPayload())) {
-                var jptittel = journalpost.getOriginalJournalpost().getTittel();
-                // kast feil for ukjent innhold som antagelig er XML (og vi kanskje bør håndtere). ignorer andre
+                var jptittel = journalpost.getOriginalJournalpost().tittel();
+                // kast feil for ukjent innhold som antagelig er XML (og vi kanskje bør
+                // håndtere). ignorer andre
                 if (!journalpost.getStrukturertPayload().isBlank() &&
                         Objects.equals('<', journalpost.getStrukturertPayload().trim().charAt(0))) {
-                    var doktittel = journalpost.getOriginalJournalpost().getDokumenter().get(0).getTittel();
+                    var doktittel = journalpost.getOriginalJournalpost().dokumenter().get(0).tittel();
                     var prefix = journalpost.getStrukturertPayload().substring(0, Math.min(40, journalpost.getStrukturertPayload().length()));
                     LOG.warn("Journalpost med ukjent strukturert innhold {} {} {}", jptittel, doktittel, prefix);
                     throw new IllegalStateException("Ukjent type strukturert dokument");
@@ -125,7 +126,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             dataWrapper.setForsendelseMottattTidspunkt(LocalDateTime.now());
         }
 
-        // Journalposter uten kanalreferanse er "klonet" av SBH og forsøkt journalført fra Gosys. Håndteres manuelt hvis de kommer helt hit
+        // Journalposter uten kanalreferanse er "klonet" av SBH og forsøkt journalført
+        // fra Gosys. Håndteres manuelt hvis de kommer helt hit
         if (dataWrapper.getEksternReferanseId().isEmpty()) {
             LOG.info("FPFORDEL HERK journalpost uten kanalreferane {} med {}", journalpost.getJournalpostId(), journalpost.getTilstand());
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);

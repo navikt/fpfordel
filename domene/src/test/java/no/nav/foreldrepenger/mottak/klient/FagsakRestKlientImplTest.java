@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.klient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
@@ -13,8 +12,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
@@ -23,12 +24,13 @@ import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
+@ExtendWith(MockitoExtension.class)
 public class FagsakRestKlientImplTest {
 
     @Mock
     private OidcRestClient oidcRestClient;
 
-    private FagsakRestKlient fagsakRestKlient;
+    private FagsakTjeneste fagsakRestKlient;
 
     @Test
     public void testInternMapping() {
@@ -44,32 +46,31 @@ public class FagsakRestKlientImplTest {
         String virksomhetsnummer = "999999999";
         LocalDateTime nå = LocalDateTime.now();
 
-        oidcRestClient = mock(OidcRestClient.class);
-        fagsakRestKlient = new FagsakRestKlient(oidcRestClient, URI.create("http://fpsak"));
-        ArgumentCaptor<VurderFagsystemDto> captor = ArgumentCaptor.forClass(VurderFagsystemDto.class);
+        fagsakRestKlient = new LegacyFagsakRestKlient(oidcRestClient, URI.create("http://fpsak"));
+        var captor = ArgumentCaptor.forClass(VurderFagsystemDto.class);
         when(oidcRestClient.post(any(), captor.capture(), any())).thenReturn(null);
 
-        ProsessTaskData data = new ProsessTaskData(HentOgVurderVLSakTask.TASKNAME);
+        var data = new ProsessTaskData(HentOgVurderVLSakTask.TASKNAME);
         data.setSekvens("1");
-        MottakMeldingDataWrapper dataWrapper = new MottakMeldingDataWrapper(data);
-        dataWrapper.setAktørId(aktørId);
-        dataWrapper.setBarnTermindato(termindato);
-        dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);
-        dataWrapper.setAdopsjonsbarnFodselsdatoer(adopsjonsBarnFødselsdatoer);
-        dataWrapper.setBarnTermindato(termindato);
-        dataWrapper.setBarnFodselsdato(fødselsdato);
-        dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER_ADOPSJON);
-        dataWrapper.setOmsorgsovertakelsedato(omsorgsovertagelsesDato);
-        dataWrapper.setÅrsakTilInnsending(årsakInntektsmelding);
-        dataWrapper.setAnnenPartId(annenPartId);
-        dataWrapper.setSaksnummer(saksnummer);
-        dataWrapper.setArbeidsforholdsid(arbeidsforholdsid);
-        dataWrapper.setVirksomhetsnummer(virksomhetsnummer);
-        dataWrapper.setInntekstmeldingStartdato(fødselsdato);
-        dataWrapper.setForsendelseMottattTidspunkt(nå);
+        var w = new MottakMeldingDataWrapper(data);
+        w.setAktørId(aktørId);
+        w.setBarnTermindato(termindato);
+        w.setBehandlingTema(BehandlingTema.FORELDREPENGER);
+        w.setAdopsjonsbarnFodselsdatoer(adopsjonsBarnFødselsdatoer);
+        w.setBarnTermindato(termindato);
+        w.setBarnFodselsdato(fødselsdato);
+        w.setBehandlingTema(BehandlingTema.FORELDREPENGER_ADOPSJON);
+        w.setOmsorgsovertakelsedato(omsorgsovertagelsesDato);
+        w.setÅrsakTilInnsending(årsakInntektsmelding);
+        w.setAnnenPartId(annenPartId);
+        w.setSaksnummer(saksnummer);
+        w.setArbeidsforholdsid(arbeidsforholdsid);
+        w.setVirksomhetsnummer(virksomhetsnummer);
+        w.setInntekstmeldingStartdato(fødselsdato);
+        w.setForsendelseMottattTidspunkt(nå);
 
-        fagsakRestKlient.vurderFagsystem(dataWrapper);
-        VurderFagsystemDto dto = captor.getValue();
+        fagsakRestKlient.vurderFagsystem(w);
+        var dto = captor.getValue();
 
         assertThat(dto.getAktørId()).isEqualTo(aktørId);
         assertThat(dto.getSaksnummer()).isEqualTo(Optional.of(saksnummer));

@@ -3,9 +3,6 @@ package no.nav.foreldrepenger.pip;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -39,8 +36,7 @@ public class PipRepositoryTest {
     @Test
     public void en_aktørId_for_en_forsendelse() {
         dokumentRepository.lagre(dokumentMetadata(brukerId, forsendelseId));
-
-        assertThat(pipRepository.hentAktørIdForForsendelser(Collections.singleton(forsendelseId)))
+        assertThat(pipRepository.hentAktørIdForForsendelser(Set.of(forsendelseId)))
                 .containsOnly(brukerId);
     }
 
@@ -49,7 +45,7 @@ public class PipRepositoryTest {
         dokumentRepository.lagre(dokumentMetadata(brukerId, forsendelseId));
         dokumentRepository.lagre(dokumentMetadata(brukerId, forsendelseId2));
 
-        Set<UUID> dokumentforsendelseIder = new HashSet<>(Arrays.asList(forsendelseId, forsendelseId2));
+        Set<UUID> dokumentforsendelseIder = Set.of(forsendelseId, forsendelseId2);
         assertThat(pipRepository.hentAktørIdForForsendelser(dokumentforsendelseIder))
                 .containsOnly(brukerId);
     }
@@ -59,7 +55,7 @@ public class PipRepositoryTest {
         dokumentRepository.lagre(dokumentMetadata(brukerId, forsendelseId));
         dokumentRepository.lagre(dokumentMetadata(brukerId2, forsendelseId2));
 
-        Set<UUID> dokumentforsendelseIder = new HashSet<>(Arrays.asList(forsendelseId, forsendelseId2));
+        Set<UUID> dokumentforsendelseIder = Set.of(forsendelseId, forsendelseId2);
         assertThat(pipRepository.hentAktørIdForForsendelser(dokumentforsendelseIder))
                 .containsOnly(brukerId, brukerId2);
     }

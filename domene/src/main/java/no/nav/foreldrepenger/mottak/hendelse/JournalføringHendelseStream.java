@@ -57,10 +57,9 @@ public class JournalføringHendelseStream implements KafkaIntegration, AppServic
         builder.stream(topic.getTopic(), consumed)
                 .filter((key, value) -> TEMA_FOR.equals(value.getTemaNytt().toString()))
                 .filter((key, value) -> HENDELSE_TYPER.equalsIgnoreCase(value.getHendelsesType().toString()))
-                .foreach(journalføringHendelseHåndterer::handleMessage);
+                .foreach((key, value) -> journalføringHendelseHåndterer.handleMessage(value));
 
-        final Topology topology = builder.build();
-        return new KafkaStreams(topology, properties.getProperties());
+        return new KafkaStreams(builder.build(), properties.getProperties());
     }
 
     private void addShutdownHooks() {

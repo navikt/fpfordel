@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.mottak.task.joark.JoarkTestsupport.AKTØR_ID
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -17,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -31,6 +32,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class ManuellJournalføringDokumentHåndtererTest {
 
     private static final String DEFAULT_TASK_FOR_MANUELL_JOURNALFØRING = OpprettGSakOppgaveTask.TASKNAME;
@@ -50,7 +52,7 @@ public class ManuellJournalføringDokumentHåndtererTest {
     @BeforeEach
     public void setUp() {
         ProsessTaskRepository ptr = mock(ProsessTaskRepository.class);
-        lenient().when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));
+        when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));
         joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, aktørConsumer, arkivTjeneste));
         taskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
         taskData.setSekvens("1");
@@ -95,7 +97,7 @@ public class ManuellJournalføringDokumentHåndtererTest {
     public void skalHåndtereManuellJournalføringMedUgyldigFnr() {
         var metadata = joarkTestsupport.lagArkivJournalpostUstrukturert(Collections.emptyList());
         doReturn(metadata).when(arkivTjeneste).hentArkivJournalpost(ARKIV_ID);
-        lenient().when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.empty());
+        when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.empty());
 
         BehandlingTema actualBehandlingTema = BehandlingTema.ENGANGSSTØNAD_FØDSEL;
         dataWrapper.setBehandlingTema(actualBehandlingTema);

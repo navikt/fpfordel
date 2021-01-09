@@ -1,29 +1,35 @@
 package no.nav.foreldrepenger.mottak.tjeneste;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
-import no.nav.foreldrepenger.mottak.klient.DokumentmottakRestKlient;
-import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
-import no.nav.foreldrepenger.mottak.klient.TilbakekrevingRestKlient;
+import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
+import no.nav.foreldrepenger.mottak.klient.JournalpostSender;
 
+@ExtendWith(MockitoExtension.class)
 public class KlargjørForVLTjenesteTest {
 
-    private KlargjørForVLTjeneste klargjørForVLTjeneste; // objektet vi tester
-    private FagsakRestKlient mockFagsakRestKlient;
-    private DokumentmottakRestKlient mockDokumentRestTjeneste;
+    private KlargjørForVLTjeneste klargjørForVLTjeneste;
+    @Mock
+    private FagsakTjeneste mockFagsakRestKlient;
+    @Mock
+    private JournalpostSender mockDokumentRestTjeneste;
+    @Mock
+    JournalpostSender mockTilbakeRestTjeneste;
 
     private static final String ARKIV_ID = "123";
     private static final String SAK_ID = "456";
@@ -31,9 +37,6 @@ public class KlargjørForVLTjenesteTest {
 
     @BeforeEach
     public void setup() {
-        mockFagsakRestKlient = mock(FagsakRestKlient.class);
-        mockDokumentRestTjeneste = mock(DokumentmottakRestKlient.class);
-        var mockTilbakeRestTjeneste = mock(TilbakekrevingRestKlient.class);
         klargjørForVLTjeneste = new KlargjørForVLTjeneste(mockDokumentRestTjeneste, mockFagsakRestKlient, mockTilbakeRestTjeneste);
     }
 
@@ -43,15 +46,13 @@ public class KlargjørForVLTjenesteTest {
         klargjørForVLTjeneste.klargjørForVL(null, SAK_ID, ARKIV_ID, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, LocalDate.now().atStartOfDay(),
                 BehandlingTema.FORELDREPENGER, null, DokumentKategori.SØKNAD, ENHET_ID, null);
 
-        ArgumentCaptor<JournalpostKnyttningDto> captorJ = ArgumentCaptor.forClass(JournalpostKnyttningDto.class);
+        var captorJ = ArgumentCaptor.forClass(JournalpostKnyttningDto.class);
         verify(mockFagsakRestKlient).knyttSakOgJournalpost(captorJ.capture());
-        JournalpostKnyttningDto journalPost = captorJ.getValue();
-        assertThat(journalPost.getJournalpostId()).isEqualTo(ARKIV_ID);
+        assertThat(captorJ.getValue().getJournalpostId()).isEqualTo(ARKIV_ID);
 
-        ArgumentCaptor<JournalpostMottakDto> captorD = ArgumentCaptor.forClass(JournalpostMottakDto.class);
+        var captorD = ArgumentCaptor.forClass(JournalpostMottakDto.class);
         verify(mockDokumentRestTjeneste).send(captorD.capture());
-        JournalpostMottakDto mottak = captorD.getValue();
+        var mottak = captorD.getValue();
         assertThat(mottak.getSaksnummer()).isEqualTo(SAK_ID);
     }
-
 }

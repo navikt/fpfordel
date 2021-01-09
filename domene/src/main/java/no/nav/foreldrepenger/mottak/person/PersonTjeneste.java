@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.mottak.person;
 
-import java.util.List;
+import static no.nav.vedtak.felles.integrasjon.pdl.Tema.FOR;
+
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -15,65 +15,35 @@ import no.nav.pdl.AdressebeskyttelseGradering;
 import no.nav.pdl.AdressebeskyttelseResponseProjection;
 import no.nav.pdl.GeografiskTilknytningResponseProjection;
 import no.nav.pdl.GtType;
-import no.nav.pdl.HentIdenterQueryRequest;
 import no.nav.pdl.HentPersonQueryRequest;
-import no.nav.pdl.IdentGruppe;
-import no.nav.pdl.IdentInformasjon;
-import no.nav.pdl.IdentInformasjonResponseProjection;
-import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.pdl.Navn;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
-import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
-import no.nav.vedtak.felles.integrasjon.pdl.Tema;
-import no.nav.vedtak.util.LRUCache;
+import no.nav.vedtak.felles.integrasjon.pdl.PdlKlientMedCache;
 
 @ApplicationScoped
 public class PersonTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(PersonTjeneste.class);
 
-    private static final int DEFAULT_CACHE_SIZE = 1000;
-    private static final long DEFAULT_CACHE_TIMEOUT = TimeUnit.MILLISECONDS.convert(2, TimeUnit.HOURS);
-
-    private LRUCache<String, String> cacheAktørIdTilIdent;
-    private LRUCache<String, String> cacheIdentTilAktørId;
-
-    private PdlKlient pdlKlient;
+    private PdlKlientMedCache pdlKlient;
 
     PersonTjeneste() {
         // CDI
     }
 
     @Inject
-    public PersonTjeneste(PdlKlient pdlKlient) {
+    public PersonTjeneste(PdlKlientMedCache pdlKlient) {
         this.pdlKlient = pdlKlient;
-        this.cacheAktørIdTilIdent = new LRUCache<>(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT);
-        this.cacheIdentTilAktørId = new LRUCache<>(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT);
     }
 
     public Optional<String> hentAktørIdForPersonIdent(String personIdent) {
-        var fraCache = cacheIdentTilAktørId.get(personIdent);
-        if (fraCache != null) {
-            return Optional.of(fraCache);
-        }
-        Optional<String> aktørId = hentIdentFraGruppe(personIdent, IdentGruppe.AKTORID);
-        aktørId.ifPresent(a -> cacheIdentTilAktørId.put(personIdent, a));
-        return aktørId;
+        return pdlKlient.hentAktørIdForPersonIdent(personIdent, FOR);
     }
 
     public Optional<String> hentPersonIdentForAktørId(String aktørId) {
-        var fraCache = cacheAktørIdTilIdent.get(aktørId);
-        if (fraCache != null) {
-            return Optional.of(fraCache);
-        }
-        Optional<String> ident = hentIdentFraGruppe(aktørId, IdentGruppe.FOLKEREGISTERIDENT);
-        ident.ifPresent(i -> {
-            cacheAktørIdTilIdent.put(aktørId, i);
-            cacheIdentTilAktørId.put(i, aktørId); // OK her, men ikke over ettersom dette er gjeldende mapping
-        });
-        return ident;
+        return pdlKlient.hentPersonIdentForAktørId(aktørId, FOR);
     }
 
     public String hentNavn(String aktørId) {
@@ -82,12 +52,15 @@ public class PersonTjeneste {
         var projection = new PersonResponseProjection()
                 .navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn());
 
-        var person = pdlKlient.hentPerson(request, projection, Tema.FOR);
-
-        return person.getNavn().stream().map(PersonTjeneste::mapNavn).findFirst().orElseThrow();
+        return pdlKlient.getDelegate().hentPerson(request, projection, FOR).getNavn()
+                .stream()
+                .map(PersonTjeneste::mapNavn)
+                .findFirst()
+                .orElseThrow();
     }
 
-    // OBS: Ikke bruk denne!!! PDL kommer til å lage et nytt skjema og nytt kall hentGeografiskTilknytning.
+    // OBS: Ikke bruk denne!!! PDL kommer til å lage et nytt skjema og nytt kall
+    // hentGeografiskTilknytning.
     public GeoTilknytning hentGeografiskTilknytning(String aktørId) {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId);
@@ -95,30 +68,13 @@ public class PersonTjeneste {
                 .geografiskTilknytning(new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand())
                 .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
 
-        var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
+        var person = pdlKlient.getDelegate().hentPerson(query, projection, FOR);
 
         var gt = new GeoTilknytning(getTilknytning(person), getDiskresjonskode(person));
         if (gt.getTilknytning() == null) {
             LOG.info("FPFORDEL PDL mangler GT for {}", aktørId);
         }
         return gt;
-    }
-
-    private Optional<String> hentIdentFraGruppe(String ident, IdentGruppe type) {
-        var request = new HentIdenterQueryRequest();
-        request.setIdent(ident);
-        request.setGrupper(List.of(type));
-        request.setHistorikk(Boolean.FALSE);
-        var projection = new IdentlisteResponseProjection()
-                .identer(new IdentInformasjonResponseProjection().ident());
-
-        var identliste = pdlKlient.hentIdenter(request, projection, Tema.FOR);
-
-        if (identliste.getIdenter().size() > 1) {
-            LOG.info("FPFORDEL PDL flere enn en ident for {}", ident);
-        }
-
-        return identliste.getIdenter().stream().findFirst().map(IdentInformasjon::getIdent);
     }
 
     private static String mapNavn(Navn navn) {

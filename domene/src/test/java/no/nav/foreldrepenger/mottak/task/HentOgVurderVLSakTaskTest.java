@@ -4,27 +4,31 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.klient.FagsakRestKlient;
+import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.klient.VurderFagsystemResultat;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
+@ExtendWith(MockitoExtension.class)
 public class HentOgVurderVLSakTaskTest {
 
-    private FagsakRestKlient fagsakRestKlientMock = mock(FagsakRestKlient.class);
-    private ProsessTaskRepository prosessTaskRepository = mock(ProsessTaskRepository.class);
-
+    @Mock
+    private FagsakTjeneste fagsakRestKlientMock;
+    @Mock
+    private ProsessTaskRepository prosessTaskRepository;
     private String saksnummer = "123456";
     private String aktørId = "9000000000009";
 
