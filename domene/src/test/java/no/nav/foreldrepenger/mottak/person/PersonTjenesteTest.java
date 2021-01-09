@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.mottak.person;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
@@ -13,8 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
 import no.nav.pdl.Adressebeskyttelse;
 import no.nav.pdl.AdressebeskyttelseGradering;
@@ -26,10 +24,8 @@ import no.nav.pdl.Identliste;
 import no.nav.pdl.Navn;
 import no.nav.pdl.Person;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
-import no.nav.vedtak.felles.integrasjon.pdl.PdlKlientMedCache;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 public class PersonTjenesteTest {
     private static final String AKTØR_ID = "9999999999999";
     private static final String FNR = "99999999999";
@@ -40,14 +36,16 @@ public class PersonTjenesteTest {
 
     @BeforeEach
     public void setup() {
-        personTjeneste = new PersonTjeneste(new PdlKlientMedCache(pdlKlient));
+        personTjeneste = new PersonTjeneste(pdlKlient);
     }
 
     @Test
     public void skal_returnere_fnr() {
         var response = new Identliste(List.of(new IdentInformasjon(FNR, IdentGruppe.FOLKEREGISTERIDENT, false)));
         when(pdlKlient.hentIdenter(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any(), any())).thenReturn(response);
+
         Optional<String> fnr = personTjeneste.hentPersonIdentForAktørId(AKTØR_ID);
+
         assertThat(fnr).isPresent();
         assertThat(fnr).hasValueSatisfying(v -> assertThat(v).isEqualTo(FNR));
     }
@@ -63,11 +61,13 @@ public class PersonTjenesteTest {
         assertThat(aid).hasValueSatisfying(v -> assertThat(v).isEqualTo(AKTØR_ID));
     }
 
-    // @Test
+    @Test
     public void skal_returnere_empty_uten_match() {
         var response = new Identliste(List.of());
         when(pdlKlient.hentIdenter(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any(), any())).thenReturn(response);
+
         Optional<String> fnr = personTjeneste.hentPersonIdentForAktørId(AKTØR_ID);
+
         assertThat(fnr).isEmpty();
     }
 
