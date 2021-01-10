@@ -1,6 +1,10 @@
 package no.nav.foreldrepenger.mottak.journal.dokarkiv;
 
+import static no.nav.vedtak.isso.SystemUserIdTokenProvider.getSystemUserIdToken;
+import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
+
 import java.net.URI;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -13,9 +17,9 @@ import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.FerdigstillJournalpos
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OppdaterJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostResponse;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientFeil;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.OidcTokenRequestFilter;
 import no.nav.vedtak.isso.SystemUserIdTokenProvider;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
@@ -56,9 +60,9 @@ public class LegacyDokArkivTjeneste implements DokArkiv {
         }
     }
 
-    private static void test() {
+    private void test() {
         try {
-            String token = new OidcTokenRequestFilter().accessToken();
+            String token = accessToken();
             LOG.info("TEST " + token);
         } catch (Exception e) {
             LOG.info("TEST", e);
@@ -86,6 +90,29 @@ public class LegacyDokArkivTjeneste implements DokArkiv {
             LOG.info("TEST", e);
             return null;
         }
+    }
+
+    public String accessToken() {
+        return Optional.ofNullable(suppliedToken())
+                .orElse(exchangedToken());
+    }
+
+    private String suppliedToken() {
+        return getSubjectHandler().getInternSsoToken();
+    }
+
+    private String exchangedToken() {
+        return Optional.ofNullable(samlToken())
+                .map(this::exchange)
+                .orElseThrow(() -> new TekniskException("F-937072", "Klarte ikke å fremskaffe et OIDC token"));
+    }
+
+    private SAMLAssertionCredential samlToken() {
+        return getSubjectHandler().getSamlToken();
+    }
+
+    private String exchange(@SuppressWarnings("unused") SAMLAssertionCredential samlToken) {
+        return getSystemUserIdToken().getToken();
     }
 
     private static String veksleSamlTokenTilOIDCToken(@SuppressWarnings("unused") SAMLAssertionCredential samlToken) {
