@@ -5,6 +5,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.net.URI;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.client.ClientRequestFilter;
 
@@ -15,7 +16,8 @@ import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-//@ApplicationScoped
+@ApplicationScoped
+@Fagsak
 public class JerseyDokumentmottakRestKlient extends AbstractJerseyOidcRestClient implements JournalpostSender {
     private static final String DEFAULT_FPSAK_BASE_URI = "http://fpsak";
     private static final String FPSAK_MOTTAK_JOURNALPOST_PATH = "/fpsak/api/fordel/journalpost";
