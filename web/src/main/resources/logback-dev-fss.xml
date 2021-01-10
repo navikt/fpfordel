@@ -2,5 +2,6 @@
    <logger name="no.nav.foreldrepenger" level="TRACE" />
    <logger name="org.apache.http" level="INFO" />
    <logger name="no.nav.vedtak.sikkerhet" level="INFO" />
+   <logger name="no.nav.vedtak.felles.integrasjon.rest" level="TRACE" />
    <logger name="no.nav.vedtak.isso" level="INFO" />
 </included>
