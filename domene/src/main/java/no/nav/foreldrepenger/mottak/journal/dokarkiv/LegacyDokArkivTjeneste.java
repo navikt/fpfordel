@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostReq
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostResponse;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.OidcTokenRequestFilter;
 import no.nav.vedtak.isso.SystemUserIdTokenProvider;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
@@ -62,8 +63,9 @@ public class LegacyDokArkivTjeneste implements DokArkiv {
 
     private void test() {
         try {
-            String token = accessToken();
-            LOG.info("TEST NY " + token);
+            var t = new OidcTokenRequestFilter().accessToken();
+            LOG.info("TEST NY " + t);
+
         } catch (Exception e) {
             LOG.info("TEST OOPS NY", e);
         }
