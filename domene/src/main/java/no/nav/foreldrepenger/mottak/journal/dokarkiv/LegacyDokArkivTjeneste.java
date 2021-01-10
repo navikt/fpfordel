@@ -106,7 +106,7 @@ public class LegacyDokArkivTjeneste implements DokArkiv {
 
     public String accessToken() {
         return Optional.ofNullable(suppliedToken())
-                .orElse(exchangedToken());
+                .orElseGet(() -> exchangedToken());
     }
 
     private String suppliedToken() {
