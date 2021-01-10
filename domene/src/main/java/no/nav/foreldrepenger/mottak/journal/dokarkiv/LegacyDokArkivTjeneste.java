@@ -62,7 +62,7 @@ public class LegacyDokArkivTjeneste implements DokArkiv {
             LOG.info("TEST " + token);
         } catch (Exception e) {
             LOG.info("TEST", e);
-            LOG.info("TEST1 ", test1());
+            LOG.info("TEST1 " + test1());
 
         }
     }
