@@ -65,7 +65,7 @@ public class LegacyDokArkivTjeneste implements DokArkiv {
             String token = accessToken();
             LOG.info("TEST NY " + token);
         } catch (Exception e) {
-            LOG.info("OOPS NY", e);
+            LOG.info("TEST OOPS NY", e);
         }
     }
 
@@ -74,7 +74,7 @@ public class LegacyDokArkivTjeneste implements DokArkiv {
             String token = getOIDCToken();
             LOG.info("TEST GAMMEL " + token);
         } catch (Exception e) {
-            LOG.info("OOPS GAMMEL", e);
+            LOG.info("TEST OOPS GAMMEL", e);
         }
     }
 
@@ -111,7 +111,7 @@ public class LegacyDokArkivTjeneste implements DokArkiv {
 
     private String suppliedToken() {
         var t = SubjectHandler.getSubjectHandler().getInternSsoToken();
-        LOG.info("SUPPLIED NY " + t);
+        LOG.info("TEST SUPPLIED NY " + t);
         return t;
     }
 
@@ -132,13 +132,13 @@ public class LegacyDokArkivTjeneste implements DokArkiv {
     String getOIDCToken() {
         var oidcToken = SubjectHandler.getSubjectHandler().getInternSsoToken();
         if (oidcToken != null) {
-            LOG.trace("Internal token OK");
+            LOG.trace("TEST Internal token OK");
             return oidcToken;
         }
 
         var samlToken = SubjectHandler.getSubjectHandler().getSamlToken();
         if (samlToken != null) {
-            LOG.trace("SAML token OK");
+            LOG.trace("TEST SAML token OK");
             return veksleSamlTokenTilOIDCToken(samlToken);
         }
         return null;
