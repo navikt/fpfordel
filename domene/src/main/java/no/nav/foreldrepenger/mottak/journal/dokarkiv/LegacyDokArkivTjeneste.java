@@ -110,7 +110,9 @@ public class LegacyDokArkivTjeneste implements DokArkiv {
     }
 
     private String suppliedToken() {
-        return getSubjectHandler().getInternSsoToken();
+        var t = SubjectHandler.getSubjectHandler().getInternSsoToken();
+        LOG.info("SUPPLIED NY " + t);
+        return t;
     }
 
     private String exchangedToken() {
@@ -127,8 +129,8 @@ public class LegacyDokArkivTjeneste implements DokArkiv {
         return getSystemUserIdToken().getToken();
     }
 
-    protected String getOIDCToken() {
-        String oidcToken = SubjectHandler.getSubjectHandler().getInternSsoToken();
+    String getOIDCToken() {
+        var oidcToken = SubjectHandler.getSubjectHandler().getInternSsoToken();
         if (oidcToken != null) {
             LOG.trace("Internal token OK");
             return oidcToken;
