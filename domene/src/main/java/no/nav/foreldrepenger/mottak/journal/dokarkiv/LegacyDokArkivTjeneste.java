@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OppdaterJournalpostRe
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostResponse;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.OidcTokenRequestFilter;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
@@ -42,11 +43,21 @@ public class LegacyDokArkivTjeneste implements DokArkiv {
     public OpprettJournalpostResponse opprettJournalpost(OpprettJournalpostRequest request, boolean ferdigstill) {
         try {
             LOG.info("Oppretter journalpost");
+            test();
             var opprett = ferdigstill ? new URIBuilder(dokarkiv).addParameter("forsoekFerdigstill", "true").build() : dokarkiv;
             return restKlient.post(opprett, request, OpprettJournalpostResponse.class);
         } catch (Exception e) {
             LOG.info("FPFORDEL DOKARKIV OPPRETT feilet for {}", request, e);
             return null;
+        }
+    }
+
+    private static void test() {
+        try {
+            String token = new OidcTokenRequestFilter().accessToken();
+            LOG.info("TEST " + token);
+        } catch (Exception e) {
+            LOG.info("TEST", e);
         }
     }
 
