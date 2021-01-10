@@ -17,6 +17,7 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
+@Tilbake
 public class JerseyTilbakekrevingRestKlient extends AbstractJerseyOidcRestClient implements JournalpostSender {
     private static final String DEFAULT_TILBAKE_BASE_URI = "http://fptilbake";
     private static final String JOURNALPOST_PATH = "/fptilbake/api/fordel/journalpost";

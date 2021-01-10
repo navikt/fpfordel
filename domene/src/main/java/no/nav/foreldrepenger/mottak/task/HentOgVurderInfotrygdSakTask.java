@@ -56,7 +56,6 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
         super(prosessTaskRepository);
         this.relevansSjekker = relevansSjekker;
         this.aktør = aktør;
-        LOGGER.info("Konstruert {}", this);
     }
 
     @Override
