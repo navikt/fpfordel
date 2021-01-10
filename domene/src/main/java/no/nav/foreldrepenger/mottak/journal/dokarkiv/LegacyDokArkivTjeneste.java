@@ -14,8 +14,12 @@ import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OppdaterJournalpostRe
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostResponse;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientFeil;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.OidcTokenRequestFilter;
+import no.nav.vedtak.isso.SystemUserIdTokenProvider;
 import no.nav.vedtak.konfig.KonfigVerdi;
+import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
 
 @ApplicationScoped
 public class LegacyDokArkivTjeneste implements DokArkiv {
@@ -58,7 +62,36 @@ public class LegacyDokArkivTjeneste implements DokArkiv {
             LOG.info("TEST " + token);
         } catch (Exception e) {
             LOG.info("TEST", e);
+            LOG.info("TEST1 ", test1());
+
         }
+    }
+
+    private static String test1() {
+        try {
+            String oidcToken = SubjectHandler.getSubjectHandler().getInternSsoToken();
+            if (oidcToken != null) {
+                LOG.trace("TEST Internal token OK");
+                return oidcToken;
+            }
+            var samlToken = SubjectHandler.getSubjectHandler().getSamlToken();
+            if (samlToken != null) {
+                LOG.trace("TEST SAML token OK");
+                var t = veksleSamlTokenTilOIDCToken(samlToken);
+                LOG.info("TEST " + t);
+                return t;
+            }
+            throw OidcRestClientFeil.FACTORY.klarteIkkeSkaffeOIDCToken().toException();
+        } catch (Exception e) {
+            LOG.info("TEST", e);
+            return null;
+        }
+    }
+
+    private static String veksleSamlTokenTilOIDCToken(@SuppressWarnings("unused") SAMLAssertionCredential samlToken) {
+        var t = SystemUserIdTokenProvider.getSystemUserIdToken().getToken();
+        LOG.trace("SAML token null :" + (t != null));
+        return t;
     }
 
     @Override
