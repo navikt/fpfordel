@@ -5,7 +5,6 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.net.URI;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.client.ClientRequestFilter;
 
@@ -16,7 +15,7 @@ import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-@ApplicationScoped
+//@ApplicationScoped
 @Tilbake
 public class JerseyTilbakekrevingRestKlient extends AbstractJerseyOidcRestClient implements JournalpostSender {
     private static final String DEFAULT_TILBAKE_BASE_URI = "http://fptilbake";
