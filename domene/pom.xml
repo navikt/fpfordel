@@ -159,6 +159,7 @@
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>sensu-klient</artifactId>
+            <version>3.0.29</version>
         </dependency>
 
         <!-- NAV -->
