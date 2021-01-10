@@ -6,7 +6,6 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import java.net.URI;
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.client.ClientRequestFilter;
 
@@ -26,7 +25,7 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-@ApplicationScoped
+//@ApplicationScoped
 public class JerseyFagsakRestKlient extends AbstractJerseyOidcRestClient implements FagsakTjeneste {
     private static final String DEFAULT_FPSAK_BASE_URI = "http://fpsak";
     private static final String JOURNALPOSTTILKNYTNING_PATH = "/fpsak/api/fordel/fagsak/knyttJournalpost";
