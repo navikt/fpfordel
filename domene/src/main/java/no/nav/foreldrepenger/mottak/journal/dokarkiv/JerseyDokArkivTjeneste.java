@@ -60,7 +60,7 @@ public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient impleme
             LOG.info("Opprettet journalpost OK");
             return response;
         } catch (Exception e) {
-            LOG.info("FPFORDEL DOKARKIV OPPRETT feilet for {}", request, e);
+            LOG.info("FPFORDEL DOKARKIV OPPRETT feilet", e);
             return null;
         }
     }
@@ -78,7 +78,7 @@ public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient impleme
             LOG.info("Oppdatert journalpost OK");
             return true;
         } catch (Exception e) {
-            LOG.info("FPFORDEL DOKARKIV OPPDATER {} feilet for {}", journalpostId, request, e);
+            LOG.info("FPFORDEL DOKARKIV OPPDATER {} feilet", journalpostId, e);
             return false;
         }
     }
