@@ -6,7 +6,6 @@ import static javax.ws.rs.core.UriBuilder.fromUri;
 
 import java.net.URI;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.client.ClientRequestFilter;
 
@@ -20,7 +19,7 @@ import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRes
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-@ApplicationScoped
+//@ApplicationScoped
 public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient implements DokArkiv {
 
     private static final String DEFAULT_URI = "http://dokarkiv.default/rest/journalpostapi/v1/journalpost";

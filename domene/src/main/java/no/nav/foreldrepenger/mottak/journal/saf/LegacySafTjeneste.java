@@ -5,7 +5,11 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.ReadFileFromClassPathHelper;
 import no.nav.foreldrepenger.mottak.journal.saf.graphql.GraphQlError;
@@ -20,10 +24,11 @@ import no.nav.foreldrepenger.mottak.journal.saf.model.VariantFormat;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-//@ApplicationScoped
+@ApplicationScoped
 public class LegacySafTjeneste implements SafTjeneste {
 
     private static final String DEFAULT_URI = "http://saf.default";
+    private static final Logger LOG = LoggerFactory.getLogger(LegacySafTjeneste.class);
 
     private URI graphqlEndpoint;
     private URI hentDokumentEndpoint;
@@ -47,6 +52,7 @@ public class LegacySafTjeneste implements SafTjeneste {
     @Override
     public Journalpost hentJournalpostInfo(String journalpostId) {
         try {
+            LOG.info("Henter journalpost {}", journalpostId);
             GraphQlRequest graphQlRequest = new GraphQlRequest(query, new Variables(journalpostId));
             GraphQlResponse graphQlResponse = restKlient.post(graphqlEndpoint, graphQlRequest, GraphQlResponse.class);
             if ((graphQlResponse.getData() == null) || (graphQlResponse.getData().getJournalpost() == null)) {
@@ -57,6 +63,7 @@ public class LegacySafTjeneste implements SafTjeneste {
                 String errors = errorMessageList.toString();
                 throw new JounalpostIsNullException(errors);
             }
+            LOG.info("Hentet journalpost OK");
             return graphQlResponse.getData().getJournalpost();
         } catch (Exception e) {
             throw new SafException("Kunne ikke hente journalpost for journalpostId " + journalpostId, e);

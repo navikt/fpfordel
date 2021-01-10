@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.client.ClientRequestFilter;
 
@@ -29,7 +28,7 @@ import no.nav.foreldrepenger.mottak.journal.saf.model.VariantFormat;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-@ApplicationScoped
+//@ApplicationScoped
 public class JerseySafTjeneste extends AbstractJerseyOidcRestClient implements SafTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(JerseySafTjeneste.class);

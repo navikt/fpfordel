@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.mottak.journal.dokarkiv;
 
 import java.net.URI;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.http.client.utils.URIBuilder;
@@ -15,7 +16,7 @@ import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRes
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-//@ApplicationScoped
+@ApplicationScoped
 public class LegacyDokArkivTjeneste implements DokArkiv {
 
     private static final String DEFAULT_URI = "http://dokarkiv.default/rest/journalpostapi/v1/journalpost";
@@ -40,6 +41,7 @@ public class LegacyDokArkivTjeneste implements DokArkiv {
     @Override
     public OpprettJournalpostResponse opprettJournalpost(OpprettJournalpostRequest request, boolean ferdigstill) {
         try {
+            LOG.info("Oppretter journalpost");
             var opprett = ferdigstill ? new URIBuilder(dokarkiv).addParameter("forsoekFerdigstill", "true").build() : dokarkiv;
             return restKlient.post(opprett, request, OpprettJournalpostResponse.class);
         } catch (Exception e) {
@@ -51,6 +53,7 @@ public class LegacyDokArkivTjeneste implements DokArkiv {
     @Override
     public boolean oppdaterJournalpost(String journalpostId, OppdaterJournalpostRequest request) {
         try {
+            LOG.info("Oppdaterer journalpost");
             var oppdater = URI.create(uriString + String.format("/%s", journalpostId));
             restKlient.put(oppdater, request);
             return true;
@@ -63,6 +66,7 @@ public class LegacyDokArkivTjeneste implements DokArkiv {
     @Override
     public boolean ferdigstillJournalpost(String journalpostId, String enhet) {
         try {
+            LOG.info("Ferdigstiller journalpost");
             var ferdigstill = URI.create(uriString + String.format("/%s/ferdigstill", journalpostId));
             restKlient.patch(ferdigstill, new FerdigstillJournalpostRequest(enhet));
             return true;
