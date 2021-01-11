@@ -1,10 +1,6 @@
 package no.nav.foreldrepenger.mottak.journal.dokarkiv;
 
-import static no.nav.vedtak.isso.SystemUserIdTokenProvider.getSystemUserIdToken;
-import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
-
 import java.net.URI;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -17,13 +13,9 @@ import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.FerdigstillJournalpos
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OppdaterJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostResponse;
-import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.OidcTokenRequestFilter;
-import no.nav.vedtak.isso.SystemUserIdTokenProvider;
 import no.nav.vedtak.konfig.KonfigVerdi;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
-import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
 
 @ApplicationScoped
 public class LegacyDokArkivTjeneste implements DokArkiv {
@@ -52,7 +44,6 @@ public class LegacyDokArkivTjeneste implements DokArkiv {
         try {
             LOG.info("Oppretter journalpost");
             test();
-            test1();
             var opprett = ferdigstill ? new URIBuilder(dokarkiv).addParameter("forsoekFerdigstill", "true").build() : dokarkiv;
             return restKlient.post(opprett, request, OpprettJournalpostResponse.class);
         } catch (Exception e) {
@@ -68,15 +59,6 @@ public class LegacyDokArkivTjeneste implements DokArkiv {
 
         } catch (Exception e) {
             LOG.info("TEST OOPS NY", e);
-        }
-    }
-
-    private void test1() {
-        try {
-            String token = getOIDCToken();
-            LOG.info("TEST GAMMEL " + token);
-        } catch (Exception e) {
-            LOG.info("TEST OOPS GAMMEL", e);
         }
     }
 
@@ -104,51 +86,5 @@ public class LegacyDokArkivTjeneste implements DokArkiv {
             LOG.info("FPFORDEL DOKARKIV FERDIGSTILL {} feilet for {}", journalpostId, enhet, e);
             return false;
         }
-    }
-
-    public String accessToken() {
-        return Optional.ofNullable(suppliedToken())
-                .orElseGet(() -> exchangedToken());
-    }
-
-    private String suppliedToken() {
-        var t = SubjectHandler.getSubjectHandler().getInternSsoToken();
-        LOG.info("TEST SUPPLIED NY " + t);
-        return t;
-    }
-
-    private String exchangedToken() {
-        return Optional.ofNullable(samlToken())
-                .map(this::exchange)
-                .orElseThrow(() -> new TekniskException("F-937072", "Klarte ikke å fremskaffe et OIDC token"));
-    }
-
-    private SAMLAssertionCredential samlToken() {
-        return getSubjectHandler().getSamlToken();
-    }
-
-    private String exchange(@SuppressWarnings("unused") SAMLAssertionCredential samlToken) {
-        return getSystemUserIdToken().getToken();
-    }
-
-    String getOIDCToken() {
-        var oidcToken = SubjectHandler.getSubjectHandler().getInternSsoToken();
-        if (oidcToken != null) {
-            LOG.trace("TEST Internal token OK");
-            return oidcToken;
-        }
-
-        var samlToken = SubjectHandler.getSubjectHandler().getSamlToken();
-        if (samlToken != null) {
-            LOG.trace("TEST SAML token OK");
-            return veksleSamlTokenTilOIDCToken(samlToken);
-        }
-        return null;
-    }
-
-    private String veksleSamlTokenTilOIDCToken(@SuppressWarnings("unused") SAMLAssertionCredential samlToken) {
-        var t = SystemUserIdTokenProvider.getSystemUserIdToken().getToken();
-        LOG.trace("SAML token null :" + (t != null));
-        return t;
     }
 }
