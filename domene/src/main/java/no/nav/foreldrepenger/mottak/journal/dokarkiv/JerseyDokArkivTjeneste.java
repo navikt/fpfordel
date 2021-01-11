@@ -17,21 +17,22 @@ import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.FerdigstillJournalpos
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OppdaterJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostResponse;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
 public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient implements DokArkiv {
 
+    private static final String FERDIGSTILL = "forsoekFerdigstill";
     private static final String DEFAULT_URI = "http://dokarkiv.default/rest/journalpostapi/v1/journalpost";
     private static final String OPPDATER_PATH = "/{journalpostId}";
     private static final String FERDIGSTILL_PATH = OPPDATER_PATH + "/ferdigstill";
     private static final Logger LOG = LoggerFactory.getLogger(JerseyDokArkivTjeneste.class);
 
-    private URI dokarkiv;
+    private URI endpoint;
 
     JerseyDokArkivTjeneste() {
-        // CDI
     }
 
     @Inject
@@ -45,40 +46,39 @@ public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient impleme
 
     public JerseyDokArkivTjeneste(URI endpoint, ClientRequestFilter... filters) {
         super(filters);
-        this.dokarkiv = endpoint;
+        this.endpoint = endpoint;
     }
 
     @Override
-    public OpprettJournalpostResponse opprettJournalpost(OpprettJournalpostRequest request, boolean ferdigstill) {
+    public OpprettJournalpostResponse opprettJournalpost(OpprettJournalpostRequest req, boolean ferdigstill) {
         try {
             LOG.info("Oppretter journalpost");
-            var response = client.target(dokarkiv)
-                    .queryParam("forsoekFerdigstill", ferdigstill)
+            var res = client.target(endpoint)
+                    .queryParam(FERDIGSTILL, ferdigstill)
                     .request(APPLICATION_JSON_TYPE)
-                    .buildPost(json(request))
+                    .buildPost(json(req))
                     .invoke(OpprettJournalpostResponse.class);
-            LOG.info("Opprettet journalpost OK");
-            return response;
+            LOG.info("Opprettet journalpost {} OK", res.journalpostId());
+            return res;
         } catch (Exception e) {
-            LOG.info("FPFORDEL DOKARKIV OPPRETT feilet", e);
-            return null;
+            throw new TekniskException("F-999999", endpoint, e);
         }
     }
 
     @Override
-    public boolean oppdaterJournalpost(String journalpostId, OppdaterJournalpostRequest request) {
+    public boolean oppdaterJournalpost(String journalpostId, OppdaterJournalpostRequest req) {
         try {
-            LOG.info("Oppdaterer journalpost");
-            client.target(dokarkiv)
+            LOG.info("Oppdaterer journalpost {}", journalpostId);
+            client.target(endpoint)
                     .path(OPPDATER_PATH)
                     .resolveTemplate("journalpostId", journalpostId)
                     .request(APPLICATION_JSON_TYPE)
-                    .buildPut(json(request))
+                    .buildPut(json(req))
                     .invoke(Void.class);
-            LOG.info("Oppdatert journalpost OK");
+            LOG.info("Oppdatert journalpost {} OK", journalpostId);
             return true;
         } catch (Exception e) {
-            LOG.info("FPFORDEL DOKARKIV OPPDATER {} feilet", journalpostId, e);
+            LOG.warn("Oppdatering journalpost {} feilet", journalpostId, e);
             return false;
         }
     }
@@ -86,19 +86,18 @@ public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient impleme
     @Override
     public boolean ferdigstillJournalpost(String journalpostId, String enhet) {
         try {
-            LOG.info("Ferdigstiller journalpost");
-            patch(fromUri(dokarkiv).path(FERDIGSTILL_PATH).build(journalpostId), new FerdigstillJournalpostRequest(enhet));
+            LOG.info("Ferdigstiller journalpost {}", journalpostId);
+            patch(fromUri(endpoint).path(FERDIGSTILL_PATH).build(journalpostId), new FerdigstillJournalpostRequest(enhet));
             LOG.info("Ferdigstillt journalpost OK");
             return true;
         } catch (Exception e) {
-            LOG.info("FPFORDEL DOKARKIV FERDIGSTILL {} feilet for {}", journalpostId, enhet, e);
+            LOG.warn("Ferdigstilling journalpost {} feilet for {}", journalpostId, enhet, e);
             return false;
         }
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [dokarkiv=" + dokarkiv + "]";
+        return getClass().getSimpleName() + " [endpoint=" + endpoint + "]";
     }
-
 }
