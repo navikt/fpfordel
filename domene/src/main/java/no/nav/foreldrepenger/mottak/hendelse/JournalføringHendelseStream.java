@@ -43,7 +43,7 @@ public class JournalføringHendelseStream implements KafkaIntegration, AppServic
             JournalføringHendelseHåndterer journalføringHendelseHåndterer,
             JournalføringHendelseProperties properties) {
         if ((properties.getSchemaRegistryUrl() != null) && !properties.getSchemaRegistryUrl().isEmpty()) {
-            var schemaMap = Map.of("schema.registry.url", properties.getSchemaRegistryUrl());
+            var schemaMap = Map.of("schema.registry.url", properties.getSchemaRegistryUrl(), "specific.avro.reader", true);
             topic.getSerdeKey().configure(schemaMap, true);
             topic.getSerdeValue().configure(schemaMap, false);
         }
