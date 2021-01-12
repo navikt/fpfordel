@@ -8,6 +8,7 @@ import java.net.URI;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.client.ClientRequestFilter;
+import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,7 @@ public class JerseyDokumentmottakRestKlient extends AbstractJerseyOidcRestClient
                 .path(FPSAK_MOTTAK_JOURNALPOST_PATH)
                 .request(APPLICATION_JSON_TYPE)
                 .buildPost(json(journalpostMottakDto))
-                .invoke(Void.class);
+                .invoke(Response.class);
         LOG.info("Sendt journalpost OK");
     }
 

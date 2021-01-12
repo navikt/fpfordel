@@ -48,11 +48,11 @@ public class JerseySafTjeneste extends AbstractJerseyOidcRestClient implements S
         this(base, new ClientRequestFilter[0]);
     }
 
-    JerseySafTjeneste(String base, ClientRequestFilter... filters) {
+    public JerseySafTjeneste(String base, ClientRequestFilter... filters) {
         this(URI.create(base), filters);
     }
 
-    private JerseySafTjeneste(URI base, ClientRequestFilter... filters) {
+    public JerseySafTjeneste(URI base, ClientRequestFilter... filters) {
         super(filters);
         this.base = base;
         this.query = ReadFileFromClassPathHelper.hent("saf/journalpostQuery.graphql");

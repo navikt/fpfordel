@@ -9,6 +9,7 @@ import java.net.URI;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.client.ClientRequestFilter;
+import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,36 +25,36 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 @ApplicationScoped
 public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient implements DokArkiv {
 
-    private static final String FERDIGSTILL = "forsoekFerdigstill";
+    static final String FERDIGSTILL = "forsoekFerdigstill";
     private static final String DEFAULT_URI = "http://dokarkiv.default/rest/journalpostapi/v1/journalpost";
     private static final String OPPDATER_PATH = "/{journalpostId}";
     private static final String FERDIGSTILL_PATH = OPPDATER_PATH + "/ferdigstill";
     private static final Logger LOG = LoggerFactory.getLogger(JerseyDokArkivTjeneste.class);
 
-    private URI endpoint;
+    private URI base;
 
     JerseyDokArkivTjeneste() {
     }
 
     @Inject
-    public JerseyDokArkivTjeneste(@KonfigVerdi(value = "dokarkiv.base.url", defaultVerdi = DEFAULT_URI) URI endpoint) {
-        this(endpoint, new ClientRequestFilter[0]);
+    public JerseyDokArkivTjeneste(@KonfigVerdi(value = "dokarkiv.base.url", defaultVerdi = DEFAULT_URI) URI base) {
+        this(base, new ClientRequestFilter[0]);
     }
 
     JerseyDokArkivTjeneste(String base, ClientRequestFilter... filters) {
         this(URI.create(base), filters);
     }
 
-    public JerseyDokArkivTjeneste(URI endpoint, ClientRequestFilter... filters) {
+    private JerseyDokArkivTjeneste(URI base, ClientRequestFilter... filters) {
         super(filters);
-        this.endpoint = endpoint;
+        this.base = base;
     }
 
     @Override
     public OpprettJournalpostResponse opprettJournalpost(OpprettJournalpostRequest req, boolean ferdigstill) {
         try {
             LOG.info("Oppretter journalpost");
-            var res = client.target(endpoint)
+            var res = client.target(base)
                     .queryParam(FERDIGSTILL, ferdigstill)
                     .request(APPLICATION_JSON_TYPE)
                     .buildPost(json(req))
@@ -61,7 +62,7 @@ public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient impleme
             LOG.info("Opprettet journalpost {} OK", res.journalpostId());
             return res;
         } catch (Exception e) {
-            throw new TekniskException("F-999999", endpoint, e);
+            throw new TekniskException("F-999999", base, e);
         }
     }
 
@@ -69,12 +70,12 @@ public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient impleme
     public boolean oppdaterJournalpost(String journalpostId, OppdaterJournalpostRequest req) {
         try {
             LOG.info("Oppdaterer journalpost {}", journalpostId);
-            client.target(endpoint)
+            client.target(base)
                     .path(OPPDATER_PATH)
                     .resolveTemplate("journalpostId", journalpostId)
                     .request(APPLICATION_JSON_TYPE)
                     .buildPut(json(req))
-                    .invoke(Void.class);
+                    .invoke(Response.class);
             LOG.info("Oppdatert journalpost {} OK", journalpostId);
             return true;
         } catch (Exception e) {
@@ -87,7 +88,7 @@ public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient impleme
     public boolean ferdigstillJournalpost(String journalpostId, String enhet) {
         try {
             LOG.info("Ferdigstiller journalpost {}", journalpostId);
-            patch(fromUri(endpoint).path(FERDIGSTILL_PATH).build(journalpostId), new FerdigstillJournalpostRequest(enhet));
+            patch(fromUri(base).path(FERDIGSTILL_PATH).build(journalpostId), new FerdigstillJournalpostRequest(enhet));
             LOG.info("Ferdigstillt journalpost OK");
             return true;
         } catch (Exception e) {
@@ -98,6 +99,6 @@ public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient impleme
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [endpoint=" + endpoint + "]";
+        return getClass().getSimpleName() + " [base=" + base + "]";
     }
 }

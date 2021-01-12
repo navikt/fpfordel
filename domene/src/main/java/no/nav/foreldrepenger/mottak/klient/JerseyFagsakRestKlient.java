@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.ws.rs.client.ClientRequestFilter;
+import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +82,7 @@ public class JerseyFagsakRestKlient extends AbstractJerseyOidcRestClient impleme
                 .path(JOURNALPOSTTILKNYTNING_PATH)
                 .request(APPLICATION_JSON_TYPE)
                 .buildPost(json(journalpostKnyttningDto))
-                .invoke(Void.class);
+                .invoke(Response.class);
         LOG.info("Knyttet sak og journalpost OK");
     }
 
