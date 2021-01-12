@@ -7,6 +7,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.client.ClientRequestFilter;
 
@@ -16,7 +17,7 @@ import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-//@ApplicationScoped
+@ApplicationScoped
 public class JerseyInfotrygdFPSaker extends AbstractJerseyOidcRestClient implements InfotrygdTjeneste {
 
     private static final String DEFAULT_URI = "http://infotrygd-foreldrepenger.default/saker";
