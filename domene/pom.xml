@@ -129,10 +129,6 @@
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-            <artifactId>person-klient</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>pdl-klient</artifactId>
             <exclusions>
                 <exclusion>

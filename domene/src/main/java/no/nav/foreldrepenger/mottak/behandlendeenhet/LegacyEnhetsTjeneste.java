@@ -13,10 +13,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.person.GeoTilknytning;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personidenter;
-import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningRequest;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
@@ -60,11 +56,11 @@ public class LegacyEnhetsTjeneste implements EnhetsTjeneste {
     }
 
     private String hentEnhetId(String aktørId, BehandlingTema behandlingTema, Tema tema) {
-        GeoTilknytning geoTilknytning = personTjeneste.hentPersonIdentForAktørId(aktørId)
+        var gt = personTjeneste.hentPersonIdentForAktørId(aktørId)
                 .map(this::hentGeografiskTilknytning)
                 .orElse(new GeoTilknytning(null, null));
 
-        if (geoTilknytning.getDiskresjonskode() == null && geoTilknytning.getTilknytning() == null) {
+        if (gt.getDiskresjonskode() == null && gt.getTilknytning() == null) {
             return tilfeldigNfpEnhet();
         }
 
@@ -74,17 +70,17 @@ public class LegacyEnhetsTjeneste implements EnhetsTjeneste {
                 .medBehandlingstema(behandlingTema.getOffisiellKode())
                 .medBehandlingstype(BEHANDLINGTYPE)
                 .medOppgavetype(OPPGAVETYPE_JFR)
-                .medDiskresjonskode(geoTilknytning.getDiskresjonskode())
-                .medGeografiskOmraade(geoTilknytning.getTilknytning())
+                .medDiskresjonskode(gt.getDiskresjonskode())
+                .medGeografiskOmraade(gt.getTilknytning())
                 .build();
-        var respons = norgKlient.finnEnhet(request);
-        return validerOgVelgBehandlendeEnhet(respons, geoTilknytning.getDiskresjonskode(), geoTilknytning.getTilknytning());
+        return validerOgVelgBehandlendeEnhet(norgKlient.finnEnhet(request), gt);
     }
 
-    private static String validerOgVelgBehandlendeEnhet(List<ArbeidsfordelingResponse> response, String diskresjonskode, String geoTilknytning) {
+    private static String validerOgVelgBehandlendeEnhet(List<ArbeidsfordelingResponse> response, GeoTilknytning gt) {
         // Vi forventer å få én behandlende enhet.
         if (response == null || response.size() != 1) {
-            throw LegacyEnhetsTjeneste.EnhetsTjenesteFeil.FACTORY.finnerIkkeBehandlendeEnhet(geoTilknytning, diskresjonskode).toException();
+            throw LegacyEnhetsTjeneste.EnhetsTjenesteFeil.FACTORY.finnerIkkeBehandlendeEnhet(gt.getTilknytning(), gt.getDiskresjonskode())
+                    .toException();
         }
 
         return response.get(0).getEnhetNr();
@@ -114,33 +110,7 @@ public class LegacyEnhetsTjeneste implements EnhetsTjeneste {
     }
 
     private GeoTilknytning hentGeografiskTilknytning(String fnr) {
-        HentGeografiskTilknytningRequest request = new HentGeografiskTilknytningRequest();
-        request.setAktoer(lagPersonIdent(fnr));
         return personTjeneste.hentGeografiskTilknytning(fnr);
-    }
-
-    private static PersonIdent lagPersonIdent(String fnr) {
-        if ((fnr == null) || fnr.isEmpty()) {
-            throw new IllegalArgumentException("Fødselsnummer kan ikke være null eller tomt");
-        }
-
-        PersonIdent personIdent = new PersonIdent();
-        NorskIdent norskIdent = new NorskIdent();
-        norskIdent.setIdent(fnr);
-
-        Personidenter type = new Personidenter();
-        type.setValue(erDNr(fnr) ? "DNR" : "FNR");
-        norskIdent.setType(type);
-
-        personIdent.setIdent(norskIdent);
-        return personIdent;
-    }
-
-    private static boolean erDNr(String fnr) {
-        // D-nummer kan indentifiseres ved at første siffer er 4 større enn hva som
-        // finnes i fødselsnumre
-        char førsteTegn = fnr.charAt(0);
-        return (førsteTegn >= '4') && (førsteTegn <= '7');
     }
 
     private interface EnhetsTjenesteFeil extends DeklarerteFeil {
