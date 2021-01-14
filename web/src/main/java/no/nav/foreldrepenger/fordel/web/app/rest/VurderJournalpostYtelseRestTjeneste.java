@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.kontrakter.fordel.JournalpostVurderingDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
-import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
+import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.joark.HentDataFraJoarkTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.sikkerhet.abac.BeskyttetRessursAttributt;
@@ -45,7 +45,7 @@ public class VurderJournalpostYtelseRestTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(VurderJournalpostYtelseRestTjeneste.class);
 
     private ArkivTjeneste arkivTjeneste;
-    private PersonTjeneste aktørConsumer;
+    private PersonInformasjon aktørConsumer;
 
     public VurderJournalpostYtelseRestTjeneste() {
         // CDI
@@ -53,7 +53,7 @@ public class VurderJournalpostYtelseRestTjeneste {
 
     @Inject
     public VurderJournalpostYtelseRestTjeneste(ArkivTjeneste arkivTjeneste,
-                                               PersonTjeneste aktørConsumer) {
+            PersonInformasjon aktørConsumer) {
         this.aktørConsumer = aktørConsumer;
         this.arkivTjeneste = arkivTjeneste;
     }

@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.mottak.journal.dokarkiv.LegacyDokArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.JournalpostType;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostResponse;
-import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
+import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -49,7 +49,7 @@ public class MidlJournalføringTaskTest {
     @Mock
     private LegacyDokArkivTjeneste dokArkivTjeneste;
     @Mock
-    private PersonTjeneste personTjeneste;
+    private PersonInformasjon personTjeneste;
 
     private MidlJournalføringTask task;
     private UUID forsendelseId;

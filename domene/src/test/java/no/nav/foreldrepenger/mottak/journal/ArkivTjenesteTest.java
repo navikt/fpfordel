@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.mottak.journal.dokarkiv.DokArkiv;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostResponse;
 import no.nav.foreldrepenger.mottak.journal.saf.SafTjeneste;
-import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
+import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 
 @ExtendWith(MockitoExtension.class)
 public class ArkivTjenesteTest {
@@ -45,7 +45,7 @@ public class ArkivTjenesteTest {
     @Mock
     private DokumentRepository dokumentRepository;
     @Mock
-    private PersonTjeneste personTjeneste;
+    private PersonInformasjon personTjeneste;
 
     @BeforeEach
     public void setup() {

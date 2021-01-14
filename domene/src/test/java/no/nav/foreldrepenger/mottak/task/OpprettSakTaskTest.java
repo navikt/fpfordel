@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.klient.VurderFagsystemResultat;
-import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
+import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -50,7 +50,7 @@ public class OpprettSakTaskTest {
     @Mock
     private FagsakTjeneste fagsakRestKlient;
     @Mock
-    private PersonTjeneste aktørConsumer;
+    private PersonInformasjon aktørConsumer;
 
     private OpprettSakTask task;
 

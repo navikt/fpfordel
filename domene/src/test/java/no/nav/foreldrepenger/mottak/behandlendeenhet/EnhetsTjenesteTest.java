@@ -19,7 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
+import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentGeografiskTilknytningPersonIkkeFunnet;
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentGeografiskTilknytningSikkerhetsbegrensing;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Bydel;
@@ -47,13 +47,13 @@ public class EnhetsTjenesteTest {
     @Mock
     private PersonConsumer personConsumer;
     @Mock
-    private PersonTjeneste personTjeneste;
+    private PersonInformasjon personTjeneste;
 
     @BeforeEach
     public void setup() {
         when(personTjeneste.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(FNR));
         when(arbeidsfordelingTjeneste.hentAlleAktiveEnheter(any())).thenReturn(List.of(FORDELING_ENHET));
-        enhetsTjeneste = new EnhetsTjeneste(personConsumer, personTjeneste, arbeidsfordelingTjeneste);
+        enhetsTjeneste = new LegacyEnhetsTjeneste(personConsumer, personTjeneste, arbeidsfordelingTjeneste);
     }
 
     @Test

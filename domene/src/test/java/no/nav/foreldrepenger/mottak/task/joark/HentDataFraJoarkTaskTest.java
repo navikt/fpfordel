@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
-import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
+import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -45,7 +45,7 @@ public class HentDataFraJoarkTaskTest {
     @Mock
     ProsessTaskRepository ptr;
     @Mock
-    private PersonTjeneste aktørConsumer;
+    private PersonInformasjon aktørConsumer;
     @Mock
     private ArkivTjeneste arkivTjeneste;
 

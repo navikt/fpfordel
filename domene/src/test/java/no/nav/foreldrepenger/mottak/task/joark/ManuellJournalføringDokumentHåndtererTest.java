@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveT
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
-import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
+import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -44,7 +44,7 @@ public class ManuellJournalføringDokumentHåndtererTest {
     @Mock
     private ArkivTjeneste arkivTjeneste;
     @Mock
-    private PersonTjeneste aktørConsumer;
+    private PersonInformasjon aktørConsumer;
     private HentDataFraJoarkTask joarkTaskTestobjekt;
     private MottakMeldingDataWrapper dataWrapper;
     private JoarkTestsupport joarkTestsupport = new JoarkTestsupport();

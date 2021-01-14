@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
-import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
+import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.KlargjorForVLTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
@@ -75,14 +75,14 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
     private final KlargjørForVLTjeneste klargjørForVLTjeneste;
     private final FagsakTjeneste fagsakRestKlient;
-    private final PersonTjeneste aktørConsumer;
+    private final PersonInformasjon aktørConsumer;
     private final ArkivTjeneste arkivTjeneste;
     private final DokumentRepository dokumentRepository;
 
     @Inject
     public BehandleDokumentService(KlargjørForVLTjeneste klargjørForVLTjeneste,
             FagsakTjeneste fagsakRestKlient,
-            PersonTjeneste aktørConsumer,
+            PersonInformasjon aktørConsumer,
             ArkivTjeneste arkivTjeneste,
             DokumentRepository dokumentRepository) {
         this.klargjørForVLTjeneste = klargjørForVLTjeneste;

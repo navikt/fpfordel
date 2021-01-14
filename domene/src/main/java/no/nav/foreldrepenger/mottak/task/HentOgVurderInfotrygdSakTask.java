@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.infotrygd.rest.RelevantSakSjekker;
-import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
+import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -46,13 +46,13 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.hentOgVurderInfotrygdSak";
 
-    private final PersonTjeneste aktør;
+    private final PersonInformasjon aktør;
     private final RelevantSakSjekker relevansSjekker;
 
     @Inject
     public HentOgVurderInfotrygdSakTask(ProsessTaskRepository prosessTaskRepository,
             RelevantSakSjekker relevansSjekker,
-            PersonTjeneste aktør) {
+            PersonInformasjon aktør) {
         super(prosessTaskRepository);
         this.relevansSjekker = relevansSjekker;
         this.aktør = aktør;
