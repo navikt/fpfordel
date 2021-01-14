@@ -13,13 +13,10 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.person.GeoTilknytning;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.tjeneste.virksomhet.person.v3.binding.HentGeografiskTilknytningPersonIkkeFunnet;
-import no.nav.tjeneste.virksomhet.person.v3.binding.HentGeografiskTilknytningSikkerhetsbegrensing;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personidenter;
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningRequest;
-import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningResponse;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
@@ -29,12 +26,10 @@ import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRequest;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingResponse;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRestKlient;
-import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
 
 @ApplicationScoped
 public class LegacyEnhetsTjeneste implements EnhetsTjeneste {
 
-    private PersonConsumer personConsumer;
     private PersonInformasjon personTjeneste;
     private ArbeidsfordelingRestKlient norgKlient;
 
@@ -46,10 +41,9 @@ public class LegacyEnhetsTjeneste implements EnhetsTjeneste {
     }
 
     @Inject
-    public LegacyEnhetsTjeneste(PersonConsumer personConsumer,
+    public LegacyEnhetsTjeneste(
             PersonInformasjon personTjeneste,
             ArbeidsfordelingRestKlient norgKlient) {
-        this.personConsumer = personConsumer;
         this.personTjeneste = personTjeneste;
         this.norgKlient = norgKlient;
     }
@@ -122,19 +116,7 @@ public class LegacyEnhetsTjeneste implements EnhetsTjeneste {
     private GeoTilknytning hentGeografiskTilknytning(String fnr) {
         HentGeografiskTilknytningRequest request = new HentGeografiskTilknytningRequest();
         request.setAktoer(lagPersonIdent(fnr));
-        try {
-            HentGeografiskTilknytningResponse response = personConsumer.hentGeografiskTilknytning(request);
-            String geoTilkn = response.getGeografiskTilknytning() != null
-                    ? response.getGeografiskTilknytning().getGeografiskTilknytning()
-                    : null;
-            String diskKode = response.getDiskresjonskode() != null ? response.getDiskresjonskode().getValue() : null;
-
-            return new GeoTilknytning(geoTilkn, diskKode);
-        } catch (HentGeografiskTilknytningSikkerhetsbegrensing e) {
-            throw EnhetsTjenesteFeil.FACTORY.enhetsTjenesteSikkerhetsbegrensing(e).toException();
-        } catch (HentGeografiskTilknytningPersonIkkeFunnet e) {
-            throw EnhetsTjenesteFeil.FACTORY.enhetsTjenestePersonIkkeFunnet(e).toException();
-        }
+        return personTjeneste.hentGeografiskTilknytning(fnr);
     }
 
     private static PersonIdent lagPersonIdent(String fnr) {
