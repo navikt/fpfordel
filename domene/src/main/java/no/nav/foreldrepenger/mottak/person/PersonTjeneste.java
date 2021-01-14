@@ -1,8 +1,16 @@
 package no.nav.foreldrepenger.mottak.person;
 
-import java.util.List;
+import static java.util.concurrent.TimeUnit.HOURS;
+import static java.util.function.Predicate.not;
+import static no.nav.pdl.AdressebeskyttelseGradering.UGRADERT;
+import static no.nav.pdl.IdentGruppe.AKTORID;
+import static no.nav.pdl.IdentGruppe.FOLKEREGISTERIDENT;
+import static no.nav.vedtak.felles.integrasjon.pdl.Tema.FOR;
+
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -10,11 +18,17 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.RemovalCause;
+import com.github.benmanes.caffeine.cache.RemovalListener;
+import com.google.common.base.Joiner;
+
 import no.nav.pdl.Adressebeskyttelse;
-import no.nav.pdl.AdressebeskyttelseGradering;
 import no.nav.pdl.AdressebeskyttelseResponseProjection;
+import no.nav.pdl.GeografiskTilknytning;
 import no.nav.pdl.GeografiskTilknytningResponseProjection;
-import no.nav.pdl.GtType;
+import no.nav.pdl.HentGeografiskTilknytningQueryRequest;
 import no.nav.pdl.HentIdenterQueryRequest;
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.IdentGruppe;
@@ -26,129 +40,139 @@ import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
-import no.nav.vedtak.felles.integrasjon.pdl.Tema;
-import no.nav.vedtak.util.LRUCache;
 
 @ApplicationScoped
-public class PersonTjeneste {
+public class PersonTjeneste implements PersonInformasjon {
 
     private static final Logger LOG = LoggerFactory.getLogger(PersonTjeneste.class);
 
+    private static final String SPSF = "SPSF";
+    private static final String SPFO = "SPFO";
     private static final int DEFAULT_CACHE_SIZE = 1000;
-    private static final long DEFAULT_CACHE_TIMEOUT = TimeUnit.MILLISECONDS.convert(2, TimeUnit.HOURS);
+    private static final long DEFAULT_CACHE_TIMEOUT_HOURS = 2;
 
-    private LRUCache<String, String> cacheAktørIdTilIdent;
-    private LRUCache<String, String> cacheIdentTilAktørId;
-
-    private PdlKlient pdlKlient;
+    private Cache<String, String> cacheAktørIdTilIdent;
+    private Cache<String, String> cacheIdentTilAktørId;
+    private PdlKlient pdl;
 
     PersonTjeneste() {
         // CDI
     }
 
     @Inject
-    public PersonTjeneste(PdlKlient pdlKlient) {
-        this.pdlKlient = pdlKlient;
-        this.cacheAktørIdTilIdent = new LRUCache<>(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT);
-        this.cacheIdentTilAktørId = new LRUCache<>(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT);
+    public PersonTjeneste(PdlKlient pdl) {
+        this.pdl = pdl;
+        this.cacheAktørIdTilIdent = cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS);
+        this.cacheIdentTilAktørId = cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS);
     }
 
+    @Override
     public Optional<String> hentAktørIdForPersonIdent(String personIdent) {
-        var fraCache = cacheIdentTilAktørId.get(personIdent);
-        if (fraCache != null) {
-            return Optional.of(fraCache);
-        }
-        Optional<String> aktørId = hentIdentFraGruppe(personIdent, IdentGruppe.AKTORID);
-        aktørId.ifPresent(a -> cacheIdentTilAktørId.put(personIdent, a));
-        return aktørId;
+        return Optional.ofNullable(cacheIdentTilAktørId.get(personIdent, load(AKTORID)));
     }
 
+    @Override
     public Optional<String> hentPersonIdentForAktørId(String aktørId) {
-        var fraCache = cacheAktørIdTilIdent.get(aktørId);
-        if (fraCache != null) {
-            return Optional.of(fraCache);
-        }
-        Optional<String> ident = hentIdentFraGruppe(aktørId, IdentGruppe.FOLKEREGISTERIDENT);
-        ident.ifPresent(i -> {
-            cacheAktørIdTilIdent.put(aktørId, i);
-            cacheIdentTilAktørId.put(i, aktørId); // OK her, men ikke over ettersom dette er gjeldende mapping
-        });
-        return ident;
+        return Optional.ofNullable(cacheAktørIdTilIdent.get(aktørId, load(FOLKEREGISTERIDENT)));
     }
 
+    @Override
     public String hentNavn(String aktørId) {
-        var request = new HentPersonQueryRequest();
-        request.setIdent(aktørId);
-        var projection = new PersonResponseProjection()
-                .navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn());
-
-        var person = pdlKlient.hentPerson(request, projection, Tema.FOR);
-
-        return person.getNavn().stream().map(PersonTjeneste::mapNavn).findFirst().orElseThrow();
+        var person = pdl.hentPerson(personQuery(aktørId),
+                new PersonResponseProjection().navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn()), FOR);
+        return person.getNavn()
+                .stream()
+                .map(PersonTjeneste::mapNavn)
+                .findFirst()
+                .orElseThrow();
     }
 
-    // OBS: Ikke bruk denne!!! PDL kommer til å lage et nytt skjema og nytt kall
-    // hentGeografiskTilknytning.
+    @Override
     public GeoTilknytning hentGeografiskTilknytning(String aktørId) {
-        var query = new HentPersonQueryRequest();
+        var query = new HentGeografiskTilknytningQueryRequest();
         query.setIdent(aktørId);
-        var projection = new PersonResponseProjection()
-                .geografiskTilknytning(new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand())
+        var pgt = new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand();
+        var pp = new PersonResponseProjection()
                 .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
-
-        var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
-
-        var gt = new GeoTilknytning(getTilknytning(person), getDiskresjonskode(person));
+        var gt = new GeoTilknytning(tilknytning(pdl.hentGT(query, pgt, FOR)),
+                diskresjonskode(pdl.hentPerson(personQuery(aktørId), pp, FOR)));
         if (gt.getTilknytning() == null) {
             LOG.info("FPFORDEL PDL mangler GT for {}", aktørId);
         }
         return gt;
     }
 
-    private Optional<String> hentIdentFraGruppe(String ident, IdentGruppe type) {
-        var request = new HentIdenterQueryRequest();
-        request.setIdent(ident);
-        request.setGrupper(List.of(type));
-        request.setHistorikk(Boolean.FALSE);
-        var projection = new IdentlisteResponseProjection()
-                .identer(new IdentInformasjonResponseProjection().ident());
+    private Function<? super String, ? extends String> load(IdentGruppe g) {
+        return id -> identFor(g, id)
+                .orElseGet(() -> null);
+    }
 
-        var identliste = pdlKlient.hentIdenter(request, projection, Tema.FOR);
+    private Optional<String> identFor(IdentGruppe identGruppe, String aktørId) {
+        var query = new HentIdenterQueryRequest();
+        query.setIdent(aktørId);
+        var projeksjon = new IdentlisteResponseProjection()
+                .identer(new IdentInformasjonResponseProjection()
+                        .ident()
+                        .gruppe());
 
-        if (identliste.getIdenter().size() > 1) {
-            LOG.info("FPFORDEL PDL flere enn en ident for {}", ident);
-        }
+        return pdl.hentIdenter(query, projeksjon, FOR).getIdenter()
+                .stream()
+                .filter(gruppe(identGruppe))
+                .findFirst()
+                .map(IdentInformasjon::getIdent);
+    }
 
-        return identliste.getIdenter().stream().findFirst().map(IdentInformasjon::getIdent);
+    private static Predicate<? super IdentInformasjon> gruppe(IdentGruppe g) {
+        return s -> s.getGruppe().equals(g);
+    }
+
+    private static HentPersonQueryRequest personQuery(String aktørId) {
+        var q = new HentPersonQueryRequest();
+        q.setIdent(aktørId);
+        return q;
     }
 
     private static String mapNavn(Navn navn) {
-        if (navn.getForkortetNavn() != null)
-            return navn.getForkortetNavn();
-        return navn.getEtternavn() + " " + navn.getFornavn() + (navn.getMellomnavn() == null ? "" : " " + navn.getMellomnavn());
+        return Optional.ofNullable(navn.getForkortetNavn())
+                .orElseGet(() -> Joiner.on(' ')
+                        .skipNulls()
+                        .join(navn.getEtternavn(), navn.getFornavn(), navn.getMellomnavn()));
     }
 
-    private String getDiskresjonskode(Person person) {
+    private String tilknytning(GeografiskTilknytning res) {
+        if (res == null || res.getGtType() == null)
+            return null;
+        return switch (res.getGtType()) {
+            case BYDEL -> res.getGtBydel();
+            case KOMMUNE -> res.getGtKommune();
+            case UTLAND -> res.getGtLand();
+            default -> null;
+        };
+    }
+
+    private String diskresjonskode(Person person) {
         var kode = person.getAdressebeskyttelse().stream()
                 .map(Adressebeskyttelse::getGradering)
-                .filter(g -> !AdressebeskyttelseGradering.UGRADERT.equals(g))
-                .findFirst().orElse(AdressebeskyttelseGradering.UGRADERT);
-        if (AdressebeskyttelseGradering.STRENGT_FORTROLIG.equals(kode) || AdressebeskyttelseGradering.STRENGT_FORTROLIG_UTLAND.equals(kode))
-            return "SPSF";
-        return AdressebeskyttelseGradering.FORTROLIG.equals(kode) ? "SPFO" : null;
+                .filter(not(UGRADERT::equals))
+                .findFirst()
+                .orElse(UGRADERT);
+        return switch (kode) {
+            case STRENGT_FORTROLIG, STRENGT_FORTROLIG_UTLAND -> SPSF;
+            case FORTROLIG -> SPFO;
+            default -> null;
+        };
     }
 
-    private String getTilknytning(Person person) {
-        if (person.getGeografiskTilknytning() == null || person.getGeografiskTilknytning().getGtType() == null)
-            return null;
-        var kode = person.getGeografiskTilknytning().getGtType();
-        if (GtType.BYDEL.equals(kode))
-            return person.getGeografiskTilknytning().getGtBydel();
-        if (GtType.KOMMUNE.equals(kode))
-            return person.getGeografiskTilknytning().getGtKommune();
-        if (GtType.UTLAND.equals(kode))
-            return person.getGeografiskTilknytning().getGtLand();
-        return null;
+    private static Cache<String, String> cache(int size, long timeout, TimeUnit unit) {
+        return Caffeine.newBuilder()
+                .expireAfterWrite(timeout, unit)
+                .maximumSize(size)
+                .removalListener(new RemovalListener<String, String>() {
+                    @Override
+                    public void onRemoval(String key, String value, RemovalCause cause) {
+                        LOG.info("Fjerner {} for {} grunnet {}", value, key, cause);
+                    }
+                })
+                .build();
     }
-
 }

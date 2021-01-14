@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
-import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
+import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
 import no.nav.foreldrepenger.mottak.task.MidlJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
@@ -62,7 +62,7 @@ public class BehandleDokumentforsendelseTaskTest {
     @Mock
     private ProsessTaskRepository prosessTaskRepository;
     @Mock
-    private PersonTjeneste aktørConsumer;
+    private PersonInformasjon aktørConsumer;
     @Mock
     private FagsakTjeneste fagsakRestKlient;
     @Mock

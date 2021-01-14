@@ -45,7 +45,7 @@ import no.nav.foreldrepenger.mottak.journal.saf.model.BrukerIdType;
 import no.nav.foreldrepenger.mottak.journal.saf.model.DokumentInfo;
 import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
 import no.nav.foreldrepenger.mottak.journal.saf.model.VariantFormat;
-import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
+import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 
 @ApplicationScoped
@@ -61,7 +61,7 @@ public class ArkivTjeneste {
     private SafTjeneste safTjeneste;
     private DokArkiv dokArkivTjeneste;
     private DokumentRepository dokumentRepository;
-    private PersonTjeneste personTjeneste;
+    private PersonInformasjon personTjeneste;
 
     ArkivTjeneste() {
         // CDI
@@ -71,7 +71,7 @@ public class ArkivTjeneste {
     public ArkivTjeneste(SafTjeneste safTjeneste,
             DokArkiv dokArkivTjeneste,
             DokumentRepository dokumentRepository,
-            PersonTjeneste personTjeneste) {
+            PersonInformasjon personTjeneste) {
         this.safTjeneste = safTjeneste;
         this.dokArkivTjeneste = dokArkivTjeneste;
         this.dokumentRepository = dokumentRepository;

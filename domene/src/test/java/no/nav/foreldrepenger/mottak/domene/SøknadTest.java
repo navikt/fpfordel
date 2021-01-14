@@ -16,7 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.domene.v3.Søknad;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
+import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -44,7 +44,7 @@ public class SøknadTest {
     Soeknad søknad;
     Bruker bruker;
     @Mock
-    PersonTjeneste aktørConsumer;
+    PersonInformasjon aktørConsumer;
     MottakMeldingDataWrapper test;
     Søknad søknadXmlWrapper;
 

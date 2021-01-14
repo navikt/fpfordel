@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
-import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
+import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
 import no.nav.foreldrepenger.mottak.task.MidlJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.OpprettSakTask;
@@ -51,7 +51,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.behandleDokumentForsendelse";
 
-    private final PersonTjeneste aktørConsumer;
+    private final PersonInformasjon aktørConsumer;
     private final FagsakTjeneste fagsakRestKlient;
     private final DokumentRepository dokumentRepository;
     private static final LocalDate konfigVerdiStartdatoForeldrepenger = KonfigVerdier.ENDRING_BEREGNING_DATO;
@@ -60,7 +60,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     @Inject
     public BehandleDokumentforsendelseTask(ProsessTaskRepository prosessTaskRepository,
-            PersonTjeneste aktørConsumer,
+            PersonInformasjon aktørConsumer,
             FagsakTjeneste fagsakRestKlient,
             DokumentRepository dokumentRepository) {
         super(prosessTaskRepository);

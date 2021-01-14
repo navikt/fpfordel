@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
 import no.nav.foreldrepenger.mottak.infotrygd.rest.RelevantSakSjekker;
-import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
+import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -57,7 +57,7 @@ public class HentOgVurderGsakSakTaskTest {
     @Mock
     private InfotrygdTjeneste fp;
     @Mock
-    private PersonTjeneste mockAktørConsumer;
+    private PersonInformasjon mockAktørConsumer;
 
     static {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
