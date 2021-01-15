@@ -84,7 +84,7 @@ public class ArkivTjeneste {
         var builder = ArkivJournalpost.getBuilder().medJournalpost(journalpost).medJournalpostId(journalpostId);
 
         var infoList = journalpost.dokumenter().stream()
-                .filter(it -> it.dokumentvarianter().stream().anyMatch(at -> VariantFormat.ORIGINAL.equals(at.variantFormat())))
+                .filter(it -> it.dokumentvarianter().stream().anyMatch(at -> VariantFormat.ORIGINAL.equals(at.variantformat())))
                 .map(DokumentInfo::dokumentInfoId)
                 .collect(Collectors.toList());
 
