@@ -8,10 +8,14 @@ import javax.inject.Inject;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.config.SslConfigs;
+import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.errors.LogAndFailExceptionHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
 import no.nav.vedtak.konfig.KonfigVerdi;
@@ -19,7 +23,11 @@ import no.nav.vedtak.util.env.Environment;
 
 @Dependent
 public class JournalføringHendelseProperties {
+    private static final Logger LOG = LoggerFactory.getLogger(JournalføringHendelseProperties.class);
     private static final Environment ENV = Environment.current();
+
+    private static final String KAFKA_AVRO_SERDE_CLASS = "kafka.avro.serde.class";
+
     private final String bootstrapServers;
     private final String schemaRegistryUrl;
     private final Topic<String, JournalfoeringHendelseRecord> journalfoeringHendelseTopic;
@@ -36,8 +44,9 @@ public class JournalføringHendelseProperties {
             @KonfigVerdi("systembruker.password") String password,
             @KonfigVerdi(value = "javax.net.ssl.trustStore") String trustStorePath,
             @KonfigVerdi(value = "javax.net.ssl.trustStorePassword") String trustStorePassword,
-            @KonfigVerdi("kafka.topic.journal.hendelse") String topic) {
-        this.journalfoeringHendelseTopic = new Topic<>(topic, Serdes.String(), new SpecificAvroSerde<>());
+            @KonfigVerdi("kafka.topic.journal.hendelse") String topic,
+            @KonfigVerdi(value = KAFKA_AVRO_SERDE_CLASS, defaultVerdi = "io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde") String kafkaAvroSerdeClass) {
+        this.journalfoeringHendelseTopic = new Topic<>(topic, Serdes.String(), getSerde(kafkaAvroSerdeClass));
         this.bootstrapServers = bootstrapServers;
         this.schemaRegistryUrl = schemaRegistry;
         this.username = username;
@@ -124,7 +133,7 @@ public class JournalføringHendelseProperties {
 
         // Setup schema-registry
         if (getSchemaRegistryUrl() != null) {
-            props.put("schema.registry.url", getSchemaRegistryUrl());
+            props.put(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, getSchemaRegistryUrl());
         }
 
         // Serde
@@ -133,6 +142,18 @@ public class JournalføringHendelseProperties {
         props.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, LogAndFailExceptionHandler.class);
 
         return props;
+    }
+
+    private Serde getSerde(@KonfigVerdi(KAFKA_AVRO_SERDE_CLASS) String kafkaAvroSerdeClass) {
+        Serde serde = new SpecificAvroSerde<>();
+        if (kafkaAvroSerdeClass != null && !kafkaAvroSerdeClass.isBlank()) {
+            try {
+                serde = (Serde)Class.forName(kafkaAvroSerdeClass).getDeclaredConstructor().newInstance();
+            } catch (Exception e) {
+                LOG.warn(String.format("Utvikler-feil: Konfigurasjonsverdien '%s' peker på klasse '%s' som ikke kunne brukes. Benytter default.", KAFKA_AVRO_SERDE_CLASS, kafkaAvroSerdeClass), e);
+            }
+        }
+        return serde;
     }
 
 }
