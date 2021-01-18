@@ -63,6 +63,7 @@ public class PersonTjeneste implements PersonInformasjon {
         this.pdl = pdl;
         this.cacheAktørIdTilIdent = cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS);
         this.cacheIdentTilAktørId = cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS);
+        LOG.info("XXXXXXXXXX " + pdl.getClass());
     }
 
     @Override
