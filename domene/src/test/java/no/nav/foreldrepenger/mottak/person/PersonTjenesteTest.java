@@ -42,7 +42,7 @@ public class PersonTjenesteTest {
     @Test
     public void skal_returnere_fnr() {
         var response = new Identliste(List.of(new IdentInformasjon(FNR, IdentGruppe.FOLKEREGISTERIDENT, false)));
-        when(pdlKlient.hentIdenter(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any(), any())).thenReturn(response);
+        when(pdlKlient.hentIdenter(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
         Optional<String> fnr = personTjeneste.hentPersonIdentForAktørId(AKTØR_ID);
         assertThat(fnr).isPresent();
         assertThat(fnr).hasValueSatisfying(v -> assertThat(v).isEqualTo(FNR));
@@ -51,7 +51,7 @@ public class PersonTjenesteTest {
     @Test
     public void skal_returnere_aktørid() {
         var response = new Identliste(List.of(new IdentInformasjon(AKTØR_ID, IdentGruppe.AKTORID, false)));
-        when(pdlKlient.hentIdenter(argThat(a -> a.getInput().get("ident").equals(FNR)), any(), any())).thenReturn(response);
+        when(pdlKlient.hentIdenter(argThat(a -> a.getInput().get("ident").equals(FNR)), any())).thenReturn(response);
         Optional<String> aid = personTjeneste.hentAktørIdForPersonIdent(FNR);
         assertThat(aid).isPresent();
         assertThat(aid).hasValueSatisfying(v -> assertThat(v).isEqualTo(AKTØR_ID));
@@ -60,7 +60,7 @@ public class PersonTjenesteTest {
     @Test
     public void skal_returnere_empty_uten_match() {
         var response = new Identliste(List.of());
-        when(pdlKlient.hentIdenter(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any(), any())).thenReturn(response);
+        when(pdlKlient.hentIdenter(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
         Optional<String> fnr = personTjeneste.hentPersonIdentForAktørId(AKTØR_ID);
         assertThat(fnr).isEmpty();
     }
@@ -70,7 +70,7 @@ public class PersonTjenesteTest {
         var responsenavn = new Navn("Ola", null, "Nordmann", "Nordmann Ola", null, null, null, null);
         var response = new Person();
         response.setNavn(List.of(responsenavn));
-        when(pdlKlient.hentPerson(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any(), any())).thenReturn(response);
+        when(pdlKlient.hentPerson(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
         String navn = personTjeneste.hentNavn(AKTØR_ID);
         assertThat(navn).isEqualTo("Nordmann Ola");
     }
@@ -80,7 +80,7 @@ public class PersonTjenesteTest {
         var responsenavn = new Navn("Kari", "Mari", "Nordmann", null, null, null, null, null);
         var response = new Person();
         response.setNavn(List.of(responsenavn));
-        when(pdlKlient.hentPerson(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any(), any())).thenReturn(response);
+        when(pdlKlient.hentPerson(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
         String navn = personTjeneste.hentNavn(AKTØR_ID);
         assertThat(navn).isEqualTo("Nordmann Kari Mari");
     }
@@ -91,8 +91,8 @@ public class PersonTjenesteTest {
         var responsegt = new GeografiskTilknytning(null, null, null, null, null);
         var response = new Person();
         response.setAdressebeskyttelse(List.of(responsebeskyttelse));
-        when(pdlKlient.hentPerson(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any(), any())).thenReturn(response);
-        when(pdlKlient.hentGT(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any(), any())).thenReturn(responsegt);
+        when(pdlKlient.hentPerson(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
+        when(pdlKlient.hentGT(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(responsegt);
         GeoTilknytning gt = personTjeneste.hentGeografiskTilknytning(AKTØR_ID);
         assertThat(gt.getTilknytning()).isNull();
         assertThat(gt.getDiskresjonskode()).isNull();
@@ -104,8 +104,8 @@ public class PersonTjenesteTest {
         var responsegt = new GeografiskTilknytning(GtType.BYDEL, "Oslo", "030110", "NOR", null);
         var response = new Person();
         response.setAdressebeskyttelse(List.of(responsebeskyttelse));
-        when(pdlKlient.hentPerson(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any(), any())).thenReturn(response);
-        when(pdlKlient.hentGT(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any(), any())).thenReturn(responsegt);
+        when(pdlKlient.hentPerson(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
+        when(pdlKlient.hentGT(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(responsegt);
         GeoTilknytning gt = personTjeneste.hentGeografiskTilknytning(AKTØR_ID);
         assertThat(gt.getTilknytning()).isEqualTo("030110");
         assertThat(gt.getDiskresjonskode()).isEqualTo("SPFO");
@@ -117,8 +117,8 @@ public class PersonTjenesteTest {
         var responsegt = new GeografiskTilknytning(GtType.UTLAND, null, null, "POL", null);
         var response = new Person();
         response.setAdressebeskyttelse(List.of(responsebeskyttelse));
-        when(pdlKlient.hentPerson(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any(), any())).thenReturn(response);
-        when(pdlKlient.hentGT(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any(), any())).thenReturn(responsegt);
+        when(pdlKlient.hentPerson(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
+        when(pdlKlient.hentGT(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(responsegt);
 
         GeoTilknytning gt = personTjeneste.hentGeografiskTilknytning(AKTØR_ID);
 

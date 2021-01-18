@@ -79,7 +79,7 @@ public class PersonTjeneste implements PersonInformasjon {
     @Override
     public String hentNavn(String aktørId) {
         var person = pdl.hentPerson(personQuery(aktørId),
-                new PersonResponseProjection().navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn()), FOR);
+                new PersonResponseProjection().navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn()));
         return person.getNavn()
                 .stream()
                 .map(PersonTjeneste::mapNavn)
@@ -94,8 +94,8 @@ public class PersonTjeneste implements PersonInformasjon {
         var pgt = new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand();
         var pp = new PersonResponseProjection()
                 .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
-        var gt = new GeoTilknytning(tilknytning(pdl.hentGT(query, pgt, FOR)),
-                diskresjonskode(pdl.hentPerson(personQuery(aktørId), pp, FOR)));
+        var gt = new GeoTilknytning(tilknytning(pdl.hentGT(query, pgt)),
+                diskresjonskode(pdl.hentPerson(personQuery(aktørId), pp)));
         if (gt.getTilknytning() == null) {
             LOG.info("FPFORDEL PDL mangler GT for {}", aktørId);
         }
@@ -115,7 +115,7 @@ public class PersonTjeneste implements PersonInformasjon {
                         .ident()
                         .gruppe());
 
-        return pdl.hentIdenter(query, projeksjon, FOR).getIdenter()
+        return pdl.hentIdenter(query, projeksjon).getIdenter()
                 .stream()
                 .filter(gruppe(identGruppe))
                 .findFirst()
