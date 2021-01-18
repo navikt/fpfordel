@@ -13,6 +13,7 @@ import java.util.function.Predicate;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,11 +59,10 @@ public class PersonTjeneste implements PersonInformasjon {
     }
 
     @Inject
-    public PersonTjeneste(Pdl pdl) {
+    public PersonTjeneste(@Named("jersey") Pdl pdl) {
         this.pdl = pdl;
         this.cacheAktørIdTilIdent = cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS);
         this.cacheIdentTilAktørId = cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS);
-        LOG.info("XXXXXXXXXX " + pdl.getClass());
     }
 
     @Override
