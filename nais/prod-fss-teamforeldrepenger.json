@@ -24,7 +24,6 @@
 		"PERSON_V3_URL": "https://wasapp.adeo.no/tpsws/ws/Person/v3",
 		"OPPGAVE_RS_URI": "https://oppgave.nais.adeo.no/api/v1/oppgaver",
 		"SAF_BASE_URL" : "https://saf.nais.adeo.no",
-		"PDL_BASE_URL" : "http://pdl-api.default",
 		"SECURITYTOKENSERVICE_URL": "https://sts.adeo.no/SecurityTokenServiceProvider/",
 		"SENSU_HOST": "sensu.nais",
 		"SENSU_PORT": "3030"
