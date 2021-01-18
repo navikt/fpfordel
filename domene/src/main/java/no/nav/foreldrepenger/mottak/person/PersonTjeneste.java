@@ -5,7 +5,6 @@ import static java.util.function.Predicate.not;
 import static no.nav.pdl.AdressebeskyttelseGradering.UGRADERT;
 import static no.nav.pdl.IdentGruppe.AKTORID;
 import static no.nav.pdl.IdentGruppe.FOLKEREGISTERIDENT;
-import static no.nav.vedtak.felles.integrasjon.pdl.Tema.FOR;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -14,6 +13,7 @@ import java.util.function.Predicate;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,7 @@ import no.nav.pdl.Navn;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
-import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
+import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
 
 @ApplicationScoped
 public class PersonTjeneste implements PersonInformasjon {
@@ -53,14 +53,13 @@ public class PersonTjeneste implements PersonInformasjon {
 
     private Cache<String, String> cacheAktørIdTilIdent;
     private Cache<String, String> cacheIdentTilAktørId;
-    private PdlKlient pdl;
+    private Pdl pdl;
 
     PersonTjeneste() {
-        // CDI
     }
 
     @Inject
-    public PersonTjeneste(PdlKlient pdl) {
+    public PersonTjeneste(@Named("jersey") Pdl pdl) {
         this.pdl = pdl;
         this.cacheAktørIdTilIdent = cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS);
         this.cacheIdentTilAktørId = cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS);
@@ -78,9 +77,8 @@ public class PersonTjeneste implements PersonInformasjon {
 
     @Override
     public String hentNavn(String aktørId) {
-        var person = pdl.hentPerson(personQuery(aktørId),
-                new PersonResponseProjection().navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn()));
-        return person.getNavn()
+        return pdl.hentPerson(personQuery(aktørId),
+                new PersonResponseProjection().navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())).getNavn()
                 .stream()
                 .map(PersonTjeneste::mapNavn)
                 .findFirst()
@@ -174,5 +172,11 @@ public class PersonTjeneste implements PersonInformasjon {
                     }
                 })
                 .build();
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [cacheAktørIdTilIdent=" + cacheAktørIdTilIdent + ", cacheIdentTilAktørId=" + cacheIdentTilAktørId
+                + ", pdl=" + pdl + "]";
     }
 }
