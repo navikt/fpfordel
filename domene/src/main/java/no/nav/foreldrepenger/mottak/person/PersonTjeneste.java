@@ -39,6 +39,7 @@ import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
 @ApplicationScoped
 public class PersonTjeneste implements PersonInformasjon {
@@ -58,7 +59,8 @@ public class PersonTjeneste implements PersonInformasjon {
     }
 
     @Inject
-    public PersonTjeneste(/* @Named("jersey") */ Pdl pdl) {
+
+    public PersonTjeneste(@Jersey Pdl pdl) {
         this.pdl = pdl;
         this.cacheAktørIdTilIdent = cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS);
         this.cacheIdentTilAktørId = cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS);
