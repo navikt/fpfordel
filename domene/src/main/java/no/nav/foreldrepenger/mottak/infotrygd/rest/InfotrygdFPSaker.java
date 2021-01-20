@@ -2,12 +2,13 @@ package no.nav.foreldrepenger.mottak.infotrygd.rest;
 
 import java.net.URI;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-//@ApplicationScoped
+@ApplicationScoped
 @Deprecated
 public class InfotrygdFPSaker extends InfotrygdSaker {
 

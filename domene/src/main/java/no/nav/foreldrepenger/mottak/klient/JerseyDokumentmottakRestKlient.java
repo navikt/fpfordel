@@ -15,10 +15,12 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
 @Fagsak
+@Jersey
 public class JerseyDokumentmottakRestKlient extends AbstractJerseyOidcRestClient implements JournalpostSender {
     private static final String DEFAULT_FPSAK_BASE_URI = "http://fpsak";
     private static final String FPSAK_MOTTAK_JOURNALPOST_PATH = "/fpsak/api/fordel/journalpost";
