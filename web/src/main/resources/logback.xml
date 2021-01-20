@@ -22,7 +22,7 @@
         </syslogConfig>
     </appender>
 	<logger name="no.nav" level="${log.level.no.nav:-INFO}" />
-
+    <logger name="no.nav.vedtak.felles.integrasjon.rest.jersey.HeaderLoggingFilter" level="trace" /> 
 	<!-- skru paa for aa logge all sql statements med parametere -->
 	<logger name="jdbc.sql" level="${log.level.jdbc.sql:-ERROR}" />
 	<logger name="org.hibernate.SQL" level="${log.level.org.hibernate.SQL:-WARN}" />

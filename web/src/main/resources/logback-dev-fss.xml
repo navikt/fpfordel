@@ -3,4 +3,5 @@
    <logger name="org.apache.http" level="INFO" />
    <logger name="no.nav.vedtak.sikkerhet" level="INFO" />
    <logger name="no.nav.vedtak.felles.integrasjon.rest" level="INFO" />
+   <logger name="no.nav.vedtak.felles.integrasjon.rest.jersey.HeaderLoggingFilter" level="trace" /> 
 </included>
