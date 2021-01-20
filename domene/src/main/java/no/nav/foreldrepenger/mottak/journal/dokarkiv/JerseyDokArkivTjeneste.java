@@ -20,9 +20,11 @@ import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostReq
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostResponse;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
+@Jersey
 public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient implements DokArkiv {
 
     static final String FERDIGSTILL = "forsoekFerdigstill";

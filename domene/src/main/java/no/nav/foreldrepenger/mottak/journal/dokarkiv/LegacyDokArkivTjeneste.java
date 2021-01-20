@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.mottak.journal.dokarkiv;
 
 import java.net.URI;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.http.client.utils.URIBuilder;
@@ -15,8 +16,8 @@ import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRes
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-//@ApplicationScoped
-public class LegacyDokArkivTjeneste implements DokArkiv {
+@ApplicationScoped
+ class LegacyDokArkivTjeneste implements DokArkiv {
 
     private static final String DEFAULT_URI = "http://dokarkiv.default/rest/journalpostapi/v1/journalpost";
 

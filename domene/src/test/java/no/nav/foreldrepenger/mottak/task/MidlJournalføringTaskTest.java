@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.LegacyDokArkivTjeneste;
+import no.nav.foreldrepenger.mottak.journal.dokarkiv.DokArkiv;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.JournalpostType;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostResponse;
@@ -47,7 +47,7 @@ public class MidlJournalføringTaskTest {
     @Mock
     private DokumentRepository dokumentRepositoryMock;
     @Mock
-    private LegacyDokArkivTjeneste dokArkivTjeneste;
+    private DokArkiv dokArkivTjeneste;
     @Mock
     private PersonInformasjon personTjeneste;
 
