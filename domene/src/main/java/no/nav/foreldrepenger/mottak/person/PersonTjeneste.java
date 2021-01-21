@@ -54,15 +54,13 @@ public class PersonTjeneste implements PersonInformasjon {
     private Cache<String, String> cacheAktørIdTilIdent;
     private Cache<String, String> cacheIdentTilAktørId;
     private Pdl pdl;
-    private Pdl jerseypdl;
 
     PersonTjeneste() {
     }
 
     @Inject
-    public PersonTjeneste(@Jersey Pdl jerseypdl, Pdl pdl) {
+    public PersonTjeneste(@Jersey Pdl pdl) {
         this.pdl = pdl;
-        this.jerseypdl = jerseypdl;
         this.cacheAktørIdTilIdent = cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS);
         this.cacheIdentTilAktørId = cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS);
     }
@@ -79,37 +77,30 @@ public class PersonTjeneste implements PersonInformasjon {
 
     @Override
     public String hentNavn(String aktørId) {
-        var gammel = navn(pdl, aktørId);
-        var ny = navn(jerseypdl, aktørId);
-        log(gammel, ny);
-        return gammel;
+
+        return pdl.hentPerson(personQuery(aktørId),
+                new PersonResponseProjection().navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())).getNavn()
+                .stream()
+                .map(PersonTjeneste::mapNavn)
+                .findFirst()
+                .orElseThrow();
     }
 
     @Override
     public GeoTilknytning hentGeografiskTilknytning(String aktørId) {
-        var gammel = gt(pdl, aktørId);
-        var ny = gt(jerseypdl, aktørId);
-        log(gammel, ny);
-        return gammel;
-    }
 
-    private GeoTilknytning gt(Pdl pdl, String aktørId) {
-        try {
-            var query = new HentGeografiskTilknytningQueryRequest();
-            query.setIdent(aktørId);
-            var pgt = new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand();
-            var pp = new PersonResponseProjection()
-                    .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
-            var gt = new GeoTilknytning(tilknytning(pdl.hentGT(query, pgt)),
-                    diskresjonskode(pdl.hentPerson(personQuery(aktørId), pp)));
-            if (gt.getTilknytning() == null) {
-                LOG.info("FPFORDEL PDL mangler GT for {}", aktørId);
-            }
-            return gt;
-        } catch (Exception e) {
-            LOG.warn("OOPS", e);
-            return null;
+        var query = new HentGeografiskTilknytningQueryRequest();
+        query.setIdent(aktørId);
+        var pgt = new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand();
+        var pp = new PersonResponseProjection()
+                .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
+        var gt = new GeoTilknytning(tilknytning(pdl.hentGT(query, pgt)),
+                diskresjonskode(pdl.hentPerson(personQuery(aktørId), pp)));
+        if (gt.getTilknytning() == null) {
+            LOG.info("FPFORDEL PDL mangler GT for {}", aktørId);
         }
+        return gt;
+
     }
 
     private Function<? super String, ? extends String> load(IdentGruppe g) {
@@ -118,10 +109,7 @@ public class PersonTjeneste implements PersonInformasjon {
     }
 
     private Optional<String> identFor(IdentGruppe identGruppe, String aktørId) {
-        var gammel = idFor(pdl, identGruppe, aktørId);
-        var ny = idFor(jerseypdl, identGruppe, aktørId);
-        log(gammel, ny);
-        return gammel;
+        return idFor(pdl, identGruppe, aktørId);
     }
 
     private Optional<String> idFor(Pdl pdl, IdentGruppe identGruppe, String aktørId) {
@@ -152,26 +140,6 @@ public class PersonTjeneste implements PersonInformasjon {
         var q = new HentPersonQueryRequest();
         q.setIdent(aktørId);
         return q;
-    }
-
-    private static void log(Object gammel, Object ny) {
-        LOG.info("Gammel er {}", gammel);
-        LOG.info("Ny er {}", ny);
-
-    }
-
-    private String navn(Pdl pdl, String aktørId) {
-        try {
-            return pdl.hentPerson(personQuery(aktørId),
-                    new PersonResponseProjection().navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())).getNavn()
-                    .stream()
-                    .map(PersonTjeneste::mapNavn)
-                    .findFirst()
-                    .orElseThrow();
-        } catch (Exception e) {
-            LOG.warn("OOPS", e);
-            return null;
-        }
     }
 
     private static String mapNavn(Navn navn) {
@@ -221,6 +189,6 @@ public class PersonTjeneste implements PersonInformasjon {
     @Override
     public String toString() {
         return getClass().getSimpleName() + " [cacheAktørIdTilIdent=" + cacheAktørIdTilIdent + ", cacheIdentTilAktørId=" + cacheIdentTilAktørId
-                + ", pdl=" + pdl + "]";
+                + "]";
     }
 }
