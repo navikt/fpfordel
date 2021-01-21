@@ -22,6 +22,7 @@ import static org.apache.http.HttpStatus.SC_OK;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mockStatic;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -58,7 +59,7 @@ public class TestDokarkiv {
     private static final String CALLID = generateCallId();
 
     private static final String TOKEN = "TOKEN";
-    private static final DokArkiv CLIENT = new JerseyDokArkivTjeneste("http://localhost:8080");
+    private static final DokArkiv CLIENT = new JerseyDokArkivTjeneste(URI.create("http://localhost:8080"));
     private static WireMockServer wireMockServer;
 
     @Mock

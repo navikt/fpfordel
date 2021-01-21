@@ -9,7 +9,6 @@ import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.client.ClientRequestFilter;
 
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
@@ -33,15 +32,6 @@ public class JerseyInfotrygdFPSaker extends AbstractJerseyOidcRestClient impleme
 
     @Inject
     public JerseyInfotrygdFPSaker(@KonfigVerdi(value = "fpfordel.it.fp.url", defaultVerdi = DEFAULT_URI) URI endpoint) {
-        this(endpoint, new ClientRequestFilter[0]);
-    }
-
-    JerseyInfotrygdFPSaker(String base, ClientRequestFilter... filters) {
-        this(URI.create(base), filters);
-    }
-
-    public JerseyInfotrygdFPSaker(URI endpoint, ClientRequestFilter... filters) {
-        super(filters);
         this.endpoint = endpoint;
         this.mapper = new InfotrygdRestResponseMapper();
     }

@@ -8,7 +8,6 @@ import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
@@ -46,11 +45,6 @@ public class JerseyFagsakRestKlient extends AbstractJerseyOidcRestClient impleme
 
     @Inject
     public JerseyFagsakRestKlient(@KonfigVerdi(value = "fpsak.base.url", defaultVerdi = DEFAULT_FPSAK_BASE_URI) URI endpoint) {
-        this(endpoint, new ClientRequestFilter[0]);
-    }
-
-    JerseyFagsakRestKlient(URI endpoint, ClientRequestFilter... filters) {
-        super(filters);
         this.endpoint = endpoint;
     }
 

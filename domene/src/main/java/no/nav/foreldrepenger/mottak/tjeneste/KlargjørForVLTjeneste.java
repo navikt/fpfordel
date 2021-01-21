@@ -14,10 +14,9 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
-import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.klient.JournalpostSender;
-import no.nav.foreldrepenger.mottak.klient.Tilbake;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
 @ApplicationScoped
 public class KlargjørForVLTjeneste {
@@ -29,8 +28,10 @@ public class KlargjørForVLTjeneste {
     private JournalpostSender tilbakekrevingRestKlient;
 
     @Inject
-    public KlargjørForVLTjeneste(@Fagsak JournalpostSender restKlient, FagsakTjeneste fagsakRestKlient,
-            @Tilbake JournalpostSender tilbakekrevingRestKlient) {
+    public KlargjørForVLTjeneste(
+            @Jersey("dokument") JournalpostSender restKlient,
+            FagsakTjeneste fagsakRestKlient,
+            @Jersey("tilbake") JournalpostSender tilbakekrevingRestKlient) {
         this.restKlient = restKlient;
         this.fagsakRestKlient = fagsakRestKlient;
         this.tilbakekrevingRestKlient = tilbakekrevingRestKlient;

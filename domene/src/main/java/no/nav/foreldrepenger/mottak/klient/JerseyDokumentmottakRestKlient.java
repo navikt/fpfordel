@@ -7,7 +7,6 @@ import java.net.URI;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
@@ -19,8 +18,7 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
-@Fagsak
-@Jersey
+@Jersey("dokument")
 public class JerseyDokumentmottakRestKlient extends AbstractJerseyOidcRestClient implements JournalpostSender {
     private static final String DEFAULT_FPSAK_BASE_URI = "http://fpsak";
     private static final String FPSAK_MOTTAK_JOURNALPOST_PATH = "/fpsak/api/fordel/journalpost";
@@ -33,15 +31,6 @@ public class JerseyDokumentmottakRestKlient extends AbstractJerseyOidcRestClient
 
     @Inject
     public JerseyDokumentmottakRestKlient(@KonfigVerdi(value = "fpsak.base.url", defaultVerdi = DEFAULT_FPSAK_BASE_URI) URI endpoint) {
-        this(endpoint, new ClientRequestFilter[0]);
-    }
-
-    JerseyDokumentmottakRestKlient(String endpoint, ClientRequestFilter... filters) {
-        this(URI.create(endpoint), filters);
-    }
-
-    public JerseyDokumentmottakRestKlient(URI endpoint, ClientRequestFilter... filters) {
-        super(filters);
         this.endpoint = endpoint;
     }
 

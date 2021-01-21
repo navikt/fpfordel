@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.client.ClientRequestFilter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,18 +47,10 @@ public class JerseySafTjeneste extends AbstractJerseyOidcRestClient implements S
 
     @Inject
     public JerseySafTjeneste(@KonfigVerdi(value = "saf.base.url", defaultVerdi = DEFAULT_URI) URI base) {
-        this(base, new ClientRequestFilter[0]);
-    }
-
-    public JerseySafTjeneste(String base, ClientRequestFilter... filters) {
-        this(URI.create(base), filters);
-    }
-
-    public JerseySafTjeneste(URI base, ClientRequestFilter... filters) {
-        super(filters);
         this.base = base;
         this.query = ReadFileFromClassPathHelper.hent("saf/journalpostQuery.graphql");
         this.tilknyttedeQuery = ReadFileFromClassPathHelper.hent("saf/tilknyttedeJournalposterQuery.graphql");
+
     }
 
     @Override

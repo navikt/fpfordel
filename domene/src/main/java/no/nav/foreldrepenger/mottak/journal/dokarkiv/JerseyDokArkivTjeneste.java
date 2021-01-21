@@ -8,7 +8,6 @@ import java.net.URI;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
@@ -40,15 +39,6 @@ public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient impleme
 
     @Inject
     public JerseyDokArkivTjeneste(@KonfigVerdi(value = "dokarkiv.base.url", defaultVerdi = DEFAULT_URI) URI base) {
-        this(base, new ClientRequestFilter[0]);
-    }
-
-    JerseyDokArkivTjeneste(String base, ClientRequestFilter... filters) {
-        this(URI.create(base), filters);
-    }
-
-    private JerseyDokArkivTjeneste(URI base, ClientRequestFilter... filters) {
-        super(filters);
         this.base = base;
     }
 

@@ -60,7 +60,6 @@ public class PersonTjeneste implements PersonInformasjon {
     }
 
     @Inject
-
     public PersonTjeneste(@Jersey Pdl jerseypdl, Pdl pdl) {
         this.pdl = pdl;
         this.jerseypdl = jerseypdl;

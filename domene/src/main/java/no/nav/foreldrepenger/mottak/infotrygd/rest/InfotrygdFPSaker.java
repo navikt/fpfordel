@@ -15,7 +15,6 @@ public class InfotrygdFPSaker extends InfotrygdSaker {
     private static final String DEFAULT_URI = "http://infotrygd-foreldrepenger.default/saker";
 
     InfotrygdFPSaker() {
-        super();
     }
 
     @Inject
