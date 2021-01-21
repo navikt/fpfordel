@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.MapBehandlingstemaDokumentTypeId;
 public final class ArkivUtil {
 
     private ArkivUtil() {
-        // NOSONAR
     }
 
     public static DokumentKategori utledKategoriFraDokumentType(DokumentTypeId doktype) {

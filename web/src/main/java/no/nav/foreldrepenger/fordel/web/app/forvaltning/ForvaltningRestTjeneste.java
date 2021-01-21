@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.mottak.task.MidlJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.VedlikeholdSchedulerTask;
 import no.nav.foreldrepenger.sikkerhet.abac.BeskyttetRessursAttributt;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskIdDto;
@@ -49,7 +50,7 @@ public class ForvaltningRestTjeneste {
 
     @Inject
     public ForvaltningRestTjeneste(ProsessTaskRepository prosessTaskRepository,
-            FagsakTjeneste fagsakRestKlient) {
+            @Jersey FagsakTjeneste fagsakRestKlient) {
         this.prosessTaskRepository = prosessTaskRepository;
         this.fagsakRestKlient = fagsakRestKlient;
     }

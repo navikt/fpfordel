@@ -41,6 +41,7 @@ import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
@@ -61,7 +62,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     @Inject
     public BehandleDokumentforsendelseTask(ProsessTaskRepository prosessTaskRepository,
             PersonInformasjon aktørConsumer,
-            FagsakTjeneste fagsakRestKlient,
+            @Jersey FagsakTjeneste fagsakRestKlient,
             DokumentRepository dokumentRepository) {
         super(prosessTaskRepository);
         this.aktørConsumer = aktørConsumer;

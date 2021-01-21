@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.klient.VurderFagsystemResultat;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -35,7 +36,7 @@ public class OpprettSakTask extends WrappedProsessTaskHandler {
 
     @Inject
     public OpprettSakTask(ProsessTaskRepository prosessTaskRepository,
-            FagsakTjeneste fagsakRestKlient) {
+            @Jersey FagsakTjeneste fagsakRestKlient) {
         super(prosessTaskRepository);
         this.fagsakRestKlient = fagsakRestKlient;
     }

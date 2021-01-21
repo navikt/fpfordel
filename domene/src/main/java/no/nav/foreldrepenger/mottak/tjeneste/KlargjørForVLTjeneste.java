@@ -57,7 +57,7 @@ public class KlargjørForVLTjeneste {
         }
         fagsakRestKlient.knyttSakOgJournalpost(new JournalpostKnyttningDto(saksnummer, arkivId));
 
-        JournalpostMottakDto journalpostMottakDto = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString,
+        var journalpostMottakDto = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString,
                 dokumentTypeIdOffisiellKode, forsendelseMottatt, xml);
         journalpostMottakDto.setForsendelseId(forsendelseId);
         journalpostMottakDto.setDokumentKategoriOffisiellKode(dokumentKategoriOffisiellKode);
@@ -66,7 +66,7 @@ public class KlargjørForVLTjeneste {
         restKlient.send(journalpostMottakDto);
 
         try {
-            JournalpostMottakDto tilbakeMottakDto = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString,
+            var tilbakeMottakDto = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString,
                     dokumentTypeIdOffisiellKode, forsendelseMottatt, null);
             tilbakeMottakDto.setForsendelseId(forsendelseId);
             tilbakeMottakDto.setDokumentKategoriOffisiellKode(dokumentKategoriOffisiellKode);
