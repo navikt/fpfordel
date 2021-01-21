@@ -36,7 +36,7 @@ public class PersonTjenesteTest {
 
     @BeforeEach
     public void setup() {
-        personTjeneste = new PersonTjeneste(pdl, pdl);
+        personTjeneste = new PersonTjeneste(pdl);
     }
 
     @Test
