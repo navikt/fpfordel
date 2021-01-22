@@ -24,14 +24,14 @@ import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRe
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class EnhetsTjenesteTest {
+public class EnhetsInfoTest {
     private static final String AKTØR_ID = "9999999999999";
     private static final String FNR = "99999999999";
     private static final ArbeidsfordelingResponse ENHET = new ArbeidsfordelingResponse("4801", "Enhet", "Aktiv", "FPY");
     private static final ArbeidsfordelingResponse FORDELING_ENHET = new ArbeidsfordelingResponse("4825", "Oslo", "Aktiv", "FPY");
     public static final String GEOGRAFISK_TILKNYTNING = "test";
     public static final String DISKRESJONSKODE = "diskresjonskode";
-    private EnhetsTjeneste enhetsTjeneste;
+    private EnhetsInfo enhetsTjeneste;
     @Mock
     private ArbeidsfordelingRestKlient arbeidsfordelingTjeneste;
     @Mock
@@ -41,7 +41,7 @@ public class EnhetsTjenesteTest {
     public void setup() {
         when(personTjeneste.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(FNR));
         when(arbeidsfordelingTjeneste.hentAlleAktiveEnheter(any())).thenReturn(List.of(FORDELING_ENHET));
-        enhetsTjeneste = new LegacyEnhetsTjeneste(personTjeneste, arbeidsfordelingTjeneste);
+        enhetsTjeneste = new EnhetsTjeneste(personTjeneste, arbeidsfordelingTjeneste);
     }
 
     @Test

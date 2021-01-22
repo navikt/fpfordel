@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Temagrupper;
-import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsInfo;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.task.SlettForsendelseTask;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
@@ -52,13 +52,13 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
     static final String OPPGAVETYPER_JFR = "JFR"; // Fra offisielt kodeverk
 
-    private final EnhetsTjeneste enhetsidTjeneste;
+    private final EnhetsInfo enhetsidTjeneste;
     private final ProsessTaskRepository prosessTaskRepository;
     private final OppgaveRestKlient restKlient;
 
     @Inject
     public OpprettGSakOppgaveTask(ProsessTaskRepository prosessTaskRepository,
-            EnhetsTjeneste enhetsidTjeneste,
+            EnhetsInfo enhetsidTjeneste,
             OppgaveRestKlient restKlient) {
         this.enhetsidTjeneste = enhetsidTjeneste;
         this.prosessTaskRepository = prosessTaskRepository;

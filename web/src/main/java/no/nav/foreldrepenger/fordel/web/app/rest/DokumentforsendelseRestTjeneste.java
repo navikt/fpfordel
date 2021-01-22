@@ -100,12 +100,12 @@ public class DokumentforsendelseRestTjeneste {
 
     private URI fpStatusUrl;
 
-    public DokumentforsendelseRestTjeneste() { // For Rest-CDI
+    public DokumentforsendelseRestTjeneste() {
     }
 
     @Inject
     public DokumentforsendelseRestTjeneste(DokumentforsendelseTjeneste service,
-                                           @KonfigVerdi(value = "fpinfo.base.url", defaultVerdi = DEFAULT_FPINFO_BASE_URI) URI endpoint) {
+            @KonfigVerdi(value = "fpinfo.base.url", defaultVerdi = DEFAULT_FPINFO_BASE_URI) URI endpoint) {
         this.service = service;
         this.fpStatusUrl = URI.create(endpoint.toString() + DOKUMENTFORSENDELSE_STATUS_PATH);
     }
