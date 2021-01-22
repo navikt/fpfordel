@@ -6,6 +6,9 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -22,6 +25,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 @ApplicationScoped
 @Deprecated
 public class LegacyFagsakRestKlient implements FagsakTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(LegacyFagsakRestKlient.class);
     private static final String DEFAULT_FPSAK_BASE_URI = "http://fpsak";
     private static final String JOURNALPOSTTILKNYTNING_PATH = "/fpsak/api/fordel/fagsak/knyttJournalpost";
     private static final String FAGSAKINFORMASJON_PATH = "/fpsak/api/fordel/fagsak/informasjon";
@@ -49,21 +53,25 @@ public class LegacyFagsakRestKlient implements FagsakTjeneste {
 
     @Override
     public Optional<FagsakInfomasjonDto> finnFagsakInfomasjon(SaksnummerDto saksnummerDto) {
+        LOG.info("Finner fagsak info");
         return oidcRestClient.postReturnsOptional(endpointSaksinfo, saksnummerDto, FagsakInfomasjonDto.class);
     }
 
     @Override
     public SaksnummerDto opprettSak(OpprettSakDto opprettSakDto) {
+        LOG.info("Oppretter sak");
         return oidcRestClient.post(endpointOpprett, opprettSakDto, SaksnummerDto.class);
     }
 
     @Override
     public void knyttSakOgJournalpost(JournalpostKnyttningDto journalpostKnyttningDto) {
+        LOG.info("Knytter sak og jounalpost");
         oidcRestClient.post(endpointJournalpostknyttning, journalpostKnyttningDto);
     }
 
     @Override
     public VurderFagsystemResultat vurderFagsystem(MottakMeldingDataWrapper w) {
+        LOG.info("Vurderer resultat");
         String aktørId = w.getAktørId().get();
         boolean strukturertSøknad = w.erStrukturertDokument().orElse(Boolean.FALSE);
         DokumentTypeId dokumentTypeId = w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT);
