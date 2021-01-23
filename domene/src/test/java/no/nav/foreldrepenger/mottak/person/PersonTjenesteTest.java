@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.person;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -54,8 +55,7 @@ public class PersonTjenesteTest {
     public void skal_returnere_fnr() {
         when(pdl.hentPersonIdentForAktørId(eq(AKTØR_ID))).thenReturn(Optional.of(FNR));
         var fnr = personTjeneste.hentPersonIdentForAktørId(AKTØR_ID);
-        assertThat(fnr).isPresent();
-        assertThat(fnr.get().equals(FNR));
+        assertEquals(Optional.of(FNR), fnr);
         personTjeneste.hentPersonIdentForAktørId(AKTØR_ID);
         cache.invalidate(AKTØR_ID);
         personTjeneste.hentPersonIdentForAktørId(AKTØR_ID);
@@ -66,8 +66,7 @@ public class PersonTjenesteTest {
     public void skal_returnere_aktørid() {
         when(pdl.hentAktørIdForPersonIdent(eq(FNR))).thenReturn(Optional.of(AKTØR_ID));
         var aid = personTjeneste.hentAktørIdForPersonIdent(FNR);
-        assertThat(aid).isPresent();
-        assertThat(aid.get().equals(AKTØR_ID));
+        assertEquals(Optional.of(AKTØR_ID), aid);
         personTjeneste.hentAktørIdForPersonIdent(FNR);
         cache.invalidate(FNR);
         personTjeneste.hentAktørIdForPersonIdent(FNR);
