@@ -44,8 +44,8 @@ public class PersonTjeneste implements PersonInformasjon {
     private static final int DEFAULT_CACHE_SIZE = 1000;
     private static final long DEFAULT_CACHE_TIMEOUT_HOURS = 2;
 
-    private Cache<String, String> cacheAktørIdTilIdent;
-    private Cache<String, String> cacheIdentTilAktørId;
+    private static final Cache<String, String> IDCACHE = cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS);
+    private static final Cache<String, String> AKTØRCACHE = cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS);
     private Pdl pdl;
 
     PersonTjeneste() {
@@ -54,15 +54,12 @@ public class PersonTjeneste implements PersonInformasjon {
     @Inject
     public PersonTjeneste(@Jersey Pdl pdl) {
         this.pdl = pdl;
-        this.cacheAktørIdTilIdent = cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS);
-        this.cacheIdentTilAktørId = cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS);
     }
 
     @Override
     public Optional<String> hentAktørIdForPersonIdent(String personIdent) {
         try {
-            return Optional.ofNullable(cacheIdentTilAktørId.get(personIdent, fraFnr()));
-
+            return Optional.ofNullable(AKTØRCACHE.get(personIdent, fraFnr()));
         } catch (PdlException e) {
             LOG.warn("Kunne ikke hente fnr fra aktørid {}", personIdent, e);
             return Optional.empty();
@@ -72,7 +69,7 @@ public class PersonTjeneste implements PersonInformasjon {
     @Override
     public Optional<String> hentPersonIdentForAktørId(String aktørId) {
         try {
-            return Optional.ofNullable(cacheAktørIdTilIdent.get(aktørId, fraAktørid()));
+            return Optional.ofNullable(IDCACHE.get(aktørId, fraAktørid()));
         } catch (PdlException e) {
             LOG.warn("Kunne ikke hente personid fra aktørid {}", aktørId, e);
             return Optional.empty();
@@ -170,7 +167,7 @@ public class PersonTjeneste implements PersonInformasjon {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [cacheAktørIdTilIdent=" + cacheAktørIdTilIdent + ", cacheIdentTilAktørId=" + cacheIdentTilAktørId
+        return getClass().getSimpleName() + " [cacheAktørIdTilIdent=" + IDCACHE + ", cacheIdentTilAktørId=" + AKTØRCACHE
                 + "]";
     }
 }

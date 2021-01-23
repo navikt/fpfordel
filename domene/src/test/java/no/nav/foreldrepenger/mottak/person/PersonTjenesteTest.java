@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.mottak.person;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -18,9 +20,6 @@ import no.nav.pdl.Adressebeskyttelse;
 import no.nav.pdl.AdressebeskyttelseGradering;
 import no.nav.pdl.GeografiskTilknytning;
 import no.nav.pdl.GtType;
-import no.nav.pdl.IdentGruppe;
-import no.nav.pdl.IdentInformasjon;
-import no.nav.pdl.Identliste;
 import no.nav.pdl.Navn;
 import no.nav.pdl.Person;
 import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
@@ -41,28 +40,29 @@ public class PersonTjenesteTest {
 
     @Test
     public void skal_returnere_fnr() {
-        var response = new Identliste(List.of(new IdentInformasjon(FNR, IdentGruppe.FOLKEREGISTERIDENT, false)));
-        when(pdl.hentIdenter(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
-        Optional<String> fnr = personTjeneste.hentPersonIdentForAktørId(AKTØR_ID);
+        when(pdl.hentPersonIdentForAktørId(eq(AKTØR_ID))).thenReturn(Optional.of(FNR));
+        var fnr = personTjeneste.hentPersonIdentForAktørId(AKTØR_ID);
         assertThat(fnr).isPresent();
-        assertThat(fnr).hasValueSatisfying(v -> assertThat(v).isEqualTo(FNR));
+        assertThat(fnr.get().equals(FNR));
+        personTjeneste.hentPersonIdentForAktørId(AKTØR_ID);
+        verifyNoMoreInteractions(pdl);
     }
 
     @Test
     public void skal_returnere_aktørid() {
-        var response = new Identliste(List.of(new IdentInformasjon(AKTØR_ID, IdentGruppe.AKTORID, false)));
-        when(pdl.hentIdenter(argThat(a -> a.getInput().get("ident").equals(FNR)), any())).thenReturn(response);
-        Optional<String> aid = personTjeneste.hentAktørIdForPersonIdent(FNR);
+        when(pdl.hentAktørIdForPersonIdent(eq(FNR))).thenReturn(Optional.of(AKTØR_ID));
+        var aid = personTjeneste.hentAktørIdForPersonIdent(FNR);
         assertThat(aid).isPresent();
-        assertThat(aid).hasValueSatisfying(v -> assertThat(v).isEqualTo(AKTØR_ID));
+        assertThat(aid.get().equals(AKTØR_ID));
+        personTjeneste.hentAktørIdForPersonIdent(FNR);
+        verifyNoMoreInteractions(pdl);
     }
 
     @Test
     public void skal_returnere_empty_uten_match() {
-        var response = new Identliste(List.of());
-        when(pdl.hentIdenter(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
-        Optional<String> fnr = personTjeneste.hentPersonIdentForAktørId(AKTØR_ID);
-        assertThat(fnr).isEmpty();
+        personTjeneste = new PersonTjeneste(pdl); // clear cache
+        when(pdl.hentPersonIdentForAktørId(eq(AKTØR_ID))).thenReturn(Optional.empty());
+        assertThat(personTjeneste.hentPersonIdentForAktørId(AKTØR_ID)).isEmpty();
     }
 
     @Test
