@@ -22,6 +22,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
+/*
+ * Dokumentasjon https://confluence.adeo.no/pages/viewpage.action?pageId=315215917
+ */
+
 @Transactional
 @ActivateRequestContext
 @ApplicationScoped
@@ -29,6 +33,7 @@ public class JournalføringHendelseHåndterer {
 
     private static final Logger LOG = LoggerFactory.getLogger(JournalføringHendelseHåndterer.class);
     private static final String EESSI = MottakKanal.EESSI.getKode();
+    private static final String HENDELSE_ENDRET = "TemaEndret";
 
     private ProsessTaskRepository taskRepository;
     private DokumentRepository dokumentRepository;
@@ -51,8 +56,13 @@ public class JournalføringHendelseHåndterer {
         var hendelseType = payload.getHendelsesType().toString();
         var mottaksKanal = payload.getMottaksKanal().toString();
         var eksternReferanseId = (payload.getKanalReferanseId() == null) || payload.getKanalReferanseId().toString().isEmpty()
-                ? null
-                : payload.getKanalReferanseId().toString();
+                ? null : payload.getKanalReferanseId().toString();
+
+        if (HENDELSE_ENDRET.equalsIgnoreCase(payload.getHendelsesType().toString())) {
+            var gammeltTema = payload.getTemaGammelt() != null ? payload.getTemaGammelt().toString() : null;
+            LOG.info("FPFORDEL Tema Endret fra {} journalpost {} kanal {} referanse {}", gammeltTema, arkivId, mottaksKanal, eksternReferanseId);
+            return;
+        }
 
         // EESSI har egen mottaksprosess m/BEH_SED-oppgaver.
         if (EESSI.equals(mottaksKanal)) {
