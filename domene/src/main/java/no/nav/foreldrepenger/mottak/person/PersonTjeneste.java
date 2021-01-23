@@ -3,13 +3,10 @@ package no.nav.foreldrepenger.mottak.person;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.function.Predicate.not;
 import static no.nav.pdl.AdressebeskyttelseGradering.UGRADERT;
-import static no.nav.pdl.IdentGruppe.AKTORID;
-import static no.nav.pdl.IdentGruppe.FOLKEREGISTERIDENT;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -28,17 +25,13 @@ import no.nav.pdl.AdressebeskyttelseResponseProjection;
 import no.nav.pdl.GeografiskTilknytning;
 import no.nav.pdl.GeografiskTilknytningResponseProjection;
 import no.nav.pdl.HentGeografiskTilknytningQueryRequest;
-import no.nav.pdl.HentIdenterQueryRequest;
 import no.nav.pdl.HentPersonQueryRequest;
-import no.nav.pdl.IdentGruppe;
-import no.nav.pdl.IdentInformasjon;
-import no.nav.pdl.IdentInformasjonResponseProjection;
-import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.pdl.Navn;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
+import no.nav.vedtak.felles.integrasjon.pdl.PdlException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
 @ApplicationScoped
@@ -67,12 +60,23 @@ public class PersonTjeneste implements PersonInformasjon {
 
     @Override
     public Optional<String> hentAktørIdForPersonIdent(String personIdent) {
-        return Optional.ofNullable(cacheIdentTilAktørId.get(personIdent, load(AKTORID)));
+        try {
+            return Optional.ofNullable(cacheIdentTilAktørId.get(personIdent, fraFnr()));
+
+        } catch (PdlException e) {
+            LOG.warn("Kunne ikke hente fnr fra aktørid {}", personIdent, e);
+            return Optional.empty();
+        }
     }
 
     @Override
     public Optional<String> hentPersonIdentForAktørId(String aktørId) {
-        return Optional.ofNullable(cacheAktørIdTilIdent.get(aktørId, load(FOLKEREGISTERIDENT)));
+        try {
+            return Optional.ofNullable(cacheAktørIdTilIdent.get(aktørId, fraAktørid()));
+        } catch (PdlException e) {
+            LOG.warn("Kunne ikke hente personid fra aktørid {}", aktørId, e);
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -103,37 +107,15 @@ public class PersonTjeneste implements PersonInformasjon {
 
     }
 
-    private Function<? super String, ? extends String> load(IdentGruppe g) {
-        return id -> identFor(g, id)
+    private Function<? super String, ? extends String> fraFnr() {
+        return id -> pdl.hentAktørIdForPersonIdent(id)
                 .orElseGet(() -> null);
     }
 
-    private Optional<String> identFor(IdentGruppe identGruppe, String aktørId) {
-        return idFor(pdl, identGruppe, aktørId);
-    }
+    private Function<? super String, ? extends String> fraAktørid() {
+        return id -> pdl.hentPersonIdentForAktørId(id)
+                .orElseGet(() -> null);
 
-    private Optional<String> idFor(Pdl pdl, IdentGruppe identGruppe, String aktørId) {
-        try {
-            var query = new HentIdenterQueryRequest();
-            query.setIdent(aktørId);
-            var projeksjon = new IdentlisteResponseProjection()
-                    .identer(new IdentInformasjonResponseProjection()
-                            .ident()
-                            .gruppe());
-
-            return pdl.hentIdenter(query, projeksjon).getIdenter()
-                    .stream()
-                    .filter(gruppe(identGruppe))
-                    .findFirst()
-                    .map(IdentInformasjon::getIdent);
-        } catch (Exception e) {
-            LOG.warn("OOPS", e);
-            return null;
-        }
-    }
-
-    private static Predicate<? super IdentInformasjon> gruppe(IdentGruppe g) {
-        return s -> s.getGruppe().equals(g);
     }
 
     private static HentPersonQueryRequest personQuery(String aktørId) {
