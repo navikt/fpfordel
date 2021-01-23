@@ -44,8 +44,8 @@ public class PersonTjeneste implements PersonInformasjon {
     private static final int DEFAULT_CACHE_SIZE = 1000;
     private static final long DEFAULT_CACHE_TIMEOUT_HOURS = 2;
 
-    private static final Cache<String, String> IDCACHE = cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS);
-    private static final Cache<String, String> AKTØRCACHE = cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS);
+    private Cache<String, String> idCache;
+    private Cache<String, String> aktørCache;
     private Pdl pdl;
 
     PersonTjeneste() {
@@ -53,13 +53,23 @@ public class PersonTjeneste implements PersonInformasjon {
 
     @Inject
     public PersonTjeneste(@Jersey Pdl pdl) {
+        this(pdl, cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS), cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS));
+    }
+
+    PersonTjeneste(Pdl pdl, Cache<String, String> cache) {
+        this(pdl, cache, cache);
+    }
+
+    PersonTjeneste(Pdl pdl, Cache<String, String> idCache, Cache<String, String> aktørCache) {
         this.pdl = pdl;
+        this.idCache = idCache;
+        this.aktørCache = aktørCache;
     }
 
     @Override
     public Optional<String> hentAktørIdForPersonIdent(String personIdent) {
         try {
-            return Optional.ofNullable(AKTØRCACHE.get(personIdent, fraFnr()));
+            return Optional.ofNullable(aktørCache.get(personIdent, fraFnr()));
         } catch (PdlException e) {
             LOG.warn("Kunne ikke hente fnr fra aktørid {}", personIdent, e);
             return Optional.empty();
@@ -69,7 +79,7 @@ public class PersonTjeneste implements PersonInformasjon {
     @Override
     public Optional<String> hentPersonIdentForAktørId(String aktørId) {
         try {
-            return Optional.ofNullable(IDCACHE.get(aktørId, fraAktørid()));
+            return Optional.ofNullable(idCache.get(aktørId, fraAktørid()));
         } catch (PdlException e) {
             LOG.warn("Kunne ikke hente personid fra aktørid {}", aktørId, e);
             return Optional.empty();
@@ -167,7 +177,7 @@ public class PersonTjeneste implements PersonInformasjon {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [cacheAktørIdTilIdent=" + IDCACHE + ", cacheIdentTilAktørId=" + AKTØRCACHE
+        return getClass().getSimpleName() + " [cacheAktørIdTilIdent=" + idCache + ", cacheIdentTilAktørId=" + aktørCache
                 + "]";
     }
 }

@@ -4,17 +4,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.RemovalCause;
+import com.github.benmanes.caffeine.cache.RemovalListener;
 
 import no.nav.pdl.Adressebeskyttelse;
 import no.nav.pdl.AdressebeskyttelseGradering;
@@ -29,13 +38,16 @@ public class PersonTjenesteTest {
     private static final String AKTØR_ID = "9999999999999";
     private static final String FNR = "99999999999";
 
+    private static final Logger LOG = LoggerFactory.getLogger(PersonTjenesteTest.class);
     private PersonInformasjon personTjeneste;
     @Mock
     private Pdl pdl;
+    private Cache<String, String> cache;
 
     @BeforeEach
     public void setup() {
-        personTjeneste = new PersonTjeneste(pdl);
+        cache = cache(100, 10, TimeUnit.SECONDS);
+        personTjeneste = new PersonTjeneste(pdl, cache);
     }
 
     @Test
@@ -45,7 +57,9 @@ public class PersonTjenesteTest {
         assertThat(fnr).isPresent();
         assertThat(fnr.get().equals(FNR));
         personTjeneste.hentPersonIdentForAktørId(AKTØR_ID);
-        verifyNoMoreInteractions(pdl);
+        cache.invalidate(AKTØR_ID);
+        personTjeneste.hentPersonIdentForAktørId(AKTØR_ID);
+        verify(pdl, times(2)).hentPersonIdentForAktørId(eq(AKTØR_ID));
     }
 
     @Test
@@ -55,12 +69,14 @@ public class PersonTjenesteTest {
         assertThat(aid).isPresent();
         assertThat(aid.get().equals(AKTØR_ID));
         personTjeneste.hentAktørIdForPersonIdent(FNR);
-        verifyNoMoreInteractions(pdl);
+        cache.invalidate(FNR);
+        personTjeneste.hentAktørIdForPersonIdent(FNR);
+        verify(pdl, times(2)).hentAktørIdForPersonIdent(eq(FNR));
     }
 
     @Test
     public void skal_returnere_empty_uten_match() {
-        personTjeneste = new PersonTjeneste(pdl); // clear cache
+        cache.invalidateAll();
         when(pdl.hentPersonIdentForAktørId(eq(AKTØR_ID))).thenReturn(Optional.empty());
         assertThat(personTjeneste.hentPersonIdentForAktørId(AKTØR_ID)).isEmpty();
     }
@@ -124,5 +140,18 @@ public class PersonTjenesteTest {
 
         assertThat(gt.getTilknytning()).isEqualTo("POL");
         assertThat(gt.getDiskresjonskode()).isEqualTo("SPSF");
+    }
+
+    private static Cache<String, String> cache(int size, long timeout, TimeUnit unit) {
+        return Caffeine.newBuilder()
+                .expireAfterWrite(timeout, unit)
+                .maximumSize(size)
+                .removalListener(new RemovalListener<String, String>() {
+                    @Override
+                    public void onRemoval(String key, String value, RemovalCause cause) {
+                        LOG.info("Fjerner {} for {} grunnet {}", value, key, cause);
+                    }
+                })
+                .build();
     }
 }
