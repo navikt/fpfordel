@@ -59,7 +59,7 @@ public class ArkivTjeneste {
             "Klage", DokumentTypeId.KLAGE_DOKUMENT,
             "Anke", DokumentTypeId.KLAGE_DOKUMENT);
 
-    private SafTjeneste safTjeneste;
+    private SafTjeneste saf;
     private DokArkiv dokArkivTjeneste;
     private DokumentRepository dokumentRepository;
     private PersonInformasjon personTjeneste;
@@ -69,18 +69,18 @@ public class ArkivTjeneste {
     }
 
     @Inject
-    public ArkivTjeneste(SafTjeneste safTjeneste,
+    public ArkivTjeneste(@Jersey SafTjeneste saf,
             @Jersey DokArkiv dokArkivTjeneste,
             DokumentRepository dokumentRepository,
             PersonInformasjon personTjeneste) {
-        this.safTjeneste = safTjeneste;
+        this.saf = saf;
         this.dokArkivTjeneste = dokArkivTjeneste;
         this.dokumentRepository = dokumentRepository;
         this.personTjeneste = personTjeneste;
     }
 
     public ArkivJournalpost hentArkivJournalpost(String journalpostId) {
-        var journalpost = safTjeneste.hentJournalpostInfo(journalpostId);
+        var journalpost = saf.hentJournalpostInfo(journalpostId);
 
         var builder = ArkivJournalpost.getBuilder().medJournalpost(journalpost).medJournalpostId(journalpostId);
 
@@ -93,7 +93,7 @@ public class ArkivTjeneste {
             throw new IllegalStateException("Journalposten har flere dokumenter med VariantFormat = ORIGINAL");
         } else if (!infoList.isEmpty()) {
             var dokumentInfo = infoList.get(0);
-            var payload = safTjeneste.hentDokument(journalpostId, dokumentInfo, VariantFormat.ORIGINAL);
+            var payload = saf.hentDokument(journalpostId, dokumentInfo, VariantFormat.ORIGINAL);
             builder.medStrukturertPayload(payload).medDokumentInfoId(dokumentInfo);
         }
 
@@ -120,7 +120,7 @@ public class ArkivTjeneste {
 
     public Optional<String> hentEksternReferanseId(Journalpost journalpost) {
         var dokumentInfoId = journalpost.dokumenter().get(0).dokumentInfoId();
-        var referanse = safTjeneste.hentEksternReferanseId(dokumentInfoId).stream()
+        var referanse = saf.hentEksternReferanseId(dokumentInfoId).stream()
                 .map(Journalpost::eksternReferanseId)
                 .filter(Objects::nonNull)
                 .findFirst();
