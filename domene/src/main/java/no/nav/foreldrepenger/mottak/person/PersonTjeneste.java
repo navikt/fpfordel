@@ -88,29 +88,37 @@ public class PersonTjeneste implements PersonInformasjon {
 
     @Override
     public String hentNavn(String aktørId) {
-
-        return pdl.hentPerson(personQuery(aktørId),
-                new PersonResponseProjection().navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())).getNavn()
-                .stream()
-                .map(PersonTjeneste::mapNavn)
-                .findFirst()
-                .orElseThrow();
+        try {
+            return pdl.hentPerson(personQuery(aktørId),
+                    new PersonResponseProjection().navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())).getNavn()
+                    .stream()
+                    .map(PersonTjeneste::mapNavn)
+                    .findFirst()
+                    .orElseThrow();
+        } catch (PdlException e) {
+            LOG.warn("Kunne ikke hente navn for {}", aktørId, e);
+            throw e;
+        }
     }
 
     @Override
     public GeoTilknytning hentGeografiskTilknytning(String aktørId) {
-
-        var query = new HentGeografiskTilknytningQueryRequest();
-        query.setIdent(aktørId);
-        var pgt = new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand();
-        var pp = new PersonResponseProjection()
-                .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
-        var gt = new GeoTilknytning(tilknytning(pdl.hentGT(query, pgt)),
-                diskresjonskode(pdl.hentPerson(personQuery(aktørId), pp)));
-        if (gt.getTilknytning() == null) {
-            LOG.info("FPFORDEL PDL mangler GT for {}", aktørId);
+        try {
+            var query = new HentGeografiskTilknytningQueryRequest();
+            query.setIdent(aktørId);
+            var pgt = new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand();
+            var pp = new PersonResponseProjection()
+                    .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
+            var gt = new GeoTilknytning(tilknytning(pdl.hentGT(query, pgt)),
+                    diskresjonskode(pdl.hentPerson(personQuery(aktørId), pp)));
+            if (gt.getTilknytning() == null) {
+                LOG.info("FPFORDEL PDL mangler GT for {}", aktørId);
+            }
+            return gt;
+        } catch (PdlException e) {
+            LOG.warn("Kunne ikke hente geo-tilknytning for {}", aktørId, e);
+            throw e;
         }
-        return gt;
 
     }
 
