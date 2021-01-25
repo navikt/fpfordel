@@ -76,7 +76,6 @@ class JerseySafTjeneste implements SafTjeneste {
                                 .tittel())
                         .dokumentvarianter(new DokumentvariantResponseProjection()
                                 .variantformat()));
-
         return SafMapper.map(saf.query(q, p, JournalpostQueryResponse.class).journalpost());
     }
 
