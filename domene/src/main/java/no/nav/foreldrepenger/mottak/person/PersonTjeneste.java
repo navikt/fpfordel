@@ -72,7 +72,7 @@ public class PersonTjeneste implements PersonInformasjon {
         try {
             return Optional.ofNullable(aktørCache.get(personIdent, fraFnr()));
         } catch (PdlException e) {
-            LOG.warn("Kunne ikke hente fnr fra aktørid {} ({})", personIdent, e.getExtension(), e);
+            LOG.warn("Kunne ikke hente fnr fra aktørid {} ({})", personIdent, e.toString(), e);
             return Optional.empty();
         }
     }
@@ -82,7 +82,7 @@ public class PersonTjeneste implements PersonInformasjon {
         try {
             return Optional.ofNullable(idCache.get(aktørId, fraAktørid()));
         } catch (PdlException e) {
-            LOG.warn("Kunne ikke hente personid fra aktørid {} ({})", aktørId, e.getExtension(), e);
+            LOG.warn("Kunne ikke hente personid fra aktørid {} ({})", aktørId, e.toString(), e);
             return Optional.empty();
         }
     }
@@ -97,7 +97,7 @@ public class PersonTjeneste implements PersonInformasjon {
                     .findFirst()
                     .orElseThrow();
         } catch (PdlException e) {
-            LOG.warn("Kunne ikke hente navn for {} ({})", aktørId, e.getExtension(), e);
+            LOG.warn("Kunne ikke hente navn for {} ({})", aktørId, e.toString(), e);
             throw e;
         }
     }
@@ -117,7 +117,7 @@ public class PersonTjeneste implements PersonInformasjon {
             }
             return gt;
         } catch (PdlException e) {
-            LOG.warn("Kunne ikke hente geo-tilknytning for {} ({})", aktørId, e.getExtension(), e);
+            LOG.warn("Kunne ikke hente geo-tilknytning for {} ({})", aktørId, e.toString(), e);
             throw e;
         }
 
