@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.mottak.person;
 
-import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.function.Predicate.not;
 import static no.nav.pdl.AdressebeskyttelseGradering.UGRADERT;
 import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
 
+import java.time.Duration;
 import java.util.Date;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -45,7 +44,7 @@ public class PersonTjeneste implements PersonInformasjon {
     private static final String SPSF = "SPSF";
     private static final String SPFO = "SPFO";
     private static final int DEFAULT_CACHE_SIZE = 1000;
-    private static final long DEFAULT_CACHE_TIMEOUT_MINUTES = 30;
+    private static final Duration DEFAULT_CACHE_DURATION = Duration.ofMinutes(55);
 
     private Cache<String, String> idCache;
     private Cache<String, String> aktørCache;
@@ -56,8 +55,8 @@ public class PersonTjeneste implements PersonInformasjon {
 
     @Inject
     public PersonTjeneste(@Jersey Pdl pdl) {
-        this(pdl, cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_MINUTES, MINUTES),
-                cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_MINUTES, MINUTES));
+        this(pdl, cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_DURATION),
+                cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_DURATION));
     }
 
     PersonTjeneste(Pdl pdl, Cache<String, String> cache) {
@@ -183,14 +182,14 @@ public class PersonTjeneste implements PersonInformasjon {
         };
     }
 
-    private static Cache<String, String> cache(int size, long timeout, TimeUnit unit) {
+    private static Cache<String, String> cache(int size, Duration duration) {
         return Caffeine.newBuilder()
-                .expireAfterWrite(timeout, unit)
+                .expireAfterWrite(duration)
                 .maximumSize(size)
                 .removalListener(new RemovalListener<String, String>() {
                     @Override
                     public void onRemoval(String key, String value, RemovalCause cause) {
-                        LOG.info("Fjerner {} for {} grunnet {}", value, key, cause);
+                        LOG.trace("Fjerner {} for {} grunnet {}", value, key, cause);
                     }
                 })
                 .build();
