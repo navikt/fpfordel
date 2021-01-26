@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.mottak.person;
 
-import static java.util.concurrent.TimeUnit.HOURS;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.function.Predicate.not;
 import static no.nav.pdl.AdressebeskyttelseGradering.UGRADERT;
 
@@ -42,7 +42,7 @@ public class PersonTjeneste implements PersonInformasjon {
     private static final String SPSF = "SPSF";
     private static final String SPFO = "SPFO";
     private static final int DEFAULT_CACHE_SIZE = 1000;
-    private static final long DEFAULT_CACHE_TIMEOUT_HOURS = 2;
+    private static final long DEFAULT_CACHE_TIMEOUT_MINUTES = 30;
 
     private Cache<String, String> idCache;
     private Cache<String, String> aktørCache;
@@ -53,7 +53,8 @@ public class PersonTjeneste implements PersonInformasjon {
 
     @Inject
     public PersonTjeneste(@Jersey Pdl pdl) {
-        this(pdl, cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS), cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS));
+        this(pdl, cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_MINUTES, MINUTES),
+                cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_MINUTES, MINUTES));
     }
 
     PersonTjeneste(Pdl pdl, Cache<String, String> cache) {
@@ -71,7 +72,7 @@ public class PersonTjeneste implements PersonInformasjon {
         try {
             return Optional.ofNullable(aktørCache.get(personIdent, fraFnr()));
         } catch (PdlException e) {
-            LOG.warn("Kunne ikke hente fnr fra aktørid {}", personIdent, e);
+            LOG.warn("Kunne ikke hente fnr fra aktørid {} ({})", personIdent, e.getExtension(), e);
             return Optional.empty();
         }
     }
@@ -81,7 +82,7 @@ public class PersonTjeneste implements PersonInformasjon {
         try {
             return Optional.ofNullable(idCache.get(aktørId, fraAktørid()));
         } catch (PdlException e) {
-            LOG.warn("Kunne ikke hente personid fra aktørid {}", aktørId, e);
+            LOG.warn("Kunne ikke hente personid fra aktørid {} ({})", aktørId, e.getExtension(), e);
             return Optional.empty();
         }
     }
@@ -96,7 +97,7 @@ public class PersonTjeneste implements PersonInformasjon {
                     .findFirst()
                     .orElseThrow();
         } catch (PdlException e) {
-            LOG.warn("Kunne ikke hente navn for {}", aktørId, e);
+            LOG.warn("Kunne ikke hente navn for {} ({})", aktørId, e.getExtension(), e);
             throw e;
         }
     }
@@ -116,7 +117,7 @@ public class PersonTjeneste implements PersonInformasjon {
             }
             return gt;
         } catch (PdlException e) {
-            LOG.warn("Kunne ikke hente geo-tilknytning for {}", aktørId, e);
+            LOG.warn("Kunne ikke hente geo-tilknytning for {} ({})", aktørId, e.getExtension(), e);
             throw e;
         }
 
