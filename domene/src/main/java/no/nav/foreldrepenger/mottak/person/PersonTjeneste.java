@@ -67,6 +67,7 @@ public class PersonTjeneste implements PersonInformasjon {
         this.pdl = pdl;
         this.idCache = idCache;
         this.aktørCache = aktørCache;
+        LOG.info("KONSTRUERT");
     }
 
     @Override
