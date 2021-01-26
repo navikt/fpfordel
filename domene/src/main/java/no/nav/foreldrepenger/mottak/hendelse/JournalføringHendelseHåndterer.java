@@ -61,7 +61,6 @@ public class JournalføringHendelseHåndterer {
         if (HENDELSE_ENDRET.equalsIgnoreCase(payload.getHendelsesType().toString())) {
             var gammeltTema = payload.getTemaGammelt() != null ? payload.getTemaGammelt().toString() : null;
             LOG.info("FPFORDEL Tema Endret fra {} journalpost {} kanal {} referanse {}", gammeltTema, arkivId, mottaksKanal, eksternReferanseId);
-            return;
         }
 
         // EESSI har egen mottaksprosess m/BEH_SED-oppgaver.

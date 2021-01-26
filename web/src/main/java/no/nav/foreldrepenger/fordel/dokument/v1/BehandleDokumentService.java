@@ -82,7 +82,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
     @Inject
     public BehandleDokumentService(KlargjørForVLTjeneste klargjørForVLTjeneste,
-            @Jersey FagsakTjeneste fagsakRestKlient,
+            /*@Jersey */FagsakTjeneste fagsakRestKlient,
             PersonInformasjon aktørConsumer,
             ArkivTjeneste arkivTjeneste,
             DokumentRepository dokumentRepository) {

@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.mottak.person;
 
-import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.function.Predicate.not;
 import static no.nav.pdl.AdressebeskyttelseGradering.UGRADERT;
+import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
 
+import java.time.Duration;
+import java.util.Date;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -19,6 +20,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.RemovalListener;
 import com.google.common.base.Joiner;
+import com.nimbusds.jwt.SignedJWT;
 
 import no.nav.pdl.Adressebeskyttelse;
 import no.nav.pdl.AdressebeskyttelseResponseProjection;
@@ -42,7 +44,7 @@ public class PersonTjeneste implements PersonInformasjon {
     private static final String SPSF = "SPSF";
     private static final String SPFO = "SPFO";
     private static final int DEFAULT_CACHE_SIZE = 1000;
-    private static final long DEFAULT_CACHE_TIMEOUT_HOURS = 2;
+    private static final Duration DEFAULT_CACHE_DURATION = Duration.ofMinutes(55);
 
     private Cache<String, String> idCache;
     private Cache<String, String> aktørCache;
@@ -53,7 +55,8 @@ public class PersonTjeneste implements PersonInformasjon {
 
     @Inject
     public PersonTjeneste(@Jersey Pdl pdl) {
-        this(pdl, cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS), cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT_HOURS, HOURS));
+        this(pdl, cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_DURATION),
+                cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_DURATION));
     }
 
     PersonTjeneste(Pdl pdl, Cache<String, String> cache) {
@@ -71,7 +74,7 @@ public class PersonTjeneste implements PersonInformasjon {
         try {
             return Optional.ofNullable(aktørCache.get(personIdent, fraFnr()));
         } catch (PdlException e) {
-            LOG.warn("Kunne ikke hente fnr fra aktørid {}", personIdent, e);
+            LOG.warn("Kunne ikke hente fnr fra aktørid {} ({} {})", personIdent, e.toString(), expiresAt(), e);
             return Optional.empty();
         }
     }
@@ -81,37 +84,54 @@ public class PersonTjeneste implements PersonInformasjon {
         try {
             return Optional.ofNullable(idCache.get(aktørId, fraAktørid()));
         } catch (PdlException e) {
-            LOG.warn("Kunne ikke hente personid fra aktørid {}", aktørId, e);
+            LOG.warn("Kunne ikke hente personid fra aktørid {} ({} {})", aktørId, e.toString(), expiresAt(), e);
             return Optional.empty();
         }
     }
 
     @Override
     public String hentNavn(String aktørId) {
-
-        return pdl.hentPerson(personQuery(aktørId),
-                new PersonResponseProjection().navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())).getNavn()
-                .stream()
-                .map(PersonTjeneste::mapNavn)
-                .findFirst()
-                .orElseThrow();
+        try {
+            return pdl.hentPerson(personQuery(aktørId),
+                    new PersonResponseProjection().navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())).getNavn()
+                    .stream()
+                    .map(PersonTjeneste::mapNavn)
+                    .findFirst()
+                    .orElseThrow();
+        } catch (PdlException e) {
+            LOG.warn("Kunne ikke hente navn for {} ({} {})", aktørId, e.toString(), expiresAt(), e);
+            throw e;
+        }
     }
 
     @Override
     public GeoTilknytning hentGeografiskTilknytning(String aktørId) {
-
-        var query = new HentGeografiskTilknytningQueryRequest();
-        query.setIdent(aktørId);
-        var pgt = new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand();
-        var pp = new PersonResponseProjection()
-                .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
-        var gt = new GeoTilknytning(tilknytning(pdl.hentGT(query, pgt)),
-                diskresjonskode(pdl.hentPerson(personQuery(aktørId), pp)));
-        if (gt.getTilknytning() == null) {
-            LOG.info("FPFORDEL PDL mangler GT for {}", aktørId);
+        try {
+            var query = new HentGeografiskTilknytningQueryRequest();
+            query.setIdent(aktørId);
+            var pgt = new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand();
+            var pp = new PersonResponseProjection()
+                    .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
+            var gt = new GeoTilknytning(tilknytning(pdl.hentGT(query, pgt)),
+                    diskresjonskode(pdl.hentPerson(personQuery(aktørId), pp)));
+            if (gt.getTilknytning() == null) {
+                LOG.info("FPFORDEL PDL mangler GT for {}", aktørId);
+            }
+            return gt;
+        } catch (PdlException e) {
+            LOG.warn("Kunne ikke hente geo-tilknytning for {} ({})", aktørId, e.toString(), e);
+            throw e;
         }
-        return gt;
 
+    }
+
+    private static Date expiresAt() {
+        try {
+            return SignedJWT.parse(getSubjectHandler().getInternSsoToken()).getJWTClaimsSet().getExpirationTime();
+        } catch (Exception e) {
+            LOG.trace("Kunne ikke hente expiration dato fra token", e);
+            return null;
+        }
     }
 
     private Function<? super String, ? extends String> fraFnr() {
@@ -162,14 +182,14 @@ public class PersonTjeneste implements PersonInformasjon {
         };
     }
 
-    private static Cache<String, String> cache(int size, long timeout, TimeUnit unit) {
+    private static Cache<String, String> cache(int size, Duration duration) {
         return Caffeine.newBuilder()
-                .expireAfterWrite(timeout, unit)
+                .expireAfterWrite(duration)
                 .maximumSize(size)
                 .removalListener(new RemovalListener<String, String>() {
                     @Override
                     public void onRemoval(String key, String value, RemovalCause cause) {
-                        LOG.info("Fjerner {} for {} grunnet {}", value, key, cause);
+                        LOG.trace("Fjerner {} for {} grunnet {}", value, key, cause);
                     }
                 })
                 .build();

@@ -45,16 +45,16 @@ public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient impleme
     @Override
     public OpprettJournalpostResponse opprettJournalpost(OpprettJournalpostRequest req, boolean ferdigstill) {
         try {
-            LOG.info("Oppretter journalpost");
-            var res = client.target(base)
-                    .queryParam(FERDIGSTILL, ferdigstill)
+            var target = client.target(base).queryParam(FERDIGSTILL, ferdigstill);
+            LOG.info("Oppretter journalpost {} på {}", ferdigstill, target.getUri());
+            var res = target
                     .request(APPLICATION_JSON_TYPE)
                     .buildPost(json(req))
                     .invoke(OpprettJournalpostResponse.class);
-            LOG.info("Opprettet journalpost {} OK", res.journalpostId());
+            LOG.info("Opprettet journalpost {} OK ({})", res.journalpostId(), target.getUri());
             return res;
         } catch (Exception e) {
-            LOG.warn("Opprett feilet", e);
+            LOG.warn("Opprett journalpost feilet", e);
             throw new TekniskException("F-999999", base, e);
         }
     }
@@ -62,14 +62,15 @@ public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient impleme
     @Override
     public boolean oppdaterJournalpost(String journalpostId, OppdaterJournalpostRequest req) {
         try {
-            LOG.info("Oppdaterer journalpost {}", journalpostId);
-            client.target(base)
+            var target = client.target(base)
                     .path(OPPDATER_PATH)
-                    .resolveTemplate("journalpostId", journalpostId)
+                    .resolveTemplate("journalpostId", journalpostId);
+            LOG.info("Oppdaterer journalpos på {}", target.getUri());
+            target
                     .request(APPLICATION_JSON_TYPE)
                     .buildPut(json(req))
                     .invoke(Response.class);
-            LOG.info("Oppdatert journalpost {} OK", journalpostId);
+            LOG.info("Oppdatert journalpost OK ({})", target.getUri());
             return true;
         } catch (Exception e) {
             LOG.warn("Oppdatering journalpost {} feilet", journalpostId, e);
@@ -80,9 +81,10 @@ public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient impleme
     @Override
     public boolean ferdigstillJournalpost(String journalpostId, String enhet) {
         try {
-            LOG.info("Ferdigstiller journalpost {}", journalpostId);
-            patch(fromUri(base).path(FERDIGSTILL_PATH).build(journalpostId), new FerdigstillJournalpostRequest(enhet));
-            LOG.info("Ferdigstillt journalpost OK");
+            URI uri = fromUri(base).path(FERDIGSTILL_PATH).build(journalpostId);
+            LOG.info("Ferdigstiller journalpost {} enhet {} på {}", journalpostId, enhet, uri);
+            patch(uri, new FerdigstillJournalpostRequest(enhet));
+            LOG.info("Ferdigstillt journalpost OK ({})", uri);
             return true;
         } catch (Exception e) {
             LOG.warn("Ferdigstilling journalpost {} feilet for {}", journalpostId, enhet, e);
