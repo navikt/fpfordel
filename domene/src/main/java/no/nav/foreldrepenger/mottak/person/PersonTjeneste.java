@@ -130,7 +130,7 @@ public class PersonTjeneste implements PersonInformasjon {
         try {
             return SignedJWT.parse(getSubjectHandler().getInternSsoToken()).getJWTClaimsSet().getExpirationTime();
         } catch (Exception e) {
-            LOG.warn("Kunne ikke hente expiration dato fra token");
+            LOG.trace("Kunne ikke hente expiration dato fra token", e);
             return null;
         }
     }
