@@ -27,9 +27,10 @@ import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsInfo;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.task.SlettForsendelseTask;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.OppgaveRestKlient;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -54,15 +55,15 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
     private final EnhetsInfo enhetsidTjeneste;
     private final ProsessTaskRepository prosessTaskRepository;
-    private final OppgaveRestKlient restKlient;
+    private final Oppgaver oppgaver;
 
     @Inject
     public OpprettGSakOppgaveTask(ProsessTaskRepository prosessTaskRepository,
-            EnhetsInfo enhetsidTjeneste,
-            OppgaveRestKlient restKlient) {
+            @Jersey EnhetsInfo enhetsidTjeneste,
+            @Jersey Oppgaver oppgaver) {
         this.enhetsidTjeneste = enhetsidTjeneste;
         this.prosessTaskRepository = prosessTaskRepository;
-        this.restKlient = restKlient;
+        this.oppgaver = oppgaver;
     }
 
     @Override
@@ -124,7 +125,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
                 .medBehandlingstema(brukBT)
                 .medOppgavetype(OPPGAVETYPER_JFR)
                 .medPrioritet(Prioritet.NORM);
-        var oppgave = restKlient.opprettetOppgave(request);
+        var oppgave = oppgaver.opprettetOppgave(request);
         LOG.info("FPFORDEL GOSYS opprettet oppgave {}", oppgave);
         return oppgave.getId().toString();
     }
