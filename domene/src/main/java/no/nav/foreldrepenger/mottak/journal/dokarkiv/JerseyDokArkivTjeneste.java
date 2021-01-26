@@ -54,7 +54,7 @@ public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient impleme
             LOG.info("Opprettet journalpost {} OK ({})", res.journalpostId(), target.getUri());
             return res;
         } catch (Exception e) {
-            LOG.warn("Opprett feilet", e);
+            LOG.warn("Opprett journalpost feilet", e);
             throw new TekniskException("F-999999", base, e);
         }
     }
@@ -65,12 +65,12 @@ public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient impleme
             var target = client.target(base)
                     .path(OPPDATER_PATH)
                     .resolveTemplate("journalpostId", journalpostId);
-            LOG.info("Oppdaterer journalpost {} på {}", journalpostId, target.getUri());
+            LOG.info("Oppdaterer journalpos på {}", target.getUri());
             target
                     .request(APPLICATION_JSON_TYPE)
                     .buildPut(json(req))
                     .invoke(Response.class);
-            LOG.info("Oppdatert journalpost {} OK ({})", journalpostId, target.getUri());
+            LOG.info("Oppdatert journalpost OK ({})", target.getUri());
             return true;
         } catch (Exception e) {
             LOG.warn("Oppdatering journalpost {} feilet", journalpostId, e);
