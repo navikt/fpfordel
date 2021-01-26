@@ -3,7 +3,9 @@ package no.nav.foreldrepenger.mottak.person;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.function.Predicate.not;
 import static no.nav.pdl.AdressebeskyttelseGradering.UGRADERT;
+import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
 
+import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -19,6 +21,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.RemovalListener;
 import com.google.common.base.Joiner;
+import com.nimbusds.jwt.SignedJWT;
 
 import no.nav.pdl.Adressebeskyttelse;
 import no.nav.pdl.AdressebeskyttelseResponseProjection;
@@ -72,7 +75,7 @@ public class PersonTjeneste implements PersonInformasjon {
         try {
             return Optional.ofNullable(aktørCache.get(personIdent, fraFnr()));
         } catch (PdlException e) {
-            LOG.warn("Kunne ikke hente fnr fra aktørid {} ({})", personIdent, e.toString(), e);
+            LOG.warn("Kunne ikke hente fnr fra aktørid {} ({} {})", personIdent, e.toString(), expiresAt(), e);
             return Optional.empty();
         }
     }
@@ -82,7 +85,7 @@ public class PersonTjeneste implements PersonInformasjon {
         try {
             return Optional.ofNullable(idCache.get(aktørId, fraAktørid()));
         } catch (PdlException e) {
-            LOG.warn("Kunne ikke hente personid fra aktørid {} ({})", aktørId, e.toString(), e);
+            LOG.warn("Kunne ikke hente personid fra aktørid {} ({} {})", aktørId, e.toString(), expiresAt(), e);
             return Optional.empty();
         }
     }
@@ -97,7 +100,7 @@ public class PersonTjeneste implements PersonInformasjon {
                     .findFirst()
                     .orElseThrow();
         } catch (PdlException e) {
-            LOG.warn("Kunne ikke hente navn for {} ({})", aktørId, e.toString(), e);
+            LOG.warn("Kunne ikke hente navn for {} ({} {})", aktørId, e.toString(), expiresAt(), e);
             throw e;
         }
     }
@@ -121,6 +124,15 @@ public class PersonTjeneste implements PersonInformasjon {
             throw e;
         }
 
+    }
+
+    private static Date expiresAt() {
+        try {
+            return SignedJWT.parse(getSubjectHandler().getInternSsoToken()).getJWTClaimsSet().getExpirationTime();
+        } catch (Exception e) {
+            LOG.warn("Kunne ikke hente expiration dato fra token");
+            return null;
+        }
     }
 
     private Function<? super String, ? extends String> fraFnr() {
