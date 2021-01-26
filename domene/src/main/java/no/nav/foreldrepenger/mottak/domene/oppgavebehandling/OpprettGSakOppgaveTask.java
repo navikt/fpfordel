@@ -60,7 +60,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     @Inject
     public OpprettGSakOppgaveTask(ProsessTaskRepository prosessTaskRepository,
             EnhetsInfo enhetsidTjeneste,
-            @Jersey Oppgaver oppgaver) {
+            /*@Jersey*/ Oppgaver oppgaver) {
         this.enhetsidTjeneste = enhetsidTjeneste;
         this.prosessTaskRepository = prosessTaskRepository;
         this.oppgaver = oppgaver;

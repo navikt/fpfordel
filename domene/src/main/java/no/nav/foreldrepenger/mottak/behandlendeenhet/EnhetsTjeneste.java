@@ -22,7 +22,6 @@ import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.Arbeidsfordeling;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRequest;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingResponse;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
 @ApplicationScoped
 public class EnhetsTjeneste implements EnhetsInfo {
@@ -40,7 +39,7 @@ public class EnhetsTjeneste implements EnhetsInfo {
     @Inject
     public EnhetsTjeneste(
             PersonInformasjon personTjeneste,
-            @Jersey Arbeidsfordeling norgKlient) {
+            /* @Jersey */Arbeidsfordeling norgKlient) {
         this.personTjeneste = personTjeneste;
         this.norgKlient = norgKlient;
     }
