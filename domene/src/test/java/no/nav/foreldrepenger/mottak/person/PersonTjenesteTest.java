@@ -9,9 +9,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -39,19 +39,15 @@ import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
 public class PersonTjenesteTest {
     private static final String AKTØR_ID = "2222222222222";
     private static final String FNR = "11111111111";
-
+    private static final Duration DURATION = Duration.ofSeconds(1);
     private static final Logger LOG = LoggerFactory.getLogger(PersonTjenesteTest.class);
     private PersonInformasjon personTjeneste;
     @Mock
     private Pdl pdl;
-    private LoadingCache<String, String> tilFnr;
-    private LoadingCache<String, String> tilAktør;
 
     @BeforeEach
     public void setup() {
-        tilFnr = cache(100, 1, TimeUnit.SECONDS, tilFnr(pdl));
-        tilAktør = cache(100, 1, TimeUnit.SECONDS, tilAktørId(pdl));
-        personTjeneste = new PersonTjeneste(pdl, tilFnr, tilAktør);
+        personTjeneste = new PersonTjeneste(pdl, cache(tilFnr(pdl)), cache(tilAktørId(pdl)));
     }
 
     @Test
@@ -80,7 +76,6 @@ public class PersonTjenesteTest {
 
     @Test
     public void skal_returnere_empty_uten_match() {
-        tilFnr.invalidateAll();
         when(pdl.hentPersonIdentForAktørId(eq(AKTØR_ID))).thenReturn(Optional.empty());
         assertThat(personTjeneste.hentPersonIdentForAktørId(AKTØR_ID)).isEmpty();
     }
@@ -146,10 +141,10 @@ public class PersonTjenesteTest {
         assertThat(gt.getDiskresjonskode()).isEqualTo("SPSF");
     }
 
-    private static LoadingCache<String, String> cache(int size, long timeout, TimeUnit unit, Function<? super String, ? extends String> loader) {
+    private static LoadingCache<String, String> cache(Function<? super String, ? extends String> loader) {
         return Caffeine.newBuilder()
-                .expireAfterWrite(timeout, unit)
-                .maximumSize(size)
+                .expireAfterWrite(DURATION)
+                .maximumSize(1)
                 .removalListener(new RemovalListener<String, String>() {
                     @Override
                     public void onRemoval(String key, String value, RemovalCause cause) {
