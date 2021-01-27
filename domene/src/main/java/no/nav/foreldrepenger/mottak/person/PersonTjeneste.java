@@ -189,7 +189,7 @@ public class PersonTjeneste implements PersonInformasjon {
                         LOG.trace("Fjerner {} for {} grunnet {}", value, key, cause);
                     }
                 })
-                .build(k -> loader.apply(k));
+                .build(loader::apply);
     }
 
     @Override
