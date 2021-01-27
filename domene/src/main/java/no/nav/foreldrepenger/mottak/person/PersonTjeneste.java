@@ -15,8 +15,8 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.RemovalListener;
 import com.google.common.base.Joiner;
@@ -46,8 +46,8 @@ public class PersonTjeneste implements PersonInformasjon {
     private static final int DEFAULT_CACHE_SIZE = 1000;
     private static final Duration DEFAULT_CACHE_DURATION = Duration.ofMinutes(55);
 
-    private Cache<String, String> idCache;
-    private Cache<String, String> aktørCache;
+    private LoadingCache<String, String> aktørIdTilFnrCache;
+    private LoadingCache<String, String> fnrTilAktørIdCache;
     private Pdl pdl;
 
     PersonTjeneste() {
@@ -55,25 +55,19 @@ public class PersonTjeneste implements PersonInformasjon {
 
     @Inject
     public PersonTjeneste(@Jersey Pdl pdl) {
-        this(pdl, cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_DURATION),
-                cache(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_DURATION));
+        this(pdl, cache(tilFnr(pdl)), cache(tilAktørId(pdl)));
     }
 
-    PersonTjeneste(Pdl pdl, Cache<String, String> cache) {
-        this(pdl, cache, cache);
-    }
-
-    PersonTjeneste(Pdl pdl, Cache<String, String> idCache, Cache<String, String> aktørCache) {
+    PersonTjeneste(Pdl pdl, LoadingCache<String, String> aktørIdTilFnrCache, LoadingCache<String, String> fnrTilAktørIdCache) {
         this.pdl = pdl;
-        this.idCache = idCache;
-        this.aktørCache = aktørCache;
-        LOG.info("KONSTRUERT");
+        this.aktørIdTilFnrCache = aktørIdTilFnrCache;
+        this.fnrTilAktørIdCache = fnrTilAktørIdCache;
     }
 
     @Override
     public Optional<String> hentAktørIdForPersonIdent(String personIdent) {
         try {
-            return Optional.ofNullable(aktørCache.get(personIdent, fraFnr()));
+            return Optional.ofNullable(fnrTilAktørIdCache.get(personIdent));
         } catch (PdlException e) {
             LOG.warn("Kunne ikke hente fnr fra aktørid {} ({} {})", personIdent, e.toString(), expiresAt(), e);
             return Optional.empty();
@@ -83,7 +77,7 @@ public class PersonTjeneste implements PersonInformasjon {
     @Override
     public Optional<String> hentPersonIdentForAktørId(String aktørId) {
         try {
-            return Optional.ofNullable(idCache.get(aktørId, fraAktørid()));
+            return Optional.ofNullable(aktørIdTilFnrCache.get(aktørId));
         } catch (PdlException e) {
             LOG.warn("Kunne ikke hente personid fra aktørid {} ({} {})", aktørId, e.toString(), expiresAt(), e);
             return Optional.empty();
@@ -135,13 +129,15 @@ public class PersonTjeneste implements PersonInformasjon {
         }
     }
 
-    private Function<? super String, ? extends String> fraFnr() {
-        return id -> pdl.hentAktørIdForPersonIdent(id)
+    private static Function<? super String, ? extends String> tilAktørId(Pdl pdl) {
+        LOG.info("Oppdaterer aktørid cache");
+        return fnr -> pdl.hentAktørIdForPersonIdent(fnr)
                 .orElseGet(() -> null);
     }
 
-    private Function<? super String, ? extends String> fraAktørid() {
-        return id -> pdl.hentPersonIdentForAktørId(id)
+    private static Function<? super String, ? extends String> tilFnr(Pdl pdl) {
+        LOG.info("Oppdaterer fnr cache");
+        return aktørId -> pdl.hentPersonIdentForAktørId(aktørId)
                 .orElseGet(() -> null);
 
     }
@@ -183,22 +179,22 @@ public class PersonTjeneste implements PersonInformasjon {
         };
     }
 
-    private static Cache<String, String> cache(int size, Duration duration) {
+    private static LoadingCache<String, String> cache(Function<? super String, ? extends String> loader) {
         return Caffeine.newBuilder()
-                .expireAfterWrite(duration)
-                .maximumSize(size)
+                .expireAfterWrite(DEFAULT_CACHE_DURATION)
+                .maximumSize(DEFAULT_CACHE_SIZE)
                 .removalListener(new RemovalListener<String, String>() {
                     @Override
                     public void onRemoval(String key, String value, RemovalCause cause) {
                         LOG.trace("Fjerner {} for {} grunnet {}", value, key, cause);
                     }
                 })
-                .build();
+                .build(k -> loader.apply(k));
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [cacheAktørIdTilIdent=" + idCache + ", cacheIdentTilAktørId=" + aktørCache
+        return getClass().getSimpleName() + " [cacheAktørIdTilIdent=" + aktørIdTilFnrCache + ", cacheIdentTilAktørId=" + fnrTilAktørIdCache
                 + "]";
     }
 }
