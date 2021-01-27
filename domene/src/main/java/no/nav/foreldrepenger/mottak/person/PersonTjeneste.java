@@ -46,8 +46,8 @@ public class PersonTjeneste implements PersonInformasjon {
     private static final int DEFAULT_CACHE_SIZE = 1000;
     private static final Duration DEFAULT_CACHE_DURATION = Duration.ofMinutes(55);
 
-    private LoadingCache<String, String> aktørIdTilFnrCache;
-    private LoadingCache<String, String> fnrTilAktørIdCache;
+    private LoadingCache<String, String> tilFnr;
+    private LoadingCache<String, String> tilAktør;
     private Pdl pdl;
 
     PersonTjeneste() {
@@ -58,17 +58,17 @@ public class PersonTjeneste implements PersonInformasjon {
         this(pdl, cache(tilFnr(pdl)), cache(tilAktørId(pdl)));
     }
 
-    PersonTjeneste(Pdl pdl, LoadingCache<String, String> aktørIdTilFnrCache, LoadingCache<String, String> fnrTilAktørIdCache) {
+    PersonTjeneste(Pdl pdl, LoadingCache<String, String> tilFnr, LoadingCache<String, String> tilAktør) {
         this.pdl = pdl;
-        this.aktørIdTilFnrCache = aktørIdTilFnrCache;
-        this.fnrTilAktørIdCache = fnrTilAktørIdCache;
+        this.tilFnr = tilFnr;
+        this.tilAktør = tilAktør;
     }
 
     @Override
     public Optional<String> hentAktørIdForPersonIdent(String fnr) {
         try {
-            LOG.info("Henter for " + fnr);
-            return Optional.ofNullable(fnrTilAktørIdCache.get(fnr));
+            LOG.trace("Henter for " + fnr);
+            return Optional.ofNullable(tilAktør.get(fnr));
         } catch (PdlException e) {
             LOG.warn("Kunne ikke hente aktørid fra fnr {} ({} {})", fnr, e.toString(), expiresAt(), e);
             return Optional.empty();
@@ -78,8 +78,8 @@ public class PersonTjeneste implements PersonInformasjon {
     @Override
     public Optional<String> hentPersonIdentForAktørId(String aktørId) {
         try {
-            LOG.info("Henter for " + aktørId);
-            return Optional.ofNullable(aktørIdTilFnrCache.get(aktørId));
+            LOG.trace("Henter for " + aktørId);
+            return Optional.ofNullable(tilFnr.get(aktørId));
         } catch (PdlException e) {
             LOG.warn("Kunne ikke hente fnr fra aktørid {} ({} {})", aktørId, e.toString(), expiresAt(), e);
             return Optional.empty();
@@ -194,7 +194,6 @@ public class PersonTjeneste implements PersonInformasjon {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [cacheAktørIdTilIdent=" + aktørIdTilFnrCache + ", cacheIdentTilAktørId=" + fnrTilAktørIdCache
-                + "]";
+        return getClass().getSimpleName() + " [tilFnr=" + tilFnr + ", tilAktør=" + tilAktør + "]";
     }
 }
