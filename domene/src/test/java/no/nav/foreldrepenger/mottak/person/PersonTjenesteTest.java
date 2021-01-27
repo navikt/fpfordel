@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,8 +22,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.RemovalListener;
 
@@ -36,46 +37,50 @@ import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
 
 @ExtendWith(MockitoExtension.class)
 public class PersonTjenesteTest {
-    private static final String AKTØR_ID = "9999999999999";
-    private static final String FNR = "99999999999";
+    private static final String AKTØR_ID = "2222222222222";
+    private static final String FNR = "11111111111";
 
     private static final Logger LOG = LoggerFactory.getLogger(PersonTjenesteTest.class);
     private PersonInformasjon personTjeneste;
     @Mock
     private Pdl pdl;
-    private Cache<String, String> cache;
+    private LoadingCache<String, String> tilFnr;
+    private LoadingCache<String, String> tilAktør;
 
     @BeforeEach
     public void setup() {
-        cache = cache(100, 10, TimeUnit.SECONDS);
-        personTjeneste = new PersonTjeneste(pdl, cache);
+        tilFnr = cache(100, 1, TimeUnit.SECONDS, tilFnr(pdl));
+        tilAktør = cache(100, 1, TimeUnit.SECONDS, tilAktørId(pdl));
+        personTjeneste = new PersonTjeneste(pdl, tilFnr, tilAktør);
     }
 
     @Test
-    public void skal_returnere_fnr() {
+    public void skal_returnere_fnr() throws Exception {
         when(pdl.hentPersonIdentForAktørId(eq(AKTØR_ID))).thenReturn(Optional.of(FNR));
         var fnr = personTjeneste.hentPersonIdentForAktørId(AKTØR_ID);
         assertEquals(Optional.of(FNR), fnr);
         personTjeneste.hentPersonIdentForAktørId(AKTØR_ID);
-        cache.invalidate(AKTØR_ID);
+        verify(pdl).hentPersonIdentForAktørId(eq(AKTØR_ID));
+        Thread.sleep(1000);
         personTjeneste.hentPersonIdentForAktørId(AKTØR_ID);
         verify(pdl, times(2)).hentPersonIdentForAktørId(eq(AKTØR_ID));
     }
 
     @Test
-    public void skal_returnere_aktørid() {
+    public void skal_returnere_aktørid() throws Exception {
         when(pdl.hentAktørIdForPersonIdent(eq(FNR))).thenReturn(Optional.of(AKTØR_ID));
         var aid = personTjeneste.hentAktørIdForPersonIdent(FNR);
         assertEquals(Optional.of(AKTØR_ID), aid);
         personTjeneste.hentAktørIdForPersonIdent(FNR);
-        cache.invalidate(FNR);
+        verify(pdl).hentAktørIdForPersonIdent(eq(FNR));
+        Thread.sleep(1000);
         personTjeneste.hentAktørIdForPersonIdent(FNR);
         verify(pdl, times(2)).hentAktørIdForPersonIdent(eq(FNR));
     }
 
     @Test
     public void skal_returnere_empty_uten_match() {
-        cache.invalidateAll();
+        tilFnr.invalidateAll();
         when(pdl.hentPersonIdentForAktørId(eq(AKTØR_ID))).thenReturn(Optional.empty());
         assertThat(personTjeneste.hentPersonIdentForAktørId(AKTØR_ID)).isEmpty();
     }
@@ -141,7 +146,7 @@ public class PersonTjenesteTest {
         assertThat(gt.getDiskresjonskode()).isEqualTo("SPSF");
     }
 
-    private static Cache<String, String> cache(int size, long timeout, TimeUnit unit) {
+    private static LoadingCache<String, String> cache(int size, long timeout, TimeUnit unit, Function<? super String, ? extends String> loader) {
         return Caffeine.newBuilder()
                 .expireAfterWrite(timeout, unit)
                 .maximumSize(size)
@@ -151,6 +156,17 @@ public class PersonTjenesteTest {
                         LOG.info("Fjerner {} for {} grunnet {}", value, key, cause);
                     }
                 })
-                .build();
+                .build(loader::apply);
+    }
+
+    private Function<? super String, ? extends String> tilAktørId(Pdl pdl) {
+        return fnr -> pdl.hentAktørIdForPersonIdent(fnr)
+                .orElseGet(() -> null);
+    }
+
+    private Function<? super String, ? extends String> tilFnr(Pdl pdl) {
+        return aktørId -> pdl.hentPersonIdentForAktørId(aktørId)
+                .orElseGet(() -> null);
+
     }
 }

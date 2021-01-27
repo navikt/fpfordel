@@ -65,11 +65,12 @@ public class PersonTjeneste implements PersonInformasjon {
     }
 
     @Override
-    public Optional<String> hentAktørIdForPersonIdent(String personIdent) {
+    public Optional<String> hentAktørIdForPersonIdent(String fnr) {
         try {
-            return Optional.ofNullable(fnrTilAktørIdCache.get(personIdent));
+            LOG.info("Henter for " + fnr);
+            return Optional.ofNullable(fnrTilAktørIdCache.get(fnr));
         } catch (PdlException e) {
-            LOG.warn("Kunne ikke hente fnr fra aktørid {} ({} {})", personIdent, e.toString(), expiresAt(), e);
+            LOG.warn("Kunne ikke hente aktørid fra fnr {} ({} {})", fnr, e.toString(), expiresAt(), e);
             return Optional.empty();
         }
     }
@@ -77,9 +78,10 @@ public class PersonTjeneste implements PersonInformasjon {
     @Override
     public Optional<String> hentPersonIdentForAktørId(String aktørId) {
         try {
+            LOG.info("Henter for " + aktørId);
             return Optional.ofNullable(aktørIdTilFnrCache.get(aktørId));
         } catch (PdlException e) {
-            LOG.warn("Kunne ikke hente personid fra aktørid {} ({} {})", aktørId, e.toString(), expiresAt(), e);
+            LOG.warn("Kunne ikke hente fnr fra aktørid {} ({} {})", aktørId, e.toString(), expiresAt(), e);
             return Optional.empty();
         }
     }
@@ -130,13 +132,11 @@ public class PersonTjeneste implements PersonInformasjon {
     }
 
     private static Function<? super String, ? extends String> tilAktørId(Pdl pdl) {
-        LOG.info("Oppdaterer aktørid cache");
         return fnr -> pdl.hentAktørIdForPersonIdent(fnr)
                 .orElseGet(() -> null);
     }
 
     private static Function<? super String, ? extends String> tilFnr(Pdl pdl) {
-        LOG.info("Oppdaterer fnr cache");
         return aktørId -> pdl.hentPersonIdentForAktørId(aktørId)
                 .orElseGet(() -> null);
 
