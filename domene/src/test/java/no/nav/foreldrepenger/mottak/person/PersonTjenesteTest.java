@@ -47,7 +47,7 @@ public class PersonTjenesteTest {
 
     @BeforeEach
     public void setup() {
-        personTjeneste = new PersonTjeneste(pdl, cache(tilFnr(pdl)), cache(tilAktørId(pdl)));
+        personTjeneste = new PersonTjeneste(pdl, cache(tilFnr()), cache(tilAktørId()));
     }
 
     @Test
@@ -154,12 +154,12 @@ public class PersonTjenesteTest {
                 .build(loader::apply);
     }
 
-    private Function<? super String, ? extends String> tilAktørId(Pdl pdl) {
+    private Function<? super String, ? extends String> tilAktørId() {
         return fnr -> pdl.hentAktørIdForPersonIdent(fnr)
                 .orElseGet(() -> null);
     }
 
-    private Function<? super String, ? extends String> tilFnr(Pdl pdl) {
+    private Function<? super String, ? extends String> tilFnr() {
         return aktørId -> pdl.hentPersonIdentForAktørId(aktørId)
                 .orElseGet(() -> null);
 
