@@ -67,7 +67,7 @@ public class PersonTjeneste implements PersonInformasjon {
     @Override
     public Optional<String> hentAktørIdForPersonIdent(String fnr) {
         try {
-            LOG.trace("Henter for " + fnr);
+            LOG.trace("Henter for {}", fnr);
             return Optional.ofNullable(tilAktør.get(fnr));
         } catch (PdlException e) {
             LOG.warn("Kunne ikke hente aktørid fra fnr {} ({} {})", fnr, e.toString(), expiresAt(), e);
@@ -78,7 +78,7 @@ public class PersonTjeneste implements PersonInformasjon {
     @Override
     public Optional<String> hentPersonIdentForAktørId(String aktørId) {
         try {
-            LOG.trace("Henter for " + aktørId);
+            LOG.trace("Henter for {}", aktørId);
             return Optional.ofNullable(tilFnr.get(aktørId));
         } catch (PdlException e) {
             LOG.warn("Kunne ikke hente fnr fra aktørid {} ({} {})", aktørId, e.toString(), expiresAt(), e);
