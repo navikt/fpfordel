@@ -273,11 +273,6 @@
                 <version>3.27.0-GA</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.santuario</groupId>
-                <artifactId>xmlsec</artifactId>
-                <version>2.1.4</version>
-            </dependency>
-            <dependency>
                 <groupId>com.oracle.ojdbc</groupId>
                 <artifactId>ojdbc8</artifactId>
                 <version>19.3.0.0</version>
