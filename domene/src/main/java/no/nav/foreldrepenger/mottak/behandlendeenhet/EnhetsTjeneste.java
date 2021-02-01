@@ -9,6 +9,9 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.person.GeoTilknytning;
@@ -26,7 +29,7 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
 @ApplicationScoped
 public class EnhetsTjeneste implements EnhetsInfo {
-
+    private static final Logger LOG = LoggerFactory.getLogger(EnhetsTjeneste.class);
     private PersonInformasjon personTjeneste;
     private Arbeidsfordeling norgKlient;
 
@@ -47,13 +50,17 @@ public class EnhetsTjeneste implements EnhetsInfo {
 
     @Override
     public String hentFordelingEnhetId(Tema tema, BehandlingTema behandlingTema, Optional<String> enhetInput, String aktørId) {
+        LOG.info("Henter enhet id for {},{}", tema, behandlingTema);
         oppdaterEnhetCache();
         if (enhetInput.map(alleJournalførendeEnheter::contains).orElse(Boolean.FALSE)) {
             return enhetInput.get();
         }
 
-        return Optional.ofNullable(aktørId).map(a -> hentEnhetId(a, behandlingTema, tema))
+        var id = Optional.ofNullable(aktørId)
+                .map(a -> hentEnhetId(a, behandlingTema, tema))
                 .orElseGet(this::tilfeldigNfpEnhet);
+        LOG.info("returnerer enhet id  {}", id);
+        return id;
     }
 
     private String hentEnhetId(String aktørId, BehandlingTema behandlingTema, Tema tema) {
