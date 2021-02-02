@@ -13,7 +13,6 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 
 import org.hibernate.exception.ConstraintViolationException;
 
@@ -59,7 +58,7 @@ public class DokumentRepository {
     }
 
     public Optional<Dokument> hentUnikDokument(UUID forsendelseId, boolean hovedDokument, ArkivFilType arkivFilType) {
-        TypedQuery<Dokument> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
                 "from Dokument where forsendelseId = :forsendelseId and hovedDokument = :hovedDokument and arkivFilType = :arkivFilType",
                 Dokument.class)
                 .setParameter(FORSENDELSE_ID, forsendelseId)
@@ -76,21 +75,21 @@ public class DokumentRepository {
     }
 
     public List<Dokument> hentDokumenter(UUID forsendelseId) {
-        TypedQuery<Dokument> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
                 "from Dokument where forsendelseId = :forsendelseId", Dokument.class)
                 .setParameter(FORSENDELSE_ID, forsendelseId);
         return query.getResultList();
     }
 
     public DokumentMetadata hentEksaktDokumentMetadata(UUID forsendelseId) {
-        TypedQuery<DokumentMetadata> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
                 "from DokumentMetadata where forsendelseId = :forsendelseId", DokumentMetadata.class)
                 .setParameter(FORSENDELSE_ID, forsendelseId);
         return hentEksaktResultat(query);
     }
 
     public Optional<DokumentMetadata> hentUnikDokumentMetadata(UUID forsendelseId) {
-        TypedQuery<DokumentMetadata> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
                 "from DokumentMetadata where forsendelseId = :forsendelseId", DokumentMetadata.class)
                 .setParameter(FORSENDELSE_ID, forsendelseId);
         return hentUniktResultat(query);
@@ -115,7 +114,7 @@ public class DokumentRepository {
 
     public void oppdaterForsendelseMetadata(UUID forsendelseId, String arkivId, String saksnummer,
             ForsendelseStatus status) {
-        DokumentMetadata metadata = hentEksaktDokumentMetadata(forsendelseId);
+        var metadata = hentEksaktDokumentMetadata(forsendelseId);
         metadata.setArkivId(arkivId);
         metadata.setSaksnummer(saksnummer);
         metadata.setStatus(status);
@@ -124,7 +123,7 @@ public class DokumentRepository {
 
     public boolean erLokalForsendelse(String eksternReferanseId) {
         try {
-            UUID forsendelseId = UUID.fromString(eksternReferanseId);
+            var forsendelseId = UUID.fromString(eksternReferanseId);
             return hentUnikDokumentMetadata(forsendelseId).isPresent();
         } catch (Exception e) {
             return false;
@@ -138,7 +137,7 @@ public class DokumentRepository {
     }
 
     public List<Journalpost> hentJournalposter(String journalpostId) {
-        TypedQuery<Journalpost> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
                 "from Journalpost where journalpostId = :journalpostId", Journalpost.class)
                 .setParameter("journalpostId", journalpostId);
         return query.getResultList();

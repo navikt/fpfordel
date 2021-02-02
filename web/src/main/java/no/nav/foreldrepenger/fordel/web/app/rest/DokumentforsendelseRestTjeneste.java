@@ -223,7 +223,7 @@ public class DokumentforsendelseRestTjeneste {
 
         String partFilename = getDirective(inputPart.getHeaders(), CONTENT_DISPOSITION, "filename");
         String finalFilename = partFilename != null ? partFilename.strip() : partFilename;
-        if ((finalFilename != null) && DokumentTypeId.ANNET.equals(filMetadata.getDokumentTypeId())) {
+        if ((finalFilename != null) && DokumentTypeId.ANNET.equals(filMetadata.dokumentTypeId())) {
             LOG.info("Mottatt vedlegg av type ANNET med filename {}", partFilename);
         }
 
@@ -231,7 +231,7 @@ public class DokumentforsendelseRestTjeneste {
                 .setForsendelseId(dokumentforsendelse.getForsendelsesId())
                 .setHovedDokument(hovedDokument)
                 .setBeskrivelse(finalFilename)
-                .setDokumentTypeId(filMetadata.getDokumentTypeId());
+                .setDokumentTypeId(filMetadata.dokumentTypeId());
         try {
             if (MediaType.APPLICATION_XML_TYPE.isCompatible(inputPart.getMediaType())) {
                 builder.setDokumentInnhold(inputPart.getBodyAsString().getBytes(Charset.forName("UTF-8")),

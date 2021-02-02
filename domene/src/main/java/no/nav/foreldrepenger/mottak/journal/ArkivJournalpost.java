@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
+import no.nav.foreldrepenger.mottak.journal.saf.model.Sak;
 
 public class ArkivJournalpost {
 
@@ -46,11 +47,15 @@ public class ArkivJournalpost {
     }
 
     public Optional<String> getTittel() {
-        return original != null ? Optional.ofNullable(original.tittel()) : Optional.empty();
+        return Optional.ofNullable(original)
+                .map(Journalpost::tittel);
     }
 
     public Optional<String> getSaksnummer() {
-        return (original != null) && (original.sak() != null) ? Optional.ofNullable(original.sak().arkivsaksnummer()) : Optional.empty();
+        return Optional.ofNullable(original)
+                .map(Journalpost::sak)
+                .filter(Objects::nonNull)
+                .map(Sak::arkivsaksnummer);
     }
 
     public Journalstatus getTilstand() {

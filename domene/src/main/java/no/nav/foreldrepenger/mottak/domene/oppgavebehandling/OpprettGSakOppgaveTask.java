@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -60,7 +59,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     @Inject
     public OpprettGSakOppgaveTask(ProsessTaskRepository prosessTaskRepository,
             EnhetsInfo enhetsidTjeneste,
-            /*@Jersey*/ Oppgaver oppgaver) {
+            /* @Jersey */ Oppgaver oppgaver) {
         this.enhetsidTjeneste = enhetsidTjeneste;
         this.prosessTaskRepository = prosessTaskRepository;
         this.oppgaver = oppgaver;
@@ -68,8 +67,8 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        BehandlingTema behandlingTema = BehandlingTema.fraKodeDefaultUdefinert(prosessTaskData.getPropertyValue(BEHANDLINGSTEMA_KEY));
-        DokumentTypeId dokumentTypeId = Optional.ofNullable(prosessTaskData.getPropertyValue(DOKUMENTTYPE_ID_KEY))
+        var behandlingTema = BehandlingTema.fraKodeDefaultUdefinert(prosessTaskData.getPropertyValue(BEHANDLINGSTEMA_KEY));
+        var dokumentTypeId = Optional.ofNullable(prosessTaskData.getPropertyValue(DOKUMENTTYPE_ID_KEY))
                 .map(DokumentTypeId::fraKodeDefaultUdefinert).orElse(DokumentTypeId.UDEFINERT);
         behandlingTema = ArkivUtil.behandlingTemaFraDokumentType(behandlingTema, dokumentTypeId);
 
@@ -84,7 +83,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     }
 
     private void opprettSletteTask(ProsessTaskData prosessTaskData) {
-        ProsessTaskData nesteStegProsessTaskData = new ProsessTaskData(SlettForsendelseTask.TASKNAME);
+        var nesteStegProsessTaskData = new ProsessTaskData(SlettForsendelseTask.TASKNAME);
         // Gi selvbetjening tid til å polle ferdig + Kafka-hendelse tid til å nå fram
         // (og bli ignorert)
         nesteStegProsessTaskData.setNesteKjøringEtter(LocalDateTime.now().plusHours(2));
