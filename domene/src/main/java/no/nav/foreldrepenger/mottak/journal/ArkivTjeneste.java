@@ -47,6 +47,7 @@ import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
 import no.nav.foreldrepenger.mottak.journal.saf.model.VariantFormat;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
 @ApplicationScoped
 public class ArkivTjeneste {
@@ -68,7 +69,7 @@ public class ArkivTjeneste {
     }
 
     @Inject
-    public ArkivTjeneste(SafTjeneste safTjeneste,
+    public ArkivTjeneste(@Jersey SafTjeneste safTjeneste,
             /* @Jersey */ DokArkiv dokArkivTjeneste,
             DokumentRepository dokumentRepository,
             PersonInformasjon personTjeneste) {

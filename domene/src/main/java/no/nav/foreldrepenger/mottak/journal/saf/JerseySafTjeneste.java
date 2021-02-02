@@ -76,12 +76,18 @@ class JerseySafTjeneste implements SafTjeneste {
                                 .tittel())
                         .dokumentvarianter(new DokumentvariantResponseProjection()
                                 .variantformat()));
-        return SafMapper.map(saf.query(q, p, JournalpostQueryResponse.class).journalpost());
+        LOG.info("Henter journalpost info");
+        var res = SafMapper.map(saf.query(q, p, JournalpostQueryResponse.class).journalpost());
+        LOG.info("Hentet journalpost info OK");
+        return res;
     }
 
     @Override
     public String hentDokument(String journalpostId, String dokumentInfoId, VariantFormat variantFormat) {
-        return new String(saf.hentDokument(new HentDokumentQuery(journalpostId, dokumentInfoId, variantFormat.name())));
+        LOG.info("Henter dokument");
+        var res = new String(saf.hentDokument(new HentDokumentQuery(journalpostId, dokumentInfoId, variantFormat.name())));
+        LOG.info("Hentet dokument OK");
+        return res;
     }
 
     @Override
@@ -92,6 +98,9 @@ class JerseySafTjeneste implements SafTjeneste {
         var p = new JournalpostResponseProjection()
                 .journalpostId()
                 .eksternReferanseId();
-        return SafMapper.mapJP(saf.query(q, p, TilknyttedeJournalposterQueryResponse.class).tilknyttedeJournalposter());
+        LOG.info("Henter ekstern id");
+        var res = SafMapper.mapJP(saf.query(q, p, TilknyttedeJournalposterQueryResponse.class).tilknyttedeJournalposter());
+        LOG.info("Hentet ekstern id OK");
+        return res;
     }
 }
