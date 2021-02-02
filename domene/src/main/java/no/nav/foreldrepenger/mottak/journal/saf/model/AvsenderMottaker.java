@@ -2,9 +2,6 @@ package no.nav.foreldrepenger.mottak.journal.saf.model;
 
 import java.util.Optional;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-@JsonIgnoreProperties(ignoreUnknown = true)
 public record AvsenderMottaker(String id,
         String type,
         String navn) {
