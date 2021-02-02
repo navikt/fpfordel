@@ -69,7 +69,7 @@ public class ArkivTjeneste {
     }
 
     @Inject
-    public ArkivTjeneste(@Jersey SafTjeneste safTjeneste,
+    public ArkivTjeneste(@Jersey SafTjeneste saf,
             /* @Jersey */ DokArkiv dokArkivTjeneste,
             DokumentRepository dokumentRepository,
             PersonInformasjon personTjeneste) {
