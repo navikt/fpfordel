@@ -312,7 +312,7 @@ public class ArkivTjeneste {
     }
 
     private static List<DokumentInfoOpprett> lagAlleDokumentForOpprett(List<Dokument> dokumenter) {
-        var dokumenterRequest = new ArrayList<>();
+        List<DokumentInfoOpprett> dokumenterRequest = new ArrayList<>();
         var hoveddokument = dokumenter.stream().filter(Dokument::erHovedDokument).collect(Collectors.toList());
         if (!hoveddokument.isEmpty()) {
             var strukturert = hoveddokument.stream()
