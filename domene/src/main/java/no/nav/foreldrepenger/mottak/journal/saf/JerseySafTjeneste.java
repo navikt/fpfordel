@@ -43,7 +43,7 @@ class JerseySafTjeneste implements SafTjeneste {
     }
 
     @Override
-    public no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost hentJournalpostInfo(String id) {
+    public Journalpost hentJournalpostInfo(String id) {
         var q = new JournalpostQueryRequest();
         q.setJournalpostId(id);
         var p = new JournalpostResponseProjection()

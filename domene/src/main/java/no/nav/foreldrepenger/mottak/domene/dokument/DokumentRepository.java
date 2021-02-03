@@ -16,6 +16,8 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.hibernate.exception.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
@@ -23,6 +25,7 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Forsendelse
 @ApplicationScoped
 public class DokumentRepository {
 
+    private static final Logger LOG = LoggerFactory.getLogger(DokumentRepository.class);
     private static final String LOKALT_OPPHAV = "FORDEL";
     private static final String FORSENDELSE_ID = "forsendelseId";
     private static final String HOVED_DOKUMENT = "hovedDokument";
@@ -48,10 +51,11 @@ public class DokumentRepository {
             entityManager.flush();
         } catch (PersistenceException e) {
             Throwable cause = e.getCause();
-            if ((cause instanceof ConstraintViolationException) &&
-                    ((ConstraintViolationException) cause).getConstraintName()
-                            .contains(DokumentMetadata.UNIQUE_FORSENDELSE_ID_CONSTRAINT)) {
-                throw DokumentFeil.FACTORY.constraintForsendelseId(dokumentMetadata.getForsendelseId()).toException();
+            if (cause instanceof ConstraintViolationException c &&
+                    c.getConstraintName().contains(DokumentMetadata.UNIQUE_FORSENDELSE_ID_CONSTRAINT)) {
+                LOG.info("Forsendelse {} allerede prosessert, ignorerer denne", dokumentMetadata.getForsendelseId());
+                // throw
+                // DokumentFeil.FACTORY.constraintForsendelseId(dokumentMetadata.getForsendelseId()).toException();
             } else {
                 throw e;
             }
