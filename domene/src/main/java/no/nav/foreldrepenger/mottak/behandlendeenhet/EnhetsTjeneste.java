@@ -68,7 +68,7 @@ public class EnhetsTjeneste implements EnhetsInfo {
                 .map(this::hentGeografiskTilknytning)
                 .orElse(new GeoTilknytning(null, null));
 
-        if (gt.getDiskresjonskode() == null && gt.getTilknytning() == null) {
+        if (gt.diskresjonskode() == null && gt.tilknytning() == null) {
             return tilfeldigNfpEnhet();
         }
 
@@ -78,8 +78,8 @@ public class EnhetsTjeneste implements EnhetsInfo {
                 .medBehandlingstema(behandlingTema.getOffisiellKode())
                 .medBehandlingstype(BEHANDLINGTYPE)
                 .medOppgavetype(OPPGAVETYPE_JFR)
-                .medDiskresjonskode(gt.getDiskresjonskode())
-                .medGeografiskOmraade(gt.getTilknytning())
+                .medDiskresjonskode(gt.diskresjonskode())
+                .medGeografiskOmraade(gt.tilknytning())
                 .build();
         return validerOgVelgBehandlendeEnhet(norgKlient.finnEnhet(request), gt);
     }
@@ -87,7 +87,7 @@ public class EnhetsTjeneste implements EnhetsInfo {
     private static String validerOgVelgBehandlendeEnhet(List<ArbeidsfordelingResponse> response, GeoTilknytning gt) {
         // Vi forventer å få én behandlende enhet.
         if (response == null || response.size() != 1) {
-            throw EnhetsTjeneste.EnhetsTjenesteFeil.FACTORY.finnerIkkeBehandlendeEnhet(gt.getTilknytning(), gt.getDiskresjonskode())
+            throw EnhetsTjeneste.EnhetsTjenesteFeil.FACTORY.finnerIkkeBehandlendeEnhet(gt.tilknytning(), gt.diskresjonskode())
                     .toException();
         }
 
