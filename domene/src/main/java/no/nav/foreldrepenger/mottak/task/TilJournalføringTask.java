@@ -117,9 +117,9 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
                 .orElseGet(() -> w.getAktørId().orElseThrow(() -> new IllegalStateException("Hvor ble det av brukers id?")));
 
         var opprettetJournalpost = arkivTjeneste.opprettJournalpost(forsendelseId, avsenderId, saksnummer);
-        w.setArkivId(opprettetJournalpost.getJournalpostId());
+        w.setArkivId(opprettetJournalpost.journalpostId());
 
-        if (!opprettetJournalpost.isFerdigstilt()) {
+        if (!opprettetJournalpost.ferdigstilt()) {
             LOG.info("FORDEL OPPRETT/FERDIG ikke ferdig for {} forsendelse {}", w.getArkivId(), forsendelseId);
             MottakMeldingFeil.FACTORY.feilJournalTilstandForventetTilstandEndelig().log(LOG);
             dokumentRepository.oppdaterForsendelseMedArkivId(forsendelseId, w.getArkivId(), ForsendelseStatus.GOSYS);
@@ -127,6 +127,6 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             // reagere på den.
             dokumentRepository.lagreJournalpostLokal(w.getArkivId(), MottakKanal.SELVBETJENING.getKode(), "MIDLERTIDIG", forsendelseId.toString());
         }
-        return opprettetJournalpost.isFerdigstilt();
+        return opprettetJournalpost.ferdigstilt();
     }
 }

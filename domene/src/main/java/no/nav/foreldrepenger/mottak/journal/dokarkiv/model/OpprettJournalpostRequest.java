@@ -3,40 +3,22 @@ package no.nav.foreldrepenger.mottak.journal.dokarkiv.model;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonFormat(shape = JsonFormat.Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class OpprettJournalpostRequest {
 
-    @JsonProperty("tittel")
     private String tittel;
-    @JsonProperty("journalposttype")
     private JournalpostType journalpostType;
-    @JsonProperty("kanal")
     private String kanal;
-    @JsonProperty("tema")
     private String tema;
-    @JsonProperty("behandlingstema")
     private String behandlingstema;
-    @JsonProperty("journalfoerendeEnhet")
     private String journalfoerendeEnhet;
-    @JsonProperty("datoMottatt")
     private LocalDate datoMottatt;
-    @JsonProperty("eksternReferanseId")
     private String eksternReferanseId;
-    @JsonProperty("sak")
     private Sak sak;
-    @JsonProperty("bruker")
     private Bruker bruker;
-    @JsonProperty("avsenderMottaker")
     private AvsenderMottaker avsenderMottaker;
-    @JsonProperty("dokumenter")
     private List<DokumentInfoOpprett> dokumenter;
 
     @JsonCreator

@@ -77,8 +77,8 @@ public class ArkivTjenesteTest {
         assertThat(captured.getDokumenter().get(0).dokumentvarianter()).hasSize(2);
         assertThat(captured.getJournalfoerendeEnhet()).isEqualTo("9999");
         assertThat(captured.getTittel()).isEqualTo(SØKNAD_FORELDREPENGER_FØDSEL.getTermNavn());
-        assertThat(resultat.getJournalpostId()).isEqualTo(DokumentArkivTestUtil.JOURNALPOST_ID);
-        assertThat(resultat.isFerdigstilt()).isEqualTo(Boolean.TRUE);
+        assertThat(resultat.journalpostId()).isEqualTo(DokumentArkivTestUtil.JOURNALPOST_ID);
+        assertThat(resultat.ferdigstilt()).isEqualTo(Boolean.TRUE);
     }
 
     @Test
@@ -101,8 +101,8 @@ public class ArkivTjenesteTest {
         assertThat(captured.getEksternReferanseId()).isEqualTo(forsendelseId.toString());
         assertThat(captured.getDokumenter()).hasSize(1);
         assertThat(captured.getTittel()).isEqualTo(SØKNAD_FORELDREPENGER_FØDSEL.getTermNavn());
-        assertThat(resultat.getJournalpostId()).isEqualTo(DokumentArkivTestUtil.JOURNALPOST_ID);
-        assertThat(resultat.isFerdigstilt()).isEqualTo(Boolean.TRUE);
+        assertThat(resultat.journalpostId()).isEqualTo(DokumentArkivTestUtil.JOURNALPOST_ID);
+        assertThat(resultat.ferdigstilt()).isEqualTo(Boolean.TRUE);
     }
 
 }

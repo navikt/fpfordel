@@ -120,7 +120,7 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
         taskData.setProperty(MottakMeldingDataWrapper.FORSENDELSE_ID_KEY, forsendelseId.toString());
         taskData.setProperty(DOKUMENTTYPE_ID_KEY, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.getKode());
         taskData.setProperty(RETRY_KEY, "J");
-        taskData.setProperty(ARKIV_ID_KEY, DokumentArkivTestUtil.lagOpprettRespons(false).getJournalpostId());
+        taskData.setProperty(ARKIV_ID_KEY, DokumentArkivTestUtil.lagOpprettRespons(false).journalpostId());
 
         List<Dokument> dokumenter = new ArrayList<>();
         dokumenter.addAll(DokumentArkivTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL));

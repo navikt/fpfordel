@@ -109,8 +109,8 @@ public class PersonTjenesteTest {
         when(pdl.hentPerson(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
         when(pdl.hentGT(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(responsegt);
         GeoTilknytning gt = personTjeneste.hentGeografiskTilknytning(AKTØR_ID);
-        assertThat(gt.getTilknytning()).isNull();
-        assertThat(gt.getDiskresjonskode()).isNull();
+        assertThat(gt.tilknytning()).isNull();
+        assertThat(gt.diskresjonskode()).isNull();
     }
 
     @Test
@@ -122,8 +122,8 @@ public class PersonTjenesteTest {
         when(pdl.hentPerson(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
         when(pdl.hentGT(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(responsegt);
         GeoTilknytning gt = personTjeneste.hentGeografiskTilknytning(AKTØR_ID);
-        assertThat(gt.getTilknytning()).isEqualTo("030110");
-        assertThat(gt.getDiskresjonskode()).isEqualTo("SPFO");
+        assertThat(gt.tilknytning()).isEqualTo("030110");
+        assertThat(gt.diskresjonskode()).isEqualTo("SPFO");
     }
 
     @Test
@@ -137,8 +137,8 @@ public class PersonTjenesteTest {
 
         GeoTilknytning gt = personTjeneste.hentGeografiskTilknytning(AKTØR_ID);
 
-        assertThat(gt.getTilknytning()).isEqualTo("POL");
-        assertThat(gt.getDiskresjonskode()).isEqualTo("SPSF");
+        assertThat(gt.tilknytning()).isEqualTo("POL");
+        assertThat(gt.diskresjonskode()).isEqualTo("SPSF");
     }
 
     private static LoadingCache<String, String> cache(Function<? super String, ? extends String> loader) {

@@ -57,7 +57,7 @@ public class MidlJournalføringTask extends WrappedProsessTaskHandler {
             var opprettetJournalpost = arkivTjeneste.opprettJournalpost(forsendelseId.get(),
                     dataWrapper.getAvsenderId()
                             .orElseGet(() -> dataWrapper.getAktørId().orElseThrow(() -> new IllegalStateException("Hvor ble det av brukers id?"))));
-            dataWrapper.setArkivId(opprettetJournalpost.getJournalpostId());
+            dataWrapper.setArkivId(opprettetJournalpost.journalpostId());
         }
         forsendelseId.ifPresent(fid -> repo.oppdaterForsendelseMedArkivId(fid, dataWrapper.getArkivId(), ForsendelseStatus.GOSYS));
         forsendelseId.ifPresent(

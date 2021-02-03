@@ -111,7 +111,7 @@ public class PersonTjeneste implements PersonInformasjon {
                     .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
             var gt = new GeoTilknytning(tilknytning(pdl.hentGT(query, pgt)),
                     diskresjonskode(pdl.hentPerson(personQuery(aktørId), pp)));
-            if (gt.getTilknytning() == null) {
+            if (gt.tilknytning() == null) {
                 LOG.info("FPFORDEL PDL mangler GT for {}", aktørId);
             }
             return gt;
@@ -167,12 +167,11 @@ public class PersonTjeneste implements PersonInformasjon {
     }
 
     private String diskresjonskode(Person person) {
-        var kode = person.getAdressebeskyttelse().stream()
+        return switch (person.getAdressebeskyttelse().stream()
                 .map(Adressebeskyttelse::getGradering)
                 .filter(not(UGRADERT::equals))
                 .findFirst()
-                .orElse(UGRADERT);
-        return switch (kode) {
+                .orElse(UGRADERT)) {
             case STRENGT_FORTROLIG, STRENGT_FORTROLIG_UTLAND -> SPSF;
             case FORTROLIG -> SPFO;
             default -> null;

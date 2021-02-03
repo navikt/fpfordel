@@ -97,8 +97,8 @@ public class ArkivTjeneste {
             builder.medStrukturertPayload(payload).medDokumentInfoId(dokumentInfo);
         }
 
-        Set<DokumentTypeId> alleTyper = utledDokumentTyper(journalpost);
-        BehandlingTema behandlingTema = utledBehandlingTema(journalpost.behandlingstema(), alleTyper);
+        var alleTyper = utledDokumentTyper(journalpost);
+        var behandlingTema = utledBehandlingTema(journalpost.behandlingstema(), alleTyper);
         mapIdent(journalpost).ifPresent(builder::medBrukerAktørId);
         if ((journalpost.avsenderMottaker() != null) && (journalpost.avsenderMottaker().type() != null)) {
             builder.medAvsender(journalpost.avsenderMottaker().id(), journalpost.avsenderMottaker().navn());
@@ -155,7 +155,7 @@ public class ArkivTjeneste {
     public boolean oppdaterRettMangler(ArkivJournalpost arkivJournalpost, String aktørId, BehandlingTema behandlingTema,
             DokumentTypeId defaultDokumentTypeId) {
         var journalpost = arkivJournalpost.getOriginalJournalpost();
-        Set<DokumentTypeId> alleTyper = arkivJournalpost.getAlleTyper();
+        var alleTyper = arkivJournalpost.getAlleTyper();
         var hovedtype = DokumentTypeId.UDEFINERT.equals(arkivJournalpost.getHovedtype()) ? defaultDokumentTypeId : arkivJournalpost.getHovedtype();
         var utledetBehandlingTema = utledBehandlingTema(
                 BehandlingTema.UDEFINERT.equals(behandlingTema) ? journalpost.behandlingstema() : behandlingTema.getOffisiellKode(), alleTyper);
@@ -230,15 +230,13 @@ public class ArkivTjeneste {
     }
 
     private static BehandlingTema utledBehandlingTema(String btJournalpost, Set<DokumentTypeId> dokumenttyper) {
-        BehandlingTema bt = BehandlingTema.fraOffisiellKode(btJournalpost);
+        var bt = BehandlingTema.fraOffisiellKode(btJournalpost);
         return ArkivUtil.behandlingTemaFraDokumentTypeSet(bt, dokumenttyper);
     }
 
     private static Optional<DokumentTypeId> dokumentTypeFraKjenteTitler(String tittel) {
-        if (tittel == null) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(TITTEL_MAP.get(tittel));
+        return Optional.ofNullable(tittel)
+                .map(TITTEL_MAP::get);
     }
 
     private static Set<DokumentTypeId> utledDokumentTyper(Journalpost journalpost) {

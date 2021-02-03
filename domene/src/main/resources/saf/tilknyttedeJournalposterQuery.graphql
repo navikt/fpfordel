@@ -1,9 +1,0 @@
-query ($dokumentInfoId: String!, $tilknytning: Tilknytning!) {
-  tilknyttedeJournalposter(
-    dokumentInfoId: $dokumentInfoId
-    tilknytning: $tilknytning
-  ) {
-    journalpostId
-    eksternReferanseId
-  }
-}
