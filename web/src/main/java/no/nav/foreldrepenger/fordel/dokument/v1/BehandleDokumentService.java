@@ -47,7 +47,6 @@ import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
 import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebService;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -82,7 +81,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
     @Inject
     public BehandleDokumentService(KlargjørForVLTjeneste klargjørForVLTjeneste,
-            /*@Jersey */FagsakTjeneste fagsakRestKlient,
+            /* @Jersey */FagsakTjeneste fagsakRestKlient,
             PersonInformasjon aktørConsumer,
             ArkivTjeneste arkivTjeneste,
             DokumentRepository dokumentRepository) {
@@ -133,14 +132,14 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         if (Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
             var brukDokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokumentTypeId) ? DokumentTypeId.ANNET : dokumentTypeId;
             if (!arkivTjeneste.oppdaterRettMangler(journalpost, aktørId, behandlingTema, brukDokumentTypeId)) {
-                ugyldigBrukerPrøvIgjen(arkivId);
+                ugyldigBrukerPrøvIgjen(arkivId, null);
             }
             LOG.info(removeLineBreaks("Kaller tilJournalføring")); // NOSONAR
             try {
                 arkivTjeneste.oppdaterMedSak(journalpost.getJournalpostId(), saksnummer);
                 arkivTjeneste.ferdigstillJournalføring(journalpost.getJournalpostId(), enhetId);
             } catch (Exception e) {
-                ugyldigBrukerPrøvIgjen(arkivId);
+                ugyldigBrukerPrøvIgjen(arkivId, e);
             }
         }
 
@@ -236,8 +235,10 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         }
     }
 
-    private static void ugyldigBrukerPrøvIgjen(String arkivId) throws OppdaterOgFerdigstillJournalfoeringUgyldigInput {
-        LOG.warn("FPFORDEL oppdaterOgFerdigstillJournalfoering feiler for {}", arkivId);
+    private static void ugyldigBrukerPrøvIgjen(String arkivId, Exception e) throws OppdaterOgFerdigstillJournalfoeringUgyldigInput {
+        if (e != null) {
+            LOG.warn("FPFORDEL oppdaterOgFerdigstillJournalfoering feiler for {}", arkivId, e);
+        }
         UgyldigInput ugyldigInput = lagUgyldigInput(BRUKER_MANGLER);
         throw new OppdaterOgFerdigstillJournalfoeringUgyldigInput(ugyldigInput.getFeilmelding(), ugyldigInput);
     }
