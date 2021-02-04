@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveT
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
-import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
@@ -78,7 +77,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     @Override
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper dataWrapper) {
 
-        ArkivJournalpost journalpost = arkivTjeneste.hentArkivJournalpost(dataWrapper.getArkivId());
+        var journalpost = arkivTjeneste.hentArkivJournalpost(dataWrapper.getArkivId());
 
         if (!Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
             LOG.info("FPFORDEL HERK feil tilstand på journalpost {} med {}", journalpost.getJournalpostId(), journalpost.getTilstand());
@@ -87,6 +86,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
         // Disse 2 + behandlingstema er normalt satt fra før
         dataWrapper.setTema(journalpost.getTema());
+
         if (dataWrapper.getEksternReferanseId().isEmpty()) {
             dataWrapper.setEksternReferanseId(journalpost.getEksternReferanseId());
         }
