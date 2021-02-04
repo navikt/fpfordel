@@ -14,4 +14,4 @@ COPY web/target/app.jar /app/
 COPY web/target/lib/*.jar /app/lib/
 COPY 03-export-vault-secrets.sh /init-scripts/
 
-ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom -D -Duser.timezone=Europe/Oslo --enable-preview "
+ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0  -Dapp.name=fpfordel -Djava.security.egd=file:/dev/./urandom -D -Duser.timezone=Europe/Oslo --enable-preview "
