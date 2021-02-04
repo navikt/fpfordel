@@ -6,7 +6,6 @@ ENV APPDYNAMICS_CONTROLLER_HOST_NAME=appdynamics.adeo.no
 ENV APPDYNAMICS_CONTROLLER_PORT=443
 ENV APPDYNAMICS_CONTROLLER_SSL_ENABLED=true
         
-ENV JAVA_OPTS --enable-preview
 
 RUN mkdir /app/lib
 RUN mkdir /app/conf
@@ -20,6 +19,4 @@ COPY web/target/app.jar /app/
 COPY web/target/lib/*.jar /app/lib/
 COPY 03-export-vault-secrets.sh /init-scripts/
 
-
-# Application Start Command
-COPY run-java.sh /
+ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom -Duser.timezone=Europe/Oslo --enable-preview "
