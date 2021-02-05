@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
 @ApplicationScoped
 public class RelevantSakSjekker {
@@ -22,7 +23,7 @@ public class RelevantSakSjekker {
     }
 
     @Inject
-    public RelevantSakSjekker(InfotrygdTjeneste fp) {
+    public RelevantSakSjekker(@Jersey InfotrygdTjeneste fp) {
         this.fp = fp;
     }
 

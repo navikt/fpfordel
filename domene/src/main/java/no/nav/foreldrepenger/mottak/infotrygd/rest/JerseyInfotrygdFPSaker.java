@@ -10,6 +10,9 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
@@ -22,7 +25,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 public class JerseyInfotrygdFPSaker extends AbstractJerseyOidcRestClient implements InfotrygdTjeneste {
 
     private static final String DEFAULT_URI = "http://infotrygd-foreldrepenger.default/saker";
-
+    private static final Logger LOG = LoggerFactory.getLogger(JerseyInfotrygdFPSaker.class);
     private URI endpoint;
 
     private InfotrygdRestResponseMapper mapper;
@@ -38,11 +41,14 @@ public class JerseyInfotrygdFPSaker extends AbstractJerseyOidcRestClient impleme
 
     @Override
     public List<InfotrygdSak> finnSakListe(String fnr, LocalDate fom) {
-        return mapper.map(client.target(endpoint)
+        LOG.info("Henter saksliste from infotrygd");
+        var liste = mapper.map(client.target(endpoint)
                 .queryParam("fnr", fnr)
                 .queryParam("fom", fom(fom))
                 .request(APPLICATION_JSON_TYPE)
                 .get(Saker.class));
+        LOG.info("Hentet saksliste from infotrygd OK");
+        return liste;
     }
 
     private static String fom(LocalDate fom) {
