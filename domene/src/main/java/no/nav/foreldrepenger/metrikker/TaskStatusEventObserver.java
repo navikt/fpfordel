@@ -13,7 +13,7 @@ class TaskStatusEventObserver {
     private MetrikkerTjeneste metrikkerTjeneste;
 
     TaskStatusEventObserver() {
-    } // WELD ctor
+    }
 
     @Inject
     public TaskStatusEventObserver(MetrikkerTjeneste metrikkerTjeneste) {

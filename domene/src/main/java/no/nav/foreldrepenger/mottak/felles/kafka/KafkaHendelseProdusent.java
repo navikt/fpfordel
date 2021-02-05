@@ -5,7 +5,6 @@ import static no.nav.vedtak.log.mdc.MDCOperations.generateCallId;
 import static no.nav.vedtak.log.mdc.MDCOperations.getCallId;
 
 import java.util.Optional;
-import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -20,10 +19,9 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import no.nav.vedtak.feil.Feil;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-@EnvironmentAlternative
 @ApplicationScoped
 public class KafkaHendelseProdusent implements HendelseProdusent {
 
@@ -54,16 +52,16 @@ public class KafkaHendelseProdusent implements HendelseProdusent {
     }
 
     private ProducerRecord<String, String> meldingFra(Object objekt, String nøkkel) {
-        return new ProducerRecord<>(topic, null, nøkkel, jsonFra(objekt, KafkaFeil.FEILFACTORY::kanIkkeSerialisere),
+        return new ProducerRecord<>(topic, null, nøkkel, jsonFra(objekt),
                 new RecordHeaders().add(CALLID_NAME,
                         Optional.ofNullable(getCallId()).orElseGet(() -> generateCallId()).getBytes()));
     }
 
-    private static String jsonFra(Object object, Function<JsonProcessingException, Feil> feilFactory) {
+    private static String jsonFra(Object object) {
         try {
             return OM.writerWithDefaultPrettyPrinter().writeValueAsString(object);
         } catch (JsonProcessingException e) {
-            throw feilFactory.apply(e).toException();
+            throw new TekniskException("FP-190496", "Kunne ikke serialisere til json", e);
         }
     }
 }

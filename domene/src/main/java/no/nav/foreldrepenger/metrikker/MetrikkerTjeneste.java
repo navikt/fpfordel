@@ -18,7 +18,7 @@ public class MetrikkerTjeneste {
     private SensuKlient sensuKlient;
 
     MetrikkerTjeneste() {
-    } // WELD ctor
+    }
 
     @Inject
     public MetrikkerTjeneste(SensuKlient sensuKlient) {

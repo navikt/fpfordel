@@ -83,17 +83,17 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     }
 
     private void opprettSletteTask(ProsessTaskData prosessTaskData) {
-        var nesteStegProsessTaskData = new ProsessTaskData(SlettForsendelseTask.TASKNAME);
+        var neste = new ProsessTaskData(SlettForsendelseTask.TASKNAME);
         // Gi selvbetjening tid til å polle ferdig + Kafka-hendelse tid til å nå fram
         // (og bli ignorert)
-        nesteStegProsessTaskData.setNesteKjøringEtter(LocalDateTime.now().plusHours(2));
+        neste.setNesteKjøringEtter(LocalDateTime.now().plusHours(2));
         long nesteSekvens = prosessTaskData.getSekvens() == null ? 1L
                 : Long.parseLong(prosessTaskData.getSekvens()) + 1;
-        nesteStegProsessTaskData.setSekvens(Long.toString(nesteSekvens));
-        nesteStegProsessTaskData.setProperties(prosessTaskData.getProperties());
-        nesteStegProsessTaskData.setPayload(prosessTaskData.getPayload());
-        nesteStegProsessTaskData.setGruppe(prosessTaskData.getGruppe());
-        prosessTaskRepository.lagre(nesteStegProsessTaskData);
+        neste.setSekvens(Long.toString(nesteSekvens));
+        neste.setProperties(prosessTaskData.getProperties());
+        neste.setPayload(prosessTaskData.getPayload());
+        neste.setGruppe(prosessTaskData.getGruppe());
+        prosessTaskRepository.lagre(neste);
     }
 
     private String opprettOppgave(ProsessTaskData prosessTaskData, BehandlingTema behandlingTema,

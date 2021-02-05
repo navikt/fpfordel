@@ -102,7 +102,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
                     ForsendelseStatus.PENDING);
             try {
                 hendelseProdusent.send(
-                        new SøknadFordeltOgJournalførtHendelse(w.getArkivId(), id, fnr.get(), Optional.of(saksnummer)),
+                        new SøknadFordeltOgJournalførtHendelse(w.getArkivId(), id, fnr.get(), saksnummer),
                         id.toString());
             } catch (Exception e) {
                 LOG.warn("fpfordel kafka hendelsepublisering feilet for forsendelse {}", id.toString(), e);
