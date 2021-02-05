@@ -137,13 +137,13 @@ public enum DokumentTypeId implements Kodeverdi {
         }
     }
 
-    private String kode;
+    private final String kode;
 
     @JsonIgnore
-    private String offisiellKode;
+    private final String offisiellKode;
 
     @JsonIgnore
-    private String termnavn;
+    private final String termnavn;
 
     private DokumentTypeId(String kode, String offisiellKode, String termnavn) {
         this.kode = kode;

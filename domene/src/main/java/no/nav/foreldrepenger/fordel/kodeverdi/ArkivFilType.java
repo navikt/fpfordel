@@ -59,6 +59,7 @@ public enum ArkivFilType implements Kodeverdi {
 
     @JsonCreator
     public static ArkivFilType fraKode(@JsonProperty("kode") String kode) {
+
         if (kode == null) {
             return null;
         }

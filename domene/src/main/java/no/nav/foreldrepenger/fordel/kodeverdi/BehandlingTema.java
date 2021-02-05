@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.fordel.kodeverdi;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -36,6 +37,12 @@ public enum BehandlingTema implements Kodeverdi {
     UDEFINERT("-", null, "Ikke definert"),
     ;
 
+    private static final Set<BehandlingTema> ES_BT = Set.of(ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON,
+            ENGANGSSTØNAD_FØDSEL);
+    private static final Set<BehandlingTema> FP_BT = Set.of(FORELDREPENGER, FORELDREPENGER_ADOPSJON,
+            FORELDREPENGER_FØDSEL);
+    private static final Set<BehandlingTema> UDEF_BT = Set.of(ENGANGSSTØNAD, FORELDREPENGER, UDEFINERT);
+
     private static final Map<String, BehandlingTema> KODER = new LinkedHashMap<>();
     private static final Map<String, BehandlingTema> OFFISIELLE_KODER = new LinkedHashMap<>();
     private static final Map<String, BehandlingTema> ALLE_TERMNAVN = new LinkedHashMap<>();
@@ -56,13 +63,13 @@ public enum BehandlingTema implements Kodeverdi {
         }
     }
 
-    private String kode;
+    private final String kode;
 
     @JsonIgnore
-    private String offisiellKode;
+    private final String offisiellKode;
 
     @JsonIgnore
-    private String termnavn;
+    private final String termnavn;
 
     private BehandlingTema(String kode, String offisiellKode, String termnavn) {
         this.kode = kode;
@@ -72,35 +79,28 @@ public enum BehandlingTema implements Kodeverdi {
 
     @JsonCreator
     public static BehandlingTema fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent Tema: " + kode);
-        }
-        return ad;
+        return Optional.ofNullable(kode)
+                .map(KODER::get)
+                .orElseThrow(() -> new IllegalArgumentException("Ukjent Tema: " + kode));
+
     }
 
     public static BehandlingTema fraKodeDefaultUdefinert(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return UDEFINERT;
-        }
-        return KODER.getOrDefault(kode, UDEFINERT);
+        return Optional.ofNullable(kode)
+                .map(KODER::get)
+                .orElse(UDEFINERT);
     }
 
     public static BehandlingTema fraOffisiellKode(String kode) {
-        if (kode == null) {
-            return UDEFINERT;
-        }
-        return OFFISIELLE_KODER.getOrDefault(kode, UDEFINERT);
+        return Optional.ofNullable(kode)
+                .map(OFFISIELLE_KODER::get)
+                .orElse(UDEFINERT);
     }
 
     public static BehandlingTema fraTermNavn(String termnavn) {
-        if (termnavn == null) {
-            return UDEFINERT;
-        }
-        return ALLE_TERMNAVN.getOrDefault(termnavn, UDEFINERT);
+        return Optional.ofNullable(termnavn)
+                .map(ALLE_TERMNAVN::get)
+                .orElse(UDEFINERT);
     }
 
     @JsonProperty
@@ -122,12 +122,6 @@ public enum BehandlingTema implements Kodeverdi {
     public String getTermNavn() {
         return termnavn;
     }
-
-    private static final Set<BehandlingTema> ES_BT = Set.of(ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON,
-            ENGANGSSTØNAD_FØDSEL);
-    private static final Set<BehandlingTema> FP_BT = Set.of(FORELDREPENGER, FORELDREPENGER_ADOPSJON,
-            FORELDREPENGER_FØDSEL);
-    private static final Set<BehandlingTema> UDEF_BT = Set.of(ENGANGSSTØNAD, FORELDREPENGER, UDEFINERT);
 
     public static boolean gjelderEngangsstønad(BehandlingTema bt) {
         return ES_BT.contains(bt);

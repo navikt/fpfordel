@@ -49,10 +49,10 @@ public enum DokumentKategori implements Kodeverdi {
         }
     }
 
-    private String kode;
+    private final String kode;
 
     @JsonIgnore
-    private String offisiellKode;
+    private final String offisiellKode;
 
     private DokumentKategori(String kode, String offisiellKode) {
         this.kode = kode;
