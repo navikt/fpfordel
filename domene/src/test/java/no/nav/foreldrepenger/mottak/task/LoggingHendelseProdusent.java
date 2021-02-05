@@ -1,14 +1,11 @@
 package no.nav.foreldrepenger.mottak.task;
 
-import javax.enterprise.context.ApplicationScoped;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.mottak.felles.kafka.HendelseProdusent;
 
-@ApplicationScoped
-public class LoggingHendelseProdusent implements HendelseProdusent {
+class LoggingHendelseProdusent implements HendelseProdusent {
     private static final Logger LOG = LoggerFactory.getLogger(LoggingHendelseProdusent.class);
 
     @Override
