@@ -24,7 +24,7 @@ import javax.xml.validation.SchemaFactory;
 
 import org.xml.sax.SAXException;
 
-public final class JaxbHelper {
+final class JaxbHelper {
     private static final Map<Class<?>, JAXBContext> CONTEXTS = new ConcurrentHashMap<>(); // NOSONAR
     private static final Map<String, Schema> SCHEMAS = new ConcurrentHashMap<>(); // NOSONAR
 
@@ -56,7 +56,8 @@ public final class JaxbHelper {
         return unmarshalAndValidateXMLWithStAX(clazz, xml, (String) null);
     }
 
-    public static <T> T unmarshalAndValidateXMLWithStAX(Class<T> clazz, String xml, String xsdLocation) throws JAXBException, XMLStreamException, SAXException {
+    public static <T> T unmarshalAndValidateXMLWithStAX(Class<T> clazz, String xml, String xsdLocation)
+            throws JAXBException, XMLStreamException, SAXException {
         if (!CONTEXTS.containsKey(clazz)) {
             CONTEXTS.put(clazz, JAXBContext.newInstance(clazz));
         }
@@ -69,7 +70,8 @@ public final class JaxbHelper {
         return unmarshalAndValidateXMLWithStAXProvidingSchema(clazz, new StreamSource(new StringReader(xml)), schema);
     }
 
-    public static <T> T unmarshalAndValidateXMLWithStAX(Class<T> clazz, String xml, String mainXsdLocation, String[] xsdLocations, Class<?>... classes) throws JAXBException, XMLStreamException, SAXException {
+    public static <T> T unmarshalAndValidateXMLWithStAX(Class<T> clazz, String xml, String mainXsdLocation, String[] xsdLocations,
+            Class<?>... classes) throws JAXBException, XMLStreamException, SAXException {
         if (!CONTEXTS.containsKey(clazz)) {
             classes = addIdentifierToBoundClasses(clazz, classes);
             CONTEXTS.put(clazz, JAXBContext.newInstance(classes));
@@ -145,7 +147,8 @@ public final class JaxbHelper {
         SCHEMAS.clear();
     }
 
-    public static String marshalAndValidateJaxb(Class<?> clazz, Object jaxbObject, String xsdLocation, Class<?>... classes) throws JAXBException, SAXException {
+    public static String marshalAndValidateJaxb(Class<?> clazz, Object jaxbObject, String xsdLocation, Class<?>... classes)
+            throws JAXBException, SAXException {
         if (!CONTEXTS.containsKey(clazz)) {
             classes = addIdentifierToBoundClasses(clazz, classes);
             CONTEXTS.put(clazz, JAXBContext.newInstance(classes));

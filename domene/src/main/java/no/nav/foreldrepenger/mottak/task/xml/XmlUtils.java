@@ -8,7 +8,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
-public final class XmlUtils {
+final class XmlUtils {
 
     private XmlUtils() {
     }
