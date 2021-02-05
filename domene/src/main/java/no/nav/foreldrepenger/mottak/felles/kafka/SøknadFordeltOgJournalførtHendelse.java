@@ -2,6 +2,6 @@ package no.nav.foreldrepenger.mottak.felles.kafka;
 
 import java.util.UUID;
 
-record SøknadFordeltOgJournalførtHendelse(String journalpostId, UUID forsendelseId, String fnr, String saksnr) {
+public record SøknadFordeltOgJournalførtHendelse(String journalpostId, UUID forsendelseId, String fnr, String saksnr) {
 
 }
