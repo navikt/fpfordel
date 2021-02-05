@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.mottak.infotrygd.rest;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -19,7 +19,7 @@ public class RelevantSakSjekker {
     private InfotrygdTjeneste fp;
 
     RelevantSakSjekker() {
-        //
+      
     }
 
     @Inject
@@ -51,19 +51,19 @@ public class RelevantSakSjekker {
     }
 
     private boolean erITSakRelevantForFP(String fnr, LocalDate fom) {
-        return restSaker(fp, fnr, fom).stream()
+        return restSaker(fp, fnr, fom)
                 .anyMatch(svpFpRelevantTidFilter(fom));
     }
 
     private boolean erFpRelevantForIM(String fnr, LocalDate fom) {
-        return restSaker(fp, fnr, fom).stream()
+        return restSaker(fp, fnr, fom)
                 .map(InfotrygdSak::getIverksatt)
                 .flatMap(Optional::stream)
                 .anyMatch(fom::isBefore);
     }
 
-    private static List<InfotrygdSak> restSaker(InfotrygdTjeneste t, String fnr, LocalDate fom) {
-        return t.finnSakListe(fnr, fom);
+    private static Stream<InfotrygdSak> restSaker(InfotrygdTjeneste t, String fnr, LocalDate fom) {
+        return t.finnSakListe(fnr, fom).stream();
     }
 
     private static Predicate<? super InfotrygdSak> svpFpRelevantTidFilter(LocalDate fom) {

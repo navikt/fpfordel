@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.mottak.felles.kafka;
 import java.util.Optional;
 import java.util.UUID;
 
+import no.nav.foreldrepenger.fordel.StringUtil;
+
 public class SøknadFordeltOgJournalførtHendelse {
     private final String journalpostId;
     private final UUID forsendelseId;
@@ -36,7 +38,7 @@ public class SøknadFordeltOgJournalførtHendelse {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "[journalpostId=" + journalpostId + ", forsendelseId=" + forsendelseId
-                + ", fnr=" + fnr + ", saksnr=" + saksnr + "]";
+                + ", fnr=" + StringUtil.partialMask(fnr) + ", saksnr=" + saksnr + "]";
     }
 
 }
