@@ -41,13 +41,13 @@ public class JerseyInfotrygdFPSaker extends AbstractJerseyOidcRestClient impleme
 
     @Override
     public List<InfotrygdSak> finnSakListe(String fnr, LocalDate fom) {
-        LOG.info("Henter saksliste from infotrygd");
+        LOG.info("Henter saksliste fra infotrygd");
         var liste = mapper.map(client.target(endpoint)
                 .queryParam("fnr", fnr)
                 .queryParam("fom", fom(fom))
                 .request(APPLICATION_JSON_TYPE)
                 .get(Saker.class));
-        LOG.info("Hentet saksliste from infotrygd OK");
+        LOG.info("Hentet saksliste med {} saker fra infotrygd OK", liste.size());
         return liste;
     }
 
