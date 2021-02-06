@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.mottak.infotrygd;
 
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.gjelderForeldrepenger;
+
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -33,18 +35,12 @@ public class RelevantSakSjekker {
     }
 
     private boolean erITSakRelevant(String fnr, LocalDate fom, BehandlingTema tema) {
-
-        if (BehandlingTema.gjelderForeldrepenger(tema)) {
-            return erITSakRelevantForFP(fnr, fom);
-        }
-        return false;
+        return gjelderForeldrepenger(tema) ? erITSakRelevantForFP(fnr, fom) : false;
     }
 
     private boolean erITSakRelevantForIM(String fnr, LocalDate fom, BehandlingTema tema) {
-        if (BehandlingTema.gjelderForeldrepenger(tema)) {
-            return erFpRelevantForIM(fnr, fom);
-        }
-        return false;
+        return gjelderForeldrepenger(tema) ? erFpRelevantForIM(fnr, fom) : false;
+
     }
 
     private boolean erITSakRelevantForFP(String fnr, LocalDate fom) {
@@ -67,7 +63,7 @@ public class RelevantSakSjekker {
         // Intensjon med FALSE for å unngå treff pga praksis i enheter med
         // informasjonssaker
         return sak -> sak.getIverksatt().map(fom::isBefore).orElse(false)
-                || ((sak.getRegistrert() != null) && fom.isBefore(sak.getRegistrert()));
+                || ((sak.registrert() != null) && fom.isBefore(sak.registrert()));
     }
 
 }

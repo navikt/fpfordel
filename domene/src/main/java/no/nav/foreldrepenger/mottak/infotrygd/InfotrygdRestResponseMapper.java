@@ -15,9 +15,9 @@ import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.LøpendeSak;
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Sak;
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
 
-public final class InfotrygdRestResponseMapper {
+final class InfotrygdRestResponseMapper {
 
-    public InfotrygdRestResponseMapper() {
+    InfotrygdRestResponseMapper() {
     }
 
     public List<InfotrygdSak> map(Saker saker) {
@@ -70,7 +70,7 @@ public final class InfotrygdRestResponseMapper {
                 .stream();
     }
 
-    private static <T extends InfotrygdSak> List<T> infotrygdSakerFra(Stream<T> s1, Stream<T> s2, Stream<T> s3,
+    private static <T> List<T> infotrygdSakerFra(Stream<T> s1, Stream<T> s2, Stream<T> s3,
             Stream<T> s4) {
         return concat(s1, concat(s2, concat(s3, s4)))
                 .collect(toList());

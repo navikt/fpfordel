@@ -18,7 +18,7 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
-public class InfotrygdFPSaker extends AbstractJerseyOidcRestClient implements InfotrygdTjeneste {
+class InfotrygdFPSaker extends AbstractJerseyOidcRestClient implements InfotrygdTjeneste {
 
     private static final String DEFAULT_URI = "http://infotrygd-foreldrepenger.default/saker";
     private static final Logger LOG = LoggerFactory.getLogger(InfotrygdFPSaker.class);
