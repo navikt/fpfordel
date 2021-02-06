@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
-import no.nav.foreldrepenger.mottak.infotrygd.rest.RelevantSakSjekker;
+import no.nav.foreldrepenger.mottak.infotrygd.RelevantSakSjekker;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;

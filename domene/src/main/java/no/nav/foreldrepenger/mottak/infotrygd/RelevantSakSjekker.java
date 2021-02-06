@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.infotrygd.rest;
+package no.nav.foreldrepenger.mottak.infotrygd;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -9,9 +9,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
-import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
 @ApplicationScoped
 public class RelevantSakSjekker {
@@ -19,11 +16,11 @@ public class RelevantSakSjekker {
     private InfotrygdTjeneste fp;
 
     RelevantSakSjekker() {
-      
+
     }
 
     @Inject
-    public RelevantSakSjekker(@Jersey InfotrygdTjeneste fp) {
+    public RelevantSakSjekker(InfotrygdTjeneste fp) {
         this.fp = fp;
     }
 

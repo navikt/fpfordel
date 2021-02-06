@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.infotrygd.rest;
+package no.nav.foreldrepenger.mottak.infotrygd;
 
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
@@ -13,28 +13,24 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
-import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
-@Jersey
-public class JerseyInfotrygdFPSaker extends AbstractJerseyOidcRestClient implements InfotrygdTjeneste {
+public class InfotrygdFPSaker extends AbstractJerseyOidcRestClient implements InfotrygdTjeneste {
 
     private static final String DEFAULT_URI = "http://infotrygd-foreldrepenger.default/saker";
-    private static final Logger LOG = LoggerFactory.getLogger(JerseyInfotrygdFPSaker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InfotrygdFPSaker.class);
     private URI endpoint;
 
     private InfotrygdRestResponseMapper mapper;
 
-    JerseyInfotrygdFPSaker() {
+    InfotrygdFPSaker() {
     }
 
     @Inject
-    public JerseyInfotrygdFPSaker(@KonfigVerdi(value = "fpfordel.it.fp.url", defaultVerdi = DEFAULT_URI) URI endpoint) {
+    public InfotrygdFPSaker(@KonfigVerdi(value = "fpfordel.it.fp.url", defaultVerdi = DEFAULT_URI) URI endpoint) {
         this.endpoint = endpoint;
         this.mapper = new InfotrygdRestResponseMapper();
     }
