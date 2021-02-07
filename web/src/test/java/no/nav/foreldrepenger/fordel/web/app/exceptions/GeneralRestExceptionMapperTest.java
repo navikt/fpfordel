@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.fordel.web.app.exceptions;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
-import java.util.UUID;
 
 import javax.ws.rs.core.Response;
 
@@ -11,7 +10,6 @@ import org.jboss.resteasy.spi.ApplicationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.mottak.domene.dokument.DokumentFeil;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
@@ -61,16 +59,6 @@ public class GeneralRestExceptionMapperTest {
 
         assertThat(feilDto.getType()).isEqualTo(FeilType.MANGLER_TILGANG_FEIL);
         assertThat(feilDto.getFeilmelding()).isEqualTo("ManglerTilgangFeilmeldingKode");
-    }
-
-    @Test
-    public void constraint() {
-        Feil constraint = DokumentFeil.FACTORY.constraintForsendelseId(UUID.randomUUID());
-        Response response = generalRestExceptionMapper.toResponse(new ApplicationException(constraint.toException()));
-        assertThat(response.getStatus()).isEqualTo(409);
-        assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
-        FeilDto feilDto = (FeilDto) response.getEntity();
-        assertThat(feilDto.getType()).isEqualTo(FeilType.GENERELL_FEIL);
     }
 
     @Test

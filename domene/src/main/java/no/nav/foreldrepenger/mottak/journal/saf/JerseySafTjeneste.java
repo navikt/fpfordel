@@ -27,7 +27,6 @@ import no.nav.vedtak.felles.integrasjon.saf.HentDokumentQuery;
 import no.nav.vedtak.felles.integrasjon.saf.Saf;
 
 @ApplicationScoped
-@Jersey
 class JerseySafTjeneste implements SafTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(JerseySafTjeneste.class);

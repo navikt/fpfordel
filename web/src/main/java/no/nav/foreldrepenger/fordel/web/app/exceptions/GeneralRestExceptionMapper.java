@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import no.nav.foreldrepenger.mottak.domene.dokument.ConstraintException;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.feil.Feil;
@@ -45,13 +44,9 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
         loggTilApplikasjonslogg(cause);
         String callId = MDCOperations.getCallId();
 
-        if (cause instanceof VLException) {
-            if (cause instanceof ConstraintException) {
-                return handleConstraintException((ConstraintException) cause);
-            }
-            return handleVLException((VLException) cause, callId);
+        if (cause instanceof VLException vl) {
+            return handleVLException(vl, callId);
         }
-
         return handleGenerellFeil(cause, callId);
     }
 
@@ -81,13 +76,6 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
             return ikkeTilgang(feil);
         }
         return serverError(callId, feil);
-    }
-
-    private static Response handleConstraintException(ConstraintException e) {
-        return Response.status(Status.CONFLICT)
-                .entity(new FeilDto(FeilType.GENERELL_FEIL, e.getMessage()))
-                .type(MediaType.APPLICATION_JSON)
-                .build();
     }
 
     private static Response serverError(String callId, Feil feil) {

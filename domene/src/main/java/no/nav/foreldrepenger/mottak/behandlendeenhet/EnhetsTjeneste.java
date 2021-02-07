@@ -66,9 +66,9 @@ public class EnhetsTjeneste implements EnhetsInfo {
     private String hentEnhetId(String aktørId, BehandlingTema behandlingTema, Tema tema) {
         var gt = personTjeneste.hentPersonIdentForAktørId(aktørId)
                 .map(this::hentGeografiskTilknytning)
-                .orElse(new GeoTilknytning(null, null));
+                .orElse(GeoTilknytning.INGEN);
 
-        if (gt.diskresjonskode() == null && gt.tilknytning() == null) {
+        if (GeoTilknytning.INGEN.equals(gt)) {
             return tilfeldigNfpEnhet();
         }
 
