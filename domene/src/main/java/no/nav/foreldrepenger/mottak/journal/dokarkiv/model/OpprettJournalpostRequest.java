@@ -3,9 +3,6 @@ package no.nav.foreldrepenger.mottak.journal.dokarkiv.model;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public class OpprettJournalpostRequest {
 
     private String tittel;
@@ -21,19 +18,18 @@ public class OpprettJournalpostRequest {
     private AvsenderMottaker avsenderMottaker;
     private List<DokumentInfoOpprett> dokumenter;
 
-    @JsonCreator
-    public OpprettJournalpostRequest(@JsonProperty("journalposttype") JournalpostType journalpostType,
-            @JsonProperty("tittel") String tittel,
-            @JsonProperty("kanal") String kanal,
-            @JsonProperty("tema") String tema,
-            @JsonProperty("behandlingstema") String behandlingstema,
-            @JsonProperty("journalfoerendeEnhet") String journalfoerendeEnhet,
-            @JsonProperty("datoMottatt") LocalDate datoMottatt,
-            @JsonProperty("eksternReferanseId") String eksternReferanseId,
-            @JsonProperty("bruker") Bruker bruker,
-            @JsonProperty("avsenderMottaker") AvsenderMottaker avsenderMottaker,
-            @JsonProperty("sak") Sak sak,
-            @JsonProperty("dokumenter") List<DokumentInfoOpprett> dokumenter) {
+    public OpprettJournalpostRequest(JournalpostType journalpostType,
+            String tittel,
+            String kanal,
+            String tema,
+            String behandlingstema,
+            String journalfoerendeEnhet,
+            LocalDate datoMottatt,
+            String eksternReferanseId,
+            Bruker bruker,
+            AvsenderMottaker avsenderMottaker,
+            Sak sak,
+            List<DokumentInfoOpprett> dokumenter) {
         this.tittel = tittel;
         this.journalpostType = journalpostType;
         this.kanal = kanal;
@@ -156,19 +152,10 @@ public class OpprettJournalpostRequest {
 
     @Override
     public String toString() {
-        return "OpprettJournalpostRequest{" +
-                "tittel='" + tittel + '\'' +
-                ", journalpostType='" + journalpostType + '\'' +
-                ", kanal='" + kanal + '\'' +
-                ", tema='" + tema + '\'' +
-                ", behandlingstema='" + behandlingstema + '\'' +
-                ", journalfoerendeEnhet='" + journalfoerendeEnhet + '\'' +
-                ", datoMottatt=" + datoMottatt +
-                ", eksternReferanseId='" + eksternReferanseId + '\'' +
-                ", sak=" + sak +
-                ", bruker=" + bruker +
-                ", avsenderMottaker=" + avsenderMottaker +
-                ", dokumenter=" + dokumenter +
-                '}';
+        return getClass().getSimpleName() + " [tittel=" + tittel + ", journalpostType=" + journalpostType + ", kanal=" + kanal + ", tema=" + tema
+                + ", behandlingstema=" + behandlingstema + ", journalfoerendeEnhet=" + journalfoerendeEnhet + ", datoMottatt=" + datoMottatt
+                + ", eksternReferanseId=" + eksternReferanseId + ", sak=" + sak + ", bruker=" + bruker + ", avsenderMottaker=" + avsenderMottaker
+                + ", dokumenter=" + dokumenter + "]";
     }
+
 }

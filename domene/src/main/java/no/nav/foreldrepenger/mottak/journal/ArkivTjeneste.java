@@ -47,7 +47,6 @@ import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
 import no.nav.foreldrepenger.mottak.journal.saf.model.VariantFormat;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
 @ApplicationScoped
 public class ArkivTjeneste {
@@ -69,7 +68,7 @@ public class ArkivTjeneste {
     }
 
     @Inject
-    public ArkivTjeneste(@Jersey SafTjeneste saf,
+    public ArkivTjeneste(SafTjeneste saf,
             /* @Jersey */ DokArkiv dokArkivTjeneste,
             DokumentRepository dokumentRepository,
             PersonInformasjon personTjeneste) {
@@ -197,7 +196,7 @@ public class ArkivTjeneste {
             LOG.info("FPFORDEL oppdaterer manglende dokumenttitler for {}", journalpost.journalpostId());
         }
         oppdaterDok.forEach(builder::leggTilDokument);
-        if (builder.harVerdier() && !dokArkivTjeneste.oppdaterJournalpost(journalpost.journalpostId(), builder.build())) {
+        if (!dokArkivTjeneste.oppdaterJournalpost(journalpost.journalpostId(), builder.build())) {
             throw new IllegalStateException("FPFORDEL Kunne ikke oppdatere " + journalpost.journalpostId());
         }
         var resultat = !tittelMangler

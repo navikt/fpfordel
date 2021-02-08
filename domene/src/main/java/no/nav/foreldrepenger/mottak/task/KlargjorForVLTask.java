@@ -7,7 +7,6 @@ import java.util.UUID;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
@@ -55,11 +54,11 @@ public class KlargjorForVLTask extends WrappedProsessTaskHandler {
         String saksnummer = dataWrapper.getSaksnummer()
                 .orElseThrow(() -> new IllegalStateException("Skulle allerede vært sjekket i precondition(...)"));
         String arkivId = dataWrapper.getArkivId();
-        DokumentTypeId dokumenttypeId = dataWrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT);
-        DokumentKategori dokumentKategori = dataWrapper.getDokumentKategori().orElse(DokumentKategori.UDEFINERT);
+        var dokumenttypeId = dataWrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT);
+        var dokumentKategori = dataWrapper.getDokumentKategori().orElse(DokumentKategori.UDEFINERT);
         String journalEnhet = dataWrapper.getJournalførendeEnhet().orElse(null);
         String eksternReferanseId = dataWrapper.getEksternReferanseId().orElse(null);
-        BehandlingTema behandlingsTema = dataWrapper.getBehandlingTema();
+        var behandlingsTema = dataWrapper.getBehandlingTema();
         Optional<UUID> forsendelseId = dataWrapper.getForsendelseId();
         boolean erReinnsend = dataWrapper.getRetryingTask().map(REINNSEND::equals).orElse(Boolean.FALSE);
         if (forsendelseId.isPresent() && !erReinnsend) {

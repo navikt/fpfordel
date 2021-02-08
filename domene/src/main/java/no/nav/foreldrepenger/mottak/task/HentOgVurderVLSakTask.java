@@ -93,27 +93,27 @@ public class HentOgVurderVLSakTask extends WrappedProsessTaskHandler {
          * sakene i Infotrygd er av type ES - vurdering av ES/FP gjøres i aksjonspunkt
          */
 
-        VurderFagsystemResultat behandlendeFagsystemDto = fagsakRestKlient.vurderFagsystem(dataWrapper);
+        VurderFagsystemResultat res = fagsakRestKlient.vurderFagsystem(dataWrapper);
 
-        behandlendeFagsystemDto.getSaksnummer().ifPresent(dataWrapper::setSaksnummer);
+        res.getSaksnummer().ifPresent(dataWrapper::setSaksnummer);
         MottakMeldingDataWrapper nesteSteg;
-        if (behandlendeFagsystemDto.isPrøvIgjen()) {
-            Optional<LocalDateTime> ventIntervallOptional = behandlendeFagsystemDto.getPrøvIgjenTidspunkt();
+        if (res.isPrøvIgjen()) {
+            Optional<LocalDateTime> ventIntervallOptional = res.getPrøvIgjenTidspunkt();
             if (ventIntervallOptional.isPresent()) {
                 nesteSteg = dataWrapper.nesteSteg(HentOgVurderVLSakTask.TASKNAME, ventIntervallOptional.get());
             } else {
                 throw new IllegalStateException("Utviklerfeil"); // fix korrekt feilhåndtering
             }
-        } else if (behandlendeFagsystemDto.isBehandlesIVedtaksløsningen()
-                && behandlendeFagsystemDto.getSaksnummer().isPresent()) {
+        } else if (res.isBehandlesIVedtaksløsningen()
+                && res.getSaksnummer().isPresent()) {
             nesteSteg = dataWrapper.nesteSteg(TilJournalføringTask.TASKNAME);
         } else if (skalBehandlesEtterTidligereRegler(dataWrapper)) {
             nesteSteg = dataWrapper.nesteSteg(MidlJournalføringTask.TASKNAME);
-        } else if (behandlendeFagsystemDto.isBehandlesIVedtaksløsningen()) {
+        } else if (res.isBehandlesIVedtaksløsningen()) {
             nesteSteg = dataWrapper.nesteSteg(OpprettSakTask.TASKNAME);
-        } else if (behandlendeFagsystemDto.isSjekkMotInfotrygd()) {
+        } else if (res.isSjekkMotInfotrygd()) {
             nesteSteg = dataWrapper.nesteSteg(HentOgVurderInfotrygdSakTask.TASKNAME);
-        } else if (behandlendeFagsystemDto.isManuellVurdering()) {
+        } else if (res.isManuellVurdering()) {
             nesteSteg = dataWrapper.nesteSteg(MidlJournalføringTask.TASKNAME);
         } else {
             throw new IllegalStateException("Utviklerfeil"); // fix korrekt feilhåndtering

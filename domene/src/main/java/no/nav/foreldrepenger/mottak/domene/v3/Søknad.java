@@ -23,7 +23,6 @@ import no.nav.vedtak.felles.xml.soeknad.felles.v3.AnnenForelder;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.AnnenForelderMedNorskIdent;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Foedsel;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Omsorgsovertakelse;
-import no.nav.vedtak.felles.xml.soeknad.felles.v3.Rettigheter;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.SoekersRelasjonTilBarnet;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Termin;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Ytelse;
@@ -52,16 +51,14 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
         hentFørsteUttaksdag().ifPresent(dataWrapper::setFørsteUttakssdag);
         dataWrapper.setAdopsjonsbarnFodselsdatoer(hentFødselsdatoForAdopsjonsbarn());
 
-        Ytelse ytelse = getYtelse();
-        if (ytelse instanceof Foreldrepenger) {
-            AnnenForelder annenForelder = ((Foreldrepenger) ytelse).getAnnenForelder();
-            if (annenForelder instanceof AnnenForelderMedNorskIdent) {
-                dataWrapper.setAnnenPartId(((AnnenForelderMedNorskIdent) annenForelder).getAktoerId());
+        if (getYtelse() instanceof Foreldrepenger fp) {
+            if (fp.getAnnenForelder() instanceof AnnenForelderMedNorskIdent a) {
+                dataWrapper.setAnnenPartId(a.getAktoerId());
             }
-            Rettigheter rettigheter = ((Foreldrepenger) ytelse).getRettigheter();
-            if ((rettigheter != null) && rettigheter.isHarAnnenForelderRett()) {
-                dataWrapper.setAnnenPartHarRett(true);
-            }
+            Optional.ofNullable(fp.getRettigheter())
+                    .filter(r -> r.isHarAnnenForelderRett())
+                    .ifPresent(r -> dataWrapper.setAnnenPartHarRett(true));
+
         }
     }
 

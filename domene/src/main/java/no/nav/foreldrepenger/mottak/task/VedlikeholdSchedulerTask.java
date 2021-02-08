@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.MonthDay;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,18 +56,16 @@ public class VedlikeholdSchedulerTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        LocalDate dagensDato = LocalDate.now();
-        DayOfWeek dagensUkedag = DayOfWeek.from(dagensDato);
-
+        var dagensDato = LocalDate.now();
         // Lagre neste instans av daglig scheduler straks over midnatt
-        ProsessTaskData batchScheduler = new ProsessTaskData(VedlikeholdSchedulerTask.TASKTYPE);
-        LocalDateTime nesteScheduler = dagensDato.plusDays(1).atStartOfDay().plusHours(7).plusMinutes(1);
+        var batchScheduler = new ProsessTaskData(VedlikeholdSchedulerTask.TASKTYPE);
+        var nesteScheduler = dagensDato.plusDays(1).atStartOfDay().plusHours(7).plusMinutes(1);
         batchScheduler.setNesteKjøringEtter(nesteScheduler);
-        ProsessTaskGruppe gruppeScheduler = new ProsessTaskGruppe(batchScheduler);
+        var gruppeScheduler = new ProsessTaskGruppe(batchScheduler);
         prosessTaskRepository.lagre(gruppeScheduler);
 
         // Ingenting å kjøre i helgene enn så lenge
-        if ((DayOfWeek.FRIDAY.getValue() < dagensUkedag.getValue()) || erFastInfotrygdStengtDag(dagensDato)) {
+        if ((DayOfWeek.FRIDAY.getValue() < DayOfWeek.from(dagensDato).getValue()) || erFastInfotrygdStengtDag(dagensDato)) {
             return;
         }
 
@@ -76,7 +73,7 @@ public class VedlikeholdSchedulerTask implements ProsessTaskHandler {
     }
 
     private void retryAlleProsessTasksFeilet() {
-        List<ProsessTaskData> ptdList = this.prosessTaskRepository.finnAlle(ProsessTaskStatus.FEILET);
+        var ptdList = this.prosessTaskRepository.finnAlle(ProsessTaskStatus.FEILET);
         if (ptdList.isEmpty()) {
             return;
         }
