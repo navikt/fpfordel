@@ -50,9 +50,9 @@ jobs:
           echo "BUILD_VERSION=$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
 
     - name: Kompiler
-        run: |
+      run: |
           mvn package -e --batch-mode --settings .github/workflows/.m2/settings.xml -Dchangelist= -Dsha1=-${BUILD_VERSION} -Dfile.encoding=UTF-8
-        env:
+      env:
           GITHUB_USERNAME: x-access-token
           GITHUB_PASSWORD: ${{ secrets.NOTIFICATION }}
 
