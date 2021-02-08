@@ -53,8 +53,6 @@ public class DokumentRepository {
             if (cause instanceof ConstraintViolationException c &&
                     c.getConstraintName().contains(DokumentMetadata.UNIQUE_FORSENDELSE_ID_CONSTRAINT)) {
                 LOG.info("Forsendelse {} allerede prosessert, ignorerer denne", dokumentMetadata.getForsendelseId());
-                // throw
-                // DokumentFeil.FACTORY.constraintForsendelseId(dokumentMetadata.getForsendelseId()).toException();
             } else {
                 throw e;
             }
@@ -72,7 +70,9 @@ public class DokumentRepository {
         List<Dokument> resultatListe = query.getResultList();
         if (resultatListe.size() > 1) {
             throw DokumentFeil.FACTORY.fantIkkeUnikResultat().toException();
-        } else if (resultatListe.isEmpty()) {
+        }
+
+        if (resultatListe.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(resultatListe.get(0));
