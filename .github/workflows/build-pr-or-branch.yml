@@ -19,7 +19,7 @@ jobs:
       - run:  git fetch --prune --unshallow
 
       - name: Cache maven repository
-        uses: actions/cache@v2
+        uses: actions/cache@v2.1.4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
