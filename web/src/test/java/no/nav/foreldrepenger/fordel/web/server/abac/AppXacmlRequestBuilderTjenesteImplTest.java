@@ -134,6 +134,8 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
         File file = new File(getClass().getClassLoader().getResource(jsonFile).getFile());
         JsonReader reader = Json.createReader(new FileReader(file));
         JsonObject jo = (JsonObject) reader.read();
+        reader.close();
         return new XacmlResponseWrapper(jo);
+
     }
 }
