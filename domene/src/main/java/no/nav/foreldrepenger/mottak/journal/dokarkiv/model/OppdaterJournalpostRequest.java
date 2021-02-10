@@ -113,13 +113,13 @@ public class OppdaterJournalpostRequest {
             return this;
         }
 
-        public Builder medSak(String fagsakId) {
-            this.request.sak = new Sak(fagsakId, Fagsystem.FPSAK.getKode(), "FAGSAK", null, null);
+        public Builder medSak(Sak sak) {
+            this.request.sak = sak;
             return this;
         }
 
         public Builder medArkivSak(String arkivSakID) {
-            this.request.sak = new Sak(null, null, "ARKIVSAK", arkivSakID, "GSAK");
+
             return this;
         }
 
