@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.kodeverdi.MapNAVSkjemaDokumentTypeId;
@@ -136,7 +137,7 @@ public class ArkivTjeneste {
 
     public OpprettetJournalpost opprettJournalpost(UUID forsendelse, String avsenderAktørId, String saksnummer) {
         var request = lagOpprettRequest(forsendelse, avsenderAktørId);
-        request.setSak(new Sak(null, null, "ARKIVSAK", saksnummer, "GSAK"));
+        request.setSak(lagSakForSaksnummer(saksnummer));
         request.setJournalfoerendeEnhet("9999");
         var response = dokArkivTjeneste.opprettJournalpost(request, true);
         return new OpprettetJournalpost(response.journalpostId(), response.journalpostferdigstilt());
@@ -208,15 +209,15 @@ public class ArkivTjeneste {
         return resultat;
     }
 
-    public void oppdaterMedSak(String journalpostId, String arkivSakId) {
-        if (arkivSakId == null) {
+    public void oppdaterMedSak(String journalpostId, String sakId) {
+        if (sakId == null) {
             throw new IllegalArgumentException("FPFORDEL oppdaterMedSak mangler saksnummer " + journalpostId);
         }
-        var builder = OppdaterJournalpostRequest.ny().medArkivSak(arkivSakId);
+        var builder = OppdaterJournalpostRequest.ny().medSak(lagSakForSaksnummer(sakId));
         if (dokArkivTjeneste.oppdaterJournalpost(journalpostId, builder.build())) {
-            LOG.info("FPFORDEL SAKSOPPDATERING oppdaterte {} med sak {}", journalpostId, arkivSakId);
+            LOG.info("FPFORDEL SAKSOPPDATERING oppdaterte {} med sak {}", journalpostId, sakId);
         } else {
-            throw new IllegalStateException("FPFORDEL Kunne ikke knytte journalpost " + journalpostId + " til sak " + arkivSakId);
+            throw new IllegalStateException("FPFORDEL Kunne ikke knytte journalpost " + journalpostId + " til sak " + sakId);
         }
     }
 
@@ -236,6 +237,14 @@ public class ArkivTjeneste {
     private static Optional<DokumentTypeId> dokumentTypeFraKjenteTitler(String tittel) {
         return Optional.ofNullable(tittel)
                 .map(TITTEL_MAP::get);
+    }
+
+    private Sak lagSakForSaksnummer(String saksnummer) {
+        // Midlertidig til Arkivet har oppdatert sakene våre. Da forsvinner ARKIVSAK overalt (unntatt dokprod/formidling)
+        if (Long.parseLong(saksnummer) > 152000000L) {
+            return new Sak(saksnummer, Fagsystem.FPSAK.getKode(), "FAGSAK", null, null);
+        }
+        return new Sak(null, null, "ARKIVSAK", saksnummer, "GSAK");
     }
 
     private static Set<DokumentTypeId> utledDokumentTyper(Journalpost journalpost) {

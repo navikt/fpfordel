@@ -134,7 +134,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         }
         // Vesentlige mangler
         if (!Tema.FORELDRE_OG_SVANGERSKAPSPENGER.equals(dataWrapper.getTema())) {
-            LOG.warn("FPFORDEL HERK feil tema for journalpost {} tema {}",
+            LOG.info("FPFORDEL HERK feil tema for journalpost {} tema {}",
                     dataWrapper.getArkivId(), journalpost.getTema().getKode());
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }

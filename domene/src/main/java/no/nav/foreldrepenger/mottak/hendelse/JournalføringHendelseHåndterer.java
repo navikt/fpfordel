@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.mottak.hendelse;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -58,7 +60,14 @@ public class JournalføringHendelseHåndterer {
         var eksternReferanseId = (payload.getKanalReferanseId() == null) || payload.getKanalReferanseId().toString().isEmpty()
                 ? null : payload.getKanalReferanseId().toString();
 
+        // De uten kanalreferanse er "klonet" av SBH og journalført fra Gosys.
+        // Normalt blir de journalført, men det feiler av og til pga tilgang.
+        // Håndterer disse journalpostene senere (18h) i tilfelle SBH skal ha klart å ordne ting selv
+        var delay = eksternReferanseId == null ? Duration.ofHours(18) : Duration.ZERO;
+
         if (HENDELSE_ENDRET.equalsIgnoreCase(payload.getHendelsesType().toString())) {
+            // Hendelsen kan komme før arkivet er oppdatert .....
+            delay = eksternReferanseId == null ? delay : Duration.ofSeconds(30);
             var gammeltTema = payload.getTemaGammelt() != null ? payload.getTemaGammelt().toString() : null;
             LOG.info("FPFORDEL Tema Endret fra {} journalpost {} kanal {} referanse {}", gammeltTema, arkivId, mottaksKanal, eksternReferanseId);
         }
@@ -82,10 +91,10 @@ public class JournalføringHendelseHåndterer {
             return;
         }
 
-        lagreJoarkTask(payload, arkivId, eksternReferanseId);
+        lagreJoarkTask(payload, arkivId, eksternReferanseId, delay);
     }
 
-    private void lagreJoarkTask(JournalfoeringHendelseRecord payload, String arkivId, String eksternReferanse) {
+    private void lagreJoarkTask(JournalfoeringHendelseRecord payload, String arkivId, String eksternReferanse, Duration delay) {
         var taskdata = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
         taskdata.setCallIdFraEksisterende();
         MottakMeldingDataWrapper melding = new MottakMeldingDataWrapper(taskdata);
@@ -97,13 +106,7 @@ public class JournalføringHendelseHåndterer {
             melding.setEksternReferanseId(eksternReferanse);
         }
         var oppdatertTaskdata = melding.getProsessTaskData();
-        // De uten kanalreferanse er "klonet" av SBH og journalført fra Gosys. Normalt
-        // blir de journalført, men det feiler av og til pga tilgang.
-        // Håndterer disse journalpostene senere (18h) i tilfelle SBH skal ha klart å
-        // ordne ting selv - hvis ikke blir det oppgave av dem.
-        if (eksternReferanse == null) {
-            oppdatertTaskdata.setNesteKjøringEtter(LocalDateTime.now().plusHours(18));
-        }
+        oppdatertTaskdata.setNesteKjøringEtter(LocalDateTime.now().plus(delay));
         taskRepository.lagre(oppdatertTaskdata);
     }
 
