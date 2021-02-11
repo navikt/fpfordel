@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse;
 
 import java.time.Duration;
+import java.util.Optional;
 import java.util.UUID;
 
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
@@ -17,4 +18,6 @@ public interface DokumentforsendelseTjeneste {
     void validerDokumentforsendelse(UUID forsendelsesId);
 
     ForsendelseStatusDto finnStatusinformasjon(UUID forsendelseId);
+
+    Optional<ForsendelseStatusDto> finnStatusinformasjonHvisEksisterer(UUID forsendelseId);
 }

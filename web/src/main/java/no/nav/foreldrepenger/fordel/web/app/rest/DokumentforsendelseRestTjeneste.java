@@ -123,31 +123,47 @@ public class DokumentforsendelseRestTjeneste {
             throw new IllegalArgumentException("Må ha minst to deler,fikk " + inputParts.size());
         }
 
-        Dokumentforsendelse dokumentforsendelse = nyDokumentforsendelse(inputParts.remove(0));
+        var dokumentforsendelse = map(inputParts.get(0));
+        var eksisterendeForsendelseStatus = service.finnStatusinformasjonHvisEksisterer(
+                dokumentforsendelse.getForsendelsesId());
+
+        return eksisterendeForsendelseStatus.map(status -> tilForsendelseStatusRespons(dokumentforsendelse, status))
+                .orElseGet(() -> {
+                    lagreDokumentForsendelse(inputParts.subList(1, inputParts.size()), dokumentforsendelse);
+                    var status = service.finnStatusinformasjon(dokumentforsendelse.getForsendelsesId());
+                    return tilForsendelseStatusRespons(dokumentforsendelse, status);
+                });
+    }
+
+    private void lagreDokumentForsendelse(List<InputPart> inputParts, Dokumentforsendelse dokumentforsendelse) {
+        service.nyDokumentforsendelse(dokumentforsendelse.getMetadata());
         for (var inputPart : inputParts) {
             lagreDokument(dokumentforsendelse, inputPart);
         }
         validerDokumentforsendelse(dokumentforsendelse);
+    }
 
-        ForsendelseStatusDto forsendelseStatusDto = service
-                .finnStatusinformasjon(dokumentforsendelse.getForsendelsesId());
+    private Response tilForsendelseStatusRespons(Dokumentforsendelse dokumentforsendelse,
+                                                 ForsendelseStatusDto forsendelseStatusDto) {
         switch (forsendelseStatusDto.getForsendelseStatus()) {
-            case FPSAK:
+            case FPSAK -> {
                 LOG.info("Forsendelse {} ble fordelt til FPSAK", dokumentforsendelse.getForsendelsesId());
                 return Response.seeOther(lagStatusURI(dokumentforsendelse.getForsendelsesId()))
                         .entity(forsendelseStatusDto)
                         .build();
-            case GOSYS:
+            }
+            case GOSYS -> {
                 LOG.info("Forsendelse {} ble fordelt til GOSYS", dokumentforsendelse.getForsendelsesId());
                 return Response.ok(forsendelseStatusDto).build();
-            case PENDING:
-            default:
+            }
+            default -> {
                 LOG.info("Forsendelse {} foreløpig ikke fordelt", dokumentforsendelse.getForsendelsesId());
                 return Response.accepted()
-                        .location(URI
-                                .create(SERVICE_PATH + "/status?forsendelseId=" + dokumentforsendelse.getForsendelsesId()))
+                        .location(URI.create(
+                                SERVICE_PATH + "/status?forsendelseId=" + dokumentforsendelse.getForsendelsesId()))
                         .entity(forsendelseStatusDto)
                         .build();
+            }
         }
     }
 
@@ -182,12 +198,9 @@ public class DokumentforsendelseRestTjeneste {
         return URI.create(fpStatusUrl + "?forsendelseId=" + forsendelseId);
     }
 
-    private Dokumentforsendelse nyDokumentforsendelse(InputPart inputPart) {
-        DokumentforsendelseDto dokumentforsendelseDto = getMetadataDto(inputPart);
-        Dokumentforsendelse dokumentforsendelse = mapping(dokumentforsendelseDto);
-
-        service.nyDokumentforsendelse(dokumentforsendelse.getMetadata());
-        return dokumentforsendelse;
+    private Dokumentforsendelse map(InputPart inputPart) {
+        var dokumentforsendelseDto = getMetadataDto(inputPart);
+        return map(dokumentforsendelseDto);
     }
 
     private void lagreDokument(Dokumentforsendelse dokumentforsendelse, InputPart inputPart) {
@@ -289,7 +302,7 @@ public class DokumentforsendelseRestTjeneste {
         return dokumentforsendelseDto;
     }
 
-    private static Dokumentforsendelse mapping(DokumentforsendelseDto dokumentforsendelseDto) {
+    private static Dokumentforsendelse map(DokumentforsendelseDto dokumentforsendelseDto) {
         DokumentMetadata metadata = DokumentMetadata.builder()
                 .setForsendelseId(dokumentforsendelseDto.getForsendelsesId())
                 .setBrukerId(dokumentforsendelseDto.getBrukerId())
