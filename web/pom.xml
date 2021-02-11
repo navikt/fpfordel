@@ -102,6 +102,10 @@
             <artifactId>felles-util</artifactId>
         </dependency>
         <dependency>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+            <artifactId>sak-klient</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.jboss.weld.servlet</groupId>
             <artifactId>weld-servlet-core</artifactId>
         </dependency>

@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.fordel.dokument.v1;
 import static no.nav.vedtak.log.util.LoggerUtils.removeLineBreaks;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -20,6 +21,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
+import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
@@ -47,6 +49,9 @@ import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
 import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebService;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
+import no.nav.vedtak.felles.integrasjon.sak.v1.SakClient;
+import no.nav.vedtak.felles.integrasjon.sak.v1.SakJson;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -78,10 +83,12 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
     private final PersonInformasjon aktørConsumer;
     private final ArkivTjeneste arkivTjeneste;
     private final DokumentRepository dokumentRepository;
+    private final SakClient sakClient;
 
     @Inject
     public BehandleDokumentService(KlargjørForVLTjeneste klargjørForVLTjeneste,
             /* @Jersey */FagsakTjeneste fagsakRestKlient,
+            @Jersey SakClient sakClient,
             PersonInformasjon aktørConsumer,
             ArkivTjeneste arkivTjeneste,
             DokumentRepository dokumentRepository) {
@@ -90,6 +97,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         this.aktørConsumer = aktørConsumer;
         this.arkivTjeneste = arkivTjeneste;
         this.dokumentRepository = dokumentRepository;
+        this.sakClient = sakClient;
     }
 
     @Override
@@ -112,8 +120,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         final String enhetId = request.getEnhetId();
         validerEnhetId(enhetId);
 
-        var fagsakInfomasjonDto = fagsakRestKlient.finnFagsakInfomasjon(new SaksnummerDto(saksnummer))
-                .orElseThrow(() -> BehandleDokumentServiceFeil.FACTORY.finnerIkkeFagsak(saksnummer).toException());
+        var fagsakInfomasjonDto = finnFagsakInformasjon(saksnummer, 0);
         BehandlingTema behandlingTemaFagsak = BehandlingTema.fraOffisiellKode(fagsakInfomasjonDto.getBehandlingstemaOffisiellKode());
         String aktørId = fagsakInfomasjonDto.getAktørId();
 
@@ -309,6 +316,25 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         if (BehandlingTema.gjelderForeldrepenger(behandlingTema)
                 && startDato.isBefore(KonfigVerdier.ENDRING_BEREGNING_DATO)) {
             throw BehandleDokumentServiceFeil.FACTORY.forTidligUttak().toException();
+        }
+    }
+
+    /*
+     * Midlertidig håndtering mens Gosys fikser koden som identifiserer saksnummer. Redusere kompleksitet og risk ved prodsetting.
+     * Rekursjon med stopp
+     */
+    private FagsakInfomasjonDto finnFagsakInformasjon(String saksnummer, int level) {
+        if (level > 1) throw BehandleDokumentServiceFeil.FACTORY.finnerIkkeFagsak(saksnummer).toException();
+        LOG.info("FPFORDEL GOSYS finn fagsak {} level {}", saksnummer, level);
+        return fagsakRestKlient.finnFagsakInfomasjon(new SaksnummerDto(saksnummer))
+                .orElseGet(() -> finnFagsakInformasjon(finnFagsakNr(saksnummer), level + 1));
+    }
+
+    private String finnFagsakNr(String saksnummer) {
+        try {
+            return Optional.ofNullable(sakClient.hentSakId(saksnummer)).map(SakJson::getFagsakNr).orElseThrow();
+        } catch (Exception e) {
+            throw BehandleDokumentServiceFeil.FACTORY.finnerIkkeFagsak(saksnummer).toException();
         }
     }
 
