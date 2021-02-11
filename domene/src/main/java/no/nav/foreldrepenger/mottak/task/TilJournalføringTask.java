@@ -87,7 +87,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             // unntakshåndtering. Bør feile.
             try {
                 if (w.getInnkommendeSaksnummer().isEmpty()) {
-                    arkivTjeneste.oppdaterMedSak(w.getArkivId(), saksnummer);
+                    arkivTjeneste.oppdaterMedSak(w.getArkivId(), saksnummer, w.getAktørId().orElseThrow());
                 } else {
                     LOG.info("FORDEL OPPRETT/FERDIG presatt saksnummer {} for journalpost {}", w.getInnkommendeSaksnummer().get(), w.getArkivId());
                 }

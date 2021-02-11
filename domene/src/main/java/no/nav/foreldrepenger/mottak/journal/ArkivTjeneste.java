@@ -209,11 +209,16 @@ public class ArkivTjeneste {
         return resultat;
     }
 
-    public void oppdaterMedSak(String journalpostId, String sakId) {
+    public void oppdaterMedSak(String journalpostId, String sakId, String aktørId) {
         if (sakId == null) {
             throw new IllegalArgumentException("FPFORDEL oppdaterMedSak mangler saksnummer " + journalpostId);
         }
         var builder = OppdaterJournalpostRequest.ny().medSak(lagSakForSaksnummer(sakId));
+        // Egne regler for FAGSAK https://confluence.adeo.no/display/BOA/oppdaterJournalpost - dette blir standard i contract-phase
+        if (Long.parseLong(sakId) > 152000000L) {
+            builder.medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode())
+                    .medBruker(aktørId);
+        }
         if (dokArkivTjeneste.oppdaterJournalpost(journalpostId, builder.build())) {
             LOG.info("FPFORDEL SAKSOPPDATERING oppdaterte {} med sak {}", journalpostId, sakId);
         } else {

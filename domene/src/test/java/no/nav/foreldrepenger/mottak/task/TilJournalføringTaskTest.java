@@ -134,7 +134,7 @@ public class TilJournalføringTaskTest {
 
         MottakMeldingDataWrapper wrapper = doTaskWithPrecondition(data);
 
-        verify(arkivTjeneste).oppdaterMedSak(any(), captor.capture());
+        verify(arkivTjeneste).oppdaterMedSak(any(), captor.capture(), any());
 
         String sak = captor.getValue();
 
