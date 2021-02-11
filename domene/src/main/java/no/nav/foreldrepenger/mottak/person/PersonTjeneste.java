@@ -22,6 +22,7 @@ import com.github.benmanes.caffeine.cache.RemovalListener;
 import com.google.common.base.Joiner;
 import com.nimbusds.jwt.SignedJWT;
 
+import no.nav.foreldrepenger.fordel.StringUtil;
 import no.nav.pdl.Adressebeskyttelse;
 import no.nav.pdl.AdressebeskyttelseResponseProjection;
 import no.nav.pdl.GeografiskTilknytning;
@@ -70,7 +71,7 @@ public class PersonTjeneste implements PersonInformasjon {
             LOG.trace("Henter for {}", fnr);
             return Optional.ofNullable(tilAktør.get(fnr));
         } catch (PdlException e) {
-            LOG.warn("Kunne ikke hente aktørid fra fnr {} ({} {})", fnr, e.toString(), expiresAt(), e);
+            LOG.warn("Kunne ikke hente aktørid fra fnr {} ({} {})", StringUtil.mask(fnr), e, expiresAt(), e);
             return Optional.empty();
         }
     }
@@ -81,45 +82,34 @@ public class PersonTjeneste implements PersonInformasjon {
             LOG.trace("Henter for {}", aktørId);
             return Optional.ofNullable(tilFnr.get(aktørId));
         } catch (PdlException e) {
-            LOG.warn("Kunne ikke hente fnr fra aktørid {} ({} {})", aktørId, e.toString(), expiresAt(), e);
+            LOG.warn("Kunne ikke hente fnr fra aktørid {} ({} {})", aktørId, e, expiresAt(), e);
             return Optional.empty();
         }
     }
 
     @Override
-    public String hentNavn(String aktørId) {
-        try {
-            return pdl.hentPerson(personQuery(aktørId),
-                    new PersonResponseProjection().navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())).getNavn()
-                    .stream()
-                    .map(PersonTjeneste::mapNavn)
-                    .findFirst()
-                    .orElseThrow();
-        } catch (PdlException e) {
-            LOG.warn("Kunne ikke hente navn for {} ({} {})", aktørId, e.toString(), expiresAt(), e);
-            throw e;
-        }
+    public String hentNavn(String id) {
+        return pdl.hentPerson(personQuery(id),
+                new PersonResponseProjection().navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())).getNavn()
+                .stream()
+                .map(PersonTjeneste::mapNavn)
+                .findFirst()
+                .orElseThrow();
     }
 
     @Override
-    public GeoTilknytning hentGeografiskTilknytning(String aktørId) {
-        try {
-            var query = new HentGeografiskTilknytningQueryRequest();
-            query.setIdent(aktørId);
-            var pgt = new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand();
-            var pp = new PersonResponseProjection()
-                    .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
-            var gt = new GeoTilknytning(tilknytning(pdl.hentGT(query, pgt)),
-                    diskresjonskode(pdl.hentPerson(personQuery(aktørId), pp)));
-            if (gt.tilknytning() == null) {
-                LOG.info("FPFORDEL PDL mangler GT for {}", aktørId);
-            }
-            return gt;
-        } catch (PdlException e) {
-            LOG.warn("Kunne ikke hente geo-tilknytning for {} ({})", aktørId, e.toString(), e);
-            throw e;
+    public GeoTilknytning hentGeografiskTilknytning(String id) {
+        var query = new HentGeografiskTilknytningQueryRequest();
+        query.setIdent(id);
+        var pgt = new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand();
+        var pp = new PersonResponseProjection()
+                .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
+        var gt = new GeoTilknytning(tilknytning(pdl.hentGT(query, pgt)),
+                diskresjonskode(pdl.hentPerson(personQuery(id), pp)));
+        if (gt.tilknytning() == null) {
+            LOG.info("FPFORDEL PDL mangler GT for {}", id);
         }
-
+        return gt;
     }
 
     private static Date expiresAt() {
