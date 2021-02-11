@@ -106,9 +106,7 @@ public class PersonTjeneste implements PersonInformasjon {
                 .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
         var gt = new GeoTilknytning(tilknytning(pdl.hentGT(query, pgt)),
                 diskresjonskode(pdl.hentPerson(personQuery(id), pp)));
-        if (gt.tilknytning() == null) {
-            LOG.info("FPFORDEL PDL mangler GT for {}", id);
-        }
+
         return gt;
     }
 
