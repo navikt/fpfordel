@@ -40,6 +40,7 @@ import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.OppdaterOgFerdigstillJournalfoeringUgyldigInput;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.meldinger.OppdaterOgFerdigstillJournalfoeringRequest;
 import no.nav.vedtak.exception.FunksjonellException;
+import no.nav.vedtak.felles.integrasjon.sak.v1.SakClient;
 
 @ExtendWith(MockitoExtension.class)
 public class BehandleDokumentServiceTest {
@@ -64,6 +65,8 @@ public class BehandleDokumentServiceTest {
     private FagsakTjeneste fagsakRestKlientMock;
     @Mock
     private PersonInformasjon aktørConsumer;
+    @Mock
+    private SakClient sakClient;
 
     private BehandlingTema engangsstønadFødsel;
     private BehandlingTema foreldrepengerFødsel;
@@ -95,7 +98,7 @@ public class BehandleDokumentServiceTest {
         lenient().when(aktørConsumer.hentAktørIdForPersonIdent(BRUKER_FNR)).thenReturn(Optional.of(AKTØR_ID));
 
         behandleDokumentService = new BehandleDokumentService(klargjørForVLTjenesteMock,
-                fagsakRestKlientMock, aktørConsumer, arkivTjeneste, mock(DokumentRepository.class));
+                fagsakRestKlientMock, sakClient, aktørConsumer, arkivTjeneste, mock(DokumentRepository.class));
     }
 
     @Test
