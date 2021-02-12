@@ -56,7 +56,6 @@ public class DokumentforsendelseRestTjenesteTest {
     @BeforeEach
     public void setUp() throws Exception {
         dokumentTjenesteMock = mock(DokumentforsendelseTjeneste.class);
-        when(dokumentTjenesteMock.finnStatusinformasjon(any(UUID.class))).thenReturn(new ForsendelseStatusDto(ForsendelseStatus.PENDING));
         tjeneste = new DokumentforsendelseRestTjeneste(dokumentTjenesteMock, URI.create("http://fpinfo"));
 
         // default mocking
@@ -74,6 +73,11 @@ public class DokumentforsendelseRestTjenesteTest {
     @Test
     public void input_skal_kaste_exception_når_inputpart_ikke_har_minst_2_parts() {
         when(input.getParts()).thenReturn(new ArrayList<>());
+        var forsendelseStatusDto = new ForsendelseStatusDto(ForsendelseStatus.PENDING);
+        when(dokumentTjenesteMock.finnStatusinformasjon(any(UUID.class)))
+                .thenReturn(forsendelseStatusDto);
+        when(dokumentTjenesteMock.finnStatusinformasjonHvisEksisterer(any(UUID.class)))
+                .thenReturn(Optional.of(forsendelseStatusDto));
 
         assertThatThrownBy(() -> tjeneste.uploadFile(input))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -156,6 +160,9 @@ public class DokumentforsendelseRestTjenesteTest {
 
     @Test
     public void skal_lagre_dokumentene() {
+        var forsendelseStatusDto = new ForsendelseStatusDto(ForsendelseStatus.PENDING);
+        when(dokumentTjenesteMock.finnStatusinformasjonHvisEksisterer(any(UUID.class)))
+                .thenReturn(Optional.of(forsendelseStatusDto));
         Response response = tjeneste.uploadFile(input);
         assertThat(response.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
         assertThat(response.getHeaderString(HttpHeaders.LOCATION))
@@ -181,6 +188,21 @@ public class DokumentforsendelseRestTjenesteTest {
 
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.getEntity()).isEqualTo(status);
+    }
+
+    @Test
+    public void skal_håndtere_duplikate_kall() {
+        var status = new ForsendelseStatusDto(ForsendelseStatus.FPSAK);
+        when(dokumentTjenesteMock.finnStatusinformasjon(any(UUID.class))).thenReturn(status);
+        var response1 = tjeneste.uploadFile(input);
+        when(dokumentTjenesteMock.finnStatusinformasjonHvisEksisterer(any(UUID.class))).thenReturn(Optional.of(status));
+        var response2 = tjeneste.uploadFile(input);
+
+        assertThat(response1.getStatus()).isEqualTo(303);
+        assertThat(response1.getEntity()).isEqualTo(status);
+
+        assertThat(response2.getStatus()).isEqualTo(303);
+        assertThat(response2.getEntity()).isEqualTo(status);
     }
 
     @Test

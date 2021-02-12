@@ -98,21 +98,24 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
 
     @Override
     public ForsendelseStatusDto finnStatusinformasjon(UUID forsendelseId) {
-        var metadataOpt = repository.hentUnikDokumentMetadata(forsendelseId);
-        if (metadataOpt.isEmpty()) {
-            throw DokumentFeil.FACTORY.fantIkkeForsendelse(forsendelseId).toException();
-        }
-        var dokumentMetadata = metadataOpt.get();
-        var status = dokumentMetadata.getStatus();
-        var forsendelseStatusDto = new ForsendelseStatusDto(status);
+        return finnStatusinformasjonHvisEksisterer(forsendelseId)
+                .orElseThrow(() -> DokumentFeil.FACTORY.fantIkkeForsendelse(forsendelseId).toException());
+    }
 
-        if (status == ForsendelseStatus.PENDING) {
-            forsendelseStatusDto.setPollInterval(POLL_INTERVALL);
-        } else {
-            dokumentMetadata.getArkivId().ifPresent(forsendelseStatusDto::setJournalpostId);
-            dokumentMetadata.getSaksnummer().ifPresent(forsendelseStatusDto::setSaksnummer);
-        }
-        return forsendelseStatusDto;
+    @Override
+    public Optional<ForsendelseStatusDto> finnStatusinformasjonHvisEksisterer(UUID forsendelseId) {
+        return repository.hentUnikDokumentMetadata(forsendelseId).map(dokumentMetadata -> {
+            var status = dokumentMetadata.getStatus();
+            var forsendelseStatusDto = new ForsendelseStatusDto(status);
+
+            if (status == ForsendelseStatus.PENDING) {
+                forsendelseStatusDto.setPollInterval(POLL_INTERVALL);
+            } else {
+                dokumentMetadata.getArkivId().ifPresent(forsendelseStatusDto::setJournalpostId);
+                dokumentMetadata.getSaksnummer().ifPresent(forsendelseStatusDto::setSaksnummer);
+            }
+            return forsendelseStatusDto;
+        });
     }
 
     private void opprettProsessTask(UUID forsendelseId, Optional<String> avsenderId) {

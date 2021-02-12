@@ -11,12 +11,7 @@ import java.util.UUID;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
 import javax.persistence.Query;
-
-import org.hibernate.exception.ConstraintViolationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
@@ -24,19 +19,18 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Forsendelse
 @ApplicationScoped
 public class DokumentRepository {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DokumentRepository.class);
     private static final String LOKALT_OPPHAV = "FORDEL";
     private static final String FORSENDELSE_ID = "forsendelseId";
     private static final String HOVED_DOKUMENT = "hovedDokument";
     private static final String ARKIV_FILTYPE = "arkivFilType";
     private EntityManager entityManager;
 
-    DokumentRepository() {
-    }
-
     @Inject
     public DokumentRepository(EntityManager entityManager) {
         this.entityManager = Objects.requireNonNull(entityManager);
+    }
+
+    DokumentRepository() {
     }
 
     public void lagre(Dokument dokument) {
@@ -45,18 +39,8 @@ public class DokumentRepository {
     }
 
     public void lagre(DokumentMetadata dokumentMetadata) {
-        try {
-            entityManager.persist(dokumentMetadata);
-            entityManager.flush();
-        } catch (PersistenceException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof ConstraintViolationException c &&
-                    c.getConstraintName().contains(DokumentMetadata.UNIQUE_FORSENDELSE_ID_CONSTRAINT)) {
-                LOG.info("Forsendelse {} allerede prosessert, ignorerer denne", dokumentMetadata.getForsendelseId());
-            } else {
-                throw e;
-            }
-        }
+        entityManager.persist(dokumentMetadata);
+        entityManager.flush();
     }
 
     public Optional<Dokument> hentUnikDokument(UUID forsendelseId, boolean hovedDokument, ArkivFilType arkivFilType) {
