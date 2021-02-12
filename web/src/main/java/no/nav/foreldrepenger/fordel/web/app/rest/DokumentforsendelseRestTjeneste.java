@@ -118,6 +118,7 @@ public class DokumentforsendelseRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.FAGSAK)
     public Response uploadFile(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) MultipartInput input) {
+        LOG.info("Innsending av dokumentforsendelse");
         List<InputPart> inputParts = input.getParts();
         if (inputParts.size() < 2) {
             throw new IllegalArgumentException("Må ha minst to deler,fikk " + inputParts.size());
@@ -127,12 +128,14 @@ public class DokumentforsendelseRestTjeneste {
         var eksisterendeForsendelseStatus = service.finnStatusinformasjonHvisEksisterer(
                 dokumentforsendelse.getForsendelsesId());
 
-        return eksisterendeForsendelseStatus.map(status -> tilForsendelseStatusRespons(dokumentforsendelse, status))
-                .orElseGet(() -> {
-                    lagreDokumentForsendelse(inputParts.subList(1, inputParts.size()), dokumentforsendelse);
-                    var status = service.finnStatusinformasjon(dokumentforsendelse.getForsendelsesId());
-                    return tilForsendelseStatusRespons(dokumentforsendelse, status);
-                });
+        var response = eksisterendeForsendelseStatus.map(
+                status -> tilForsendelseStatusRespons(dokumentforsendelse, status)).orElseGet(() -> {
+            lagreDokumentForsendelse(inputParts.subList(1, inputParts.size()), dokumentforsendelse);
+            var status = service.finnStatusinformasjon(dokumentforsendelse.getForsendelsesId());
+            return tilForsendelseStatusRespons(dokumentforsendelse, status);
+        });
+        LOG.info("Innsending av dokumentforsendelse med id prosessert {}", dokumentforsendelse.getForsendelsesId());
+        return response;
     }
 
     private void lagreDokumentForsendelse(List<InputPart> inputParts, Dokumentforsendelse dokumentforsendelse) {
