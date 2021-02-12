@@ -144,7 +144,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             }
             LOG.info(removeLineBreaks("Kaller tilJournalføring")); // NOSONAR
             try {
-                arkivTjeneste.oppdaterMedSak(journalpost.getJournalpostId(), saksnummer);
+                arkivTjeneste.oppdaterMedSak(journalpost.getJournalpostId(), saksnummer, aktørId);
                 arkivTjeneste.ferdigstillJournalføring(journalpost.getJournalpostId(), enhetId);
             } catch (Exception e) {
                 ugyldigBrukerPrøvIgjen(arkivId, e);
