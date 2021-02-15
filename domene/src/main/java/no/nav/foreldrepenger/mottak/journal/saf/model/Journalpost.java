@@ -17,11 +17,4 @@ public record Journalpost(String journalpostId,
         AvsenderMottaker avsenderMottaker,
         Sak sak,
         List<DokumentInfo> dokumenter) {
-
-    public boolean harArkivsaksnummer() {
-        if (sak == null) {
-            return false;
-        }
-        return (sak.arkivsaksnummer() != null) && !sak.arkivsaksnummer().trim().isEmpty();
-    }
 }
