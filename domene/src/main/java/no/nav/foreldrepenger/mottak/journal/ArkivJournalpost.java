@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
-import no.nav.foreldrepenger.mottak.journal.saf.model.Sak;
 
 public class ArkivJournalpost {
 
@@ -55,7 +54,7 @@ public class ArkivJournalpost {
         return Optional.ofNullable(original)
                 .map(Journalpost::sak)
                 .filter(Objects::nonNull)
-                .map(Sak::arkivsaksnummer);
+                .map(sak -> Optional.ofNullable(sak.fagsakId()).orElse(sak.arkivsaksnummer()));
     }
 
     public Journalstatus getTilstand() {

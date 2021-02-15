@@ -80,7 +80,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         var journalpost = arkivTjeneste.hentArkivJournalpost(dataWrapper.getArkivId());
 
         if (!Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
-            LOG.info("FPFORDEL HERK feil tilstand på journalpost {} med {}", journalpost.getJournalpostId(), journalpost.getTilstand());
+            LOG.info("FPFORDEL HentFraArkiv feil tilstand på journalpost {} med {}", journalpost.getJournalpostId(), journalpost.getTilstand());
             return null;
         }
 
@@ -99,6 +99,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         journalpost.getJournalfoerendeEnhet().ifPresent(dataWrapper::setJournalførendeEnhet);
         dataWrapper.setStrukturertDokument(journalpost.getInnholderStrukturertInformasjon());
         journalpost.getSaksnummer().ifPresent(s -> {
+            LOG.info("FORDEL HentFraArkiv presatt saksnummer {} for journalpost {}", s, dataWrapper.getArkivId());
             dataWrapper.setSaksnummer(s);
             dataWrapper.setInnkommendeSaksnummer(s);
         });
@@ -129,24 +130,24 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         // Journalposter uten kanalreferanse er "klonet" av SBH og forsøkt journalført
         // fra Gosys. Håndteres manuelt hvis de kommer helt hit
         if (dataWrapper.getEksternReferanseId().isEmpty()) {
-            LOG.info("FPFORDEL HERK journalpost uten kanalreferane {} med {}", journalpost.getJournalpostId(), journalpost.getTilstand());
+            LOG.info("FPFORDEL HentFraArkiv journalpost uten kanalreferane {} med {}", journalpost.getJournalpostId(), journalpost.getTilstand());
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
         // Vesentlige mangler
         if (!Tema.FORELDRE_OG_SVANGERSKAPSPENGER.equals(dataWrapper.getTema())) {
-            LOG.info("FPFORDEL HERK feil tema for journalpost {} tema {}",
+            LOG.info("FPFORDEL HentFraArkiv feil tema for journalpost {} tema {}",
                     dataWrapper.getArkivId(), journalpost.getTema().getKode());
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
         if (dataWrapper.getAktørId().isEmpty()) {
             var avsender = journalpost.getAvsenderIdent() == null ? "ikke satt"
                     : aktørConsumer.hentAktørIdForPersonIdent(journalpost.getAvsenderIdent()).orElse("finnes ikke");
-            LOG.info("FPFORDEL HERK manglende bruker for journalpost {} type {} avsender {}",
+            LOG.info("FPFORDEL HentFraArkiv manglende bruker for journalpost {} type {} avsender {}",
                     dataWrapper.getArkivId(), journalpost.getHovedtype(), avsender);
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
         if (DokumentTypeId.UDEFINERT.equals(journalpost.getHovedtype())) {
-            LOG.info("FPFORDEL HERK udefinert dokumenttype journalpost {} tittel {}",
+            LOG.info("FPFORDEL HentFraArkiv udefinert dokumenttype journalpost {} tittel {}",
                     dataWrapper.getArkivId(), journalpost.getTittel());
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }

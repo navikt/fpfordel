@@ -28,7 +28,7 @@ public interface MottakMeldingFeil extends DeklarerteFeil {
     @TekniskFeil(feilkode = "FP-404782", feilmelding = "Ulik behandlingstemakode i tynnmelding (%s) og søknadsdokument (%s)", logLevel = ERROR)
     Feil ulikBehandlingstemaKodeITynnMeldingOgSøknadsdokument(String behandlingstemaKodeTynnmelding, String behandlingstemaKodeSøknadsdokument);
 
-    @FunksjonellFeil(feilkode = "FP-401245", feilmelding = "Dette dokumentet er en endringssøknad som blir forsøkt journalført mot vedtaksløsningen, førstegangssøknaden ligger i Infotrygd.", løsningsforslag = "Dokumentet skal journalføres mot infotrygd", logLevel = LogLevel.INFO)
+    @FunksjonellFeil(feilkode = "FP-401245", feilmelding = "Ulike saksnummer i melding/VL (%s) og endringssøknad (%s).", løsningsforslag = "Dokumentet skal journalføres mot infotrygd", logLevel = LogLevel.INFO)
     Feil ulikSaksnummerITynnmeldingOgSøknadsdokument(String saksnummerTynnmelding, String saksnummerSøknadsdokument);
 
     @TekniskFeil(feilkode = "FP-502574", feilmelding = "Ulik aktørId i tynnmelding og søknadsdokument", logLevel = WARN)
