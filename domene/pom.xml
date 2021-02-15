@@ -122,11 +122,7 @@
             <artifactId>felles-bom</artifactId>
             <scope>provided</scope>
         </dependency>
-
-        <dependency>
-            <groupId>no.nav.tjenestespesifikasjoner</groupId>
-            <artifactId>nav-fim-sak-v1-tjenestespesifikasjon</artifactId>
-        </dependency>
+        
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>oppgave-rest-klient</artifactId>
