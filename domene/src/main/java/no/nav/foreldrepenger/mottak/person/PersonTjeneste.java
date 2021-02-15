@@ -104,10 +104,8 @@ public class PersonTjeneste implements PersonInformasjon {
         var pgt = new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand();
         var pp = new PersonResponseProjection()
                 .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
-        var gt = new GeoTilknytning(tilknytning(pdl.hentGT(query, pgt)),
+        return new GeoTilknytning(tilknytning(pdl.hentGT(query, pgt)),
                 diskresjonskode(pdl.hentPerson(personQuery(id), pp)));
-
-        return gt;
     }
 
     private static Date expiresAt() {
