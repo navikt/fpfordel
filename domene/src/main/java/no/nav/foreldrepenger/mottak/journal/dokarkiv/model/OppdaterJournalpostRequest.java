@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.mottak.journal.dokarkiv.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem;
 import no.nav.foreldrepenger.mottak.journal.saf.model.BrukerIdType;
 
 public class OppdaterJournalpostRequest {
@@ -115,11 +114,6 @@ public class OppdaterJournalpostRequest {
 
         public Builder medSak(Sak sak) {
             this.request.sak = sak;
-            return this;
-        }
-
-        public Builder medArkivSak(String arkivSakID) {
-
             return this;
         }
 

@@ -213,12 +213,12 @@ public class ArkivTjeneste {
         if (sakId == null) {
             throw new IllegalArgumentException("FPFORDEL oppdaterMedSak mangler saksnummer " + journalpostId);
         }
-        var builder = OppdaterJournalpostRequest.ny().medSak(lagSakForSaksnummer(sakId));
         // Egne regler for FAGSAK https://confluence.adeo.no/display/BOA/oppdaterJournalpost - dette blir standard i contract-phase
-        if (Long.parseLong(sakId) > 152000000L) {
-            builder.medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode())
-                    .medBruker(aktørId);
-        }
+        var builder = OppdaterJournalpostRequest.ny()
+                .medSak(lagSakForSaksnummer(sakId))
+                .medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode())
+                .medBruker(aktørId);
+
         if (dokArkivTjeneste.oppdaterJournalpost(journalpostId, builder.build())) {
             LOG.info("FPFORDEL SAKSOPPDATERING oppdaterte {} med sak {}", journalpostId, sakId);
         } else {
@@ -245,11 +245,7 @@ public class ArkivTjeneste {
     }
 
     private Sak lagSakForSaksnummer(String saksnummer) {
-        // Midlertidig til Arkivet har oppdatert sakene våre. Da forsvinner ARKIVSAK overalt (unntatt dokprod/formidling)
-        if (Long.parseLong(saksnummer) > 152000000L) {
-            return new Sak(saksnummer, Fagsystem.FPSAK.getKode(), "FAGSAK", null, null);
-        }
-        return new Sak(null, null, "ARKIVSAK", saksnummer, "GSAK");
+        return new Sak(saksnummer, Fagsystem.FPSAK.getKode(), "FAGSAK", null, null);
     }
 
     private static Set<DokumentTypeId> utledDokumentTyper(Journalpost journalpost) {

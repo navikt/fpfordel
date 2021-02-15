@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.hendelse;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;

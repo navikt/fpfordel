@@ -14,6 +14,12 @@ import javax.persistence.Query;
 @ApplicationScoped
 public class PipRepository {
 
+    private static String PIP_QUERY = """ 
+                select BRUKER_ID 
+                from DOKUMENT_METADATA 
+                where FORSENDELSE_ID in (:dokumentforsendelseIder)
+                """;
+
     private EntityManager entityManager;
 
     public PipRepository() {
@@ -32,11 +38,7 @@ public class PipRepository {
             return Collections.emptySet();
         }
 
-        String sql = "select BRUKER_ID " +
-                "from DOKUMENT_METADATA " +
-                "where FORSENDELSE_ID in (:dokumentforsendelseIder)";
-
-        Query query = entityManager.createNativeQuery(sql);
+        Query query = entityManager.createNativeQuery(PIP_QUERY);
         query.setParameter("dokumentforsendelseIder", dokumentforsendelseIder);
 
         return new HashSet<>(query.getResultList());
