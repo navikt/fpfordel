@@ -171,7 +171,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
                     .prosesstaskPostconditionManglerProperty(TASKNAME, "payload", dataWrapper.getId());
         }
         if (!dataWrapper.getHarTema()) {
-            MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
+            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
                     MottakMeldingDataWrapper.TEMA_KEY, dataWrapper.getId());
         }
     }
