@@ -50,7 +50,7 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
             Function<String, Optional<String>> aktørIdFinder) {
         Optional<String> aktørId = aktørIdFinder.apply(getArbeidstakerFnr());
         if (aktørId.isEmpty()) {
-            MeldingKonverteringFeil.FACTORY.finnerIkkeAktørId(this.getClass().getSimpleName()).log(LOG);
+            LOG.warn(MeldingKonverteringFeil.finnerIkkeAktørId(this.getClass().getSimpleName()).getMessage());
         }
         dataWrapper.setAktørId(aktørId.get());
     }

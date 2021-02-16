@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.Endringssoeknad;
 import no.nav.vedtak.felles.xml.soeknad.engangsstoenad.v3.Engangsstønad;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Adopsjon;
-import no.nav.vedtak.felles.xml.soeknad.felles.v3.AnnenForelder;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.AnnenForelderMedNorskIdent;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Foedsel;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Omsorgsovertakelse;
@@ -68,17 +67,17 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
         final BehandlingTema behandlingTema = hentBehandlingTema();
         final String aktørId = getSkjema().getSoeker().getAktoerId();
         if (!Objects.equals(dataWrapper.getBehandlingTema().getKode(), behandlingTema.getKode())) {
-            throw MottakMeldingFeil.FACTORY.ulikBehandlingstemaKodeITynnMeldingOgSøknadsdokument(
-                    dataWrapper.getBehandlingTema().getKode(), behandlingTema.getKode()).toException();
+            throw MottakMeldingFeil.ulikBehandlingstemaKodeITynnMeldingOgSøknadsdokument(
+                    dataWrapper.getBehandlingTema().getKode(), behandlingTema.getKode());
         }
         if (!Objects.equals(dataWrapper.getAktørId().orElse(null), aktørId)) {
-            throw MottakMeldingFeil.FACTORY.ulikAktørIdITynnMeldingOgSøknadsdokument().toException();
+            throw MottakMeldingFeil.ulikAktørIdITynnMeldingOgSøknadsdokument(dataWrapper.getArkivId(), aktørId);
         }
         if (getYtelse() instanceof Endringssoeknad) {
             final String saksnummer = ((Endringssoeknad) getYtelse()).getSaksnummer();
             if (!Objects.equals(dataWrapper.getSaksnummer().orElse(null), saksnummer)) {
-                throw MottakMeldingFeil.FACTORY.ulikSaksnummerITynnmeldingOgSøknadsdokument(
-                        dataWrapper.getSaksnummer().orElse(null), saksnummer).toException();
+                throw MottakMeldingFeil.ulikSaksnummerITynnmeldingOgSøknadsdokument(
+                        dataWrapper.getSaksnummer().orElse(null), saksnummer);
             }
         }
     }
@@ -98,17 +97,17 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
     public void sjekkNødvendigeFeltEksisterer(UUID forsendelseId) {
         if ((getSkjema().getMottattDato() == null) || (getSkjema().getOmYtelse() == null)
                 || (getSkjema().getSoeker() == null)) {
-            throw MeldingKonverteringFeil.FACTORY.ukjentFormatPåSøknad(forsendelseId).toException();
+            throw MeldingKonverteringFeil.ukjentFormatPåSøknad(forsendelseId);
         }
     }
 
     public BehandlingTema hentBehandlingTema() {
         Ytelse ytelse = getYtelse();
-        if (ytelse instanceof Engangsstønad) {
-            return utledBehandlingTemaES(((Engangsstønad) ytelse).getSoekersRelasjonTilBarnet());
+        if (ytelse instanceof Engangsstønad e) {
+            return utledBehandlingTemaES(e.getSoekersRelasjonTilBarnet());
         }
-        if (ytelse instanceof Foreldrepenger) {
-            return utledBehandlingTemaFP(((Foreldrepenger) ytelse).getRelasjonTilBarnet());
+        if (ytelse instanceof Foreldrepenger f) {
+            return utledBehandlingTemaFP(f.getRelasjonTilBarnet());
         }
         if (ytelse instanceof Endringssoeknad) {
             return BehandlingTema.FORELDREPENGER;

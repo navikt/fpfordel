@@ -13,30 +13,25 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 
-public class DokumentTest {
+class DokumentTest {
 
     private static final UUID FORSENDELSE_ID = UUID.randomUUID();
     private static final String TEST_STRING = "Test";
     private static final byte[] TEST_BYTES = TEST_STRING.getBytes(Charset.forName("UTF-8"));
 
     @Test
-    public void test_skalBase64EncodeDokumentInnhold() {
-        String forventet = Base64.getEncoder().encodeToString(TEST_BYTES);
-        Dokument dokument = lagDokument(ArkivFilType.PDFA);
-        assertThat(dokument.getBase64EncodetDokument()).isEqualTo(forventet);
+    void test_skalBase64EncodeDokumentInnhold() {
+        assertThat(lagDokument(ArkivFilType.PDFA).getBase64EncodetDokument()).isEqualTo(Base64.getEncoder().encodeToString(TEST_BYTES));
     }
 
     @Test
-    public void test_skalKunneHenteKlartekstAvXML() {
-        Dokument dokument = lagDokument(ArkivFilType.XML);
-        assertThat(dokument.getKlartekstDokument()).isEqualTo(TEST_STRING);
+    void test_skalKunneHenteKlartekstAvXML() {
+        assertThat(lagDokument(ArkivFilType.XML).getKlartekstDokument()).isEqualTo(TEST_STRING);
     }
 
     @Test
-    public void test_skalKasteFeilVedHentingAvKlartekstPåBinærDokument() {
-        Dokument dokument = lagDokument(ArkivFilType.PDFA);
-        var e = assertThrows(IllegalStateException.class, () -> dokument.getKlartekstDokument());
-        assertTrue(e.getMessage().contains("Utviklerfeil"));
+    void test_skalKasteFeilVedHentingAvKlartekstPåBinærDokument() {
+        assertTrue(assertThrows(IllegalStateException.class, () -> lagDokument(ArkivFilType.PDFA).getKlartekstDokument()).getMessage().contains("Utviklerfeil"));
     }
 
     private static Dokument lagDokument(ArkivFilType arkivFilType) {

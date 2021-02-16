@@ -26,7 +26,6 @@ import no.nav.vedtak.felles.xml.soeknad.felles.v3.Adopsjon;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Bruker;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Foedsel;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Omsorgsovertakelse;
-import no.nav.vedtak.felles.xml.soeknad.felles.v3.SoekersRelasjonTilBarnet;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Termin;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Ytelse;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.Foreldrepenger;
@@ -36,7 +35,7 @@ import no.nav.vedtak.felles.xml.soeknad.v3.OmYtelse;
 import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
 
 @ExtendWith(MockitoExtension.class)
-public class SøknadTest {
+class SøknadTest {
 
     private static String AKTØR_ID = "9000000000009";
     private static String SAKSNUMMER = "98765433";
@@ -49,7 +48,7 @@ public class SøknadTest {
     Søknad søknadXmlWrapper;
 
     @BeforeEach
-    public void init() {
+    void init() {
         søknad = new Soeknad();
         bruker = new Bruker();
         bruker.setAktoerId(AKTØR_ID);
@@ -67,13 +66,12 @@ public class SøknadTest {
     }
 
     @Test
-    public void skal_sjekke_engangs_søknad_fødsel() {
-        final SoekersRelasjonTilBarnet søkersRelasjonTilBarnet = new Foedsel();
+    void skal_sjekke_engangs_søknad_fødsel() {
+        var søkersRelasjonTilBarnet = new Foedsel();
         søkersRelasjonTilBarnet.setAntallBarn(1);
-        final Engangsstønad engangsstønad = new Engangsstønad();
+        var engangsstønad = new Engangsstønad();
         engangsstønad.setSoekersRelasjonTilBarnet(søkersRelasjonTilBarnet);
         søknad.setOmYtelse(mapOmYtelse(engangsstønad));
-
         test.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
         assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
@@ -81,171 +79,146 @@ public class SøknadTest {
     }
 
     @Test
-    public void skal_sjekke_engangs_søknad_termin() {
-        final SoekersRelasjonTilBarnet søkersRelasjonTilBarnet = new Termin();
+    void skal_sjekke_engangs_søknad_termin() {
+        var søkersRelasjonTilBarnet = new Termin();
         søkersRelasjonTilBarnet.setAntallBarn(1);
-        final Engangsstønad engangsstønad = new Engangsstønad();
+        var engangsstønad = new Engangsstønad();
         engangsstønad.setSoekersRelasjonTilBarnet(søkersRelasjonTilBarnet);
         søknad.setOmYtelse(mapOmYtelse(engangsstønad));
-
         test.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
         assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
-
     }
 
     @Test
-    public void skal_sjekke_engangs_søknad_adopsjon() {
-        final SoekersRelasjonTilBarnet soekersRelasjonTilBarnet = new Adopsjon();
+    void skal_sjekke_engangs_søknad_adopsjon() {
+        var soekersRelasjonTilBarnet = new Adopsjon();
         soekersRelasjonTilBarnet.setAntallBarn(1);
-        final Engangsstønad engangsstønad = new Engangsstønad();
+        var engangsstønad = new Engangsstønad();
         engangsstønad.setSoekersRelasjonTilBarnet(soekersRelasjonTilBarnet);
         søknad.setOmYtelse(mapOmYtelse(engangsstønad));
-
         test.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_ADOPSJON);
         søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
         assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
     }
 
     @Test
-    public void skal_sjekke_engangs_søknad_omsorgovertakelse() {
-        final SoekersRelasjonTilBarnet soekersRelasjonTilBarnet = new Omsorgsovertakelse();
+    void skal_sjekke_engangs_søknad_omsorgovertakelse() {
+        var soekersRelasjonTilBarnet = new Omsorgsovertakelse();
         soekersRelasjonTilBarnet.setAntallBarn(1);
-        final Engangsstønad engangsstønad = new Engangsstønad();
+        var engangsstønad = new Engangsstønad();
         engangsstønad.setSoekersRelasjonTilBarnet(soekersRelasjonTilBarnet);
         søknad.setOmYtelse(mapOmYtelse(engangsstønad));
-
         test.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_ADOPSJON);
         søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
         assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
     }
 
     @Test
-    public void skal_sjekke_engangs_søknad() {
-
-        final Engangsstønad engangsstønad = new Engangsstønad();
-        søknad.setOmYtelse(mapOmYtelse(engangsstønad));
-
+    void skal_sjekke_engangs_søknad() {
+        søknad.setOmYtelse(mapOmYtelse(new Engangsstønad()));
         test.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD);
         søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
-
         assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
 
     }
 
     @Test
-    public void skal_sjekke_foreldrepenger_søknad_fødsel() {
-
-        final SoekersRelasjonTilBarnet søkersRelasjonTilBarnet = new Foedsel();
+    void skal_sjekke_foreldrepenger_søknad_fødsel() {
+        var søkersRelasjonTilBarnet = new Foedsel();
         søkersRelasjonTilBarnet.setAntallBarn(1);
-        final Foreldrepenger foreldrepenger = new Foreldrepenger();
+        var foreldrepenger = new Foreldrepenger();
         foreldrepenger.setRelasjonTilBarnet(søkersRelasjonTilBarnet);
         søknad.setOmYtelse(mapOmYtelse(foreldrepenger));
-
         test.setBehandlingTema(BehandlingTema.FORELDREPENGER_FØDSEL);
         søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
-
         assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
     }
 
     @Test
-    public void skal_sjekke_foreldrepenger_søknad_termin() {
-
-        final SoekersRelasjonTilBarnet søkersRelasjonTilBarnet = new Termin();
+    void skal_sjekke_foreldrepenger_søknad_termin() {
+        var søkersRelasjonTilBarnet = new Termin();
         søkersRelasjonTilBarnet.setAntallBarn(1);
-        final Foreldrepenger foreldrepenger = new Foreldrepenger();
+        var foreldrepenger = new Foreldrepenger();
         foreldrepenger.setRelasjonTilBarnet(søkersRelasjonTilBarnet);
         søknad.setOmYtelse(mapOmYtelse(foreldrepenger));
-
         test.setBehandlingTema(BehandlingTema.FORELDREPENGER_FØDSEL);
         søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
-
         assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
     }
 
     @Test
-    public void skal_sjekke_foreldrepenger_søknad_adopsjon() {
-
-        final SoekersRelasjonTilBarnet søkersRelasjonTilBarnet = new Adopsjon();
+    void skal_sjekke_foreldrepenger_søknad_adopsjon() {
+        var søkersRelasjonTilBarnet = new Adopsjon();
         søkersRelasjonTilBarnet.setAntallBarn(1);
-        final Foreldrepenger foreldrepenger = new Foreldrepenger();
+        var foreldrepenger = new Foreldrepenger();
         foreldrepenger.setRelasjonTilBarnet(søkersRelasjonTilBarnet);
         søknad.setOmYtelse(mapOmYtelse(foreldrepenger));
-
         test.setBehandlingTema(BehandlingTema.FORELDREPENGER_ADOPSJON);
         søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
-
         assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
     }
 
     @Test
-    public void skal_sjekke_foreldrepenger_søknad_omsorgovertakelse() {
-
-        final SoekersRelasjonTilBarnet søkersRelasjonTilBarnet = new Omsorgsovertakelse();
+    void skal_sjekke_foreldrepenger_søknad_omsorgovertakelse() {
+        var søkersRelasjonTilBarnet = new Omsorgsovertakelse();
         søkersRelasjonTilBarnet.setAntallBarn(1);
-        final Foreldrepenger foreldrepenger = new Foreldrepenger();
+        var foreldrepenger = new Foreldrepenger();
         foreldrepenger.setRelasjonTilBarnet(søkersRelasjonTilBarnet);
         søknad.setOmYtelse(mapOmYtelse(foreldrepenger));
-
         test.setBehandlingTema(BehandlingTema.FORELDREPENGER_ADOPSJON);
         søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
-
         assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
     }
 
     @Test
-    public void skal_kaste_ulikBehandlingstemaKodeITynnMeldingOgSøknadsdokument() {
+    void skal_kaste_ulikBehandlingstemaKodeITynnMeldingOgSøknadsdokument() {
 
-        final SoekersRelasjonTilBarnet søkersRelasjonTilBarnet = new Omsorgsovertakelse();
+        var søkersRelasjonTilBarnet = new Omsorgsovertakelse();
         søkersRelasjonTilBarnet.setAntallBarn(1);
-        final Foreldrepenger foreldrepenger = new Foreldrepenger();
+        Foreldrepenger foreldrepenger = new Foreldrepenger();
         foreldrepenger.setRelasjonTilBarnet(søkersRelasjonTilBarnet);
         søknad.setOmYtelse(mapOmYtelse(foreldrepenger));
-
         test.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_ADOPSJON);
-
         assertThatThrownBy(() -> søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent))
                 .isInstanceOf(TekniskException.class)
                 .hasMessageContaining("FP-404782");
     }
 
     @Test
-    public void skal_sjekke_foreldrepenger_endringssøknad() {
-        Fordeling fordeling = new Fordeling();
+    void skal_sjekke_foreldrepenger_endringssøknad() {
+        var fordeling = new Fordeling();
         fordeling.setAnnenForelderErInformert(false);
         fordeling.setOenskerKvoteOverfoert(new Overfoeringsaarsaker());
-        final Endringssoeknad endringssoeknad = new Endringssoeknad();
+        var endringssoeknad = new Endringssoeknad();
         endringssoeknad.setSaksnummer(SAKSNUMMER);
         endringssoeknad.setFordeling(fordeling);
         søknad.setOmYtelse(mapOmYtelse(endringssoeknad));
-
         test.setSaksnummer(SAKSNUMMER);
         test.setBehandlingTema(BehandlingTema.FORELDREPENGER);
         søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
-
         assertThat(test.getSaksnummer()).hasValue(SAKSNUMMER);
     }
 
     @Test
-    public void skal_teste_validering_brukerId() {
-        final SoekersRelasjonTilBarnet søkersRelasjonTilBarnet = new Foedsel();
+    void skal_teste_validering_brukerId() {
+        var søkersRelasjonTilBarnet = new Foedsel();
         søkersRelasjonTilBarnet.setAntallBarn(1);
-        final Foreldrepenger foreldrepenger = new Foreldrepenger();
+        var foreldrepenger = new Foreldrepenger();
         foreldrepenger.setRelasjonTilBarnet(søkersRelasjonTilBarnet);
         søknad.setOmYtelse(mapOmYtelse(foreldrepenger));
-
         test.setAktørId("95873742"); // simuler annen aktørId fra metadata
         test.setBehandlingTema(BehandlingTema.FORELDREPENGER_FØDSEL);
-        var e = assertThrows(TekniskException.class, () -> søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent));
-        assertTrue(e.getMessage().contains("FP-502574"));
+        assertTrue(assertThrows(TekniskException.class, () -> søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent))
+                .getMessage().contains("FP-502574"));
     }
 
     @Test
-    public void skal_teste_validering_saksnummer() {
-        Fordeling fordeling = new Fordeling();
+    void skal_teste_validering_saksnummer() {
+        var fordeling = new Fordeling();
         fordeling.setAnnenForelderErInformert(false);
         fordeling.setOenskerKvoteOverfoert(new Overfoeringsaarsaker());
-        final Endringssoeknad endringssøknad = new Endringssoeknad();
+        var endringssøknad = new Endringssoeknad();
         endringssøknad.setSaksnummer(SAKSNUMMER);
         endringssøknad.setFordeling(fordeling);
         søknad.setOmYtelse(mapOmYtelse(endringssøknad));
@@ -253,13 +226,12 @@ public class SøknadTest {
         test.setSaksnummer("857356"); // saksnummer fra metadata
         test.setBehandlingTema(BehandlingTema.FORELDREPENGER);
 
-        var e = assertThrows(FunksjonellException.class,
-                () -> søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent));
-        assertTrue(e.getMessage().contains("FP-401245"));
+        assertTrue(assertThrows(FunksjonellException.class,
+                () -> søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent)).getMessage().contains("FP-401245"));
     }
 
     @Test
-    public void skal_sjekke_udefinert_søknad() {
+    void skal_sjekke_udefinert_søknad() {
         søknad.setOmYtelse(mapOmYtelse(null));
         test.setBehandlingTema(BehandlingTema.UDEFINERT);
         søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);

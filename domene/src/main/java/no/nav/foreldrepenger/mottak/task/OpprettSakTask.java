@@ -43,16 +43,16 @@ public class OpprettSakTask extends WrappedProsessTaskHandler {
     @Override
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getDokumentTypeId().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY, dataWrapper.getId());
         }
         if (dataWrapper.getDokumentKategori().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.DOKUMENTKATEGORI_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.DOKUMENTKATEGORI_ID_KEY, dataWrapper.getId());
         }
         if (dataWrapper.getAktørId().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId());
         }
     }
 
@@ -60,8 +60,8 @@ public class OpprettSakTask extends WrappedProsessTaskHandler {
     public void postcondition(MottakMeldingDataWrapper dataWrapper) {
         if (TilJournalføringTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())) {
             if (dataWrapper.getSaksnummer().isEmpty()) {
-                throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
-                        MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId()).toException();
+                throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
+                        MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId());
             }
         }
     }

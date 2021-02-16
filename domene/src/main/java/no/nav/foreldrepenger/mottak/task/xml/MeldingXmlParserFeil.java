@@ -1,20 +1,15 @@
 package no.nav.foreldrepenger.mottak.task.xml;
 
-import static no.nav.vedtak.feil.LogLevel.ERROR;
-import static no.nav.vedtak.feil.LogLevel.WARN;
+import no.nav.vedtak.exception.TekniskException;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+class MeldingXmlParserFeil {
 
-interface MeldingXmlParserFeil extends DeklarerteFeil {
+    static TekniskException ukjentNamespace(String ns, Exception e) {
+        return new TekniskException("FP-958723", String.format("Fant ikke xsd for namespacet '%s'", ns), e);
+    }
 
-    MeldingXmlParserFeil FACTORY = FeilFactory.create(MeldingXmlParserFeil.class);
+    static TekniskException uventetFeilVedParsingAvXml(String ns, String xml, Exception e) {
+        return new TekniskException("FP-312345", String.format("Feil ved parsing av ukjent journaldokument-type med namespace %s av %s", ns, xml), e);
 
-    @TekniskFeil(feilkode = "FP-958723", feilmelding = "Fant ikke xsd for namespacet '%s'", logLevel = WARN)
-    Feil ukjentNamespace(String namespace, IllegalStateException e);
-
-    @TekniskFeil(feilkode = "FP-312345", feilmelding = "Feil ved parsing av ukjent journaldokument-type med namespace %s av %s", logLevel = ERROR)
-    Feil uventetFeilVedParsingAvXml(String namespace, String xml, Exception e);
+    }
 }

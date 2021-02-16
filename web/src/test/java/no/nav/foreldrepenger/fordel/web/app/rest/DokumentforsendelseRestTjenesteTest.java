@@ -92,7 +92,7 @@ public class DokumentforsendelseRestTjenesteTest {
 
         assertThatThrownBy(() -> tjeneste.uploadFile(input))
                 .isInstanceOf(TekniskException.class)
-                .hasMessage("FP-892453:The first part must be the \"metadata\" part");
+                .hasMessage("FP-892453:The first part must be the metadata part");
     }
 
     @Test
@@ -101,7 +101,7 @@ public class DokumentforsendelseRestTjenesteTest {
 
         assertThatThrownBy(() -> tjeneste.uploadFile(input))
                 .isInstanceOf(TekniskException.class)
-                .hasMessage("FP-892454:The \"metadata\" part should be application/json");
+                .hasMessage("FP-892454:The metadata part should be application/json");
     }
 
     @Test

@@ -1,47 +1,59 @@
 package no.nav.foreldrepenger.mottak.felles;
 
-import static no.nav.vedtak.feil.LogLevel.ERROR;
-import static no.nav.vedtak.feil.LogLevel.INFO;
-import static no.nav.vedtak.feil.LogLevel.WARN;
+import no.nav.vedtak.exception.FunksjonellException;
+import no.nav.vedtak.exception.TekniskException;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
-import no.nav.vedtak.feil.deklarasjon.IntegrasjonFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+public class MottakMeldingFeil {
 
-public interface MottakMeldingFeil extends DeklarerteFeil {
+    private MottakMeldingFeil() {
 
+    }
     public static final String ENDRINGSSØKNAD_AVVIK_SAKSNUMMER = "FP-401245";
 
-    MottakMeldingFeil FACTORY = FeilFactory.create(MottakMeldingFeil.class);
 
-    @TekniskFeil(feilkode = "FP-941984", feilmelding = "Prosessering av preconditions for %s mangler %s. TaskId: %s", logLevel = WARN)
-    Feil prosesstaskPreconditionManglerProperty(String taskname, String property, Long taskId);
+    public static TekniskException prosesstaskPreconditionManglerProperty(String taskname, String property, Long taskId) {
+        return new TekniskException("FP-941984",
+                String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", taskname, property, taskId));
+    }
 
-    @TekniskFeil(feilkode = "FP-638068", feilmelding = "Prosessering av postconditions for %s mangler %s. TaskId: %s", logLevel = WARN)
-    Feil prosesstaskPostconditionManglerProperty(String taskname, String property, Long taskId);
+    public static TekniskException prosesstaskPostconditionManglerProperty(String taskname, String property, Long taskId) {
+        return new TekniskException("FP-638068",
+                String.format("Prosessering av postconditions for %s mangler %s. TaskId: %s", taskname, property, taskId));
+    }
 
-    @IntegrasjonFeil(feilkode = "FP-254631", feilmelding = "Fant ikke personident for aktørId i task %s.  TaskId: %s", logLevel = WARN)
-    Feil fantIkkePersonidentForAktørId(String taskname, Long taskId);
+    public static TekniskException fantIkkePersonidentForAktørId(String taskname, Long taskId) {
+        return new TekniskException("FP-254631",
+                String.format("Fant ikke personident for aktørId i task %s.  TaskId: %s", taskname, taskId));
+    }
 
-    @TekniskFeil(feilkode = "FP-404782", feilmelding = "Ulik behandlingstemakode i tynnmelding (%s) og søknadsdokument (%s)", logLevel = ERROR)
-    Feil ulikBehandlingstemaKodeITynnMeldingOgSøknadsdokument(String behandlingstemaKodeTynnmelding, String behandlingstemaKodeSøknadsdokument);
+    public static TekniskException ulikBehandlingstemaKodeITynnMeldingOgSøknadsdokument(String behandlingstemaKodeTynnmelding,
+            String behandlingstemaKodeSøknadsdokument) {
+        return new TekniskException("FP-404782",
+                String.format("Ulik behandlingstemakode i tynnmelding (%s) og søknadsdokument (%s)", behandlingstemaKodeTynnmelding,
+                        behandlingstemaKodeSøknadsdokument));
 
-    @FunksjonellFeil(feilkode = ENDRINGSSØKNAD_AVVIK_SAKSNUMMER, feilmelding = "Ulike saksnummer i melding/VL (%s) og endringssøknad (%s).", løsningsforslag = "Dokumentet skal journalføres mot infotrygd", logLevel = LogLevel.INFO)
-    Feil ulikSaksnummerITynnmeldingOgSøknadsdokument(String saksnummerTynnmelding, String saksnummerSøknadsdokument);
+    }
+ 
+    public static FunksjonellException ulikSaksnummerITynnmeldingOgSøknadsdokument(String saksnummerTynnmelding, String saksnummerSøknadsdokument) {
+        return new FunksjonellException(ENDRINGSSØKNAD_AVVIK_SAKSNUMMER,
+                String.format("Ulike saksnummer i melding/VL (%s) og endringssøknad (%s).", saksnummerTynnmelding,
+                        saksnummerSøknadsdokument),
+                null);
+    }
 
-    @TekniskFeil(feilkode = "FP-502574", feilmelding = "Ulik aktørId i tynnmelding og søknadsdokument", logLevel = WARN)
-    Feil ulikAktørIdITynnMeldingOgSøknadsdokument();
+    public static TekniskException ulikAktørIdITynnMeldingOgSøknadsdokument(String tynn, String søknad) {
+        return new TekniskException("FP-502574",
+                String.format("Ulik aktørId i tynnmelding (%s) og søknadsdokument (%s)", tynn, søknad));
+    }
 
-    @TekniskFeil(feilkode = "FP-785833", feilmelding = "Feil journaltilstand. Forventet tilstand: endelig, fikk Midlertidig", logLevel = INFO)
-    Feil feilJournalTilstandForventetTilstandEndelig();
+    public static TekniskException ukjentBehandlingstema(String behandlingTema) {
+        return new TekniskException("FP-785833",
+                String.format("Ukjent behandlingstema {%s}", behandlingTema));
 
-    @TekniskFeil(feilkode = "FP-286143", feilmelding = "Ukjent behandlingstema {%s}", logLevel = WARN)
-    Feil ukjentBehandlingstema(String behandlingTema);
+    }
 
-    @TekniskFeil(feilkode = "FP-429673", feilmelding = "Mangler Ytelse på Innteksmelding", logLevel = WARN)
-    Feil manglerYtelsePåInntektsmelding();
+    public static TekniskException manglerYtelsePåInntektsmelding() {
+        return new TekniskException("FP-429673", "Mangler Ytelse på Innteksmelding");
+
+    }
 }

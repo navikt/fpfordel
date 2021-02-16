@@ -1,24 +1,25 @@
 package no.nav.foreldrepenger.mottak.domene;
 
-import static no.nav.vedtak.feil.LogLevel.WARN;
-
 import java.util.UUID;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
-public interface MeldingKonverteringFeil extends DeklarerteFeil {
+public class MeldingKonverteringFeil {
+    private MeldingKonverteringFeil() {
 
-    MeldingKonverteringFeil FACTORY = FeilFactory.create(MeldingKonverteringFeil.class);
+    }
 
-    @TekniskFeil(feilkode = "FP-947143", feilmelding = "Ukjent meldingstype %s", logLevel = WARN)
-    Feil ukjentSkjemaType(String skjemaType);
+    static TekniskException ukjentSkjemaType(String skjemaType) {
+        return new TekniskException("FP-947143", String.format("Ukjent meldingstype %s", skjemaType));
+    }
 
-    @TekniskFeil(feilkode = "FP-874812", feilmelding = "Ukjent format på søknad eller mangler nødvendig element (Forsendelse med ID: %s)", logLevel = WARN)
-    Feil ukjentFormatPåSøknad(UUID forsendelseId);
+    public static TekniskException ukjentFormatPåSøknad(UUID forsendelseId) {
+        return new TekniskException("FP-874812",
+                String.format("Ukjent format på søknad eller mangler nødvendig element (Forsendelse med ID: %s)", forsendelseId));
+    }
 
-    @TekniskFeil(feilkode = "FP-513732", feilmelding = "Finner ikke aktørID for bruker på %s", logLevel = WARN)
-    Feil finnerIkkeAktørId(String classe);
+    public static TekniskException finnerIkkeAktørId(String classe) {
+        return new TekniskException("FP-513732", String.format("Finner ikke aktørID for bruker på %s", classe));
+
+    }
 }

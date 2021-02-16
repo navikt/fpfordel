@@ -26,7 +26,7 @@ public abstract class MottattStrukturertDokument<S> {
             return new no.nav.foreldrepenger.mottak.domene.v3.Søknad(s);
         }
 
-        throw MeldingKonverteringFeil.FACTORY.ukjentSkjemaType(skjema.getClass().getCanonicalName()).toException();
+        throw MeldingKonverteringFeil.ukjentSkjemaType(skjema.getClass().getCanonicalName());
     }
 
     public final void kopierTilMottakWrapper(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {

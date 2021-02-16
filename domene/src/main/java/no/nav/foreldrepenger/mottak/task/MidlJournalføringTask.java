@@ -44,8 +44,8 @@ public class MidlJournalføringTask extends WrappedProsessTaskHandler {
     @Override
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getAktørId().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId());
         }
     }
 

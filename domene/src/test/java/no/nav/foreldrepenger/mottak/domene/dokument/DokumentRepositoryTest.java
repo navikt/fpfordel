@@ -1,10 +1,9 @@
 package no.nav.foreldrepenger.mottak.domene.dokument;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
@@ -20,7 +19,7 @@ import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 
 @ExtendWith(FPfordelEntityManagerAwareExtension.class)
-public class DokumentRepositoryTest {
+class DokumentRepositoryTest {
 
     private static final UUID FORSENDELSE_ID = UUID.randomUUID();
     private static final String ARKIV_ID = "1234";
@@ -28,92 +27,74 @@ public class DokumentRepositoryTest {
     private DokumentRepository repo;
 
     @BeforeEach
-    public void beforeAll(EntityManager em) {
+    void beforeAll(EntityManager em) {
         repo = new DokumentRepository(em);
     }
 
     @Test
-    public void lagre_og_hente_dokumentMetadata() {
-        DokumentMetadata dokumentMetadata = dokumentMetadata(FORSENDELSE_ID);
+    void lagre_og_hente_dokumentMetadata() {
+        var dokumentMetadata = dokumentMetadata(FORSENDELSE_ID);
         repo.lagre(dokumentMetadata);
-
-        Optional<DokumentMetadata> fraRepo = repo.hentUnikDokumentMetadata(FORSENDELSE_ID);
-        assertThat(fraRepo)
+        assertThat(repo.hentUnikDokumentMetadata(FORSENDELSE_ID))
                 .isPresent()
                 .hasValue(dokumentMetadata);
     }
 
     @Test
-    public void lagre_og_hente_dokument() {
-        Dokument xmlSøknad = dokument(FORSENDELSE_ID, ArkivFilType.XML);
+    void lagre_og_hente_dokument() {
+        var xmlSøknad = dokument(FORSENDELSE_ID, ArkivFilType.XML);
         repo.lagre(xmlSøknad);
-        Dokument pdfSøknad = dokument(FORSENDELSE_ID, ArkivFilType.PDFA);
+        var pdfSøknad = dokument(FORSENDELSE_ID, ArkivFilType.PDFA);
         repo.lagre(pdfSøknad);
-        Dokument vedlegg = dokumentAnnet(FORSENDELSE_ID, ArkivFilType.PDFA);
+        var vedlegg = dokumentAnnet(FORSENDELSE_ID, ArkivFilType.PDFA);
         repo.lagre(vedlegg);
 
-        List<Dokument> dokuments = repo.hentDokumenter(FORSENDELSE_ID);
+        var dokuments = repo.hentDokumenter(FORSENDELSE_ID);
         assertThat(dokuments)
                 .containsExactlyInAnyOrder(xmlSøknad, pdfSøknad, vedlegg);
         assertThat(dokuments.get(2).getBeskrivelse()).isNotNull();
     }
 
     @Test
-    public void hent_unikt_dokument() {
-        Dokument xmlSøknad = dokument(FORSENDELSE_ID, ArkivFilType.XML);
+    void hent_unikt_dokument() {
+        var xmlSøknad = dokument(FORSENDELSE_ID, ArkivFilType.XML);
         repo.lagre(xmlSøknad);
-        Dokument pdfSøknad = dokument(FORSENDELSE_ID, ArkivFilType.PDFA);
+        var pdfSøknad = dokument(FORSENDELSE_ID, ArkivFilType.PDFA);
         repo.lagre(pdfSøknad);
-
-        Optional<Dokument> dokument = repo.hentUnikDokument(FORSENDELSE_ID, true, ArkivFilType.PDFA);
+        var dokument = repo.hentUnikDokument(FORSENDELSE_ID, true, ArkivFilType.PDFA);
         assertThat(dokument).isPresent();
-        assertThat(dokument.get().erHovedDokument()).isTrue();
+        assertTrue(dokument.get().erHovedDokument());
         assertThat(dokument.get().getArkivFilType()).isEqualByComparingTo(ArkivFilType.PDFA);
     }
 
     @Test
-    public void hent_eksakt_dokument_metadata() {
-        DokumentMetadata metadata = dokumentMetadata(FORSENDELSE_ID);
+    void hent_eksakt_dokument_metadata() {
+        var metadata = dokumentMetadata(FORSENDELSE_ID);
         repo.lagre(metadata);
-
-        DokumentMetadata resultat = repo.hentEksaktDokumentMetadata(FORSENDELSE_ID);
-        assertThat(resultat).isNotNull();
-        assertThat(resultat).isEqualTo(metadata);
+        assertThat(repo.hentEksaktDokumentMetadata(FORSENDELSE_ID))
+                .isNotNull()
+                .isEqualTo(metadata);
     }
 
     @Test
-    public void lagre_og_slette_dokument_og_metadato() {
-        Dokument xmlSøknad = dokument(FORSENDELSE_ID, ArkivFilType.XML);
-        repo.lagre(xmlSøknad);
-        Dokument pdfSøknad = dokument(FORSENDELSE_ID, ArkivFilType.PDFA);
-        repo.lagre(pdfSøknad);
-        DokumentMetadata dokumentMetadata = dokumentMetadata(FORSENDELSE_ID);
+    void lagre_og_slette_dokument_og_metadato() {
+        repo.lagre(dokument(FORSENDELSE_ID, ArkivFilType.XML));
+        repo.lagre(dokument(FORSENDELSE_ID, ArkivFilType.PDFA));
+        var dokumentMetadata = dokumentMetadata(FORSENDELSE_ID);
         dokumentMetadata.setStatus(ForsendelseStatus.FPSAK);
         repo.lagre(dokumentMetadata);
-
-        Optional<DokumentMetadata> fraRepo = repo.hentUnikDokumentMetadata(FORSENDELSE_ID);
-        assertThat(fraRepo).isPresent().hasValue(dokumentMetadata);
-
+        assertThat(repo.hentUnikDokumentMetadata(FORSENDELSE_ID)).isPresent().hasValue(dokumentMetadata);
         repo.slettForsendelse(FORSENDELSE_ID);
-
-        fraRepo = repo.hentUnikDokumentMetadata(FORSENDELSE_ID);
-        assertThat(fraRepo).isNotPresent();
-
-        List<Dokument> dokuments = repo.hentDokumenter(FORSENDELSE_ID);
-        assertThat(dokuments).isEmpty();
+        assertThat(repo.hentUnikDokumentMetadata(FORSENDELSE_ID)).isNotPresent();
+        assertThat(repo.hentDokumenter(FORSENDELSE_ID)).isEmpty();
     }
 
     @Test
-    public void oppdatere_forsendelse_med_arkivId() {
-        DokumentMetadata inn = dokumentMetadata(FORSENDELSE_ID);
-        repo.lagre(inn);
-
-        DokumentMetadata uendret = repo.hentEksaktDokumentMetadata(FORSENDELSE_ID);
-        assertThat(uendret.getArkivId()).isEmpty();
-
+    void oppdatere_forsendelse_med_arkivId() {
+        repo.lagre(dokumentMetadata(FORSENDELSE_ID));
+        assertThat(repo.hentEksaktDokumentMetadata(FORSENDELSE_ID).getArkivId()).isEmpty();
         repo.oppdaterForsendelseMedArkivId(FORSENDELSE_ID, ARKIV_ID, ForsendelseStatus.FPSAK);
-        DokumentMetadata endret = repo.hentEksaktDokumentMetadata(FORSENDELSE_ID);
-        assertThat(endret.getArkivId()).hasValue(ARKIV_ID);
+        assertThat(repo.hentEksaktDokumentMetadata(FORSENDELSE_ID).getArkivId()).hasValue(ARKIV_ID);
     }
 
     private static DokumentMetadata dokumentMetadata(UUID forsendelseId) {

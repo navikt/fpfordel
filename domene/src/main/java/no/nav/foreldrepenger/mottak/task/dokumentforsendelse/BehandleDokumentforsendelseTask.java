@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.mottak.task.dokumentforsendelse;
 
-import static no.nav.vedtak.feil.LogLevel.WARN;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -37,10 +35,7 @@ import no.nav.foreldrepenger.mottak.task.OpprettSakTask;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
@@ -72,20 +67,20 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     @Override
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getForsendelseId().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.FORSENDELSE_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.FORSENDELSE_ID_KEY, dataWrapper.getId());
         }
     }
 
     @Override
     public void postcondition(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getAktørId().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId());
         }
         if (dataWrapper.getBehandlingTema() == null) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.BEHANDLINGSTEMA_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.BEHANDLINGSTEMA_KEY, dataWrapper.getId());
         }
 
         if (TilJournalføringTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())) {
@@ -100,8 +95,8 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     private static void postconditionJournalføring(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getSaksnummer().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId());
         }
     }
 
@@ -154,26 +149,25 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     private static void postConditionHentOgVurderVLSakOgOpprettSak(MottakMeldingDataWrapper dataWrapper) {
         if (OpprettSakTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())
                 && dataWrapper.getForsendelseMottattTidspunkt().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY
+            throw MottakMeldingFeil
                     .prosesstaskPostconditionManglerProperty(TASKNAME,
-                            MottakMeldingDataWrapper.FORSENDELSE_MOTTATT_TIDSPUNKT_KEY, dataWrapper.getId())
-                    .toException();
+                            MottakMeldingDataWrapper.FORSENDELSE_MOTTATT_TIDSPUNKT_KEY, dataWrapper.getId());
         }
         if (dataWrapper.getDokumentTypeId().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY, dataWrapper.getId());
         }
         if (dataWrapper.getDokumentKategori().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.DOKUMENTKATEGORI_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.DOKUMENTKATEGORI_ID_KEY, dataWrapper.getId());
         }
         if (dataWrapper.getPayloadAsString().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY
-                    .prosesstaskPostconditionManglerProperty(TASKNAME, "payload", dataWrapper.getId()).toException();
+            throw MottakMeldingFeil
+                    .prosesstaskPostconditionManglerProperty(TASKNAME, "payload", dataWrapper.getId());
         }
         if (!dataWrapper.getHarTema()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.TEMA_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.TEMA_KEY, dataWrapper.getId());
         }
     }
 
@@ -206,7 +200,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         if (dokumentInput.isPresent()) {
             Dokument dokument = dokumentInput.get();
             if (!fagsakInfo.getAktørId().equals(dataWrapper.getAktørId().orElse(null))) {
-                throw BehandleDokumentforsendelseFeil.FACTORY.aktørIdMismatch().toException();
+                throw BehandleDokumentforsendelseFeil.aktørIdMismatch();
             }
             sjekkForMismatchMellomFagsakOgDokumentInn(dataWrapper.getBehandlingTema(), behandlingTemaFraSak, dokument);
         } else {
@@ -233,8 +227,8 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
             }
         }
         if (!fagsakTema.equals(behandlingTema)) {
-            throw BehandleDokumentforsendelseFeil.FACTORY.behandlingTemaMismatch(
-                    behandlingTema.getKode(), fagsakTema.getKode()).toException();
+            throw BehandleDokumentforsendelseFeil.behandlingTemaMismatch(
+                    behandlingTema.getKode(), fagsakTema.getKode());
         }
 
     }
@@ -266,15 +260,18 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
                 .isBefore(konfigVerdiStartdatoForeldrepenger);
     }
 
-    private interface BehandleDokumentforsendelseFeil extends DeklarerteFeil {
-        BehandleDokumentforsendelseTask.BehandleDokumentforsendelseFeil FACTORY = FeilFactory
-                .create(BehandleDokumentforsendelseTask.BehandleDokumentforsendelseFeil.class);
+    static private class BehandleDokumentforsendelseFeil {
 
-        @TekniskFeil(feilkode = "FP-758390", feilmelding = "Søkers ID samsvarer ikke med søkers ID i eksisterende sak", logLevel = WARN)
-        Feil aktørIdMismatch();
+        static TekniskException aktørIdMismatch() {
+            return new TekniskException("FP-758390", "Søkers ID samsvarer ikke med søkers ID i eksisterende sak");
+        }
 
-        @TekniskFeil(feilkode = "FP-756353", feilmelding = "BehandlingTema i forsendelse samsvarer ikke med BehandlingTema i eksisterende sak {%s : %s}", logLevel = WARN)
-        Feil behandlingTemaMismatch(String behandlingTemaforsendelse, String behandlingTemaSak);
+        static TekniskException behandlingTemaMismatch(String behandlingTemaforsendelse, String behandlingTemaSak) {
+            return new TekniskException("FP-756353",
+                    String.format("BehandlingTema i forsendelse samsvarer ikke med BehandlingTema i eksisterende sak {%s : %s}",
+                            behandlingTemaforsendelse, behandlingTemaSak));
+
+        }
     }
 
 }

@@ -2,7 +2,8 @@ package no.nav.foreldrepenger.mottak.task.xml;
 
 import static no.nav.foreldrepenger.mottak.task.xml.JaxbHelper.unmarshalAndValidateXMLWithStAX;
 import static no.nav.foreldrepenger.mottak.task.xml.JaxbHelper.unmarshalXMLWithStAX;
-import static no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParserFeil.FACTORY;
+import static no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParserFeil.ukjentNamespace;
+import static no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParserFeil.uventetFeilVedParsingAvXml;
 import static no.nav.foreldrepenger.mottak.task.xml.XmlUtils.retrieveNameSpaceOfXML;
 
 import java.util.Map;
@@ -46,12 +47,11 @@ public final class MeldingXmlParser {
                     try {
                         return f.parse(xml);
                     } catch (Exception e) {
-                        throw FACTORY.uventetFeilVedParsingAvXml(ns(xml), xml, e).toException();
+                        throw uventetFeilVedParsingAvXml(ns(xml), xml, e);
                     }
                 })
                 .map(MottattStrukturertDokument::toXmlWrapper)
-                .orElseThrow(() -> FACTORY.ukjentNamespace(ns(xml), new IllegalStateException())
-                        .toException());
+                .orElseThrow(() -> ukjentNamespace(ns(xml), new IllegalStateException()));
 
     }
 

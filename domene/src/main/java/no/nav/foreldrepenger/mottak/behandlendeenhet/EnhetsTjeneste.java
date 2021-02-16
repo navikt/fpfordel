@@ -16,12 +16,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.person.GeoTilknytning;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.ManglerTilgangFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.Arbeidsfordeling;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRequest;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingResponse;
@@ -87,8 +82,7 @@ public class EnhetsTjeneste implements EnhetsInfo {
     private static String validerOgVelgBehandlendeEnhet(List<ArbeidsfordelingResponse> response, GeoTilknytning gt) {
         // Vi forventer å få én behandlende enhet.
         if (response == null || response.size() != 1) {
-            throw EnhetsTjeneste.EnhetsTjenesteFeil.FACTORY.finnerIkkeBehandlendeEnhet(gt.tilknytning(), gt.diskresjonskode())
-                    .toException();
+            throw EnhetsTjeneste.EnhetsTjenesteFeil.finnerIkkeBehandlendeEnhet(gt.tilknytning(), gt.diskresjonskode());
         }
 
         return response.get(0).getEnhetNr();
@@ -121,17 +115,11 @@ public class EnhetsTjeneste implements EnhetsInfo {
         return personTjeneste.hentGeografiskTilknytning(fnr);
     }
 
-    private interface EnhetsTjenesteFeil extends DeklarerteFeil {
+    private static class EnhetsTjenesteFeil {
 
-        EnhetsTjeneste.EnhetsTjenesteFeil FACTORY = FeilFactory.create(EnhetsTjeneste.EnhetsTjenesteFeil.class);
-
-        @TekniskFeil(feilkode = "FP-669566", feilmelding = "Finner ikke behandlende enhet for geografisk tilknytning %s, diskresjonskode %s", logLevel = LogLevel.ERROR)
-        Feil finnerIkkeBehandlendeEnhet(String geografiskTilknytning, String diskresjonskode);
-
-        @TekniskFeil(feilkode = "FP-070668", feilmelding = "Person ikke funnet ved hentGeografiskTilknytning eller relasjoner", logLevel = LogLevel.ERROR)
-        Feil enhetsTjenestePersonIkkeFunnet(Exception e);
-
-        @ManglerTilgangFeil(feilkode = "FP-509290", feilmelding = "Mangler tilgang til å utføre hentGeografiskTilknytning eller hentrelasjoner", logLevel = LogLevel.ERROR)
-        Feil enhetsTjenesteSikkerhetsbegrensing(Exception e);
+        static TekniskException finnerIkkeBehandlendeEnhet(String geografiskTilknytning, String diskresjonskode) {
+            return new TekniskException("FP-669566", String.format("Finner ikke behandlende enhet for geografisk tilknytning %s, diskresjonskode %s",
+                    geografiskTilknytning, diskresjonskode));
+        }
     }
 }

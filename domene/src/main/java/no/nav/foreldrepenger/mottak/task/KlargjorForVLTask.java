@@ -39,12 +39,12 @@ public class KlargjorForVLTask extends WrappedProsessTaskHandler {
     @Override
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getSaksnummer().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId());
         }
         if (dataWrapper.getArkivId() == null) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.ARKIV_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.ARKIV_ID_KEY, dataWrapper.getId());
         }
     }
 

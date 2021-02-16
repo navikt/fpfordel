@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.mottak.task;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.kafka.LoggingHendelseProdusent;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.OpprettetJournalpost;
@@ -70,34 +69,12 @@ public class TilJournalføringTaskTest {
 
     @Test
     public void skal_teste_precondition() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
-
-        try {
-            task.precondition(data);
-            fail();
-        } catch (VLException e) {
-            assertThat(e.getFeil().getKode())
-                    .isEqualTo(MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty("", "", 0L).getKode());
-        }
+        var data = new MottakMeldingDataWrapper(ptd);
+        var e = assertThrows(VLException.class, () -> task.precondition(data));
         data.setArkivId(ARKIV_ID);
-        try {
-            task.precondition(data);
-            fail();
-        } catch (VLException e) {
-            assertThat(e.getFeil().getKode())
-                    .isEqualTo(MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty("", "", 0L).getKode());
-        }
+        e = assertThrows(VLException.class, () -> task.precondition(data));
         data.setAktørId(AKTØR_ID);
-
-        try {
-            task.precondition(data);
-            fail();
-        } catch (VLException e) {
-            assertThat(e.getFeil().getKode())
-                    .isEqualTo(MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty("", "", 0L).getKode());
-        }
         data.setSaksnummer("asdf");
-
         task.precondition(data);
     }
 
