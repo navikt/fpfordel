@@ -127,6 +127,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
                     // Mottatt journalpost har annet saksnummer enn den i endringssøknaden....
                     // Skyldes spesiell bruk av Gosys. Lag oppgave i dette tilfelle, godta i BehandleDokumentService
                     if (MottakMeldingFeil.ENDRINGSSØKNAD_AVVIK_SAKSNUMMER.equals(vle.getKode())) {
+                        dataWrapper.setSaksnummer(null);
                         return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
                     }
                 }
