@@ -53,7 +53,7 @@ public class DokumentRepository {
 
         List<Dokument> resultatListe = query.getResultList();
         if (resultatListe.size() > 1) {
-            throw DokumentFeil.FACTORY.fantIkkeUnikResultat().toException();
+            throw DokumentFeil.fantIkkeUnikResultat();
         }
 
         if (resultatListe.isEmpty()) {

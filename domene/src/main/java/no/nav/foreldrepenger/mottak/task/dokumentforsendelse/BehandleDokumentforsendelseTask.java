@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.mottak.task.dokumentforsendelse;
 
-import static no.nav.vedtak.feil.LogLevel.WARN;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -37,10 +35,7 @@ import no.nav.foreldrepenger.mottak.task.OpprettSakTask;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
@@ -205,7 +200,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         if (dokumentInput.isPresent()) {
             Dokument dokument = dokumentInput.get();
             if (!fagsakInfo.getAktørId().equals(dataWrapper.getAktørId().orElse(null))) {
-                throw BehandleDokumentforsendelseFeil.FACTORY.aktørIdMismatch().toException();
+                throw BehandleDokumentforsendelseFeil.aktørIdMismatch();
             }
             sjekkForMismatchMellomFagsakOgDokumentInn(dataWrapper.getBehandlingTema(), behandlingTemaFraSak, dokument);
         } else {
@@ -232,8 +227,8 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
             }
         }
         if (!fagsakTema.equals(behandlingTema)) {
-            throw BehandleDokumentforsendelseFeil.FACTORY.behandlingTemaMismatch(
-                    behandlingTema.getKode(), fagsakTema.getKode()).toException();
+            throw BehandleDokumentforsendelseFeil.behandlingTemaMismatch(
+                    behandlingTema.getKode(), fagsakTema.getKode());
         }
 
     }
@@ -265,15 +260,18 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
                 .isBefore(konfigVerdiStartdatoForeldrepenger);
     }
 
-    private interface BehandleDokumentforsendelseFeil extends DeklarerteFeil {
-        BehandleDokumentforsendelseTask.BehandleDokumentforsendelseFeil FACTORY = FeilFactory
-                .create(BehandleDokumentforsendelseTask.BehandleDokumentforsendelseFeil.class);
+    static private class BehandleDokumentforsendelseFeil {
 
-        @TekniskFeil(feilkode = "FP-758390", feilmelding = "Søkers ID samsvarer ikke med søkers ID i eksisterende sak", logLevel = WARN)
-        Feil aktørIdMismatch();
+        static TekniskException aktørIdMismatch() {
+            return new TekniskException("FP-758390", "Søkers ID samsvarer ikke med søkers ID i eksisterende sak");
+        }
 
-        @TekniskFeil(feilkode = "FP-756353", feilmelding = "BehandlingTema i forsendelse samsvarer ikke med BehandlingTema i eksisterende sak {%s : %s}", logLevel = WARN)
-        Feil behandlingTemaMismatch(String behandlingTemaforsendelse, String behandlingTemaSak);
+        static TekniskException behandlingTemaMismatch(String behandlingTemaforsendelse, String behandlingTemaSak) {
+            return new TekniskException("FP-756353",
+                    String.format("BehandlingTema i forsendelse samsvarer ikke med BehandlingTema i eksisterende sak {%s : %s}",
+                            behandlingTemaforsendelse, behandlingTemaSak));
+
+        }
     }
 
 }

@@ -97,17 +97,17 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
     public void sjekkNødvendigeFeltEksisterer(UUID forsendelseId) {
         if ((getSkjema().getMottattDato() == null) || (getSkjema().getOmYtelse() == null)
                 || (getSkjema().getSoeker() == null)) {
-            throw MeldingKonverteringFeil.FACTORY.ukjentFormatPåSøknad(forsendelseId).toException();
+            throw MeldingKonverteringFeil.ukjentFormatPåSøknad(forsendelseId);
         }
     }
 
     public BehandlingTema hentBehandlingTema() {
         Ytelse ytelse = getYtelse();
-        if (ytelse instanceof Engangsstønad) {
-            return utledBehandlingTemaES(((Engangsstønad) ytelse).getSoekersRelasjonTilBarnet());
+        if (ytelse instanceof Engangsstønad e) {
+            return utledBehandlingTemaES(e.getSoekersRelasjonTilBarnet());
         }
-        if (ytelse instanceof Foreldrepenger) {
-            return utledBehandlingTemaFP(((Foreldrepenger) ytelse).getRelasjonTilBarnet());
+        if (ytelse instanceof Foreldrepenger f) {
+            return utledBehandlingTemaFP(f.getRelasjonTilBarnet());
         }
         if (ytelse instanceof Endringssoeknad) {
             return BehandlingTema.FORELDREPENGER;

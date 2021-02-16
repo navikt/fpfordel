@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse;
 import static java.util.stream.Collectors.toSet;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static no.nav.vedtak.feil.LogLevel.WARN;
 
 import java.util.Optional;
 import java.util.Set;
@@ -25,10 +24,7 @@ import no.nav.foreldrepenger.mottak.task.dokumentforsendelse.BehandleDokumentfor
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatusDto;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
@@ -85,21 +81,20 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
                 opprettProsessTask(forsendelseId, avsenderId);
                 return;
             }
-            throw DokumentforsendelseTjenesteFeil.FACTORY.saksnummerPåkrevdVedEttersendelser().toException();
+            throw DokumentforsendelseTjenesteFeil.saksnummerPåkrevdVedEttersendelser();
         }
         if (korrektAntallOgTyper(hoveddokumenter)) {
             opprettProsessTask(forsendelseId, avsenderId);
             return;
         }
-        throw DokumentforsendelseTjenesteFeil.FACTORY
-                .hoveddokumentSkalSendesSomToDokumenter(CONTENT_TYPE, APPLICATION_XML, APPLICATION_PDF_TYPE)
-                .toException();
+        throw DokumentforsendelseTjenesteFeil
+                .hoveddokumentSkalSendesSomToDokumenter(CONTENT_TYPE, APPLICATION_XML, APPLICATION_PDF_TYPE);
     }
 
     @Override
     public ForsendelseStatusDto finnStatusinformasjon(UUID forsendelseId) {
         return finnStatusinformasjonHvisEksisterer(forsendelseId)
-                .orElseThrow(() -> DokumentFeil.FACTORY.fantIkkeForsendelse(forsendelseId).toException());
+                .orElseThrow(() -> DokumentFeil.fantIkkeForsendelse(forsendelseId));
     }
 
     @Override
@@ -159,15 +154,17 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
         return påkrevdeFunnetIhoveddokumentene == 2;
     }
 
-    private interface DokumentforsendelseTjenesteFeil extends DeklarerteFeil {
-        DokumentforsendelseTjenesteImpl.DokumentforsendelseTjenesteFeil FACTORY = FeilFactory
-                .create(DokumentforsendelseTjenesteImpl.DokumentforsendelseTjenesteFeil.class);
+    private static class DokumentforsendelseTjenesteFeil {
 
-        @TekniskFeil(feilkode = "FP-728553", feilmelding = "Saksnummer er påkrevd ved ettersendelser", logLevel = WARN)
-        Feil saksnummerPåkrevdVedEttersendelser();
+        static TekniskException saksnummerPåkrevdVedEttersendelser() {
+            return new TekniskException("FP-728553", "Saksnummer er påkrevd ved ettersendelser");
+        }
 
-        @TekniskFeil(feilkode = "FP-728555", feilmelding = "Hoveddokumentet skal alltid sendes som to dokumenter med %s: %s og %s", logLevel = WARN)
-        Feil hoveddokumentSkalSendesSomToDokumenter(String contentType, String dokumenttype1, MediaType dokumenttype2);
+        static TekniskException hoveddokumentSkalSendesSomToDokumenter(String contentType, String dokumenttype1, MediaType dokumenttype2) {
+            return new TekniskException("FP-728555", String.format("Hoveddokumentet skal alltid sendes som to dokumenter med %s: %s og %s",
+                    contentType, dokumenttype1, dokumenttype2));
+
+        }
     }
 
 }

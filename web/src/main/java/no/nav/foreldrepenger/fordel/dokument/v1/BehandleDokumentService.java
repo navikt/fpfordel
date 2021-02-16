@@ -43,11 +43,6 @@ import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.feil.Journalpos
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.feil.UgyldigInput;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.meldinger.OppdaterOgFerdigstillJournalfoeringRequest;
 import no.nav.vedtak.exception.FunksjonellException;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
 import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebService;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.integrasjon.sak.v1.SakClient;
@@ -200,7 +195,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         if ((BehandlingTema.gjelderForeldrepenger(behandlingTemaFagsak) && !BehandlingTema.gjelderForeldrepenger(behandlingTemaDok)) ||
                 (BehandlingTema.gjelderEngangsstønad(behandlingTemaFagsak) && !BehandlingTema.gjelderEngangsstønad(behandlingTemaDok)) ||
                 (BehandlingTema.gjelderSvangerskapspenger(behandlingTemaFagsak) && !BehandlingTema.gjelderSvangerskapspenger(behandlingTemaDok))) {
-            throw BehandleDokumentServiceFeil.FACTORY.søknadFeilType().toException();
+            throw BehandleDokumentServiceFeil.søknadFeilType();
         }
         return BehandlingTema.ikkeSpesifikkHendelse(behandlingTemaDok) ? behandlingTemaFagsak : behandlingTemaDok;
     }
@@ -209,7 +204,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             DokumentKategori dokumentKategori) {
         if (BehandlingTema.UDEFINERT.equals(behandlingTema) && (DokumentTypeId.KLAGE_DOKUMENT.equals(dokumentTypeId)
                 || DokumentKategori.KLAGE_ELLER_ANKE.equals(dokumentKategori))) {
-            throw BehandleDokumentServiceFeil.FACTORY.sakUtenAvsluttetBehandling().toException();
+            throw BehandleDokumentServiceFeil.sakUtenAvsluttetBehandling();
         }
     }
 
@@ -305,24 +300,24 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             BehandlingTema behandlingTemaFraIM = BehandlingTema.fraTermNavn(imType);
             if (BehandlingTema.gjelderForeldrepenger(behandlingTemaFraIM)) {
                 if (dataWrapper.getInntektsmeldingStartDato().isEmpty()) { // Kommer ingen vei uten startdato
-                    throw BehandleDokumentServiceFeil.FACTORY.imUtenStartdato().toException();
+                    throw BehandleDokumentServiceFeil.imUtenStartdato();
                 } else if (!BehandlingTema.gjelderForeldrepenger(behandlingTema)) { // Prøver journalføre på annen
                     // fagsak - ytelsetype
-                    throw BehandleDokumentServiceFeil.FACTORY.imFeilType().toException();
+                    throw BehandleDokumentServiceFeil.imFeilType();
                 }
             } else if (!behandlingTemaFraIM.equals(behandlingTema)) {
-                throw BehandleDokumentServiceFeil.FACTORY.imFeilType().toException();
+                throw BehandleDokumentServiceFeil.imFeilType();
             }
         }
         if (BehandlingTema.gjelderForeldrepenger(behandlingTema)
                 && startDato.isBefore(KonfigVerdier.ENDRING_BEREGNING_DATO)) {
-            throw BehandleDokumentServiceFeil.FACTORY.forTidligUttak().toException();
+            throw BehandleDokumentServiceFeil.forTidligUttak();
         }
     }
 
     /*
-     * Midlertidig håndtering mens Gosys fikser koden som identifiserer saksnummer. Redusere kompleksitet og risk ved prodsetting.
-     * Rekursjon med stopp
+     * Midlertidig håndtering mens Gosys fikser koden som identifiserer saksnummer.
+     * Redusere kompleksitet og risk ved prodsetting. Rekursjon med stopp
      */
     private String finnRiktigSaksnummer(String saksnummer) {
         if (fagsakRestKlient.finnFagsakInfomasjon(new SaksnummerDto(saksnummer)).isPresent())
@@ -332,13 +327,13 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             LOG.info("FPFORDEL GOSYS slår opp fagsak {} finner {}", saksnummer, funnetSaksnummer);
             return funnetSaksnummer;
         } catch (Exception e) {
-            throw BehandleDokumentServiceFeil.FACTORY.finnerIkkeFagsak(saksnummer).toException();
+            throw BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummer);
         }
     }
 
     private FagsakInfomasjonDto finnFagsakInformasjon(String saksnummer) {
         return fagsakRestKlient.finnFagsakInfomasjon(new SaksnummerDto(saksnummer))
-                .orElseThrow(() -> BehandleDokumentServiceFeil.FACTORY.finnerIkkeFagsak(saksnummer).toException());
+                .orElseThrow(() -> BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummer));
     }
 
     private static UgyldigInput lagUgyldigInput(String melding) {
@@ -362,28 +357,41 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         }
     }
 
-    private interface BehandleDokumentServiceFeil extends DeklarerteFeil {
+    private static class BehandleDokumentServiceFeil {
 
-        BehandleDokumentService.BehandleDokumentServiceFeil FACTORY = FeilFactory
-                .create(BehandleDokumentService.BehandleDokumentServiceFeil.class);
+        private BehandleDokumentServiceFeil() {
 
-        @FunksjonellFeil(feilkode = "FP-963070", feilmelding = "Kan ikke journalføre på saksnummer: %s", løsningsforslag = "Journalføre dokument på annen sak i VL", logLevel = LogLevel.WARN)
-        Feil finnerIkkeFagsak(String saksnummer);
+        }
 
-        @FunksjonellFeil(feilkode = "FP-963074", feilmelding = "Klager må journalføres på sak med tidligere behandling", løsningsforslag = "Journalføre klagen på sak med avsluttet behandling", logLevel = LogLevel.WARN)
-        Feil sakUtenAvsluttetBehandling();
+        static FunksjonellException finnerIkkeFagsak(String saksnummer) {
+            return new FunksjonellException("FP-963070", String.format("Kan ikke journalføre på saksnummer: %s", saksnummer),
+                    "Journalføre dokument på annen sak i VL");
+        }
 
-        @FunksjonellFeil(feilkode = "FP-963075", feilmelding = "Inntektsmelding årsak samsvarer ikke med sakens type - kan ikke journalføre", løsningsforslag = "Be om ny Inntektsmelding for Foreldrepenger", logLevel = LogLevel.WARN)
-        Feil imFeilType();
+        static FunksjonellException sakUtenAvsluttetBehandling() {
+            return new FunksjonellException("FP-963074", "Klager må journalføres på sak med tidligere behandling",
+                    "Journalføre klagen på sak med avsluttet behandling");
+        }
 
-        @FunksjonellFeil(feilkode = "FP-963079", feilmelding = "Dokumentet samsvarer ikke med sakens type - kan ikke journalføre", løsningsforslag = "Journalfør på annen sak eller opprett ny sak", logLevel = LogLevel.WARN)
-        Feil søknadFeilType();
+        static FunksjonellException imFeilType() {
+            return new FunksjonellException("FP-963075", "Inntektsmelding årsak samsvarer ikke med sakens type - kan ikke journalføre",
+                    "Be om ny Inntektsmelding for Foreldrepenger");
+        }
 
-        @FunksjonellFeil(feilkode = "FP-963076", feilmelding = "Inntektsmelding mangler startdato - kan ikke journalføre", løsningsforslag = "Be om ny Inntektsmelding med startdato", logLevel = LogLevel.WARN)
-        Feil imUtenStartdato();
+        static FunksjonellException søknadFeilType() {
+            return new FunksjonellException("FP-963079", "Dokumentet samsvarer ikke med sakens type - kan ikke journalføre",
+                    "Journalfør på annen sak eller opprett ny sak");
+        }
 
-        @FunksjonellFeil(feilkode = "FP-963077", feilmelding = "For tidlig uttak", løsningsforslag = "Søknad om uttak med oppstart i 2018 skal journalføres mot sak i Infotrygd", logLevel = LogLevel.WARN)
-        Feil forTidligUttak();
+        static FunksjonellException imUtenStartdato() {
+            return new FunksjonellException("FP-963076", "Inntektsmelding mangler startdato - kan ikke journalføre",
+                    "Be om ny Inntektsmelding med startdato");
+        }
+
+        static FunksjonellException forTidligUttak() {
+            return new FunksjonellException("FP-963077", "For tidlig uttak",
+                    "Søknad om uttak med oppstart i 2018 skal journalføres mot sak i Infotrygd");
+        }
     }
 
 }
