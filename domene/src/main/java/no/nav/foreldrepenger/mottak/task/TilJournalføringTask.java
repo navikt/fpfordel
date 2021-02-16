@@ -59,12 +59,12 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
     @Override
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getAktørId().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId());
         }
         if (dataWrapper.getSaksnummer().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId());
         }
     }
 
@@ -73,7 +73,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper w) {
         Optional<String> fnr = w.getAktørId().flatMap(aktør::hentPersonIdentForAktørId);
         if (fnr.isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.fantIkkePersonidentForAktørId(TASKNAME, w.getId()).toException();
+            throw MottakMeldingFeil.fantIkkePersonidentForAktørId(TASKNAME, w.getId());
         }
         var saksnummer = w.getSaksnummer().orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mangler saksnummer"));
         if (w.getArkivId() == null) {
@@ -93,7 +93,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
                 }
                 arkivTjeneste.ferdigstillJournalføring(w.getArkivId(), w.getJournalførendeEnhet().orElse(AUTOMATISK_ENHET));
             } catch (Exception e) {
-                MottakMeldingFeil.FACTORY.feilJournalTilstandForventetTilstandEndelig().log(LOG);
+                LOG.info("Feil journaltilstand. Forventet tilstand: endelig, fikk Midlertidig");
                 return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
             }
         }
@@ -121,7 +121,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
 
         if (!opprettetJournalpost.ferdigstilt()) {
             LOG.info("FORDEL OPPRETT/FERDIG ikke ferdig for {} forsendelse {}", w.getArkivId(), forsendelseId);
-            MottakMeldingFeil.FACTORY.feilJournalTilstandForventetTilstandEndelig().log(LOG);
+            LOG.info("Feil journaltilstand. Forventet tilstand: endelig, fikk Midlertidig");
             dokumentRepository.oppdaterForsendelseMedArkivId(forsendelseId, w.getArkivId(), ForsendelseStatus.GOSYS);
             // Det kommer en midlertidig-hendelse på Kafka om et par sekunder. Unngå å
             // reagere på den.

@@ -72,20 +72,20 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     @Override
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getForsendelseId().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.FORSENDELSE_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.FORSENDELSE_ID_KEY, dataWrapper.getId());
         }
     }
 
     @Override
     public void postcondition(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getAktørId().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId());
         }
         if (dataWrapper.getBehandlingTema() == null) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.BEHANDLINGSTEMA_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.BEHANDLINGSTEMA_KEY, dataWrapper.getId());
         }
 
         if (TilJournalføringTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())) {
@@ -100,8 +100,8 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     private static void postconditionJournalføring(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getSaksnummer().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId()).toException();
+            MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId());
         }
     }
 
@@ -154,26 +154,25 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     private static void postConditionHentOgVurderVLSakOgOpprettSak(MottakMeldingDataWrapper dataWrapper) {
         if (OpprettSakTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())
                 && dataWrapper.getForsendelseMottattTidspunkt().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY
+            MottakMeldingFeil
                     .prosesstaskPostconditionManglerProperty(TASKNAME,
-                            MottakMeldingDataWrapper.FORSENDELSE_MOTTATT_TIDSPUNKT_KEY, dataWrapper.getId())
-                    .toException();
+                            MottakMeldingDataWrapper.FORSENDELSE_MOTTATT_TIDSPUNKT_KEY, dataWrapper.getId());
         }
         if (dataWrapper.getDokumentTypeId().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY, dataWrapper.getId()).toException();
+            MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY, dataWrapper.getId());
         }
         if (dataWrapper.getDokumentKategori().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.DOKUMENTKATEGORI_ID_KEY, dataWrapper.getId()).toException();
+            MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.DOKUMENTKATEGORI_ID_KEY, dataWrapper.getId());
         }
         if (dataWrapper.getPayloadAsString().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY
-                    .prosesstaskPostconditionManglerProperty(TASKNAME, "payload", dataWrapper.getId()).toException();
+            MottakMeldingFeil
+                    .prosesstaskPostconditionManglerProperty(TASKNAME, "payload", dataWrapper.getId());
         }
         if (!dataWrapper.getHarTema()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.TEMA_KEY, dataWrapper.getId()).toException();
+            MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.TEMA_KEY, dataWrapper.getId());
         }
     }
 

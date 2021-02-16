@@ -63,23 +63,23 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
         try {
             w.getTema();
         } catch (IllegalStateException e) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
-                    TEMA_KEY, w.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    TEMA_KEY, w.getId());
         }
         if (gjelderIM(w)
                 && !gjelderSvangerskapspenger(w)
                 && w.getInntektsmeldingStartDato().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
-                    INNTEKSTMELDING_STARTDATO_KEY, w.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    INNTEKSTMELDING_STARTDATO_KEY, w.getId());
         }
         if (w.getAktørId().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
-                    AKTØR_ID_KEY, w.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    AKTØR_ID_KEY, w.getId());
         }
         if (gjelderForeldrepenger(w) && !gjelderIM(w)) {
             if (w.getAnnenPartId().isEmpty()) {
-                throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
-                        ANNEN_PART_ID_KEY, w.getId()).toException();
+                throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
+                        ANNEN_PART_ID_KEY, w.getId());
             }
         }
     }
@@ -99,7 +99,7 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
         if (gjelderSvangerskapspenger(w)) {
             return nesteStegOpprettet(w);
         }
-        throw MottakMeldingFeil.FACTORY.ukjentBehandlingstema(w.getBehandlingTema().getKode()).toException();
+        throw MottakMeldingFeil.ukjentBehandlingstema(w.getBehandlingTema().getKode());
     }
 
     private MottakMeldingDataWrapper nesteStegForForeldrepenger(MottakMeldingDataWrapper w) {
@@ -133,14 +133,14 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
 
     private String fnr(MottakMeldingDataWrapper w) {
         return aktør.hentPersonIdentForAktørId(w.getAktørId().get())
-                .orElseThrow(() -> MottakMeldingFeil.FACTORY
-                        .fantIkkePersonidentForAktørId(TASKNAME, w.getId()).toException());
+                .orElseThrow(() -> MottakMeldingFeil
+                        .fantIkkePersonidentForAktørId(TASKNAME, w.getId()));
     }
 
     private String fnrAnnenPart(MottakMeldingDataWrapper w) {
         return aktør.hentPersonIdentForAktørId(w.getAnnenPartId().get())
-                .orElseThrow(() -> MottakMeldingFeil.FACTORY
-                        .fantIkkePersonidentForAktørId(TASKNAME, w.getId()).toException());
+                .orElseThrow(() -> MottakMeldingFeil
+                        .fantIkkePersonidentForAktørId(TASKNAME, w.getId()));
     }
 
     private static MottakMeldingDataWrapper midlertidigJournalført(MottakMeldingDataWrapper w) {

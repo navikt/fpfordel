@@ -60,8 +60,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     @Override
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
         if (StringUtils.nullOrEmpty(dataWrapper.getArkivId())) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPreconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.ARKIV_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.ARKIV_ID_KEY, dataWrapper.getId());
         }
     }
 
@@ -69,8 +69,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     public void postcondition(MottakMeldingDataWrapper dataWrapper) {
         if (!OpprettGSakOppgaveTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())
                 && dataWrapper.getAktørId().isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.prosesstaskPostconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()).toException();
+            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId());
         }
     }
 
@@ -171,7 +171,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     private MottakMeldingDataWrapper håndterInntektsmelding(MottakMeldingDataWrapper dataWrapper) {
         Optional<String> imYtelse = dataWrapper.getInntektsmeldingYtelse();
         if (imYtelse.isEmpty()) {
-            throw MottakMeldingFeil.FACTORY.manglerYtelsePåInntektsmelding().toException();
+            throw MottakMeldingFeil.manglerYtelsePåInntektsmelding();
         }
         BehandlingTema behandlingTemaFraIM = BehandlingTema.fraTermNavn(imYtelse.get());
 
@@ -197,8 +197,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     private boolean sjekkOmInntektsmeldingGjelderMann(MottakMeldingDataWrapper dataWrapper) {
         String aktørId = dataWrapper.getAktørId().orElseThrow(() -> new IllegalStateException("Utviklerfeil"));
         String fnrBruker = aktørConsumer.hentPersonIdentForAktørId(aktørId)
-                .orElseThrow(() -> MottakMeldingFeil.FACTORY
-                        .fantIkkePersonidentForAktørId(TASKNAME, dataWrapper.getId()).toException());
+                .orElseThrow(() -> MottakMeldingFeil
+                        .fantIkkePersonidentForAktørId(TASKNAME, dataWrapper.getId()));
         return (Character.getNumericValue(fnrBruker.charAt(8)) % 2) != 0;
     }
 
