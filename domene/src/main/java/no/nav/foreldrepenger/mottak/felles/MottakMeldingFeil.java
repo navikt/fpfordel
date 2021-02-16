@@ -8,6 +8,8 @@ public class MottakMeldingFeil {
     private MottakMeldingFeil() {
 
     }
+    public static final String ENDRINGSSØKNAD_AVVIK_SAKSNUMMER = "FP-401245";
+
 
     public static TekniskException prosesstaskPreconditionManglerProperty(String taskname, String property, Long taskId) {
         return new TekniskException("FP-941984",
@@ -31,9 +33,9 @@ public class MottakMeldingFeil {
                         behandlingstemaKodeSøknadsdokument));
 
     }
-
+ 
     public static FunksjonellException ulikSaksnummerITynnmeldingOgSøknadsdokument(String saksnummerTynnmelding, String saksnummerSøknadsdokument) {
-        return new FunksjonellException("FP-401245",
+        return new FunksjonellException(ENDRINGSSØKNAD_AVVIK_SAKSNUMMER,
                 String.format("Ulike saksnummer i melding/VL (%s) og endringssøknad (%s).", saksnummerTynnmelding,
                         saksnummerSøknadsdokument),
                 null);

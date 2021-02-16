@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
+import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
@@ -66,7 +67,6 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
     public static final Logger LOG = LoggerFactory.getLogger(BehandleDokumentService.class);
 
-    static final String AVVIK_SAKSNUMMER = "FP-401245";
     static final String JOURNALPOST_MANGLER = "JournalpostId mangler";
     static final String JOURNALPOST_IKKE_INNGÅENDE = "Journalpost ikke Inngående";
     static final String ENHET_MANGLER = "EnhetId mangler";
@@ -280,7 +280,8 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         try {
             mottattDokument.kopierTilMottakWrapper(dataWrapper, aktørConsumer::hentAktørIdForPersonIdent);
         } catch (FunksjonellException e) {
-            if (AVVIK_SAKSNUMMER.equals(e.getFeil().getKode())) {
+            // Her er det "greit" - da har man bestemt seg, men kan lage rot i saken.
+            if (MottakMeldingFeil.ENDRINGSSØKNAD_AVVIK_SAKSNUMMER.equals(e.getKode())) {
                 String logMessage = e.getFeil().getKode() + " " + e.getFeil().getFeilmelding();
                 LOG.info(logMessage);
             } else {

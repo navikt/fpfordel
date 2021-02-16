@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
+import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
@@ -118,9 +119,18 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
                 }
                 LOG.info("FPFORDEL journalpost med non-xml strukturert innhold {}", jptittel);
             } else {
-                MottattStrukturertDokument<?> mottattDokument = MeldingXmlParser.unmarshallXml(journalpost.getStrukturertPayload());
-                mottattDokument.kopierTilMottakWrapper(dataWrapper, aktørConsumer::hentAktørIdForPersonIdent);
-                dataWrapper.setPayload(journalpost.getStrukturertPayload());
+                try {
+                    MottattStrukturertDokument<?> mottattDokument = MeldingXmlParser.unmarshallXml(journalpost.getStrukturertPayload());
+                    mottattDokument.kopierTilMottakWrapper(dataWrapper, aktørConsumer::hentAktørIdForPersonIdent);
+                    dataWrapper.setPayload(journalpost.getStrukturertPayload());
+                } catch (VLException vle) {
+                    // Mottatt journalpost har annet saksnummer enn den i endringssøknaden....
+                    // Skyldes spesiell bruk av Gosys. Lag oppgave i dette tilfelle, godta i BehandleDokumentService
+                    if (MottakMeldingFeil.ENDRINGSSØKNAD_AVVIK_SAKSNUMMER.equals(vle.getKode())) {
+                        dataWrapper.setSaksnummer(null);
+                        return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+                    }
+                }
             }
         }
         if (dataWrapper.getForsendelseMottattTidspunkt().isEmpty()) {
