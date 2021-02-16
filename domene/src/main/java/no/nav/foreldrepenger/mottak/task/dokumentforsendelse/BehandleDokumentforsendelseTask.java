@@ -100,7 +100,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     private static void postconditionJournalføring(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getSaksnummer().isEmpty()) {
-            MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
+            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
                     MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId());
         }
     }
@@ -154,20 +154,20 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     private static void postConditionHentOgVurderVLSakOgOpprettSak(MottakMeldingDataWrapper dataWrapper) {
         if (OpprettSakTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())
                 && dataWrapper.getForsendelseMottattTidspunkt().isEmpty()) {
-            MottakMeldingFeil
+            throw MottakMeldingFeil
                     .prosesstaskPostconditionManglerProperty(TASKNAME,
                             MottakMeldingDataWrapper.FORSENDELSE_MOTTATT_TIDSPUNKT_KEY, dataWrapper.getId());
         }
         if (dataWrapper.getDokumentTypeId().isEmpty()) {
-            MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
+            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
                     MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY, dataWrapper.getId());
         }
         if (dataWrapper.getDokumentKategori().isEmpty()) {
-            MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
+            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
                     MottakMeldingDataWrapper.DOKUMENTKATEGORI_ID_KEY, dataWrapper.getId());
         }
         if (dataWrapper.getPayloadAsString().isEmpty()) {
-            MottakMeldingFeil
+            throw MottakMeldingFeil
                     .prosesstaskPostconditionManglerProperty(TASKNAME, "payload", dataWrapper.getId());
         }
         if (!dataWrapper.getHarTema()) {
