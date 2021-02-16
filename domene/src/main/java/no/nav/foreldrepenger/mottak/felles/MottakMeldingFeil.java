@@ -14,6 +14,8 @@ import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 
 public interface MottakMeldingFeil extends DeklarerteFeil {
 
+    public static final String ENDRINGSSØKNAD_AVVIK_SAKSNUMMER = "FP-401245";
+
     MottakMeldingFeil FACTORY = FeilFactory.create(MottakMeldingFeil.class);
 
     @TekniskFeil(feilkode = "FP-941984", feilmelding = "Prosessering av preconditions for %s mangler %s. TaskId: %s", logLevel = WARN)
@@ -28,7 +30,7 @@ public interface MottakMeldingFeil extends DeklarerteFeil {
     @TekniskFeil(feilkode = "FP-404782", feilmelding = "Ulik behandlingstemakode i tynnmelding (%s) og søknadsdokument (%s)", logLevel = ERROR)
     Feil ulikBehandlingstemaKodeITynnMeldingOgSøknadsdokument(String behandlingstemaKodeTynnmelding, String behandlingstemaKodeSøknadsdokument);
 
-    @FunksjonellFeil(feilkode = "FP-401245", feilmelding = "Ulike saksnummer i melding/VL (%s) og endringssøknad (%s).", løsningsforslag = "Dokumentet skal journalføres mot infotrygd", logLevel = LogLevel.INFO)
+    @FunksjonellFeil(feilkode = ENDRINGSSØKNAD_AVVIK_SAKSNUMMER, feilmelding = "Ulike saksnummer i melding/VL (%s) og endringssøknad (%s).", løsningsforslag = "Dokumentet skal journalføres mot infotrygd", logLevel = LogLevel.INFO)
     Feil ulikSaksnummerITynnmeldingOgSøknadsdokument(String saksnummerTynnmelding, String saksnummerSøknadsdokument);
 
     @TekniskFeil(feilkode = "FP-502574", feilmelding = "Ulik aktørId i tynnmelding og søknadsdokument", logLevel = WARN)
