@@ -1,5 +1,10 @@
 package no.nav.foreldrepenger.fordel.web.app.rest;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static javax.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
+import static javax.ws.rs.core.HttpHeaders.LOCATION;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -10,12 +15,10 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
@@ -25,58 +28,58 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
+import org.apache.http.HttpStatus;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartInput;
 import org.jboss.resteasy.specimpl.MultivaluedMapImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import com.google.common.net.HttpHeaders;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.DokumentforsendelseTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseIdDto;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatusDto;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 
-public class DokumentforsendelseRestTjenesteTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class DokumentforsendelseRestTjenesteTest {
     static {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
     }
 
-    private DokumentforsendelseTjeneste dokumentTjenesteMock;
+    @Mock
+    private DokumentforsendelseTjeneste dokumentTjeneste;
     private DokumentforsendelseRestTjeneste tjeneste;
     private InputPart metadataPart;
     private InputPart hoveddokumentPart;
     private InputPart hoveddokumentPartPdf;
     private InputPart vedleggPart;
+    @Mock
     private MultipartInput input;
 
     @BeforeEach
-    public void setUp() throws Exception {
-        dokumentTjenesteMock = mock(DokumentforsendelseTjeneste.class);
-        tjeneste = new DokumentforsendelseRestTjeneste(dokumentTjenesteMock, URI.create("http://fpinfo"));
-
-        // default mocking
-        input = mock(MultipartInput.class);
+    void setUp() throws Exception {
+        tjeneste = new DokumentforsendelseRestTjeneste(dokumentTjeneste, URI.create("http://fpinfo"));
         metadataPart = mockMetadataPart();
         hoveddokumentPart = mockHoveddokumentPartXml();
         hoveddokumentPartPdf = mockHoveddokumentPartPdf();
         vedleggPart = mockVedleggPart("<some ID 3>");
-
-        List<InputPart> inputParts = new ArrayList<>();
-        Collections.addAll(inputParts, metadataPart, hoveddokumentPart, hoveddokumentPartPdf, vedleggPart);
-        when(input.getParts()).thenReturn(inputParts);
+        when(input.getParts()).thenReturn(List.of(metadataPart, hoveddokumentPart, hoveddokumentPartPdf, vedleggPart));
     }
 
     @Test
-    public void input_skal_kaste_exception_når_inputpart_ikke_har_minst_2_parts() {
+    void input_skal_kaste_exception_når_inputpart_ikke_har_minst_2_parts() {
         when(input.getParts()).thenReturn(new ArrayList<>());
         var forsendelseStatusDto = new ForsendelseStatusDto(ForsendelseStatus.PENDING);
-        when(dokumentTjenesteMock.finnStatusinformasjon(any(UUID.class)))
+        when(dokumentTjeneste.finnStatusinformasjon(any(UUID.class)))
                 .thenReturn(forsendelseStatusDto);
-        when(dokumentTjenesteMock.finnStatusinformasjonHvisEksisterer(any(UUID.class)))
+        when(dokumentTjeneste.finnStatusinformasjonHvisEksisterer(any(UUID.class)))
                 .thenReturn(Optional.of(forsendelseStatusDto));
 
         assertThatThrownBy(() -> tjeneste.uploadFile(input))
@@ -85,50 +88,43 @@ public class DokumentforsendelseRestTjenesteTest {
     }
 
     @Test
-    public void skal_kaste_teknisk_exception_hvis_metadata_ikke_er_første_part() {
+    void skal_kaste_teknisk_exception_hvis_metadata_ikke_er_første_part() {
         MultivaluedMap<String, String> map = new MultivaluedMapImpl<>();
-        map.put("Content-Disposition", List.of("ikke_metadata"));
+        map.put(CONTENT_DISPOSITION, List.of("ikke_metadata"));
         when(metadataPart.getHeaders()).thenReturn(map);
-
         assertThatThrownBy(() -> tjeneste.uploadFile(input))
                 .isInstanceOf(TekniskException.class)
                 .hasMessage("FP-892453:The first part must be the metadata part");
     }
 
     @Test
-    public void skal_kaste_teknisk_exception_hvis_metadata_ikke_er_json() {
-        when(metadataPart.getMediaType()).thenReturn(MediaType.APPLICATION_XML_TYPE);
-
+    void skal_kaste_teknisk_exception_hvis_metadata_ikke_er_json() {
+        when(metadataPart.getMediaType()).thenReturn(APPLICATION_XML_TYPE);
         assertThatThrownBy(() -> tjeneste.uploadFile(input))
                 .isInstanceOf(TekniskException.class)
                 .hasMessage("FP-892454:The metadata part should be application/json");
     }
 
     @Test
-    public void skal_kaste_teknisk_exception_hvis_man_ikke_kan_hente_body_for_metadata() throws Exception {
+    void skal_kaste_teknisk_exception_hvis_man_ikke_kan_hente_body_for_metadata() throws Exception {
         when(metadataPart.getBodyAsString()).thenThrow(IOException.class);
-
         assertThatThrownBy(() -> tjeneste.uploadFile(input))
                 .isInstanceOf(TekniskException.class)
                 .hasMessageContaining("FP-892466:Klarte ikke å lese inn dokumentet");
     }
 
     @Test
-    public void skal_kaste_teknisk_exception_hvis_metadata_har_flere_filer_enn_lastet_opp() {
-        List<InputPart> inputParts = new ArrayList<>();
-        Collections.addAll(inputParts, metadataPart, hoveddokumentPart, hoveddokumentPartPdf);
-        when(input.getParts()).thenReturn(inputParts);
-
+    void skal_kaste_teknisk_exception_hvis_metadata_har_flere_filer_enn_lastet_opp() {
+        when(input.getParts()).thenReturn(List.of(metadataPart, hoveddokumentPart, hoveddokumentPartPdf));
         assertThatThrownBy(() -> tjeneste.uploadFile(input))
                 .isInstanceOf(TekniskException.class)
                 .hasMessageContaining("FP-892456:Metadata inneholder flere filer enn det som er lastet opp");
     }
 
     @Test
-    public void skal_kaste_teknisk_exception_hvis_metadata_har_færre_filer_enn_lastet_opp() throws Exception {
-        List<InputPart> inputParts = new ArrayList<>();
+    void skal_kaste_teknisk_exception_hvis_metadata_har_færre_filer_enn_lastet_opp() throws Exception {
         String contentId = "<some ID 4>";
-        Collections.addAll(inputParts, metadataPart, hoveddokumentPart, hoveddokumentPartPdf, vedleggPart,
+        var inputParts = List.of(metadataPart, hoveddokumentPart, hoveddokumentPartPdf, vedleggPart,
                 mockVedleggPart(contentId));
         when(input.getParts()).thenReturn(inputParts);
 
@@ -139,7 +135,7 @@ public class DokumentforsendelseRestTjenesteTest {
     }
 
     @Test
-    public void skal_kaste_teknisk_exception_hvis_hoveddokument_mangler_name() {
+    void skal_kaste_teknisk_exception_hvis_hoveddokument_mangler_name() {
         MultivaluedMap<String, String> map = new MultivaluedMapImpl<>();
         map.put("Content-Disposition", List.of("mangler ; foo=name"));
         when(hoveddokumentPart.getHeaders()).thenReturn(map);
@@ -150,102 +146,88 @@ public class DokumentforsendelseRestTjenesteTest {
     }
 
     @Test
-    public void skal_kaste_teknisk_exception_hvis_vedlegg_ikke_er_mediatype_pdf() {
-        when(vedleggPart.getMediaType()).thenReturn(MediaType.APPLICATION_XML_TYPE);
-
+    void skal_kaste_teknisk_exception_hvis_vedlegg_ikke_er_mediatype_pdf() {
+        when(vedleggPart.getMediaType()).thenReturn(APPLICATION_XML_TYPE);
         assertThatThrownBy(() -> tjeneste.uploadFile(input))
                 .isInstanceOf(TekniskException.class)
                 .hasMessageContaining("FP-882558:Vedlegg er ikke pdf, Content-ID=<some ID 3>");
     }
 
     @Test
-    public void skal_lagre_dokumentene() {
+    void skal_lagre_dokumentene() {
         var forsendelseStatusDto = new ForsendelseStatusDto(ForsendelseStatus.PENDING);
-        when(dokumentTjenesteMock.finnStatusinformasjonHvisEksisterer(any(UUID.class)))
+        when(dokumentTjeneste.finnStatusinformasjonHvisEksisterer(any(UUID.class)))
                 .thenReturn(Optional.of(forsendelseStatusDto));
-        Response response = tjeneste.uploadFile(input);
+        var response = tjeneste.uploadFile(input);
         assertThat(response.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
-        assertThat(response.getHeaderString(HttpHeaders.LOCATION))
+        assertThat(response.getHeaderString(LOCATION))
                 .isEqualTo("/dokumentforsendelse/status?forsendelseId=48f6e1cf-c5d8-4355-8e8c-b75494703959");
     }
 
     @Test
-    public void skal_returnere_see_other_redirect_når_status_fpsak() {
-        ForsendelseStatusDto status = new ForsendelseStatusDto(ForsendelseStatus.FPSAK);
-        when(dokumentTjenesteMock.finnStatusinformasjon(any(UUID.class))).thenReturn(status);
-
-        Response response = tjeneste.uploadFile(input);
-
+    void skal_returnere_see_other_redirect_når_status_fpsak() {
+        var status = new ForsendelseStatusDto(ForsendelseStatus.FPSAK);
+        when(dokumentTjeneste.finnStatusinformasjon(any(UUID.class))).thenReturn(status);
+        var response = tjeneste.uploadFile(input);
         assertThat(response.getStatus()).isEqualTo(303);
     }
 
     @Test
-    public void skal_returnere_status_ok_når_status_gosys() {
-        ForsendelseStatusDto status = new ForsendelseStatusDto(ForsendelseStatus.GOSYS);
-        when(dokumentTjenesteMock.finnStatusinformasjon(any(UUID.class))).thenReturn(status);
-
-        Response response = tjeneste.uploadFile(input);
-
-        assertThat(response.getStatus()).isEqualTo(200);
+    void skal_returnere_status_ok_når_status_gosys() {
+        var status = new ForsendelseStatusDto(ForsendelseStatus.GOSYS);
+        when(dokumentTjeneste.finnStatusinformasjon(any(UUID.class))).thenReturn(status);
+        var response = tjeneste.uploadFile(input);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_OK);
         assertThat(response.getEntity()).isEqualTo(status);
     }
 
     @Test
-    public void skal_håndtere_duplikate_kall() {
+    void skal_håndtere_duplikate_kall() {
         var status = new ForsendelseStatusDto(ForsendelseStatus.FPSAK);
-        when(dokumentTjenesteMock.finnStatusinformasjon(any(UUID.class))).thenReturn(status);
+        when(dokumentTjeneste.finnStatusinformasjon(any(UUID.class))).thenReturn(status);
         var response1 = tjeneste.uploadFile(input);
-        when(dokumentTjenesteMock.finnStatusinformasjonHvisEksisterer(any(UUID.class))).thenReturn(Optional.of(status));
+        when(dokumentTjeneste.finnStatusinformasjonHvisEksisterer(any(UUID.class))).thenReturn(Optional.of(status));
         var response2 = tjeneste.uploadFile(input);
 
-        assertThat(response1.getStatus()).isEqualTo(303);
+        assertThat(response1.getStatus()).isEqualTo(HttpStatus.SC_SEE_OTHER);
         assertThat(response1.getEntity()).isEqualTo(status);
 
-        assertThat(response2.getStatus()).isEqualTo(303);
+        assertThat(response2.getStatus()).isEqualTo(HttpStatus.SC_SEE_OTHER);
         assertThat(response2.getEntity()).isEqualTo(status);
     }
 
     @Test
-    public void skal_kaste_valideringsfeil_hvis_ugyldig_uuid() {
+    void skal_kaste_valideringsfeil_hvis_ugyldig_uuid() {
         assertThrows(IllegalArgumentException.class, () -> new ForsendelseIdDto("1234"));
     }
 
     @Test
-    public void finnStatusInformasjon_skal_returnere_status_ok_når_status_ikke_er_fpsak() {
-        UUID forsendelseId = UUID.randomUUID();
-        ForsendelseIdDto idDto = new ForsendelseIdDto(forsendelseId.toString());
-        ForsendelseStatusDto statusDto = new ForsendelseStatusDto(ForsendelseStatus.PENDING);
-        when(dokumentTjenesteMock.finnStatusinformasjon(any(UUID.class))).thenReturn(statusDto);
-
-        Response response = tjeneste.finnStatusinformasjon(idDto);
-
-        assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.getEntity()).isEqualTo(statusDto);
-    }
-
-    @Test
-    public void finnStatusInformasjon_skal_returnere_status_see_other_når_status_er_fpsak() {
-        UUID forsendelseId = UUID.randomUUID();
-        ForsendelseIdDto idDto = new ForsendelseIdDto(forsendelseId.toString());
-        ForsendelseStatusDto statusDto = new ForsendelseStatusDto(ForsendelseStatus.FPSAK);
-        when(dokumentTjenesteMock.finnStatusinformasjon(any(UUID.class))).thenReturn(statusDto);
-
-        @SuppressWarnings("resource")
+    void finnStatusInformasjon_skal_returnere_status_ok_når_status_ikke_er_fpsak() {
+        var idDto = new ForsendelseIdDto(UUID.randomUUID().toString());
+        var statusDto = new ForsendelseStatusDto(ForsendelseStatus.PENDING);
+        when(dokumentTjeneste.finnStatusinformasjon(any(UUID.class))).thenReturn(statusDto);
         var response = tjeneste.finnStatusinformasjon(idDto);
-
-        assertThat(response.getStatus()).isEqualTo(303);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_OK);
         assertThat(response.getEntity()).isEqualTo(statusDto);
     }
 
     @Test
-    public void skal_populerer_AbacDataAttributter_med_aktør() {
-        DokumentforsendelseRestTjeneste.AbacDataSupplier abacDataSupplier = new DokumentforsendelseRestTjeneste.AbacDataSupplier();
-        AbacDataAttributter abacDataAttributter = abacDataSupplier.apply(input);
-        assertThat(abacDataAttributter.toString()).contains("AKTØR_ID=[MASKERT#1]");
+    void finnStatusInformasjon_skal_returnere_status_see_other_når_status_er_fpsak() {
+        var idDto = new ForsendelseIdDto(UUID.randomUUID().toString());
+        var statusDto = new ForsendelseStatusDto(ForsendelseStatus.FPSAK);
+        when(dokumentTjeneste.finnStatusinformasjon(any(UUID.class))).thenReturn(statusDto);
+        var response = tjeneste.finnStatusinformasjon(idDto);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_SEE_OTHER);
+        assertThat(response.getEntity()).isEqualTo(statusDto);
+    }
+
+    @Test
+    void skal_populerer_AbacDataAttributter_med_aktør() {
+        assertThat(new DokumentforsendelseRestTjeneste.AbacDataSupplier().apply(input).toString()).contains("AKTØR_ID=[MASKERT#1]");
     }
 
     private static InputPart mockBasicInputPart(Optional<String> contentId, String contentDispositionName) {
-        InputPart part = mock(InputPart.class);
+        var part = mock(InputPart.class);
         MultivaluedMap<String, String> map = new MultivaluedMapImpl<>();
         map.put("Content-Disposition",
                 List.of("attachment; name=\"" + contentDispositionName + "\"; filename=\"" + "Farskap\""));
@@ -255,32 +237,32 @@ public class DokumentforsendelseRestTjenesteTest {
     }
 
     private InputPart mockMetadataPart() throws Exception, Exception {
-        InputPart part = mockBasicInputPart(Optional.empty(), "metadata");
-        when(part.getMediaType()).thenReturn(MediaType.APPLICATION_JSON_TYPE);
+        var part = mockBasicInputPart(Optional.empty(), "metadata");
+        when(part.getMediaType()).thenReturn(APPLICATION_JSON_TYPE);
         when(part.getBodyAsString()).thenReturn(byggMetadataString());
         return part;
     }
 
     private static InputPart mockHoveddokumentPartXml() throws Exception {
-        InputPart part = mockBasicInputPart(Optional.of("<some ID 1>"), "hoveddokument");
-        when(part.getMediaType()).thenReturn(MediaType.APPLICATION_XML_TYPE);
+        var part = mockBasicInputPart(Optional.of("<some ID 1>"), "hoveddokument");
+        when(part.getMediaType()).thenReturn(APPLICATION_XML_TYPE);
         when(part.getBodyAsString()).thenReturn("body");
         return part;
     }
 
     private static InputPart mockHoveddokumentPartPdf() throws Exception {
-        InputPart part = mockBasicInputPart(Optional.of("<some ID 2>"), "hoveddokument");
+        var part = mockBasicInputPart(Optional.of("<some ID 2>"), "hoveddokument");
         when(part.getMediaType()).thenReturn(MediaType.valueOf("application/pdf"));
         when(part.getBodyAsString()).thenReturn("");
-        when(part.getBody(byte[].class, null)).thenReturn("body".getBytes(Charset.forName("UTF-8")));
+        when(part.getBody(byte[].class, null)).thenReturn("body".getBytes(UTF_8));
         return part;
     }
 
     private static InputPart mockVedleggPart(String contentId) throws Exception {
-        InputPart part = mockBasicInputPart(Optional.of(contentId), "vedlegg");
+        var part = mockBasicInputPart(Optional.of(contentId), "vedlegg");
         when(part.getMediaType()).thenReturn(MediaType.valueOf("application/pdf"));
         when(part.getBodyAsString()).thenReturn("");
-        when(part.getBody(byte[].class, null)).thenReturn("body".getBytes(Charset.forName("UTF-8")));
+        when(part.getBody(byte[].class, null)).thenReturn("body".getBytes(UTF_8));
         return part;
     }
 

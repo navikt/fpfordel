@@ -14,7 +14,7 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartInput;
 
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 
-public class RestApiTester {
+class RestApiTester {
 
     static final List<Class<?>> UNNTATT = Collections.singletonList(OpenApiResource.class);
 

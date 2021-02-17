@@ -26,9 +26,7 @@ public class RestApiAbacTest {
 
     /**
      * IKKE ignorer denne testen, sikrer at REST-endepunkter får tilgangskontroll
-     * <p>
-     * Kontakt Team Humle hvis du trenger hjelp til å endre koden din slik at den
-     * går igjennom her *
+     * 
      */
     @Test
     public void test_at_alle_restmetoder_er_annotert_med_BeskyttetRessurs() throws Exception {
