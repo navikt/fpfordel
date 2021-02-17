@@ -1,8 +1,18 @@
 package no.nav.foreldrepenger.fordel.web.app.rest;
 
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.ENGANGSSTØNAD;
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.FORELDREPENGER;
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.SVANGERSKAPSPENGER;
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.UDEFINERT;
+import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL;
+import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.INNTEKTSMELDING;
+import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
+import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
+import static no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype.INNGÅENDE;
+import static no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus.MOTTATT;
+import static no.nav.foreldrepenger.fordel.kodeverdi.Tema.FORELDRE_OG_SVANGERSKAPSPENGER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.nio.file.Files;
@@ -16,18 +26,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
-import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
-import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 
 @ExtendWith(MockitoExtension.class)
-public class VurderJournalpostYtelseRestTjenesteTest {
+@MockitoSettings(strictness = Strictness.WARN)
+class VurderJournalpostYtelseRestTjenesteTest {
 
     private static final String ARKIV_ID = "12345";
     private static final String AKTØR_ID = "9999999999999";
@@ -39,68 +48,57 @@ public class VurderJournalpostYtelseRestTjenesteTest {
     private VurderJournalpostYtelseRestTjeneste restTjeneste;
 
     @BeforeEach
-    public void setUp() throws Exception {
-        lenient().when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));
+    void setUp() throws Exception {
+        when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));
         restTjeneste = new VurderJournalpostYtelseRestTjeneste(arkivTjeneste, aktørConsumer);
-
     }
 
     @Test
-    public void skalVurdereInntektsmeldingForeldrepender() {
-        var journalpost = byggJournalpost(DokumentTypeId.INNTEKTSMELDING, "testdata/inntektsmelding-foreldrepenger.xml");
+    void skalVurdereInntektsmeldingForeldrepender() {
+        var journalpost = byggJournalpost(INNTEKTSMELDING, "testdata/inntektsmelding-foreldrepenger.xml");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(journalpost);
-
         var respons = restTjeneste.utledBehandlingstemaFra(ARKIV_ID);
-
-        assertThat(respons.getBehandlingstemaOffisiellKode()).isEqualTo(BehandlingTema.FORELDREPENGER.getOffisiellKode());
+        assertThat(respons.getBehandlingstemaOffisiellKode()).isEqualTo(FORELDREPENGER.getOffisiellKode());
         assertThat(respons.getErInntektsmelding()).isTrue();
         assertThat(respons.getErFørstegangssøknad()).isFalse();
     }
 
     @Test
-    public void skalVurdereInntektsmeldingSvangerskapspenger() {
-        var journalpost = byggJournalpost(DokumentTypeId.INNTEKTSMELDING, "testdata/inntektsmelding-svangerskapspenger.xml");
+    void skalVurdereInntektsmeldingSvangerskapspenger() {
+        var journalpost = byggJournalpost(INNTEKTSMELDING, "testdata/inntektsmelding-svangerskapspenger.xml");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(journalpost);
-
         var respons = restTjeneste.utledBehandlingstemaFra(ARKIV_ID);
-
-        assertThat(respons.getBehandlingstemaOffisiellKode()).isEqualTo(BehandlingTema.SVANGERSKAPSPENGER.getOffisiellKode());
+        assertThat(respons.getBehandlingstemaOffisiellKode()).isEqualTo(SVANGERSKAPSPENGER.getOffisiellKode());
         assertThat(respons.getErInntektsmelding()).isTrue();
         assertThat(respons.getErFørstegangssøknad()).isFalse();
     }
 
     @Test
-    public void skalVurdereSøknadForeldrepenger() {
-        var journalpost = byggJournalpost(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, "testdata/selvb-soeknad-forp.xml");
+    void skalVurdereSøknadForeldrepenger() {
+        var journalpost = byggJournalpost(SØKNAD_FORELDREPENGER_FØDSEL, "testdata/selvb-soeknad-forp.xml");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(journalpost);
-
         var respons = restTjeneste.utledBehandlingstemaFra(ARKIV_ID);
-
-        assertThat(respons.getBehandlingstemaOffisiellKode()).isEqualTo(BehandlingTema.FORELDREPENGER.getOffisiellKode());
+        assertThat(respons.getBehandlingstemaOffisiellKode()).isEqualTo(FORELDREPENGER.getOffisiellKode());
         assertThat(respons.getErInntektsmelding()).isFalse();
         assertThat(respons.getErFørstegangssøknad()).isTrue();
     }
 
     @Test
-    public void skalVurdereSøknadEngangsstønad() {
-        var journalpost = byggJournalpost(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL, null);
+    void skalVurdereSøknadEngangsstønad() {
+        var journalpost = byggJournalpost(SØKNAD_ENGANGSSTØNAD_FØDSEL, null);
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(journalpost);
-
         var respons = restTjeneste.utledBehandlingstemaFra(ARKIV_ID);
-
-        assertThat(respons.getBehandlingstemaOffisiellKode()).isEqualTo(BehandlingTema.ENGANGSSTØNAD.getOffisiellKode());
+        assertThat(respons.getBehandlingstemaOffisiellKode()).isEqualTo(ENGANGSSTØNAD.getOffisiellKode());
         assertThat(respons.getErInntektsmelding()).isFalse();
         assertThat(respons.getErFørstegangssøknad()).isTrue();
     }
 
     @Test
-    public void skalGiUdefinertForVedlegg() {
-        var journalpost = byggJournalpost(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL, null);
+    void skalGiUdefinertForVedlegg() {
+        var journalpost = byggJournalpost(DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL, null);
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(journalpost);
-
         var respons = restTjeneste.utledBehandlingstemaFra(ARKIV_ID);
-
-        assertThat(respons.getBehandlingstemaOffisiellKode()).isEqualTo(BehandlingTema.UDEFINERT.getOffisiellKode());
+        assertThat(respons.getBehandlingstemaOffisiellKode()).isEqualTo(UDEFINERT.getOffisiellKode());
         assertThat(respons.getErInntektsmelding()).isFalse();
         assertThat(respons.getErFørstegangssøknad()).isFalse();
     }
@@ -109,9 +107,9 @@ public class VurderJournalpostYtelseRestTjenesteTest {
         var jp = ArkivJournalpost.getBuilder()
                 .medJournalpostId(ARKIV_ID)
                 .medHovedtype(dokumentTypeId)
-                .medJournalposttype(Journalposttype.INNGÅENDE)
-                .medTilstand(Journalstatus.MOTTATT)
-                .medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
+                .medJournalposttype(INNGÅENDE)
+                .medTilstand(MOTTATT)
+                .medTema(FORELDRE_OG_SVANGERSKAPSPENGER);
         if (filnavn != null) {
             try {
                 Path path = Paths.get(Objects.requireNonNull(getClass().getClassLoader().getResource(filnavn)).toURI());
