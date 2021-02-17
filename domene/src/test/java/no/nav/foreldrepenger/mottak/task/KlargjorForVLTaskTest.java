@@ -25,7 +25,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
-public class KlargjorForVLTaskTest {
+class KlargjorForVLTaskTest {
 
     private static final String ARKIV_ID = "234567";
     private static final String SAKSNUMMER = "234567";
@@ -45,7 +45,7 @@ public class KlargjorForVLTaskTest {
     private UUID forsendelseId;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         forsendelseId = UUID.randomUUID();
         task = new KlargjorForVLTask(prosessTaskRepositoryMock, klargjørForVLTjeneste, dokumentRepository);
         ptd = new ProsessTaskData(KlargjorForVLTask.TASKNAME);
@@ -54,14 +54,14 @@ public class KlargjorForVLTaskTest {
     }
 
     @Test
-    public void test_utfør_mangler_precondition() {
+    void test_utfør_mangler_precondition() {
         var data = new MottakMeldingDataWrapper(ptd);
         var fangetFeil = assertThrows(TekniskException.class, () -> toTaskWithPrecondition(data));
         assertThat(fangetFeil.getFeil().getKode()).isEqualTo("FP-941984");
     }
 
     @Test
-    public void test_utfor_klargjor_uten_xml_i_payload() {
+    void test_utfor_klargjor_uten_xml_i_payload() {
         var data = new MottakMeldingDataWrapper(ptd);
         data.setArkivId(ARKIV_ID);
         data.setSaksnummer(SAKSNUMMER);
@@ -77,8 +77,8 @@ public class KlargjorForVLTaskTest {
     }
 
     @Test
-    public void test_utfor_klargjor_med_alle_nodvendige_data() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
+    void test_utfor_klargjor_med_alle_nodvendige_data() {
+        var data = new MottakMeldingDataWrapper(ptd);
         data.setArkivId(ARKIV_ID);
         data.setSaksnummer(SAKSNUMMER);
         data.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_ADOPSJON);
@@ -93,8 +93,8 @@ public class KlargjorForVLTaskTest {
     }
 
     @Test
-    public void test_oppdater_metadata_hvis_forsendelseId_er_satt() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
+    void test_oppdater_metadata_hvis_forsendelseId_er_satt() {
+        var data = new MottakMeldingDataWrapper(ptd);
         data.setArkivId(ARKIV_ID);
         data.setSaksnummer(SAKSNUMMER);
         data.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_ADOPSJON);
@@ -110,8 +110,8 @@ public class KlargjorForVLTaskTest {
     }
 
     @Test
-    public void test_avsluuter_hvis_forsendelseId_ikke_satt() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
+    void test_avslutter_hvis_forsendelseId_ikke_satt() {
+        var data = new MottakMeldingDataWrapper(ptd);
         data.setArkivId(ARKIV_ID);
         data.setSaksnummer(SAKSNUMMER);
         data.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_ADOPSJON);

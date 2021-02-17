@@ -32,8 +32,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
-public class ManuellJournalføringDokumentHåndtererTest {
+@MockitoSettings(strictness = Strictness.WARN)
+class ManuellJournalføringDokumentHåndtererTest {
 
     private static final String DEFAULT_TASK_FOR_MANUELL_JOURNALFØRING = OpprettGSakOppgaveTask.TASKNAME;
 
@@ -50,7 +50,7 @@ public class ManuellJournalføringDokumentHåndtererTest {
     private JoarkTestsupport joarkTestsupport = new JoarkTestsupport();
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         ProsessTaskRepository ptr = mock(ProsessTaskRepository.class);
         when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));
         joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, aktørConsumer, arkivTjeneste));
@@ -61,7 +61,7 @@ public class ManuellJournalføringDokumentHåndtererTest {
     }
 
     @Test
-    public void skalHåndtereManuellJournalføringAvInntektsmelding() {
+    void skalHåndtereManuellJournalføringAvInntektsmelding() {
 
         ArkivJournalpost journalMetadata = joarkTestsupport.lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING,
                 "testsoknader/inntektsmelding-manual-sample.xml");
@@ -81,7 +81,7 @@ public class ManuellJournalføringDokumentHåndtererTest {
     }
 
     @Test
-    public void skalHåndtereManuellJournalføringMedGyldigFnr() {
+    void skalHåndtereManuellJournalføringMedGyldigFnr() {
         var metadata = joarkTestsupport.lagJArkivJournalpostUstrukturert(DokumentTypeId.ANNET);
         doReturn(metadata).when(arkivTjeneste).hentArkivJournalpost(ARKIV_ID);
         when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
@@ -94,7 +94,7 @@ public class ManuellJournalføringDokumentHåndtererTest {
     }
 
     @Test
-    public void skalHåndtereManuellJournalføringMedUgyldigFnr() {
+    void skalHåndtereManuellJournalføringMedUgyldigFnr() {
         var metadata = joarkTestsupport.lagArkivJournalpostUstrukturert(Collections.emptyList());
         doReturn(metadata).when(arkivTjeneste).hentArkivJournalpost(ARKIV_ID);
         when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.empty());

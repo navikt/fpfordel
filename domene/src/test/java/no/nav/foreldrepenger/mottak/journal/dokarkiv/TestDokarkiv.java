@@ -55,7 +55,7 @@ import no.nav.foreldrepenger.mottak.journal.saf.model.BrukerIdType;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @ExtendWith(MockitoExtension.class)
-public class TestDokarkiv {
+class TestDokarkiv {
     private static final String CALLID = generateCallId();
 
     private static final String TOKEN = "TOKEN";
@@ -66,24 +66,24 @@ public class TestDokarkiv {
     private SubjectHandler subjectHandler;
 
     @BeforeAll
-    public static void startServer() {
+    static void startServer() {
         putCallId(CALLID);
         wireMockServer = new WireMockServer(8080);
         wireMockServer.start();
     }
 
     @AfterAll
-    public static void stopServer() {
+    static void stopServer() {
         wireMockServer.stop();
     }
 
     @BeforeEach
-    public void beforeEach() {
+    void beforeEach() {
         doReturn(TOKEN).when(subjectHandler).getInternSsoToken();
     }
 
     @Test
-    public void testFerdigstill() throws Exception {
+    void testFerdigstill() throws Exception {
         stubFor(headers(patch(urlPathEqualTo("/42/ferdigstill")))
                 .willReturn(emptyResponse()));
         try (var s = mockStatic(SubjectHandler.class)) {
@@ -93,7 +93,7 @@ public class TestDokarkiv {
     }
 
     @Test
-    public void testOppdater() throws Exception {
+    void testOppdater() throws Exception {
         stubFor(headers(put(urlPathEqualTo("/42")))
                 .willReturn(emptyResponse()));
         try (var s = mockStatic(SubjectHandler.class)) {
@@ -103,7 +103,7 @@ public class TestDokarkiv {
     }
 
     @Test
-    public void testOpprett() throws Exception {
+    void testOpprett() throws Exception {
         stubFor(headers(post(urlPathMatching("/.*"))
                 .withQueryParam("forsoekFerdigstill", equalTo("true")))
                         .willReturn(aResponse()

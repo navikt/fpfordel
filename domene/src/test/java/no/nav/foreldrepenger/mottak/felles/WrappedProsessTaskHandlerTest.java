@@ -14,7 +14,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
-public class WrappedProsessTaskHandlerTest {
+class WrappedProsessTaskHandlerTest {
 
     private WrappedProsessTaskHandler wrappedProsessTaskHandler;
 
@@ -24,21 +24,21 @@ public class WrappedProsessTaskHandlerTest {
     private MottakMeldingDataWrapper returnedDataWrapper;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         wrappedProsessTaskHandler = new MyWrappedProsessTaskHandler(mockProsessTaskRepository);
         prosessTaskData = new ProsessTaskData("type");
         returnedDataWrapper = null;
     }
 
     @Test
-    public void test_doTask_returnedWrapper() {
+    void test_doTask_returnedWrapper() {
         returnedDataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
         wrappedProsessTaskHandler.doTask(prosessTaskData);
         verify(mockProsessTaskRepository).lagre(prosessTaskData);
     }
 
     @Test
-    public void test_doTask_returnedNull() {
+    void test_doTask_returnedNull() {
         wrappedProsessTaskHandler.doTask(prosessTaskData);
         verify(mockProsessTaskRepository, never()).lagre(any(ProsessTaskData.class));
     }

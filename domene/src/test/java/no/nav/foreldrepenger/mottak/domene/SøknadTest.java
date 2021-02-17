@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -172,7 +173,8 @@ class SøknadTest {
     }
 
     @Test
-    void skal_kaste_ulikBehandlingstemaKodeITynnMeldingOgSøknadsdokument() {
+    @DisplayName("Tester at exception kastes om tema i tynnmelding og søknadsdokment er forskjellige")
+    void ulikeTema() {
 
         var søkersRelasjonTilBarnet = new Omsorgsovertakelse();
         søkersRelasjonTilBarnet.setAntallBarn(1);

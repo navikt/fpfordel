@@ -23,7 +23,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
-public class HentOgVurderVLSakTaskTest {
+class HentOgVurderVLSakTaskTest {
 
     @Mock
     private FagsakTjeneste fagsakRestKlientMock;
@@ -35,142 +35,142 @@ public class HentOgVurderVLSakTaskTest {
     private LocalDate termindato = LocalDate.now();
 
     @Test
-    public void precondition_skal_feile_ved_manglende_aktørId() {
-        MottakMeldingDataWrapper dataWrapper = lagDataWrapper();
+    void precondition_skal_feile_ved_manglende_aktørId() {
+        var dataWrapper = lagDataWrapper();
         dataWrapper.setAktørId(null);
-        HentOgVurderVLSakTask task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
+        var task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
         assertTrue(assertThrows(TekniskException.class, () -> task.precondition(dataWrapper)).getMessage().contains("FP-941984"));
     }
 
     @Test
-    public void postcondition_skal_feile_ved_manglende_aktørId() {
-        MottakMeldingDataWrapper dataWrapper = lagDataWrapper();
+    void postcondition_skal_feile_ved_manglende_aktørId() {
+        var dataWrapper = lagDataWrapper();
         dataWrapper.setAktørId(null);
 
-        HentOgVurderVLSakTask task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
+        var task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
         var e = assertThrows(TekniskException.class, () -> task.postcondition(dataWrapper));
         assertTrue(e.getMessage().contains("FP-638068"));
     }
 
     @Test
-    public void neste_steg_skal_være_til_journalføring_når_vurderFagsystem_returnerer_VL_og_saksnummer() {
+    void neste_steg_skal_være_til_journalføring_når_vurderFagsystem_returnerer_VL_og_saksnummer() {
         when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(saksnummer, null, true, false, false, false));
 
-        HentOgVurderVLSakTask task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
-        MottakMeldingDataWrapper dataWrapper = lagDataWrapper();
+        var task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
+        var dataWrapper = lagDataWrapper();
 
-        MottakMeldingDataWrapper result = task.doTask(dataWrapper);
+        var result = task.doTask(dataWrapper);
 
         assertThat(result.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
     }
 
     @Test
-    public void neste_steg_skal_være_til_journalføring_når_vurderFagsystem_returnerer_VL_uten_saksnummer() {
+    void neste_steg_skal_være_til_journalføring_når_vurderFagsystem_returnerer_VL_uten_saksnummer() {
         when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(null, null, true, false, false, false));
 
-        HentOgVurderVLSakTask task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
-        MottakMeldingDataWrapper dataWrapper = lagDataWrapper();
-        MottakMeldingDataWrapper result = task.doTask(dataWrapper);
+        var task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
+        var dataWrapper = lagDataWrapper();
+        var result = task.doTask(dataWrapper);
 
         assertThat(result.getProsessTaskData().getTaskType()).isEqualTo(OpprettSakTask.TASKNAME);
     }
 
     @Test
-    public void neste_steg_skal_være_hentOgVurderInfotrygd_når_vurderFagsystem_returnerer_sjekkInfotrygd() {
+    void neste_steg_skal_være_hentOgVurderInfotrygd_når_vurderFagsystem_returnerer_sjekkInfotrygd() {
         when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(null, null, false, true, false, false));
 
-        HentOgVurderVLSakTask task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
-        MottakMeldingDataWrapper dataWrapper = lagDataWrapper();
-        MottakMeldingDataWrapper result = task.doTask(dataWrapper);
+        var task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
+        var dataWrapper = lagDataWrapper();
+        var result = task.doTask(dataWrapper);
 
         assertThat(result.getProsessTaskData().getTaskType()).isEqualTo(HentOgVurderInfotrygdSakTask.TASKNAME);
     }
 
     @Test
-    public void neste_steg_skal_være_opprettGsakOppgave_når_vurderFagsystem_returnerer_manuell_vurdering() {
+    void neste_steg_skal_være_opprettGsakOppgave_når_vurderFagsystem_returnerer_manuell_vurdering() {
         when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(null, null, false, false, true, false));
 
-        HentOgVurderVLSakTask task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
-        MottakMeldingDataWrapper dataWrapper = lagDataWrapper();
-        MottakMeldingDataWrapper result = task.doTask(dataWrapper);
+        var task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
+        var dataWrapper = lagDataWrapper();
+        var result = task.doTask(dataWrapper);
 
         assertThat(result.getProsessTaskData().getTaskType()).isEqualTo(MidlJournalføringTask.TASKNAME);
     }
 
     @Test
-    public void neste_steg_skal_være_opprettGsakOppgave_når_vurderFagsystem_returnerer_VL_uten_saksnummer_og_barnet_er_født_før_19_og_annen_part_har_rett() {
+    void neste_steg_skal_være_opprettGsakOppgave_når_vurderFagsystem_returnerer_VL_uten_saksnummer_og_barnet_er_født_før_19_og_annen_part_har_rett() {
         when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(null, null, true, false, false, false));
 
-        HentOgVurderVLSakTask task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
-        MottakMeldingDataWrapper dataWrapper = lagDataWrapper();
+        var task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
+        var dataWrapper = lagDataWrapper();
         dataWrapper.setAnnenPartHarRett(true);
         dataWrapper.setBarnFodselsdato(LocalDate.of(2018, 5, 17));
-        MottakMeldingDataWrapper result = task.doTask(dataWrapper);
+        var result = task.doTask(dataWrapper);
 
         assertThat(result.getProsessTaskData().getTaskType()).isEqualTo(MidlJournalføringTask.TASKNAME);
     }
 
     @Test
-    public void neste_steg_skal_være_til_journalføring_når_vurderFagsystem_returnerer_VL_og_saksnummer_selv_om_barnet_er_født_før_19_og_annen_part_har_rett() {
+    void neste_steg_skal_være_til_journalføring_når_vurderFagsystem_returnerer_VL_og_saksnummer_selv_om_barnet_er_født_før_19_og_annen_part_har_rett() {
         when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(saksnummer, null, true, false, false, false));
 
-        HentOgVurderVLSakTask task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
-        MottakMeldingDataWrapper dataWrapper = lagDataWrapper();
+        var task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
+        var dataWrapper = lagDataWrapper();
         dataWrapper.setAnnenPartHarRett(true);
         dataWrapper.setBarnFodselsdato(LocalDate.of(2018, 5, 17));
 
-        MottakMeldingDataWrapper result = task.doTask(dataWrapper);
+        var result = task.doTask(dataWrapper);
 
         assertThat(result.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
     }
 
     @Test
-    public void neste_steg_skal_være_til_journalføring_når_vurderFagsystem_returnerer_VL_og_saksnummer_når_omsorg_før_19() {
+    void neste_steg_skal_være_til_journalføring_når_vurderFagsystem_returnerer_VL_og_saksnummer_når_omsorg_før_19() {
         when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(saksnummer, null, true, false, false, false));
 
-        HentOgVurderVLSakTask task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
-        MottakMeldingDataWrapper dataWrapper = lagDataWrapper();
+        var task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
+        var dataWrapper = lagDataWrapper();
         dataWrapper.setOmsorgsovertakelsedato(LocalDate.of(2018, 5, 17));
 
-        MottakMeldingDataWrapper result = task.doTask(dataWrapper);
+        var result = task.doTask(dataWrapper);
 
         assertThat(result.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
     }
 
     @Test
-    public void neste_steg_skal_være_hentOgVurderVLSak_når_vurderFagsystem_returnerer_prøv_igjen() {
+    void neste_steg_skal_være_hentOgVurderVLSak_når_vurderFagsystem_returnerer_prøv_igjen() {
         when(fagsakRestKlientMock.vurderFagsystem(any()))
                 .thenReturn(lagFagsystemSvar(null, LocalDateTime.now().plusDays(1), false, false, false, true));
 
-        HentOgVurderVLSakTask task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
-        MottakMeldingDataWrapper dataWrapper = lagDataWrapper();
-        MottakMeldingDataWrapper result = task.doTask(dataWrapper);
+        var task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
+        var dataWrapper = lagDataWrapper();
+        var result = task.doTask(dataWrapper);
 
         assertThat(result.getProsessTaskData().getTaskType()).isEqualTo(HentOgVurderVLSakTask.TASKNAME);
     }
 
     @Test
-    public void neste_steg_skal_være_tilJournalføring_når_vl_returnerer_saksnummer_for_svangerskapspenger() {
+    void neste_steg_skal_være_tilJournalføring_når_vl_returnerer_saksnummer_for_svangerskapspenger() {
         when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(saksnummer, null, true, false, false, false));
 
-        HentOgVurderVLSakTask task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
+        var task = new HentOgVurderVLSakTask(prosessTaskRepository, fagsakRestKlientMock);
 
-        ProsessTaskData data = new ProsessTaskData(HentOgVurderVLSakTask.TASKNAME);
+        var data = new ProsessTaskData(HentOgVurderVLSakTask.TASKNAME);
         data.setSekvens("1");
-        MottakMeldingDataWrapper dataWrapper = new MottakMeldingDataWrapper(data);
+        var dataWrapper = new MottakMeldingDataWrapper(data);
         dataWrapper.setAktørId(aktørId);
         dataWrapper.setBarnTermindato(termindato);
         dataWrapper.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
 
-        MottakMeldingDataWrapper result = task.doTask(dataWrapper);
+        var result = task.doTask(dataWrapper);
 
         assertThat(result.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
     }
 
     private MottakMeldingDataWrapper lagDataWrapper() {
-        ProsessTaskData data = new ProsessTaskData(HentOgVurderVLSakTask.TASKNAME);
+        var data = new ProsessTaskData(HentOgVurderVLSakTask.TASKNAME);
         data.setSekvens("1");
-        MottakMeldingDataWrapper dataWrapper = new MottakMeldingDataWrapper(data);
+        var dataWrapper = new MottakMeldingDataWrapper(data);
         dataWrapper.setAktørId(aktørId);
         dataWrapper.setBarnTermindato(termindato);
         dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);

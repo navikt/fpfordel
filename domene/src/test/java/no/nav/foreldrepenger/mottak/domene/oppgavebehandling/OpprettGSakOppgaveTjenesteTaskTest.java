@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsInfo;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.OppgaveRestKlient;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
@@ -39,7 +39,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
-public class OpprettGSakOppgaveTjenesteTaskTest {
+class OpprettGSakOppgaveTjenesteTaskTest {
 
     private static final Oppgave OPPGAVE = new Oppgave(99L, null, null, null, null,
             Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), null, null, null, 1, "4806",
@@ -48,7 +48,7 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
     @Mock
     private ProsessTaskRepository prosessTaskRepository;
     @Mock
-    private OppgaveRestKlient mockService;
+    private Oppgaver oppgaver;
 
     private String fordelingsOppgaveEnhetsId = "4825";
 
@@ -59,16 +59,16 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
     @BeforeEach
     public void setup() {
         when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), any(), any())).thenReturn(fordelingsOppgaveEnhetsId);
-        task = new OpprettGSakOppgaveTask(prosessTaskRepository, enhetsidTjeneste, mockService);
+        task = new OpprettGSakOppgaveTask(prosessTaskRepository, enhetsidTjeneste, oppgaver);
     }
 
     @Test
-    public void testServiceTask_journalforingsoppgave() {
+    void testServiceTask_journalforingsoppgave() {
 
         final String aktørId = "9000000000009";
         final BehandlingTema behandlingTema = BehandlingTema.ENGANGSSTØNAD_FØDSEL;
 
-        ProsessTaskData taskData = new ProsessTaskData(TASKNAME);
+        var taskData = new ProsessTaskData(TASKNAME);
         taskData.setProperty(TEMA_KEY, Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getKode());
         taskData.setProperty(BEHANDLINGSTEMA_KEY, behandlingTema.getKode());
         taskData.setProperty(DOKUMENTTYPE_ID_KEY, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getKode());
@@ -77,7 +77,7 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
         String beskrivelse = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getTermNavn();
 
         ArgumentCaptor<OpprettOppgave.Builder> captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
-        when(mockService.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
+        when(oppgaver.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
 
         task.doTask(taskData);
 
@@ -87,9 +87,9 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
     }
 
     @Test
-    public void testServiceTask_uten_aktørId_fordelingsoppgave() {
+    void testServiceTask_uten_aktørId_fordelingsoppgave() {
         String enhet = "4292";
-        ProsessTaskData taskData = new ProsessTaskData(TASKNAME);
+        var taskData = new ProsessTaskData(TASKNAME);
         taskData.setProperty(TEMA_KEY, Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getKode());
         taskData.setProperty(BEHANDLINGSTEMA_KEY, BehandlingTema.ENGANGSSTØNAD_FØDSEL.getKode());
         taskData.setProperty(DOKUMENTTYPE_ID_KEY, DokumentTypeId.UDEFINERT.getKode());
@@ -97,7 +97,7 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
         String beskrivelse = BehandlingTema.ENGANGSSTØNAD_FØDSEL.getTermNavn();
 
         ArgumentCaptor<OpprettOppgave.Builder> captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
-        when(mockService.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
+        when(oppgaver.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
         when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), eq(Optional.of(enhet)), any())).thenReturn(enhet);
 
         task.doTask(taskData);
@@ -109,9 +109,9 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
     }
 
     @Test
-    public void testSkalJournalføreDokumentForsendelse() {
-        UUID forsendelseId = UUID.randomUUID();
-        ProsessTaskData taskData = new ProsessTaskData(TASKNAME);
+    void testSkalJournalføreDokumentForsendelse() {
+        var forsendelseId = UUID.randomUUID();
+        var taskData = new ProsessTaskData(TASKNAME);
         taskData.setProperty(TEMA_KEY, Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getKode());
         taskData.setProperty(BEHANDLINGSTEMA_KEY, BehandlingTema.FORELDREPENGER.getKode());
         taskData.setProperty(MottakMeldingDataWrapper.FORSENDELSE_ID_KEY, forsendelseId.toString());
@@ -122,7 +122,7 @@ public class OpprettGSakOppgaveTjenesteTaskTest {
         String beskrivelse = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.getTermNavn();
 
         ArgumentCaptor<OpprettOppgave.Builder> captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
-        when(mockService.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
+        when(oppgaver.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
 
         task.doTask(taskData);
 

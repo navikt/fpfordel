@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-
 import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -18,17 +16,15 @@ import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskInfo;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTypeInfo;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
-import no.nav.vedtak.felles.prosesstask.impl.SubjectProvider;
 import no.nav.vedtak.prosesstask.legacy.LegacySubjectProvider;
 
 @ExtendWith(FPfordelEntityManagerAwareExtension.class)
-public class OverførTilGsakFeilhåndteringsalgoritmeTest {
+class OverførTilGsakFeilhåndteringsalgoritmeTest {
 
     private ProsessTaskRepository prosessTaskRepository;
 
@@ -38,30 +34,29 @@ public class OverførTilGsakFeilhåndteringsalgoritmeTest {
     private ProsessTaskTypeInfo type = lagType();
 
     @BeforeEach
-    public void opprettAlgoritme(EntityManager em) {
-        SubjectProvider sp = new LegacySubjectProvider();
-        prosessTaskRepository = new ProsessTaskRepositoryImpl(em, sp, ss);
+    void opprettAlgoritme(EntityManager em) {
+        prosessTaskRepository = new ProsessTaskRepositoryImpl(em, new LegacySubjectProvider(), ss);
         algoritme = new OverførTilGsakMedBackoffFeilhåndteringsalgoritme(prosessTaskRepository);
     }
 
     @Test
-    public void skal_si_at_IntegrasjonException_ikke_skal_kjøres_på_nytt() throws Exception {
+    void skal_si_at_IntegrasjonException_ikke_skal_kjøres_på_nytt() throws Exception {
         assertThat(algoritme.skalKjørePåNytt(type, 1, new IntegrasjonException(mock(Feil.class)))).isFalse();
     }
 
     @Test
-    public void skal_si_at_TekniskException_skal_kjøres_på_nytt() throws Exception {
+    void skal_si_at_TekniskException_skal_kjøres_på_nytt() throws Exception {
         assertThat(algoritme.skalKjørePåNytt(type, 1, new TekniskException(mock(Feil.class)))).isTrue();
     }
 
     @Test
-    public void skal_si_at_TekniskException_ikke_skal_kjøres_på_nytt_når_maks_antall_er_overskredet() throws Exception {
+    void skal_si_at_TekniskException_ikke_skal_kjøres_på_nytt_når_maks_antall_er_overskredet() throws Exception {
         assertThat(algoritme.skalKjørePåNytt(type, 2, new TekniskException(mock(Feil.class)))).isFalse();
     }
 
     @Test
-    public void skal_opprette_prosess_task_for_å_sende_til_manuell_behandling_hos_gsak_når_det_er_integrasjonException() throws Exception {
-        ProsessTaskData originalTaskData = new ProsessTaskData(TilJournalføringTask.TASKNAME);
+    void skal_opprette_prosess_task_for_å_sende_til_manuell_behandling_hos_gsak_når_det_er_integrasjonException() throws Exception {
+        var originalTaskData = new ProsessTaskData(TilJournalføringTask.TASKNAME);
         originalTaskData.setGruppe("1234");
         originalTaskData.setSekvens("3");
 
@@ -73,9 +68,9 @@ public class OverførTilGsakFeilhåndteringsalgoritmeTest {
         // Flush gjøres normalt rett etter feilhåndteringsalgoritmen har kjørt
         ((ProsessTaskRepositoryImpl) prosessTaskRepository).getEntityManager().flush();
 
-        List<ProsessTaskData> oppgaver = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        var oppgaver = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         assertThat(oppgaver).hasSize(1);
-        ProsessTaskInfo oppgave = oppgaver.get(0);
+        var oppgave = oppgaver.get(0);
         assertThat(oppgave.getTaskType()).isEqualTo(MidlJournalføringTask.TASKNAME);
 
         // skal ha samme gruppe for å vise at dette tilhører samme flyt
@@ -87,7 +82,7 @@ public class OverførTilGsakFeilhåndteringsalgoritmeTest {
     }
 
     private static ProsessTaskTypeInfo lagType() {
-        ProsessTaskTypeInfo mock = mock(ProsessTaskTypeInfo.class);
+        var mock = mock(ProsessTaskTypeInfo.class);
         when(mock.getMaksForsøk()).thenReturn(2);
         return mock;
     }

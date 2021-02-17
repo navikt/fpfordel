@@ -21,17 +21,17 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.exception.VLException;
 
-public class MeldingXmlParserTest {
+class MeldingXmlParserTest {
 
     @Test
-    public void skal_hente_ut_namespace_fra_xml() throws Exception {
+    void skal_hente_ut_namespace_fra_xml() throws Exception {
         final String s = readFile("testsoknader/inntektsmelding-far.xml");
 
         assertThat(retrieveNameSpaceOfXML(s)).isEqualTo("http://seres.no/xsd/NAV/Inntektsmelding_M/20180924");
     }
 
     @Test
-    public void skal_gi_exception_ved_ukjent_namespace() throws Exception {
+    void skal_gi_exception_ved_ukjent_namespace() throws Exception {
         String xml = readFile("testsoknader/foedsel-mor-ukjent-namespace.xml");
         assertThrows(VLException.class, () -> MeldingXmlParser.unmarshallXml(xml));
     }
@@ -41,7 +41,7 @@ public class MeldingXmlParserTest {
         return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
     }
 
-    public static String retrieveNameSpaceOfXML(Source xmlSource) throws XMLStreamException {
+    private static String retrieveNameSpaceOfXML(Source xmlSource) throws XMLStreamException {
         XMLInputFactory xmlif = XMLInputFactory.newInstance();
         XMLStreamReader xmlStreamReader = xmlif.createXMLStreamReader(xmlSource);
         while (!xmlStreamReader.isStartElement()) {
@@ -50,7 +50,7 @@ public class MeldingXmlParserTest {
         return xmlStreamReader.getNamespaceURI();
     }
 
-    public static String retrieveNameSpaceOfXML(String xml) throws XMLStreamException {
+    private static String retrieveNameSpaceOfXML(String xml) throws XMLStreamException {
         try (final StringReader reader = new StringReader(xml)) {
             return retrieveNameSpaceOfXML(new StreamSource(reader));
         }

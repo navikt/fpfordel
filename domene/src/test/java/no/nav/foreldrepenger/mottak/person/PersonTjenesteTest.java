@@ -36,7 +36,7 @@ import no.nav.pdl.Person;
 import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
 
 @ExtendWith(MockitoExtension.class)
-public class PersonTjenesteTest {
+class PersonTjenesteTest {
     private static final String AKTØR_ID = "2222222222222";
     private static final String FNR = "11111111111";
     private static final Duration DURATION = Duration.ofSeconds(1);
@@ -46,12 +46,12 @@ public class PersonTjenesteTest {
     private Pdl pdl;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         personTjeneste = new PersonTjeneste(pdl, cache(tilFnr()), cache(tilAktørId()));
     }
 
     @Test
-    public void skal_returnere_fnr() throws Exception {
+    void skal_returnere_fnr() throws Exception {
         when(pdl.hentPersonIdentForAktørId(eq(AKTØR_ID))).thenReturn(Optional.of(FNR));
         var fnr = personTjeneste.hentPersonIdentForAktørId(AKTØR_ID);
         assertEquals(Optional.of(FNR), fnr);
@@ -63,7 +63,7 @@ public class PersonTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_aktørid() throws Exception {
+    void skal_returnere_aktørid() throws Exception {
         when(pdl.hentAktørIdForPersonIdent(eq(FNR))).thenReturn(Optional.of(AKTØR_ID));
         var aid = personTjeneste.hentAktørIdForPersonIdent(FNR);
         assertEquals(Optional.of(AKTØR_ID), aid);
@@ -75,13 +75,13 @@ public class PersonTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_empty_uten_match() {
+    void skal_returnere_empty_uten_match() {
         when(pdl.hentPersonIdentForAktørId(eq(AKTØR_ID))).thenReturn(Optional.empty());
         assertThat(personTjeneste.hentPersonIdentForAktørId(AKTØR_ID)).isEmpty();
     }
 
     @Test
-    public void skal_returnere_forkortet_navn() {
+    void skal_returnere_forkortet_navn() {
         var responsenavn = new Navn("Ola", null, "Nordmann", "Nordmann Ola", null, null, null, null);
         var response = new Person();
         response.setNavn(List.of(responsenavn));
@@ -91,7 +91,7 @@ public class PersonTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_konstruert_navn() {
+    void skal_returnere_konstruert_navn() {
         var responsenavn = new Navn("Kari", "Mari", "Nordmann", null, null, null, null, null);
         var response = new Person();
         response.setNavn(List.of(responsenavn));
@@ -101,7 +101,7 @@ public class PersonTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_tom_gt_hvisikkesatt() {
+    void skal_returnere_tom_gt_hvisikkesatt() {
         var responsebeskyttelse = new Adressebeskyttelse(AdressebeskyttelseGradering.UGRADERT, null, null);
         var responsegt = new GeografiskTilknytning(null, null, null, null, null);
         var response = new Person();
@@ -114,7 +114,7 @@ public class PersonTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_gt_bydel() {
+    void skal_returnere_gt_bydel() {
         var responsebeskyttelse = new Adressebeskyttelse(AdressebeskyttelseGradering.FORTROLIG, null, null);
         var responsegt = new GeografiskTilknytning(GtType.BYDEL, "Oslo", "030110", "NOR", null);
         var response = new Person();
@@ -127,7 +127,7 @@ public class PersonTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_gt_land() {
+    void skal_returnere_gt_land() {
         var responsebeskyttelse = new Adressebeskyttelse(AdressebeskyttelseGradering.STRENGT_FORTROLIG, null, null);
         var responsegt = new GeografiskTilknytning(GtType.UTLAND, null, null, "POL", null);
         var response = new Person();

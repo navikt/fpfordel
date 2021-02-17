@@ -23,7 +23,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
@@ -38,7 +37,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
-public class MidlJournalføringTaskTest {
+class MidlJournalføringTaskTest {
     private static final String FNR = "90000000009";
     private static final String NAVN = "Kari Etternavn";
 
@@ -55,7 +54,7 @@ public class MidlJournalføringTaskTest {
     private UUID forsendelseId;
 
     @BeforeEach
-    public void setup() throws Exception {
+    void setup() throws Exception {
         forsendelseId = UUID.randomUUID();
         when(personTjeneste.hentPersonIdentForAktørId(BRUKER_ID)).thenReturn(Optional.of(FNR));
         when(personTjeneste.hentNavn(any())).thenReturn(NAVN);
@@ -65,12 +64,12 @@ public class MidlJournalføringTaskTest {
     }
 
     @Test
-    public void test_skalVedJournalføringAvDokumentForsendelseFåJournalTilstandEndeligJournalført() {
+    void test_skalVedJournalføringAvDokumentForsendelseFåJournalTilstandEndeligJournalført() {
         var ptd = new ProsessTaskData(TASKNAME);
         ptd.setSekvens("1");
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
+        var data = new MottakMeldingDataWrapper(ptd);
 
-        List<Dokument> dokumenter = DokumentArkivTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
+        var dokumenter = DokumentArkivTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
 
         when(dokArkivTjeneste.opprettJournalpost(any(), anyBoolean())).thenReturn(new OpprettJournalpostResponse(JOURNALPOST_ID, false, List.of()));
 
@@ -84,7 +83,7 @@ public class MidlJournalføringTaskTest {
 
         ArgumentCaptor<OpprettJournalpostRequest> dokCapture = ArgumentCaptor.forClass(OpprettJournalpostRequest.class);
 
-        MottakMeldingDataWrapper target = task.doTask(data);
+        var target = task.doTask(data);
 
         verify(dokArkivTjeneste).opprettJournalpost(dokCapture.capture(), anyBoolean());
         verify(dokumentRepositoryMock).oppdaterForsendelseMedArkivId(any(UUID.class), any(), any(ForsendelseStatus.class));

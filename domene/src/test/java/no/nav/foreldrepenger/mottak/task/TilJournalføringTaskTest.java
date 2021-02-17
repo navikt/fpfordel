@@ -34,8 +34,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
-public class TilJournalføringTaskTest {
+@MockitoSettings(strictness = Strictness.WARN)
+class TilJournalføringTaskTest {
     private static final String ARKIV_ID = "234567";
     private static final String SAKSNUMMER = "9876543";
     private static final String AKTØR_ID = "9000000000009";
@@ -55,7 +55,7 @@ public class TilJournalføringTaskTest {
     private UUID forsendelseId;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         forsendelseId = UUID.randomUUID();
         when(aktørConsumerMock.hentPersonIdentForAktørId(AKTØR_ID)).thenReturn(Optional.of(BRUKER_FNR));
 
@@ -68,7 +68,7 @@ public class TilJournalføringTaskTest {
     }
 
     @Test
-    public void skal_teste_precondition() {
+    void skal_teste_precondition() {
         var data = new MottakMeldingDataWrapper(ptd);
         var e = assertThrows(VLException.class, () -> task.precondition(data));
         data.setArkivId(ARKIV_ID);
@@ -79,9 +79,9 @@ public class TilJournalføringTaskTest {
     }
 
     @Test
-    public void test_utfor_uten_mangler() {
+    void test_utfor_uten_mangler() {
 
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
+        var data = new MottakMeldingDataWrapper(ptd);
         data.setArkivId(ARKIV_ID);
         data.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         data.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
@@ -89,7 +89,7 @@ public class TilJournalføringTaskTest {
         data.setAktørId(AKTØR_ID);
         data.setForsendelseId(forsendelseId);
 
-        MottakMeldingDataWrapper wrapper = doTaskWithPrecondition(data);
+        var wrapper = doTaskWithPrecondition(data);
 
         assertThat(wrapper).isNotNull();
         assertThat(wrapper.getProsessTaskData().getTaskType())
@@ -98,8 +98,8 @@ public class TilJournalføringTaskTest {
     }
 
     @Test
-    public void test_mangler_arkivsak() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
+    void test_mangler_arkivsak() {
+        var data = new MottakMeldingDataWrapper(ptd);
         data.setArkivId(ARKIV_ID);
         data.setSaksnummer(SAKSNUMMER);
         data.setAktørId(AKTØR_ID);
@@ -109,7 +109,7 @@ public class TilJournalføringTaskTest {
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
-        MottakMeldingDataWrapper wrapper = doTaskWithPrecondition(data);
+        var wrapper = doTaskWithPrecondition(data);
 
         verify(arkivTjeneste).oppdaterMedSak(any(), captor.capture(), any());
 
@@ -124,8 +124,8 @@ public class TilJournalføringTaskTest {
     }
 
     @Test
-    public void test_mangler_journalforing_gir_mangel_exception() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
+    void test_mangler_journalforing_gir_mangel_exception() {
+        var data = new MottakMeldingDataWrapper(ptd);
         data.setArkivId(ARKIV_ID);
         data.setSaksnummer(SAKSNUMMER);
         data.setAktørId(AKTØR_ID);
@@ -136,7 +136,7 @@ public class TilJournalføringTaskTest {
         Exception funkExc = new IllegalStateException("bla bla");
         doThrow(funkExc).when(arkivTjeneste).ferdigstillJournalføring(any(), any());
 
-        MottakMeldingDataWrapper wrapper = doTaskWithPrecondition(data);
+        var wrapper = doTaskWithPrecondition(data);
 
         assertThat(wrapper).isNotNull();
         assertThat(wrapper.getProsessTaskData().getTaskType()).as("Forventer at sak med mangler går til Gosys")
@@ -149,8 +149,8 @@ public class TilJournalføringTaskTest {
     }
 
     @Test
-    public void test_mangler_ting_som_ikke_kan_rettes() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
+    void test_mangler_ting_som_ikke_kan_rettes() {
+        var data = new MottakMeldingDataWrapper(ptd);
         data.setArkivId(ARKIV_ID);
         data.setSaksnummer(SAKSNUMMER);
         data.setAktørId(AKTØR_ID);
@@ -159,7 +159,7 @@ public class TilJournalføringTaskTest {
 
         doThrow(new IllegalArgumentException("blab bla")).when(arkivTjeneste).ferdigstillJournalføring(any(), any());
 
-        MottakMeldingDataWrapper wrapper = doTaskWithPrecondition(data);
+        var wrapper = doTaskWithPrecondition(data);
 
         assertThat(wrapper).isNotNull();
         assertThat(wrapper.getProsessTaskData().getTaskType()).as("Forventer at sak med dokumentmangler går til Gosys")
@@ -167,18 +167,16 @@ public class TilJournalføringTaskTest {
     }
 
     @Test
-    public void test_validerDatagrunnlag_uten_feil() {
-        ProsessTaskData prosessTaskData = ptd;
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(prosessTaskData);
-
+    void test_validerDatagrunnlag_uten_feil() {
+        var data = new MottakMeldingDataWrapper(ptd);
         data.setSaksnummer("saksnummer");
         data.setAktørId(AKTØR_ID);
         task.precondition(data);
     }
 
     @Test
-    public void test_skalVedJournalføringAvDokumentForsendelseFåJournalTilstandEndeligJournalført() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
+    void test_skalVedJournalføringAvDokumentForsendelseFåJournalTilstandEndeligJournalført() {
+        var data = new MottakMeldingDataWrapper(ptd);
 
         when(arkivTjeneste.opprettJournalpost(forsendelseId, AKTØR_ID, SAKSNUMMER)).thenReturn(new OpprettetJournalpost(ARKIV_ID, true));
 
@@ -198,8 +196,8 @@ public class TilJournalføringTaskTest {
     }
 
     @Test
-    public void test_skalTilManuellNårJournalTilstandIkkeErEndelig() {
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(ptd);
+    void test_skalTilManuellNårJournalTilstandIkkeErEndelig() {
+        var data = new MottakMeldingDataWrapper(ptd);
 
         when(arkivTjeneste.opprettJournalpost(forsendelseId, AKTØR_ID, SAKSNUMMER)).thenReturn(new OpprettetJournalpost(ARKIV_ID, false));
 

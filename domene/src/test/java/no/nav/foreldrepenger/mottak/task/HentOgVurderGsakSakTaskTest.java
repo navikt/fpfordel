@@ -39,8 +39,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
-public class HentOgVurderGsakSakTaskTest {
+@MockitoSettings(strictness = Strictness.WARN)
+class HentOgVurderGsakSakTaskTest {
 
     private static final String BRUKER_FNR = "99999999899";
     private static final String ANNEN_PART_FNR = "99999999699";
@@ -64,13 +64,12 @@ public class HentOgVurderGsakSakTaskTest {
     }
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         ProsessTaskRepository mockProsessTaskRepository = mock(ProsessTaskRepository.class);
         when(infotrygdSakGyldigPeriodeInstance.get()).thenReturn(Period.parse("P10M"));
         when(infotrygdAnnenPartGyldigPeriodeInstance.get()).thenReturn(Period.parse("P18M"));
         when(mockAktørConsumer.hentPersonIdentForAktørId(BRUKER_AKTØR_ID)).thenReturn(Optional.of(BRUKER_FNR));
         when(mockAktørConsumer.hentAktørIdForPersonIdent(BRUKER_FNR)).thenReturn(Optional.of(BRUKER_AKTØR_ID));
-
         when(mockAktørConsumer.hentPersonIdentForAktørId(ANNEN_PART_ID)).thenReturn(Optional.of(ANNEN_PART_FNR));
         when(mockAktørConsumer.hentAktørIdForPersonIdent(ANNEN_PART_FNR)).thenReturn(Optional.of(ANNEN_PART_ID));
         RelevantSakSjekker relevansSjekker = new RelevantSakSjekker(fp);
@@ -80,25 +79,19 @@ public class HentOgVurderGsakSakTaskTest {
 
     private static List<InfotrygdSak> createInfotrygdSaker(boolean inkluderInntektsmelding) {
         final List<InfotrygdSak> saker = new ArrayList<>();
-
         InfotrygdSak sak = new InfotrygdSak(LocalDate.now(), LocalDate.now());
         saker.add(sak);
-
         if (inkluderInntektsmelding) {
             sak = new InfotrygdSak(LocalDate.now(), LocalDate.now());
             saker.add(sak);
         }
-
         return saker;
     }
 
     @Test
-    public void test_doTask_ingenMatchendeInfotrygdSak() {
-
+    void test_doTask_ingenMatchendeInfotrygdSak() {
         MottakMeldingDataWrapper wrapperIn = opprettMottaksMelding();
-
         MottakMeldingDataWrapper wrapperOut = doTaskWithPrecondition(wrapperIn);
-
         assertThat(wrapperOut).isNotNull();
         assertThat(wrapperOut.getTema()).isEqualTo(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         assertThat(wrapperOut.getAktørId()).hasValueSatisfying(s -> assertThat(s).isEqualTo(BRUKER_AKTØR_ID));
@@ -111,13 +104,10 @@ public class HentOgVurderGsakSakTaskTest {
     }
 
     @Test
-    public void test_doTask_infotrygdsak_i_gsak_men_ikke_relevant_sak_i_infotrygd() {
+    void test_doTask_infotrygdsak_i_gsak_men_ikke_relevant_sak_i_infotrygd() {
         when(ws.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(createInfotrygdSaker(false));
-
         MottakMeldingDataWrapper wrapperIn = opprettMottaksMelding();
-
         MottakMeldingDataWrapper wrapperOut = doTaskWithPrecondition(wrapperIn);
-
         assertThat(wrapperOut).isNotNull();
         assertThat(wrapperOut.getTema()).isEqualTo(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         assertThat(wrapperOut.getAktørId()).hasValueSatisfying(s -> assertThat(s).isEqualTo(BRUKER_AKTØR_ID));
@@ -126,7 +116,7 @@ public class HentOgVurderGsakSakTaskTest {
     }
 
     @Test
-    public void test_doTask_gammel_infotrygdsak_i_gsak_skip_infotrygd() {
+    void test_doTask_gammel_infotrygdsak_i_gsak_skip_infotrygd() {
 
         when(ws.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(new ArrayList<>());
 
@@ -142,21 +132,16 @@ public class HentOgVurderGsakSakTaskTest {
     }
 
     @Test
-    public void test_doTask_infotrygdsak_i_gsak_og_relevant_i_infotrygd() {
-
+    void test_doTask_infotrygdsak_i_gsak_og_relevant_i_infotrygd() {
         when(fp.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(createInfotrygdSaker(true));
-
         when(fp.finnSakListe(eq(ANNEN_PART_FNR), any())).thenReturn(createInfotrygdSaker(true));
-
         MottakMeldingDataWrapper wrapperIn = opprettMottaksMelding();
-
         MottakMeldingDataWrapper wrapperOut = doTaskWithPrecondition(wrapperIn);
-
         assertTaskResult_WhenExceptingManuellJornalføring(wrapperOut);
     }
 
     @Test
-    public void test_validerDatagrunnlag_skal_feile_ved_manglende_temakode_og_behandlingstype() {
+    void test_validerDatagrunnlag_skal_feile_ved_manglende_temakode_og_behandlingstype() {
         MottakMeldingDataWrapper meldingDataWrapper = new MottakMeldingDataWrapper(
                 new ProsessTaskData(HentOgVurderInfotrygdSakTask.TASKNAME));
         meldingDataWrapper.setArkivId("123454");
@@ -165,7 +150,7 @@ public class HentOgVurderGsakSakTaskTest {
     }
 
     @Test
-    public void test_validerDatagrunnlag_uten_feil() {
+    void test_validerDatagrunnlag_uten_feil() {
         MottakMeldingDataWrapper meldingIn = opprettMottaksMelding();
         meldingIn.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         task.precondition(meldingIn);

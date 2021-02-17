@@ -40,8 +40,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
-public class HentOgVurderInfotrygdSakTaskTest {
+@MockitoSettings(strictness = Strictness.WARN)
+class HentOgVurderInfotrygdSakTaskTest {
 
     private static final String AKTØR_BRUKER = "1";
     private static final String AKTØR_ANNEN_PART = "9";
@@ -70,7 +70,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void skal_finne_relevant_registrert_infotrygdsak_for_inntektsmelding() {
+    void skal_finne_relevant_registrert_infotrygdsak_for_inntektsmelding() {
         var it1 = new InfotrygdSak(now().minusYears(2),
                 now().minusYears(2));
         var it2 = new InfotrygdSak(now().minusMonths(1), now().minusMonths(1));
@@ -85,7 +85,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void skal_finne_relevant_iverksatt_infotrygdsak_for_inntektsmelding_bruker1() {
+    void skal_finne_relevant_iverksatt_infotrygdsak_for_inntektsmelding_bruker1() {
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         var it2 = new InfotrygdSak(now().minusDays(1), now().minusDays(1));
         expectIT(FNR_BRUKER_1, it1, it2);
@@ -99,7 +99,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void skal_finne_relevant_infotrygdsak_for_inntektsmelding_avsluttet_vedtak() {
+    void skal_finne_relevant_infotrygdsak_for_inntektsmelding_avsluttet_vedtak() {
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         var it2 = new InfotrygdSak(now().minusDays(50), now().minusDays(50));
         expectIT(FNR_BRUKER, it1, it2);
@@ -113,7 +113,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void skal_ikke_lenger_sjekke_infotrygdsak_for_engangsstønad() {
+    void skal_ikke_lenger_sjekke_infotrygdsak_for_engangsstønad() {
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         var it2 = new InfotrygdSak(now().minusDays(1), now().minusDays(1));
         expectIT(FNR_BRUKER, it1, it2);
@@ -127,7 +127,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void skal_finne_relevant_infotrygdsak_for_foreldrepenger() {
+    void skal_finne_relevant_infotrygdsak_for_foreldrepenger() {
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         var it2 = new InfotrygdSak(now().minusDays(1), now().minusDays(1));
         expectIT(FNR_ANNEN_PART, it1, it2);
@@ -142,7 +142,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void skal_opprette_sak_når_ingen_sak_for_foreldrepenger() {
+    void skal_opprette_sak_når_ingen_sak_for_foreldrepenger() {
 
         var w = dataWrapper(AKTØR_BRUKER);
         w.setBehandlingTema(FORELDREPENGER_FØDSEL);
@@ -153,7 +153,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void skal_opprette_sak_når_ingen_sak_for_svangerskapspenger() {
+    void skal_opprette_sak_når_ingen_sak_for_svangerskapspenger() {
 
         var w = dataWrapper(AKTØR_BRUKER);
         w.setBehandlingTema(SVANGERSKAPSPENGER);
@@ -163,7 +163,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void skal_finne_relevant_infotrygdsak_for_medmor_foreldrepenger() {
+    void skal_finne_relevant_infotrygdsak_for_medmor_foreldrepenger() {
 
         var it = new InfotrygdSak(null, now().minusMonths(7));
         expectIT(FNR_ANNEN_PART_2, it);
@@ -178,7 +178,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void skal_ikke_sjekke_infotrygdsak_for_fedre_foreldrepenger() {
+    void skal_ikke_sjekke_infotrygdsak_for_fedre_foreldrepenger() {
 
         var w = dataWrapper(AKTØR_BRUKER_1);
         w.setBehandlingTema(FORELDREPENGER_FØDSEL);
@@ -190,7 +190,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void skal_sjekke_infotrygd_kun_for_bruker_ved_inntektsmelding() {
+    void skal_sjekke_infotrygd_kun_for_bruker_ved_inntektsmelding() {
 
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         expectIT(FNR_BRUKER, it1);
@@ -207,7 +207,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void neste_steg_skal_være_opprettsak_hvis_relevant_infotrygdsak_ikke_finnes() {
+    void neste_steg_skal_være_opprettsak_hvis_relevant_infotrygdsak_ikke_finnes() {
 
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         expectIT(FNR_BRUKER, it1);
@@ -220,7 +220,7 @@ public class HentOgVurderInfotrygdSakTaskTest {
     }
 
     @Test
-    public void skal_throw_exception_hvis_ukjent_behandlings_tema() {
+    void skal_throw_exception_hvis_ukjent_behandlings_tema() {
 
         var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
         expectIT(FNR_ANNEN_PART, it1);

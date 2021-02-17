@@ -48,8 +48,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
-public class BehandleDokumentforsendelseTaskTest {
+@MockitoSettings(strictness = Strictness.WARN)
+class BehandleDokumentforsendelseTaskTest {
 
     private static final UUID FORSENDELSE_ID = UUID.randomUUID();
     private static final String AKTØR_ID = "9000000000009";
@@ -72,7 +72,7 @@ public class BehandleDokumentforsendelseTaskTest {
     private ProsessTaskData ptd;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         fordelDokTask = new BehandleDokumentforsendelseTask(prosessTaskRepository, aktørConsumer,
                 fagsakRestKlient, dokumentRepository);
         ptd = new ProsessTaskData(BehandleDokumentforsendelseTask.TASKNAME);
@@ -82,7 +82,7 @@ public class BehandleDokumentforsendelseTaskTest {
     }
 
     @Test
-    public void testAvPrecondition() {
+    void testAvPrecondition() {
         MottakMeldingDataWrapper innData = new MottakMeldingDataWrapper(ptd);
 
         var e = assertThrows(TekniskException.class, () -> fordelDokTask.precondition(innData));
@@ -90,7 +90,7 @@ public class BehandleDokumentforsendelseTaskTest {
     }
 
     @Test
-    public void testAvPostCondition() {
+    void testAvPostCondition() {
         MottakMeldingDataWrapper utData = new MottakMeldingDataWrapper(ptd);
         var e = assertThrows(TekniskException.class, () -> fordelDokTask.postcondition(utData));
         assertTrue(e.getMessage().contains("FP-638068"));
@@ -98,7 +98,7 @@ public class BehandleDokumentforsendelseTaskTest {
     }
 
     @Test
-    public void skalReturnereWrapperMedNesteTaskHentOgVurderVLSak() {
+    void skalReturnereWrapperMedNesteTaskHentOgVurderVLSak() {
         MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
 
@@ -112,7 +112,7 @@ public class BehandleDokumentforsendelseTaskTest {
     }
 
     @Test
-    public void skalReturnereHentOgVurderVLSakTask() {
+    void skalReturnereHentOgVurderVLSakTask() {
         MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
 
@@ -126,7 +126,7 @@ public class BehandleDokumentforsendelseTaskTest {
     }
 
     @Test
-    public void skalReturnereOpprettGSakOppgaveTaskHvisSøknadDatoForForeldrependerStartDato() {
+    void skalReturnereOpprettGSakOppgaveTaskHvisSøknadDatoForForeldrependerStartDato() {
         MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
 
@@ -139,7 +139,7 @@ public class BehandleDokumentforsendelseTaskTest {
     }
 
     @Test
-    public void skalSendeTilJournalføringHvisSaksnummerFinnesPåMetadataOgIVL() {
+    void skalSendeTilJournalføringHvisSaksnummerFinnesPåMetadataOgIVL() {
         MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
         inndata.setAktørId(AKTØR_ID);
@@ -155,7 +155,7 @@ public class BehandleDokumentforsendelseTaskTest {
     }
 
     @Test
-    public void skalsendEndringssøknadMedSaksnummeriVLTilJournalføring() {
+    void skalsendEndringssøknadMedSaksnummeriVLTilJournalføring() {
         MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
         inndata.setAktørId(AKTØR_ID);
@@ -175,7 +175,7 @@ public class BehandleDokumentforsendelseTaskTest {
     }
 
     @Test
-    public void skalsendEndringssøknadUtenSaksnummeriVLTilGosys() {
+    void skalsendEndringssøknadUtenSaksnummeriVLTilGosys() {
         MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
         inndata.setAktørId(AKTØR_ID);
@@ -194,7 +194,7 @@ public class BehandleDokumentforsendelseTaskTest {
     }
 
     @Test
-    public void skalEttersendtVedleggTilJournalføring() {
+    void skalEttersendtVedleggTilJournalføring() {
         MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
         inndata.setAktørId(AKTØR_ID);
@@ -213,7 +213,7 @@ public class BehandleDokumentforsendelseTaskTest {
     }
 
     @Test
-    public void skalSendeTilOpprettOppgaveHvisSaksnummerFinnesPåMetadataMenIkkeIVL() {
+    void skalSendeTilOpprettOppgaveHvisSaksnummerFinnesPåMetadataMenIkkeIVL() {
         MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
         inndata.setAktørId(AKTØR_ID);
@@ -228,7 +228,7 @@ public class BehandleDokumentforsendelseTaskTest {
     }
 
     @Test
-    public void skalFeileHvisBehandlingstemaIkkeMatcher() {
+    void skalFeileHvisBehandlingstemaIkkeMatcher() {
         MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
         inndata.setAktørId(AKTØR_ID);
@@ -245,9 +245,7 @@ public class BehandleDokumentforsendelseTaskTest {
     }
 
     private static Optional<FagsakInfomasjonDto> genFagsakInformasjon(String behTemaOffisiellKode) {
-        FagsakInfomasjonDto dto = new FagsakInfomasjonDto(AKTØR_ID, behTemaOffisiellKode);
-
-        return Optional.of(dto);
+        return Optional.of(new FagsakInfomasjonDto(AKTØR_ID, behTemaOffisiellKode));
     }
 
     private MottakMeldingDataWrapper kjørMedPreOgPostcondition(MottakMeldingDataWrapper inndata) {

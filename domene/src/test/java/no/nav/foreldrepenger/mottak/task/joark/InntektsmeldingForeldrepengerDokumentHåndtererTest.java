@@ -27,7 +27,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
-public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
+class InntektsmeldingForeldrepengerDokumentHåndtererTest {
 
     private static final String ARKIV_ID = JoarkTestsupport.ARKIV_ID;
 
@@ -41,7 +41,7 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
     private ArkivTjeneste arkivTjeneste;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         ProsessTaskRepository ptr = mock(ProsessTaskRepository.class);
         joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, aktørConsumer, arkivTjeneste));
         when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));
@@ -53,7 +53,7 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
     }
 
     @Test
-    public void skalHåndtereIntekksmeldingForeldrepengerManuellJournalføringDokumentHåndterer() {
+    void skalHåndtereIntekksmeldingForeldrepengerManuellJournalføringDokumentHåndterer() {
         var dokument = joarkTestsupport
                 .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING, "testsoknader/inntektsmelding-manual-sample.xml");
 
@@ -69,7 +69,7 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
     }
 
     @Test
-    public void skalHåndtereIntekksmeldingForeldrepengerElektronikJournalføringDokumentHåndterer() {
+    void skalHåndtereIntekksmeldingForeldrepengerElektronikJournalføringDokumentHåndterer() {
         var dokument = joarkTestsupport
                 .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING, "testsoknader/inntektsmelding-elektronisk-sample.xml");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
@@ -84,7 +84,7 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
     }
 
     @Test
-    public void skalHåndtereInntektsmeldingUtenStartdatoMedManuellJournalføring() {
+    void skalHåndtereInntektsmeldingUtenStartdatoMedManuellJournalføring() {
         var dokument = joarkTestsupport
                 .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING,
                         "testsoknader/inntektsmelding-manual-uten-startdato-foreldrepenger-periode-sample.xml");
@@ -101,7 +101,7 @@ public class InntektsmeldingForeldrepengerDokumentHåndtererTest {
     }
 
     @Test
-    public void skalHåndtereInntektsmeldingUtenGyldigFNR() {
+    void skalHåndtereInntektsmeldingUtenGyldigFNR() {
         var dokument = joarkTestsupport
                 .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING,
                         "testsoknader/inntektsmelding-manual-uten-startdato-foreldrepenger-periode-sample.xml");

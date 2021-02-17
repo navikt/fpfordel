@@ -24,21 +24,21 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
 @ExtendWith(FPfordelEntityManagerAwareExtension.class)
-public class JournalføringHendelseHåndtererTest {
+class JournalføringHendelseHåndtererTest {
 
     private ProsessTaskRepository prosessTaskRepository;
     private DokumentRepository dokumentRepository;
     private JournalføringHendelseHåndterer hendelseHåndterer;
 
     @BeforeEach
-    public void setup(EntityManager em) {
+    void setup(EntityManager em) {
         prosessTaskRepository = new ProsessTaskRepositoryImpl(em, null, null);
         dokumentRepository = new DokumentRepository(em);
         hendelseHåndterer = new JournalføringHendelseHåndterer(prosessTaskRepository, dokumentRepository);
     }
 
     @Test
-    public void testSoknadEngangstonadOppretterKorrektTask(EntityManager em) {
+    void testSoknadEngangstonadOppretterKorrektTask(EntityManager em) {
         var builder = JournalfoeringHendelseRecord.newBuilder()
                 .setHendelsesId("12345").setVersjon(1)
                 .setHendelsesType("MidlertidigJournalført")
@@ -61,7 +61,7 @@ public class JournalføringHendelseHåndtererTest {
     }
 
     @Test
-    public void testSoknadUkjentTypeSendesLikevelTilNesteSteg(EntityManager em) {
+    void testSoknadUkjentTypeSendesLikevelTilNesteSteg(EntityManager em) {
         var builder = JournalfoeringHendelseRecord.newBuilder()
                 .setHendelsesId("12345").setVersjon(1)
                 .setHendelsesType("MidlertidigJournalført")
@@ -82,7 +82,7 @@ public class JournalføringHendelseHåndtererTest {
     }
 
     @Test
-    public void testDokumentFraKloningUtsettes(EntityManager em) {
+    void testDokumentFraKloningUtsettes(EntityManager em) {
         var builder = JournalfoeringHendelseRecord.newBuilder()
                 .setHendelsesId("12345").setVersjon(1)
                 .setHendelsesType("MidlertidigJournalført")
@@ -102,7 +102,7 @@ public class JournalføringHendelseHåndtererTest {
     }
 
     @Test
-    public void testDokumentFraEESSIIgnoreres(EntityManager em) {
+    void testDokumentFraEESSIIgnoreres(EntityManager em) {
         var builder = JournalfoeringHendelseRecord.newBuilder()
                 .setHendelsesId("12345").setVersjon(1)
                 .setHendelsesType("MidlertidigJournalført")
@@ -120,7 +120,7 @@ public class JournalføringHendelseHåndtererTest {
     }
 
     @Test
-    public void test_0argCtor() {
+    void test_0argCtor() {
         new JournalføringHendelseHåndterer();
     }
 }

@@ -22,8 +22,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
-import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
-import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.DokArkiv;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRequest;
@@ -32,7 +30,7 @@ import no.nav.foreldrepenger.mottak.journal.saf.SafTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 
 @ExtendWith(MockitoExtension.class)
-public class ArkivTjenesteTest {
+class ArkivTjenesteTest {
 
     private static final String SAK_ID = "456";
     private static final String AVSENDER_ID = "3000";
@@ -48,30 +46,28 @@ public class ArkivTjenesteTest {
     private PersonInformasjon personTjeneste;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         when(personTjeneste.hentNavn(any())).thenReturn("For Etternavn");
         when(personTjeneste.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(AVSENDER_ID));
         arkivTjeneste = new ArkivTjeneste(safTjeneste, dokArkivTjeneste, dokumentRepository, personTjeneste);
     }
 
     @Test
-    public void skal_sende_hoveddokument_med_xml_og_pdf_versjon_med_ett_vedlegg() {
+    void skal_sende_hoveddokument_med_xml_og_pdf_versjon_med_ett_vedlegg() {
         UUID forsendelseId = UUID.randomUUID();
 
-        DokumentMetadata metadata = DokumentArkivTestUtil.lagMetadata(forsendelseId, SAK_ID);
-        List<Dokument> dokumenter = DokumentArkivTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, SØKNAD_FORELDREPENGER_FØDSEL);
+        var metadata = DokumentArkivTestUtil.lagMetadata(forsendelseId, SAK_ID);
+        var dokumenter = DokumentArkivTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, SØKNAD_FORELDREPENGER_FØDSEL);
         dokumenter.add(DokumentArkivTestUtil.lagDokumentBeskrivelse(forsendelseId, ANNET, ArkivFilType.PDFA, false, "Farskap"));
 
         when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(metadata);
         when(dokumentRepository.hentDokumenter(any(UUID.class))).thenReturn(dokumenter);
         when(dokArkivTjeneste.opprettJournalpost(any(), anyBoolean()))
-                .thenReturn(new OpprettJournalpostResponse(DokumentArkivTestUtil.JOURNALPOST_ID, true, Collections.emptyList()));
-        ArgumentCaptor<OpprettJournalpostRequest> captor = ArgumentCaptor.forClass(OpprettJournalpostRequest.class);
-
+                .thenReturn(new OpprettJournalpostResponse(DokumentArkivTestUtil.JOURNALPOST_ID, true, List.of()));
+        var captor = ArgumentCaptor.forClass(OpprettJournalpostRequest.class);
         var resultat = arkivTjeneste.opprettJournalpost(forsendelseId, AVSENDER_ID, SAK_ID);
-
         verify(dokArkivTjeneste).opprettJournalpost(captor.capture(), eq(Boolean.TRUE));
-        OpprettJournalpostRequest captured = captor.getValue();
+        var captured = captor.getValue();
         assertThat(captured.getEksternReferanseId()).isEqualTo(forsendelseId.toString());
         assertThat(captured.getDokumenter()).hasSize(2);
         assertThat(captured.getDokumenter().get(0).dokumentvarianter()).hasSize(2);
@@ -82,11 +78,11 @@ public class ArkivTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_respons_med_journalTilstand_endelig() {
+    void skal_returnere_respons_med_journalTilstand_endelig() {
         UUID forsendelseId = UUID.randomUUID();
 
-        DokumentMetadata metadata = DokumentArkivTestUtil.lagMetadata(forsendelseId, SAK_ID);
-        List<Dokument> dokumenter = DokumentArkivTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, SØKNAD_FORELDREPENGER_FØDSEL);
+        var metadata = DokumentArkivTestUtil.lagMetadata(forsendelseId, SAK_ID);
+        var dokumenter = DokumentArkivTestUtil.lagHoveddokumentMedXmlOgPdf(forsendelseId, SØKNAD_FORELDREPENGER_FØDSEL);
 
         when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(metadata);
         when(dokumentRepository.hentDokumenter(any(UUID.class))).thenReturn(dokumenter);
@@ -97,7 +93,7 @@ public class ArkivTjenesteTest {
         var resultat = arkivTjeneste.opprettJournalpost(forsendelseId, AVSENDER_ID, SAK_ID);
 
         verify(dokArkivTjeneste).opprettJournalpost(captor.capture(), eq(Boolean.TRUE));
-        OpprettJournalpostRequest captured = captor.getValue();
+        var captured = captor.getValue();
         assertThat(captured.getEksternReferanseId()).isEqualTo(forsendelseId.toString());
         assertThat(captured.getDokumenter()).hasSize(1);
         assertThat(captured.getTittel()).isEqualTo(SØKNAD_FORELDREPENGER_FØDSEL.getTermNavn());

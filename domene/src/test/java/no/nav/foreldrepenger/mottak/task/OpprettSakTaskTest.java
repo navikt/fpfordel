@@ -39,8 +39,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
-public class OpprettSakTaskTest {
+@MockitoSettings(strictness = Strictness.WARN)
+class OpprettSakTaskTest {
 
     public static final String FNR = "99999999999";
     public static final String AKTØR_ID = "9000000000009";
@@ -55,25 +55,25 @@ public class OpprettSakTaskTest {
     private OpprettSakTask task;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         when(aktørConsumer.hentAktørIdForPersonIdent(FNR)).thenReturn(Optional.of(AKTØR_ID));
-        VurderFagsystemResultat vurderFagsystemRespons = new VurderFagsystemResultat();
+        var vurderFagsystemRespons = new VurderFagsystemResultat();
         vurderFagsystemRespons.setBehandlesIVedtaksløsningen(true);
         when(fagsakRestKlient.vurderFagsystem(any())).thenReturn(vurderFagsystemRespons);
         task = new OpprettSakTask(prosessTaskRepositoryMock, fagsakRestKlient);
     }
 
     @Test
-    public void test_doTask_fødsel_strukturert() throws Exception {
+    void test_doTask_fødsel_strukturert() throws Exception {
 
-        ProsessTaskData prosessTaskData = new ProsessTaskData(OpprettSakTask.TASKNAME);
+        var prosessTaskData = new ProsessTaskData(OpprettSakTask.TASKNAME);
         prosessTaskData.setSekvens("1");
 
         String filename = "testsoknader/engangsstoenad-termin-soeknad.xml";
         Path path = Paths.get(getClass().getClassLoader().getResource(filename).toURI());
         String xml = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
 
-        MottakMeldingDataWrapper ptData = new MottakMeldingDataWrapper(prosessTaskData);
+        var ptData = new MottakMeldingDataWrapper(prosessTaskData);
         ptData.setArkivId("123");
         ptData.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         ptData.setDokumentKategori(DokumentKategori.SØKNAD);
@@ -84,7 +84,7 @@ public class OpprettSakTaskTest {
         soeknadDTO.kopierTilMottakWrapper(ptData, aktørConsumer::hentAktørIdForPersonIdent);
 
         String saksnummer = "789";
-        SaksnummerDto saksnummerDto = new SaksnummerDto(saksnummer);
+        var saksnummerDto = new SaksnummerDto(saksnummer);
         when(fagsakRestKlient.opprettSak(any(OpprettSakDto.class))).thenReturn(saksnummerDto);
 
         MottakMeldingDataWrapper result = doTaskWithPrecondition(ptData);
@@ -94,11 +94,11 @@ public class OpprettSakTaskTest {
     }
 
     @Test
-    public void test_doTask_fødsel_ustrukturert() {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(OpprettSakTask.TASKNAME);
+    void test_doTask_fødsel_ustrukturert() {
+        var prosessTaskData = new ProsessTaskData(OpprettSakTask.TASKNAME);
         prosessTaskData.setSekvens("1");
 
-        MottakMeldingDataWrapper ptData = new MottakMeldingDataWrapper(prosessTaskData);
+        var ptData = new MottakMeldingDataWrapper(prosessTaskData);
         ptData.setArkivId("123");
         ptData.setAktørId(AKTØR_ID);
 
@@ -110,7 +110,7 @@ public class OpprettSakTaskTest {
         SaksnummerDto saksnummerDto = new SaksnummerDto(saksnummer);
         when(fagsakRestKlient.opprettSak(any(OpprettSakDto.class))).thenReturn(saksnummerDto);
 
-        MottakMeldingDataWrapper result = doTaskWithPrecondition(ptData);
+        var result = doTaskWithPrecondition(ptData);
         assertThat(result.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
         assertThat(result.getSaksnummer()).isPresent()
                 .contains(saksnummer);
@@ -122,11 +122,11 @@ public class OpprettSakTaskTest {
     }
 
     @Test
-    public void test_doTask_anke_klage() {
+    void test_doTask_anke_klage() {
         ProsessTaskData innData = new ProsessTaskData(OpprettSakTask.TASKNAME);
         innData.setSekvens("1");
 
-        MottakMeldingDataWrapper ptData = new MottakMeldingDataWrapper(innData);
+        var ptData = new MottakMeldingDataWrapper(innData);
 
         ptData.setArkivId("123");
         ptData.setAktørId(AKTØR_ID);
@@ -134,16 +134,16 @@ public class OpprettSakTaskTest {
         ptData.setDokumentTypeId(DokumentTypeId.KLAGE_DOKUMENT);
         ptData.setDokumentKategori(DokumentKategori.KLAGE_ELLER_ANKE);
 
-        MottakMeldingDataWrapper wrapper = doTaskWithPrecondition(ptData);
+        var wrapper = doTaskWithPrecondition(ptData);
         assertThat(MidlJournalføringTask.TASKNAME).isEqualTo(wrapper.getProsessTaskData().getTaskType());
     }
 
     @Test
-    public void test_doTask_uten_dokumentkategori() {
-        ProsessTaskData innData = new ProsessTaskData(OpprettSakTask.TASKNAME);
+    void test_doTask_uten_dokumentkategori() {
+        var innData = new ProsessTaskData(OpprettSakTask.TASKNAME);
         innData.setSekvens("1");
 
-        MottakMeldingDataWrapper ptData = new MottakMeldingDataWrapper(innData);
+        var ptData = new MottakMeldingDataWrapper(innData);
 
         ptData.setAktørId(AKTØR_ID);
         ptData.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
@@ -153,22 +153,22 @@ public class OpprettSakTaskTest {
     }
 
     @Test
-    public void test_validerDatagrunnlag_skal_feile_ved_manglende_personId() {
-        MottakMeldingDataWrapper meldingDataWrapper = new MottakMeldingDataWrapper(new ProsessTaskData(OpprettSakTask.TASKNAME));
+    void test_validerDatagrunnlag_skal_feile_ved_manglende_personId() {
+        var meldingDataWrapper = new MottakMeldingDataWrapper(new ProsessTaskData(OpprettSakTask.TASKNAME));
         assertThrows(TekniskException.class, () -> task.precondition(meldingDataWrapper));
     }
 
     @Test
-    public void test_validerDatagrunnlag_skal_feile_ved_manglende_behandlingstema() {
-        MottakMeldingDataWrapper meldingDataWrapper = new MottakMeldingDataWrapper(new ProsessTaskData(OpprettSakTask.TASKNAME));
+    void test_validerDatagrunnlag_skal_feile_ved_manglende_behandlingstema() {
+        var meldingDataWrapper = new MottakMeldingDataWrapper(new ProsessTaskData(OpprettSakTask.TASKNAME));
         meldingDataWrapper.setAktørId("123");
         assertThrows(TekniskException.class, () -> task.precondition(meldingDataWrapper));
     }
 
     @Test
-    public void test_validerDatagrunnlag_uten_feil() {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(OpprettSakTask.TASKNAME);
-        MottakMeldingDataWrapper data = new MottakMeldingDataWrapper(prosessTaskData);
+    void test_validerDatagrunnlag_uten_feil() {
+        var prosessTaskData = new ProsessTaskData(OpprettSakTask.TASKNAME);
+        var data = new MottakMeldingDataWrapper(prosessTaskData);
 
         data.setArkivId("123");
         data.setAktørId(AKTØR_ID);
@@ -181,81 +181,81 @@ public class OpprettSakTaskTest {
 
     @Test
     // https://jira.adeo.no/browse/PFP-1730
-    public void skalIkkeOppretteNySakHvisDetFinnesEksisterende() {
+    void skalIkkeOppretteNySakHvisDetFinnesEksisterende() {
         String saksnr = "GjenspeilDinSjel";
-        VurderFagsystemResultat vurderFagsystemRespons = new VurderFagsystemResultat();
+        var vurderFagsystemRespons = new VurderFagsystemResultat();
         vurderFagsystemRespons.setSaksnummer(saksnr);
         vurderFagsystemRespons.setBehandlesIVedtaksløsningen(true);
         when(fagsakRestKlient.vurderFagsystem(any())).thenReturn(vurderFagsystemRespons);
 
-        ProsessTaskData prosessTaskData = new ProsessTaskData(OpprettSakTask.TASKNAME);
+        var prosessTaskData = new ProsessTaskData(OpprettSakTask.TASKNAME);
         prosessTaskData.setSekvens("1");
-        MottakMeldingDataWrapper ptData = new MottakMeldingDataWrapper(prosessTaskData);
+        var ptData = new MottakMeldingDataWrapper(prosessTaskData);
         ptData.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         ptData.setDokumentKategori(DokumentKategori.SØKNAD);
         ptData.setAktørId("1");
         ptData.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
 
-        MottakMeldingDataWrapper res = task.doTask(ptData);
+        var res = task.doTask(ptData);
         verify(fagsakRestKlient, never()).opprettSak(any());
         assertEquals(saksnr, res.getSaksnummer().get());
     }
 
     @Test
-    public void test_doTask_svangerskapspenger_søknad() throws Exception {
+    void test_doTask_svangerskapspenger_søknad() throws Exception {
 
-        ProsessTaskData prosessTaskData = new ProsessTaskData(OpprettSakTask.TASKNAME);
+        var prosessTaskData = new ProsessTaskData(OpprettSakTask.TASKNAME);
         prosessTaskData.setSekvens("1");
 
         String filename = "testsoknader/svangerskapspenger.xml";
         Path path = Paths.get(getClass().getClassLoader().getResource(filename).toURI());
         String xml = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
 
-        MottakMeldingDataWrapper ptData = new MottakMeldingDataWrapper(prosessTaskData);
+        var ptData = new MottakMeldingDataWrapper(prosessTaskData);
         ptData.setArkivId("123");
         ptData.setAktørId("9000000000009");
         ptData.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
         ptData.setDokumentKategori(DokumentKategori.SØKNAD);
 
         ptData.setDokumentTypeId(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER);
-        final MottattStrukturertDokument<?> soeknadDTO = MeldingXmlParser.unmarshallXml(xml);
+        var<?> soeknadDTO = MeldingXmlParser.unmarshallXml(xml);
         soeknadDTO.kopierTilMottakWrapper(ptData, aktørConsumer::hentAktørIdForPersonIdent);
 
         String saksnummer = "789";
-        SaksnummerDto saksnummerDto = new SaksnummerDto(saksnummer);
+        var saksnummerDto = new SaksnummerDto(saksnummer);
         when(fagsakRestKlient.opprettSak(any(OpprettSakDto.class))).thenReturn(saksnummerDto);
 
-        MottakMeldingDataWrapper result = doTaskWithPrecondition(ptData);
+        var result = doTaskWithPrecondition(ptData);
         assertThat(result.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
         assertThat(result.getSaksnummer()).isPresent()
                 .contains(saksnummer);
     }
 
     @Test
-    public void test_doTask_svangerskapspenger_inntektsmelding() throws Exception {
+    void test_doTask_svangerskapspenger_inntektsmelding() throws Exception {
 
-        ProsessTaskData prosessTaskData = new ProsessTaskData(OpprettSakTask.TASKNAME);
+        var prosessTaskData = new ProsessTaskData(OpprettSakTask.TASKNAME);
         prosessTaskData.setSekvens("1");
 
         String filename = "testsoknader/inntektsmelding-svp.xml";
         Path path = Paths.get(getClass().getClassLoader().getResource(filename).toURI());
         String xml = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
 
-        MottakMeldingDataWrapper ptData = new MottakMeldingDataWrapper(prosessTaskData);
+        var ptData = new MottakMeldingDataWrapper(prosessTaskData);
         ptData.setArkivId("123");
         ptData.setAktørId("1000104134079");
         ptData.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
         ptData.setDokumentKategori(DokumentKategori.UDEFINERT);
 
         ptData.setDokumentTypeId(DokumentTypeId.INNTEKTSMELDING);
-        final MottattStrukturertDokument<?> imlDto = MeldingXmlParser.unmarshallXml(xml);
+        var imlDto = MeldingXmlParser.unmarshallXml(xml);
         imlDto.kopierTilMottakWrapper(ptData, aktørConsumer::hentAktørIdForPersonIdent);
 
         String saksnummer = "789";
-        SaksnummerDto saksnummerDto = new SaksnummerDto(saksnummer);
+        var saksnummerDto = new SaksnummerDto(saksnummer);
         when(fagsakRestKlient.opprettSak(any(OpprettSakDto.class))).thenReturn(saksnummerDto);
 
-        MottakMeldingDataWrapper result = doTaskWithPrecondition(ptData);
+        var result = doTaskWithPrecondition(ptData);
         assertThat(result.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
         assertThat(result.getSaksnummer()).isPresent()
                 .contains(saksnummer);
