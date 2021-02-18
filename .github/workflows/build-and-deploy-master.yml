@@ -108,3 +108,13 @@ jobs:
                             title: 'Deploy av ${{ env.TAG }}',
                             body: '/promote dev-fss '})
                });
+               
+      - name: Trigger verdikjedetestene i fpsak-autotest prosjektet TEST
+        if: success()
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.GH_ACCESS_TOKEN }}
+          repository: navikt/fpsak-autotest
+          event-type: fpsak-verdikjede
+          client-payload: '{ "trigger": "${{ github.repository }}", "version": "${{ env.TAG }}", "issue-number": "" }'
+
