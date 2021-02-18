@@ -218,7 +218,7 @@ class OpprettSakTaskTest {
         ptData.setDokumentKategori(DokumentKategori.SØKNAD);
 
         ptData.setDokumentTypeId(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER);
-        var<?> soeknadDTO = MeldingXmlParser.unmarshallXml(xml);
+        var soeknadDTO = MeldingXmlParser.unmarshallXml(xml);
         soeknadDTO.kopierTilMottakWrapper(ptData, aktørConsumer::hentAktørIdForPersonIdent);
 
         String saksnummer = "789";
