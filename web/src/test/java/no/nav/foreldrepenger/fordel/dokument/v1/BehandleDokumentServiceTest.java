@@ -237,11 +237,11 @@ public class BehandleDokumentServiceTest {
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
         var e = assertThrows(FunksjonellException.class,
                 () -> behandleDokumentService.oppdaterOgFerdigstillJournalfoering(lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
-        assertThat(e.getFeil().getLøsningsforslag()).contains("2018");
+        assertThat(e.getMessage()).contains("For tidlig");
     }
 
     @Test
-    public void skalIkkeTillateJournalførinAvSøknadMedOmsorgFørGrense() throws Exception {
+    void skalIkkeTillateJournalførinAvSøknadMedOmsorgFørGrense() throws Exception {
         when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON);
         when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode())));
@@ -251,11 +251,11 @@ public class BehandleDokumentServiceTest {
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
         var e = assertThrows(FunksjonellException.class,
                 () -> behandleDokumentService.oppdaterOgFerdigstillJournalfoering(lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
-        assertThat(e.getFeil().getLøsningsforslag()).contains("2018");
+        assertThat(e.getMessage()).contains("For tidlig");
     }
 
     @Test
-    public void skalTillateJournalførinAvSøknadMedUttakEtterGrense() throws Exception {
+    void skalTillateJournalførinAvSøknadMedUttakEtterGrense() throws Exception {
         OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
         when(journalpost.getHovedtype()).thenReturn(dokumentTypeId);
