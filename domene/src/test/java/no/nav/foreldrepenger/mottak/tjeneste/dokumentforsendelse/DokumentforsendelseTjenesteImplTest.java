@@ -204,7 +204,7 @@ class DokumentforsendelseTjenesteImplTest {
 
     @Test
     void korrektAntallOgTyper__ett_xml_og_ett_pdf_hoveddokument_er_OK() {
-        assertFalse(tjeneste.korrektAntallOgTyper(Set.of(createDokument(ArkivFilType.XML, true),
+        assertTrue(tjeneste.korrektAntallOgTyper(Set.of(createDokument(ArkivFilType.XML, true),
                 createDokument(ArkivFilType.PDFA, true))));
     }
 
