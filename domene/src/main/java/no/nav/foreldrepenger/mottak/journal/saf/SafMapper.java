@@ -147,7 +147,7 @@ class SafMapper {
 
     private static String map(no.nav.saf.AvsenderMottakerIdType type) {
         return Optional.ofNullable(type)
-                .map(t -> t.name())
+                .map(no.nav.saf.AvsenderMottakerIdType::name)
                 .orElse(null);
     }
 

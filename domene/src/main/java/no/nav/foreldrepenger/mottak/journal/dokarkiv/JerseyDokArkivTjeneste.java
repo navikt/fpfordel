@@ -55,7 +55,7 @@ public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient impleme
             return res;
         } catch (Exception e) {
             LOG.warn("Opprett journalpost feilet", e);
-            throw new TekniskException("F-999999", base, e);
+            throw new TekniskException("F-999999", base.toString(), e);
         }
     }
 
