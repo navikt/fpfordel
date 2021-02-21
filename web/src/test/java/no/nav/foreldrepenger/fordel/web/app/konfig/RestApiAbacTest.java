@@ -20,16 +20,16 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
-public class RestApiAbacTest {
+class RestApiAbacTest {
 
     private static String PREV_LB_URL;
 
     /**
      * IKKE ignorer denne testen, sikrer at REST-endepunkter får tilgangskontroll
-     * 
+     *
      */
     @Test
-    public void test_at_alle_restmetoder_er_annotert_med_BeskyttetRessurs() throws Exception {
+    void test_at_alle_restmetoder_er_annotert_med_BeskyttetRessurs() throws Exception {
         for (Method restMethod : RestApiTester.finnAlleRestMetoder()) {
             if (restMethod.getAnnotation(BeskyttetRessurs.class) == null) {
                 throw new AssertionError("Mangler @" + BeskyttetRessurs.class.getSimpleName() + "-annotering på " + restMethod);
@@ -38,7 +38,7 @@ public class RestApiAbacTest {
     }
 
     @Test
-    public void sjekk_at_ingen_metoder_er_annotert_med_dummy_verdier() {
+    void sjekk_at_ingen_metoder_er_annotert_med_dummy_verdier() {
         for (Method metode : RestApiTester.finnAlleRestMetoder()) {
             assertAtIngenBrukerDummyVerdierPåBeskyttetRessurs(metode);
         }
@@ -52,7 +52,7 @@ public class RestApiAbacTest {
      * går igjennom her *
      */
     @Test
-    public void test_at_alle_input_parametre_til_restmetoder_implementer_AbacDto() throws Exception {
+    void test_at_alle_input_parametre_til_restmetoder_implementer_AbacDto() throws Exception {
         String feilmelding = "Parameter på %s.%s av type %s må implementere " + AbacDto.class.getSimpleName() + ".\n";
         StringBuilder feilmeldinger = new StringBuilder();
 
