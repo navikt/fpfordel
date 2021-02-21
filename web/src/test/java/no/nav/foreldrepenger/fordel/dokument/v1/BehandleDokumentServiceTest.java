@@ -1,10 +1,15 @@
 package no.nav.foreldrepenger.fordel.dokument.v1;
 
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.ENGANGSSTØNAD;
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.ENGANGSSTØNAD_FØDSEL;
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.FORELDREPENGER;
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.FORELDREPENGER_ADOPSJON;
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.FORELDREPENGER_FØDSEL;
+import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,6 +29,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -43,7 +50,8 @@ import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.integrasjon.sak.v1.SakClient;
 
 @ExtendWith(MockitoExtension.class)
-public class BehandleDokumentServiceTest {
+@MockitoSettings(strictness = Strictness.WARN)
+class BehandleDokumentServiceTest {
 
     static {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
@@ -58,73 +66,61 @@ public class BehandleDokumentServiceTest {
     private static final String BRUKER_FNR = "99999999899";
 
     @Mock
-    private ArkivTjeneste arkivTjeneste;
+    private ArkivTjeneste arkiv;
     @Mock
-    private KlargjørForVLTjeneste klargjørForVLTjenesteMock;
+    private KlargjørForVLTjeneste klargjør;
     @Mock
-    private FagsakTjeneste fagsakRestKlientMock;
+    private FagsakTjeneste fagsak;
     @Mock
-    private PersonInformasjon aktørConsumer;
+    private PersonInformasjon aktør;
     @Mock
-    private SakClient sakClient;
-
-    private BehandlingTema engangsstønadFødsel;
-    private BehandlingTema foreldrepengerFødsel;
-    private BehandlingTema foreldrepengerAdopsjon;
-    private BehandlingTema foreldrepenger;
-    private BehandlingTema engangsstønad;
+    private SakClient sak;
     @Mock
     private ArkivJournalpost journalpost;
 
     @BeforeEach
     public void setUp() {
-        engangsstønadFødsel = BehandlingTema.ENGANGSSTØNAD_FØDSEL;
-        foreldrepengerFødsel = BehandlingTema.FORELDREPENGER_FØDSEL;
-        foreldrepengerAdopsjon = BehandlingTema.FORELDREPENGER_ADOPSJON;
-        engangsstønad = BehandlingTema.ENGANGSSTØNAD;
-        foreldrepenger = BehandlingTema.FORELDREPENGER;
-        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
 
-        lenient().when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
-                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, engangsstønad.getOffisiellKode())));
+        when(fagsak.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
+                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, ENGANGSSTØNAD.getOffisiellKode())));
 
-        lenient().when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
-        lenient().when(journalpost.getJournalposttype()).thenReturn(Journalposttype.INNGÅENDE);
-        lenient().when(journalpost.getHovedtype()).thenReturn(dokumentTypeId);
+        when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
+        when(journalpost.getJournalposttype()).thenReturn(Journalposttype.INNGÅENDE);
+        when(journalpost.getHovedtype()).thenReturn(SØKNAD_ENGANGSSTØNAD_FØDSEL);
 
-        lenient().when(arkivTjeneste.hentArkivJournalpost(JOURNALPOST_ID)).thenReturn(journalpost);
+        when(arkiv.hentArkivJournalpost(JOURNALPOST_ID)).thenReturn(journalpost);
 
-        when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.empty());
-        lenient().when(aktørConsumer.hentAktørIdForPersonIdent(BRUKER_FNR)).thenReturn(Optional.of(AKTØR_ID));
+        when(aktør.hentAktørIdForPersonIdent(any())).thenReturn(Optional.empty());
+        when(aktør.hentAktørIdForPersonIdent(BRUKER_FNR)).thenReturn(Optional.of(AKTØR_ID));
 
-        behandleDokumentService = new BehandleDokumentService(klargjørForVLTjenesteMock,
-                fagsakRestKlientMock, sakClient, aktørConsumer, arkivTjeneste, mock(DokumentRepository.class));
+        behandleDokumentService = new BehandleDokumentService(klargjør,
+                fagsak, sak, aktør, arkiv, mock(DokumentRepository.class));
     }
 
     @Test
-    public void skalValiderePåkrevdInput_enhetId() {
+    void skalValiderePåkrevdInput_enhetId() {
         var e = assertThrows(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class,
                 () -> behandleDokumentService.oppdaterOgFerdigstillJournalfoering(lagRequest(null, JOURNALPOST_ID, SAKSNUMMER)));
         assertThat(e.getMessage().contains(BehandleDokumentService.ENHET_MANGLER));
     }
 
     @Test
-    public void skalValiderePåkrevdInput_journalpostId() {
+    void skalValiderePåkrevdInput_journalpostId() {
         var e = assertThrows(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class,
                 () -> behandleDokumentService.oppdaterOgFerdigstillJournalfoering(lagRequest(ENHETID, null, SAKSNUMMER)));
         assertThat(e.getMessage().contains(BehandleDokumentService.JOURNALPOST_MANGLER));
     }
 
     @Test
-    public void skalValiderePåkrevdInput_saksnummer() {
+    void skalValiderePåkrevdInput_saksnummer() {
         var e = assertThrows(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class,
                 () -> behandleDokumentService.oppdaterOgFerdigstillJournalfoering(lagRequest(ENHETID, JOURNALPOST_ID, null)));
         assertThat(e.getMessage().contains(BehandleDokumentService.SAKSNUMMER_UGYLDIG));
     }
 
     @Test
-    public void skalValidereAtFagsakFinnes() {
-        when(fagsakRestKlientMock.finnFagsakInfomasjon(any()))
+    void skalValidereAtFagsakFinnes() {
+        when(fagsak.finnFagsakInfomasjon(any()))
                 .thenReturn(Optional.empty());
         var e = assertThrows(FunksjonellException.class,
                 () -> behandleDokumentService.oppdaterOgFerdigstillJournalfoering(lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
@@ -133,9 +129,9 @@ public class BehandleDokumentServiceTest {
     }
 
     @Test
-    public void skalIkkeJournalføreKlagerPåSakUtenBehandling() {
+    void skalIkkeJournalføreKlagerPåSakUtenBehandling() {
 
-        when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
+        when(fagsak.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional
                         .of(new FagsakInfomasjonDto(AKTØR_ID, BehandlingTema.UDEFINERT.getOffisiellKode())));
 
@@ -145,20 +141,20 @@ public class BehandleDokumentServiceTest {
     }
 
     @Test
-    public void skalKunneJournalføreKlagerPåSakMedBehandling() throws Exception {
+    void skalKunneJournalføreKlagerPåSakMedBehandling() throws Exception {
 
-        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        var request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
 
         when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.KLAGE_DOKUMENT);
-        when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
+        when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
     }
 
     @Test
-    public void skalIkkeJournalførePapirsøknadSakAnnenYtelse() {
+    void skalIkkeJournalførePapirsøknadSakAnnenYtelse() {
 
-        when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
+        when(fagsak.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional
                         .of(new FagsakInfomasjonDto(AKTØR_ID, BehandlingTema.FORELDREPENGER_FØDSEL.getOffisiellKode())));
 
@@ -168,33 +164,32 @@ public class BehandleDokumentServiceTest {
     }
 
     @Test
-    public void skalKjøreHeltIgjennomNaarJournaltilstandIkkeErEndelig() throws Exception {
-        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
-        when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
+    void skalKjøreHeltIgjennomNaarJournaltilstandIkkeErEndelig() throws Exception {
+        var request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
         when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(journalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(arkivTjeneste).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
-        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
-        verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
-                eq(engangsstønadFødsel), any(), any(), any(), any());
+        verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
+        verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
+        verify(klargjør).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+                eq(ENGANGSSTØNAD_FØDSEL), any(), any(), any(), any());
     }
 
-    @Test
     public void skalGiUnntakNårDetFinnesManglerSomIkkeKanRettes() {
         assertThrows(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class,
                 () -> behandleDokumentService.oppdaterOgFerdigstillJournalfoering(lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
     }
 
     @Test
-    public void skalTillateJournalførinAvInntektsmeldingForeldrepender() throws Exception {
-        DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
+    void skalTillateJournalførinAvInntektsmeldingForeldrepender() throws Exception {
+        var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         when(journalpost.getHovedtype()).thenReturn(dokumentTypeId);
-        when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
+        when(fagsak.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(
-                        Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepengerFødsel.getOffisiellKode())));
+                        Optional.of(new FagsakInfomasjonDto(AKTØR_ID, FORELDREPENGER_FØDSEL.getOffisiellKode())));
 
         String xml = readFile("testdata/inntektsmelding-foreldrepenger.xml");
 
@@ -202,21 +197,21 @@ public class BehandleDokumentServiceTest {
         when(journalpost.getStrukturertPayload()).thenReturn(xml);
         when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(journalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
-        when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
+        when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER));
 
-        verify(arkivTjeneste).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
-        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
-        verify(klargjørForVLTjenesteMock).klargjørForVL(eq(xml), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
-                eq(foreldrepengerFødsel), any(), any(), any(), any());
+        verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
+        verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
+        verify(klargjør).klargjørForVL(eq(xml), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+                eq(FORELDREPENGER_FØDSEL), any(), any(), any(), any());
     }
 
     @Test
-    public void skalIkkeTillateJournalførinAvInntektsmeldingSvangerskapspenger() throws Exception {
+    void skalIkkeTillateJournalførinAvInntektsmeldingSvangerskapspenger() throws Exception {
         when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.INNTEKTSMELDING);
-        when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
-                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepengerFødsel.getOffisiellKode())));
+        when(fagsak.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
+                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, FORELDREPENGER_FØDSEL.getOffisiellKode())));
 
         String xml = readFile("testdata/inntektsmelding-svangerskapspenger.xml");
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
@@ -227,10 +222,10 @@ public class BehandleDokumentServiceTest {
     }
 
     @Test
-    public void skalIkkeTillateJournalførinAvSøknadMedUttakFørGrense() throws Exception {
+    void skalIkkeTillateJournalførinAvSøknadMedUttakFørGrense() throws Exception {
         when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
-        when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
-                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode())));
+        when(fagsak.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
+                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, FORELDREPENGER.getOffisiellKode())));
 
         String xml = readFile("testdata/selvb-soeknad-forp-uttak-før-konfigverdi.xml");
         when(journalpost.getStrukturertPayload()).thenReturn(xml);
@@ -243,8 +238,8 @@ public class BehandleDokumentServiceTest {
     @Test
     void skalIkkeTillateJournalførinAvSøknadMedOmsorgFørGrense() throws Exception {
         when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON);
-        when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
-                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode())));
+        when(fagsak.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
+                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, FORELDREPENGER.getOffisiellKode())));
 
         String xml = readFile("testdata/fp-adopsjon-far.xml");
         when(journalpost.getStrukturertPayload()).thenReturn(xml);
@@ -256,110 +251,110 @@ public class BehandleDokumentServiceTest {
 
     @Test
     void skalTillateJournalførinAvSøknadMedUttakEtterGrense() throws Exception {
-        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
-        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
+        var request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
         when(journalpost.getHovedtype()).thenReturn(dokumentTypeId);
-        when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
-                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode())));
+        when(fagsak.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
+                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, FORELDREPENGER.getOffisiellKode())));
 
         String xml = readFile("testdata/selvb-soeknad-forp.xml");
         when(journalpost.getStrukturertPayload()).thenReturn(xml);
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
         when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(journalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
-        when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
+        when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(arkivTjeneste).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
-        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
-        verify(klargjørForVLTjenesteMock).klargjørForVL(eq(xml), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
-                eq(foreldrepengerFødsel), any(), any(), any(), any());
+        verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
+        verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
+        verify(klargjør).klargjørForVL(eq(xml), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+                eq(FORELDREPENGER_FØDSEL), any(), any(), any(), any());
     }
 
     @Test
-    public void skalIgnorereUkjentStrukturertData() throws Exception {
-        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
-        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_KONTANTSTØTTE;
+    void skalIgnorereUkjentStrukturertData() throws Exception {
+        var request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        var dokumentTypeId = DokumentTypeId.SØKNAD_KONTANTSTØTTE;
         when(journalpost.getHovedtype()).thenReturn(dokumentTypeId);
-        when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
-                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode())));
+        when(fagsak.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
+                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, FORELDREPENGER.getOffisiellKode())));
 
         String xml = readFile("testdata/metadata.json");
         when(journalpost.getStrukturertPayload()).thenReturn(xml);
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
         when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(journalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
-        when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
+        when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(arkivTjeneste).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
-        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
-        verify(klargjørForVLTjenesteMock).klargjørForVL(eq(null), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
-                eq(foreldrepenger), any(), any(), any(), any());
+        verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
+        verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
+        verify(klargjør).klargjørForVL(eq(null), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+                eq(FORELDREPENGER), any(), any(), any(), any());
     }
 
     @Test
-    public void skalTillateJournalførinAvSøknadMedOmsorgEtterGrense() throws Exception {
-        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
-        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON;
+    void skalTillateJournalførinAvSøknadMedOmsorgEtterGrense() throws Exception {
+        var request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON;
         when(journalpost.getHovedtype()).thenReturn(dokumentTypeId);
-        when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
-                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode())));
+        when(fagsak.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
+                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, FORELDREPENGER.getOffisiellKode())));
 
         String xml = readFile("testdata/fp-adopsjon-mor.xml");
         when(journalpost.getStrukturertPayload()).thenReturn(xml);
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
         when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(journalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
-        when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
+        when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(arkivTjeneste).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
-        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
-        verify(klargjørForVLTjenesteMock).klargjørForVL(eq(xml), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
-                eq(foreldrepengerAdopsjon), any(), any(), any(), any());
+        verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
+        verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
+        verify(klargjør).klargjørForVL(eq(xml), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+                eq(FORELDREPENGER_ADOPSJON), any(), any(), any(), any());
     }
 
     @Test
-    public void skalTillateJournalførinAvEndringsSøknadMedAnnetSaksnummer() throws Exception {
-        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
-        DokumentTypeId dokumentTypeId = DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD;
+    void skalTillateJournalførinAvEndringsSøknadMedAnnetSaksnummer() throws Exception {
+        var request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        var dokumentTypeId = DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD;
         when(journalpost.getHovedtype()).thenReturn(dokumentTypeId);
-        when(fagsakRestKlientMock.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
-                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, foreldrepenger.getOffisiellKode())));
+        when(fagsak.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
+                .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, FORELDREPENGER.getOffisiellKode())));
 
         String xml = readFile("testdata/selvb-soeknad-endring.xml");
         when(journalpost.getStrukturertPayload()).thenReturn(xml);
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
         when(journalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(journalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
-        when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
+        when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(arkivTjeneste).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
-        verify(arkivTjeneste).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
-        verify(klargjørForVLTjenesteMock).klargjørForVL(eq(xml), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
-                eq(foreldrepenger), any(), any(), any(), any());
+        verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
+        verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
+        verify(klargjør).klargjørForVL(eq(xml), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+                eq(FORELDREPENGER), any(), any(), any(), any());
     }
 
     @Test
-    public void skalKjøreHeltIgjennomNaarJournaltilstandErEndelig() throws Exception {
+    void skalKjøreHeltIgjennomNaarJournaltilstandErEndelig() throws Exception {
         when(journalpost.getTilstand()).thenReturn(Journalstatus.JOURNALFOERT);
 
-        OppdaterOgFerdigstillJournalfoeringRequest request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        var request = lagRequest(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         behandleDokumentService.oppdaterOgFerdigstillJournalfoering(request);
 
-        verify(klargjørForVLTjenesteMock).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
-                eq(engangsstønadFødsel), any(), any(), any(), any());
+        verify(klargjør).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+                eq(ENGANGSSTØNAD_FØDSEL), any(), any(), any(), any());
     }
 
     private static OppdaterOgFerdigstillJournalfoeringRequest lagRequest(String enhetid, String journalpostId,
             String sakId) {
-        OppdaterOgFerdigstillJournalfoeringRequest request = new OppdaterOgFerdigstillJournalfoeringRequest();
+        var request = new OppdaterOgFerdigstillJournalfoeringRequest();
         request.setEnhetId(enhetid);
         request.setJournalpostId(journalpostId);
         request.setSakId(sakId);
