@@ -24,7 +24,7 @@
         <revision>2.0</revision>
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
-        <felles.version>3.0.98</felles.version>
+        <felles.version>3.0.99</felles.version>
         <prosesstask.version>2.5.15</prosesstask.version>
         <java.version>15</java.version>
         <argLine>-Xms256m -Dfile.encoding=UTF-8</argLine>
@@ -77,35 +77,11 @@
                 <version>1.9</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>infotrygd-saker-klient</artifactId>
-                <version>${felles.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>pdl-klient</artifactId>
-                <version>${felles.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>arbeidsfordeling-klient</artifactId>
-                <version>${felles.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>oppgave-rest-klient</artifactId>
-                <version>${felles.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>no.nav.foreldrepenger.kontrakter</groupId>
                 <artifactId>fp-kontrakter-root</artifactId>
                 <version>${fp-kontrakter.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>sensu-klient</artifactId>
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.fordel</groupId>
@@ -214,11 +190,6 @@
                 <version>${resteasy.version}</version>
             </dependency>
             <dependency>
-                <groupId>joda-time</groupId>
-                <artifactId>joda-time</artifactId>
-                <version>2.10.10</version>
-            </dependency>
-            <dependency>
                 <groupId>org.jasypt</groupId>
                 <artifactId>jasypt</artifactId>
                 <version>1.9.3</version>
@@ -294,16 +265,6 @@
         <dependency>
             <groupId>javax.json</groupId>
             <artifactId>javax.json-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-            <artifactId>felles-integrasjon-rest-klient</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.xml.stream</groupId>
-                    <artifactId>stax-api</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>

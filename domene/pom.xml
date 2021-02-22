@@ -26,11 +26,6 @@
             <version>3.7.7</version>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-streams</artifactId>
         </dependency>
@@ -165,7 +160,6 @@
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>sensu-klient</artifactId>
-            <version>${felles.version}</version>
         </dependency>
 
         <!-- NAV -->
