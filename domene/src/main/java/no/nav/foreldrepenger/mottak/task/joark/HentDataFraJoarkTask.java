@@ -114,10 +114,10 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
                         Objects.equals('<', journalpost.getStrukturertPayload().trim().charAt(0))) {
                     var doktittel = journalpost.getOriginalJournalpost().dokumenter().get(0).tittel();
                     var prefix = journalpost.getStrukturertPayload().substring(0, Math.min(40, journalpost.getStrukturertPayload().length()));
-                    LOG.warn("Journalpost med ukjent strukturert innhold {} {} {}", jptittel, doktittel, prefix);
-                    throw new IllegalStateException("Ukjent type strukturert dokument");
+                    LOG.warn("FPFORDEL journalpost med ukjent xml innhold {} {} {}", jptittel, doktittel, prefix);
+                } else {
+                    LOG.info("FPFORDEL journalpost med non-xml strukturert innhold {}", jptittel);
                 }
-                LOG.info("FPFORDEL journalpost med non-xml strukturert innhold {}", jptittel);
             } else {
                 try {
                     MottattStrukturertDokument<?> mottattDokument = MeldingXmlParser.unmarshallXml(journalpost.getStrukturertPayload());
