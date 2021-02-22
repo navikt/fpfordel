@@ -89,7 +89,8 @@ jobs:
               });
             });
 
-      - name: Opprett issue, trigg deploy til dev-fss
+      - name: Opprett issue
+        id: issue
         if: success()
         uses: actions/github-script@v3
         with:
@@ -101,20 +102,15 @@ jobs:
                 labels: ['bygg'],
                 title: 'Deploy av ${{ env.TAG }}'})
               .then(response => {
-                      const issue = { owner: context.issue.owner,
-                      repo: context.issue.repo,
-                      issue_number: response.data.number }
-                     github.issues.createComment({...issue,
-                            title: 'Deploy av ${{ env.TAG }}',
-                            body: '/promote dev-fss '})
-               });
-               
-      - name: Trigger verdikjedetestene i fpsak-autotest prosjektet TEST
+                    core.setOutput('id', response.data.number);
+              });
+
+      - name: Trigger verdikjedetestene i fpsak-autotest prosjektet
         if: success()
         uses: peter-evans/repository-dispatch@v1
         with:
           token: ${{ secrets.NOTIFICATION }}
           repository: navikt/fpsak-autotest
           event-type: fordel-verdikjede
-          client-payload: '{ "trigger": "${{ github.repository }}", "version": "${{ env.TAG }}", "issue-number": "" }'
+          client-payload: '{ "trigger": "${{ github.repository }}", "version": "${{ env.TAG }}", "issue-number": "${{ steps.issue.outputs.id }}" }'
 
