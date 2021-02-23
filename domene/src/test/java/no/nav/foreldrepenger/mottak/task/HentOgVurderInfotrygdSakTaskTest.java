@@ -95,6 +95,20 @@ class HentOgVurderInfotrygdSakTaskTest {
         w.setDokumentTypeId(INNTEKTSMELDING);
         w.setInntekstmeldingStartdato(now());
 
+        doAndAssertOpprettet(w); // Kvinne - skal til VL, ignorer infotrygd
+    }
+
+    @Test
+    void skal_finne_relevant_iverksatt_infotrygdsak_for_inntektsmelding_bruker() {
+        var it1 = new InfotrygdSak(now().minusYears(2), now().minusYears(2));
+        var it2 = new InfotrygdSak(now().minusDays(1), now().minusDays(1));
+        expectIT(FNR_BRUKER, it1, it2);
+
+        var w = dataWrapper(AKTØR_BRUKER);
+        w.setBehandlingTema(FORELDREPENGER);
+        w.setDokumentTypeId(INNTEKTSMELDING);
+        w.setInntekstmeldingStartdato(now());
+
         doAndAssertJournalført(w);
     }
 

@@ -161,6 +161,9 @@ public class HentOgVurderInfotrygdSakTask extends WrappedProsessTaskHandler {
 
     private MottakMeldingDataWrapper nesteStegForIM(MottakMeldingDataWrapper w) {
         String fnr = fnr(w);
+        if (!erMann(fnr)) {
+            return nesteStegOpprettet(w);
+        }
         if (skalMidlertidigJournalføreIM(w, fnr, LocalDate.now())) {
             LOGGER.info("FPFORDEL VINFOTRYGD IM journalpost {}", w.getArkivId());
             return midlertidigJournalført(w);
