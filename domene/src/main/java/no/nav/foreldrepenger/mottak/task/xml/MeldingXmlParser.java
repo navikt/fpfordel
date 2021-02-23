@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.mottak.task.xml;
 
-import static no.nav.foreldrepenger.mottak.task.xml.JaxbHelper.unmarshalAndValidateXMLWithStAX;
-import static no.nav.foreldrepenger.mottak.task.xml.JaxbHelper.unmarshalXMLWithStAX;
 import static no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParserFeil.ukjentNamespace;
 import static no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParserFeil.uventetFeilVedParsingAvXml;
-import static no.nav.foreldrepenger.mottak.task.xml.XmlUtils.retrieveNameSpaceOfXML;
+import static no.nav.vedtak.xmlutils.JaxbHelper.unmarshalAndValidateXMLWithStAX;
+import static no.nav.vedtak.xmlutils.JaxbHelper.unmarshalXMLWithStAX;
+import static no.nav.vedtak.xmlutils.XmlUtils.retrieveNameSpaceOfXML;
 
 import java.util.Map;
 import java.util.Optional;
