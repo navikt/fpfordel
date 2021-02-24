@@ -52,6 +52,7 @@ jobs:
 
       - name: Kompiler
         run: |
+          echo "TAG=$(mvn help:evaluate --batch-mode --settings .github/workflows/.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
            mvn --quiet  package    --settings .github/workflows/.m2/settings.xml
         env:
           GITHUB_USERNAME: x-access-token
