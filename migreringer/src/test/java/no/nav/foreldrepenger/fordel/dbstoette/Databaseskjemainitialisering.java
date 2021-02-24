@@ -6,6 +6,7 @@ import javax.sql.DataSource;
 
 import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,12 +51,12 @@ public final class Databaseskjemainitialisering {
 
     private static void migrer(DBProperties dbProperties) {
         LOG.info("Migrerer {}", dbProperties.schema());
-        Flyway flyway = new Flyway();
-        flyway.setBaselineOnMigrate(true);
-        flyway.setDataSource(dbProperties.dataSource());
-        flyway.setTable("schema_version");
-        flyway.setLocations(dbProperties.scriptLocation());
-        flyway.setCleanOnValidationError(true);
+        Flyway flyway = new Flyway(new FluentConfiguration()
+                .baselineOnMigrate(true)
+                .dataSource(dbProperties.dataSource())
+                .table("schema_version")
+                .locations(dbProperties.scriptLocation)
+                .cleanOnValidationError(true));
         if (!ENV.isLocal()) {
             throw new IllegalStateException("Forventer at denne migreringen bare kjøres lokalt");
         }
@@ -63,7 +64,7 @@ public final class Databaseskjemainitialisering {
     }
 
     private static String getScriptLocation(String dsName) {
-        if (DBTestUtil.kjøresAvMaven()) {
+        if (Environment.current().getProperty("maven.cmd.line.args") != null) {
             return classpathScriptLocation(dsName);
         }
         return fileScriptLocation(dsName);
