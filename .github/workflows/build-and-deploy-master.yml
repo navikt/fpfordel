@@ -52,7 +52,7 @@ jobs:
 
       - name: Kompiler
         run: |
-          mvn jacoco:prepare-agent install -e --batch-mode --settings .github/workflows/.m2/settings.xml -Dchangelist= -Dsha1=-${BUILD_VERSION} -Dfile.encoding=UTF-8 -Djacoco.destFile=$(pwd)/target/jacoco.exec
+          mvn jacoco:prepare-agent compile -e --batch-mode --settings .github/workflows/.m2/settings.xml -Dchangelist= -Dsha1=-${BUILD_VERSION} -Dfile.encoding=UTF-8 -Djacoco.destFile=$(pwd)/target/jacoco.exec
           mvn jacoco:report sonar:sonar -e --batch-mode --settings .github/workflows/.m2/settings.xml -Djacoco.dataFile=$(pwd)/target/jacoco.exec  -Dsonar.login=${SONAR} -Dsonar.projectKey=navikt_fpfordel
           echo "TAG=$(mvn help:evaluate --batch-mode --settings .github/workflows/.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
         env:
