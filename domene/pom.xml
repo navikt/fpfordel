@@ -188,4 +188,20 @@
             <artifactId>guava</artifactId>
         </dependency>
     </dependencies>
+    <profiles>
+        <profile>
+            <id>wiremocktest</id>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.eclipse.jetty</groupId>
+                        <artifactId>jetty-bom</artifactId>
+                        <version>9.4.37.v20210219</version>
+                        <scope>import</scope>
+                        <type>pom</type>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+    </profiles>
 </project>

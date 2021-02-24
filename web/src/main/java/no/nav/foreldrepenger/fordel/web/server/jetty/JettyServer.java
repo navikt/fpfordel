@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.fordel.web.server.jetty;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,15 +45,15 @@ public class JettyServer extends AbstractJettyServer {
     protected void migrerDatabaser() {
         for (var cfg : dataSourceKonfig.getDataSources()) {
             LOG.info("Migrerer {}", cfg);
-            var flyway = new Flyway();
-            flyway.setDataSource(cfg.getDatasource());
-            flyway.setLocations(cfg.getLocations());
-            flyway.setBaselineOnMigrate(true);
-            flyway.migrate();
+            new Flyway(new FluentConfiguration()
+                    .dataSource(cfg.getDatasource())
+                    .locations(cfg.getLocations())
+                    .baselineOnMigrate(true)).migrate();
         }
     }
 
+    @Override
     protected List<Class<?>> getWebInfClasses() {
-        return Arrays.asList(ApplicationConfig.class, IssoApplication.class);
+        return List.of(ApplicationConfig.class, IssoApplication.class);
     }
 }

@@ -54,7 +54,7 @@ public final class Databaseskjemainitialisering {
         flyway.setBaselineOnMigrate(true);
         flyway.setDataSource(dbProperties.dataSource());
         flyway.setTable("schema_version");
-        flyway.setLocations(dbProperties.scriptLocation());
+        flyway.setLocations(dbProperties.scriptLocation);
         flyway.setCleanOnValidationError(true);
         if (!ENV.isLocal()) {
             throw new IllegalStateException("Forventer at denne migreringen bare kjøres lokalt");
@@ -63,7 +63,7 @@ public final class Databaseskjemainitialisering {
     }
 
     private static String getScriptLocation(String dsName) {
-        if (DBTestUtil.kjøresAvMaven()) {
+        if (Environment.current().getProperty("maven.cmd.line.args") != null) {
             return classpathScriptLocation(dsName);
         }
         return fileScriptLocation(dsName);

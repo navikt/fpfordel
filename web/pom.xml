@@ -13,12 +13,13 @@
     <packaging>jar</packaging>
     <name>Fordel :: Web :: Applikasjon</name>
     <properties>
+        <jakarta-persistence-api.version>2.3.3</jakarta-persistence-api.version>
         <swagger-ui.version>3.43.0</swagger-ui.version>
         <org.jvnet.jaxb2.version>0.11.1</org.jvnet.jaxb2.version>
         <wsdl.directory>src/main/wsdl</wsdl.directory>
     </properties>
     <dependencies>
- <dependency>
+        <dependency>
             <groupId>net.shibboleth.utilities</groupId>
             <artifactId>java-support</artifactId>
             <version>8.0.0</version>
@@ -61,11 +62,9 @@
             <groupId>no.nav.foreldrepenger.fordel</groupId>
             <artifactId>domene</artifactId>
         </dependency>
-
         <dependency>
             <groupId>no.nav.foreldrepenger.fordel</groupId>
             <artifactId>migreringer</artifactId>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
@@ -276,13 +275,6 @@
 
     <dependencyManagement>
         <dependencies>
-        <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-bom</artifactId>
-                <version>10.0.0</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
             <dependency>
                 <groupId>org.jboss.resteasy</groupId>
                 <artifactId>resteasy-bom</artifactId>
@@ -322,19 +314,19 @@
         </pluginManagement>
         <finalName>app</finalName>
         <plugins>
-  <plugin>
-                                <groupId>org.apache.maven.plugins</groupId>
-                                <artifactId>maven-jar-plugin</artifactId>
-                                <configuration>
-                                        <archive>
-                                                <manifest>
-                                                        <addClasspath>true</addClasspath>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                                                        <mainClass>no.nav.foreldrepenger.fordel.web.server.jetty.JettyServer</mainClass>
-                                                </manifest>
-                                        </archive>
-                                </configuration>
-        </plugin>
+                            <mainClass>no.nav.foreldrepenger.fordel.web.server.jetty.JettyServer</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
