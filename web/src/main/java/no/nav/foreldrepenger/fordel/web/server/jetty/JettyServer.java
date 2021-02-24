@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,10 +44,12 @@ public class JettyServer extends AbstractJettyServer {
     protected void migrerDatabaser() {
         for (var cfg : dataSourceKonfig.getDataSources()) {
             LOG.info("Migrerer {}", cfg);
-            new Flyway(new FluentConfiguration()
-                    .dataSource(cfg.getDatasource())
-                    .locations(cfg.getLocations())
-                    .baselineOnMigrate(true)).migrate();
+            var flyway = new Flyway();
+            flyway.setDataSource(cfg.getDatasource());
+            flyway.setLocations(cfg.getLocations());
+            flyway.setBaselineOnMigrate(true);
+            flyway.migrate();
+
         }
     }
 
