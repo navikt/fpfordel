@@ -9,9 +9,9 @@
     <name>Fordel :: Root</name>
     <description>Fordeling av mottatte dokumenter for FPSAK</description>
     <modules>
-        <module>migreringer</module>
-        <module>domene</module>
-        <module>web</module>
+        <module>fordel-migreringer</module>
+        <module>fordel-domene</module>
+        <module>fordel-web</module>
     </modules>
     <licenses>
         <license>
