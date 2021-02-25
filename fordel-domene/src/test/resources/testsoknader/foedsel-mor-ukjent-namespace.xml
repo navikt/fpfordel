@@ -1,0 +1,39 @@
+<v1:soeknadsskjemaEngangsstoenad xmlns:v1="http://nav.no/melding/virksomhet/soeknadsskjemaEngangsstoenad/v1"
+                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <bruker xsi:type="v1:Bruker">
+        <personidentifikator>99999999899</personidentifikator>
+    </bruker>
+    <soknadsvalg>
+        <foedselEllerAdopsjon>FOEDSEL</foedselEllerAdopsjon>
+        <stoenadstype>ENGANGSSTOENADMOR</stoenadstype>
+    </soknadsvalg>
+    <tilknytningNorge>
+        <!--Optional:-->
+        <oppholdNorgeNaa>true</oppholdNorgeNaa>
+    </tilknytningNorge>
+    <opplysningerOmBarn>
+        <!--Optional:-->
+        <termindato>2017-07-01+01:00</termindato>
+        <!--Optional:-->
+        <terminbekreftelsedato>2017-05-09+01:00</terminbekreftelsedato>
+        <!--Optional:-->
+        <navnPaaTerminbekreftelse>Lege Legesen</navnPaaTerminbekreftelse>
+        <antallBarn>1</antallBarn>
+    </opplysningerOmBarn>
+    <!--Optional:-->
+    <opplysningerOmFar>
+        <!--Optional:-->
+        <fornavn>Synt18</fornavn>
+        <!--Optional:-->
+        <etternavn>Olsen</etternavn>
+        <!--Optional:-->
+        <personidentifikator>03035498353</personidentifikator>
+    </opplysningerOmFar>
+    <!--Zero or more repetitions:-->
+    <vedleggListe>
+        <!--Optional:-->
+        <skjemanummer>O7</skjemanummer> <!-- O7 Terminbekreftelse (o7-terminbekreftelse.pdf) -->
+        <innsendingsvalg>LASTET_OPP</innsendingsvalg>
+        <erPaakrevdISoeknadsdialog>true</erPaakrevdISoeknadsdialog>
+    </vedleggListe>
+</v1:soeknadsskjemaEngangsstoenad>

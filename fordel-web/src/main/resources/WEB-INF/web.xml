@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+                      http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd" version="4.0"
+        metadata-complete="false">
+
+    <context-param>
+        <param-name>resteasy.injector.factory</param-name>
+        <param-value>org.jboss.resteasy.cdi.CdiInjectorFactory</param-value>
+    </context-param>
+    <context-param>
+        <!--
+        Skru av denne tjenesten pga. en sårbarhet: https://nvd.nist.gov/vuln/detail/CVE-2016-6345
+        -->
+        <param-name>resteasy.async.job.service.enabled</param-name>
+        <param-value>false</param-value>
+    </context-param>
+
+    <!-- Listeners her slik at vi kan styre rekkefølgen de kjøres i: -->
+    <listener>
+        <listener-class>no.nav.vedtak.sikkerhet.jaspic.SamAutoRegistration</listener-class>
+    </listener>
+    <listener>
+        <!-- Ønsker denne _sist_. -->
+        <listener-class>no.nav.foreldrepenger.fordel.web.app.tjenester.ApplicationContextListener</listener-class>
+    </listener>
+
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Ubeskyttet</web-resource-name>
+            <url-pattern>/cb</url-pattern>
+            <url-pattern>/internal/*</url-pattern>
+            <url-pattern>/api/swagger.json</url-pattern>
+            <url-pattern>/api/swagger.yaml</url-pattern>
+        </web-resource-collection>
+    </security-constraint>
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Alt annet beskyttet</web-resource-name>
+            <url-pattern>/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <!-- From Servlet spec 3.1 "**" means any authenticated user ref: https://community.oracle.com/blogs/swchan2/2013/04/19/role-servlet-31-security-constraint -->
+            <role-name>**</role-name>
+        </auth-constraint>
+    </security-constraint>
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>HTTP metoder beskyttet</web-resource-name>
+            <url-pattern>/*</url-pattern>
+            <http-method>HEAD</http-method>
+            <http-method>TRACE</http-method>
+            <http-method>OPTIONS</http-method>
+            <http-method>DELETE</http-method>
+        </web-resource-collection>
+        <auth-constraint />
+    </security-constraint>
+</web-app>
+
+

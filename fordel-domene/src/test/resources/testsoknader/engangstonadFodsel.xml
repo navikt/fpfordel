@@ -1,0 +1,8 @@
+<v1:forsendelsesinformasjon xmlns:v1="dokumentnotifikasjon-v1.xsd">
+    <arkivId>389426444</arkivId>
+    <arkivsystem>sys2</arkivsystem>
+    <tema kodeRef="http://www.company.org/cum/sonoras" kodeverksRef="http://nav.no/kodeverk/Kodeverk/Tema">FOR</tema>
+    <behandlingstema kodeRef="http://www.any.org/ventos/verrantque"
+                     kodeverksRef="http://nav.no/kodeverk/Kodeverk/Behandlingstema">ab0050
+    </behandlingstema>
+</v1:forsendelsesinformasjon>

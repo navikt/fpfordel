@@ -1,0 +1,9 @@
+[
+    {
+      "datasource": "defaultDS",
+      "schema": "fpfordel",
+      "url": "jdbc:oracle:thin:@localhost:1521:XE",
+      "default": true,
+      "migrationScriptsFilesystemRoot": "migreringer/src/main/resources/db/migration/"
+    }
+]

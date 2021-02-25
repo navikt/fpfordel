@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<ns5:soeknad xmlns:ns5="urn:no:nav:vedtak:felles:xml:soeknad:v3"
+             xmlns:ns2="urn:no:nav:vedtak:felles:xml:soeknad:felles:v3"
+             xmlns:ns6="urn:no:nav:vedtak:felles:xml:soeknad:foreldrepenger:v3"
+             xmlns:ns7="urn:no:nav:vedtak:felles:xml:soeknad:uttak:v3"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <ns5:mottattDato>2019-02-26+01:00</ns5:mottattDato>
+    <ns5:omYtelse>
+        <ns6:foreldrepenger>
+            <ns6:annenForelder xsi:type="UkjentForelder" xmlns="urn:no:nav:vedtak:felles:xml:soeknad:felles:v3"/>
+            <ns6:rettigheter>
+                <ns2:harAnnenForelderRett>true</ns2:harAnnenForelderRett>
+                <ns2:harOmsorgForBarnetIPeriodene>true</ns2:harOmsorgForBarnetIPeriodene>
+                <ns2:harAleneomsorgForBarnet>false</ns2:harAleneomsorgForBarnet>
+            </ns6:rettigheter>
+            <ns6:relasjonTilBarnet xsi:type="Foedsel" xmlns="urn:no:nav:vedtak:felles:xml:soeknad:felles:v3">
+                <antallBarn>1</antallBarn>
+                <foedselsdato>2018-01-10+01:00</foedselsdato>
+            </ns6:relasjonTilBarnet>
+            <ns6:medlemskap>
+                <ns2:oppholdNorge>
+                    <ns2:periode>
+                        <ns2:fom>2017-02-26+01:00</ns2:fom>
+                        <ns2:tom>2018-02-26+01:00</ns2:tom>
+                    </ns2:periode>
+                </ns2:oppholdNorge>
+                <ns2:oppholdNorge>
+                    <ns2:periode>
+                        <ns2:fom>2018-02-26+01:00</ns2:fom>
+                        <ns2:tom>2019-02-26+01:00</ns2:tom>
+                    </ns2:periode>
+                </ns2:oppholdNorge>
+                <ns2:iNorgeVedFoedselstidspunkt>true</ns2:iNorgeVedFoedselstidspunkt>
+                <ns2:boddINorgeSiste12Mnd>true</ns2:boddINorgeSiste12Mnd>
+                <ns2:borINorgeNeste12Mnd>true</ns2:borINorgeNeste12Mnd>
+            </ns6:medlemskap>
+            <ns6:opptjening/>
+            <ns6:fordeling xmlns="urn:no:nav:vedtak:felles:xml:soeknad:uttak:v3">
+                <ns7:annenForelderErInformert>true</ns7:annenForelderErInformert>
+                <ns7:perioder xsi:type="Uttaksperiode">
+                    <ns7:fom>2019-01-01+01:00</ns7:fom>
+                    <ns7:tom>2019-01-10+01:00</ns7:tom>
+                    <ns7:type kode="FORELDREPENGER_FØR_FØDSEL"/>
+                </ns7:perioder>
+                <ns7:perioder xsi:type="Uttaksperiode">
+                    <ns7:fom>2019-01-11+01:00</ns7:fom>
+                    <ns7:tom>2019-04-30+02:00</ns7:tom>
+                    <ns7:type kode="MØDREKVOTE"/>
+                </ns7:perioder>
+            </ns6:fordeling>
+            <ns6:dekningsgrad>
+                <ns6:dekningsgrad kode="100"/>
+            </ns6:dekningsgrad>
+        </ns6:foreldrepenger>
+    </ns5:omYtelse>
+    <ns5:soeker>
+        <ns2:aktoerId>9000000000009</ns2:aktoerId>
+        <ns2:soeknadsrolle kode="MOR"/>
+    </ns5:soeker>
+</ns5:soeknad>
