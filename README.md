@@ -19,6 +19,7 @@ Dette er løsning for fordeling av søknader (og inntektsmeldinger).
 [Utviklerhåndbok, Kodestandard, osv](https://confluence.adeo.no/pages/viewpage.action?pageId=190254327)
 
 
+
 ### Docker
 
 ```bash
