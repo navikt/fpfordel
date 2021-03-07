@@ -113,26 +113,27 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
                 hovedDokumentOpt.map(Dokument::getDokumentTypeId).orElse(DokumentTypeId.UDEFINERT));
         dataWrapper.setBehandlingTema(behandlingTema);
 
-        LOG.info("FPFORDEL BdTask entry bt {}", behandlingTema );
+        LOG.info("FPFORDEL BdTask entry bt {}", behandlingTema);
 
         setFellesWrapperAttributter(dataWrapper, dokument, metadata);
 
-        var destinasjon = metadata.getSaksnummer().map(s -> new Destinasjon(ForsendelseStatus.PENDING, s))
-                .orElseGet(() -> vurderVLSaker.bestemDestinasjon(dataWrapper));
+        Destinasjon destinasjon;
 
-        LOG.info("FPFORDEL BdTask destinasjon {}", destinasjon );
 
-        if (destinasjon.saksnummer() != null) {
-            Optional<FagsakInfomasjonDto> fagInfoOpt = fagsakRestKlient.finnFagsakInfomasjon(new SaksnummerDto(destinasjon.saksnummer()));
+        if (metadata.getSaksnummer().isPresent()) {
+            String saksnr = metadata.getSaksnummer().get(); // NOSONAR
+            Optional<FagsakInfomasjonDto> fagInfoOpt = fagsakRestKlient.finnFagsakInfomasjon(new SaksnummerDto(saksnr));
             if (fagInfoOpt.isPresent()) {
                 setFellesWrapperAttributterFraFagsak(dataWrapper, fagInfoOpt.get(), hovedDokumentOpt);
-                destinasjon = new Destinasjon(ForsendelseStatus.FPSAK, destinasjon.saksnummer());
-                LOG.info("FPFORDEL BdTask sjekk på saksnummer {}", destinasjon );
+                destinasjon = new Destinasjon(ForsendelseStatus.FPSAK, saksnr);
             } else {
                 dataWrapper.setSaksnummer(null); // Sendt inn på infotrygd-sak
                 destinasjon = new Destinasjon(ForsendelseStatus.GOSYS, null);
             }
+        } else {
+            destinasjon = vurderVLSaker.bestemDestinasjon(dataWrapper);
         }
+        LOG.info("FPFORDEL BdTask destinasjon {}", destinasjon );
 
         /*
          * Her kan man vurdere å journalføre lokalt - enten midlertidig journalføring av alle
