@@ -45,8 +45,7 @@ jobs:
 
       - name: Kompiler
         run: |
-            mvn --quiet  test -Pwiremocktest  --settings .github/workflows/.m2/settings.xml
-            mvn --quiet  clean package -Dmaven.test.skip=true  --settings .github/workflows/.m2/settings.xml
+            mvn package --quiet --batch-mode --settings .github/workflows/.m2/settings.xml
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_PASSWORD: ${{ secrets.NOTIFICATION }}
