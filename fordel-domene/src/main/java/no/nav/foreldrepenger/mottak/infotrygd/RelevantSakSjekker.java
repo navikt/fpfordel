@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.mottak.infotrygd;
 
-import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.gjelderForeldrepenger;
-
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -9,8 +7,6 @@ import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
-import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 
 @ApplicationScoped
 public class RelevantSakSjekker {
@@ -26,21 +22,12 @@ public class RelevantSakSjekker {
         this.fp = fp;
     }
 
-    public boolean skalMidlertidigJournalføre(String fnr, LocalDate fom, BehandlingTema behandlingTema) {
-        return erITSakRelevant(fnr, fom, behandlingTema);
+    public boolean skalMidlertidigJournalføre(String fnr, LocalDate fom) {
+        return erITSakRelevantForFP(fnr, fom);
     }
 
-    public boolean skalMidlertidigJournalføreIM(String fnr, LocalDate fom, BehandlingTema behandlingTema) {
-        return erITSakRelevantForIM(fnr, fom, behandlingTema);
-    }
-
-    private boolean erITSakRelevant(String fnr, LocalDate fom, BehandlingTema tema) {
-        return gjelderForeldrepenger(tema) ? erITSakRelevantForFP(fnr, fom) : false;
-    }
-
-    private boolean erITSakRelevantForIM(String fnr, LocalDate fom, BehandlingTema tema) {
-        return gjelderForeldrepenger(tema) ? erFpRelevantForIM(fnr, fom) : false;
-
+    public boolean skalMidlertidigJournalføreIM(String fnr, LocalDate fom) {
+        return erFpRelevantForIM(fnr, fom);
     }
 
     private boolean erITSakRelevantForFP(String fnr, LocalDate fom) {

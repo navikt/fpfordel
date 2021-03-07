@@ -57,7 +57,7 @@ class KlargjorForVLTaskTest {
     void test_utfør_mangler_precondition() {
         var data = new MottakMeldingDataWrapper(ptd);
         var fangetFeil = assertThrows(TekniskException.class, () -> toTaskWithPrecondition(data));
-        assertThat(fangetFeil.getFeil().getKode()).isEqualTo("FP-941984");
+        assertThat(fangetFeil.getKode()).isEqualTo("FP-941984");
     }
 
     @Test

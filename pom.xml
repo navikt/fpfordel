@@ -24,7 +24,7 @@
         <revision>2.0</revision>
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
-        <felles.version>3.1.2</felles.version>
+        <felles.version>3.1.11</felles.version>
         <prosesstask.version>2.5.15</prosesstask.version>
         <java.version>15</java.version>
         <argLine>-Xms256m -Dfile.encoding=UTF-8</argLine>
@@ -32,7 +32,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <prometheus.version>0.10.0</prometheus.version>
         <resteasy.version>4.6.0.Final</resteasy.version>
-        <fp-kontrakter.version>5.1-20200430102838-bbe5ceb</fp-kontrakter.version>
+        <fp-kontrakter.version>5.2.2</fp-kontrakter.version>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.organization>navit</sonar.organization>
     </properties>
@@ -190,11 +190,6 @@
                 <version>${resteasy.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jasypt</groupId>
-                <artifactId>jasypt</artifactId>
-                <version>1.9.3</version>
-            </dependency>
-            <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-compat-spec-parser</artifactId>
                 <version>1.0.54</version>
@@ -220,16 +215,6 @@
                 <version>1.2.3</version>
             </dependency>
             <dependency>
-                <groupId>org.glassfish.jaxb</groupId>
-                <artifactId>jaxb-runtime</artifactId>
-                <version>2.4.0-b180830.0438</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>2.4.0-b180830.0359</version>
-            </dependency>
-            <dependency>
                 <groupId>org.jboss.classfilewriter</groupId>
                 <artifactId>jboss-classfilewriter</artifactId>
                 <version>1.2.4.Final</version>
@@ -243,6 +228,11 @@
                 <groupId>com.oracle.ojdbc</groupId>
                 <artifactId>ojdbc8</artifactId>
                 <version>19.3.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-core</artifactId>
+                <version>4.2.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -261,16 +251,6 @@
         <dependency>
             <groupId>jakarta.json</groupId>
             <artifactId>jakarta.json-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles</groupId>
-            <artifactId>felles-db</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.xml.stream</groupId>
-                    <artifactId>stax-api</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>

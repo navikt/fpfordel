@@ -14,7 +14,6 @@ import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.exception.VLException;
-import no.nav.vedtak.feil.Feil;
 
 class GeneralRestExceptionMapperTest {
 
@@ -44,25 +43,25 @@ class GeneralRestExceptionMapperTest {
 
     @Test
     void skalMappeManglerTilgangFeil() {
-        Feil manglerTilgangFeil = TestFeil.manglerTilgangFeil().getFeil();
+        var manglerTilgangFeil = TestFeil.manglerTilgangFeil();
 
         Response response = mapper
-                .toResponse(new ApplicationException(manglerTilgangFeil.toException()));
+                .toResponse(new ApplicationException(manglerTilgangFeil));
 
         assertThat(response.getStatus()).isEqualTo(403);
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
         FeilDto feilDto = (FeilDto) response.getEntity();
 
         assertThat(feilDto.getType()).isEqualTo(FeilType.MANGLER_TILGANG_FEIL);
-        assertThat(feilDto.getFeilmelding()).isEqualTo("ManglerTilgangFeilmeldingKode");
+        assertThat(feilDto.getFeilmelding()).contains("ManglerTilgangFeilmeldingKode");
     }
 
     @Test
     void skalMappeFunksjonellFeil() {
-        Feil funksjonellFeil = TestFeil.funksjonellFeil().getFeil();
+        var funksjonellFeil = TestFeil.funksjonellFeil();
 
         Response response = mapper
-                .toResponse(new ApplicationException(funksjonellFeil.toException()));
+                .toResponse(new ApplicationException(funksjonellFeil));
 
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
         FeilDto feilDto = (FeilDto) response.getEntity();

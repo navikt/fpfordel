@@ -34,6 +34,7 @@ import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
 import no.nav.foreldrepenger.mottak.infotrygd.RelevantSakSjekker;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
+import no.nav.foreldrepenger.mottak.tjeneste.VurderInfotrygd;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -73,7 +74,8 @@ class HentOgVurderGsakSakTaskTest {
         when(mockAktørConsumer.hentPersonIdentForAktørId(ANNEN_PART_ID)).thenReturn(Optional.of(ANNEN_PART_FNR));
         when(mockAktørConsumer.hentAktørIdForPersonIdent(ANNEN_PART_FNR)).thenReturn(Optional.of(ANNEN_PART_ID));
         RelevantSakSjekker relevansSjekker = new RelevantSakSjekker(fp);
-        task = new HentOgVurderInfotrygdSakTask(mockProsessTaskRepository, relevansSjekker, mockAktørConsumer);
+        VurderInfotrygd vurderInfotrygd = new VurderInfotrygd(relevansSjekker, mockAktørConsumer);
+        task = new HentOgVurderInfotrygdSakTask(mockProsessTaskRepository, vurderInfotrygd);
 
     }
 

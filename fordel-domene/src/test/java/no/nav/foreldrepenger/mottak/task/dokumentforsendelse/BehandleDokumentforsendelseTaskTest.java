@@ -40,9 +40,12 @@ import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
 import no.nav.foreldrepenger.mottak.task.MidlJournalføringTask;
+import no.nav.foreldrepenger.mottak.task.OpprettSakTask;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
+import no.nav.foreldrepenger.mottak.tjeneste.Destinasjon;
+import no.nav.foreldrepenger.mottak.tjeneste.VurderVLSaker;
+import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -66,6 +69,8 @@ class BehandleDokumentforsendelseTaskTest {
     @Mock
     private FagsakTjeneste fagsakRestKlient;
     @Mock
+    private VurderVLSaker vurderVLSaker;
+    @Mock
     private DokumentRepository dokumentRepository;
 
     private BehandleDokumentforsendelseTask fordelDokTask;
@@ -73,7 +78,7 @@ class BehandleDokumentforsendelseTaskTest {
 
     @BeforeEach
     void setup() {
-        fordelDokTask = new BehandleDokumentforsendelseTask(prosessTaskRepository, aktørConsumer,
+        fordelDokTask = new BehandleDokumentforsendelseTask(prosessTaskRepository, vurderVLSaker, aktørConsumer,
                 fagsakRestKlient, dokumentRepository);
         ptd = new ProsessTaskData(BehandleDokumentforsendelseTask.TASKNAME);
         ptd.setSekvens("1");
@@ -105,23 +110,27 @@ class BehandleDokumentforsendelseTaskTest {
         when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(
                 Optional.of(genDokument(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL, FIL_SØKNAD_ENGST, true)));
         when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(genMetadata(null, AKTØR_ID));
+        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.FPSAK, null));
+        when(vurderVLSaker.opprettSak(any())).thenReturn("123");
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
-        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(HentOgVurderVLSakTask.TASKNAME);
+        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
         assertThat(utdata.getDokumentTypeId()).hasValue(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
     }
 
     @Test
-    void skalReturnereHentOgVurderVLSakTask() {
+    void skalReturnereTilJournalføringSakTask() {
         MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
 
         when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(
                 Optional.of(genDokument(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, FIL_SØKNAD_FORP, true)));
         when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(genMetadata(null, AKTØR_ID));
+        when(fagsakRestKlient.finnFagsakInfomasjon(any(SaksnummerDto.class))).thenReturn(genFagsakInformasjon("ab0047"));
+        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.FPSAK, "123"));
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
-        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(HentOgVurderVLSakTask.TASKNAME);
+        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
         assertThat(utdata.getDokumentTypeId()).hasValue(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
     }
 
@@ -133,6 +142,7 @@ class BehandleDokumentforsendelseTaskTest {
         when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(Optional.of(
                 genDokument(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, FIL_SØKNAD_FORP_UTTAK_FØR_KONFIGVERDI, true)));
         when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(genMetadata(null, AKTØR_ID));
+        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.GOSYS, null));
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
         assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(MidlJournalføringTask.TASKNAME);
