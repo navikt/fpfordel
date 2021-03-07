@@ -35,6 +35,7 @@ import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdSak;
 import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
 import no.nav.foreldrepenger.mottak.infotrygd.RelevantSakSjekker;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
+import no.nav.foreldrepenger.mottak.tjeneste.VurderInfotrygd;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -277,9 +278,8 @@ class HentOgVurderInfotrygdSakTaskTest {
     }
 
     private HentOgVurderInfotrygdSakTask task() {
-        return new HentOgVurderInfotrygdSakTask(prosessTaskRepository,
-                new RelevantSakSjekker(fp),
-                aktør);
+        var vurderInfotrygd = new VurderInfotrygd(new RelevantSakSjekker(fp), aktør);
+        return new HentOgVurderInfotrygdSakTask(prosessTaskRepository, vurderInfotrygd);
     }
 
     private MottakMeldingDataWrapper doWithPrecondition(MottakMeldingDataWrapper wrapper) {

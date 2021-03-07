@@ -20,7 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
+import no.nav.foreldrepenger.mottak.task.dokumentforsendelse.BehandleDokumentforsendelseTask;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -50,7 +50,7 @@ public class FagsakRestKlientImplTest {
         var captor = ArgumentCaptor.forClass(VurderFagsystemDto.class);
         when(oidcRestClient.post(any(), captor.capture(), any())).thenReturn(null);
 
-        var data = new ProsessTaskData(HentOgVurderVLSakTask.TASKNAME);
+        var data = new ProsessTaskData(BehandleDokumentforsendelseTask.TASKNAME);
         data.setSekvens("1");
         var w = new MottakMeldingDataWrapper(data);
         w.setAktørId(aktørId);

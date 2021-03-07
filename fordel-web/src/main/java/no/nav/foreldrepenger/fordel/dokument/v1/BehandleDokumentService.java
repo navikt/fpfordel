@@ -282,7 +282,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         } catch (FunksjonellException e) {
             // Her er det "greit" - da har man bestemt seg, men kan lage rot i saken.
             if (MottakMeldingFeil.ENDRINGSSØKNAD_AVVIK_SAKSNUMMER.equals(e.getKode())) {
-                String logMessage = e.getFeil().getKode() + " " + e.getFeil().getFeilmelding();
+                String logMessage = e.getMessage();
                 LOG.info(logMessage);
             } else {
                 throw e;

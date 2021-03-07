@@ -23,9 +23,11 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
+import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
+import no.nav.foreldrepenger.mottak.tjeneste.VurderVLSaker;
+import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -48,12 +50,15 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     private final PersonInformasjon aktørConsumer;
     private final ArkivTjeneste arkivTjeneste;
+    private final VurderVLSaker vurderVLSaker;
 
     @Inject
     public HentDataFraJoarkTask(ProsessTaskRepository prosessTaskRepository,
+            VurderVLSaker vurderVLSaker,
             PersonInformasjon aktørConsumer,
             ArkivTjeneste arkivTjeneste) {
         super(prosessTaskRepository);
+        this.vurderVLSaker = vurderVLSaker;
         this.aktørConsumer = aktørConsumer;
         this.arkivTjeneste = arkivTjeneste;
     }
@@ -72,6 +77,11 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
                 && dataWrapper.getAktørId().isEmpty()) {
             throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
                     MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId());
+        }
+        if (TilJournalføringTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())
+                && dataWrapper.getSaksnummer().isEmpty()) {
+            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId());
         }
     }
 
@@ -167,40 +177,50 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
                 journalpost.getHovedtype(), journalpost.getAlleTyper());
 
         if (DokumentTypeId.erInntektsmelding(journalpost.getHovedtype())) {
-            return håndterInntektsmelding(dataWrapper);
-        }
-
-        if (!arkivTjeneste.oppdaterRettMangler(journalpost, dataWrapper.getAktørId().get(), dataWrapper.getBehandlingTema(),
+            oppdaterInntektsmelding(dataWrapper);
+            if (kreverInntektsmeldingManuellVurdering(dataWrapper)) {
+                return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+            }
+        } else if (!arkivTjeneste.oppdaterRettMangler(journalpost, dataWrapper.getAktørId().get(), dataWrapper.getBehandlingTema(),
                 dataWrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT))) {
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
 
-        return dataWrapper.nesteSteg(HentOgVurderVLSakTask.TASKNAME);
+        var destinasjon = vurderVLSaker.bestemDestinasjon(dataWrapper);
+        if (ForsendelseStatus.GOSYS.equals(destinasjon.system())) {
+            return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+        } else {
+            if (destinasjon.saksnummer() == null && !vurderVLSaker.kanOppretteSak(dataWrapper)) {
+                return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+            }
+            var saksnummer = Optional.ofNullable(destinasjon.saksnummer())
+                    .orElseGet(() -> vurderVLSaker.opprettSak(dataWrapper));
+            dataWrapper.setSaksnummer(saksnummer);
+            return dataWrapper.nesteSteg(TilJournalføringTask.TASKNAME);
+        }
     }
 
-    private MottakMeldingDataWrapper håndterInntektsmelding(MottakMeldingDataWrapper dataWrapper) {
+    private void oppdaterInntektsmelding(MottakMeldingDataWrapper dataWrapper) {
         Optional<String> imYtelse = dataWrapper.getInntektsmeldingYtelse();
         if (imYtelse.isEmpty()) {
             throw MottakMeldingFeil.manglerYtelsePåInntektsmelding();
         }
         BehandlingTema behandlingTemaFraIM = BehandlingTema.fraTermNavn(imYtelse.get());
 
-        // Mangler bruker
+        // Mangler alltid bruker
         arkivTjeneste.oppdaterBehandlingstemaBruker(dataWrapper.getArkivId(), behandlingTemaFraIM.getOffisiellKode(),
                 dataWrapper.getAktørId().orElseThrow(() -> new IllegalStateException("Utviklerfeil: aktørid skal være satt")));
 
         dataWrapper.setBehandlingTema(behandlingTemaFraIM);
+    }
 
-        if (BehandlingTema.gjelderForeldrepenger(behandlingTemaFraIM)) {
-            return kreverStartdatoForInntektsmeldingenManuellBehandling(dataWrapper)
-                    ? dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME)
-                    : dataWrapper.nesteSteg(HentOgVurderVLSakTask.TASKNAME);
-        } else if (BehandlingTema.gjelderSvangerskapspenger(behandlingTemaFraIM)) {
-            return sjekkOmInntektsmeldingGjelderMann(dataWrapper)
-                    ? dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME)
-                    : dataWrapper.nesteSteg(HentOgVurderVLSakTask.TASKNAME);
+    private boolean kreverInntektsmeldingManuellVurdering(MottakMeldingDataWrapper dataWrapper) {
+        if (BehandlingTema.gjelderForeldrepenger(dataWrapper.getBehandlingTema())) {
+            return kreverStartdatoForInntektsmeldingenManuellBehandling(dataWrapper);
+        } else if (BehandlingTema.gjelderSvangerskapspenger(dataWrapper.getBehandlingTema())) {
+            return sjekkOmInntektsmeldingGjelderMann(dataWrapper);
         } else {
-            return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+           return true;
         }
     }
 

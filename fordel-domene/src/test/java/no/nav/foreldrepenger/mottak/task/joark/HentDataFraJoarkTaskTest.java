@@ -27,7 +27,10 @@ import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveT
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
+import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
+import no.nav.foreldrepenger.mottak.tjeneste.Destinasjon;
+import no.nav.foreldrepenger.mottak.tjeneste.VurderVLSaker;
+import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -48,13 +51,15 @@ class HentDataFraJoarkTaskTest {
     private PersonInformasjon aktørConsumer;
     @Mock
     private ArkivTjeneste arkivTjeneste;
+    @Mock
+    private VurderVLSaker vurderVLSaker;
 
     private JoarkTestsupport joarkTestsupport = new JoarkTestsupport();
 
     @BeforeEach
     void setUp() {
         doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(aktørConsumer).hentAktørIdForPersonIdent(any());
-        joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, aktørConsumer, arkivTjeneste));
+        joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, vurderVLSaker, aktørConsumer, arkivTjeneste));
         taskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
         taskData.setSekvens("1");
         dataWrapper = new MottakMeldingDataWrapper(taskData);
@@ -99,10 +104,13 @@ class HentDataFraJoarkTaskTest {
                 .lagJArkivJournalpostUstrukturert();
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
         when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
+        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.FPSAK, null));
+        when(vurderVLSaker.opprettSak(any())).thenReturn("456");
+        when(vurderVLSaker.kanOppretteSak(any())).thenReturn(true);
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
-        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(HentOgVurderVLSakTask.TASKNAME);
+        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
     }
 
     @Test
@@ -113,9 +121,13 @@ class HentDataFraJoarkTaskTest {
                 .lagJArkivJournalpostUstrukturert();
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
         when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
+        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.FPSAK, null));
+        when(vurderVLSaker.opprettSak(any())).thenReturn("789");
+        when(vurderVLSaker.kanOppretteSak(any())).thenReturn(true);
+
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
-        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(HentOgVurderVLSakTask.TASKNAME);
+        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
     }
 
     @Test
@@ -126,10 +138,11 @@ class HentDataFraJoarkTaskTest {
                 .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING,
                         "testsoknader/inntektsmelding-elektronisk-sample.xml");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
+        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.FPSAK, "123"));
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
-        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(HentOgVurderVLSakTask.TASKNAME);
+        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
     }
 
     @Test
@@ -164,11 +177,26 @@ class HentDataFraJoarkTaskTest {
         var dokument = joarkTestsupport.lagJArkivJournalpostUstrukturert();
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
         when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
+        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.FPSAK, "123"));
         dataWrapper.setBehandlingTema(BehandlingTema.UDEFINERT);
         dataWrapper.setTema(Tema.UDEFINERT);
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
-        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(HentOgVurderVLSakTask.TASKNAME);
+        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
+    }
+
+    @Test
+    void skal_sende_klage_til_sjekk_vl() {
+        dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
+        dataWrapper.setBehandlingTema(BehandlingTema.UDEFINERT);
+        var dokument = joarkTestsupport.lagJArkivJournalpostKlage();
+        when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
+        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.GOSYS, null));
+        when(vurderVLSaker.kanOppretteSak(any())).thenReturn(false);
+
+        MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
+
+        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
     }
 
     @Test
@@ -178,15 +206,15 @@ class HentDataFraJoarkTaskTest {
         var dokument = joarkTestsupport
                 .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING, "testsoknader/inntektsmelding-far.xml");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
+        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.GOSYS, null));
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
-        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(HentOgVurderVLSakTask.TASKNAME);
+        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
     }
 
     @Test
     public void skal_sende_inntektsmelding_til_vl_hvis_gjelder_svangerskapspenger() {
-
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         dataWrapper.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
         var dokument = joarkTestsupport
@@ -194,10 +222,13 @@ class HentDataFraJoarkTaskTest {
         doReturn(Optional.of(JoarkTestsupport.BRUKER_FNR)).when(aktørConsumer)
                 .hentPersonIdentForAktørId(eq(JoarkTestsupport.AKTØR_ID));
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
+        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.FPSAK, null));
+        when(vurderVLSaker.opprettSak(any())).thenReturn("123");
+        when(vurderVLSaker.kanOppretteSak(any())).thenReturn(true);
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
-        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(HentOgVurderVLSakTask.TASKNAME);
+        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
     }
 
     @Test

@@ -74,7 +74,7 @@ public final class Databaseskjemainitialisering {
     }
 
     private static String fileScriptLocation(String dsName) {
-        String relativePath = "migreringer/src/main/resources/db/migration/" + dsName;
+        String relativePath = "fordel-migreringer/src/main/resources/db/migration/" + dsName;
         File baseDir = new File(".").getAbsoluteFile();
         File location = new File(baseDir, relativePath);
         while (!location.exists()) {

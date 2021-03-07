@@ -10,7 +10,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
+import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.toJson;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CALLID;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.OIDC_AUTH_HEADER_PREFIX;
 import static no.nav.vedtak.log.mdc.MDCOperations.generateCallId;
@@ -111,7 +111,7 @@ class TestDokarkiv {
                         .willReturn(aResponse()
                                 .withStatus(SC_OK)
                                 .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                                .withBody(mapper.writeValueAsString(opprettetRes()))));
+                                .withBody(toJson(opprettetRes()))));
         try (var s = mockStatic(SubjectHandler.class)) {
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
             var opprettet = CLIENT.opprettJournalpost(opprettReq(), true);

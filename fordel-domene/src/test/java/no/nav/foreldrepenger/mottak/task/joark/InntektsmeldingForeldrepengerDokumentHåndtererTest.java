@@ -22,7 +22,10 @@ import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveT
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.foreldrepenger.mottak.task.HentOgVurderVLSakTask;
+import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
+import no.nav.foreldrepenger.mottak.tjeneste.Destinasjon;
+import no.nav.foreldrepenger.mottak.tjeneste.VurderVLSaker;
+import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -39,11 +42,13 @@ class InntektsmeldingForeldrepengerDokumentHåndtererTest {
     private PersonInformasjon aktørConsumer;
     @Mock
     private ArkivTjeneste arkivTjeneste;
+    @Mock
+    private VurderVLSaker vurderVLSaker;
 
     @BeforeEach
     void setUp() {
         ProsessTaskRepository ptr = mock(ProsessTaskRepository.class);
-        joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, aktørConsumer, arkivTjeneste));
+        joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, vurderVLSaker, aktørConsumer, arkivTjeneste));
         when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));
         taskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
         taskData.setSekvens("1");
@@ -73,6 +78,7 @@ class InntektsmeldingForeldrepengerDokumentHåndtererTest {
         var dokument = joarkTestsupport
                 .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING, "testsoknader/inntektsmelding-elektronisk-sample.xml");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
+        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.FPSAK, "123"));
 
         BehandlingTema actualBehandlingTema = BehandlingTema.FORELDREPENGER;
         dataWrapper.setBehandlingTema(actualBehandlingTema);
@@ -80,7 +86,7 @@ class InntektsmeldingForeldrepengerDokumentHåndtererTest {
 
         MottakMeldingDataWrapper wrapper = joarkTaskTestobjekt.doTask(dataWrapper);
 
-        assertThat(wrapper.getProsessTaskData().getTaskType()).isEqualTo(HentOgVurderVLSakTask.TASKNAME);
+        assertThat(wrapper.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
     }
 
     @Test
