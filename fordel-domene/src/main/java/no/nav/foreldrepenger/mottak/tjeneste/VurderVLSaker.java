@@ -8,13 +8,13 @@ import java.util.stream.Stream;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
-import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.klient.VurderFagsystemResultat;
-import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.konfig.Tid;
 
@@ -92,6 +92,20 @@ public class VurderVLSaker {
                 w.getBehandlingTema().getOffisiellKode(), w.getAktørId().orElseThrow()));
         w.setSaksnummer(saksnummerDto.getSaksnummer());
         return saksnummerDto.getSaksnummer();
+    }
+
+    public boolean kanOppretteSak(MottakMeldingDataWrapper w) {
+        // Fyll på med tilfelle som ikke skal opprette sak automatisk
+        if (erKlageEllerAnke(w)) {
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean erKlageEllerAnke(MottakMeldingDataWrapper data) {
+        return (DokumentTypeId.KLAGE_DOKUMENT.equals(data.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT))
+                || DokumentKategori.KLAGE_ELLER_ANKE
+                .equals(data.getDokumentKategori().orElse(DokumentKategori.UDEFINERT)));
     }
 
 }

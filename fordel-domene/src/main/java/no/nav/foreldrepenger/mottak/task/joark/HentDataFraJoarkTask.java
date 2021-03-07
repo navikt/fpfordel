@@ -190,6 +190,9 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         if (ForsendelseStatus.GOSYS.equals(destinasjon.system())) {
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         } else {
+            if (destinasjon.saksnummer() == null && !vurderVLSaker.kanOppretteSak(dataWrapper)) {
+                return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+            }
             var saksnummer = Optional.ofNullable(destinasjon.saksnummer())
                     .orElseGet(() -> vurderVLSaker.opprettSak(dataWrapper));
             dataWrapper.setSaksnummer(saksnummer);

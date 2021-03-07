@@ -53,6 +53,10 @@ class JoarkTestsupport {
         return lagArkivJournalpost(brukerListe, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL).build();
     }
 
+    ArkivJournalpost lagJArkivJournalpostKlage() {
+        return lagArkivJournalpost(brukerListe, DokumentTypeId.KLAGE_DOKUMENT).build();
+    }
+
     ArkivJournalpost lagJArkivJournalpostUstrukturert(DokumentTypeId dokumentTypeId) {
         return lagArkivJournalpost(brukerListe, dokumentTypeId).build();
     }

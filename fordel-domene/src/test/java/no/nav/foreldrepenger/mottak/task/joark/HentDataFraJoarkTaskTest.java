@@ -27,7 +27,6 @@ import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveT
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.foreldrepenger.mottak.task.OpprettSakTask;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.tjeneste.Destinasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.VurderVLSaker;
@@ -107,6 +106,7 @@ class HentDataFraJoarkTaskTest {
         when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
         when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.FPSAK, null));
         when(vurderVLSaker.opprettSak(any())).thenReturn("456");
+        when(vurderVLSaker.kanOppretteSak(any())).thenReturn(true);
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
@@ -123,6 +123,7 @@ class HentDataFraJoarkTaskTest {
         when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
         when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.FPSAK, null));
         when(vurderVLSaker.opprettSak(any())).thenReturn("789");
+        when(vurderVLSaker.kanOppretteSak(any())).thenReturn(true);
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
@@ -185,6 +186,20 @@ class HentDataFraJoarkTaskTest {
     }
 
     @Test
+    void skal_sende_klage_til_sjekk_vl() {
+        dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
+        dataWrapper.setBehandlingTema(BehandlingTema.UDEFINERT);
+        var dokument = joarkTestsupport.lagJArkivJournalpostKlage();
+        when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
+        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.GOSYS, null));
+        when(vurderVLSaker.kanOppretteSak(any())).thenReturn(false);
+
+        MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
+
+        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+    }
+
+    @Test
     void skal_sende_inntektsmelding_for_far_til_sjekk_vl() {
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);
@@ -200,7 +215,6 @@ class HentDataFraJoarkTaskTest {
 
     @Test
     public void skal_sende_inntektsmelding_til_vl_hvis_gjelder_svangerskapspenger() {
-
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         dataWrapper.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
         var dokument = joarkTestsupport
@@ -210,6 +224,7 @@ class HentDataFraJoarkTaskTest {
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
         when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.FPSAK, null));
         when(vurderVLSaker.opprettSak(any())).thenReturn("123");
+        when(vurderVLSaker.kanOppretteSak(any())).thenReturn(true);
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
