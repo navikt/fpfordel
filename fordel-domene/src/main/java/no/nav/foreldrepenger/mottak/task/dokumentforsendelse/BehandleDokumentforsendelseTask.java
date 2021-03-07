@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
+import no.nav.foreldrepenger.mottak.klient.LegacyFagsakRestKlient;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.MidlJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.OpprettSakTask;
@@ -42,14 +43,14 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 @ProsessTask(BehandleDokumentforsendelseTask.TASKNAME)
 public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
+    private static final Logger LOG = LoggerFactory.getLogger(BehandleDokumentforsendelseTask.class);
+
     public static final String TASKNAME = "fordeling.behandleDokumentForsendelse";
 
     private final PersonInformasjon aktørConsumer;
     private final FagsakTjeneste fagsakRestKlient;
     private final VurderVLSaker vurderVLSaker;
     private final DokumentRepository dokumentRepository;
-
-    private static final Logger logger = LoggerFactory.getLogger(BehandleDokumentforsendelseTask.class);
 
     @Inject
     public BehandleDokumentforsendelseTask(ProsessTaskRepository prosessTaskRepository,
@@ -112,16 +113,21 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
                 hovedDokumentOpt.map(Dokument::getDokumentTypeId).orElse(DokumentTypeId.UDEFINERT));
         dataWrapper.setBehandlingTema(behandlingTema);
 
+        LOG.info("FPFORDEL BdTask entry bt {}", behandlingTema );
+
         setFellesWrapperAttributter(dataWrapper, dokument, metadata);
 
         var destinasjon = metadata.getSaksnummer().map(s -> new Destinasjon(ForsendelseStatus.PENDING, s))
                 .orElseGet(() -> vurderVLSaker.bestemDestinasjon(dataWrapper));
+
+        LOG.info("FPFORDEL BdTask destinasjon {}", destinasjon );
 
         if (destinasjon.saksnummer() != null) {
             Optional<FagsakInfomasjonDto> fagInfoOpt = fagsakRestKlient.finnFagsakInfomasjon(new SaksnummerDto(destinasjon.saksnummer()));
             if (fagInfoOpt.isPresent()) {
                 setFellesWrapperAttributterFraFagsak(dataWrapper, fagInfoOpt.get(), hovedDokumentOpt);
                 destinasjon = new Destinasjon(ForsendelseStatus.FPSAK, destinasjon.saksnummer());
+                LOG.info("FPFORDEL BdTask sjekk på saksnummer {}", destinasjon );
             } else {
                 dataWrapper.setSaksnummer(null); // Sendt inn på infotrygd-sak
                 destinasjon = new Destinasjon(ForsendelseStatus.GOSYS, null);
@@ -136,12 +142,15 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
          * OBS: Unngå opprettjournalpost og opprettsak i samme task - hvis den ene feiler blir det mayhem for SBH
          */
         if (ForsendelseStatus.GOSYS.equals(destinasjon.system())) {
+            LOG.info("FPFORDEL BdTask exit GOSYS {}", destinasjon );
             return dataWrapper.nesteSteg(MidlJournalføringTask.TASKNAME);
         } else {
             dataWrapper.setDokumentKategori(ArkivUtil.utledKategoriFraDokumentType(dataWrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT)));
+            LOG.info("FPFORDEL BdTask exit FPSAK før opprett {}", destinasjon );
             var saksnummer = Optional.ofNullable(destinasjon.saksnummer())
                     .orElseGet(() -> vurderVLSaker.opprettSak(dataWrapper));
             dataWrapper.setSaksnummer(saksnummer);
+            LOG.info("FPFORDEL BdTask exit FPSAK etter opprett {}", dataWrapper.getSaksnummer() );
             return dataWrapper.nesteSteg(TilJournalføringTask.TASKNAME);
         }
     }
