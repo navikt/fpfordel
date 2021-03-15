@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.task.dokumentforsendelse;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,7 +26,6 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
-import no.nav.foreldrepenger.mottak.klient.LegacyFagsakRestKlient;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.MidlJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.OpprettSakTask;
@@ -108,14 +108,13 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
                 ArkivFilType.XML);
         var metadata = dokumentRepository.hentEksaktDokumentMetadata(forsendelseId);
 
-        var dokument = hovedDokumentOpt.orElse(null);
         var behandlingTema = ArkivUtil.behandlingTemaFraDokumentType(BehandlingTema.UDEFINERT,
                 hovedDokumentOpt.map(Dokument::getDokumentTypeId).orElse(DokumentTypeId.UDEFINERT));
         dataWrapper.setBehandlingTema(behandlingTema);
 
         LOG.info("FPFORDEL BdTask entry bt {}", behandlingTema);
 
-        setFellesWrapperAttributter(dataWrapper, dokument, metadata);
+        setFellesWrapperAttributter(dataWrapper, hovedDokumentOpt.orElse(null), metadata);
 
         Destinasjon destinasjon;
 
@@ -215,15 +214,26 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
             }
             sjekkForMismatchMellomFagsakOgDokumentInn(dataWrapper.getBehandlingTema(), behandlingTemaFraSak, dokument);
         } else {
-            UUID forsendelseId = dataWrapper.getForsendelseId().get(); // NOSONAR
-            Dokument dokument = dokumentRepository.hentDokumenter(forsendelseId).stream().findFirst().get();
-            dataWrapper.setDokumentTypeId(dokument.getDokumentTypeId());
-            utledDokumentKategori(dokument).ifPresent(dataWrapper::setDokumentKategori);
+            // Vedlegg - mangler hoveddokument
+            settDokumentTypeKategoriKorrigerSVP(dataWrapper);
             dataWrapper.setAktørId(fagsakInfo.getAktørId());
             dataWrapper.setBehandlingTema(behandlingTemaFraSak);
             dataWrapper.setForsendelseMottattTidspunkt(LocalDateTime.now());
         }
+    }
 
+    // TODO: Endre når TFP-4125 er fikset i søknadSvangerskapspenger. Nå kommer vedlegg som søknad og roter til mye.
+    private void settDokumentTypeKategoriKorrigerSVP(MottakMeldingDataWrapper w) {
+        var dokumenter = w.getForsendelseId().map(dokumentRepository::hentDokumenter).orElse(List.of());
+        var strukturert = dokumenter.stream().filter(d -> ArkivFilType.XML.equals(d.getArkivFilType())).findFirst();
+        var brukdokument = strukturert.orElseGet(() -> dokumenter.stream().findFirst().orElseThrow());
+        if (DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER.equals(brukdokument.getDokumentTypeId()) && strukturert.isEmpty()) {
+            w.setDokumentTypeId(DokumentTypeId.ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG);
+            w.setDokumentKategori(DokumentKategori.IKKE_TOLKBART_SKJEMA);
+        } else {
+            w.setDokumentTypeId(brukdokument.getDokumentTypeId());
+            utledDokumentKategori(brukdokument).ifPresent(w::setDokumentKategori);
+        }
     }
 
     private static void sjekkForMismatchMellomFagsakOgDokumentInn(BehandlingTema behandlingTema,
