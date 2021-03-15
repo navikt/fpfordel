@@ -41,7 +41,6 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.MidlJournalføringTask;
-import no.nav.foreldrepenger.mottak.task.OpprettSakTask;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.tjeneste.Destinasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.VurderVLSaker;
@@ -213,13 +212,32 @@ class BehandleDokumentforsendelseTaskTest {
         when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(Optional.empty());
         when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(genMetadata("123", AKTØR_ID));
         when(dokumentRepository.hentDokumenter(any(UUID.class))).thenReturn(Collections.singletonList(
-                genDokument(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL, FIL_SØKNAD_FORP, false)));
+                genDokumentPDF(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL, FIL_SØKNAD_FORP, false)));
         when(fagsakRestKlient.finnFagsakInfomasjon(any(SaksnummerDto.class)))
                 .thenReturn(genFagsakInformasjon("ab0047"));
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
         assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
         assertThat(utdata.getDokumentTypeId()).hasValue(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
+    }
+
+    @Test
+    void skalKorrigereFeilSVPSøknadDokumentType() {
+        MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(ptd);
+        inndata.setForsendelseId(FORSENDELSE_ID);
+        inndata.setAktørId(AKTØR_ID);
+        inndata.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
+
+        when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(Optional.empty());
+        when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(genMetadata("123", AKTØR_ID));
+        when(dokumentRepository.hentDokumenter(any(UUID.class))).thenReturn(Collections.singletonList(
+                genDokumentPDF(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER, "svangerskapspenger.xml", false)));
+        when(fagsakRestKlient.finnFagsakInfomasjon(any(SaksnummerDto.class)))
+                .thenReturn(genFagsakInformasjon("ab0126"));
+
+        MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
+        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
+        assertThat(utdata.getDokumentTypeId()).hasValue(DokumentTypeId.ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG);
     }
 
     @Test
@@ -279,6 +297,26 @@ class BehandleDokumentforsendelseTaskTest {
         Dokument dokument = Dokument.builder()
                 .setForsendelseId(FORSENDELSE_ID)
                 .setDokumentInnhold(xml.getBytes(Charset.forName("UTF-8")), ArkivFilType.XML)
+                .setDokumentTypeId(dokumentTypeId)
+                .setHovedDokument(hovedDokument)
+                .build();
+        return dokument;
+
+    }
+
+    private Dokument genDokumentPDF(DokumentTypeId dokumentTypeId, String testXmlFilnavn, boolean hovedDokument) {
+        String xml = "";
+        try {
+            xml = readFile("testsoknader/" + testXmlFilnavn);
+        } catch (URISyntaxException e) {
+            fail(e.getMessage());
+        } catch (IOException e) {
+            fail(e.getMessage());
+        }
+
+        Dokument dokument = Dokument.builder()
+                .setForsendelseId(FORSENDELSE_ID)
+                .setDokumentInnhold(xml.getBytes(Charset.forName("UTF-8")), ArkivFilType.PDFA)
                 .setDokumentTypeId(dokumentTypeId)
                 .setHovedDokument(hovedDokument)
                 .build();
