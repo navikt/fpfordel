@@ -17,7 +17,6 @@ import org.slf4j.MDC;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.VLException;
-import no.nav.vedtak.felles.jpa.TomtResultatException;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.log.util.LoggerUtils;
 
@@ -36,9 +35,6 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
         if (cause instanceof Valideringsfeil) {
             return handleValideringsfeil((Valideringsfeil) cause);
         }
-        if (cause instanceof TomtResultatException) {
-            return handleTomtResultatFeil((TomtResultatException) cause);
-        }
 
         loggTilApplikasjonslogg(cause);
         String callId = MDCOperations.getCallId();
@@ -47,14 +43,6 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
             return handleVLException(vl, callId);
         }
         return handleGenerellFeil(cause, callId);
-    }
-
-    private static Response handleTomtResultatFeil(TomtResultatException e) {
-        return Response
-                .status(Status.NOT_FOUND)
-                .entity(new FeilDto(FeilType.TOMT_RESULTAT_FEIL, e.getMessage()))
-                .type(MediaType.APPLICATION_JSON)
-                .build();
     }
 
     private static Response handleValideringsfeil(Valideringsfeil valideringsfeil) {
@@ -95,16 +83,16 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
 
     private static String getVLExceptionFeilmelding(String callId, VLException feil) {
         String feilbeskrivelse = feil.getMessage();
-        if (feil instanceof FunksjonellException) {
-            String løsningsforslag = ((FunksjonellException) feil).getLøsningsforslag();
+        if (feil instanceof FunksjonellException f) {
+            // String løsningsforslag = f.getLøsningsforslag();
             return "Det oppstod en feil: " //$NON-NLS-1$
                     + avsluttMedPunktum(feilbeskrivelse)
-                    + avsluttMedPunktum(løsningsforslag)
-                    + ". Referanse-id: " + callId; //$NON-NLS-1$
+                    // + avsluttMedPunktum(løsningsforslag)
+                    + ". Referanse-id: " + callId;
         } else {
-            return "Det oppstod en serverfeil: " //$NON-NLS-1$
+            return "Det oppstod en serverfeil: "
                     + avsluttMedPunktum(feilbeskrivelse)
-                    + ". Meld til support med referanse-id: " + callId; //$NON-NLS-1$
+                    + ". Meld til support med referanse-id: " + callId;
         }
     }
 
