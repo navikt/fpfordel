@@ -68,7 +68,7 @@ class GeneralRestExceptionMapperTest {
 
         assertThat(feilDto.getFeilmelding()).contains("FUNK_FEIL");
         assertThat(feilDto.getFeilmelding()).contains("en funksjonell feilmelding");
-        assertThat(feilDto.getFeilmelding()).contains("et løsningsforslag");
+        // assertThat(feilDto.getFeilmelding()).contains("et løsningsforslag");
     }
 
     @Test
