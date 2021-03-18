@@ -26,7 +26,7 @@
         <changelist>-SNAPSHOT</changelist>
         <felles.version>3.2.1</felles.version> 
         <prosesstask.version>2.5.16</prosesstask.version>
-        <java.version>15</java.version>
+        <java.version>16</java.version>
         <argLine>-Xms256m -Dfile.encoding=UTF-8</argLine>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
