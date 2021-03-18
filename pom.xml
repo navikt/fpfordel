@@ -305,6 +305,7 @@
                     <version>3.8.1</version>
                     <configuration>
                         <compilerArgs>
+                            <arg>-J--add-opens java.base/java.lang=ALL-UNNAMED</args>
                             <arg>--enable-preview</arg>
                         </compilerArgs>
                         <parameters>true</parameters>
