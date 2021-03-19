@@ -133,7 +133,7 @@ class TestDokarkiv {
         r.setDokumenter(infoOpprett());
         r.setEksternReferanseId("ref");
         r.setJournalfoerendeEnhet("enhet");
-        r.setJournalposttype(JournalpostType.INNGAAENDE);
+        r.setJournalpostType(JournalpostType.INNGAAENDE);
         r.setKanal("kanal");
         r.setSak(sak());
         r.setTema("tema");

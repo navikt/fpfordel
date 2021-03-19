@@ -40,6 +40,7 @@ import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.Dokumentvariant;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OppdaterJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.Sak;
+import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.Tilleggsopplysning;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.Variantformat;
 import no.nav.foreldrepenger.mottak.journal.saf.SafTjeneste;
 import no.nav.foreldrepenger.mottak.journal.saf.model.BrukerIdType;
@@ -53,6 +54,8 @@ import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 public class ArkivTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArkivTjeneste.class);
+
+    private static final String FP_DOK_TYPE = "fp_innholdtype";
 
     // Fyll på med gjengangertitler som ikke omfattes av kodeverk DokumentTypeId
     private static final Map<String, DokumentTypeId> TITTEL_MAP = Map.of(
@@ -316,6 +319,8 @@ public class ArkivTjeneste {
         request.setBruker(bruker);
         request.setAvsenderMottaker(avsender);
         request.setDokumenter(opprettDokumenter);
+        request.setTilleggsopplysninger(DokumentTypeId.UDEFINERT.equals(hovedtype) ? List.of() :
+                List.of(new Tilleggsopplysning(FP_DOK_TYPE, hovedtype.getOffisiellKode())));
 
         return request;
     }

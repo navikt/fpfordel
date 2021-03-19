@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.domene.dokument;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
@@ -95,6 +96,23 @@ class DokumentRepositoryTest {
         assertThat(repo.hentEksaktDokumentMetadata(FORSENDELSE_ID).getArkivId()).isEmpty();
         repo.oppdaterForsendelseMedArkivId(FORSENDELSE_ID, ARKIV_ID, ForsendelseStatus.FPSAK);
         assertThat(repo.hentEksaktDokumentMetadata(FORSENDELSE_ID).getArkivId()).hasValue(ARKIV_ID);
+    }
+
+    @Test
+    void oppdatere_dokument_type() {
+        var pdfSøknad = DokumentArkivTestUtil.lagDokument(FORSENDELSE_ID, DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER,
+                ArkivFilType.PDFA, false);
+        repo.lagre(pdfSøknad);
+        repo.hentDokumenter(FORSENDELSE_ID).stream()
+                .filter(d ->DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER.equals(d.getDokumentTypeId()))
+                .forEach(d -> {
+                    d.setDokumentTypeId(DokumentTypeId.ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG);
+                    repo.lagre(d);
+                });
+        var dokumenter = repo.hentDokumenter(FORSENDELSE_ID);
+        assertThat(dokumenter).hasSize(1);
+        assertFalse(dokumenter.get(0).erHovedDokument());
+        assertThat(dokumenter.get(0).getDokumentTypeId()).isEqualByComparingTo(DokumentTypeId.ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG);
     }
 
     private static DokumentMetadata dokumentMetadata(UUID forsendelseId) {

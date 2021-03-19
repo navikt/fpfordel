@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -225,6 +226,10 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     // TODO: Endre når TFP-4125 er fikset i søknadSvangerskapspenger. Nå kommer vedlegg som søknad og roter til mye.
     private void settDokumentTypeKategoriKorrigerSVP(MottakMeldingDataWrapper w) {
         var dokumenter = w.getForsendelseId().map(dokumentRepository::hentDokumenter).orElse(List.of());
+        var svpSøknader = dokumenter.stream()
+            .filter(d -> DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER.equals(d.getDokumentTypeId()))
+            .collect(Collectors.toList());
+        var svpStrukturert = svpSøknader.stream().anyMatch(d -> ArkivFilType.XML.equals(d.getArkivFilType()));
         var strukturert = dokumenter.stream().filter(d -> ArkivFilType.XML.equals(d.getArkivFilType())).findFirst();
         var brukdokument = strukturert.orElseGet(() -> dokumenter.stream().findFirst().orElseThrow());
         if (DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER.equals(brukdokument.getDokumentTypeId()) && strukturert.isEmpty()) {
@@ -233,6 +238,12 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         } else {
             w.setDokumentTypeId(brukdokument.getDokumentTypeId());
             utledDokumentKategori(brukdokument).ifPresent(w::setDokumentKategori);
+        }
+        if (!svpSøknader.isEmpty() && !svpStrukturert) {
+            svpSøknader.forEach(d -> {
+                d.setDokumentTypeId(DokumentTypeId.ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG);
+                dokumentRepository.lagre(d);
+            });
         }
     }
 

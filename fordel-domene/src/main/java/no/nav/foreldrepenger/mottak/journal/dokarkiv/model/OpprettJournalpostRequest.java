@@ -16,6 +16,7 @@ public class OpprettJournalpostRequest {
     private Sak sak;
     private Bruker bruker;
     private AvsenderMottaker avsenderMottaker;
+    private List<Tilleggsopplysning> tilleggsopplysninger;
     private List<DokumentInfoOpprett> dokumenter;
 
     public OpprettJournalpostRequest(JournalpostType journalpostType,
@@ -29,6 +30,7 @@ public class OpprettJournalpostRequest {
             Bruker bruker,
             AvsenderMottaker avsenderMottaker,
             Sak sak,
+            List<Tilleggsopplysning> tilleggsopplysninger,
             List<DokumentInfoOpprett> dokumenter) {
         this.tittel = tittel;
         this.journalpostType = journalpostType;
@@ -41,6 +43,7 @@ public class OpprettJournalpostRequest {
         this.journalfoerendeEnhet = journalfoerendeEnhet;
         this.eksternReferanseId = eksternReferanseId;
         this.datoMottatt = datoMottatt;
+        this.tilleggsopplysninger = tilleggsopplysninger;
         this.dokumenter = dokumenter;
     }
 
@@ -52,7 +55,7 @@ public class OpprettJournalpostRequest {
         this.tittel = tittel;
     }
 
-    public void setJournalposttype(JournalpostType journalpostType) {
+    public void setJournalpostType(JournalpostType journalpostType) {
         this.journalpostType = journalpostType;
     }
 
@@ -144,9 +147,17 @@ public class OpprettJournalpostRequest {
         return dokumenter;
     }
 
+    public List<Tilleggsopplysning> getTilleggsopplysninger() {
+        return tilleggsopplysninger;
+    }
+
+    public void setTilleggsopplysninger(List<Tilleggsopplysning> tilleggsopplysninger) {
+        this.tilleggsopplysninger = tilleggsopplysninger;
+    }
+
     public static OpprettJournalpostRequest nyInngående() {
         var response = new OpprettJournalpostRequest();
-        response.setJournalposttype(JournalpostType.INNGAAENDE);
+        response.setJournalpostType(JournalpostType.INNGAAENDE);
         return response;
     }
 
