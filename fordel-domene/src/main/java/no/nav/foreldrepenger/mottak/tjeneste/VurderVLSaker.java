@@ -51,11 +51,7 @@ public class VurderVLSaker {
         VurderFagsystemResultat res = fagsakRestKlient.vurderFagsystem(dataWrapper);
 
         res.getSaksnummer().ifPresent(dataWrapper::setSaksnummer);
-        if (res.isPrøvIgjen()) {
-            // TODO: Gammelt IM-tull. Fjern fra kontrakter og begge applikasjoner etter prodsetting
-            throw new IllegalStateException("Utviklerfeil");
-        } else if (res.isBehandlesIVedtaksløsningen()
-                && res.getSaksnummer().isPresent()) {
+        if (res.isBehandlesIVedtaksløsningen() && res.getSaksnummer().isPresent()) {
             return new Destinasjon(ForsendelseStatus.FPSAK, res.getSaksnummer().orElseThrow());
         } else if (skalBehandlesEtterTidligereRegler(dataWrapper)) {
             return new Destinasjon(ForsendelseStatus.GOSYS, null);

@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,7 +57,7 @@ class HentOgVurderVLSakTaskTest {
 
     @Test
     void neste_steg_skal_være_til_journalføring_når_vurderFagsystem_returnerer_VL_og_saksnummer() {
-        when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(saksnummer, null, true, false, false, false));
+        when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(saksnummer, true, false, false));
 
         var task = new HentOgVurderVLSakTask(prosessTaskRepository, new VurderVLSaker(vurderInfotrygd, fagsakRestKlientMock));
         var dataWrapper = lagDataWrapper();
@@ -70,7 +69,7 @@ class HentOgVurderVLSakTaskTest {
 
     @Test
     void neste_steg_skal_være_til_journalføring_når_vurderFagsystem_returnerer_VL_uten_saksnummer() {
-        when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(null, null, true, false, false, false));
+        when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(null, true, false, false));
 
         var task = new HentOgVurderVLSakTask(prosessTaskRepository, new VurderVLSaker(vurderInfotrygd, fagsakRestKlientMock));
         var dataWrapper = lagDataWrapper();
@@ -81,7 +80,7 @@ class HentOgVurderVLSakTaskTest {
 
     @Test
     void neste_steg_skal_være_hentOgVurderInfotrygd_når_vurderFagsystem_returnerer_sjekkInfotrygd() {
-        when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(null, null, false, true, false, false));
+        when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(null, false, true, false));
 
         var task = new HentOgVurderVLSakTask(prosessTaskRepository, new VurderVLSaker(vurderInfotrygd, fagsakRestKlientMock));
         var dataWrapper = lagDataWrapper();
@@ -92,7 +91,7 @@ class HentOgVurderVLSakTaskTest {
 
     @Test
     void neste_steg_skal_være_opprettGsakOppgave_når_vurderFagsystem_returnerer_manuell_vurdering() {
-        when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(null, null, false, false, true, false));
+        when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(null, false, false, true));
 
         var task = new HentOgVurderVLSakTask(prosessTaskRepository, new VurderVLSaker(vurderInfotrygd, fagsakRestKlientMock));
         var dataWrapper = lagDataWrapper();
@@ -103,7 +102,7 @@ class HentOgVurderVLSakTaskTest {
 
     @Test
     void neste_steg_skal_være_opprettGsakOppgave_når_vurderFagsystem_returnerer_VL_uten_saksnummer_og_barnet_er_født_før_19_og_annen_part_har_rett() {
-        when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(null, null, true, false, false, false));
+        when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(null, true, false, false));
 
         var task = new HentOgVurderVLSakTask(prosessTaskRepository, new VurderVLSaker(vurderInfotrygd, fagsakRestKlientMock));
         var dataWrapper = lagDataWrapper();
@@ -116,7 +115,7 @@ class HentOgVurderVLSakTaskTest {
 
     @Test
     void neste_steg_skal_være_til_journalføring_når_vurderFagsystem_returnerer_VL_og_saksnummer_selv_om_barnet_er_født_før_19_og_annen_part_har_rett() {
-        when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(saksnummer, null, true, false, false, false));
+        when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(saksnummer, true, false, false));
 
         var task = new HentOgVurderVLSakTask(prosessTaskRepository, new VurderVLSaker(vurderInfotrygd, fagsakRestKlientMock));
         var dataWrapper = lagDataWrapper();
@@ -130,7 +129,7 @@ class HentOgVurderVLSakTaskTest {
 
     @Test
     void neste_steg_skal_være_til_journalføring_når_vurderFagsystem_returnerer_VL_og_saksnummer_når_omsorg_før_19() {
-        when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(saksnummer, null, true, false, false, false));
+        when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(saksnummer, true, false, false));
 
         var task = new HentOgVurderVLSakTask(prosessTaskRepository, new VurderVLSaker(vurderInfotrygd, fagsakRestKlientMock));
         var dataWrapper = lagDataWrapper();
@@ -143,7 +142,7 @@ class HentOgVurderVLSakTaskTest {
 
     @Test
     void neste_steg_skal_være_tilJournalføring_når_vl_returnerer_saksnummer_for_svangerskapspenger() {
-        when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(saksnummer, null, true, false, false, false));
+        when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(saksnummer, true, false, false));
 
         var task = new HentOgVurderVLSakTask(prosessTaskRepository, new VurderVLSaker(vurderInfotrygd, fagsakRestKlientMock));
 
@@ -169,15 +168,13 @@ class HentOgVurderVLSakTaskTest {
         return dataWrapper;
     }
 
-    private static VurderFagsystemResultat lagFagsystemSvar(String saksnummer, LocalDateTime prøvIgjenTidspunkt, boolean behandlesIVL,
-            boolean sjekkIT, boolean gsak, boolean prøvIgjen) {
+    private static VurderFagsystemResultat lagFagsystemSvar(String saksnummer, boolean behandlesIVL,
+                                                            boolean sjekkIT, boolean gsak) {
         VurderFagsystemResultat res = new VurderFagsystemResultat();
         res.setSaksnummer(saksnummer);
-        res.setPrøvIgjenTidspunkt(prøvIgjenTidspunkt);
         res.setBehandlesIVedtaksløsningen(behandlesIVL);
         res.setManuellVurdering(gsak);
         res.setSjekkMotInfotrygd(sjekkIT);
-        res.setPrøvIgjen(prøvIgjen);
         return res;
     }
 }

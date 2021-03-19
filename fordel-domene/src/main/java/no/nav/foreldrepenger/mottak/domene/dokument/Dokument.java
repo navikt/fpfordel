@@ -86,6 +86,10 @@ public class Dokument extends BaseEntitet {
         return beskrivelse;
     }
 
+    public void setDokumentTypeId(DokumentTypeId dokumentTypeId) {
+        this.dokumentTypeId = dokumentTypeId;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
