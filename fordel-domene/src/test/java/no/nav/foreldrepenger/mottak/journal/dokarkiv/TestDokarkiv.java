@@ -146,7 +146,7 @@ class TestDokarkiv {
     }
 
     private static OppdaterJournalpostRequest oppdaterReq() {
-        return new OppdaterJournalpostRequest("tittel", "tema", "behtema", bruker(), avmot(), sak(), infoOppdater());
+        return new OppdaterJournalpostRequest("tittel", "tema", "behtema", bruker(), avmot(), sak(), null, infoOppdater());
     }
 
     private static List<DokumentInfoOppdater> infoOppdater() {

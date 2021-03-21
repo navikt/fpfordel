@@ -118,6 +118,7 @@ public class ArkivTjeneste {
                 .medJournalfoerendeEnhet(journalpost.journalfoerendeEnhet())
                 .medDatoOpprettet(journalpost.datoOpprettet())
                 .medEksternReferanseId(journalpost.eksternReferanseId())
+                .medTilleggsopplysninger(journalpost.tilleggsopplysninger())
                 .build();
     }
 
@@ -146,9 +147,10 @@ public class ArkivTjeneste {
         return new OpprettetJournalpost(response.journalpostId(), response.journalpostferdigstilt());
     }
 
-    public void oppdaterBehandlingstemaBruker(String journalpostId, String behandlingstema, String aktørId) {
+    public void oppdaterBehandlingstemaBruker(String journalpostId, DokumentTypeId dokumentTypeId, String behandlingstema, String aktørId) {
         var builder = OppdaterJournalpostRequest.ny()
                 .medBehandlingstema(behandlingstema)
+                .medTilleggsopplysning(new Tilleggsopplysning(FP_DOK_TYPE, dokumentTypeId.getOffisiellKode()))
                 .medBruker(aktørId);
         if (!dokArkivTjeneste.oppdaterJournalpost(journalpostId, builder.build())) {
             throw new IllegalStateException("FPFORDEL Kunne ikke oppdatere " + journalpostId);
@@ -190,6 +192,13 @@ public class ArkivTjeneste {
         if ((journalpost.bruker() == null) || (journalpost.bruker().id() == null)) {
             LOG.info("FPFORDEL oppdaterer manglende bruker for {}", journalpost.journalpostId());
             builder.medBruker(aktørId);
+        }
+        var tilleggDokumentType = arkivJournalpost.getTilleggsopplysninger().stream().filter(to -> FP_DOK_TYPE.equals(to.nokkel())).findFirst();
+        var skalOppdatereTilleggsopplysning = tilleggDokumentType.map(Tilleggsopplysning::verdi).map(DokumentTypeId::fraOffisiellKode)
+                .map(MapNAVSkjemaDokumentTypeId::dokumentTypeRank)
+                .filter(rank -> MapNAVSkjemaDokumentTypeId.dokumentTypeRank(defaultDokumentTypeId) < rank).isPresent();
+        if (tilleggDokumentType.isEmpty() || skalOppdatereTilleggsopplysning) {
+            builder.medTilleggsopplysning(new Tilleggsopplysning(FP_DOK_TYPE, defaultDokumentTypeId.getOffisiellKode()));
         }
         var oppdaterDok = journalpost.dokumenter().stream()
                 .filter(d -> (d.tittel() == null) || d.tittel().isEmpty())
@@ -267,6 +276,11 @@ public class ArkivTjeneste {
             d.logiskeVedlegg().forEach(v -> allebrevkoder.add(NAVSkjema.fraTermNavn(v.tittel())));
         });
         allebrevkoder.forEach(b -> alletyper.add(MapNAVSkjemaDokumentTypeId.mapBrevkode(b)));
+        Optional.ofNullable(journalpost.tilleggsopplysninger()).orElse(List.of()).stream()
+                .filter(to -> FP_DOK_TYPE.equals(to.nokkel()))
+                .map(to -> DokumentTypeId.fraOffisiellKode(to.verdi()))
+                .filter(dt -> !DokumentTypeId.UDEFINERT.equals(dt))
+                .forEach(alletyper::add);
         return alletyper;
     }
 

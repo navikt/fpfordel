@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.Tilleggsopplysning;
 import no.nav.foreldrepenger.mottak.journal.saf.model.AvsenderMottaker;
 import no.nav.foreldrepenger.mottak.journal.saf.model.Bruker;
 import no.nav.foreldrepenger.mottak.journal.saf.model.BrukerIdType;
@@ -51,6 +52,7 @@ class SafMapper {
                 map(res.getBruker()),
                 map(res.getAvsenderMottaker()),
                 map(res.getSak()),
+                mapTO(res.getTilleggsopplysninger()),
                 map(res.getDokumenter()));
     }
 
@@ -76,6 +78,12 @@ class SafMapper {
         return Optional.ofNullable(t)
                 .map(Journalposttype::name)
                 .orElse(null);
+    }
+
+    private static List<Tilleggsopplysning> mapTO(List<no.nav.saf.Tilleggsopplysning> tilleggsopplysninger) {
+        return safeStream(tilleggsopplysninger)
+                .map(t -> new Tilleggsopplysning(t.getNokkel(), t.getVerdi()))
+                .collect(toList());
     }
 
     private static List<DokumentInfo> map(List<no.nav.saf.DokumentInfo> dokumenter) {

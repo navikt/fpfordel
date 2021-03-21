@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.mottak.journal.saf.model;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.Tilleggsopplysning;
+
 public record Journalpost(String journalpostId,
         String journalposttype,
         String journalstatus,
@@ -16,5 +18,6 @@ public record Journalpost(String journalpostId,
         Bruker bruker,
         AvsenderMottaker avsenderMottaker,
         Sak sak,
+        List<Tilleggsopplysning> tilleggsopplysninger,
         List<DokumentInfo> dokumenter) {
 }
