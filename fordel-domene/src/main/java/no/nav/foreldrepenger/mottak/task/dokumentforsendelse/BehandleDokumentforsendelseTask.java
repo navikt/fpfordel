@@ -194,7 +194,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         }
         if (dokument != null) {
             dataWrapper.setDokumentTypeId(dokument.getDokumentTypeId());
-            utledDokumentKategori(dokument).ifPresent(dataWrapper::setDokumentKategori);
+            dataWrapper.setDokumentKategori(ArkivUtil.utledKategoriFraDokumentType(dokument.getDokumentTypeId()));
             dataWrapper.setPayload(dokument.getKlartekstDokument());
             kopierOgValiderAttributterFraSøknad(dataWrapper, dokument);
         }
@@ -236,8 +236,9 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
             w.setDokumentTypeId(DokumentTypeId.ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG);
             w.setDokumentKategori(DokumentKategori.IKKE_TOLKBART_SKJEMA);
         } else {
-            w.setDokumentTypeId(brukdokument.getDokumentTypeId());
-            utledDokumentKategori(brukdokument).ifPresent(w::setDokumentKategori);
+            var doktype = ArkivUtil.utledHovedDokumentType(dokumenter.stream().map(Dokument::getDokumentTypeId).collect(Collectors.toSet()));
+            w.setDokumentTypeId(doktype);
+            w.setDokumentKategori(ArkivUtil.utledKategoriFraDokumentType(doktype));
         }
         if (!svpSøknader.isEmpty() && !svpStrukturert) {
             svpSøknader.forEach(d -> {
@@ -271,17 +272,6 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
         abstractMDto.kopierTilMottakWrapper(nesteSteg, aktørConsumer::hentAktørIdForPersonIdent);
     }
-
-    private static Optional<DokumentKategori> utledDokumentKategori(Dokument dokument) {
-        DokumentTypeId dti = dokument.getDokumentTypeId();
-        if (DokumentTypeId.erSøknadType(dti)) {
-            return Optional.of(DokumentKategori.SØKNAD);
-        } else if (DokumentTypeId.KLAGE_DOKUMENT.equals(dti)) {
-            return Optional.of(DokumentKategori.KLAGE_ELLER_ANKE);
-        }
-        return Optional.empty();
-    }
-
 
     static private class BehandleDokumentforsendelseFeil {
 
