@@ -208,8 +208,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         BehandlingTema behandlingTemaFraIM = BehandlingTema.fraTermNavn(imYtelse.get());
 
         // Mangler alltid bruker
-        arkivTjeneste.oppdaterBehandlingstemaBruker(dataWrapper.getArkivId(), behandlingTemaFraIM.getOffisiellKode(),
-                dataWrapper.getAktørId().orElseThrow(() -> new IllegalStateException("Utviklerfeil: aktørid skal være satt")));
+        arkivTjeneste.oppdaterBehandlingstemaBruker(dataWrapper.getArkivId(), DokumentTypeId.INNTEKTSMELDING,
+                behandlingTemaFraIM.getOffisiellKode(), dataWrapper.getAktørId().orElseThrow(() -> new IllegalStateException("Utviklerfeil: aktørid skal være satt")));
 
         dataWrapper.setBehandlingTema(behandlingTemaFraIM);
     }

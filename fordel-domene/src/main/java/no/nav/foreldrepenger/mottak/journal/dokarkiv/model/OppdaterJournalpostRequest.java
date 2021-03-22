@@ -13,6 +13,7 @@ public class OppdaterJournalpostRequest {
     private Sak sak;
     private Bruker bruker;
     private AvsenderMottaker avsenderMottaker;
+    private List<Tilleggsopplysning> tilleggsopplysninger;
     private List<DokumentInfoOppdater> dokumenter;
 
     public OppdaterJournalpostRequest(String tittel,
@@ -21,6 +22,7 @@ public class OppdaterJournalpostRequest {
             Bruker bruker,
             AvsenderMottaker avsenderMottaker,
             Sak sak,
+            List<Tilleggsopplysning> tilleggsopplysninger,
             List<DokumentInfoOppdater> dokumenter) {
         this.tittel = tittel;
         this.tema = tema;
@@ -28,6 +30,7 @@ public class OppdaterJournalpostRequest {
         this.sak = sak;
         this.bruker = bruker;
         this.avsenderMottaker = avsenderMottaker;
+        this.tilleggsopplysninger = tilleggsopplysninger;
         this.dokumenter = dokumenter;
     }
 
@@ -57,6 +60,10 @@ public class OppdaterJournalpostRequest {
 
     public AvsenderMottaker getAvsenderMottaker() {
         return avsenderMottaker;
+    }
+
+    public List<Tilleggsopplysning> getTilleggsopplysninger() {
+        return tilleggsopplysninger;
     }
 
     public List<DokumentInfoOppdater> getDokumenter() {
@@ -114,6 +121,14 @@ public class OppdaterJournalpostRequest {
 
         public Builder medSak(Sak sak) {
             this.request.sak = sak;
+            return this;
+        }
+
+        public Builder medTilleggsopplysning(Tilleggsopplysning tilleggsopplysning) {
+            if (this.request.tilleggsopplysninger == null) {
+                this.request.tilleggsopplysninger = new ArrayList<>();
+            }
+            this.request.tilleggsopplysninger.add(tilleggsopplysning);
             return this;
         }
 

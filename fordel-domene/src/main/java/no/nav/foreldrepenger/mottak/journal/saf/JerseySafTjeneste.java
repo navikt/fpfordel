@@ -22,6 +22,7 @@ import no.nav.saf.SakResponseProjection;
 import no.nav.saf.Tilknytning;
 import no.nav.saf.TilknyttedeJournalposterQueryRequest;
 import no.nav.saf.TilknyttedeJournalposterQueryResponse;
+import no.nav.saf.TilleggsopplysningResponseProjection;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.integrasjon.saf.HentDokumentQuery;
 import no.nav.vedtak.felles.integrasjon.saf.Saf;
@@ -67,6 +68,7 @@ class JerseySafTjeneste implements SafTjeneste {
                         .arkivsaksnummer()
                         .fagsakId()
                         .fagsaksystem())
+                .tilleggsopplysninger(new TilleggsopplysningResponseProjection().nokkel().verdi())
                 .dokumenter(new DokumentInfoResponseProjection()
                         .dokumentInfoId()
                         .tittel()

@@ -1,7 +1,9 @@
 package no.nav.foreldrepenger.mottak.journal;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -11,6 +13,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.Tilleggsopplysning;
 import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
 
 public class ArkivJournalpost {
@@ -30,6 +33,7 @@ public class ArkivJournalpost {
     private LocalDateTime datoOpprettet;
     private String eksternReferanseId;
     private DokumentTypeId hovedtype = DokumentTypeId.UDEFINERT;
+    private List<Tilleggsopplysning> tilleggsopplysninger = new ArrayList<>();
     private Set<DokumentTypeId> alleTyper = new HashSet<>();
     private String dokumentInfoId;
     private String strukturertPayload;
@@ -107,6 +111,10 @@ public class ArkivJournalpost {
 
     public DokumentTypeId getHovedtype() {
         return hovedtype;
+    }
+
+    public List<Tilleggsopplysning> getTilleggsopplysninger() {
+        return tilleggsopplysninger;
     }
 
     public Set<DokumentTypeId> getAlleTyper() {
@@ -211,6 +219,12 @@ public class ArkivJournalpost {
 
         public Builder medAlleTyper(Set<DokumentTypeId> alleTyper) {
             ajp.alleTyper = alleTyper;
+            return this;
+        }
+
+        public Builder medTilleggsopplysninger(List<Tilleggsopplysning> tilleggsopplysninger) {
+            if (tilleggsopplysninger != null)
+                ajp.tilleggsopplysninger.addAll(tilleggsopplysninger);
             return this;
         }
 
