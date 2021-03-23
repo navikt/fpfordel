@@ -28,6 +28,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
@@ -35,6 +36,7 @@ import com.google.common.collect.ImmutableBiMap;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.MapNAVSkjemaDokumentTypeId;
 
 public final class ArkivUtil {
 
@@ -98,6 +100,18 @@ public final class ArkivUtil {
                 .orElseGet(() -> behandlingstemaRank(null));
 
         return behandlingstemaFromRank(Math.min(btRank, dtRank));
+    }
+
+    public static DokumentTypeId utledHovedDokumentType(Set<DokumentTypeId> alleTyper) {
+        int lavestrank = alleTyper.stream()
+                .map(MapNAVSkjemaDokumentTypeId::dokumentTypeRank)
+                .min(Comparator.naturalOrder()).orElse(MapNAVSkjemaDokumentTypeId.UDEF_RANK);
+        if (lavestrank == MapNAVSkjemaDokumentTypeId.GEN_RANK) {
+            return alleTyper.stream()
+                    .filter(t -> MapNAVSkjemaDokumentTypeId.dokumentTypeRank(t) == MapNAVSkjemaDokumentTypeId.GEN_RANK)
+                    .findFirst().orElse(DokumentTypeId.UDEFINERT);
+        }
+        return MapNAVSkjemaDokumentTypeId.dokumentTypeFromRank(lavestrank);
     }
 
     private static BehandlingTema mapDokumenttype(DokumentTypeId type) {

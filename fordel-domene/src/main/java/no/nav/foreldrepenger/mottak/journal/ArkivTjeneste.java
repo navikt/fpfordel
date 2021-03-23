@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.journal;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -111,7 +110,7 @@ public class ArkivTjeneste {
                 .medJournalposttype(Journalposttype.fraKodeDefaultUdefinert(journalpost.journalposttype()))
                 .medTilstand(Journalstatus.fraKodeDefaultUdefinert(journalpost.journalstatus()))
                 .medAlleTyper(alleTyper)
-                .medHovedtype(utledHovedDokumentType(alleTyper))
+                .medHovedtype(ArkivUtil.utledHovedDokumentType(alleTyper))
                 .medTema(Tema.fraOffisiellKode(journalpost.tema()))
                 .medBehandlingstema(BehandlingTema.fraOffisiellKode(journalpost.behandlingstema()))
                 .medUtledetBehandlingstema(behandlingTema)
@@ -196,9 +195,12 @@ public class ArkivTjeneste {
         var tilleggDokumentType = arkivJournalpost.getTilleggsopplysninger().stream().filter(to -> FP_DOK_TYPE.equals(to.nokkel())).findFirst();
         var skalOppdatereTilleggsopplysning = tilleggDokumentType.map(Tilleggsopplysning::verdi).map(DokumentTypeId::fraOffisiellKode)
                 .map(MapNAVSkjemaDokumentTypeId::dokumentTypeRank)
-                .filter(rank -> MapNAVSkjemaDokumentTypeId.dokumentTypeRank(defaultDokumentTypeId) < rank).isPresent();
+                .filter(rank -> MapNAVSkjemaDokumentTypeId.dokumentTypeRank(hovedtype) < rank).isPresent();
         if (tilleggDokumentType.isEmpty() || skalOppdatereTilleggsopplysning) {
-            builder.medTilleggsopplysning(new Tilleggsopplysning(FP_DOK_TYPE, defaultDokumentTypeId.getOffisiellKode()));
+            LOG.info("FPFORDEL oppdaterer tilleggsopplysninger for {} med {}", journalpost.journalpostId(), hovedtype.getOffisiellKode());
+            builder.medTilleggsopplysning(new Tilleggsopplysning(FP_DOK_TYPE, hovedtype.getOffisiellKode()));
+        } else {
+            LOG.info("FPFORDEL tilleggsopplysninger allerede satt for {} med {}", journalpost.journalpostId(), tilleggDokumentType);
         }
         var oppdaterDok = journalpost.dokumenter().stream()
                 .filter(d -> (d.tittel() == null) || d.tittel().isEmpty())
@@ -284,18 +286,6 @@ public class ArkivTjeneste {
         return alletyper;
     }
 
-    private static DokumentTypeId utledHovedDokumentType(Set<DokumentTypeId> alleTyper) {
-        int lavestrank = alleTyper.stream()
-                .map(MapNAVSkjemaDokumentTypeId::dokumentTypeRank)
-                .min(Comparator.naturalOrder()).orElse(MapNAVSkjemaDokumentTypeId.UDEF_RANK);
-        if (lavestrank == MapNAVSkjemaDokumentTypeId.GEN_RANK) {
-            return alleTyper.stream()
-                    .filter(t -> MapNAVSkjemaDokumentTypeId.dokumentTypeRank(t) == MapNAVSkjemaDokumentTypeId.GEN_RANK)
-                    .findFirst().orElse(DokumentTypeId.UDEFINERT);
-        }
-        return MapNAVSkjemaDokumentTypeId.dokumentTypeFromRank(lavestrank);
-    }
-
     private Optional<String> mapIdent(Journalpost journalpost) {
         var bruker = journalpost.bruker();
         if (bruker == null) {
@@ -316,7 +306,7 @@ public class ArkivTjeneste {
         var dokumenter = dokumentRepository.hentDokumenter(forsendelseId);
         var opprettDokumenter = lagAlleDokumentForOpprett(dokumenter);
         var dokumenttyper = dokumenter.stream().map(Dokument::getDokumentTypeId).collect(Collectors.toSet());
-        var hovedtype = utledHovedDokumentType(dokumenttyper);
+        var hovedtype = ArkivUtil.utledHovedDokumentType(dokumenttyper);
         var behandlingstema = utledBehandlingTema(null, dokumenttyper);
         var tittel = DokumentTypeId.UDEFINERT.equals(hovedtype) ? DokumentTypeId.ANNET.getTermNavn() : hovedtype.getTermNavn();
         var bruker = new Bruker(metadata.getBrukerId(), BrukerIdType.AKTOERID);
