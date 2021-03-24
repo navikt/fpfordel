@@ -38,7 +38,6 @@ import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.VurderInfotrygd;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.WARN)
@@ -58,8 +57,6 @@ class HentOgVurderInfotrygdSakTaskTest {
     private static final String FNR_BRUKER_2 = "99999999899";
     private static final String FNR_ANNEN_PART_2 = "99999999899";
 
-    @Mock
-    private ProsessTaskRepository prosessTaskRepository;
     @Mock
     private PersonInformasjon aktør;
     @Mock
@@ -82,7 +79,7 @@ class HentOgVurderInfotrygdSakTaskTest {
         w.setDokumentTypeId(INNTEKTSMELDING);
         w.setInntekstmeldingStartdato(now());
 
-        doAndAssertJournalført(w);
+        doAndAssertManuell(w);
     }
 
     @Test
@@ -96,7 +93,7 @@ class HentOgVurderInfotrygdSakTaskTest {
         w.setDokumentTypeId(INNTEKTSMELDING);
         w.setInntekstmeldingStartdato(now());
 
-        doAndAssertOpprettet(w); // Kvinne - skal til VL, ignorer infotrygd
+        doAndAssertAutomatisert(w); // Kvinne - skal til VL, ignorer infotrygd
     }
 
     @Test
@@ -110,7 +107,7 @@ class HentOgVurderInfotrygdSakTaskTest {
         w.setDokumentTypeId(INNTEKTSMELDING);
         w.setInntekstmeldingStartdato(now());
 
-        doAndAssertJournalført(w);
+        doAndAssertManuell(w);
     }
 
     @Test
@@ -124,7 +121,7 @@ class HentOgVurderInfotrygdSakTaskTest {
         w.setDokumentTypeId(INNTEKTSMELDING);
         w.setInntekstmeldingStartdato(now().minusDays(51));
 
-        doAndAssertJournalført(w);
+        doAndAssertManuell(w);
     }
 
     @Test
@@ -138,7 +135,7 @@ class HentOgVurderInfotrygdSakTaskTest {
         w.setDokumentTypeId(SØKNAD_ENGANGSSTØNAD_FØDSEL);
         w.setInntekstmeldingStartdato(now());
 
-        doAndAssertOpprettet(w);
+        doAndAssertAutomatisert(w);
     }
 
     @Test
@@ -153,7 +150,7 @@ class HentOgVurderInfotrygdSakTaskTest {
         w.setInntekstmeldingStartdato(now());
         w.setAnnenPartId(AKTØR_ANNEN_PART);
 
-        doAndAssertJournalført(w);
+        doAndAssertManuell(w);
     }
 
     @Test
@@ -164,7 +161,7 @@ class HentOgVurderInfotrygdSakTaskTest {
         w.setDokumentTypeId(SØKNAD_FORELDREPENGER_FØDSEL);
         w.setInntekstmeldingStartdato(now());
         w.setAnnenPartId(AKTØR_ANNEN_PART);
-        doAndAssertOpprettet(w);
+        doAndAssertAutomatisert(w);
     }
 
     @Test
@@ -174,7 +171,7 @@ class HentOgVurderInfotrygdSakTaskTest {
         w.setBehandlingTema(SVANGERSKAPSPENGER);
         w.setDokumentTypeId(SØKNAD_SVANGERSKAPSPENGER);
 
-        doAndAssertOpprettet(w);
+        doAndAssertAutomatisert(w);
     }
 
     @Test
@@ -189,7 +186,7 @@ class HentOgVurderInfotrygdSakTaskTest {
         w.setInntekstmeldingStartdato(now());
         w.setAnnenPartId(AKTØR_ANNEN_PART_2);
 
-        doAndAssertJournalført(w);
+        doAndAssertManuell(w);
     }
 
     @Test
@@ -201,7 +198,7 @@ class HentOgVurderInfotrygdSakTaskTest {
         w.setInntekstmeldingStartdato(now());
         w.setAnnenPartId(AKTØR_ANNEN_PART_1);
 
-        doAndAssertOpprettet(w);
+        doAndAssertAutomatisert(w);
     }
 
     @Test
@@ -215,7 +212,7 @@ class HentOgVurderInfotrygdSakTaskTest {
         w.setInntekstmeldingStartdato(now());
 
         ArgumentCaptor<String> aktørCaptor = ArgumentCaptor.forClass(String.class);
-        doAndAssertOpprettet(w);
+        doAndAssertAutomatisert(w);
 
         verify(aktør).hentPersonIdentForAktørId(aktørCaptor.capture());
         assertThat(aktørCaptor.getAllValues()).contains(AKTØR_BRUKER);
@@ -231,7 +228,7 @@ class HentOgVurderInfotrygdSakTaskTest {
         w.setDokumentTypeId(SØKNAD_FORELDREPENGER_FØDSEL);
         w.setAnnenPartId(AKTØR_ANNEN_PART);
 
-        doAndAssertOpprettet(w);
+        doAndAssertAutomatisert(w);
     }
 
     @Test
@@ -244,23 +241,19 @@ class HentOgVurderInfotrygdSakTaskTest {
         w.setBehandlingTema(BehandlingTema.UDEFINERT);
         w.setDokumentTypeId(SØKNAD_FORELDREPENGER_FØDSEL);
         w.setInntekstmeldingStartdato(now());
-        assertThrows(VLException.class, () -> doWithPrecondition(w));
+        assertThrows(VLException.class, () -> kreverManuellVurdering(w));
     }
 
-    private void doAndAssertOpprettet(MottakMeldingDataWrapper w) {
-        doAndAssert(w, OpprettSakTask.TASKNAME);
+    private void doAndAssertAutomatisert(MottakMeldingDataWrapper w) {
+        doAndAssert(w, false);
     }
 
-    private void doAndAssertJournalført(MottakMeldingDataWrapper w) {
-        doAndAssert(w, MidlJournalføringTask.TASKNAME);
+    private void doAndAssertManuell(MottakMeldingDataWrapper w) {
+        doAndAssert(w, true);
     }
 
-    private void doAndAssert(MottakMeldingDataWrapper w, String name) {
-        assertTaskType(doWithPrecondition(w), name);
-    }
-
-    private static void assertTaskType(MottakMeldingDataWrapper wrapper, String taskname) {
-        assertThat(wrapper.getProsessTaskData().getTaskType()).isEqualTo(taskname);
+    private void doAndAssert(MottakMeldingDataWrapper w, boolean manuellVurdering) {
+        assertThat(kreverManuellVurdering(w)).isEqualTo(manuellVurdering);
     }
 
     private static MottakMeldingDataWrapper dataWrapper(String aktørBruker) {
@@ -272,20 +265,14 @@ class HentOgVurderInfotrygdSakTaskTest {
     }
 
     private static ProsessTaskData taskData() {
-        var data = new ProsessTaskData(HentOgVurderInfotrygdSakTask.TASKNAME);
+        var data = new ProsessTaskData("DUMMY");
         data.setSekvens("1");
         return data;
     }
 
-    private HentOgVurderInfotrygdSakTask task() {
+    private boolean kreverManuellVurdering(MottakMeldingDataWrapper wrapper) {
         var vurderInfotrygd = new VurderInfotrygd(new RelevantSakSjekker(fp), aktør);
-        return new HentOgVurderInfotrygdSakTask(prosessTaskRepository, vurderInfotrygd);
-    }
-
-    private MottakMeldingDataWrapper doWithPrecondition(MottakMeldingDataWrapper wrapper) {
-        var task = task();
-        task.precondition(wrapper);
-        return task.doTask(wrapper);
+        return vurderInfotrygd.kreverManuellVurdering(wrapper);
     }
 
     private void expectAktørFnrMappings() {

@@ -54,13 +54,13 @@ public class VurderVLSaker {
         if (res.isBehandlesIVedtaksløsningen() && res.getSaksnummer().isPresent()) {
             return new Destinasjon(ForsendelseStatus.FPSAK, res.getSaksnummer().orElseThrow());
         } else if (skalBehandlesEtterTidligereRegler(dataWrapper)) {
-            return new Destinasjon(ForsendelseStatus.GOSYS, null);
+            return Destinasjon.GOSYS;
         } else if (res.isBehandlesIVedtaksløsningen()) {
-            return new Destinasjon(ForsendelseStatus.FPSAK, null);
+            return Destinasjon.FPSAK_UTEN_SAK;
         } else if (res.isSjekkMotInfotrygd()) {
             return sjekkInfotrygd(dataWrapper);
         } else if (res.isManuellVurdering()) {
-            return new Destinasjon(ForsendelseStatus.GOSYS, null);
+            return Destinasjon.GOSYS;
         } else {
             throw new IllegalStateException("Utviklerfeil"); // fix korrekt feilhåndtering
         }
@@ -68,8 +68,7 @@ public class VurderVLSaker {
 
     private Destinasjon sjekkInfotrygd(MottakMeldingDataWrapper w) {
         return vurderInfotrygd.kreverManuellVurdering(w) ?
-                new Destinasjon(ForsendelseStatus.GOSYS, null) :
-                new Destinasjon(ForsendelseStatus.FPSAK, null);
+                Destinasjon.GOSYS : Destinasjon.FPSAK_UTEN_SAK;
     }
 
     private static boolean skalBehandlesEtterTidligereRegler(MottakMeldingDataWrapper dataWrapper) {

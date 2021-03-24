@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
@@ -23,14 +24,17 @@ import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
+import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
+import no.nav.foreldrepenger.mottak.felles.kafka.HendelseProdusent;
+import no.nav.foreldrepenger.mottak.felles.kafka.SøknadFordeltOgJournalførtHendelse;
+import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
+import no.nav.foreldrepenger.mottak.journal.OpprettetJournalpost;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.foreldrepenger.mottak.task.MidlJournalføringTask;
-import no.nav.foreldrepenger.mottak.task.OpprettSakTask;
-import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
+import no.nav.foreldrepenger.mottak.task.KlargjorForVLTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.Destinasjon;
@@ -40,6 +44,17 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
+/*
+ * Hovedgangen i tasken
+ * - hent data fra forsendelse metadata + dokument og populer wrapper
+ * - finn destinasjon (GOSYS/FPSAK/FPSAKsnummer) for forsendelsen (utledes i fpsak)
+ * - opprett sak i VL dersom destinasjon FPSAK uten angitt saksnummer
+ * - Journalfør forsendelse og få journalpostId - GOSYS = midlertidig, FPSAK = endelig
+ * - Send hendelse til historikk og oppdater destinasjon i forsendelsen
+ * - Neste steg: Gosys eller Innsending til VL
+ *
+ * OBS: minimer risiko for exception etter journalføring - vasnskelig å rydde
+ */
 @Dependent
 @ProsessTask(BehandleDokumentforsendelseTask.TASKNAME)
 public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
@@ -51,19 +66,25 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     private final PersonInformasjon aktørConsumer;
     private final FagsakTjeneste fagsakRestKlient;
     private final VurderVLSaker vurderVLSaker;
+    private final ArkivTjeneste arkivTjeneste;
     private final DokumentRepository dokumentRepository;
+    private final HendelseProdusent hendelseProdusent;
 
     @Inject
     public BehandleDokumentforsendelseTask(ProsessTaskRepository prosessTaskRepository,
             VurderVLSaker vurderVLSaker,
             PersonInformasjon aktørConsumer,
             /* @Jersey */FagsakTjeneste fagsakRestKlient,
-            DokumentRepository dokumentRepository) {
+            ArkivTjeneste arkivTjeneste,
+            DokumentRepository dokumentRepository,
+            HendelseProdusent hendelseProdusent) {
         super(prosessTaskRepository);
         this.vurderVLSaker = vurderVLSaker;
         this.aktørConsumer = aktørConsumer;
         this.fagsakRestKlient = fagsakRestKlient;
+        this.arkivTjeneste = arkivTjeneste;
         this.dokumentRepository = dokumentRepository;
+        this.hendelseProdusent = hendelseProdusent;
     }
 
     @Override
@@ -85,16 +106,14 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
                     MottakMeldingDataWrapper.BEHANDLINGSTEMA_KEY, dataWrapper.getId());
         }
 
-        if (TilJournalføringTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())) {
-            postconditionJournalføring(dataWrapper);
+        if (KlargjorForVLTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())) {
+            postconditionJournalføringMedSak(dataWrapper);
         }
 
-        if (TilJournalføringTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())) {
-            postConditionHentOgVurderVLSakOgOpprettSak(dataWrapper);
-        }
+        postConditionHentOgVurderVLSakOgOpprettSak(dataWrapper);
     }
 
-    private static void postconditionJournalføring(MottakMeldingDataWrapper dataWrapper) {
+    private static void postconditionJournalføringMedSak(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getSaksnummer().isEmpty()) {
             throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
                     MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId());
@@ -104,7 +123,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     @Override
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper dataWrapper) {
 
-        UUID forsendelseId = dataWrapper.getForsendelseId().get();
+        UUID forsendelseId = dataWrapper.getForsendelseId().orElseThrow();
         var hovedDokumentOpt = dokumentRepository.hentUnikDokument(forsendelseId, true,
                 ArkivFilType.XML);
         var metadata = dokumentRepository.hentEksaktDokumentMetadata(forsendelseId);
@@ -117,47 +136,81 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
         setFellesWrapperAttributter(dataWrapper, hovedDokumentOpt.orElse(null), metadata);
 
-        Destinasjon destinasjon;
+        var destinasjon = getDestinasjonOppdaterWrapper(dataWrapper, hovedDokumentOpt, metadata);
+        LOG.info("FPFORDEL BdTask destinasjon {}", destinasjon );
 
+        dataWrapper.setDokumentKategori(ArkivUtil.utledKategoriFraDokumentType(dataWrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT)));
+        destinasjon = utledSaksnummerOpprettSakVedBehov(destinasjon, dataWrapper);
+        dataWrapper.setSaksnummer(destinasjon.saksnummer());
 
+        var journalpost = opprettJournalpostFerdigstillHvisSaksnummer(forsendelseId, dataWrapper, destinasjon.saksnummer());
+        dataWrapper.setArkivId(journalpost.journalpostId());
+        if (!journalpost.ferdigstilt()) {
+            // Det vil komme en Kafka-hendelse om noen sekunder - denne sørger for at vi ikke trigger på den.
+            dokumentRepository.lagreJournalpostLokal(dataWrapper.getArkivId(),
+                    MottakKanal.SELVBETJENING.getKode(), "MIDLERTIDIG", forsendelseId.toString());
+        }
+
+        return utledNesteSteg(dataWrapper, forsendelseId, destinasjon, journalpost.ferdigstilt());
+    }
+
+    private Destinasjon getDestinasjonOppdaterWrapper(MottakMeldingDataWrapper dataWrapper, Optional<Dokument> hovedDokumentOpt, DokumentMetadata metadata) {
         if (metadata.getSaksnummer().isPresent()) {
             String saksnr = metadata.getSaksnummer().get(); // NOSONAR
             Optional<FagsakInfomasjonDto> fagInfoOpt = fagsakRestKlient.finnFagsakInfomasjon(new SaksnummerDto(saksnr));
             if (fagInfoOpt.isPresent()) {
                 setFellesWrapperAttributterFraFagsak(dataWrapper, fagInfoOpt.get(), hovedDokumentOpt);
-                destinasjon = new Destinasjon(ForsendelseStatus.FPSAK, saksnr);
+                return new Destinasjon(ForsendelseStatus.FPSAK, saksnr);
             } else {
                 dataWrapper.setSaksnummer(null); // Sendt inn på infotrygd-sak
-                destinasjon = new Destinasjon(ForsendelseStatus.GOSYS, null);
+                return Destinasjon.GOSYS;
             }
         } else {
-            destinasjon = vurderVLSaker.bestemDestinasjon(dataWrapper);
+            return vurderVLSaker.bestemDestinasjon(dataWrapper);
         }
-        LOG.info("FPFORDEL BdTask destinasjon {}", destinasjon );
+    }
 
-        /*
-         * Her kan man vurdere å journalføre lokalt - enten midlertidig journalføring av alle
-         * eller endelig av de som skal til fpsak og har saksnummer
-         * Nå opprettes det Sak her - det kunne vært opprettet journalpost i stedet og sendt til opprettsak
-         * Det vil forenklee opprettsak + tiljournalføring dersom det finnes en midlertidig journalpost.
-         * OBS: Unngå opprettjournalpost og opprettsak i samme task - hvis den ene feiler blir det mayhem for SBH
-         */
-        if (ForsendelseStatus.GOSYS.equals(destinasjon.system())) {
-            LOG.info("FPFORDEL BdTask exit GOSYS {}", destinasjon );
-            return dataWrapper.nesteSteg(MidlJournalføringTask.TASKNAME);
+    private Destinasjon utledSaksnummerOpprettSakVedBehov(Destinasjon destinasjon, MottakMeldingDataWrapper w) {
+        if (!ForsendelseStatus.FPSAK.equals(destinasjon.system())) return Destinasjon.GOSYS;
+        return new Destinasjon(ForsendelseStatus.FPSAK,
+                Optional.ofNullable(destinasjon.saksnummer()).orElseGet(() -> vurderVLSaker.opprettSak(w)));
+    }
+
+    private OpprettetJournalpost opprettJournalpostFerdigstillHvisSaksnummer(UUID forsendelseId, MottakMeldingDataWrapper w, String saksnummer) {
+        var avsenderId = w.getAvsenderId().or(w::getAktørId)
+                .orElseThrow(() -> new IllegalStateException("Hvor ble det av brukers id?"));
+
+        OpprettetJournalpost opprettetJournalpost;
+        if (saksnummer != null) {
+            opprettetJournalpost = arkivTjeneste.opprettJournalpost(forsendelseId, avsenderId, saksnummer);
+            if (!opprettetJournalpost.ferdigstilt()) {
+                LOG.info("FORDEL FORSENDELSE kunne ikke ferdigstille sak {} journalpost {} forsendelse {}", saksnummer, w.getArkivId(), forsendelseId);
+            }
+            return opprettetJournalpost;
         } else {
-            dataWrapper.setDokumentKategori(ArkivUtil.utledKategoriFraDokumentType(dataWrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT)));
-            LOG.info("FPFORDEL BdTask exit FPSAK før opprett {}", destinasjon );
-            var saksnummer = Optional.ofNullable(destinasjon.saksnummer())
-                    .orElseGet(() -> vurderVLSaker.opprettSak(dataWrapper));
-            dataWrapper.setSaksnummer(saksnummer);
-            LOG.info("FPFORDEL BdTask exit FPSAK etter opprett {}", dataWrapper.getSaksnummer() );
-            return dataWrapper.nesteSteg(TilJournalføringTask.TASKNAME);
+            return arkivTjeneste.opprettJournalpost(forsendelseId, avsenderId);
+        }
+    }
+
+    private MottakMeldingDataWrapper utledNesteSteg(MottakMeldingDataWrapper dataWrapper, UUID forsendelseId,
+                                                    Destinasjon destinasjon, boolean ferdigstilt) {
+        LOG.info("FPFORDEL BdTask exit {}", destinasjon);
+        if (ForsendelseStatus.GOSYS.equals(destinasjon.system()) || (destinasjon.saksnummer() != null && !ferdigstilt)) {
+            dokumentRepository.oppdaterForsendelseMedArkivId(forsendelseId, dataWrapper.getArkivId(), ForsendelseStatus.GOSYS);
+            dataWrapper.setSaksnummer(null);
+            return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+        } else if (ForsendelseStatus.FPSAK.equals(destinasjon.system()) && destinasjon.saksnummer() != null) {
+            dataWrapper.setSaksnummer(destinasjon.saksnummer());
+            dokumentRepository.oppdaterForsendelseMetadata(forsendelseId, dataWrapper.getArkivId(), destinasjon.saksnummer(), ForsendelseStatus.FPSAK);
+            sendFordeltHendelse(forsendelseId, dataWrapper);
+            return dataWrapper.nesteSteg(KlargjorForVLTask.TASKNAME);
+        } else {
+            throw new IllegalStateException("Ukjent system eller saksnummer mangler");
         }
     }
 
     private static void postConditionHentOgVurderVLSakOgOpprettSak(MottakMeldingDataWrapper dataWrapper) {
-        if (OpprettSakTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())
+        if (KlargjorForVLTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())
                 && dataWrapper.getForsendelseMottattTidspunkt().isEmpty()) {
             throw MottakMeldingFeil
                     .prosesstaskPostconditionManglerProperty(TASKNAME,
@@ -179,6 +232,10 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         if (!dataWrapper.getHarTema()) {
             throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
                     MottakMeldingDataWrapper.TEMA_KEY, dataWrapper.getId());
+        }
+        if (dataWrapper.getArkivId() == null) {
+            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
+                    MottakMeldingDataWrapper.ARKIV_ID_KEY, dataWrapper.getId());
         }
     }
 
@@ -227,18 +284,16 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     private void settDokumentTypeKategoriKorrigerSVP(MottakMeldingDataWrapper w) {
         var dokumenter = w.getForsendelseId().map(dokumentRepository::hentDokumenter).orElse(List.of());
         var svpSøknader = dokumenter.stream()
-            .filter(d -> DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER.equals(d.getDokumentTypeId()))
-            .collect(Collectors.toList());
+                .filter(d -> DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER.equals(d.getDokumentTypeId()))
+                .collect(Collectors.toList());
         var svpStrukturert = svpSøknader.stream().anyMatch(d -> ArkivFilType.XML.equals(d.getArkivFilType()));
-        var strukturert = dokumenter.stream().filter(d -> ArkivFilType.XML.equals(d.getArkivFilType())).findFirst();
-        var brukdokument = strukturert.orElseGet(() -> dokumenter.stream().findFirst().orElseThrow());
-        if (DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER.equals(brukdokument.getDokumentTypeId()) && strukturert.isEmpty()) {
-            w.setDokumentTypeId(DokumentTypeId.ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG);
-            w.setDokumentKategori(DokumentKategori.IKKE_TOLKBART_SKJEMA);
-        } else {
+        if (svpSøknader.isEmpty() || svpStrukturert) {
             var doktype = ArkivUtil.utledHovedDokumentType(dokumenter.stream().map(Dokument::getDokumentTypeId).collect(Collectors.toSet()));
             w.setDokumentTypeId(doktype);
             w.setDokumentKategori(ArkivUtil.utledKategoriFraDokumentType(doktype));
+        } else {
+            w.setDokumentTypeId(DokumentTypeId.ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG);
+            w.setDokumentKategori(DokumentKategori.IKKE_TOLKBART_SKJEMA);
         }
         if (!svpSøknader.isEmpty() && !svpStrukturert) {
             svpSøknader.forEach(d -> {
@@ -284,6 +339,19 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
                     String.format("BehandlingTema i forsendelse samsvarer ikke med BehandlingTema i eksisterende sak {%s : %s}",
                             behandlingTemaforsendelse, behandlingTemaSak));
 
+        }
+    }
+
+    private void sendFordeltHendelse(UUID forsendelseId, MottakMeldingDataWrapper w) {
+        try {
+            Optional<String> fnr = w.getAktørId().flatMap(aktørConsumer::hentPersonIdentForAktørId);
+            if (fnr.isEmpty()) {
+                throw MottakMeldingFeil.fantIkkePersonidentForAktørId(TASKNAME, w.getId());
+            }
+            var hendelse = new SøknadFordeltOgJournalførtHendelse(w.getArkivId(), forsendelseId, fnr.get(), Optional.of(w.getSaksnummer().orElseThrow()));
+            hendelseProdusent.send(hendelse, forsendelseId.toString());
+        } catch (Exception e) {
+            LOG.warn("fpfordel kafka hendelsepublisering feilet for forsendelse {}", forsendelseId.toString(), e);
         }
     }
 
