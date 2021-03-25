@@ -25,8 +25,6 @@ import no.nav.vedtak.apptjeneste.AppServiceHandler;
 public class JournalføringHendelseStream implements KafkaIntegration, AppServiceHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(JournalføringHendelseStream.class);
-    private static final String HENDELSE_MIDL = "MidlertidigJournalført";
-    private static final String HENDELSE_ENDRET = "TemaEndret";
     private static final String TEMA_FOR = Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode();
 
     private KafkaStreams stream;
@@ -60,8 +58,6 @@ public class JournalføringHendelseStream implements KafkaIntegration, AppServic
         final StreamsBuilder builder = new StreamsBuilder();
         builder.stream(topic.getTopic(), consumed)
                 .filter((key, value) -> TEMA_FOR.equals(value.getTemaNytt().toString()))
-                .filter((key, value) -> HENDELSE_MIDL.equalsIgnoreCase(value.getHendelsesType().toString()) ||
-                        HENDELSE_ENDRET.equalsIgnoreCase(value.getHendelsesType().toString()))
                 .foreach((key, value) -> journalføringHendelseHåndterer.handleMessage(value));
 
         return new KafkaStreams(builder.build(), properties.getProperties());
