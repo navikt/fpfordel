@@ -33,8 +33,11 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 public class JournalføringHendelseHåndterer {
 
     private static final Logger LOG = LoggerFactory.getLogger(JournalføringHendelseHåndterer.class);
-    private static final String EESSI = MottakKanal.EESSI.getKode();
+    private static final String HENDELSE_MIDL = "MidlertidigJournalført";
     private static final String HENDELSE_ENDRET = "TemaEndret";
+    private static final String HENDELSE_ENDELIG = "EndeligJournalført";
+
+    private static final String EESSI = MottakKanal.EESSI.getKode();
 
     private ProsessTaskRepository taskRepository;
     private DokumentRepository dokumentRepository;
@@ -58,6 +61,13 @@ public class JournalføringHendelseHåndterer {
         var mottaksKanal = payload.getMottaksKanal().toString();
         var eksternReferanseId = (payload.getKanalReferanseId() == null) || payload.getKanalReferanseId().toString().isEmpty()
                 ? null : payload.getKanalReferanseId().toString();
+
+        if (HENDELSE_ENDELIG.equalsIgnoreCase(hendelseType)) {
+            LOG.info("FPFORDEL Mottatt Endelig Journalføring journalpost {} kanal {} referanse {}", arkivId, mottaksKanal, eksternReferanseId);
+            return;
+        } else if (!(HENDELSE_MIDL.equalsIgnoreCase(hendelseType) || HENDELSE_ENDRET.equalsIgnoreCase(hendelseType))) {
+            return;
+        }
 
         // De uten kanalreferanse er "klonet" av SBH og journalført fra Gosys.
         // Normalt blir de journalført, men det feiler av og til pga tilgang.
