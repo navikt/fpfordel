@@ -1,10 +1,8 @@
 package no.nav.foreldrepenger.mottak.task;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,9 +33,7 @@ import no.nav.foreldrepenger.mottak.infotrygd.InfotrygdTjeneste;
 import no.nav.foreldrepenger.mottak.infotrygd.RelevantSakSjekker;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.VurderInfotrygd;
-import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.WARN)
@@ -52,7 +48,7 @@ class HentOgVurderGsakSakTaskTest {
     Instance<Period> infotrygdSakGyldigPeriodeInstance;
     @Mock
     private Instance<Period> infotrygdAnnenPartGyldigPeriodeInstance;
-    private HentOgVurderInfotrygdSakTask task;
+    private VurderInfotrygd vurderInfotrygd;
     @Mock
     private InfotrygdTjeneste ws;
     @Mock
@@ -66,7 +62,6 @@ class HentOgVurderGsakSakTaskTest {
 
     @BeforeEach
     void setup() {
-        ProsessTaskRepository mockProsessTaskRepository = mock(ProsessTaskRepository.class);
         when(infotrygdSakGyldigPeriodeInstance.get()).thenReturn(Period.parse("P10M"));
         when(infotrygdAnnenPartGyldigPeriodeInstance.get()).thenReturn(Period.parse("P18M"));
         when(mockAktørConsumer.hentPersonIdentForAktørId(BRUKER_AKTØR_ID)).thenReturn(Optional.of(BRUKER_FNR));
@@ -74,8 +69,7 @@ class HentOgVurderGsakSakTaskTest {
         when(mockAktørConsumer.hentPersonIdentForAktørId(ANNEN_PART_ID)).thenReturn(Optional.of(ANNEN_PART_FNR));
         when(mockAktørConsumer.hentAktørIdForPersonIdent(ANNEN_PART_FNR)).thenReturn(Optional.of(ANNEN_PART_ID));
         RelevantSakSjekker relevansSjekker = new RelevantSakSjekker(fp);
-        VurderInfotrygd vurderInfotrygd = new VurderInfotrygd(relevansSjekker, mockAktørConsumer);
-        task = new HentOgVurderInfotrygdSakTask(mockProsessTaskRepository, vurderInfotrygd);
+        vurderInfotrygd = new VurderInfotrygd(relevansSjekker, mockAktørConsumer);
 
     }
 
@@ -93,27 +87,18 @@ class HentOgVurderGsakSakTaskTest {
     @Test
     void test_doTask_ingenMatchendeInfotrygdSak() {
         MottakMeldingDataWrapper wrapperIn = opprettMottaksMelding();
-        MottakMeldingDataWrapper wrapperOut = doTaskWithPrecondition(wrapperIn);
-        assertThat(wrapperOut).isNotNull();
-        assertThat(wrapperOut.getTema()).isEqualTo(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
-        assertThat(wrapperOut.getAktørId()).hasValueSatisfying(s -> assertThat(s).isEqualTo(BRUKER_AKTØR_ID));
-        assertThat(wrapperOut.getProsessTaskData().getTaskType()).isEqualTo(OpprettSakTask.TASKNAME);
+        assertThat(kreverManuellBehandling(wrapperIn)).isFalse();
     }
 
-    private MottakMeldingDataWrapper doTaskWithPrecondition(MottakMeldingDataWrapper wrapperIn) {
-        task.precondition(wrapperIn);
-        return task.doTask(wrapperIn);
+    private boolean kreverManuellBehandling(MottakMeldingDataWrapper wrapperIn) {
+        return vurderInfotrygd.kreverManuellVurdering(wrapperIn);
     }
 
     @Test
     void test_doTask_infotrygdsak_i_gsak_men_ikke_relevant_sak_i_infotrygd() {
         when(ws.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(createInfotrygdSaker(false));
         MottakMeldingDataWrapper wrapperIn = opprettMottaksMelding();
-        MottakMeldingDataWrapper wrapperOut = doTaskWithPrecondition(wrapperIn);
-        assertThat(wrapperOut).isNotNull();
-        assertThat(wrapperOut.getTema()).isEqualTo(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
-        assertThat(wrapperOut.getAktørId()).hasValueSatisfying(s -> assertThat(s).isEqualTo(BRUKER_AKTØR_ID));
-        assertThat(wrapperOut.getProsessTaskData().getTaskType()).isEqualTo(OpprettSakTask.TASKNAME);
+        assertThat(kreverManuellBehandling(wrapperIn)).isFalse();
         verify(fp, times(1)).finnSakListe(any(), any());
     }
 
@@ -124,12 +109,8 @@ class HentOgVurderGsakSakTaskTest {
 
         MottakMeldingDataWrapper wrapperIn = opprettMottaksMelding();
 
-        MottakMeldingDataWrapper wrapperOut = doTaskWithPrecondition(wrapperIn);
+        assertThat(kreverManuellBehandling(wrapperIn)).isFalse();
 
-        assertThat(wrapperOut).isNotNull();
-        assertThat(wrapperOut.getTema()).isEqualTo(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
-        assertThat(wrapperOut.getAktørId()).hasValueSatisfying(s -> assertThat(s).isEqualTo(BRUKER_AKTØR_ID));
-        assertThat(wrapperOut.getProsessTaskData().getTaskType()).isEqualTo(OpprettSakTask.TASKNAME);
         verify(ws, times(0)).finnSakListe(eq(BRUKER_FNR), any());
     }
 
@@ -138,28 +119,11 @@ class HentOgVurderGsakSakTaskTest {
         when(fp.finnSakListe(eq(BRUKER_FNR), any())).thenReturn(createInfotrygdSaker(true));
         when(fp.finnSakListe(eq(ANNEN_PART_FNR), any())).thenReturn(createInfotrygdSaker(true));
         MottakMeldingDataWrapper wrapperIn = opprettMottaksMelding();
-        MottakMeldingDataWrapper wrapperOut = doTaskWithPrecondition(wrapperIn);
-        assertTaskResult_WhenExceptingManuellJornalføring(wrapperOut);
-    }
-
-    @Test
-    void test_validerDatagrunnlag_skal_feile_ved_manglende_temakode_og_behandlingstype() {
-        MottakMeldingDataWrapper meldingDataWrapper = new MottakMeldingDataWrapper(
-                new ProsessTaskData(HentOgVurderInfotrygdSakTask.TASKNAME));
-        meldingDataWrapper.setArkivId("123454");
-        meldingDataWrapper.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
-        assertThrows(TekniskException.class, () -> task.precondition(meldingDataWrapper));
-    }
-
-    @Test
-    void test_validerDatagrunnlag_uten_feil() {
-        MottakMeldingDataWrapper meldingIn = opprettMottaksMelding();
-        meldingIn.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
-        task.precondition(meldingIn);
+        assertThat(kreverManuellBehandling(wrapperIn)).isTrue();
     }
 
     private static MottakMeldingDataWrapper opprettMottaksMelding() {
-        ProsessTaskData data = new ProsessTaskData(HentOgVurderInfotrygdSakTask.TASKNAME);
+        ProsessTaskData data = new ProsessTaskData("DUMMY");
         data.setSekvens("1");
         MottakMeldingDataWrapper wrapperIn = new MottakMeldingDataWrapper(data);
         wrapperIn.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
@@ -171,10 +135,4 @@ class HentOgVurderGsakSakTaskTest {
         return wrapperIn;
     }
 
-    private static void assertTaskResult_WhenExceptingManuellJornalføring(MottakMeldingDataWrapper wrapperOut) {
-        assertThat(wrapperOut).isNotNull();
-        assertThat(wrapperOut.getTema()).isEqualTo(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
-        assertThat(wrapperOut.getAktørId()).hasValueSatisfying(s -> assertThat(s).isEqualTo(BRUKER_AKTØR_ID));
-        assertThat(wrapperOut.getProsessTaskData().getTaskType()).isEqualTo(MidlJournalføringTask.TASKNAME);
-    }
 }
