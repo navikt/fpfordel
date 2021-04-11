@@ -118,6 +118,7 @@ public class ArkivTjeneste {
                 .medDatoOpprettet(journalpost.datoOpprettet())
                 .medEksternReferanseId(journalpost.eksternReferanseId())
                 .medTilleggsopplysninger(journalpost.tilleggsopplysninger())
+                .medSaksnummer(Optional.ofNullable(journalpost.sak()).map(s -> Optional.ofNullable(s.fagsakId()).orElse(s.arkivsaksnummer())).orElse(null))
                 .build();
     }
 

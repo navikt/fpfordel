@@ -87,7 +87,7 @@ class JournalføringHendelseHåndtererTest {
                 .setHendelsesId("12345").setVersjon(1)
                 .setHendelsesType("MidlertidigJournalført")
                 .setTemaNytt(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode()).setTemaGammelt("")
-                .setMottaksKanal(MottakKanal.SELVBETJENING.getKode())
+                .setMottaksKanal(MottakKanal.HELSENETTET.getKode())
                 .setKanalReferanseId("")
                 .setJournalpostId(12345L)
                 .setJournalpostStatus("M");
@@ -98,7 +98,7 @@ class JournalføringHendelseHåndtererTest {
         List<ProsessTaskData> result = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         assertThat(result).as("Forventer at en prosesstask er lagt til").hasSize(1);
         ProsessTaskInfo prosessTaskData = result.get(0);
-        assertThat(prosessTaskData.getNesteKjøringEtter()).isAfter(LocalDateTime.now().plusHours(12));
+        assertThat(prosessTaskData.getNesteKjøringEtter()).isAfter(LocalDateTime.now().plusHours(1));
     }
 
     @Test

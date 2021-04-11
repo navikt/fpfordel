@@ -248,6 +248,38 @@ class HentDataFraJoarkTaskTest {
     }
 
     @Test
+    void skal_sende_til_manuell_behandling_ved_presatt_saksnummer_ikke_vl() {
+        var dokument = joarkTestsupport.lagJArkivJournalpostKlageMedSaksnummer("INFOTRYGD");
+        when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
+        when(vurderVLSaker.erVLsak("INFOTRYGD")).thenReturn(false);
+
+        BehandlingTema actualBehandlingTema = BehandlingTema.UDEFINERT;
+        dataWrapper.setBehandlingTema(actualBehandlingTema);
+        dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
+
+        MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
+
+        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+    }
+
+    @Test
+    void skal_sende_til_manuell_behandling_ved_presatt_saksnummer_vl() {
+        var dokument = joarkTestsupport.lagJArkivJournalpostKlageMedSaksnummer("VL");
+        when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
+        when(vurderVLSaker.erVLsak("VL")).thenReturn(true);
+        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(),any())).thenReturn(true);
+        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.FPSAK, "VL"));
+
+        BehandlingTema actualBehandlingTema = BehandlingTema.UDEFINERT;
+        dataWrapper.setBehandlingTema(actualBehandlingTema);
+        dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
+
+        MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
+
+        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
+    }
+
+    @Test
     void test_validerDatagrunnlag_skal_feile_ved_manglende_arkiv_id() {
         dataWrapper.setArkivId("");
         assertThrows(TekniskException.class, () -> doTaskWithPrecondition(dataWrapper));

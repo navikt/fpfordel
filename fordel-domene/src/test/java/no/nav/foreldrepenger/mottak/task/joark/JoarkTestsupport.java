@@ -57,6 +57,10 @@ class JoarkTestsupport {
         return lagArkivJournalpost(brukerListe, DokumentTypeId.KLAGE_DOKUMENT).build();
     }
 
+    ArkivJournalpost lagJArkivJournalpostKlageMedSaksnummer(String saksnummer) {
+        return lagArkivJournalpost(brukerListe, DokumentTypeId.KLAGE_DOKUMENT).medSaksnummer(saksnummer).build();
+    }
+
     ArkivJournalpost lagJArkivJournalpostUstrukturert(DokumentTypeId dokumentTypeId) {
         return lagArkivJournalpost(brukerListe, dokumentTypeId).build();
     }
