@@ -21,14 +21,11 @@ import org.mockito.quality.Strictness;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.felles.kafka.LoggingHendelseProdusent;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.OpprettetJournalpost;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -46,8 +43,6 @@ class TilJournalføringTaskTest {
     @Mock
     private ArkivTjeneste arkivTjeneste;
     @Mock
-    private DokumentRepository dokumentRepositoryMock;
-    @Mock
     private PersonInformasjon aktørConsumerMock;
 
     private TilJournalføringTask task;
@@ -59,8 +54,7 @@ class TilJournalføringTaskTest {
         forsendelseId = UUID.randomUUID();
         when(aktørConsumerMock.hentPersonIdentForAktørId(AKTØR_ID)).thenReturn(Optional.of(BRUKER_FNR));
 
-        task = new TilJournalføringTask(prosessTaskRepositoryMock, arkivTjeneste,
-                new LoggingHendelseProdusent(), dokumentRepositoryMock, aktørConsumerMock);
+        task = new TilJournalføringTask(prosessTaskRepositoryMock, arkivTjeneste, aktørConsumerMock);
 
         ptd = new ProsessTaskData(TilJournalføringTask.TASKNAME);
         ptd.setSekvens("1");
@@ -171,6 +165,7 @@ class TilJournalføringTaskTest {
         var data = new MottakMeldingDataWrapper(ptd);
         data.setSaksnummer("saksnummer");
         data.setAktørId(AKTØR_ID);
+        data.setArkivId(ARKIV_ID);
         task.precondition(data);
     }
 
@@ -182,15 +177,13 @@ class TilJournalføringTaskTest {
 
         data.setForsendelseId(forsendelseId);
         data.setAktørId(AKTØR_ID);
+        data.setArkivId(ARKIV_ID);
         data.setBehandlingTema(BehandlingTema.FORELDREPENGER_FØDSEL);
         data.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         data.setSaksnummer(SAKSNUMMER);
         data.setRetryingTask("ABC");
 
-        var next = task.doTask(data);
-
-        verify(dokumentRepositoryMock).oppdaterForsendelseMetadata(any(UUID.class), any(), any(),
-                any(ForsendelseStatus.class));
+        var next = doTaskWithPrecondition(data);
 
         assertThat(next.getProsessTaskData().getTaskType()).isEqualTo(KlargjorForVLTask.TASKNAME);
     }
@@ -199,17 +192,17 @@ class TilJournalføringTaskTest {
     void test_skalTilManuellNårJournalTilstandIkkeErEndelig() {
         var data = new MottakMeldingDataWrapper(ptd);
 
-        when(arkivTjeneste.opprettJournalpost(forsendelseId, AKTØR_ID, SAKSNUMMER)).thenReturn(new OpprettetJournalpost(ARKIV_ID, false));
+        doThrow(IllegalArgumentException.class).when(arkivTjeneste).ferdigstillJournalføring(ARKIV_ID, "9999");
 
         data.setForsendelseId(forsendelseId);
         data.setAktørId(AKTØR_ID);
+        data.setArkivId(ARKIV_ID);
         data.setBehandlingTema(BehandlingTema.FORELDREPENGER_FØDSEL);
         data.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         data.setSaksnummer(SAKSNUMMER);
 
-        data = task.doTask(data);
+        data = doTaskWithPrecondition(data);
 
-        verify(dokumentRepositoryMock).oppdaterForsendelseMedArkivId(any(UUID.class), any(), any(ForsendelseStatus.class));
         assertThat(data.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
     }
 }

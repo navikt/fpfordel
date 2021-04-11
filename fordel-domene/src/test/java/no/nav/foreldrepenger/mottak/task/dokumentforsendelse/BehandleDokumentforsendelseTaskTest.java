@@ -126,6 +126,7 @@ class BehandleDokumentforsendelseTaskTest {
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
         assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(KlargjorForVLTask.TASKNAME);
         assertThat(utdata.getDokumentTypeId()).hasValue(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
+        verify(arkivTjeneste).opprettJournalpost(any(), any(), eq("123"));
     }
 
     @Test
@@ -276,7 +277,7 @@ class BehandleDokumentforsendelseTaskTest {
     }
 
     @Test
-    void test_skalVedJournalføringAvDokumentForsendelseFåJournalTilstandEndeligJournalført() {
+    void test_skalVedJournalføringAvDokumentForsendelseFåJournalTilstandMidlertidigJournalført() {
         var data = new MottakMeldingDataWrapper(ptd);
 
         when(arkivTjeneste.opprettJournalpost(any(), any())).thenReturn(new OpprettetJournalpost(JOURNALPOST_ID, false));

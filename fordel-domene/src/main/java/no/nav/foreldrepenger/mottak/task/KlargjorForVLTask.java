@@ -9,12 +9,10 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
-import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -25,15 +23,12 @@ public class KlargjorForVLTask extends WrappedProsessTaskHandler {
     public static final String TASKNAME = "fordeling.klargjoering";
     public static final String REINNSEND = "REINNSEND";
     private final KlargjørForVLTjeneste klargjørForVLTjeneste;
-    private final DokumentRepository dokumentRepository;
 
     @Inject
     public KlargjorForVLTask(ProsessTaskRepository prosessTaskRepository,
-            KlargjørForVLTjeneste klargjørForVLTjeneste,
-            DokumentRepository dokumentRepository) {
+                             KlargjørForVLTjeneste klargjørForVLTjeneste) {
         super(prosessTaskRepository);
         this.klargjørForVLTjeneste = klargjørForVLTjeneste;
-        this.dokumentRepository = dokumentRepository;
     }
 
     @Override
@@ -61,10 +56,6 @@ public class KlargjorForVLTask extends WrappedProsessTaskHandler {
         var behandlingsTema = dataWrapper.getBehandlingTema();
         Optional<UUID> forsendelseId = dataWrapper.getForsendelseId();
         boolean erReinnsend = dataWrapper.getRetryingTask().map(REINNSEND::equals).orElse(Boolean.FALSE);
-        if (forsendelseId.isPresent() && !erReinnsend) {
-            dokumentRepository.oppdaterForsendelseMetadata(forsendelseId.get(), arkivId, saksnummer,
-                    ForsendelseStatus.FPSAK);
-        }
 
         klargjørForVLTjeneste.klargjørForVL(xml, saksnummer, arkivId, dokumenttypeId,
                 dataWrapper.getForsendelseMottattTidspunkt().orElse(null), behandlingsTema,
