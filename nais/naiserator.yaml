@@ -41,7 +41,7 @@ spec:
 {{#if maxReplicas}}
     max: {{maxReplicas}}
 {{else}}
-    max: 2
+    max: 3
 {{/if}} 
     cpuThresholdPercentage: 80
   resources:

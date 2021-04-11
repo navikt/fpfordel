@@ -24,17 +24,14 @@ import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.task.KlargjorForVLTask;
-import no.nav.foreldrepenger.mottak.task.MidlJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.VedlikeholdSchedulerTask;
 import no.nav.foreldrepenger.sikkerhet.abac.BeskyttetRessursAttributt;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskIdDto;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 @Path("/forvaltning")
 @RequestScoped
@@ -125,24 +122,6 @@ public class ForvaltningRestTjeneste {
         fagsakRestKlient
                 .knyttSakOgJournalpost(new JournalpostKnyttningDto(dto.getSaksnummerDto(), dto.getJournalpostIdDto()));
         prosessTaskRepository.lagre(dataWrapperTil.getProsessTaskData());
-        return Response.ok().build();
-    }
-
-    @POST
-    @Operation(description = "Midlertidig journalfør forsendelse", tags = "Forvaltning", summary = ("For gsak-oppgaver opprettet uten journalpostid"), responses = {
-            @ApiResponse(responseCode = "200", description = "Forsendelse til midl journalføring") })
-    @Path("/midl-journalfor")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
-    public Response midlJournalførForsendelse(
-            @TilpassetAbacAttributt(supplierClass = ForvaltningRestTjeneste.AbacDataSupplier.class) @Parameter(description = "Task som skal midl journalførs") @NotNull @Valid ProsessTaskIdDto taskId) {
-        var data = prosessTaskRepository.finn(taskId.getProsessTaskId());
-        if (data != null) {
-            var dataWrapperFra = new MottakMeldingDataWrapper(data);
-            var dataWrapperTil = dataWrapperFra.nesteSteg(MidlJournalføringTask.TASKNAME);
-            prosessTaskRepository.lagre(dataWrapperTil.getProsessTaskData());
-        }
         return Response.ok().build();
     }
 

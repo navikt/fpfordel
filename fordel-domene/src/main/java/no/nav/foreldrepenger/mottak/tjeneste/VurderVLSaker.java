@@ -83,6 +83,10 @@ public class VurderVLSaker {
     }
 
     public String opprettSak(MottakMeldingDataWrapper w) {
+        var dokumenttype = w.getDokumentTypeId().orElseThrow();
+        if (!DokumentTypeId.erFørsteSøknadType(dokumenttype) && !DokumentTypeId.INNTEKTSMELDING.equals(dokumenttype)) {
+            throw new IllegalArgumentException("Kan ikke opprette sak for dokument");
+        }
         var saksnummerDto = fagsakRestKlient.opprettSak(new OpprettSakDto(w.getArkivId(),
                 w.getBehandlingTema().getOffisiellKode(), w.getAktørId().orElseThrow()));
         w.setSaksnummer(saksnummerDto.getSaksnummer());

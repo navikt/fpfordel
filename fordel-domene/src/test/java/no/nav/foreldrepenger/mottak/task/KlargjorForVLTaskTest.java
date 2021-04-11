@@ -16,10 +16,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
-import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -39,15 +37,12 @@ class KlargjorForVLTaskTest {
     @Mock
     private KlargjørForVLTjeneste klargjørForVLTjeneste;
 
-    @Mock
-    private DokumentRepository dokumentRepository;
-
     private UUID forsendelseId;
 
     @BeforeEach
     void setup() {
         forsendelseId = UUID.randomUUID();
-        task = new KlargjorForVLTask(prosessTaskRepositoryMock, klargjørForVLTjeneste, dokumentRepository);
+        task = new KlargjorForVLTask(prosessTaskRepositoryMock, klargjørForVLTjeneste);
         ptd = new ProsessTaskData(KlargjorForVLTask.TASKNAME);
         ptd.setSekvens("1");
 
@@ -104,7 +99,6 @@ class KlargjorForVLTaskTest {
         data.setForsendelseId(forsendelseId);
         var neste = toTaskWithPrecondition(data);
         verify(klargjørForVLTjeneste).klargjørForVL(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
-        verify(dokumentRepository).oppdaterForsendelseMetadata(forsendelseId, ARKIV_ID, SAKSNUMMER, ForsendelseStatus.FPSAK);
         assertThat(neste).isNotNull();
         assertThat(neste.getProsessTaskData().getTaskType()).isEqualTo(SlettForsendelseTask.TASKNAME);
     }
