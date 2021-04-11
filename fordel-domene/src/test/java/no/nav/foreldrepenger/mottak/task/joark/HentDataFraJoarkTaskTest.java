@@ -251,11 +251,14 @@ class HentDataFraJoarkTaskTest {
     void skal_sende_til_manuell_behandling_ved_presatt_saksnummer_ikke_vl() {
         var dokument = joarkTestsupport.lagJArkivJournalpostKlageMedSaksnummer("INFOTRYGD");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
-        when(vurderVLSaker.erVLsak("INFOTRYGD")).thenReturn(false);
+        when(vurderVLSaker.bestemDestinasjon(dataWrapper)).thenReturn(Destinasjon.GOSYS);
 
         BehandlingTema actualBehandlingTema = BehandlingTema.UDEFINERT;
         dataWrapper.setBehandlingTema(actualBehandlingTema);
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
+        dataWrapper.setInnkommendeSaksnummer("VL");
+        dataWrapper.setSaksnummer("VL");
+
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
@@ -266,11 +269,12 @@ class HentDataFraJoarkTaskTest {
     void skal_sende_til_manuell_behandling_ved_presatt_saksnummer_vl() {
         var dokument = joarkTestsupport.lagJArkivJournalpostKlageMedSaksnummer("VL");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
-        when(vurderVLSaker.erVLsak("VL")).thenReturn(true);
         when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(),any())).thenReturn(true);
         when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.FPSAK, "VL"));
 
         BehandlingTema actualBehandlingTema = BehandlingTema.UDEFINERT;
+        dataWrapper.setInnkommendeSaksnummer("VL");
+        dataWrapper.setSaksnummer("VL");
         dataWrapper.setBehandlingTema(actualBehandlingTema);
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
 
