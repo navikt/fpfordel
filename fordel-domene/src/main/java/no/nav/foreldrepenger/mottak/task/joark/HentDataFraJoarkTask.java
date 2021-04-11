@@ -115,6 +115,12 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             dataWrapper.setInnkommendeSaksnummer(s);
         });
 
+        // Fra ulike kilder - klage selvbetjening og mystiske andre steder (HELSENETTET, EKST_OPPS, mm)
+        if (dataWrapper.getInnkommendeSaksnummer().isPresent() && dataWrapper.getInnkommendeSaksnummer().filter(vurderVLSaker::erVLsak).isEmpty()) {
+            LOG.info("FPFORDEL HentFraArkiv journalpost {} med ikke-VL saksnummer {}", journalpost.getJournalpostId(), journalpost.getSaksnummer());
+            return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+        }
+
         if (journalpost.getInnholderStrukturertInformasjon()) {
             if (!MeldingXmlParser.erXmlMedKjentNamespace(journalpost.getStrukturertPayload())) {
                 var jptittel = journalpost.getOriginalJournalpost().tittel();
@@ -147,9 +153,9 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             dataWrapper.setForsendelseMottattTidspunkt(LocalDateTime.now());
         }
 
-        // Journalposter uten kanalreferanse er "klonet" av SBH og forsøkt journalført
-        // fra Gosys. Håndteres manuelt hvis de kommer helt hit
-        if (dataWrapper.getEksternReferanseId().isEmpty()) {
+        // Journalposter uten kanalreferanse er vanligvis slike som er "klonet" av SBH og forsøkt journalført fra Gosys.
+        // Håndteres manuelt hvis de kommer helt hit - mulig de skal slippes videre
+        if (dataWrapper.getEksternReferanseId().isEmpty() && dataWrapper.getInnkommendeSaksnummer().isEmpty()) {
             LOG.info("FPFORDEL HentFraArkiv journalpost uten kanalreferane {} med {}", journalpost.getJournalpostId(), journalpost.getTilstand());
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }

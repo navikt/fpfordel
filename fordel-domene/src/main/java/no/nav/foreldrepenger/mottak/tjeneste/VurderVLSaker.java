@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
+import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.klient.VurderFagsystemResultat;
@@ -44,6 +45,10 @@ public class VurderVLSaker {
             /* @Jersey */FagsakTjeneste fagsakRestKlient) {
         this.vurderInfotrygd = vurderInfotrygd;
         this.fagsakRestKlient = fagsakRestKlient;
+    }
+
+    public boolean erVLsak(String saksnummer) {
+        return fagsakRestKlient.finnFagsakInfomasjon(new SaksnummerDto(saksnummer)).isPresent();
     }
 
     public Destinasjon bestemDestinasjon(MottakMeldingDataWrapper dataWrapper) {

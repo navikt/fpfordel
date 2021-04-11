@@ -29,6 +29,7 @@ public class ArkivJournalpost {
     private Tema tema;
     private BehandlingTema behandlingstema;
     private BehandlingTema utledetBehandlingstema;
+    private String saksnummer;
     private String journalfoerendeEnhet;
     private LocalDateTime datoOpprettet;
     private String eksternReferanseId;
@@ -55,10 +56,7 @@ public class ArkivJournalpost {
     }
 
     public Optional<String> getSaksnummer() {
-        return Optional.ofNullable(original)
-                .map(Journalpost::sak)
-                .filter(Objects::nonNull)
-                .map(sak -> Optional.ofNullable(sak.fagsakId()).orElse(sak.arkivsaksnummer()));
+        return Optional.ofNullable(saksnummer);
     }
 
     public Journalstatus getTilstand() {
@@ -199,6 +197,11 @@ public class ArkivJournalpost {
 
         public Builder medJournalfoerendeEnhet(String journalfoerendeEnhet) {
             ajp.journalfoerendeEnhet = journalfoerendeEnhet;
+            return this;
+        }
+
+        public Builder medSaksnummer(String saksnummer) {
+            ajp.saksnummer = saksnummer;
             return this;
         }
 
