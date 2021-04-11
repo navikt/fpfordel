@@ -115,12 +115,6 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             dataWrapper.setInnkommendeSaksnummer(s);
         });
 
-        // Fra ulike kilder - klage selvbetjening og mystiske andre steder (HELSENETTET, EKST_OPPS, mm)
-        if (dataWrapper.getInnkommendeSaksnummer().isPresent() && dataWrapper.getInnkommendeSaksnummer().filter(vurderVLSaker::erVLsak).isEmpty()) {
-            LOG.info("FPFORDEL HentFraArkiv journalpost {} med ikke-VL saksnummer {}", journalpost.getJournalpostId(), journalpost.getSaksnummer());
-            return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
-        }
-
         if (journalpost.getInnholderStrukturertInformasjon()) {
             if (!MeldingXmlParser.erXmlMedKjentNamespace(journalpost.getStrukturertPayload())) {
                 var jptittel = journalpost.getOriginalJournalpost().tittel();
@@ -193,6 +187,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         }
 
         var destinasjon = vurderVLSaker.bestemDestinasjon(dataWrapper);
+        LOG.info("FPFORDEL HentFraArkiv destinasjon {} journalpost {} kanal {} dokumenttype {} saksnummer {}",
+                destinasjon, dataWrapper.getArkivId(), journalpost.getKanal(), journalpost.getHovedtype(), journalpost.getSaksnummer());
         if (ForsendelseStatus.GOSYS.equals(destinasjon.system())) {
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         } else {
