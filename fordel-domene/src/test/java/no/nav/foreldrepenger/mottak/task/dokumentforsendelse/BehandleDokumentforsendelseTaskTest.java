@@ -243,6 +243,28 @@ class BehandleDokumentforsendelseTaskTest {
     }
 
     @Test
+    void skalEttersendtVedleggTilEksernSakTypeAnnet() {
+        MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(ptd);
+        inndata.setForsendelseId(FORSENDELSE_ID);
+        //inndata.setAktørId(AKTØR_ID);
+        inndata.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
+
+        when(dokumentRepository.hentUnikDokument(any(UUID.class), anyBoolean(), any())).thenReturn(Optional.empty());
+        when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(genMetadata("123", AKTØR_ID));
+        when(dokumentRepository.hentDokumenter(any(UUID.class))).thenReturn(Collections.singletonList(
+                genDokument(DokumentTypeId.ANNET, FIL_SØKNAD_FORP, false)));
+        when(fagsakRestKlient.finnFagsakInfomasjon(any(SaksnummerDto.class)))
+                .thenReturn(Optional.empty());
+        when(arkivTjeneste.opprettJournalpost(any(), any())).thenReturn(new OpprettetJournalpost(JOURNALPOST_ID, false));
+
+
+        MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
+        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+        assertThat(utdata.getAktørId()).isEqualTo(Optional.of(AKTØR_ID));
+        assertThat(utdata.getDokumentTypeId()).hasValue(DokumentTypeId.ANNET);
+    }
+
+    @Test
     void skalSendeTilOpprettOppgaveHvisSaksnummerFinnesPåMetadataMenIkkeIVL() {
         MottakMeldingDataWrapper inndata = new MottakMeldingDataWrapper(ptd);
         inndata.setForsendelseId(FORSENDELSE_ID);
