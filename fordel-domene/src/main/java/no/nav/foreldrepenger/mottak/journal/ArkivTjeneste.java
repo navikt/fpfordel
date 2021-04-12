@@ -133,14 +133,14 @@ public class ArkivTjeneste {
         return referanse;
     }
 
-    public OpprettetJournalpost opprettJournalpost(UUID forsendelse, String avsenderAktørId) {
-        var request = lagOpprettRequest(forsendelse, avsenderAktørId);
+    public OpprettetJournalpost opprettJournalpost(UUID forsendelse, UUID eksternReferanse, String avsenderAktørId) {
+        var request = lagOpprettRequest(forsendelse, eksternReferanse, avsenderAktørId);
         var response = dokArkivTjeneste.opprettJournalpost(request, false);
         return new OpprettetJournalpost(response.journalpostId(), response.journalpostferdigstilt());
     }
 
     public OpprettetJournalpost opprettJournalpost(UUID forsendelse, String avsenderAktørId, String saksnummer) {
-        var request = lagOpprettRequest(forsendelse, avsenderAktørId);
+        var request = lagOpprettRequest(forsendelse, forsendelse, avsenderAktørId);
         request.setSak(lagSakForSaksnummer(saksnummer));
         request.setJournalfoerendeEnhet("9999");
         var response = dokArkivTjeneste.opprettJournalpost(request, true);
@@ -302,7 +302,7 @@ public class ArkivTjeneste {
         throw new IllegalArgumentException("Ukjent brukerType=" + bruker.type());
     }
 
-    private OpprettJournalpostRequest lagOpprettRequest(UUID forsendelseId, String avsenderAktørId) {
+    private OpprettJournalpostRequest lagOpprettRequest(UUID forsendelseId, UUID eksternReferanse, String avsenderAktørId) {
         var metadata = dokumentRepository.hentEksaktDokumentMetadata(forsendelseId);
         var dokumenter = dokumentRepository.hentDokumenter(forsendelseId);
         var opprettDokumenter = lagAlleDokumentForOpprett(dokumenter);
@@ -320,7 +320,7 @@ public class ArkivTjeneste {
         request.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode());
         request.setBehandlingstema(behandlingstema.getOffisiellKode());
         request.setDatoMottatt(metadata.getForsendelseMottatt().toLocalDate());
-        request.setEksternReferanseId(forsendelseId.toString());
+        request.setEksternReferanseId(eksternReferanse.toString());
         request.setBruker(bruker);
         request.setAvsenderMottaker(avsender);
         request.setDokumenter(opprettDokumenter);
