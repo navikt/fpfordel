@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
+import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
@@ -149,8 +150,10 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
         // Journalposter uten kanalreferanse er vanligvis slike som er "klonet" av SBH og forsøkt journalført fra Gosys.
         // Håndteres manuelt hvis de kommer helt hit - mulig de skal slippes videre
-        if (dataWrapper.getEksternReferanseId().isEmpty() && dataWrapper.getInnkommendeSaksnummer().isEmpty()) {
-            LOG.info("FPFORDEL HentFraArkiv journalpost uten kanalreferane {} med {}", journalpost.getJournalpostId(), journalpost.getTilstand());
+        if (dataWrapper.getEksternReferanseId().isEmpty() &&
+                (dataWrapper.getInnkommendeSaksnummer().isEmpty() || !MottakKanal.SELVBETJENING.getKode().equals(journalpost.getKanal()))) {
+            LOG.info("FPFORDEL HentFraArkiv journalpost uten kanalreferanse journalpost {} kanal {} dokumenttype {}",
+                    journalpost.getJournalpostId(), journalpost.getKanal(), journalpost.getHovedtype());
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
         // Vesentlige mangler
