@@ -5,15 +5,12 @@ on:
     branches:
       - master
 env:
-  ORACLE_IMAGE: docker.pkg.github.com/navikt/fpsak-autotest/oracle-flattened
   TZ: "Europe/Oslo"
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-
       - name: Sjekk ut kode
         uses: actions/checkout@v2
       - run:  git fetch --prune --unshallow
@@ -25,22 +22,22 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
 
-      - name: Setup Java 16
-        uses: actions/setup-java@v1
+      - uses: actions/setup-java@v2
         with:
+          distribution: 'adopt'
           java-version: 16
 
+      - name: Log into ghcr registry
+        # GITHUB_TOKEN fungere ikke for PR enda... https://github.community/t/cant-authenticate-with-actions-token-for-pr-event/170752
+        # run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login --username "x-access-token" --password-stdin ghcr.io
+        run: echo "${{ secrets.NOTIFICATION }}" | docker login --username "x-access-token" --password-stdin ghcr.io
+
       - name: Hent og start Oracle image
-        env:
-          GITHUB_TOKEN: ${{ secrets.NOTIFICATION }}
         id: oracle
-        shell: bash
         run: |
-          echo  $GITHUB_TOKEN | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
-          echo "Henter og starter Oracle image $ORACLE_IMAGE"
-          docker-compose -f oracle/docker-compose.yml pull
-          rm -f nohup.out
-          docker-compose -f oracle/docker-compose.yml up oracle >nohup.out 2>&1 &
+          echo "Henter og starter Oracle image"
+          cd .oracle
+          docker-compose up --quiet-pull > nohup.out 2>&1 &
           sh -c 'tail -n +0 -f nohup.out | { sed "/Disconnected/q" && kill $$; }' || true
 
       - name: Kompiler
@@ -48,4 +45,4 @@ jobs:
             mvn package --quiet --batch-mode --settings .github/workflows/.m2/settings.xml
         env:
           GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.NOTIFICATION }}
+          GITHUB_PASSWORD: ${{ secrets.NOTIFICATION }} # Må ha denne for å hente artifakter fra andre repo i NAV.
