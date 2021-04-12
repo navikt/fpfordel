@@ -162,6 +162,9 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
                 setFellesWrapperAttributterFraFagsak(dataWrapper, fagInfoOpt.get(), hovedDokumentOpt);
                 return new Destinasjon(ForsendelseStatus.FPSAK, saksnr);
             } else {
+                if (hovedDokumentOpt.isEmpty()) {
+                    settDokumentTypeKategoriKorrigerSVP(dataWrapper);
+                }
                 dataWrapper.setSaksnummer(null); // Sendt inn på infotrygd-sak
                 return Destinasjon.GOSYS;
             }
