@@ -182,16 +182,17 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     private OpprettetJournalpost opprettJournalpostFerdigstillHvisSaksnummer(UUID forsendelseId, MottakMeldingDataWrapper w, String saksnummer) {
         var avsenderId = w.getAvsenderId().or(w::getAktørId)
                 .orElseThrow(() -> new IllegalStateException("Hvor ble det av brukers id?"));
+        var referanseId = w.getRetryingTask().map(s -> UUID.randomUUID()).orElse(forsendelseId);
 
         OpprettetJournalpost opprettetJournalpost;
         if (saksnummer != null) {
-            opprettetJournalpost = arkivTjeneste.opprettJournalpost(forsendelseId, avsenderId, saksnummer);
+            opprettetJournalpost = arkivTjeneste.opprettJournalpost(referanseId, avsenderId, saksnummer);
             if (!opprettetJournalpost.ferdigstilt()) {
                 LOG.info("FORDEL FORSENDELSE kunne ikke ferdigstille sak {} journalpost {} forsendelse {}", saksnummer, w.getArkivId(), forsendelseId);
             }
             return opprettetJournalpost;
         } else {
-            return arkivTjeneste.opprettJournalpost(forsendelseId, avsenderId);
+            return arkivTjeneste.opprettJournalpost(referanseId, avsenderId);
         }
     }
 
