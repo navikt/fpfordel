@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   oracle:
-    image : docker.pkg.github.com/navikt/fpsak-autotest/oracle-flattened
+    image: ghcr.io/navikt/oracle-foreldrepenger:11
     shm_size: 2gb
     ports:
       - 1521:1521
