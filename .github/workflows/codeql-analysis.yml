@@ -38,29 +38,30 @@ jobs:
       uses: github/codeql-action/init@v1
       with:
         languages: ${{ matrix.language }}
-        config-file: .github/codeql/codeql-config.yml    
+        config-file: .github/codeql/codeql-config.yml
 
-    - name: Setup Java 15
-      uses: actions/setup-java@v1
+    - uses: actions/setup-java@v2
       with:
-          java-version: 15
+        distribution: 'adopt'
+        java-version: 16
+
+    - name: Log into ghcr registry
+      # GITHUB_TOKEN fungere ikke for PR enda... https://github.community/t/cant-authenticate-with-actions-token-for-pr-event/170752
+      # run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login --username "x-access-token" --password-stdin ghcr.io
+      run: echo "${{ secrets.NOTIFICATION }}" | docker login --username "x-access-token" --password-stdin ghcr.io
+
+    - name: Hent og start Oracle image
+      id: oracle
+      run: |
+        echo "Henter og starter Oracle image"
+        cd .oracle
+        docker-compose up --quiet-pull > nohup.out 2>&1 &
+        sh -c 'tail -n +0 -f nohup.out | { sed "/Disconnected/q" && kill $$; }' || true
 
     - name: Set build version
       run: |
-          echo "BUILD_VERSION=$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+        echo "BUILD_VERSION=$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
 
-    - name: Hent og start Oracle image
-      env:
-          GITHUB_TOKEN: ${{ secrets.NOTIFICATION }}
-      id: oracle
-      shell: bash
-      run: |
-          echo  $GITHUB_TOKEN | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
-          echo "Henter og starter Oracle image $ORACLE_IMAGE"
-          docker-compose -f oracle/docker-compose.yml pull
-          rm -f nohup.out
-          docker-compose -f oracle/docker-compose.yml up oracle >nohup.out 2>&1 &
-          sh -c 'tail -n +0 -f nohup.out | { sed "/Disconnected/q" && kill $$; }' || true   
     - name: Kompiler
       run: |
           mvn package -e --batch-mode --settings .github/workflows/.m2/settings.xml -Dchangelist= -Dsha1=-${BUILD_VERSION} -Dfile.encoding=UTF-8
@@ -68,7 +69,6 @@ jobs:
           TZ: Europe/Oslo
           GITHUB_USERNAME: x-access-token
           GITHUB_PASSWORD: ${{ secrets.NOTIFICATION }}
-
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
