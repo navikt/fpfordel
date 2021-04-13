@@ -150,8 +150,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
         // Journalposter uten kanalreferanse er vanligvis slike som er "klonet" av SBH og forsøkt journalført fra Gosys.
         // Håndteres manuelt hvis de kommer helt hit - mulig de skal slippes videre
-        if (dataWrapper.getEksternReferanseId().isEmpty() &&
-                (dataWrapper.getInnkommendeSaksnummer().isEmpty() || !MottakKanal.SELVBETJENING.getKode().equals(journalpost.getKanal()))) {
+        if (dataWrapper.getEksternReferanseId().isEmpty() && dataWrapper.getInnkommendeSaksnummer().isEmpty()
+                && !MottakKanal.SELVBETJENING.getKode().equals(journalpost.getKanal())) {
             LOG.info("FPFORDEL HentFraArkiv journalpost uten kanalreferanse journalpost {} kanal {} dokumenttype {}",
                     journalpost.getJournalpostId(), journalpost.getKanal(), journalpost.getHovedtype());
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);

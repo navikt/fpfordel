@@ -352,7 +352,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
             if (fnr.isEmpty()) {
                 throw MottakMeldingFeil.fantIkkePersonidentForAktørId(TASKNAME, w.getId());
             }
-            var hendelse = new SøknadFordeltOgJournalførtHendelse(w.getArkivId(), forsendelseId, fnr.get(), Optional.of(w.getSaksnummer().orElseThrow()));
+            var hendelse = new SøknadFordeltOgJournalførtHendelse(w.getArkivId(), forsendelseId, fnr.get(), w.getSaksnummer());
             hendelseProdusent.send(hendelse, forsendelseId.toString());
         } catch (Exception e) {
             LOG.warn("fpfordel kafka hendelsepublisering feilet for forsendelse {}", forsendelseId.toString(), e);
