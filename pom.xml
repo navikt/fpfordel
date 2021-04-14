@@ -24,7 +24,7 @@
         <revision>2.0</revision>
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
-        <felles.version>3.2.1</felles.version> 
+        <felles.version>3.2.28</felles.version> 
         <prosesstask.version>2.5.16</prosesstask.version>
         <java.version>16</java.version>
         <argLine>-Xms256m -Dfile.encoding=UTF-8</argLine>
@@ -261,6 +261,7 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
         </dependency>
+       
     </dependencies>
     <build>
         <resources>

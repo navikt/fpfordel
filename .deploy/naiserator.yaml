@@ -6,6 +6,8 @@ metadata:
   labels:
     team: teamforeldrepenger
 spec:
+  tokenx:
+    enabled: true
   envFrom:
     - configmap: loginservice-idporten
   image:  {{image}}
