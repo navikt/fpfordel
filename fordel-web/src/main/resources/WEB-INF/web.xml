@@ -16,10 +16,10 @@
         <param-value>false</param-value>
     </context-param>
 
-    <!-- 
+    
     <listener>
         <listener-class>no.nav.vedtak.sikkerhet.jaspic.SamAutoRegistration</listener-class>
-    </listener>-->
+    </listener>
     <listener>
         <!-- Ønsker denne _sist_. -->
         <listener-class>no.nav.foreldrepenger.fordel.web.app.tjenester.ApplicationContextListener</listener-class>
