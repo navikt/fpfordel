@@ -162,7 +162,7 @@ abstract class AbstractJettyServer {
 
     private void addTokenValidationFilter(WebAppContext ctx) {
         ctx.addFilter(new FilterHolder(new JaxrsJwtTokenValidationFilter(config())),
-                "/fpfordel/*",
+                "/fpfordel/api/*",
                 EnumSet.of(REQUEST));
     }
 
