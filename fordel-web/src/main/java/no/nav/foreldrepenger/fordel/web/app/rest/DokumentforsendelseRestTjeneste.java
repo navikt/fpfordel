@@ -21,7 +21,6 @@ import java.util.function.Function;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
@@ -64,6 +63,7 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Forsendelse
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatusDto;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.sikkerhet.abac.BeskyttetRessursAttributt;
+import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -73,7 +73,7 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 @Path(DokumentforsendelseRestTjeneste.SERVICE_PATH)
 @Produces(APPLICATION_JSON)
 @RequestScoped
-@Transactional
+@Unprotected // midlertidig, fram til vi skrur over
 public class DokumentforsendelseRestTjeneste {
     static final String SERVICE_PATH = "/dokumentforsendelse";
 

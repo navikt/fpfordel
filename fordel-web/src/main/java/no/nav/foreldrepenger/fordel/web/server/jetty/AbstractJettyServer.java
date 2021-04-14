@@ -1,10 +1,15 @@
 package no.nav.foreldrepenger.fordel.web.server.jetty;
 
+import static javax.servlet.DispatcherType.REQUEST;
+
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.security.Security;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.security.auth.message.config.AuthConfigFactory;
@@ -29,6 +34,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.webapp.Configuration;
@@ -38,6 +44,11 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
 import org.slf4j.MDC;
+
+import no.nav.security.token.support.core.configuration.IssuerProperties;
+import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration;
+import no.nav.security.token.support.jaxrs.servlet.JaxrsJwtTokenValidationFilter;
+import no.nav.vedtak.util.env.Environment;
 
 abstract class AbstractJettyServer {
 
@@ -49,6 +60,11 @@ abstract class AbstractJettyServer {
     // med null, settes den default til null eller binder den mot et interface?
 
     protected static final String SERVER_HOST = "0.0.0.0";
+    public static final String ACR_LEVEL4 = "acr=Level4";
+    public static final String TOKENX = "tokenx";
+    public static final String IDPORTEN = "idporten";
+
+    private static final Environment ENV = Environment.current();
 
     /**
      * Legges først slik at alltid resetter context før prosesserer nye requests.
@@ -123,8 +139,8 @@ abstract class AbstractJettyServer {
     }
 
     protected WebAppContext createContext(JettyWebKonfigurasjon webKonfigurasjon) throws IOException {
-        var webAppContext = new WebAppContext();
-        webAppContext.setParentLoaderPriority(true);
+        var ctx = new WebAppContext();
+        ctx.setParentLoaderPriority(true);
 
         // må hoppe litt bukk for å hente web.xml fra classpath i stedet for fra
         // filsystem.
@@ -132,16 +148,32 @@ abstract class AbstractJettyServer {
         try (var resource = Resource.newClassPathResource("/WEB-INF/web.xml")) {
             descriptor = resource.getURI().toURL().toExternalForm();
         }
-        webAppContext.setDescriptor(descriptor);
-        webAppContext.setBaseResource(createResourceCollection());
-        webAppContext.setContextPath(webKonfigurasjon.getContextPath());
-        webAppContext.setConfigurations(CONFIGURATIONS);
-        webAppContext.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", "^.*resteasy-.*.jar$|^.*felles-.*.jar$");
-        webAppContext.setSecurityHandler(createSecurityHandler());
+        ctx.setDescriptor(descriptor);
+        ctx.setBaseResource(createResourceCollection());
+        ctx.setContextPath(webKonfigurasjon.getContextPath());
+        ctx.setConfigurations(CONFIGURATIONS);
+        ctx.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", "^.*resteasy-.*.jar$|^.*felles-.*.jar$");
+        ctx.setSecurityHandler(createSecurityHandler());
+        addTokenValidationFilter(ctx);
+        ctx.setParentLoaderPriority(true);
+        updateMetaData(ctx.getMetaData());
+        return ctx;
+    }
 
-        webAppContext.setParentLoaderPriority(true);
-        updateMetaData(webAppContext.getMetaData());
-        return webAppContext;
+    private void addTokenValidationFilter(WebAppContext ctx) {
+        ctx.addFilter(new FilterHolder(new JaxrsJwtTokenValidationFilter(config())),
+                "/fpfordel/*",
+                EnumSet.of(REQUEST));
+    }
+
+    private static MultiIssuerConfiguration config() {
+        return new MultiIssuerConfiguration(
+                Map.of(TOKENX, issuerProperties("token.x.well.known.url", "token.x.client.id"),
+                        IDPORTEN, issuerProperties("loginservice.idporten.discovery.url", "loginservice.idporten.audience")));
+    }
+
+    private static IssuerProperties issuerProperties(String wellKnownUrl, String clientId) {
+        return new IssuerProperties(ENV.getRequiredProperty(wellKnownUrl, URL.class), List.of(ENV.getRequiredProperty(clientId)));
     }
 
     private ResourceCollection createResourceCollection() {
