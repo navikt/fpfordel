@@ -62,7 +62,6 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
         module.addSerializer(new KodeverdiSerializer());
         module.addSerializer(new LocalDateTimeSerializer(DateTimeFormatter.ISO_DATE_TIME));
         module.addSerializer(new LocalDateSerializer(DateTimeFormatter.ISO_DATE));
-        module.addSerializer(new StringSerializer());
     }
 
     private static void addDeserializers(SimpleModule module) {
