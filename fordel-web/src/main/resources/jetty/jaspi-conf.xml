@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <jaspi xmlns="http://geronimo.apache.org/xml/ns/geronimo-jaspi">
+<!--  
     <configProvider>
         <messageLayer>HTTP</messageLayer>
         <appContext>server /fpfordel</appContext>
@@ -16,5 +17,5 @@
         </serverAuthConfig>
         <persistent>true</persistent>
     </configProvider>
-
+-->
 </jaspi>
