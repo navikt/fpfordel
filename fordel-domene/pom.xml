@@ -43,11 +43,7 @@
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-db</artifactId>
         </dependency>
- <dependency>
-            <groupId>no.nav.security</groupId>
-            <artifactId>token-validation-jaxrs</artifactId>
-            <version>1.3.5</version>
-        </dependency>
+
         <!-- Eksterne -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -88,10 +84,7 @@
             <artifactId>prosesstask-legacy</artifactId>
         </dependency>
         -->
-          <dependency>
-            <groupId>no.nav.vedtak.prosesstask</groupId>
-            <artifactId>prosesstask</artifactId>
-        </dependency>
+        
         <dependency>
             <groupId>no.nav.vedtak.prosesstask</groupId>
             <artifactId>prosesstask</artifactId>
