@@ -21,6 +21,7 @@ jobs:
               repo: context.repo.repo,
               content: '+1',
             });
+            
       - name: Sett variabler for cluster og tag
         run: |
           echo "TAG=$(echo '${{ github.event.issue.title }}' | awk '{print $NF}' | awk -F- '{print $NF}')" >> $GITHUB_ENV
@@ -31,8 +32,6 @@ jobs:
         uses: actions/checkout@v1
         with:
           ref: ${{ env.TAG }}
-
-   
 
       - name: Promoter til cluster og namespace
         uses: nais/deploy/actions/deploy@v1
