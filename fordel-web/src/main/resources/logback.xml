@@ -68,8 +68,6 @@
 		<appender-ref ref="auditLogger" />
 	</logger>
 
-	<logger name="sporing" level="OFF" additivity="false" />
-
 	<root level="${log.level.root:-INFO}">
 		<appender-ref ref="stdout_json"/>
 	</root>
