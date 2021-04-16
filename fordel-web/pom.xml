@@ -141,12 +141,10 @@
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-security</artifactId>
         </dependency>
-        <!-- 
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-jaspi</artifactId>
         </dependency>
-        
         <dependency>
             <groupId>org.apache.geronimo.components</groupId>
             <artifactId>geronimo-jaspi</artifactId>
@@ -155,7 +153,7 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-osgi-locator</artifactId>
         </dependency>
- -->
+
         <dependency>
             <groupId>io.prometheus</groupId>
             <artifactId>simpleclient_dropwizard</artifactId>
@@ -285,7 +283,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!--  
             <dependency>
                 <groupId>org.apache.geronimo.components</groupId>
                 <artifactId>geronimo-jaspi</artifactId>
@@ -296,7 +293,6 @@
                 <artifactId>geronimo-osgi-locator</artifactId>
                 <version>1.1</version>
             </dependency>
-            -->
             <dependency>
                 <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>

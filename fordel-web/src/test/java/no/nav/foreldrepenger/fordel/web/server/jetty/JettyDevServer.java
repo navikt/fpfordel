@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.fordel.web.server.jetty;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.eclipse.jetty.server.Connector;
@@ -73,7 +74,7 @@ public class JettyDevServer extends AbstractJettyServer {
     }
 
     @Override
-    protected WebAppContext createContext() {
+    protected WebAppContext createContext() throws IOException {
         var ctx = super.createContext();
         ctx.setInitParameter("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false");
         return ctx;

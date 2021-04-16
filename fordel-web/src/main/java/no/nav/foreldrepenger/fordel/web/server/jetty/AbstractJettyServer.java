@@ -2,20 +2,29 @@ package no.nav.foreldrepenger.fordel.web.server.jetty;
 
 import static javax.servlet.DispatcherType.REQUEST;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.security.auth.message.config.AuthConfigFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.geronimo.components.jaspi.AuthConfigFactoryImpl;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
+import org.eclipse.jetty.jaas.JAASLoginService;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.plus.webapp.PlusConfiguration;
+import org.eclipse.jetty.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.security.DefaultIdentityService;
+import org.eclipse.jetty.security.SecurityHandler;
+import org.eclipse.jetty.security.jaspi.JaspiAuthenticatorFactory;
 import org.eclipse.jetty.server.AbstractNetworkConnector;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.ForwardedRequestCustomizer;
@@ -100,17 +109,13 @@ abstract class AbstractJettyServer {
     protected abstract void konfigurerMiljø() throws Exception; // NOSONAR
 
     protected void konfigurerSikkerhet() {
-        /*
-         * Security.setProperty(AuthConfigFactory.DEFAULT_FACTORY_SECURITY_PROPERTY,
-         * AuthConfigFactoryImpl.class.getCanonicalName());
-         *
-         * var jaspiConf = new File(System.getProperty("conf", "./conf") +
-         * "/jaspi-conf.xml"); if (!jaspiConf.exists()) { throw new
-         * IllegalStateException("Missing required file: " +
-         * jaspiConf.getAbsolutePath()); }
-         * System.setProperty("org.apache.geronimo.jaspic.configurationFile",
-         * jaspiConf.getAbsolutePath());
-         */
+        Security.setProperty(AuthConfigFactory.DEFAULT_FACTORY_SECURITY_PROPERTY, AuthConfigFactoryImpl.class.getCanonicalName());
+
+        var jaspiConf = new File(System.getProperty("conf", "./conf") + "/jaspi-conf.xml");
+        if (!jaspiConf.exists()) {
+            throw new IllegalStateException("Missing required file: " + jaspiConf.getAbsolutePath());
+        }
+        System.setProperty("org.apache.geronimo.jaspic.configurationFile", jaspiConf.getAbsolutePath());
     }
 
     protected abstract void konfigurerJndi() throws Exception; // NOSONAR
@@ -136,17 +141,27 @@ abstract class AbstractJettyServer {
         return connectors;
     }
 
-    protected WebAppContext createContext() {
+    protected WebAppContext createContext() throws IOException {
         var ctx = new WebAppContext();
         ctx.setParentLoaderPriority(true);
+
+        // må hoppe litt bukk for å hente web.xml fra classpath i stedet for fra
+        // filsystem.
+
+        String descriptor;
+        try (var resource = Resource.newClassPathResource("/WEB-INF/web.xml")) {
+            descriptor = resource.getURI().toURL().toExternalForm();
+        }
+
         ctx.setInitParameter("resteasy.async.job.service.enabled", "false");
         ctx.setInitParameter("resteasy.injector.factory", "org.jboss.resteasy.cdi.CdiInjectorFactory");
+        ctx.setDescriptor(descriptor);
         ctx.setBaseResource(createResourceCollection());
         ctx.setContextPath(CONTEXT_PATH);
         ContextPathHolder.instance(CONTEXT_PATH);
         ctx.setConfigurations(CONFIGURATIONS);
         ctx.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", "^.*resteasy-.*.jar$|^.*felles-.*.jar$");
-        // ctx.setSecurityHandler(createSecurityHandler());
+        ctx.setSecurityHandler(createSecurityHandler());
         addTokenValidationFilter(ctx);
         ctx.setParentLoaderPriority(true);
         updateMetaData(ctx.getMetaData());
@@ -190,22 +205,25 @@ abstract class AbstractJettyServer {
 
     protected HttpConfiguration createHttpConfiguration() {
         // Create HTTP Config
-        var httpConfig = new HttpConfiguration();
+        HttpConfiguration httpConfig = new HttpConfiguration();
+
         // Add support for X-Forwarded headers
         httpConfig.addCustomizer(new ForwardedRequestCustomizer());
+
         return httpConfig;
+
     }
-    /*
-     * private static SecurityHandler createSecurityHandler() {
-     * ConstraintSecurityHandler securityHandler = new ConstraintSecurityHandler();
-     * securityHandler.setAuthenticatorFactory(new JaspiAuthenticatorFactory());
-     * 
-     * JAASLoginService loginService = new JAASLoginService();
-     * loginService.setName("jetty-login");
-     * loginService.setLoginModuleName("jetty-login");
-     * loginService.setIdentityService(new DefaultIdentityService());
-     * securityHandler.setLoginService(loginService);
-     * 
-     * return securityHandler; }
-     */
+
+    private static SecurityHandler createSecurityHandler() {
+        ConstraintSecurityHandler securityHandler = new ConstraintSecurityHandler();
+        securityHandler.setAuthenticatorFactory(new JaspiAuthenticatorFactory());
+
+        JAASLoginService loginService = new JAASLoginService();
+        loginService.setName("jetty-login");
+        loginService.setLoginModuleName("jetty-login");
+        loginService.setIdentityService(new DefaultIdentityService());
+        securityHandler.setLoginService(loginService);
+
+        return securityHandler;
+    }
 }

@@ -21,7 +21,7 @@ public class WhitelistingJwtTokenContainerRequestFilter extends JwtTokenContaine
     public void filter(ContainerRequestContext ctx) {
         Method method = resourceInfo.getResourceMethod();
         if (!isWhitelisted(method)) {
-            LOG.trace("{} er ikke whitelisted", method.getName());
+            LOG.trace("{} i klasse {} er ikke whitelisted", method.getName(), method.getDeclaringClass());
             super.filter(ctx);
         } else {
             LOG.trace("{} er whitelisted", method.getName());
