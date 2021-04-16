@@ -25,12 +25,12 @@ public class JettyDevServer extends AbstractJettyServer {
     private static final String TRUSTSTORE_PATH_PROP = "javax.net.ssl.trustStore";
     private static final Integer HTTP_PORT = 8090;
 
-    public JettyDevServer(JettyWebKonfigurasjon webKonfigurasjon) {
-        super(webKonfigurasjon);
+    public JettyDevServer(int port) {
+        super(port);
     }
 
     public static void main(String[] args) throws Exception {
-        new JettyDevServer(new JettyWebKonfigurasjon(HTTP_PORT)).bootStrap();
+        new JettyDevServer(HTTP_PORT).bootStrap();
     }
 
     @Override
@@ -60,22 +60,22 @@ public class JettyDevServer extends AbstractJettyServer {
     }
 
     @Override
-    protected List<Connector> createConnectors(JettyWebKonfigurasjon appKonfigurasjon, Server server) {
-        var connectors = super.createConnectors(appKonfigurasjon, server);
+    protected List<Connector> createConnectors(int port, Server server) {
+        var connectors = super.createConnectors(port, server);
         var https = createHttpConfiguration();
         https.addCustomizer(new SecureRequestCustomizer());
 
         var sslConnector = new ServerConnector(server,
                 new SslConnectionFactory(new SslContextFactory.Server(), "http/1.1"),
                 new HttpConnectionFactory(https));
-        sslConnector.setPort(HTTP_PORT - 1);
+        sslConnector.setPort(port - 1);
         connectors.add(sslConnector);
         return connectors;
     }
 
     @Override
-    protected WebAppContext createContext(JettyWebKonfigurasjon appKonfigurasjon) throws IOException {
-        var ctx = super.createContext(appKonfigurasjon);
+    protected WebAppContext createContext() throws IOException {
+        var ctx = super.createContext();
         ctx.setInitParameter("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false");
         return ctx;
     }

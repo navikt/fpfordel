@@ -65,6 +65,7 @@ abstract class AbstractJettyServer {
     public static final String ACR_LEVEL4 = "acr=Level4";
     public static final String TOKENX = "tokenx";
     public static final String IDPORTEN = "selvbetjening";
+    private static final String CONTEXT_PATH = "/fpfordel";
 
     private static final Environment ENV = Environment.current();
 
@@ -87,16 +88,16 @@ abstract class AbstractJettyServer {
             new EnvConfiguration(),
             new PlusConfiguration(),
     };
-    private final JettyWebKonfigurasjon webKonfigurasjon;
+    private final int port;
 
-    protected AbstractJettyServer(JettyWebKonfigurasjon webKonfigurasjon) {
-        this.webKonfigurasjon = webKonfigurasjon;
+    protected AbstractJettyServer(int port) {
+        this.port = port;
     }
 
     protected void bootStrap() throws Exception {
         konfigurer();
         migrerDatabaser();
-        start(webKonfigurasjon);
+        start(port);
     }
 
     protected void konfigurer() throws Exception {
@@ -121,45 +122,36 @@ abstract class AbstractJettyServer {
 
     protected abstract void migrerDatabaser() throws IOException;
 
-    protected void start(JettyWebKonfigurasjon jettyWebKonfigurasjon) throws Exception {
-        Server server = new Server(jettyWebKonfigurasjon.getServerPort());
-        server.setConnectors(createConnectors(jettyWebKonfigurasjon, server).toArray(new Connector[] {}));
-        var handlers = new HandlerList(new ResetLogContextHandler(), createContext(jettyWebKonfigurasjon));
+    protected void start(int port) throws Exception {
+        Server server = new Server(port);
+        server.setConnectors(createConnectors(port, server).toArray(new Connector[] {}));
+        var handlers = new HandlerList(new ResetLogContextHandler(), createContext());
         server.setHandler(handlers);
         server.start();
         server.join();
     }
 
-    protected List<Connector> createConnectors(JettyWebKonfigurasjon jettyWebKonfigurasjon, Server server) {
+    protected List<Connector> createConnectors(int port, Server server) {
         List<Connector> connectors = new ArrayList<>();
         var httpConnector = new ServerConnector(server, new HttpConnectionFactory(createHttpConfiguration()));
-        httpConnector.setPort(jettyWebKonfigurasjon.getServerPort());
+        httpConnector.setPort(port);
         httpConnector.setHost(SERVER_HOST);
         connectors.add(httpConnector);
 
         return connectors;
     }
 
-    protected WebAppContext createContext(JettyWebKonfigurasjon webKonfigurasjon) throws IOException {
+    protected WebAppContext createContext() throws IOException {
         var ctx = new WebAppContext();
         ctx.setParentLoaderPriority(true);
-
-        // må hoppe litt bukk for å hente web.xml fra classpath i stedet for fra
-        // filsystem.
-        /*
-         * String descriptor; try (var resource =
-         * Resource.newClassPathResource("/WEB-INF/web.xml")) { descriptor =
-         * resource.getURI().toURL().toExternalForm(); }
-         */
         ctx.setInitParameter("resteasy.async.job.service.enabled", "false");
         ctx.setInitParameter("resteasy.injector.factory", "org.jboss.resteasy.cdi.CdiInjectorFactory");
-        // ctx.setDescriptor(descriptor);
         ctx.setBaseResource(createResourceCollection());
-        ctx.setContextPath(webKonfigurasjon.getContextPath());
-        ContextPathHolder.instance(ctx.getContextPath());
+        ctx.setContextPath(CONTEXT_PATH);
+        ContextPathHolder.instance(CONTEXT_PATH);
         ctx.setConfigurations(CONFIGURATIONS);
         ctx.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", "^.*resteasy-.*.jar$|^.*felles-.*.jar$");
-        ctx.setSecurityHandler(createSecurityHandler());
+        // ctx.setSecurityHandler(createSecurityHandler());
         addTokenValidationFilter(ctx);
         ctx.setParentLoaderPriority(true);
         updateMetaData(ctx.getMetaData());
@@ -203,13 +195,10 @@ abstract class AbstractJettyServer {
 
     protected HttpConfiguration createHttpConfiguration() {
         // Create HTTP Config
-        HttpConfiguration httpConfig = new HttpConfiguration();
-
+        var httpConfig = new HttpConfiguration();
         // Add support for X-Forwarded headers
         httpConfig.addCustomizer(new ForwardedRequestCustomizer());
-
         return httpConfig;
-
     }
 
     private static SecurityHandler createSecurityHandler() {

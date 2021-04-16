@@ -16,7 +16,7 @@ public class JettyServer extends AbstractJettyServer {
     private DataSourceKonfig dataSourceKonfig;
 
     public JettyServer(int serverPort) {
-        super(new JettyWebKonfigurasjon(serverPort));
+        super(serverPort);
     }
 
     public static void main(String[] args) throws Exception {
