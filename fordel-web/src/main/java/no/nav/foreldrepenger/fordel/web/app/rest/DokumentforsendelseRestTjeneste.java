@@ -113,13 +113,14 @@ public class DokumentforsendelseRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.FAGSAK)
     public Response uploadFile(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) MultipartInput input) {
-        LOG.info("Innsending av dokumentforsendelse");
         List<InputPart> inputParts = input.getParts();
         if (inputParts.size() < 2) {
             throw new IllegalArgumentException("Må ha minst to deler,fikk " + inputParts.size());
         }
 
         var dokumentforsendelse = map(inputParts.get(0));
+        LOG.info("Innsending av dokumentforsendelse {}", dokumentforsendelse.getForsendelsesId());
+
         var eksisterendeForsendelseStatus = service.finnStatusinformasjonHvisEksisterer(
                 dokumentforsendelse.getForsendelsesId());
 
