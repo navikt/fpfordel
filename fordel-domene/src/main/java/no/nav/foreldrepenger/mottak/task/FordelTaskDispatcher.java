@@ -45,18 +45,6 @@ public class FordelTaskDispatcher extends BasicCdiProsessTaskDispatcher {
         super.dispatch(task);
     }
 
-    private static boolean isExpired(Subject sub) {
-        return Optional.ofNullable(sub)
-                .map(s -> s.getPublicCredentials(OidcCredential.class)
-                        .stream()
-                        .map(OidcCredential::getToken)
-                        .filter(isNotExpired())
-                        .findFirst()
-                        .isEmpty())
-                .orElse(true);
-
-    }
-
     private static String subject(String token) {
         try {
             return SignedJWT.parse(token).getJWTClaimsSet().getSubject();
