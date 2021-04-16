@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.fordel.web.app.exceptions.JsonParseExceptionMapper;
 import no.nav.foreldrepenger.fordel.web.app.forvaltning.ForvaltningRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste;
-import no.nav.security.token.support.jaxrs.JwtTokenContainerRequestFilter;
+import no.nav.foreldrepenger.fordel.web.app.tjenester.WhitelistingJwtTokenContainerRequestFilter;
 import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
 
 @ApplicationPath(ApplicationConfig.API_URI)
@@ -62,7 +62,7 @@ public class ApplicationConfig extends Application {
     @Override
     public Set<Class<?>> getClasses() {
         return Set.of(
-                JwtTokenContainerRequestFilter.class,
+                WhitelistingJwtTokenContainerRequestFilter.class,
                 ProsessTaskRestTjeneste.class,
                 DokumentforsendelseRestTjeneste.class,
                 ForvaltningRestTjeneste.class,
