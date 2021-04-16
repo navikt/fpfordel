@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.security.auth.Subject;
 
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ import com.nimbusds.jwt.SignedJWT;
 
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.impl.BasicCdiProsessTaskDispatcher;
+import no.nav.vedtak.felles.prosesstask.log.TaskAuditlogger;
 import no.nav.vedtak.isso.SystemUserIdTokenProvider;
 import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
 import no.nav.vedtak.sikkerhet.domene.AuthenticationLevelCredential;
@@ -29,6 +31,12 @@ public class FordelTaskDispatcher extends BasicCdiProsessTaskDispatcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(FordelTaskDispatcher.class);
     private static final int LEVEL_INTERN_BRUKER = 4;
+    private TaskAuditlogger taskAuditlogger;
+
+    @Inject
+    public FordelTaskDispatcher(TaskAuditlogger taskAuditlogger) {
+        this.taskAuditlogger = taskAuditlogger;
+    }
 
     @Override
     public void dispatch(ProsessTaskData task) throws Exception {
@@ -42,6 +50,7 @@ public class FordelTaskDispatcher extends BasicCdiProsessTaskDispatcher {
         sub.getPrincipals().add(internBruker(subject(token)));
         sh.setSubject(sub);
         super.dispatch(task);
+        taskAuditlogger.logg(task);
     }
 
     private static String subject(String token) {

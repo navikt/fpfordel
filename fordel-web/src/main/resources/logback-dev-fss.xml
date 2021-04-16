@@ -3,4 +3,5 @@
     <logger name="no.nav.foreldrepenger" level="trace" />
     <logger name="no.nav.security" level="trace" />
     <logger name="no.nav.vedtak.sikkerhet" level="trace" />
+    <logger name="no.nav.vedtak.isso" level="trace" />
 </included>
