@@ -35,18 +35,13 @@ public class FordelTaskDispatcher extends BasicCdiProsessTaskDispatcher {
     @Override
     public void dispatch(ProsessTaskData task) throws Exception {
         var sh = subjectHandler();
-        if (isExpired(sh.getSubject())) {
-            LOG.trace("Tokenet er utgått");
-            var sub = new Subject();
-            var token = SystemUserIdTokenProvider.getSystemUserIdToken().getToken();
-            sub.getPublicCredentials().add(new OidcCredential(token));
-            sub.getPublicCredentials().add(new AuthenticationLevelCredential(LEVEL_INTERN_BRUKER));
-            sub.getPrincipals().add(consumerId());
-            sub.getPrincipals().add(internBruker(subject(token)));
-            sh.setSubject(sub);
-        } else {
-            LOG.trace("Tokenet er ikke utgått");
-        }
+        var sub = new Subject();
+        var token = SystemUserIdTokenProvider.getSystemUserIdToken().getToken();
+        sub.getPublicCredentials().add(new OidcCredential(token));
+        sub.getPublicCredentials().add(new AuthenticationLevelCredential(LEVEL_INTERN_BRUKER));
+        sub.getPrincipals().add(consumerId());
+        sub.getPrincipals().add(internBruker(subject(token)));
+        sh.setSubject(sub);
         super.dispatch(task);
     }
 
