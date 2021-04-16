@@ -150,6 +150,8 @@ abstract class AbstractJettyServer {
         try (var resource = Resource.newClassPathResource("/WEB-INF/web.xml")) {
             descriptor = resource.getURI().toURL().toExternalForm();
         }
+        ctx.setInitParameter("resteasy.async.job.service.enabled", "false");
+        ctx.setInitParameter("resteasy.injector.factory", "org.jboss.resteasy.cdi.CdiInjectorFactory");
         ctx.setDescriptor(descriptor);
         ctx.setBaseResource(createResourceCollection());
         ctx.setContextPath(webKonfigurasjon.getContextPath());
