@@ -49,6 +49,7 @@ import org.slf4j.MDC;
 import no.nav.security.token.support.core.configuration.IssuerProperties;
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration;
 import no.nav.security.token.support.jaxrs.servlet.JaxrsJwtTokenValidationFilter;
+import no.nav.vedtak.sikkerhet.ContextPathHolder;
 import no.nav.vedtak.util.env.Environment;
 
 abstract class AbstractJettyServer {
@@ -152,6 +153,7 @@ abstract class AbstractJettyServer {
         ctx.setDescriptor(descriptor);
         ctx.setBaseResource(createResourceCollection());
         ctx.setContextPath(webKonfigurasjon.getContextPath());
+        ContextPathHolder.instance(ctx.getContextPath());
         ctx.setConfigurations(CONFIGURATIONS);
         ctx.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", "^.*resteasy-.*.jar$|^.*felles-.*.jar$");
         ctx.setSecurityHandler(createSecurityHandler());
