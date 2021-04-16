@@ -6,9 +6,7 @@ import static no.nav.vedtak.sikkerhet.domene.SluttBruker.internBruker;
 
 import java.security.Principal;
 import java.text.ParseException;
-import java.util.Date;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.security.auth.Subject;
@@ -34,6 +32,7 @@ public class FordelTaskDispatcher extends BasicCdiProsessTaskDispatcher {
 
     @Override
     public void dispatch(ProsessTaskData task) throws Exception {
+        LOG.trace("Dispacher dispatching");
         var sh = subjectHandler();
         var sub = new Subject();
         var token = SystemUserIdTokenProvider.getSystemUserIdToken().getToken();
@@ -68,15 +67,4 @@ public class FordelTaskDispatcher extends BasicCdiProsessTaskDispatcher {
                 + ThreadLocalSubjectHandler.class + ", men fikk istedet: " + subjectHandler.getClass());
     }
 
-    private static Predicate<String> isNotExpired() {
-        return token -> {
-            try {
-                var exp = SignedJWT.parse(token).getJWTClaimsSet().getExpirationTime();
-                LOG.trace("Tokenet utgår {}", exp);
-                return exp.after(new Date());
-            } catch (ParseException e) {
-                throw new IllegalArgumentException("Kunne ikke parse token", e);
-            }
-        };
-    }
 }
