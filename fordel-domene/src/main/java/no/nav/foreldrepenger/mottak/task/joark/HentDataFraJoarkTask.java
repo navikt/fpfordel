@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveT
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
+import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
@@ -107,7 +108,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         dataWrapper.setDokumentTypeId(journalpost.getHovedtype());
         dataWrapper.setBehandlingTema(ArkivUtil.behandlingTemaFraDokumentType(dataWrapper.getBehandlingTema(), journalpost.getHovedtype()));
         dataWrapper.setDokumentKategori(ArkivUtil.utledKategoriFraDokumentType(journalpost.getHovedtype()));
-        journalpost.getBrukerAktørId().ifPresent(dataWrapper::setAktørId);
+        finnAktørId(journalpost).ifPresent(dataWrapper::setAktørId);
         journalpost.getJournalfoerendeEnhet().ifPresent(dataWrapper::setJournalførendeEnhet);
         dataWrapper.setStrukturertDokument(journalpost.getInnholderStrukturertInformasjon());
         journalpost.getSaksnummer().ifPresent(s -> {
@@ -186,6 +187,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             }
         } else if (!arkivTjeneste.oppdaterRettMangler(journalpost, dataWrapper.getAktørId().get(), dataWrapper.getBehandlingTema(),
                 dataWrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT))) {
+            LOG.info("FPFORDEL HentFraArkiv kunne ikke rette opp mangler journalpost {} kanal {} hovedtype {} alle typer {}",
+                    dataWrapper.getArkivId(), journalpost.getKanal(), journalpost.getHovedtype(), journalpost.getAlleTyper());
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
 
@@ -240,6 +243,12 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     private static boolean kreverStartdatoForInntektsmeldingenManuellBehandling(MottakMeldingDataWrapper dataWrapper) {
         LocalDate startDato = dataWrapper.getInntektsmeldingStartDato().orElse(Tid.TIDENES_BEGYNNELSE);
         return startDato.isBefore(KonfigVerdier.ENDRING_BEREGNING_DATO);
+    }
+
+    private Optional<String> finnAktørId(ArkivJournalpost journalpost) {
+        if (journalpost.getBrukerAktørId().isPresent()) return journalpost.getBrukerAktørId();
+        if (journalpost.getAvsenderIdent() != null) return aktørConsumer.hentAktørIdForPersonIdent(journalpost.getAvsenderIdent());
+        return Optional.empty();
     }
 
 }

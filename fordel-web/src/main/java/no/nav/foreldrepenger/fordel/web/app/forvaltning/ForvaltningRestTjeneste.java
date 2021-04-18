@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.mottak.task.KlargjorForVLTask;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.VedlikeholdSchedulerTask;
 import no.nav.foreldrepenger.sikkerhet.abac.BeskyttetRessursAttributt;
+import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -36,6 +37,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 @Path("/forvaltning")
 @RequestScoped
 @Transactional
+@Unprotected // Endres til Protected når DokumentforsendelseRestTjeneste gjør det samme
 public class ForvaltningRestTjeneste {
 
     private ProsessTaskRepository prosessTaskRepository;
