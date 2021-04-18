@@ -25,7 +25,7 @@ public class TokenSupportTokenProvider implements TokenProvider {
     public String getUid() {
         return firstToken("UID")
                 .map(JwtToken::getSubject)
-                .orElseThrow();
+                .orElseGet(() -> SubjectHandler.getSubjectHandler().getUid());
     }
 
     @Override
