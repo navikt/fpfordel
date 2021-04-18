@@ -21,14 +21,11 @@ public class WhitelistingJwtTokenContainerRequestFilter extends JwtTokenContaine
     public void filter(ContainerRequestContext ctx) {
         Method method = resourceInfo.getResourceMethod();
         LOG.trace("{} i klasse {}", method.getName(), method.getDeclaringClass());
-        /*
-         * if (!isWhitelisted(method)) { LOG.trace("{} i klasse {} er ikke whitelisted",
-         * method.getName(), method.getDeclaringClass()); super.filter(ctx); } else {
-         * LOG.trace("{} er whitelisted", method.getName()); }
-         */
+        if (method.getDeclaringClass().getName().startsWith("io.swagger")) {
+            LOG.trace("{} er whitelisted", method.getName());
+        } else {
+            super.filter(ctx);
+        }
     }
 
-    private boolean isWhitelisted(Method method) {
-        return false;
-    }
 }
