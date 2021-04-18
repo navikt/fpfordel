@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.security.token.support.core.jwt.JwtToken;
 import no.nav.security.token.support.jaxrs.JaxrsTokenValidationContextHolder;
 import no.nav.vedtak.sikkerhet.abac.TokenProvider;
+import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @Alternative
 @Dependent
@@ -31,7 +32,12 @@ public class TokenSupportTokenProvider implements TokenProvider {
     public String userToken() {
         return firstToken("USER")
                 .map(JwtToken::getTokenAsString)
-                .orElseThrow();
+                .orElseGet(() -> saksbehandlerToken());
+    }
+
+    private String saksbehandlerToken() {
+        return SubjectHandler.getSubjectHandler().getInternSsoToken();
+
     }
 
     private Optional<JwtToken> firstToken(String type) {
