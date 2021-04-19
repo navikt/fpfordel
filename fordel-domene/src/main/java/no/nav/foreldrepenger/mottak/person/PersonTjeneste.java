@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.function.Function;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -37,7 +37,7 @@ import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
-@ApplicationScoped
+@Dependent
 public class PersonTjeneste implements PersonInformasjon {
 
     private static final Logger LOG = LoggerFactory.getLogger(PersonTjeneste.class);
@@ -47,12 +47,9 @@ public class PersonTjeneste implements PersonInformasjon {
     private static final int DEFAULT_CACHE_SIZE = 1000;
     private static final Duration DEFAULT_CACHE_DURATION = Duration.ofMinutes(55);
 
-    private LoadingCache<String, String> tilFnr;
-    private LoadingCache<String, String> tilAktør;
-    private Pdl pdl;
-
-    PersonTjeneste() {
-    }
+    private final LoadingCache<String, String> tilFnr;
+    private final LoadingCache<String, String> tilAktør;
+    private final Pdl pdl;
 
     @Inject
     public PersonTjeneste(@Jersey Pdl pdl) {
