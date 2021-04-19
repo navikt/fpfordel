@@ -5,7 +5,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.net.URI;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
@@ -17,17 +17,14 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-@ApplicationScoped
+@Dependent
 @Jersey("tilbake")
 public class JerseyTilbakekrevingRestKlient extends AbstractJerseyOidcRestClient implements JournalpostSender {
     private static final String DEFAULT_TILBAKE_BASE_URI = "http://fptilbake";
     private static final String JOURNALPOST_PATH = "/fptilbake/api/fordel/journalpost";
     private static final Logger LOG = LoggerFactory.getLogger(JerseyTilbakekrevingRestKlient.class);
 
-    private URI endpoint;
-
-    public JerseyTilbakekrevingRestKlient() {
-    }
+    private final URI endpoint;
 
     @Inject
     public JerseyTilbakekrevingRestKlient(@KonfigVerdi(value = "fptilbake.base.url", defaultVerdi = DEFAULT_TILBAKE_BASE_URI) URI endpoint) {

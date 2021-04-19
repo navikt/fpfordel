@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -49,7 +49,7 @@ import no.nav.foreldrepenger.mottak.journal.saf.model.VariantFormat;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 
-@ApplicationScoped
+@Dependent
 public class ArkivTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArkivTjeneste.class);
@@ -61,14 +61,10 @@ public class ArkivTjeneste {
             "Klage", DokumentTypeId.KLAGE_DOKUMENT,
             "Anke", DokumentTypeId.KLAGE_DOKUMENT);
 
-    private SafTjeneste saf;
-    private DokArkiv dokArkivTjeneste;
-    private DokumentRepository dokumentRepository;
-    private PersonInformasjon personTjeneste;
-
-    ArkivTjeneste() {
-        // CDI
-    }
+    private final SafTjeneste saf;
+    private final DokArkiv dokArkivTjeneste;
+    private final DokumentRepository dokumentRepository;
+    private final PersonInformasjon personTjeneste;
 
     @Inject
     public ArkivTjeneste(SafTjeneste saf,
@@ -118,7 +114,8 @@ public class ArkivTjeneste {
                 .medDatoOpprettet(journalpost.datoOpprettet())
                 .medEksternReferanseId(journalpost.eksternReferanseId())
                 .medTilleggsopplysninger(journalpost.tilleggsopplysninger())
-                .medSaksnummer(Optional.ofNullable(journalpost.sak()).map(s -> Optional.ofNullable(s.fagsakId()).orElse(s.arkivsaksnummer())).orElse(null))
+                .medSaksnummer(
+                        Optional.ofNullable(journalpost.sak()).map(s -> Optional.ofNullable(s.fagsakId()).orElse(s.arkivsaksnummer())).orElse(null))
                 .build();
     }
 
@@ -228,7 +225,9 @@ public class ArkivTjeneste {
         if (sakId == null) {
             throw new IllegalArgumentException("FPFORDEL oppdaterMedSak mangler saksnummer " + journalpostId);
         }
-        // Egne regler for FAGSAK https://confluence.adeo.no/display/BOA/oppdaterJournalpost - dette blir standard i contract-phase
+        // Egne regler for FAGSAK
+        // https://confluence.adeo.no/display/BOA/oppdaterJournalpost - dette blir
+        // standard i contract-phase
         var builder = OppdaterJournalpostRequest.ny()
                 .medSak(lagSakForSaksnummer(sakId))
                 .medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode())
@@ -324,8 +323,8 @@ public class ArkivTjeneste {
         request.setBruker(bruker);
         request.setAvsenderMottaker(avsender);
         request.setDokumenter(opprettDokumenter);
-        request.setTilleggsopplysninger(DokumentTypeId.UDEFINERT.equals(hovedtype) ? List.of() :
-                List.of(new Tilleggsopplysning(FP_DOK_TYPE, hovedtype.getOffisiellKode())));
+        request.setTilleggsopplysninger(
+                DokumentTypeId.UDEFINERT.equals(hovedtype) ? List.of() : List.of(new Tilleggsopplysning(FP_DOK_TYPE, hovedtype.getOffisiellKode())));
 
         return request;
     }
