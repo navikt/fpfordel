@@ -6,7 +6,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import java.net.URI;
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
@@ -27,7 +27,7 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-@ApplicationScoped
+@Dependent
 @Jersey
 public class JerseyFagsakRestKlient extends AbstractJerseyOidcRestClient implements FagsakTjeneste {
     private static final String DEFAULT_FPSAK_BASE_URI = "http://fpsak";
@@ -38,10 +38,7 @@ public class JerseyFagsakRestKlient extends AbstractJerseyOidcRestClient impleme
 
     private static final Logger LOG = LoggerFactory.getLogger(JerseyFagsakRestKlient.class);
 
-    private URI endpoint;
-
-    public JerseyFagsakRestKlient() {
-    }
+    private final URI endpoint;
 
     @Inject
     public JerseyFagsakRestKlient(@KonfigVerdi(value = "fpsak.base.url", defaultVerdi = DEFAULT_FPSAK_BASE_URI) URI endpoint) {
