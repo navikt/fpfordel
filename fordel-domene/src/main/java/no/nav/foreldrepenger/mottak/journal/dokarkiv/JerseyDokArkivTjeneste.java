@@ -6,7 +6,7 @@ import static javax.ws.rs.core.UriBuilder.fromUri;
 
 import java.net.URI;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
@@ -22,7 +22,7 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-@ApplicationScoped
+@Dependent
 @Jersey
 public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient implements DokArkiv {
 
@@ -32,10 +32,7 @@ public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient impleme
     private static final String FERDIGSTILL_PATH = OPPDATER_PATH + "/ferdigstill";
     private static final Logger LOG = LoggerFactory.getLogger(JerseyDokArkivTjeneste.class);
 
-    private URI base;
-
-    JerseyDokArkivTjeneste() {
-    }
+    private final URI base;
 
     @Inject
     public JerseyDokArkivTjeneste(@KonfigVerdi(value = "dokarkiv.base.url", defaultVerdi = DEFAULT_URI) URI base) {
