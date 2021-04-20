@@ -41,8 +41,12 @@ public class TokenSupportTokenProvider implements TokenProvider {
     }
 
     private Optional<JwtToken> firstToken(String type) {
-        var token = JaxrsTokenValidationContextHolder.getHolder().getTokenValidationContext().getFirstValidToken();
-        token.ifPresent(t -> LOG.trace("{} Issuer {}", type, t.getIssuer()));
-        return token;
+        try {
+            var token = JaxrsTokenValidationContextHolder.getHolder().getTokenValidationContext().getFirstValidToken();
+            token.ifPresent(t -> LOG.trace("{} Issuer {}", type, t.getIssuer()));
+            return token;
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 }
