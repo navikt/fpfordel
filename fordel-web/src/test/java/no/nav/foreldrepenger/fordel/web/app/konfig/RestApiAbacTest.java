@@ -87,7 +87,7 @@ class RestApiAbacTest {
         Class<?> klasse = metode.getDeclaringClass();
         BeskyttetRessurs annotation = metode.getAnnotation(BeskyttetRessurs.class);
         if ((annotation != null) && !annotation.property().isEmpty()) {
-            if (annotation.property().equals("abac.attributt.drift")) {
+            if (annotation.property().equals("abac.attributt.drift") || annotation.property().equals("no.nav.abac.attributter.foreldrepenger.drift")) {
                 return;
             }
             fail(klasse.getSimpleName() + "." + metode.getName() + " @" + annotation.getClass().getSimpleName() + " bruker ikke-støttet property: "
