@@ -54,7 +54,7 @@ public class JerseyFagsakRestKlient extends AbstractJerseyOidcRestClient impleme
                 .buildPost(json(saksnummerDto))
                 .invoke(FagsakInfomasjonDto.class);
         LOG.info("Fant fagsakinformasjon OK");
-        return Optional.of(info);
+        return Optional.ofNullable(info);
     }
 
     @Override
