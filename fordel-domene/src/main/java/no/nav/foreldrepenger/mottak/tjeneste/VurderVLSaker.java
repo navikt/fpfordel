@@ -16,32 +16,34 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.klient.VurderFagsystemResultat;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.konfig.Tid;
 
 /**
  * Tjeneste som henter ut informasjon fra søknadsskjema og vurderer denne i
  * henhold til følgende kriterier.
  *
- * - HVIS aktørID og behandlingstema er likt
- * - Fødselsdato innen intervall -16 - +4 uker fra termin
- * - Fødselsdato matcher innen et visst slingringsmonn
- * - Omsorgsovertagelsesdato matcher innen et slingringsmonn OG fødselsdato for barn matcher eksakt
+ * - HVIS aktørID og behandlingstema er likt - Fødselsdato innen intervall -16 -
+ * +4 uker fra termin - Fødselsdato matcher innen et visst slingringsmonn -
+ * Omsorgsovertagelsesdato matcher innen et slingringsmonn OG fødselsdato for
+ * barn matcher eksakt
  *
- * For ustrukturerte forsendelser gjelder andre regler; en sak er "passende" HVIS aktørID er lik, OG saken er åpen.
+ * For ustrukturerte forsendelser gjelder andre regler; en sak er "passende"
+ * HVIS aktørID er lik, OG saken er åpen.
  *
- * Hvis det ikke finnes noen åpen sak så kan "passende sak" være en avsluttet sak som er nyere enn 3 måneder.
+ * Hvis det ikke finnes noen åpen sak så kan "passende sak" være en avsluttet
+ * sak som er nyere enn 3 måneder.
  */
 
 @Dependent
 public class VurderVLSaker {
-
 
     private final FagsakTjeneste fagsakRestKlient;
     private final VurderInfotrygd vurderInfotrygd;
 
     @Inject
     public VurderVLSaker(VurderInfotrygd vurderInfotrygd,
-            /* @Jersey */FagsakTjeneste fagsakRestKlient) {
+            @Jersey FagsakTjeneste fagsakRestKlient) {
         this.vurderInfotrygd = vurderInfotrygd;
         this.fagsakRestKlient = fagsakRestKlient;
     }
@@ -67,8 +69,7 @@ public class VurderVLSaker {
     }
 
     private Destinasjon sjekkInfotrygd(MottakMeldingDataWrapper w) {
-        return vurderInfotrygd.kreverManuellVurdering(w) ?
-                Destinasjon.GOSYS : Destinasjon.FPSAK_UTEN_SAK;
+        return vurderInfotrygd.kreverManuellVurdering(w) ? Destinasjon.GOSYS : Destinasjon.FPSAK_UTEN_SAK;
     }
 
     private static boolean skalBehandlesEtterTidligereRegler(MottakMeldingDataWrapper dataWrapper) {
@@ -104,7 +105,7 @@ public class VurderVLSaker {
     private static boolean erKlageEllerAnke(MottakMeldingDataWrapper data) {
         return (DokumentTypeId.KLAGE_DOKUMENT.equals(data.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT))
                 || DokumentKategori.KLAGE_ELLER_ANKE
-                .equals(data.getDokumentKategori().orElse(DokumentKategori.UDEFINERT)));
+                        .equals(data.getDokumentKategori().orElse(DokumentKategori.UDEFINERT)));
     }
 
 }
