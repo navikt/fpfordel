@@ -15,6 +15,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,6 +32,8 @@ import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTypeInfo;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
@@ -144,6 +147,46 @@ public class ForvaltningRestTjeneste {
             ProsessTaskData taskData = new ProsessTaskData(VedlikeholdSchedulerTask.TASKTYPE);
             prosessTaskRepository.lagre(taskData);
         }
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/retryallTasks")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "Restarter alle prosesstask med status FEILET.", summary = "Dette endepunktet vil tvinge feilede tasks til å trigge ett forsøk uavhengig av maks antall forsøk", tags = "prosesstask", responses = {
+            @ApiResponse(responseCode = "200", description = "Response med liste av prosesstasks som restartes"),
+            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
+    })
+    @BeskyttetRessurs(action = CREATE, property = BeskyttetRessursAttributt.DRIFT)
+    public Response retryAllProsessTask() {
+
+        var ptdList = this.prosessTaskRepository.finnAlle(ProsessTaskStatus.FEILET);
+        if (ptdList.isEmpty()) {
+            return Response.ok().build();
+        }
+        VedlikeholdSchedulerTask.resetTilStatusKlar(ptdList,
+                tasktype -> prosessTaskRepository.finnProsessTaskType(tasktype).map(ProsessTaskTypeInfo::getMaksForsøk).orElse(1));
+        ptdList.forEach(ptd -> this.prosessTaskRepository.lagre(ptd));
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/setTaskFerdig")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "Setter feilet prosesstask med angitt prosesstask-id til FERDIG (kjøres ikke)", tags = "prosesstask", responses = {
+            @ApiResponse(responseCode = "200", description = "Angitt prosesstask-id satt til status FERDIG"),
+            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
+    })
+    @BeskyttetRessurs(action = CREATE, property = BeskyttetRessursAttributt.DRIFT)
+    public Response setFeiletProsessTaskFerdig(@Parameter(description = "Prosesstask-id for feilet prosesstask")  @NotNull @Valid RetryTaskKanalrefDto dto) {
+        var taskData = prosessTaskRepository.finn(dto.getProsessTaskIdDto().getProsessTaskId());
+        if (taskData == null || !taskData.getStatus().getDbKode().equals(dto.getRetrySuffix())) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        taskData.setStatus(ProsessTaskStatus.KJOERT);
+        taskData.setSisteFeil(null);
+        taskData.setSisteFeilKode(null);
+        prosessTaskRepository.lagre(taskData);
         return Response.ok().build();
     }
 
