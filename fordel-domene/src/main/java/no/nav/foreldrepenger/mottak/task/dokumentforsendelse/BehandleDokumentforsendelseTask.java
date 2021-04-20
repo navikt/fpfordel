@@ -41,7 +41,6 @@ import no.nav.foreldrepenger.mottak.tjeneste.Destinasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.VurderVLSaker;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -75,7 +74,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     public BehandleDokumentforsendelseTask(ProsessTaskRepository prosessTaskRepository,
             VurderVLSaker vurderVLSaker,
             PersonInformasjon aktørConsumer,
-            @Jersey FagsakTjeneste fagsakRestKlient,
+            FagsakTjeneste fagsakRestKlient,
             ArkivTjeneste arkivTjeneste,
             DokumentRepository dokumentRepository,
             HendelseProdusent hendelseProdusent) {

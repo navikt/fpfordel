@@ -30,7 +30,7 @@ public class KlargjørForVLTjeneste {
     @Inject
     public KlargjørForVLTjeneste(
             @Jersey("dokument") JournalpostSender restKlient,
-            @Jersey FagsakTjeneste fagsakRestKlient,
+            FagsakTjeneste fagsakRestKlient,
             @Jersey("tilbake") JournalpostSender tilbakekrevingRestKlient) {
         this.restKlient = restKlient;
         this.fagsakRestKlient = fagsakRestKlient;

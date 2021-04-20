@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.klient.VurderFagsystemResultat;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.konfig.Tid;
 
 /**
@@ -43,7 +42,7 @@ public class VurderVLSaker {
 
     @Inject
     public VurderVLSaker(VurderInfotrygd vurderInfotrygd,
-            @Jersey FagsakTjeneste fagsakRestKlient) {
+            FagsakTjeneste fagsakRestKlient) {
         this.vurderInfotrygd = vurderInfotrygd;
         this.fagsakRestKlient = fagsakRestKlient;
     }
