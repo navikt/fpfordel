@@ -27,7 +27,7 @@ class GeneralRestExceptionMapperTest {
     @Test
     void skalMappeValideringsfeil() {
         FeltFeilDto feltFeilDto = new FeltFeilDto("Et feltnavn", "En feilmelding");
-        Valideringsfeil valideringsfeil = new Valideringsfeil(List.of(feltFeilDto));
+        ValideringException valideringsfeil = new ValideringException(List.of(feltFeilDto));
 
         Response response = mapper.toResponse(new ApplicationException(valideringsfeil));
 
@@ -35,10 +35,10 @@ class GeneralRestExceptionMapperTest {
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
         FeilDto feilDto = (FeilDto) response.getEntity();
 
-        assertThat(feilDto.getFeilmelding()).contains(
+        assertThat(feilDto.feilmelding()).contains(
                 "Det oppstod en valideringsfeil på felt [Et feltnavn]");
-        assertThat(feilDto.getFeltFeil()).hasSize(1);
-        assertThat(feilDto.getFeltFeil().iterator().next()).isEqualTo(feltFeilDto);
+        assertThat(feilDto.feltFeil()).hasSize(1);
+        assertThat(feilDto.feltFeil().iterator().next()).isEqualTo(feltFeilDto);
     }
 
     @Test
@@ -52,8 +52,8 @@ class GeneralRestExceptionMapperTest {
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
         FeilDto feilDto = (FeilDto) response.getEntity();
 
-        assertThat(feilDto.getType()).isEqualTo(FeilType.MANGLER_TILGANG_FEIL);
-        assertThat(feilDto.getFeilmelding()).contains("ManglerTilgangFeilmeldingKode");
+        assertThat(feilDto.type()).isEqualTo(FeilType.MANGLER_TILGANG_FEIL);
+        assertThat(feilDto.feilmelding()).contains("ManglerTilgangFeilmeldingKode");
     }
 
     @Test
@@ -66,9 +66,9 @@ class GeneralRestExceptionMapperTest {
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
         FeilDto feilDto = (FeilDto) response.getEntity();
 
-        assertThat(feilDto.getFeilmelding()).contains("FUNK_FEIL");
-        assertThat(feilDto.getFeilmelding()).contains("en funksjonell feilmelding");
-        // assertThat(feilDto.getFeilmelding()).contains("et løsningsforslag");
+        assertThat(feilDto.feilmelding()).contains("FUNK_FEIL");
+        assertThat(feilDto.feilmelding()).contains("en funksjonell feilmelding");
+        // assertThat(feilDto.feilmelding()).contains("et løsningsforslag");
     }
 
     @Test
@@ -80,8 +80,8 @@ class GeneralRestExceptionMapperTest {
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
         FeilDto feilDto = (FeilDto) response.getEntity();
 
-        assertThat(feilDto.getFeilmelding()).contains("TEK_FEIL");
-        assertThat(feilDto.getFeilmelding()).contains("en teknisk feilmelding");
+        assertThat(feilDto.feilmelding()).contains("TEK_FEIL");
+        assertThat(feilDto.feilmelding()).contains("en teknisk feilmelding");
     }
 
     @Test
@@ -95,7 +95,7 @@ class GeneralRestExceptionMapperTest {
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
         FeilDto feilDto = (FeilDto) response.getEntity();
 
-        assertThat(feilDto.getFeilmelding()).contains(feilmelding);
+        assertThat(feilDto.feilmelding()).contains(feilmelding);
     }
 
     private static class TestFeil {

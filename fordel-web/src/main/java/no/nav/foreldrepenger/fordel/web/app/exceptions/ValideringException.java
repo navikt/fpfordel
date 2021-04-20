@@ -2,10 +2,10 @@ package no.nav.foreldrepenger.fordel.web.app.exceptions;
 
 import java.util.Collection;
 
-public class Valideringsfeil extends RuntimeException {
+public class ValideringException extends RuntimeException {
     private final Collection<FeltFeilDto> feltFeil;
 
-    public Valideringsfeil(Collection<FeltFeilDto> feltfeil) {
+    public ValideringException(Collection<FeltFeilDto> feltfeil) {
         this.feltFeil = feltfeil;
     }
 
