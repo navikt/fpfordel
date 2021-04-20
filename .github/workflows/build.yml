@@ -68,7 +68,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'open',
-              labels: ['bygg']
+              labels: ['deployment']
             }).then(response => {
               response.data.forEach(issue => {
                 github.issues.update({
