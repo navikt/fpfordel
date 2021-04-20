@@ -5,8 +5,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.MonthDay;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -77,16 +79,20 @@ public class VedlikeholdSchedulerTask implements ProsessTaskHandler {
         if (ptdList.isEmpty()) {
             return;
         }
+        resetTilStatusKlar(ptdList, tasktype -> prosessTaskRepository.finnProsessTaskType(tasktype).map(ProsessTaskTypeInfo::getMaksForsøk).orElse(1));
+        ptdList.forEach(ptd -> this.prosessTaskRepository.lagre(ptd));
+    }
+
+    public static void resetTilStatusKlar(List<ProsessTaskData> tasks, Function<String, Integer> forsøkFinder) {
         LocalDateTime nå = LocalDateTime.now();
         Map<String, Integer> taskTypesMaxForsøk = new HashMap<>();
-        ptdList.stream().map(ProsessTaskData::getTaskType).forEach(tasktype -> {
+        tasks.stream().map(ProsessTaskData::getTaskType).forEach(tasktype -> {
             if (taskTypesMaxForsøk.get(tasktype) == null) {
-                int forsøk = prosessTaskRepository.finnProsessTaskType(tasktype).map(ProsessTaskTypeInfo::getMaksForsøk)
-                        .orElse(1);
+                int forsøk = forsøkFinder.apply(tasktype);
                 taskTypesMaxForsøk.put(tasktype, forsøk);
             }
         });
-        ptdList.forEach(ptd -> {
+        tasks.forEach(ptd -> {
             ptd.setStatus(ProsessTaskStatus.KLAR);
             ptd.setNesteKjøringEtter(nå);
             ptd.setSisteFeilKode(null);
@@ -94,7 +100,6 @@ public class VedlikeholdSchedulerTask implements ProsessTaskHandler {
             if (taskTypesMaxForsøk.get(ptd.getTaskType()).equals(ptd.getAntallFeiledeForsøk())) {
                 ptd.setAntallFeiledeForsøk(ptd.getAntallFeiledeForsøk() - 1);
             }
-            this.prosessTaskRepository.lagre(ptd);
         });
     }
 
