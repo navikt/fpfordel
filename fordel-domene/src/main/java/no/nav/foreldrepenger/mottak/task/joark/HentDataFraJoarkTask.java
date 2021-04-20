@@ -247,7 +247,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     private Optional<String> finnAktørId(ArkivJournalpost journalpost) {
         if (journalpost.getBrukerAktørId().isPresent()) return journalpost.getBrukerAktørId();
-        if (journalpost.getAvsenderIdent() != null) return aktørConsumer.hentAktørIdForPersonIdent(journalpost.getAvsenderIdent());
+        if (journalpost.getAvsenderIdent() != null && journalpost.getOriginalJournalpost().avsenderMottaker().getIdHvisFNR().isPresent())
+            return aktørConsumer.hentAktørIdForPersonIdent(journalpost.getAvsenderIdent());
         return Optional.empty();
     }
 
