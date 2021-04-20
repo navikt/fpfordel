@@ -14,6 +14,8 @@ import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.vedtak.exception.FunksjonellException;
+
 public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViolationException> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConstraintViolationMapper.class);
@@ -26,8 +28,9 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
             String feltNavn = getFeltNavn(cv.getPropertyPath());
             feilene.add(new FeltFeilDto(feltNavn, cv.getMessage(), null));
         }
-        var feltNavn = feilene.stream().map(felt -> felt.getNavn()).collect(Collectors.toList());
-        var feil = FeltValideringFeil.feltverdiKanIkkeValideres(feltNavn);
+        var feltNavn = feilene.stream().map(felt -> felt.navn()).collect(Collectors.toList());
+        var feil = new FunksjonellException("FP-328673", String.format("Det oppstod en valideringsfeil på felt %s", feltNavn),
+        "Kontroller at alle feltverdier er korrekte");
         LOG.warn(feil.getMessage());
         return Response
                 .status(Response.Status.BAD_REQUEST)
