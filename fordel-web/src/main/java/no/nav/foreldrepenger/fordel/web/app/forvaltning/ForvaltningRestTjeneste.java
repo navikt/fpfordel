@@ -157,7 +157,7 @@ public class ForvaltningRestTjeneste {
             @ApiResponse(responseCode = "200", description = "Response med liste av prosesstasks som restartes"),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
     })
-    @BeskyttetRessurs(action = CREATE, property = BeskyttetRessursAttributt.DRIFT)
+    @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
     public Response retryAlleProsessTasks() {
 
         var ptdList = this.prosessTaskRepository.finnAlle(ProsessTaskStatus.FEILET);
@@ -177,7 +177,7 @@ public class ForvaltningRestTjeneste {
             @ApiResponse(responseCode = "200", description = "Angitt prosesstask-id satt til status FERDIG"),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
     })
-    @BeskyttetRessurs(action = CREATE, property = BeskyttetRessursAttributt.DRIFT)
+    @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
     public Response setFeiletTaskFerdig(@Parameter(description = "Prosesstask-id for feilet prosesstask")  @NotNull @Valid RetryTaskKanalrefDto dto) {
         var taskData = prosessTaskRepository.finn(dto.getProsessTaskIdDto().getProsessTaskId());
         if (taskData == null || !taskData.getStatus().getDbKode().equals(dto.getRetrySuffix())) {
