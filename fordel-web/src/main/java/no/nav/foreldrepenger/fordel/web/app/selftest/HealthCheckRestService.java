@@ -12,7 +12,11 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
+import no.nav.foreldrepenger.fordel.web.app.tjenester.ApplicationServiceStarter;
 import no.nav.foreldrepenger.mottak.felles.LivenessAware;
 import no.nav.foreldrepenger.mottak.felles.ReadinessAware;
 
@@ -20,23 +24,27 @@ import no.nav.foreldrepenger.mottak.felles.ReadinessAware;
 @ApplicationScoped
 public class HealthCheckRestService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(HealthCheckRestService.class);
     private static final String RESPONSE_CACHE_KEY = "Cache-Control";
     private static final String RESPONSE_CACHE_VAL = "must-revalidate,no-cache,no-store";
     private static final String RESPONSE_OK = "OK";
 
     private List<LivenessAware> live;
     private List<ReadinessAware> ready;
+    private ApplicationServiceStarter starter;
 
     public HealthCheckRestService() {
         // CDI
     }
 
     @Inject
-    public HealthCheckRestService(@Any Instance<LivenessAware> livenessAware, @Any Instance<ReadinessAware> readinessAware) {
-        this(livenessAware.stream().collect(toList()), readinessAware.stream().collect(toList()));
+    public HealthCheckRestService(ApplicationServiceStarter starter, @Any Instance<LivenessAware> livenessAware,
+            @Any Instance<ReadinessAware> readinessAware) {
+        this(starter, livenessAware.stream().collect(toList()), readinessAware.stream().collect(toList()));
     }
 
-    public HealthCheckRestService(List<LivenessAware> live, List<ReadinessAware> ready) {
+    public HealthCheckRestService(ApplicationServiceStarter starter, List<LivenessAware> live, List<ReadinessAware> ready) {
+        this.starter = starter;
         this.live = live;
         this.ready = ready;
     }
@@ -72,6 +80,15 @@ public class HealthCheckRestService {
                 .status(Response.Status.SERVICE_UNAVAILABLE)
                 .header(RESPONSE_CACHE_KEY, RESPONSE_CACHE_VAL)
                 .build();
+    }
+
+    @GET
+    @Path("preStop")
+    @Operation(description = "kalles på før stopp", tags = "nais", hidden = true)
+    public Response preStop() {
+        LOG.info("preStop endepunkt kalt");
+        starter.stopServices();
+        return Response.ok(RESPONSE_OK).build();
     }
 
 }
