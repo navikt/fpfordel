@@ -12,11 +12,10 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.mottak.felles.LivenessAware;
 import no.nav.foreldrepenger.mottak.felles.ReadinessAware;
 
 @ApplicationScoped
-public class DatabaseHealthCheck implements LivenessAware, ReadinessAware {
+public class DatabaseHealthCheck implements ReadinessAware {
 
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseHealthCheck.class);
     private static final String JDBC_DEFAULT_DS = "jdbc/defaultDS";
@@ -51,11 +50,6 @@ public class DatabaseHealthCheck implements LivenessAware, ReadinessAware {
             return false;
         }
         return true;
-    }
-
-    @Override
-    public boolean isAlive() {
-        return isOK();
     }
 
     @Override

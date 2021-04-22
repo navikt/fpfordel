@@ -13,8 +13,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.fordel.web.app.selftest.checks.DatabaseHealthCheck;
-import no.nav.foreldrepenger.mottak.hendelse.JournalføringHendelseStream;
+import no.nav.foreldrepenger.mottak.felles.LivenessAware;
+import no.nav.foreldrepenger.mottak.felles.ReadinessAware;
 
 @ExtendWith(MockitoExtension.class)
 public class HealthCheckRestServiceTest {
@@ -22,21 +22,19 @@ public class HealthCheckRestServiceTest {
     private HealthCheckRestService restTjeneste;
 
     @Mock
-    private JournalføringHendelseStream kafka;
+    private LivenessAware kafka;
     @Mock
-    private DatabaseHealthCheck db;
+    private ReadinessAware db;
 
     @BeforeEach
     public void setup() {
-        restTjeneste = new HealthCheckRestService(List.of(db), List.of(kafka));
+        restTjeneste = new HealthCheckRestService(List.of(kafka), List.of(db));
     }
 
     @Test
     public void test_isAlive_skal_returnere_status_200() {
         when(kafka.isAlive()).thenReturn(true);
-
         Response response = restTjeneste.isAlive();
-
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
