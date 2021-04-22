@@ -14,7 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.mottak.felles.kafka.KafkaIntegration;
+import no.nav.foreldrepenger.mottak.felles.LivenessAware;
+import no.nav.foreldrepenger.mottak.felles.ReadinessAware;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
 import no.nav.vedtak.apptjeneste.AppServiceHandler;
 
@@ -22,7 +23,7 @@ import no.nav.vedtak.apptjeneste.AppServiceHandler;
  * Dokumentasjon https://confluence.adeo.no/pages/viewpage.action?pageId=315215917
  */
 @ApplicationScoped
-public class JournalføringHendelseStream implements KafkaIntegration, AppServiceHandler {
+public class JournalføringHendelseStream implements LivenessAware, ReadinessAware, AppServiceHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(JournalføringHendelseStream.class);
     private static final String TEMA_FOR = Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode();
@@ -101,9 +102,15 @@ public class JournalføringHendelseStream implements KafkaIntegration, AppServic
     }
 
     @Override
+    public boolean isReady() {
+        return isAlive();
+    }
+
+    @Override
     public void stop() {
         LOG.info("Starter shutdown av topic={}, tilstand={} med 10 sekunder timeout", getTopicName(), stream.state());
         stream.close(Duration.ofSeconds(20));
         LOG.info("Shutdown av topic={}, tilstand={} med 10 sekunder timeout", getTopicName(), stream.state());
     }
+
 }
