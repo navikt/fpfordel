@@ -34,7 +34,6 @@ import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
-import no.nav.vedtak.util.StringUtils;
 
 /**
  * <p>
@@ -67,7 +66,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     @Override
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
-        if (StringUtils.nullOrEmpty(dataWrapper.getArkivId())) {
+        if (dataWrapper.getArkivId() == null || dataWrapper.getArkivId().isEmpty()) {
             throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
                     MottakMeldingDataWrapper.ARKIV_ID_KEY, dataWrapper.getId());
         }
