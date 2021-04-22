@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.fordel.web.app.tjenester.ApplicationServiceStarter;
 import no.nav.foreldrepenger.mottak.felles.LivenessAware;
 import no.nav.foreldrepenger.mottak.felles.ReadinessAware;
 
@@ -23,13 +24,16 @@ public class HealthCheckRestServiceTest {
     private HealthCheckRestService sjekk;
 
     @Mock
+    private ApplicationServiceStarter starter;
+
+    @Mock
     private LivenessAware kafka;
     @Mock
     private ReadinessAware db;
 
     @BeforeEach
     public void setup() {
-        sjekk = new HealthCheckRestService(List.of(kafka), List.of(db));
+        sjekk = new HealthCheckRestService(starter, List.of(kafka), List.of(db));
     }
 
     @Test
