@@ -1,10 +1,9 @@
 package no.nav.foreldrepenger.fordel.web.app.tjenester;
 
-import java.util.HashMap;
-import java.util.Map;
+import static java.util.stream.Collectors.toList;
+
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
@@ -21,7 +20,7 @@ import no.nav.vedtak.apptjeneste.AppServiceHandler;
 public class ApplicationServiceStarter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationServiceStarter.class);
-    private Map<AppServiceHandler, AtomicBoolean> serviceMap = new HashMap<>();
+    private List<AppServiceHandler> handlers;
 
     ApplicationServiceStarter() {
         // CDI
@@ -29,32 +28,27 @@ public class ApplicationServiceStarter {
 
     @Inject
     public ApplicationServiceStarter(@Any Instance<AppServiceHandler> serviceHandlers) {
-        var i = serviceHandlers.iterator();
-        while (i.hasNext()) {
-            serviceMap.put(i.next(), new AtomicBoolean());
-        }
+        handlers = serviceHandlers.stream().collect(toList());
     }
 
     public void startServices() {
         DefaultExports.initialize();
-        serviceMap.forEach((key, value) -> {
-            if (value.compareAndSet(false, true)) {
-                LOGGER.info("starter service: {}", key.getClass().getSimpleName());
-                key.start();
-            }
+        handlers.forEach(h -> {
+            LOGGER.info("Starter service: {}", h.getClass().getSimpleName());
+            h.start();
         });
     }
 
     public void stopServices() {
-        LOGGER.info("Stopper {} services", serviceMap.size());
-        var handlers = serviceMap.keySet().stream()
+        LOGGER.info("Stopper {} services", handlers.size());
+        var appHandlers = handlers.stream()
                 .map(h -> CompletableFuture.runAsync(() -> {
                     LOGGER.info("Stopper service {}", h.getClass().getSimpleName());
                     h.stop();
-                })).collect(Collectors.toList());
+                })).collect(toList());
 
-        CompletableFuture.allOf(handlers.toArray(new CompletableFuture[handlers.size()])).join();
-        LOGGER.info("Stoppet {} services", serviceMap.size());
+        CompletableFuture.allOf(appHandlers.toArray(new CompletableFuture[appHandlers.size()])).join();
+        LOGGER.info("Stoppet {} services", handlers.size());
 
     }
 }
