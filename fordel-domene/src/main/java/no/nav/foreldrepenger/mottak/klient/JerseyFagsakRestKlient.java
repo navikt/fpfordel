@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
+import no.nav.vedtak.util.env.Environment;
 
 @Dependent
 public class JerseyFagsakRestKlient extends AbstractJerseyOidcRestClient implements FagsakTjeneste {
@@ -38,11 +39,16 @@ public class JerseyFagsakRestKlient extends AbstractJerseyOidcRestClient impleme
 
     private static final Logger LOG = LoggerFactory.getLogger(JerseyFagsakRestKlient.class);
 
+    private static final Environment ENV = Environment.current();
     private final URI endpoint;
 
     @Inject
     public JerseyFagsakRestKlient(@KonfigVerdi(value = "fpsak.base.url", defaultVerdi = DEFAULT_FPSAK_BASE_URI) URI endpoint) {
         this.endpoint = endpoint;
+        if (ENV.isDev()) {
+            client.register(new LoggingFeature(java.util.logging.Logger.getLogger(LoggingFeature.DEFAULT_LOGGER_NAME),
+                    Level.INFO, LoggingFeature.Verbosity.PAYLOAD_ANY, 10000));
+        }
     }
 
     @Override
@@ -72,10 +78,7 @@ public class JerseyFagsakRestKlient extends AbstractJerseyOidcRestClient impleme
     @Override
     public void knyttSakOgJournalpost(JournalpostKnyttningDto journalpostKnyttningDto) {
         LOG.info("Knytter sak og journalpost");
-        var f = new LoggingFeature(java.util.logging.Logger.getLogger(LoggingFeature.DEFAULT_LOGGER_NAME),
-                Level.INFO, LoggingFeature.Verbosity.PAYLOAD_ANY, 10000);
-        client.register(f)
-                .target(endpoint)
+        client.target(endpoint)
                 .path(JOURNALPOSTTILKNYTNING_PATH)
                 .request(APPLICATION_JSON_TYPE)
                 .buildPost(json(journalpostKnyttningDto))
