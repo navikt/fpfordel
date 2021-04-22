@@ -45,7 +45,7 @@ public class JerseyFagsakRestKlient extends AbstractJerseyOidcRestClient impleme
     @Inject
     public JerseyFagsakRestKlient(@KonfigVerdi(value = "fpsak.base.url", defaultVerdi = DEFAULT_FPSAK_BASE_URI) URI endpoint) {
         this.endpoint = endpoint;
-        if (ENV.isDev()) {
+        if (ENV.isDev() || ENV.isLocal()) {
             client.register(new LoggingFeature(java.util.logging.Logger.getLogger(LoggingFeature.DEFAULT_LOGGER_NAME),
                     Level.INFO, LoggingFeature.Verbosity.PAYLOAD_ANY, 10000));
         }
