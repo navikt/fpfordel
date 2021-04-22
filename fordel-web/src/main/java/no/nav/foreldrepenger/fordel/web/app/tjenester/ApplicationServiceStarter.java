@@ -54,5 +54,7 @@ public class ApplicationServiceStarter {
                 })).collect(Collectors.toList());
 
         CompletableFuture.allOf(handlers.toArray(new CompletableFuture[handlers.size()])).join();
+        LOGGER.info("Stoppet {} services", serviceMap.size());
+
     }
 }
