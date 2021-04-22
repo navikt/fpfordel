@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.LogManager;
 import java.util.stream.Collectors;
 
 import javax.security.auth.message.config.AuthConfigFactory;
@@ -44,6 +45,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
 import org.slf4j.MDC;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import no.nav.security.token.support.core.configuration.IssuerProperties;
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration;
@@ -51,6 +53,11 @@ import no.nav.security.token.support.jaxrs.servlet.JaxrsJwtTokenValidationFilter
 import no.nav.vedtak.util.env.Environment;
 
 abstract class AbstractJettyServer {
+
+    static {
+        LogManager.getLogManager().reset();
+        SLF4JBridgeHandler.install();
+    }
 
     /**
      * @see AbstractNetworkConnector#getHost()

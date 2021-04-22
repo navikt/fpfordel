@@ -5,11 +5,13 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.net.URI;
 import java.util.Optional;
+import java.util.logging.Level;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
+import org.glassfish.jersey.logging.LoggingFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +72,10 @@ public class JerseyFagsakRestKlient extends AbstractJerseyOidcRestClient impleme
     @Override
     public void knyttSakOgJournalpost(JournalpostKnyttningDto journalpostKnyttningDto) {
         LOG.info("Knytter sak og journalpost");
-        client.target(endpoint)
+        var f = new LoggingFeature(java.util.logging.Logger.getLogger(LoggingFeature.DEFAULT_LOGGER_NAME),
+                Level.INFO, LoggingFeature.Verbosity.PAYLOAD_ANY, 10000);
+        client.register(f)
+                .target(endpoint)
                 .path(JOURNALPOSTTILKNYTNING_PATH)
                 .request(APPLICATION_JSON_TYPE)
                 .buildPost(json(journalpostKnyttningDto))
