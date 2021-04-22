@@ -49,7 +49,7 @@ public class ApplicationServiceStarter {
         LOGGER.info("Stopper services. Antall: {}", serviceMap.size());
         var handlers = serviceMap.keySet().stream()
                 .map(h -> CompletableFuture.runAsync(() -> {
-                    LOGGER.info("stopper services. Antall: {}", serviceMap.size());
+                    LOGGER.info("Stopper service {}", h.getClass().getSimpleName());
                     h.stop();
                 })).collect(Collectors.toList());
 
