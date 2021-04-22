@@ -14,8 +14,10 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.mottak.felles.LivenessAware;
+
 @ApplicationScoped
-public class DatabaseHealthCheck {
+public class DatabaseHealthCheck implements LivenessAware {
 
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseHealthCheck.class);
     private static final String JDBC_DEFAULT_DS = "jdbc/defaultDS";
@@ -31,7 +33,7 @@ public class DatabaseHealthCheck {
         this.jndiName = JDBC_DEFAULT_DS;
     }
 
-    private boolean isOK() {
+    public boolean isOK() {
 
         DataSource dataSource = null;
         try {
@@ -75,7 +77,8 @@ public class DatabaseHealthCheck {
         return result;
     }
 
-    public boolean isReady() {
+    @Override
+    public boolean isAlive() {
         return isOK();
     }
 }

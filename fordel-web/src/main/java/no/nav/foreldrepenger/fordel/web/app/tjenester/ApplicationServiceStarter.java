@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.prometheus.client.hotspot.DefaultExports;
-import no.nav.foreldrepenger.mottak.felles.kafka.KafkaIntegration;
 import no.nav.vedtak.apptjeneste.AppServiceHandler;
 
 @ApplicationScoped
@@ -23,7 +22,6 @@ public class ApplicationServiceStarter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationServiceStarter.class);
     private Map<AppServiceHandler, AtomicBoolean> serviceMap = new HashMap<>();
-    private List<KafkaIntegration> kafkaList = new ArrayList<>();
 
     ApplicationServiceStarter() {
         // CDI
@@ -35,7 +33,6 @@ public class ApplicationServiceStarter {
         while (i.hasNext()) {
             serviceMap.put(i.next(), new AtomicBoolean());
         }
-        serviceHandlers.stream().filter(sh -> sh instanceof KafkaIntegration).map(sh -> (KafkaIntegration) sh).forEach(kafkaList::add);
     }
 
     public void startServices() {
@@ -70,9 +67,4 @@ public class ApplicationServiceStarter {
             }
         }
     }
-
-    public boolean isKafkaAlive() {
-        return kafkaList.stream().allMatch(KafkaIntegration::isAlive);
-    }
-
 }
