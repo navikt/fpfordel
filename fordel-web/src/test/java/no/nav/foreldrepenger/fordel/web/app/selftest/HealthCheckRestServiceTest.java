@@ -34,8 +34,7 @@ public class HealthCheckRestServiceTest {
     @Test
     public void test_isAlive_skal_returnere_status_200() {
         when(kafka.isAlive()).thenReturn(true);
-        Response response = restTjeneste.isAlive();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(restTjeneste.isAlive().getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test
