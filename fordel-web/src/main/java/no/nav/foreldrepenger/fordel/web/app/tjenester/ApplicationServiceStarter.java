@@ -46,7 +46,7 @@ public class ApplicationServiceStarter {
     }
 
     public void stopServices() {
-        LOGGER.info("Stopper services. Antall: {}", serviceMap.size());
+        LOGGER.info("Stopper {} services", serviceMap.size());
         var handlers = serviceMap.keySet().stream()
                 .map(h -> CompletableFuture.runAsync(() -> {
                     LOGGER.info("Stopper service {}", h.getClass().getSimpleName());
@@ -54,13 +54,5 @@ public class ApplicationServiceStarter {
                 })).collect(Collectors.toList());
 
         CompletableFuture.allOf(handlers.toArray(new CompletableFuture[handlers.size()])).join();
-        /*
-         * LOGGER.info("stopper services. Antall: {}", serviceMap.size()); List<Thread>
-         * threadList = new ArrayList<>(); serviceMap.forEach((key, value) -> { if
-         * (value.compareAndSet(true, false)) { Thread t = new Thread(key::stop);
-         * t.start(); threadList.add(t); } }); while (!threadList.isEmpty()) { Thread t
-         * = threadList.get(0); try { t.join(31000); threadList.remove(t); } catch
-         * (InterruptedException e) { LOGGER.warn(e.getMessage()); t.interrupt(); } }
-         */
     }
 }
