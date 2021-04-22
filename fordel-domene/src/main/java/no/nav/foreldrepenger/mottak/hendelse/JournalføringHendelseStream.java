@@ -17,13 +17,12 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.felles.LivenessAware;
 import no.nav.foreldrepenger.mottak.felles.ReadinessAware;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
-import no.nav.vedtak.apptjeneste.AppServiceHandler;
 
 /*
  * Dokumentasjon https://confluence.adeo.no/pages/viewpage.action?pageId=315215917
  */
 @ApplicationScoped
-public class JournalføringHendelseStream implements LivenessAware, ReadinessAware, AppServiceHandler {
+public class JournalføringHendelseStream implements LivenessAware, ReadinessAware {
 
     private static final Logger LOG = LoggerFactory.getLogger(JournalføringHendelseStream.class);
     private static final String TEMA_FOR = Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode();

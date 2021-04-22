@@ -33,8 +33,12 @@ public class HealthCheckRestService {
 
     @Inject
     public HealthCheckRestService(@Any Instance<LivenessAware> livenessAware, @Any Instance<ReadinessAware> readinessAware) {
-        live = livenessAware.stream().collect(toList());
-        ready = readinessAware.stream().collect(toList());
+        this(livenessAware.stream().collect(toList()), readinessAware.stream().collect(toList()));
+    }
+
+    public HealthCheckRestService(List<LivenessAware> live, List<ReadinessAware> ready) {
+        this.live = live;
+        this.ready = ready;
     }
 
     @GET
