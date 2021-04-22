@@ -33,7 +33,7 @@ public class DatabaseHealthCheck implements LivenessAware {
         this.jndiName = JDBC_DEFAULT_DS;
     }
 
-    public boolean isOK() {
+    private boolean isOK() {
 
         DataSource dataSource = null;
         try {
