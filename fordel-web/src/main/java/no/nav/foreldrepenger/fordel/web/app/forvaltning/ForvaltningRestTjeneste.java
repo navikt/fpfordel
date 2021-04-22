@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.VedlikeholdSchedulerTask;
 import no.nav.foreldrepenger.sikkerhet.abac.BeskyttetRessursAttributt;
 import no.nav.security.token.support.core.api.Unprotected;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
@@ -52,7 +51,7 @@ public class ForvaltningRestTjeneste {
 
     @Inject
     public ForvaltningRestTjeneste(ProsessTaskRepository prosessTaskRepository,
-            @Jersey FagsakTjeneste fagsakRestKlient) {
+            FagsakTjeneste fagsakRestKlient) {
         this.prosessTaskRepository = prosessTaskRepository;
         this.fagsakRestKlient = fagsakRestKlient;
     }
@@ -178,7 +177,7 @@ public class ForvaltningRestTjeneste {
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
     })
     @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
-    public Response setFeiletTaskFerdig(@Parameter(description = "Prosesstask-id for feilet prosesstask")  @NotNull @Valid RetryTaskKanalrefDto dto) {
+    public Response setFeiletTaskFerdig(@Parameter(description = "Prosesstask-id for feilet prosesstask") @NotNull @Valid RetryTaskKanalrefDto dto) {
         var taskData = prosessTaskRepository.finn(dto.getProsessTaskIdDto().getProsessTaskId());
         if (taskData == null || !taskData.getStatus().getDbKode().equals(dto.getRetrySuffix())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
