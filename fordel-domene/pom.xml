@@ -37,6 +37,10 @@
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-abac</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-util</artifactId>
         </dependency>
         <dependency>

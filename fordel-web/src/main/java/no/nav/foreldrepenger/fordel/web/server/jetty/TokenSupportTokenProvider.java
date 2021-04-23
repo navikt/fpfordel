@@ -40,6 +40,12 @@ public class TokenSupportTokenProvider implements TokenProvider {
 
     }
 
+    @Override
+    public String samlToken() {
+        return SubjectHandler.getSubjectHandler().getSamlToken().getTokenAsString();
+
+    }
+
     private Optional<JwtToken> firstToken(String type) {
         try {
             var token = JaxrsTokenValidationContextHolder.getHolder().getTokenValidationContext().getFirstValidToken();
@@ -49,4 +55,5 @@ public class TokenSupportTokenProvider implements TokenProvider {
             return Optional.empty();
         }
     }
+
 }
