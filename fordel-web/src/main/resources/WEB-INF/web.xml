@@ -22,7 +22,7 @@
     </listener>
     <listener>
         <!-- Ønsker denne _sist_. -->
-        <listener-class>no.nav.foreldrepenger.fordel.web.app.tjenester.ApplicationContextListener</listener-class>
+        <listener-class>no.nav.foreldrepenger.fordel.web.app.tjenester.ServiceStarter</listener-class>
     </listener>
 
     <security-constraint>
