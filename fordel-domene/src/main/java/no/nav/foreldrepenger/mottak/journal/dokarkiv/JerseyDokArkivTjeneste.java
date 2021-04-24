@@ -62,7 +62,7 @@ public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient impleme
             var target = client.target(base)
                     .path(OPPDATER_PATH)
                     .resolveTemplate("journalpostId", journalpostId);
-            LOG.info("Oppdaterer journalpos på {}", target.getUri());
+            LOG.info("Oppdaterer journalpost på {}", target.getUri());
             target
                     .request(APPLICATION_JSON_TYPE)
                     .buildPut(json(req))

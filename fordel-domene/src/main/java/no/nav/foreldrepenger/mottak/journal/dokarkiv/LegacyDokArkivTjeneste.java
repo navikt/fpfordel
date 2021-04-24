@@ -39,7 +39,9 @@ class LegacyDokArkivTjeneste implements DokArkiv {
         try {
             LOG.info("Oppretter journalpost");
             var opprett = ferdigstill ? new URIBuilder(dokarkiv).addParameter("forsoekFerdigstill", "true").build() : dokarkiv;
-            return restKlient.post(opprett, request, OpprettJournalpostResponse.class);
+            var res = restKlient.post(opprett, request, OpprettJournalpostResponse.class);
+            LOG.info("Opprettet journalpost OK");
+            return res;
         } catch (Exception e) {
             LOG.info("FPFORDEL DOKARKIV OPPRETT feilet for {}", request, e);
             return null;
@@ -52,6 +54,7 @@ class LegacyDokArkivTjeneste implements DokArkiv {
             LOG.info("Oppdaterer journalpost");
             var oppdater = URI.create(uriString + String.format("/%s", journalpostId));
             restKlient.put(oppdater, request);
+            LOG.info("Oppdatert journalpost OK");
             return true;
         } catch (Exception e) {
             LOG.info("FPFORDEL DOKARKIV OPPDATER {} feilet for {}", journalpostId, request, e);
@@ -65,6 +68,7 @@ class LegacyDokArkivTjeneste implements DokArkiv {
             LOG.info("Ferdigstiller journalpost");
             var ferdigstill = URI.create(uriString + String.format("/%s/ferdigstill", journalpostId));
             restKlient.patch(ferdigstill, new FerdigstillJournalpostRequest(enhet));
+            LOG.info("Ferdigstilt journalpost OK");
             return true;
         } catch (Exception e) {
             LOG.info("FPFORDEL DOKARKIV FERDIGSTILL {} feilet for {}", journalpostId, enhet, e);

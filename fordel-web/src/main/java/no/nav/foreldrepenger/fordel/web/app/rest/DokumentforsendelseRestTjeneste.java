@@ -107,6 +107,7 @@ public class DokumentforsendelseRestTjeneste {
 
     @POST
     @Consumes("multipart/mixed")
+
     @Operation(description = "Innsending av en dokumentforsendelse", tags = "Mottak", summary = "Denne kan ikke kalles fra Swagger", responses = {
             @ApiResponse(responseCode = "200", headers = {
                     @Header(name = HttpHeaders.LOCATION, description = "Link til hvor man kan følge statusen på dokumentforsendelsen") }),

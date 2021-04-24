@@ -8,7 +8,7 @@ import javax.servlet.annotation.WebListener;
 
 @WebListener
 @ApplicationScoped
-public class ApplicationContextListener implements ServletContextListener {
+public class ServiceStarter implements ServletContextListener {
 
     @Inject
     private ApplicationServiceStarter applicationServiceStarter; // NOSONAR - vil ikke fungere med constructor innjection
