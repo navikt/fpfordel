@@ -46,7 +46,7 @@ jobs:
 
       - name: Kompiler
         run: |
-           mvn --quiet -Pwiremock  package  -Dchangelist= -Dsha1=-${BUILD_VERSION}   --settings .github/workflows/.m2/settings.xml
+           mvn --quiet  package  -Dchangelist= -Dsha1=-${BUILD_VERSION}   --settings .github/workflows/.m2/settings.xml
            echo "TAG=$(mvn help:evaluate --batch-mode --settings .github/workflows/.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
         env:
           GITHUB_USERNAME: x-access-token
