@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.fordel.web.server.abac;
 
-import static no.nav.foreldrepenger.fordel.web.server.abac.AbacAttributter.RESOURCE_FELLES_DOMENE;
-import static no.nav.foreldrepenger.fordel.web.server.abac.AbacAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE;
-import static no.nav.foreldrepenger.fordel.web.server.abac.AbacAttributter.RESOURCE_FELLES_PERSON_FNR;
-import static no.nav.foreldrepenger.fordel.web.server.abac.AbacAttributter.RESOURCE_FELLES_RESOURCE_TYPE;
-import static no.nav.foreldrepenger.fordel.web.server.abac.AbacAttributter.XACML_1_0_ACTION_ACTION_ID;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_DOMENE;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,7 @@ public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTj
         XacmlRequestBuilder xacmlBuilder = new XacmlRequestBuilder();
 
         XacmlAttributeSet actionAttributeSet = new XacmlAttributeSet();
-        actionAttributeSet.addAttribute(XACML_1_0_ACTION_ACTION_ID, pdpRequest.getString(XACML_1_0_ACTION_ACTION_ID));
+        actionAttributeSet.addAttribute(XACML10_ACTION_ACTION_ID, pdpRequest.getString(XACML10_ACTION_ACTION_ID));
         xacmlBuilder.addActionAttributeSet(actionAttributeSet);
 
         var identer = hentIdenter(pdpRequest, RESOURCE_FELLES_PERSON_FNR, RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE);

@@ -54,6 +54,8 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeltFeilDto;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.ValideringException;
 import no.nav.foreldrepenger.fordel.web.app.jackson.JacksonJsonConfig;
+import no.nav.foreldrepenger.fordel.web.server.abac.AppAbacAttributtType;
+import no.nav.foreldrepenger.fordel.web.server.abac.BeskyttetRessursAttributt;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.Dokumentforsendelse;
@@ -61,8 +63,6 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.Dokumentforsend
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.FilMetadata;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseIdDto;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatusDto;
-import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
-import no.nav.foreldrepenger.sikkerhet.abac.BeskyttetRessursAttributt;
 import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.KonfigVerdi;
@@ -173,7 +173,7 @@ public class DokumentforsendelseRestTjeneste {
             @ApiResponse(responseCode = "200", description = "Status og Periode"),
             @ApiResponse(responseCode = "303", description = "See Other")
     })
-    public Response finnStatusinformasjon(
+    public Response finnStatusinformasjon(@TilpassetAbacAttributt(supplierClass = ForsendelseAbacDataSupplier.class)
             @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
         UUID forsendelseId;
         try {
@@ -355,6 +355,15 @@ public class DokumentforsendelseRestTjeneste {
 
             DokumentforsendelseDto dto = getMetadataDto(inputParts.get(0));
             return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, dto.getBrukerId());
+        }
+    }
+
+    public static class ForsendelseAbacDataSupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            ForsendelseIdDto dto = ((ForsendelseIdDto) obj);
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FORSENDELSE_UUID, dto.getForsendelseId());
         }
     }
 
