@@ -10,6 +10,7 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
@@ -24,9 +25,8 @@ import no.nav.foreldrepenger.mottak.felles.ReadinessAware;
 @ApplicationScoped
 public class HealthCheckRestService {
 
+    private static final CacheControl CC = cacheControl();
     private static final Logger LOG = LoggerFactory.getLogger(HealthCheckRestService.class);
-    private static final String RESPONSE_CACHE_KEY = "Cache-Control";
-    private static final String RESPONSE_CACHE_VAL = "must-revalidate,no-cache,no-store";
     private static final String RESPONSE_OK = "OK";
 
     private List<LivenessAware> live;
@@ -56,30 +56,38 @@ public class HealthCheckRestService {
         if (live.stream().allMatch(LivenessAware::isAlive)) {
             return Response
                     .ok(RESPONSE_OK)
-                    .header(RESPONSE_CACHE_KEY, RESPONSE_CACHE_VAL)
+                    .cacheControl(CC)
                     .build();
         }
         return Response
                 .serverError()
-                .header(RESPONSE_CACHE_KEY, RESPONSE_CACHE_VAL)
+                .cacheControl(CC)
                 .build();
-
     }
 
     @GET
     @Path("isReady")
     @Operation(description = "sjekker om poden er klar", tags = "nais", hidden = true)
     public Response isReady() {
+        cacheControl();
         if (ready.stream().allMatch(ReadinessAware::isReady)) {
             return Response
                     .ok(RESPONSE_OK)
-                    .header(RESPONSE_CACHE_KEY, RESPONSE_CACHE_VAL)
+                    .cacheControl(CC)
                     .build();
         }
         return Response
                 .status(Response.Status.SERVICE_UNAVAILABLE)
-                .header(RESPONSE_CACHE_KEY, RESPONSE_CACHE_VAL)
+                .cacheControl(CC)
                 .build();
+    }
+
+    private static CacheControl cacheControl() {
+        CacheControl cc = new CacheControl();
+        cc.setNoCache(true);
+        cc.setNoStore(true);
+        cc.setMustRevalidate(true);
+        return cc;
     }
 
     @GET
