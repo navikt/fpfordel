@@ -83,14 +83,6 @@ public class HealthCheckRestService {
                 .build();
     }
 
-    private static CacheControl cacheControl() {
-        CacheControl cc = new CacheControl();
-        cc.setNoCache(true);
-        cc.setNoStore(true);
-        cc.setMustRevalidate(true);
-        return cc;
-    }
-
     @GET
     @Path("preStop")
     @Operation(description = "kalles på før stopp", tags = "nais", hidden = true)
@@ -98,5 +90,13 @@ public class HealthCheckRestService {
         LOG.info("preStop endepunkt kalt");
         starter.stopServices();
         return Response.ok(RESPONSE_OK).build();
+    }
+
+    private static CacheControl cacheControl() {
+        CacheControl cc = new CacheControl();
+        cc.setNoCache(true);
+        cc.setNoStore(true);
+        cc.setMustRevalidate(true);
+        return cc;
     }
 }
