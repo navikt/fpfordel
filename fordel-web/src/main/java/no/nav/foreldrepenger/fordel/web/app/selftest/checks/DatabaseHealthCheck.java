@@ -34,6 +34,7 @@ public class DatabaseHealthCheck implements ReadinessAware {
         DataSource dataSource = null;
         try {
             dataSource = (DataSource) new InitialContext().lookup(jndiName);
+            LOG.trace("Datasource er {}", dataSource.getClass().getName());
         } catch (NamingException e) {
             LOG.warn("Feil ved JNDI-oppslag for {} exception", jndiName, e);
             return false;
