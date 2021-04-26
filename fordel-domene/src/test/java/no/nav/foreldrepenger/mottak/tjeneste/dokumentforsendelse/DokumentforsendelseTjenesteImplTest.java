@@ -18,8 +18,8 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import javax.security.auth.Subject;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,9 +39,11 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Forsendelse
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.testutilities.sikkerhet.StaticSubjectHandler;
-import no.nav.vedtak.felles.testutilities.sikkerhet.SubjectHandlerUtils;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
+import no.nav.vedtak.sikkerhet.domene.AuthenticationLevelCredential;
+import no.nav.vedtak.sikkerhet.domene.ConsumerId;
+import no.nav.vedtak.sikkerhet.domene.SluttBruker;
 
 @ExtendWith(MockitoExtension.class)
 class DokumentforsendelseTjenesteImplTest {
@@ -63,32 +65,10 @@ class DokumentforsendelseTjenesteImplTest {
 
     private DokumentforsendelseTjenesteImpl tjeneste;
 
-    private static Class<? extends SubjectHandler> orgSubjectHandler;
-
-    @BeforeAll
-    static void setupClass() {
-        String subjectHandlerImplementationClassName = System
-                .getProperty("no.nav.modig.core.context.subjectHandlerImplementationClass");
-        if (subjectHandlerImplementationClassName != null) {
-            orgSubjectHandler = SubjectHandler.getSubjectHandler().getClass();
-        }
-    }
-
     @BeforeEach
     void setUp() {
         tjeneste = new DokumentforsendelseTjenesteImpl(dokumentRepositoryMock,
                 prosessTaskRepositoryMock, aktørConsumerMock);
-
-        SubjectHandlerUtils.useSubjectHandler(StaticSubjectHandler.class);
-    }
-
-    @AfterAll
-    static void teardown() {
-        if (orgSubjectHandler == null) {
-            SubjectHandlerUtils.unsetSubjectHandler();
-        } else {
-            SubjectHandlerUtils.useSubjectHandler(orgSubjectHandler);
-        }
     }
 
     @Test
@@ -148,6 +128,13 @@ class DokumentforsendelseTjenesteImplTest {
 
     @Test
     void validerDokumentforsendelse__skal_sette_avsender_id_fra_subjecthandler_når_forskjellig_fra_bruker_id() {
+        var eksisterende = SubjectHandler.getSubjectHandler().getSubject();
+        var subject = new Subject();
+        subject.getPrincipals().add(SluttBruker.internBruker("StaticSubjectHandlerUserId"));
+        subject.getPrincipals().add(new ConsumerId("StaticSubjectHandlerConsumerId"));
+        subject.getPublicCredentials().add(new AuthenticationLevelCredential(4));
+        ((ThreadLocalSubjectHandler)SubjectHandler.getSubjectHandler()).setSubject(subject);
+
         String aktørIdForIdent = "123";
         when(aktørConsumerMock.hentAktørIdForPersonIdent("StaticSubjectHandlerUserId"))
                 .thenReturn(Optional.of(aktørIdForIdent));
@@ -170,6 +157,7 @@ class DokumentforsendelseTjenesteImplTest {
         assertThat(capturedProssessTaskData.getPropertyValue(MottakMeldingDataWrapper.AVSENDER_ID_KEY))
                 .isEqualTo(aktørIdForIdent);
 
+        ((ThreadLocalSubjectHandler)SubjectHandler.getSubjectHandler()).setSubject(eksisterende);
     }
 
     @Test

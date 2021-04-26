@@ -18,4 +18,4 @@ COPY fordel-web/target/app.jar /app/
 COPY fordel-web/target/lib/*.jar /app/lib/
 COPY 03-export-vault-secrets.sh /init-scripts/
 
-ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0  -Djava.security.egd=file:/dev/./urandom -Duser.timezone=Europe/Oslo --enable-preview --illegal-access=permit "
+ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0  -Djava.security.egd=file:/dev/./urandom -Duser.timezone=Europe/Oslo --enable-preview "

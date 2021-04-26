@@ -1,9 +1,11 @@
 package no.nav.foreldrepenger.fordel.web.server.abac;
 
-import static no.nav.foreldrepenger.fordel.web.server.abac.AbacAttributter.RESOURCE_FELLES_DOMENE;
-import static no.nav.foreldrepenger.fordel.web.server.abac.AbacAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE;
-import static no.nav.foreldrepenger.fordel.web.server.abac.AbacAttributter.RESOURCE_FELLES_RESOURCE_TYPE;
-import static no.nav.foreldrepenger.fordel.web.server.abac.AbacAttributter.XACML_1_0_ACTION_ACTION_ID;
+
+
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_DOMENE;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -14,7 +16,6 @@ import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.pip.PipRepository;
-import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacAttributtSamling;
 import no.nav.vedtak.sikkerhet.abac.PdpKlient;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
@@ -44,7 +45,7 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         PdpRequest pdpRequest = new PdpRequest();
         pdpRequest.put(RESOURCE_FELLES_DOMENE, ABAC_DOMAIN);
         pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, attributter.getIdToken());
-        pdpRequest.put(XACML_1_0_ACTION_ACTION_ID, attributter.getActionType().getEksternKode());
+        pdpRequest.put(XACML10_ACTION_ACTION_ID, attributter.getActionType().getEksternKode());
         pdpRequest.put(RESOURCE_FELLES_RESOURCE_TYPE, attributter.getResource());
 
         // Potensielt noen saksnummer i AbacAttributtSamling - overlater til fpsak å

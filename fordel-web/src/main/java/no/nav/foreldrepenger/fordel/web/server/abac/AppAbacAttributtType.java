@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.sikkerhet.abac;
+package no.nav.foreldrepenger.fordel.web.server.abac;
 
 import no.nav.vedtak.sikkerhet.abac.AbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
@@ -31,7 +31,6 @@ public enum AppAbacAttributtType implements AbacAttributtType {
         return maskerOutput;
     }
 
-    @Override
     public String getSporingsloggKode() {
         return sporingsloggEksternKode;
     }

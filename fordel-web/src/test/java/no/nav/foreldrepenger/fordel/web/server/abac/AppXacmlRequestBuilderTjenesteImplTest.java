@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.fordel.web.server.abac;
 
-import static no.nav.foreldrepenger.fordel.web.server.abac.AbacAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY;
-import static no.nav.foreldrepenger.fordel.web.server.abac.AbacAttributter.ENVIRONMENT_FELLES_SAML_TOKEN;
-import static no.nav.foreldrepenger.fordel.web.server.abac.AbacAttributter.RESOURCE_FELLES_DOMENE;
-import static no.nav.foreldrepenger.fordel.web.server.abac.AbacAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE;
-import static no.nav.foreldrepenger.fordel.web.server.abac.AbacAttributter.RESOURCE_FELLES_RESOURCE_TYPE;
-import static no.nav.foreldrepenger.fordel.web.server.abac.AbacAttributter.XACML_1_0_ACTION_ACTION_ID;
+
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_DOMENE;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -25,7 +26,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import no.nav.foreldrepenger.sikkerhet.abac.BeskyttetRessursAttributt;
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 import no.nav.vedtak.sikkerhet.abac.PdpKlient;
@@ -125,7 +125,7 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
     private static PdpRequest lagPdpRequest() {
         PdpRequest request = new PdpRequest();
         request.put(RESOURCE_FELLES_DOMENE, "foreldrepenger");
-        request.put(XACML_1_0_ACTION_ACTION_ID, BeskyttetRessursActionAttributt.READ.getEksternKode());
+        request.put(XACML10_ACTION_ACTION_ID, BeskyttetRessursActionAttributt.READ.getEksternKode());
         request.put(RESOURCE_FELLES_RESOURCE_TYPE, BeskyttetRessursAttributt.FAGSAK);
         return request;
     }
