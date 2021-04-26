@@ -26,10 +26,10 @@ public class DatabaseHealthCheck implements ReadinessAware, LivenessAware {
 
     public DatabaseHealthCheck() throws NamingException {
         dataSource = (DataSource) new InitialContext().lookup(JDBC_DEFAULT_DS);
+        LOG.trace("Datasource er {}", dataSource);
     }
 
     private boolean isOK() {
-        LOG.trace("Datasource er {}", dataSource.getClass().getName());
         try (var connection = dataSource.getConnection()) {
             var statement = connection.createStatement();
             if (!statement.execute(SQL_QUERY)) {
