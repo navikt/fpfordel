@@ -65,7 +65,6 @@ class JerseySafTjeneste implements SafTjeneste {
                         .type()
                         .navn())
                 .sak(new SakResponseProjection()
-                        .arkivsaksnummer()
                         .fagsakId()
                         .fagsaksystem())
                 .tilleggsopplysninger(new TilleggsopplysningResponseProjection().nokkel().verdi())

@@ -137,7 +137,7 @@ class SafMapper {
 
     private static Sak map(no.nav.saf.Sak sak) {
         return Optional.ofNullable(sak)
-                .map(s -> new Sak(s.getArkivsaksnummer(), s.getFagsakId(), s.getFagsaksystem()))
+                .map(s -> new Sak(s.getFagsakId(), s.getFagsaksystem()))
                 .orElse(null);
     }
 

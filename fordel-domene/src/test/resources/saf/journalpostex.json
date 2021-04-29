@@ -9,8 +9,9 @@
       "tema": "FOR",
       "behandlingstema": null,
       "sak": {
-        "arkivsaksnummer": "13724",
-        "arkivsaksystem": "GSAK"
+        "fagsakId": "13724",
+        "fagsaksystem": "VL36",
+        "sakstype": "FAGSAK"
       },
       "bruker": {
         "id": "10039005",
