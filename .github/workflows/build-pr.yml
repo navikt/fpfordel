@@ -1,9 +1,14 @@
 name: Build PR or branch
 
 on:
-  pull_request:
-    branches:
-      - master
+  pull_request_target:
+    paths-ignore:
+      - '**.md'
+      - '**.MD'
+      - '.gitignore'
+      - 'LICENCE'
+      - 'CODEOWNERS'
+
 env:
   TZ: "Europe/Oslo"
 

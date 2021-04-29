@@ -1,10 +1,8 @@
 version: '3.7'
 services:
   oracle:
-    image: ghcr.io/navikt/oracle-foreldrepenger:11
+    image: ghcr.io/navikt/oracle-foreldrepenger:18-migrert
+    container_name: oraclefpfordel
     shm_size: 2gb
     ports:
       - 1521:1521
-    container_name: oraclefpfordel
-    volumes:
-      - ./init.d:/docker-entrypoint-initdb.d/
