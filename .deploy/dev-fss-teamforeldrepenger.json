@@ -29,8 +29,6 @@
 		"OPPGAVE_RS_URI": "http://oppgave-q1.oppgavehandtering/api/v1/oppgaver",
 		"SAF_BASE_URL" : "http://saf.q1",
 		"SAK_RS_URL": "http://sak.q1/api/v1/saker",
-		"SECURITYTOKENSERVICE_URL": "https://sts-q1.preprod.local/SecurityTokenServiceProvider/",
-		"SENSU_HOST": "sensu.nais",
-		"SENSU_PORT": "3030"
+		"SECURITYTOKENSERVICE_URL": "https://sts-q1.preprod.local/SecurityTokenServiceProvider/"
 	}
 }
