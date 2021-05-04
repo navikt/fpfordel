@@ -158,20 +158,20 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         }
         // Vesentlige mangler
         if (!Tema.FORELDRE_OG_SVANGERSKAPSPENGER.equals(dataWrapper.getTema())) {
-            LOG.info("FPFORDEL HentFraArkiv feil tema for journalpost {} tema {}",
-                    dataWrapper.getArkivId(), journalpost.getTema().getKode());
+            LOG.info("FPFORDEL HentFraArkiv feil tema for journalpost {} kanal {} tema {}",
+                    dataWrapper.getArkivId(), journalpost.getKanal(), journalpost.getTema().getKode());
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
         if (dataWrapper.getAktørId().isEmpty()) {
             var avsender = journalpost.getAvsenderIdent() == null ? "ikke satt"
                     : aktørConsumer.hentAktørIdForPersonIdent(journalpost.getAvsenderIdent()).orElse("finnes ikke");
-            LOG.info("FPFORDEL HentFraArkiv manglende bruker for journalpost {} type {} avsender {}",
-                    dataWrapper.getArkivId(), journalpost.getHovedtype(), avsender);
+            LOG.info("FPFORDEL HentFraArkiv manglende bruker for journalpost {} kanal {} type {} avsender {}",
+                    dataWrapper.getArkivId(), journalpost.getKanal(), journalpost.getHovedtype(), avsender);
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
         if (DokumentTypeId.UDEFINERT.equals(journalpost.getHovedtype())) {
-            LOG.info("FPFORDEL HentFraArkiv udefinert dokumenttype journalpost {} tittel {}",
-                    dataWrapper.getArkivId(), journalpost.getTittel());
+            LOG.info("FPFORDEL HentFraArkiv udefinert dokumenttype journalpost {} kanal {} tittel {}",
+                    dataWrapper.getArkivId(), journalpost.getKanal(), journalpost.getTittel());
             return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
 
@@ -246,8 +246,11 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     private Optional<String> finnAktørId(ArkivJournalpost journalpost) {
         if (journalpost.getBrukerAktørId().isPresent()) return journalpost.getBrukerAktørId();
-        if (journalpost.getAvsenderIdent() != null && journalpost.getOriginalJournalpost().avsenderMottaker().getIdHvisFNR().isPresent())
-            return aktørConsumer.hentAktørIdForPersonIdent(journalpost.getAvsenderIdent());
+        if (journalpost.getAvsenderIdent() != null && journalpost.getOriginalJournalpost().avsenderMottaker().getIdHvisFNR().isPresent()) {
+            LOG.info("FPFORDEL HentFraArkiv journalpost uten bruker med FNR-avsender journalpost {} kanal {} tittel {}",
+                    journalpost.getJournalpostId(), journalpost.getKanal(), journalpost.getTittel());
+            //return aktørConsumer.hentAktørIdForPersonIdent(journalpost.getAvsenderIdent());
+        }
         return Optional.empty();
     }
 

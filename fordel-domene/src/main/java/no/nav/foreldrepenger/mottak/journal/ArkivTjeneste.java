@@ -258,7 +258,7 @@ public class ArkivTjeneste {
     }
 
     private Sak lagSakForSaksnummer(String saksnummer) {
-        return new Sak(saksnummer, Fagsystem.FPSAK.getKode(), "FAGSAK", null, null);
+        return new Sak(saksnummer, Fagsystem.FPSAK.getKode(), "FAGSAK");
     }
 
     private static Set<DokumentTypeId> utledDokumentTyper(Journalpost journalpost) {

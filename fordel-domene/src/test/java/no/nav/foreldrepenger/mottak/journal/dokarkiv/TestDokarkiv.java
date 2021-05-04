@@ -162,7 +162,7 @@ class TestDokarkiv {
     }
 
     private static Sak sak() {
-        return new Sak("1", "2", "3", "4", "5");
+        return new Sak("1", "2", "3");
     }
 
     private static Bruker bruker() {
