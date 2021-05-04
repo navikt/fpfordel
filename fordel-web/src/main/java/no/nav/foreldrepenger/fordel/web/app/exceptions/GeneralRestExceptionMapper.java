@@ -3,13 +3,13 @@ package no.nav.foreldrepenger.fordel.web.app.exceptions;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-import org.jboss.resteasy.spi.ApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -24,12 +24,12 @@ import no.nav.vedtak.log.util.LoggerUtils;
 // generell. (Eigen mapper for ConstraintViolationException.)
 
 @Provider
-public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationException> {
+public class GeneralRestExceptionMapper implements ExceptionMapper<WebApplicationException> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeneralRestExceptionMapper.class);
 
     @Override
-    public Response toResponse(ApplicationException e) {
+    public Response toResponse(WebApplicationException e) {
         Throwable cause = e.getCause();
 
         if (cause instanceof ValideringException) {
@@ -52,7 +52,7 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
                 .status(Status.BAD_REQUEST)
                 .entity(new FeilDto(
                         new FunksjonellException("FP-328673", String.format("Det oppstod en valideringsfeil på felt %s", feltNavn),
-                        "Kontroller at alle feltverdier er korrekte").getMessage(),
+                                "Kontroller at alle feltverdier er korrekte").getMessage(),
                         valideringsfeil.getFeltFeil()))
                 .type(MediaType.APPLICATION_JSON)
                 .build();
@@ -85,10 +85,10 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
     private static String getVLExceptionFeilmelding(String callId, VLException feil) {
         String feilbeskrivelse = feil.getMessage();
         if (feil instanceof FunksjonellException f) {
-            // String løsningsforslag = f.getLøsningsforslag();
+            String løsningsforslag = f.getLøsningsforslag();
             return "Det oppstod en feil: " //$NON-NLS-1$
                     + avsluttMedPunktum(feilbeskrivelse)
-                    // + avsluttMedPunktum(løsningsforslag)
+                    + avsluttMedPunktum(løsningsforslag)
                     + ". Referanse-id: " + callId;
         } else {
             return "Det oppstod en serverfeil: "

@@ -31,6 +31,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
@@ -38,8 +39,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.plugins.providers.multipart.InputPart;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartInput;
+import org.glassfish.jersey.media.multipart.BodyPart;
+import org.glassfish.jersey.media.multipart.MultiPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,15 +108,14 @@ public class DokumentforsendelseRestTjeneste {
 
     @POST
     @Consumes("multipart/mixed")
-
     @Operation(description = "Innsending av en dokumentforsendelse", tags = "Mottak", summary = "Denne kan ikke kalles fra Swagger", responses = {
             @ApiResponse(responseCode = "200", headers = {
                     @Header(name = HttpHeaders.LOCATION, description = "Link til hvor man kan følge statusen på dokumentforsendelsen") }),
     })
     @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.FAGSAK)
-    public Response uploadFile(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) MultipartInput input) {
+    public Response uploadFile(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) MultiPart input) {
         LOG.info("Innsending av dokumentforsendelse");
-        List<InputPart> inputParts = input.getParts();
+        List<BodyPart> inputParts = input.getBodyParts();
         if (inputParts.size() < 2) {
             throw new IllegalArgumentException("Må ha minst to deler,fikk " + inputParts.size());
         }
@@ -134,7 +134,7 @@ public class DokumentforsendelseRestTjeneste {
         return response;
     }
 
-    private void lagreDokumentForsendelse(List<InputPart> inputParts, Dokumentforsendelse dokumentforsendelse) {
+    private void lagreDokumentForsendelse(List<BodyPart> inputParts, Dokumentforsendelse dokumentforsendelse) {
         service.nyDokumentforsendelse(dokumentforsendelse.getMetadata());
         for (var inputPart : inputParts) {
             lagreDokument(dokumentforsendelse, inputPart);
@@ -197,12 +197,12 @@ public class DokumentforsendelseRestTjeneste {
         return URI.create(fpStatusUrl + "?forsendelseId=" + forsendelseId);
     }
 
-    private Dokumentforsendelse map(InputPart inputPart) {
+    private Dokumentforsendelse map(BodyPart inputPart) {
         var dokumentforsendelseDto = getMetadataDto(inputPart);
         return map(dokumentforsendelseDto);
     }
 
-    private void lagreDokument(Dokumentforsendelse dokumentforsendelse, InputPart inputPart) {
+    private void lagreDokument(Dokumentforsendelse dokumentforsendelse, BodyPart inputPart) {
         boolean hovedDokument;
         String name = getDirective(inputPart.getHeaders(), CONTENT_DISPOSITION, "name");
         if (name == null) {
@@ -246,13 +246,13 @@ public class DokumentforsendelseRestTjeneste {
                 .setDokumentTypeId(filMetadata.dokumentTypeId());
         try {
             if (MediaType.APPLICATION_XML_TYPE.isCompatible(inputPart.getMediaType())) {
-                builder.setDokumentInnhold(inputPart.getBodyAsString().getBytes(Charset.forName("UTF-8")),
+                builder.setDokumentInnhold(inputPart.getEntityAs(String.class).getBytes(Charset.forName("UTF-8")),
                         mapMediatypeTilArkivFilType(inputPart.getMediaType()));
             } else {
-                builder.setDokumentInnhold(inputPart.getBody(byte[].class, null),
+                builder.setDokumentInnhold(inputPart.getEntityAs(byte[].class),
                         mapMediatypeTilArkivFilType(inputPart.getMediaType()));
             }
-        } catch (IOException e) {
+        } catch (ProcessingException e) {
             throw DokumentforsendelseRestTjenesteFeil.feiletUnderInnlesningAvInputPart(name, contentId, e);
         }
 
@@ -268,7 +268,7 @@ public class DokumentforsendelseRestTjeneste {
         service.validerDokumentforsendelse(dokumentforsendelse.getForsendelsesId());
     }
 
-    private static DokumentforsendelseDto getMetadataDto(InputPart inputPart) {
+    private static DokumentforsendelseDto getMetadataDto(BodyPart inputPart) {
         String name = getDirective(inputPart.getHeaders(), CONTENT_DISPOSITION, "name");
         if (!PART_KEY_METADATA.equals(name)) {
             throw DokumentforsendelseRestTjenesteFeil.førsteInputPartSkalVæreMetadata();
@@ -279,8 +279,8 @@ public class DokumentforsendelseRestTjeneste {
 
         String body;
         try {
-            body = inputPart.getBodyAsString();
-        } catch (IOException e1) {
+            body = inputPart.getEntityAs(String.class);
+        } catch (ProcessingException e1) {
             throw DokumentforsendelseRestTjenesteFeil.feiletUnderInnlesningAvInputPart(name, e1);
         }
 
@@ -348,7 +348,7 @@ public class DokumentforsendelseRestTjeneste {
 
         @Override
         public AbacDataAttributter apply(Object obj) {
-            List<InputPart> inputParts = ((MultipartInput) obj).getParts();
+            List<BodyPart> inputParts = ((MultiPart) obj).getBodyParts();
             if (inputParts.isEmpty()) {
                 throw new IllegalArgumentException("No parts");
             }

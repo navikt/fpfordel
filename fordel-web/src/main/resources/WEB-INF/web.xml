@@ -4,18 +4,12 @@
                       http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd" version="4.0"
         metadata-complete="false">
 
-    <context-param>
-        <param-name>resteasy.injector.factory</param-name>
-        <param-value>org.jboss.resteasy.cdi.CdiInjectorFactory</param-value>
-    </context-param>
-    <context-param>
-        <!--
-        Skru av denne tjenesten pga. en sårbarhet: https://nvd.nist.gov/vuln/detail/CVE-2016-6345
-        -->
-        <param-name>resteasy.async.job.service.enabled</param-name>
-        <param-value>false</param-value>
-    </context-param>
-
+    <listener>
+        <listener-class>org.jboss.weld.environment.servlet.BeanManagerResourceBindingListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>org.jboss.weld.environment.servlet.Listener</listener-class>
+    </listener>
     <listener>
         <listener-class>no.nav.vedtak.sikkerhet.jaspic.SamAutoRegistration</listener-class>
     </listener>

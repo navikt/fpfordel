@@ -159,7 +159,7 @@ abstract class AbstractJettyServer {
         ctx.setBaseResource(createResourceCollection());
         ctx.setContextPath(webKonfigurasjon.getContextPath());
         ctx.setConfigurations(CONFIGURATIONS);
-        ctx.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", "^.*resteasy-.*.jar$|^.*felles-.*.jar$");
+        ctx.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", "^.*jersey-.*.jar$|^.*felles-.*.jar$");
         ctx.setSecurityHandler(createSecurityHandler());
         addTokenValidationFilter(ctx);
         ctx.setParentLoaderPriority(true);
@@ -196,7 +196,6 @@ abstract class AbstractJettyServer {
                 .distinct()
                 .collect(Collectors.toList());
 
-        // metaData.setWebInfClassesDirs(resources);
         metaData.setWebInfClassesResources(resources);
     }
 
