@@ -42,12 +42,10 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
 
     private PipRepository pipRepository;
 
-    public AppPdpRequestBuilderImpl() {
-    }
-
     @Inject
     public AppPdpRequestBuilderImpl(PipRepository pipRepository) {
         this.pipRepository = pipRepository;
+        LOG.info("Konstruert");
     }
 
     @Override
