@@ -65,7 +65,7 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         if (attributter.getIdToken().getTokenType().equals(TokenType.TOKENX)) {
             LOG.trace("Legger til ekstra tokenX attributter");
             pdpRequest.put(XACML10_SUBJECT_ID, claim(attributter.getIdToken().getToken(), "sub"));
-            pdpRequest.put(SUBJECT_LEVEL, claim(attributter.getIdToken().getToken(), "acr"));
+            pdpRequest.put(SUBJECT_LEVEL, Integer.parseInt(claim(attributter.getIdToken().getToken(), "acr").replace("Level", "")));
             pdpRequest.put(SUBJECT_TYPE, "EksternBruker");
         }
         return pdpRequest;
