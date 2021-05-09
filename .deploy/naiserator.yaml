@@ -6,6 +6,10 @@ metadata:
   labels:
     team: teamforeldrepenger
 spec:
+  accessPolicy:
+     inbound:
+       rules:
+        - application: fpsoknad-mottak
   tokenx:
     enabled: true
   envFrom:
