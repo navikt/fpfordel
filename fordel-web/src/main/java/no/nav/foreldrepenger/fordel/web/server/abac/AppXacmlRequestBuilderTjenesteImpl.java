@@ -4,7 +4,9 @@ import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FEL
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE;
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR;
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.SUBJECT_TYPE;
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.XACML10_SUBJECT_ID;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +15,9 @@ import java.util.stream.Collectors;
 import javax.annotation.Priority;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Alternative;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.pdp.XacmlRequestBuilderTjeneste;
@@ -24,6 +29,8 @@ import no.nav.vedtak.util.Tuple;
 @Alternative
 @Priority(2)
 public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AppXacmlRequestBuilderTjenesteImpl.class);
 
     public AppXacmlRequestBuilderTjenesteImpl() {
     }
@@ -45,6 +52,8 @@ public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTj
                 xacmlBuilder.addResourceAttributeSet(byggRessursAttributter(pdpRequest, ident));
             }
         }
+        populerSubjects(pdpRequest, xacmlBuilder);
+
         return xacmlBuilder;
     }
 
@@ -69,4 +78,24 @@ public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTj
         }
         return identer;
     }
+
+    private void populerSubjects(PdpRequest pdpRequest, XacmlRequestBuilder xacmlBuilder) {
+        var attrs = new XacmlAttributeSet();
+        var found = false;
+
+        if (pdpRequest.get(XACML10_SUBJECT_ID) != null) {
+            attrs.addAttribute(XACML10_SUBJECT_ID, pdpRequest.getString(XACML10_SUBJECT_ID));
+            found = true;
+        }
+        if (pdpRequest.get(SUBJECT_TYPE) != null) {
+            attrs.addAttribute(SUBJECT_TYPE, pdpRequest.getString(SUBJECT_TYPE));
+            found = true;
+        }
+        if (found) {
+            LOG.trace("Legger til subject attributter {}", attrs);
+            xacmlBuilder.addSubjectAttributeSet(attrs);
+        }
+        LOG.trace("Legger IKKE til suject attributter");
+    }
+
 }
