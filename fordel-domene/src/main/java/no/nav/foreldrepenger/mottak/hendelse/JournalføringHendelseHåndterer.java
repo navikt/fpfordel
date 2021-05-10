@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.hendelse;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.control.ActivateRequestContext;
@@ -121,8 +120,8 @@ public class JournalføringHendelseHåndterer {
 
     private static void setCallIdForHendelse(JournalfoeringHendelseRecord payload) {
         var hendelsesId = payload.getHendelsesId();
-        if ((hendelsesId == null) || hendelsesId.toString().isEmpty()) {
-            MDCOperations.putCallId(UUID.randomUUID().toString());
+        if (hendelsesId == null || hendelsesId.isEmpty() || hendelsesId.toString().isBlank()) {
+            MDCOperations.putCallId();
         } else {
             MDCOperations.putCallId(hendelsesId.toString());
         }

@@ -70,8 +70,10 @@ public class MottakMeldingDataWrapper {
     }
 
     public MottakMeldingDataWrapper nesteSteg(String stegnavn, boolean økSekvens, LocalDateTime nesteKjøringEtter) {
+        LogSettings.ensureCallId();
         var nesteStegProsessTaskData = new ProsessTaskData(stegnavn);
         nesteStegProsessTaskData.setNesteKjøringEtter(nesteKjøringEtter);
+        nesteStegProsessTaskData.setCallIdFraEksisterende();
 
         String sekvensnummer = getProsessTaskData().getSekvens();
         if (økSekvens) {

@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -94,6 +93,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         nesteStegProsessTaskData.setProperties(prosessTaskData.getProperties());
         nesteStegProsessTaskData.setPayload(prosessTaskData.getPayload());
         nesteStegProsessTaskData.setGruppe(prosessTaskData.getGruppe());
+        nesteStegProsessTaskData.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(nesteStegProsessTaskData);
     }
 
