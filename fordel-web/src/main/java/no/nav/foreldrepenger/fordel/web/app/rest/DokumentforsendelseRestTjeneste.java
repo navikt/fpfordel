@@ -58,6 +58,7 @@ import no.nav.foreldrepenger.fordel.web.server.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.fordel.web.server.abac.BeskyttetRessursAttributt;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
+import no.nav.foreldrepenger.mottak.felles.LogSettings;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.Dokumentforsendelse;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.DokumentforsendelseTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.FilMetadata;
@@ -119,6 +120,7 @@ public class DokumentforsendelseRestTjeneste {
         if (inputParts.size() < 2) {
             throw new IllegalArgumentException("Må ha minst to deler,fikk " + inputParts.size());
         }
+        LogSettings.ensureCallId();
 
         var dokumentforsendelse = map(inputParts.get(0));
         var eksisterendeForsendelseStatus = service.finnStatusinformasjonHvisEksisterer(

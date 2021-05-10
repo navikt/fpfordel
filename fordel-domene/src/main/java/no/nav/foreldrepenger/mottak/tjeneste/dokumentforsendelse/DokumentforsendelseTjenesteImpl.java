@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentFeil;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
+import no.nav.foreldrepenger.mottak.felles.LogSettings;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.dokumentforsendelse.BehandleDokumentforsendelseTask;
@@ -116,6 +117,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
     }
 
     private void opprettProsessTask(UUID forsendelseId, Optional<String> avsenderId) {
+        LogSettings.ensureCallId();
         var prosessTaskData = new ProsessTaskData(BehandleDokumentforsendelseTask.TASKNAME);
         prosessTaskData.setCallIdFraEksisterende();
         var dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
