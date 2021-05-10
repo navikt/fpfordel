@@ -4,6 +4,7 @@ import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FEL
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE;
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR;
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.SUBJECT_LEVEL;
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.SUBJECT_TYPE;
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID;
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.XACML10_SUBJECT_ID;
@@ -89,8 +90,10 @@ public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTj
         }
         if (pdpRequest.get(SUBJECT_TYPE) != null) {
             attrs.addAttribute(SUBJECT_TYPE, pdpRequest.getString(SUBJECT_TYPE));
+            attrs.addAttribute(SUBJECT_LEVEL, Integer.valueOf(pdpRequest.getString(SUBJECT_LEVEL)));
             found = true;
         }
+
         if (found) {
             LOG.trace("Legger til subject attributter {}", attrs);
             xacmlBuilder.addSubjectAttributeSet(attrs);
