@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.mottak.felles;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.log.mdc.MDCOperations;
 
 public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler {
 
@@ -14,6 +15,7 @@ public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
+        MDCOperations.ensureCallId();
         MottakMeldingDataWrapper dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
         precondition(dataWrapper);
 
