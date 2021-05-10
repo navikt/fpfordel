@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.log.mdc.MDCOperations;
 
 public class MottakMeldingDataWrapper {
 
@@ -70,7 +71,6 @@ public class MottakMeldingDataWrapper {
     }
 
     public MottakMeldingDataWrapper nesteSteg(String stegnavn, boolean økSekvens, LocalDateTime nesteKjøringEtter) {
-        LogSettings.ensureCallId();
         var nesteStegProsessTaskData = new ProsessTaskData(stegnavn);
         nesteStegProsessTaskData.setNesteKjøringEtter(nesteKjøringEtter);
         nesteStegProsessTaskData.setCallIdFraEksisterende();

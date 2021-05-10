@@ -38,6 +38,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
+import org.jboss.logging.MDC;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartInput;
 import org.slf4j.Logger;
@@ -58,7 +59,6 @@ import no.nav.foreldrepenger.fordel.web.server.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.fordel.web.server.abac.BeskyttetRessursAttributt;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
-import no.nav.foreldrepenger.mottak.felles.LogSettings;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.Dokumentforsendelse;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.DokumentforsendelseTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.FilMetadata;
@@ -67,6 +67,7 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Forsendelse
 import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.KonfigVerdi;
+import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -120,7 +121,7 @@ public class DokumentforsendelseRestTjeneste {
         if (inputParts.size() < 2) {
             throw new IllegalArgumentException("Må ha minst to deler,fikk " + inputParts.size());
         }
-        LogSettings.ensureCallId();
+        MDCOperations.ensureCallId();
 
         var dokumentforsendelse = map(inputParts.get(0));
         var eksisterendeForsendelseStatus = service.finnStatusinformasjonHvisEksisterer(
