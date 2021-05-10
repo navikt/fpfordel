@@ -68,6 +68,7 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         } else {
             LOG.trace("Token type er {}", attributter.getIdToken().getTokenType());
         }
+        LOG.trace("Request er {}", pdpRequest);
         return pdpRequest;
     }
 
