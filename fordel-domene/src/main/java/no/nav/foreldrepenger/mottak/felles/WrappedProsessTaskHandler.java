@@ -23,7 +23,9 @@ public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler {
 
         if (prosessTaskDataNesteMedDataFraInput != null) {
             postcondition(prosessTaskDataNesteMedDataFraInput);
-            prosessTaskRepository.lagre(prosessTaskDataNesteMedDataFraInput.getProsessTaskData());
+            var taskdata = prosessTaskDataNesteMedDataFraInput.getProsessTaskData();
+            taskdata.setCallIdFraEksisterende();
+            prosessTaskRepository.lagre(taskdata);
         }
     }
 
