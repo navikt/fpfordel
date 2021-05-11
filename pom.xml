@@ -7,7 +7,7 @@
     <version>${revision}${sha1}${changelist}</version>
     <packaging>pom</packaging>
     <name>Fordel :: Root</name>
-    
+
     <description>Fordeling av mottatte dokumenter for FPSAK</description>
     <modules>
         <module>fordel-migreringer</module>
@@ -39,7 +39,10 @@
     </properties>
     <dependencyManagement>
         <dependencies>
-
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles</groupId>
+                <artifactId>mapper</artifactId>
+            </dependency>
             <dependency>
                 <groupId>com.github.tomakehurst</groupId>
                 <artifactId>wiremock</artifactId>
@@ -248,7 +251,7 @@
             <artifactId>ojdbc8</artifactId>
             <scope>test</scope>
         </dependency>
-       
+
         <dependency>
             <groupId>jakarta.json</groupId>
             <artifactId>jakarta.json-api</artifactId>
@@ -262,7 +265,7 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
         </dependency>
-       
+
     </dependencies>
     <build>
         <resources>
@@ -306,7 +309,7 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.8.1</version>
                     <configuration>
-                       <fork>true</fork>
+                        <fork>true</fork>
                         <compilerArgs>
                             <arg>--enable-preview</arg>
                         </compilerArgs>
