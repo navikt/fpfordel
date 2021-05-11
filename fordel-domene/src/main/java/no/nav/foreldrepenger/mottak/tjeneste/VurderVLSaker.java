@@ -107,4 +107,9 @@ public class VurderVLSaker {
                         .equals(data.getDokumentKategori().orElse(DokumentKategori.UDEFINERT)));
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [fagsakRestKlient=" + fagsakRestKlient + ", vurderInfotrygd=" + vurderInfotrygd + "]";
+    }
+
 }

@@ -136,7 +136,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
 
     }
 
-    private boolean korrektAntallOgTyper(Set<Dokument> hoveddokumentene) {
+    boolean korrektAntallOgTyper(Set<Dokument> hoveddokumentene) {
         if (hoveddokumentene.size() != 2) {
             return false;
         }

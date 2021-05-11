@@ -24,7 +24,6 @@ import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.pdp.XacmlRequestBuilderTjeneste;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlAttributeSet;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
-import no.nav.vedtak.util.Tuple;
 
 @Dependent
 @Alternative
@@ -33,14 +32,11 @@ public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTj
 
     private static final Logger LOG = LoggerFactory.getLogger(AppXacmlRequestBuilderTjenesteImpl.class);
 
-    public AppXacmlRequestBuilderTjenesteImpl() {
-    }
-
     @Override
     public XacmlRequestBuilder lagXacmlRequestBuilder(PdpRequest pdpRequest) {
-        XacmlRequestBuilder xacmlBuilder = new XacmlRequestBuilder();
+        var xacmlBuilder = new XacmlRequestBuilder();
 
-        XacmlAttributeSet actionAttributeSet = new XacmlAttributeSet();
+        var actionAttributeSet = new XacmlAttributeSet();
         actionAttributeSet.addAttribute(XACML10_ACTION_ACTION_ID, pdpRequest.getString(XACML10_ACTION_ACTION_ID));
         xacmlBuilder.addActionAttributeSet(actionAttributeSet);
 
@@ -58,23 +54,23 @@ public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTj
         return xacmlBuilder;
     }
 
-    private static XacmlAttributeSet byggRessursAttributter(PdpRequest pdpRequest, Tuple<String, String> ident) {
+    private static XacmlAttributeSet byggRessursAttributter(PdpRequest pdpRequest, Tuple ident) {
         var resourceAttributeSet = new XacmlAttributeSet();
         resourceAttributeSet.addAttribute(RESOURCE_FELLES_DOMENE,
                 pdpRequest.getString(RESOURCE_FELLES_DOMENE));
         resourceAttributeSet.addAttribute(RESOURCE_FELLES_RESOURCE_TYPE,
                 pdpRequest.getString(RESOURCE_FELLES_RESOURCE_TYPE));
         if (ident != null) {
-            resourceAttributeSet.addAttribute(ident.getElement1(), ident.getElement2());
+            resourceAttributeSet.addAttribute(ident.element1(), ident.element2());
         }
         return resourceAttributeSet;
     }
 
-    private static List<Tuple<String, String>> hentIdenter(PdpRequest pdpRequest, String... identNøkler) {
-        List<Tuple<String, String>> identer = new ArrayList<>();
+    private static List<Tuple> hentIdenter(PdpRequest pdpRequest, String... identNøkler) {
+        List<Tuple> identer = new ArrayList<>();
         for (String key : identNøkler) {
             identer.addAll(pdpRequest.getListOfString(key).stream()
-                    .map(it -> new Tuple<>(key, it))
+                    .map(it -> new Tuple(key, it))
                     .collect(Collectors.toList()));
         }
         return identer;

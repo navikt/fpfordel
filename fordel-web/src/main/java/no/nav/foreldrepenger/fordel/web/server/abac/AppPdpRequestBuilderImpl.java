@@ -81,8 +81,7 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
 
     private String claim(String token, String claim) {
         try {
-            var claims = SignedJWT.parse(token).getJWTClaimsSet();
-            return String.class.cast(claims.getClaim(claim));
+            return String.class.cast(SignedJWT.parse(token).getJWTClaimsSet().getClaim(claim));
         } catch (ParseException e) {
             throw new IllegalArgumentException("Fant ikke claim" + claim + " i token", e);
         }

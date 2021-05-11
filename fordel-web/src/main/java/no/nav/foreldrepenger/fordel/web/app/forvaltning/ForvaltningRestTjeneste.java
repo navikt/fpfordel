@@ -189,7 +189,7 @@ public class ForvaltningRestTjeneste {
         return Response.ok().build();
     }
 
-    public static class AbacDataSupplier implements Function<Object, AbacDataAttributter> {
+    static class AbacDataSupplier implements Function<Object, AbacDataAttributter> {
         @Override
         public AbacDataAttributter apply(Object obj) {
             return AbacDataAttributter.opprett();

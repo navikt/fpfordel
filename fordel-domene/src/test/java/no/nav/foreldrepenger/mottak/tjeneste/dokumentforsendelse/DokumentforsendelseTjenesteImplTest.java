@@ -133,7 +133,7 @@ class DokumentforsendelseTjenesteImplTest {
         subject.getPrincipals().add(SluttBruker.internBruker("StaticSubjectHandlerUserId"));
         subject.getPrincipals().add(new ConsumerId("StaticSubjectHandlerConsumerId"));
         subject.getPublicCredentials().add(new AuthenticationLevelCredential(4));
-        ((ThreadLocalSubjectHandler)SubjectHandler.getSubjectHandler()).setSubject(subject);
+        ((ThreadLocalSubjectHandler) SubjectHandler.getSubjectHandler()).setSubject(subject);
 
         String aktørIdForIdent = "123";
         when(aktørConsumerMock.hentAktørIdForPersonIdent("StaticSubjectHandlerUserId"))
@@ -157,7 +157,7 @@ class DokumentforsendelseTjenesteImplTest {
         assertThat(capturedProssessTaskData.getPropertyValue(MottakMeldingDataWrapper.AVSENDER_ID_KEY))
                 .isEqualTo(aktørIdForIdent);
 
-        ((ThreadLocalSubjectHandler)SubjectHandler.getSubjectHandler()).setSubject(eksisterende);
+        ((ThreadLocalSubjectHandler) SubjectHandler.getSubjectHandler()).setSubject(eksisterende);
     }
 
     @Test
@@ -202,7 +202,7 @@ class DokumentforsendelseTjenesteImplTest {
         when(dokumentRepositoryMock.hentUnikDokumentMetadata(any(UUID.class)))
                 .thenReturn(Optional.of(byggDokumentMetadata(null, null, ForsendelseStatus.PENDING)));
 
-        assertThat(tjeneste.finnStatusinformasjon(forsendelseIdDto.getForsendelseId()).getForsendelseStatus())
+        assertThat(tjeneste.finnStatusinformasjon(forsendelseIdDto.forsendelseId()).getForsendelseStatus())
                 .isEqualByComparingTo(ForsendelseStatus.PENDING);
     }
 
@@ -212,7 +212,7 @@ class DokumentforsendelseTjenesteImplTest {
         when(dokumentRepositoryMock.hentUnikDokumentMetadata(any(UUID.class)))
                 .thenReturn(Optional.of(byggDokumentMetadata("1", null, ForsendelseStatus.GOSYS)));
 
-        assertThat(tjeneste.finnStatusinformasjon(forsendelseIdDto.getForsendelseId()).getForsendelseStatus())
+        assertThat(tjeneste.finnStatusinformasjon(forsendelseIdDto.forsendelseId()).getForsendelseStatus())
                 .isEqualByComparingTo(ForsendelseStatus.GOSYS);
     }
 
@@ -222,7 +222,7 @@ class DokumentforsendelseTjenesteImplTest {
         when(dokumentRepositoryMock.hentUnikDokumentMetadata(any(UUID.class)))
                 .thenReturn(Optional.of(byggDokumentMetadata("1", "1", ForsendelseStatus.FPSAK)));
 
-        assertThat(tjeneste.finnStatusinformasjon(forsendelseIdDto.getForsendelseId()).getForsendelseStatus())
+        assertThat(tjeneste.finnStatusinformasjon(forsendelseIdDto.forsendelseId()).getForsendelseStatus())
                 .isEqualByComparingTo(ForsendelseStatus.FPSAK);
     }
 
@@ -230,7 +230,7 @@ class DokumentforsendelseTjenesteImplTest {
     void dokumentforsendelse_med_uuid_ikke_funnet() {
         ForsendelseIdDto forsendelseIdDto = lagForsendelseIdDto();
         when(dokumentRepositoryMock.hentUnikDokumentMetadata(any(UUID.class))).thenReturn(Optional.empty());
-        var e = assertThrows(TekniskException.class, () -> tjeneste.finnStatusinformasjon(forsendelseIdDto.getForsendelseId()));
+        var e = assertThrows(TekniskException.class, () -> tjeneste.finnStatusinformasjon(forsendelseIdDto.forsendelseId()));
         assertTrue(e.getMessage().contains("FP-295614"));
     }
 

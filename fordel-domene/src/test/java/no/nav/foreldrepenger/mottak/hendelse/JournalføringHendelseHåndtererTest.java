@@ -118,9 +118,4 @@ class JournalføringHendelseHåndtererTest {
         List<ProsessTaskData> result = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         assertThat(result).as("Forventer at en prosesstask er lagt til").isEmpty();
     }
-
-    @Test
-    void test_0argCtor() {
-        new JournalføringHendelseHåndterer();
-    }
 }

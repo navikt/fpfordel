@@ -12,7 +12,7 @@ import java.util.Properties;
 
 import org.apache.kafka.common.serialization.StringSerializer;
 
-import no.nav.vedtak.util.env.Environment;
+import no.nav.foreldrepenger.konfig.Environment;
 
 final class KafkaProperties {
     private static final String KAFKA = "kafka.";

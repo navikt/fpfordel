@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
+import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
-import no.nav.vedtak.konfig.KonfigVerdi;
-import no.nav.vedtak.util.env.Environment;
 
 @Dependent
 public class JournalføringHendelseProperties {
@@ -148,9 +148,10 @@ public class JournalføringHendelseProperties {
         Serde serde = new SpecificAvroSerde<>();
         if (kafkaAvroSerdeClass != null && !kafkaAvroSerdeClass.isBlank()) {
             try {
-                serde = (Serde)Class.forName(kafkaAvroSerdeClass).getDeclaredConstructor().newInstance();
+                serde = (Serde) Class.forName(kafkaAvroSerdeClass).getDeclaredConstructor().newInstance();
             } catch (Exception e) {
-                LOG.warn(String.format("Utvikler-feil: Konfigurasjonsverdien '%s' peker på klasse '%s' som ikke kunne brukes. Benytter default.", KAFKA_AVRO_SERDE_CLASS, kafkaAvroSerdeClass), e);
+                LOG.warn(String.format("Utvikler-feil: Konfigurasjonsverdien '%s' peker på klasse '%s' som ikke kunne brukes. Benytter default.",
+                        KAFKA_AVRO_SERDE_CLASS, kafkaAvroSerdeClass), e);
             }
         }
         return serde;

@@ -11,10 +11,10 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -47,16 +47,16 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
     @Override
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getAktørId().isEmpty()) {
-            throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId());
+            throw new TekniskException("FP-941984",
+            String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()));
         }
         if (dataWrapper.getSaksnummer().isEmpty()) {
-            throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId());
+            throw new TekniskException("FP-941984",
+            String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId()));
         }
         if (dataWrapper.getArkivId() == null || dataWrapper.getArkivId().isEmpty()) {
-            throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.ARKIV_ID_KEY, dataWrapper.getId());
+            throw new TekniskException("FP-941984",
+            String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.ARKIV_ID_KEY, dataWrapper.getId()));
         }
     }
 
@@ -65,7 +65,8 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper w) {
         Optional<String> fnr = w.getAktørId().flatMap(aktør::hentPersonIdentForAktørId);
         if (fnr.isEmpty()) {
-            throw MottakMeldingFeil.fantIkkePersonidentForAktørId(TASKNAME, w.getId());
+            throw new TekniskException("FP-254631",
+            String.format("Fant ikke personident for aktørId i task %s.  TaskId: %s", TASKNAME, w.getId()));
         }
         var saksnummer = w.getSaksnummer().orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mangler saksnummer"));
         // Annet dokument fra dokumentmottak (scanning, altinn). Kan skippe unntakshåndtering. Bør feile.

@@ -6,24 +6,20 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 
-@ApplicationScoped
+@Dependent
 public class PipRepository {
 
-    private static String PIP_QUERY = """ 
-                select BRUKER_ID 
-                from DOKUMENT_METADATA 
+    private static final String PIP_QUERY = """
+                select BRUKER_ID
+                from DOKUMENT_METADATA
                 where FORSENDELSE_ID in (:dokumentforsendelseIder)
                 """;
 
-    private EntityManager entityManager;
-
-    public PipRepository() {
-    }
+    private final EntityManager entityManager;
 
     @Inject
     public PipRepository(EntityManager entityManager) {
@@ -38,9 +34,7 @@ public class PipRepository {
             return Collections.emptySet();
         }
 
-        Query query = entityManager.createNativeQuery(PIP_QUERY);
-        query.setParameter("dokumentforsendelseIder", dokumentforsendelseIder);
-
-        return new HashSet<>(query.getResultList());
+        return new HashSet<String>(entityManager.createNativeQuery(PIP_QUERY)
+                .setParameter("dokumentforsendelseIder", dokumentforsendelseIder).getResultList());
     }
 }

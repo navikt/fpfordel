@@ -125,7 +125,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
                 .medBehandlingstema(brukBT)
                 .medOppgavetype(OPPGAVETYPER_JFR)
                 .medPrioritet(Prioritet.NORM);
-        var oppgave = oppgaver.opprettetOppgave(request);
+        var oppgave = oppgaver.opprettetOppgave(request.build());
         LOG.info("FPFORDEL GOSYS opprettet oppgave {}", oppgave);
         return oppgave.getId().toString();
     }

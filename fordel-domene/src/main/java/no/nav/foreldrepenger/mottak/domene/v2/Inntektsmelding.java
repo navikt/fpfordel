@@ -9,9 +9,9 @@ import javax.xml.bind.JAXBElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.mottak.domene.MeldingKonverteringFeil;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
+import no.nav.vedtak.exception.TekniskException;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Arbeidsgiver;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.ArbeidsgiverPrivat;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.InntektsmeldingM;
@@ -50,7 +50,7 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
             Function<String, Optional<String>> aktørIdFinder) {
         Optional<String> aktørId = aktørIdFinder.apply(getArbeidstakerFnr());
         if (aktørId.isEmpty()) {
-            LOG.warn(MeldingKonverteringFeil.finnerIkkeAktørId(this.getClass().getSimpleName()).getMessage());
+            LOG.warn(new TekniskException("FP-513732", String.format("Finner ikke aktørID for bruker på %s", this.getClass().getSimpleName())).getMessage());
         }
         dataWrapper.setAktørId(aktørId.get());
     }
