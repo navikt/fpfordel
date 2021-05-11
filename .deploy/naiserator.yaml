@@ -5,6 +5,7 @@ metadata:
   namespace: {{namespace}}
   labels:
     team: teamforeldrepenger
+    
 spec:
   accessPolicy:
      inbound:
