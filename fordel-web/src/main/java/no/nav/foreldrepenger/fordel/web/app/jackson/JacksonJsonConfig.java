@@ -8,19 +8,18 @@ import java.util.TimeZone;
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+
+import no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper;
 
 @Provider
 public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
@@ -29,15 +28,10 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
     private final ObjectMapper objectMapper;
 
     public JacksonJsonConfig() {
-        objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new Jdk8Module());
-        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper = DefaultJsonMapper.getObjectMapper().copy();
         objectMapper.setTimeZone(TimeZone.getTimeZone("Europe/Oslo"));
         objectMapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         objectMapper.disable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS);
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         objectMapper.registerModule(SER_DESER);
     }
 
@@ -50,11 +44,9 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
     }
 
     private static SimpleModule createModule() {
-        SimpleModule module = new SimpleModule("VL-REST", new Version(1, 0, 0, null, null, null));
-
+        var module = new SimpleModule("VL-REST", new Version(1, 0, 0, null, null, null));
         addSerializers(module);
         addDeserializers(module);
-
         return module;
     }
 

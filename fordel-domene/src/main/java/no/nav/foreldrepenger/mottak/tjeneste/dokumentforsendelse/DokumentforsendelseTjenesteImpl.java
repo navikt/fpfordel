@@ -3,20 +3,21 @@ package no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse;
 import static java.util.stream.Collectors.toSet;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType.PDFA;
+import static no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType.XML;
 
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.MediaType;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
-import no.nav.foreldrepenger.mottak.domene.dokument.DokumentFeil;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -28,23 +29,17 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Forsendelse
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
-@ApplicationScoped
+@Dependent
 @Transactional
 public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjeneste {
     public static final MediaType APPLICATION_PDF_TYPE = MediaType.valueOf("application/pdf");
-    private static final Set<ArkivFilType> PÅKREVDE_HOVEDDOKUMENT_ARKIV_FIL_TYPER = Set.of(
-            ArkivFilType.XML,
-            ArkivFilType.PDFA);
+    private static final Set<ArkivFilType> PÅKREVDE_HOVEDDOKUMENT_ARKIV_FIL_TYPER = Set.of(XML, PDFA);
 
-    private DokumentRepository repository;
-    private ProsessTaskRepository prosessTaskRepository;
-    private PersonInformasjon aktørConsumer;
-
-    public DokumentforsendelseTjenesteImpl() {
-    }
+    private final DokumentRepository repository;
+    private final ProsessTaskRepository prosessTaskRepository;
+    private final PersonInformasjon aktørConsumer;
 
     @Inject
     public DokumentforsendelseTjenesteImpl(DokumentRepository repository,
@@ -61,7 +56,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
 
     @Override
     public void lagreDokument(Dokument dokument) {
-        if (dokument.erHovedDokument() && ArkivFilType.XML.equals(dokument.getArkivFilType())) {
+        if (dokument.erHovedDokument() && XML.equals(dokument.getArkivFilType())) {
             // Sjekker om nødvendige elementer er satt
             var abstractDto = MeldingXmlParser.unmarshallXml(dokument.getKlartekstDokument());
             if (no.nav.foreldrepenger.mottak.domene.v3.Søknad.class.isInstance(abstractDto)) {
@@ -84,20 +79,20 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
                 opprettProsessTask(forsendelseId, avsenderId);
                 return;
             }
-            throw DokumentforsendelseTjenesteFeil.saksnummerPåkrevdVedEttersendelser();
+            throw new TekniskException("FP-728553", "Saksnummer er påkrevd ved ettersendelser");
         }
         if (korrektAntallOgTyper(hoveddokumenter)) {
             opprettProsessTask(forsendelseId, avsenderId);
             return;
         }
-        throw DokumentforsendelseTjenesteFeil
-                .hoveddokumentSkalSendesSomToDokumenter(CONTENT_TYPE, APPLICATION_XML, APPLICATION_PDF_TYPE);
+        throw new TekniskException("FP-728555", String.format("Hoveddokumentet skal alltid sendes som to dokumenter med %s: %s og %s",
+                CONTENT_TYPE, APPLICATION_XML, APPLICATION_PDF_TYPE));
     }
 
     @Override
     public ForsendelseStatusDto finnStatusinformasjon(UUID forsendelseId) {
         return finnStatusinformasjonHvisEksisterer(forsendelseId)
-                .orElseThrow(() -> DokumentFeil.fantIkkeForsendelse(forsendelseId));
+                .orElseThrow(() -> new TekniskException("FP-295614", String.format("Ukjent forsendelseId %s", forsendelseId)));
     }
 
     @Override
@@ -141,7 +136,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
 
     }
 
-    boolean korrektAntallOgTyper(Set<Dokument> hoveddokumentene) {
+    private boolean korrektAntallOgTyper(Set<Dokument> hoveddokumentene) {
         if (hoveddokumentene.size() != 2) {
             return false;
         }
@@ -157,17 +152,9 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
         return påkrevdeFunnetIhoveddokumentene == 2;
     }
 
-    private static class DokumentforsendelseTjenesteFeil {
-
-        static TekniskException saksnummerPåkrevdVedEttersendelser() {
-            return new TekniskException("FP-728553", "Saksnummer er påkrevd ved ettersendelser");
-        }
-
-        static TekniskException hoveddokumentSkalSendesSomToDokumenter(String contentType, String dokumenttype1, MediaType dokumenttype2) {
-            return new TekniskException("FP-728555", String.format("Hoveddokumentet skal alltid sendes som to dokumenter med %s: %s og %s",
-                    contentType, dokumenttype1, dokumenttype2));
-
-        }
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [repository=" + repository + ", prosessTaskRepository=" + prosessTaskRepository + ", aktørConsumer="
+                + aktørConsumer + "]";
     }
-
 }
