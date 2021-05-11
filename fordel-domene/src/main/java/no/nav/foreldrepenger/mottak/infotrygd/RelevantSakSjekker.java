@@ -5,17 +5,13 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-@ApplicationScoped
+@Dependent
 public class RelevantSakSjekker {
 
-    private InfotrygdTjeneste fp;
-
-    RelevantSakSjekker() {
-
-    }
+    private final InfotrygdTjeneste fp;
 
     @Inject
     public RelevantSakSjekker(InfotrygdTjeneste fp) {
@@ -51,6 +47,11 @@ public class RelevantSakSjekker {
         // informasjonssaker
         return sak -> sak.getIverksatt().map(fom::isBefore).orElse(false)
                 || ((sak.registrert() != null) && fom.isBefore(sak.registrert()));
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [fp=" + fp + "]";
     }
 
 }

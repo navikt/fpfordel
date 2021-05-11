@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.mottak.journal.saf;
 
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -27,15 +27,12 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.integrasjon.saf.HentDokumentQuery;
 import no.nav.vedtak.felles.integrasjon.saf.Saf;
 
-@ApplicationScoped
+@Dependent
 class JerseySafTjeneste implements SafTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(JerseySafTjeneste.class);
 
-    private Saf saf;
-
-    public JerseySafTjeneste() {
-    }
+    private final Saf saf;
 
     @Inject
     public JerseySafTjeneste(@Jersey Saf saf) {
@@ -102,5 +99,10 @@ class JerseySafTjeneste implements SafTjeneste {
         var res = SafMapper.mapJP(saf.query(q, p, TilknyttedeJournalposterQueryResponse.class).tilknyttedeJournalposter());
         LOG.info("Hentet ekstern id OK");
         return res;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [saf=" + saf + "]";
     }
 }

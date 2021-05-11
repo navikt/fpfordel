@@ -130,7 +130,7 @@ public class DokumentforsendelseRestTjeneste {
     }
 
     private void lagreDokumentForsendelse(List<InputPart> inputParts, Dokumentforsendelse dokumentforsendelse) {
-        service.nyDokumentforsendelse(dokumentforsendelse.getMetadata());
+        service.nyDokumentforsendelse(dokumentforsendelse.metadata());
         inputParts.stream().forEach(i -> lagreDokument(dokumentforsendelse, i));
         validerDokumentforsendelse(dokumentforsendelse);
     }
@@ -168,7 +168,7 @@ public class DokumentforsendelseRestTjeneste {
     public Response finnStatusinformasjon(
             @TilpassetAbacAttributt(supplierClass = ForsendelseAbacDataSupplier.class) @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
 
-        var id = forsendelseIdDto.getForsendelseId();
+        var id = forsendelseIdDto.forsendelseId();
         var dto = service.finnStatusinformasjon(id);
         if (FPSAK.equals(dto.getForsendelseStatus())) {
             return Response.seeOther(lagStatusURI(id))
@@ -352,7 +352,7 @@ public class DokumentforsendelseRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             ForsendelseIdDto dto = ((ForsendelseIdDto) obj);
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FORSENDELSE_UUID, dto.getForsendelseId());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FORSENDELSE_UUID, dto.forsendelseId());
         }
     }
 

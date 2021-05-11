@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.mottak.tjeneste;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -18,14 +18,14 @@ import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.klient.JournalpostSender;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
-@ApplicationScoped
+@Dependent
 public class KlargjørForVLTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(KlargjørForVLTjeneste.class);
 
-    private JournalpostSender restKlient;
-    private FagsakTjeneste fagsakRestKlient;
-    private JournalpostSender tilbakekrevingRestKlient;
+    private final JournalpostSender restKlient;
+    private final FagsakTjeneste fagsakRestKlient;
+    private final JournalpostSender tilbakekrevingRestKlient;
 
     @Inject
     public KlargjørForVLTjeneste(
@@ -35,9 +35,6 @@ public class KlargjørForVLTjeneste {
         this.restKlient = restKlient;
         this.fagsakRestKlient = fagsakRestKlient;
         this.tilbakekrevingRestKlient = tilbakekrevingRestKlient;
-    }
-
-    public KlargjørForVLTjeneste() {
     }
 
     public void klargjørForVL(String xml, String saksnummer, String arkivId, DokumentTypeId dokumenttypeId,
@@ -75,6 +72,12 @@ public class KlargjørForVLTjeneste {
         } catch (Exception e) {
             LOG.warn("Feil ved sending av forsendelse til fptilbake, ukjent feil", e);
         }
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [restKlient=" + restKlient + ", fagsakRestKlient=" + fagsakRestKlient + ", tilbakekrevingRestKlient="
+                + tilbakekrevingRestKlient + "]";
     }
 
 }

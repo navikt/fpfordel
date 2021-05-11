@@ -10,7 +10,6 @@ public class Topic<K, V> {
     private final Serde<K> serdeKey;
     private final Serde<V> serdeValue;
 
-    @SuppressWarnings("resource")
     Topic(String topic, Serde<K> serdeKey, Serde<V> serdeValue) {
         Objects.requireNonNull(topic, "topic");
         Objects.requireNonNull(serdeKey, "serdeKey");

@@ -8,29 +8,26 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
+import no.nav.vedtak.exception.TekniskException;
 
-@ApplicationScoped
+@Dependent
 public class DokumentRepository {
 
     private static final String LOKALT_OPPHAV = "FORDEL";
     private static final String FORSENDELSE_ID = "forsendelseId";
     private static final String HOVED_DOKUMENT = "hovedDokument";
     private static final String ARKIV_FILTYPE = "arkivFilType";
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
 
     @Inject
     public DokumentRepository(EntityManager entityManager) {
         this.entityManager = Objects.requireNonNull(entityManager);
-    }
-
-    DokumentRepository() {
     }
 
     public void lagre(Dokument dokument) {
@@ -44,16 +41,14 @@ public class DokumentRepository {
     }
 
     public Optional<Dokument> hentUnikDokument(UUID forsendelseId, boolean hovedDokument, ArkivFilType arkivFilType) {
-        var query = entityManager.createQuery(
+        var resultatListe = entityManager.createQuery(
                 "from Dokument where forsendelseId = :forsendelseId and hovedDokument = :hovedDokument and arkivFilType = :arkivFilType",
                 Dokument.class)
                 .setParameter(FORSENDELSE_ID, forsendelseId)
                 .setParameter(HOVED_DOKUMENT, hovedDokument)
-                .setParameter(ARKIV_FILTYPE, arkivFilType);
-
-        List<Dokument> resultatListe = query.getResultList();
+                .setParameter(ARKIV_FILTYPE, arkivFilType).getResultList();
         if (resultatListe.size() > 1) {
-            throw DokumentFeil.fantIkkeUnikResultat();
+            throw new TekniskException("FP-302156", "Spørringen returnerte mer enn eksakt ett resultat");
         }
 
         if (resultatListe.isEmpty()) {
@@ -63,35 +58,31 @@ public class DokumentRepository {
     }
 
     public List<Dokument> hentDokumenter(UUID forsendelseId) {
-        var query = entityManager.createQuery(
+        return entityManager.createQuery(
                 "from Dokument where forsendelseId = :forsendelseId", Dokument.class)
-                .setParameter(FORSENDELSE_ID, forsendelseId);
-        return query.getResultList();
+                .setParameter(FORSENDELSE_ID, forsendelseId).getResultList();
     }
 
     public DokumentMetadata hentEksaktDokumentMetadata(UUID forsendelseId) {
-        var query = entityManager.createQuery(
+        return hentEksaktResultat(entityManager.createQuery(
                 "from DokumentMetadata where forsendelseId = :forsendelseId", DokumentMetadata.class)
-                .setParameter(FORSENDELSE_ID, forsendelseId);
-        return hentEksaktResultat(query);
+                .setParameter(FORSENDELSE_ID, forsendelseId));
     }
 
     public Optional<DokumentMetadata> hentUnikDokumentMetadata(UUID forsendelseId) {
-        var query = entityManager.createQuery(
+        return hentUniktResultat(entityManager.createQuery(
                 "from DokumentMetadata where forsendelseId = :forsendelseId", DokumentMetadata.class)
-                .setParameter(FORSENDELSE_ID, forsendelseId);
-        return hentUniktResultat(query);
+                .setParameter(FORSENDELSE_ID, forsendelseId));
     }
 
     public void slettForsendelse(UUID forsendelseId) {
-        Query query1 = entityManager.createNativeQuery("delete from DOKUMENT where FORSENDELSE_ID  = :forsendelseId");
-        query1.setParameter(FORSENDELSE_ID, forsendelseId); // NOSONAR
-        query1.executeUpdate();
+        entityManager.createNativeQuery("delete from DOKUMENT where FORSENDELSE_ID  = :forsendelseId")
+                .setParameter(FORSENDELSE_ID, forsendelseId)
+                .executeUpdate();
 
-        Query query2 = entityManager
-                .createNativeQuery("delete from DOKUMENT_METADATA where FORSENDELSE_ID  = :forsendelseId");
-        query2.setParameter(FORSENDELSE_ID, forsendelseId); // NOSONAR
-        query2.executeUpdate();
+        entityManager
+                .createNativeQuery("delete from DOKUMENT_METADATA where FORSENDELSE_ID  = :forsendelseId").setParameter(FORSENDELSE_ID, forsendelseId)
+                .executeUpdate();
 
         entityManager.flush();
     }
@@ -111,23 +102,20 @@ public class DokumentRepository {
 
     public boolean erLokalForsendelse(String eksternReferanseId) {
         try {
-            var forsendelseId = UUID.fromString(eksternReferanseId);
-            return hentUnikDokumentMetadata(forsendelseId).isPresent();
+            return hentUnikDokumentMetadata(UUID.fromString(eksternReferanseId)).isPresent();
         } catch (Exception e) {
             return false;
         }
     }
 
     public void lagreJournalpostLokal(String journalpostId, String kanal, String tilstand, String referanse) {
-        var journalpost = new Journalpost(journalpostId, tilstand, kanal, referanse, LOKALT_OPPHAV);
-        entityManager.persist(journalpost);
+        entityManager.persist(new Journalpost(journalpostId, tilstand, kanal, referanse, LOKALT_OPPHAV));
         entityManager.flush();
     }
 
     public List<Journalpost> hentJournalposter(String journalpostId) {
-        var query = entityManager.createQuery(
+        return entityManager.createQuery(
                 "from Journalpost where journalpostId = :journalpostId", Journalpost.class)
-                .setParameter("journalpostId", journalpostId);
-        return query.getResultList();
+                .setParameter("journalpostId", journalpostId).getResultList();
     }
 }

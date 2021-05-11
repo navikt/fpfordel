@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.felles.kafka.HendelseProdusent;
 import no.nav.foreldrepenger.mottak.felles.kafka.SøknadFordeltOgJournalførtHendelse;
@@ -90,20 +89,20 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     @Override
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getForsendelseId().isEmpty()) {
-            throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.FORSENDELSE_ID_KEY, dataWrapper.getId());
+            throw new TekniskException("FP-941984",
+            String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.FORSENDELSE_ID_KEY, dataWrapper.getId()));
         }
     }
 
     @Override
     public void postcondition(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getAktørId().isEmpty()) {
-            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId());
+            throw new TekniskException("FP-638068",
+            String.format("Prosessering av postconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()));
         }
         if (dataWrapper.getBehandlingTema() == null) {
-            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.BEHANDLINGSTEMA_KEY, dataWrapper.getId());
+            throw new TekniskException("FP-638068",
+            String.format("Prosessering av postconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.BEHANDLINGSTEMA_KEY, dataWrapper.getId()));
         }
 
         if (KlargjorForVLTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())) {
@@ -115,8 +114,8 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     private static void postconditionJournalføringMedSak(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getSaksnummer().isEmpty()) {
-            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId());
+            throw new TekniskException("FP-638068",
+            String.format("Prosessering av postconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId()));
         }
     }
 
@@ -221,30 +220,29 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     private static void postConditionHentOgVurderVLSakOgOpprettSak(MottakMeldingDataWrapper dataWrapper) {
         if (KlargjorForVLTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())
                 && dataWrapper.getForsendelseMottattTidspunkt().isEmpty()) {
-            throw MottakMeldingFeil
-                    .prosesstaskPostconditionManglerProperty(TASKNAME,
-                            MottakMeldingDataWrapper.FORSENDELSE_MOTTATT_TIDSPUNKT_KEY, dataWrapper.getId());
+            throw new TekniskException("FP-638068",
+            String.format("Prosessering av postconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.FORSENDELSE_MOTTATT_TIDSPUNKT_KEY, dataWrapper.getId()));
         }
         if (dataWrapper.getDokumentTypeId().isEmpty()) {
-            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY, dataWrapper.getId());
+            throw new TekniskException("FP-638068",
+            String.format("Prosessering av postconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY, dataWrapper.getId()));
         }
         if (dataWrapper.getDokumentKategori().isEmpty()) {
-            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.DOKUMENTKATEGORI_ID_KEY, dataWrapper.getId());
+            throw new TekniskException("FP-638068",
+            String.format("Prosessering av postconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.DOKUMENTKATEGORI_ID_KEY, dataWrapper.getId()));
         }
         if (DokumentTypeId.erSøknadType(dataWrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT))
                 && dataWrapper.getPayloadAsString().isEmpty()) {
-            throw MottakMeldingFeil
-                    .prosesstaskPostconditionManglerProperty(TASKNAME, "payload", dataWrapper.getId());
+            throw new TekniskException("FP-638068",
+            String.format("Prosessering av postconditions for %s mangler %s. TaskId: %s", TASKNAME, "payload", dataWrapper.getId()));
         }
         if (!dataWrapper.getHarTema()) {
-            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.TEMA_KEY, dataWrapper.getId());
+            throw new TekniskException("FP-638068",
+            String.format("Prosessering av postconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.TEMA_KEY, dataWrapper.getId()));
         }
         if (dataWrapper.getArkivId() == null) {
-            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.ARKIV_ID_KEY, dataWrapper.getId());
+            throw new TekniskException("FP-638068",
+            String.format("Prosessering av postconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.ARKIV_ID_KEY, dataWrapper.getId()));
         }
     }
 
@@ -356,7 +354,8 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         try {
             Optional<String> fnr = w.getAktørId().flatMap(aktørConsumer::hentPersonIdentForAktørId);
             if (fnr.isEmpty()) {
-                throw MottakMeldingFeil.fantIkkePersonidentForAktørId(TASKNAME, w.getId());
+                throw new TekniskException("FP-254631",
+                String.format("Fant ikke personident for aktørId i task %s.  TaskId: %s", TASKNAME, w.getId()));
             }
             var hendelse = new SøknadFordeltOgJournalførtHendelse(w.getArkivId(), forsendelseId, fnr.get(), w.getSaksnummer());
             hendelseProdusent.send(hendelse, forsendelseId.toString());

@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
+import no.nav.vedtak.exception.TekniskException;
 
 public abstract class MottattStrukturertDokument<S> {
 
@@ -26,7 +27,7 @@ public abstract class MottattStrukturertDokument<S> {
             return new no.nav.foreldrepenger.mottak.domene.v3.Søknad(s);
         }
 
-        throw MeldingKonverteringFeil.ukjentSkjemaType(skjema.getClass().getCanonicalName());
+        throw new TekniskException("FP-947143", String.format("Ukjent meldingstype %s", skjema.getClass().getCanonicalName()));
     }
 
     public final void kopierTilMottakWrapper(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {

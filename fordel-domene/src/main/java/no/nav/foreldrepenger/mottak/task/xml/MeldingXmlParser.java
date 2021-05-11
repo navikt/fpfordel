@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.mottak.task.xml;
 
-import static no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParserFeil.ukjentNamespace;
-import static no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParserFeil.uventetFeilVedParsingAvXml;
 import static no.nav.foreldrepenger.xmlutils.JaxbHelper.unmarshalAndValidateXMLWithStAX;
 import static no.nav.foreldrepenger.xmlutils.JaxbHelper.unmarshalXMLWithStAX;
 import static no.nav.foreldrepenger.xmlutils.XmlUtils.retrieveNameSpaceOfXML;
@@ -12,6 +10,7 @@ import java.util.Optional;
 import javax.xml.stream.XMLStreamException;
 
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
+import no.nav.vedtak.exception.TekniskException;
 import no.seres.xsd.nav.inntektsmelding_m._201809.InntektsmeldingConstants;
 
 public final class MeldingXmlParser {
@@ -47,11 +46,13 @@ public final class MeldingXmlParser {
                     try {
                         return f.parse(xml);
                     } catch (Exception e) {
-                        throw uventetFeilVedParsingAvXml(ns(xml), xml, e);
+                        throw new TekniskException("FP-312345",
+                                String.format("Feil ved parsing av ukjent journaldokument-type med namespace %s av %s", ns(xml), xml), e);
                     }
                 })
                 .map(MottattStrukturertDokument::toXmlWrapper)
-                .orElseThrow(() -> ukjentNamespace(ns(xml), new IllegalStateException()));
+                .orElseThrow(() -> new TekniskException("FP-958723", String.format("Fant ikke xsd for namespacet '%s'", ns(xml)),
+                        new IllegalStateException()));
 
     }
 

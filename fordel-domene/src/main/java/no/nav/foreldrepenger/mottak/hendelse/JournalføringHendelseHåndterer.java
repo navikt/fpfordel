@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.mottak.hendelse;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.context.control.ActivateRequestContext;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -28,7 +28,7 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 
 @Transactional
 @ActivateRequestContext
-@ApplicationScoped
+@Dependent
 public class JournalføringHendelseHåndterer {
 
     private static final Logger LOG = LoggerFactory.getLogger(JournalføringHendelseHåndterer.class);
@@ -38,12 +38,8 @@ public class JournalføringHendelseHåndterer {
 
     private static final String EESSI = MottakKanal.EESSI.getKode();
 
-    private ProsessTaskRepository taskRepository;
-    private DokumentRepository dokumentRepository;
-
-    JournalføringHendelseHåndterer() {
-        // CDI
-    }
+    private final ProsessTaskRepository taskRepository;
+    private final DokumentRepository dokumentRepository;
 
     @Inject
     public JournalføringHendelseHåndterer(ProsessTaskRepository taskRepository,
@@ -59,7 +55,8 @@ public class JournalføringHendelseHåndterer {
         var hendelseType = payload.getHendelsesType().toString();
         var mottaksKanal = payload.getMottaksKanal().toString();
         var eksternReferanseId = (payload.getKanalReferanseId() == null) || payload.getKanalReferanseId().toString().isEmpty()
-                ? null : payload.getKanalReferanseId().toString();
+                ? null
+                : payload.getKanalReferanseId().toString();
 
         if (HENDELSE_ENDELIG.equalsIgnoreCase(hendelseType)) {
             LOG.info("FPFORDEL Mottatt Endelig Journalføring journalpost {} kanal {} referanse {}", arkivId, mottaksKanal, eksternReferanseId);
@@ -70,7 +67,8 @@ public class JournalføringHendelseHåndterer {
 
         // De uten kanalreferanse er "klonet" av SBH og journalført fra Gosys.
         // Normalt blir de journalført, men det feiler av og til pga tilgang.
-        // Håndterer disse journalpostene senere (18h) i tilfelle SBH skal ha klart å ordne ting selv
+        // Håndterer disse journalpostene senere (18h) i tilfelle SBH skal ha klart å
+        // ordne ting selv
         var delay = eksternReferanseId == null && !mottaksKanal.equals(MottakKanal.SELVBETJENING.getKode()) ? Duration.ofHours(2) : Duration.ZERO;
 
         if (HENDELSE_ENDRET.equalsIgnoreCase(payload.getHendelsesType().toString())) {

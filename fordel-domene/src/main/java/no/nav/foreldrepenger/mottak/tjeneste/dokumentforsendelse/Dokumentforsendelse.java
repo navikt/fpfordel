@@ -5,23 +5,7 @@ import java.util.UUID;
 
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 
-public class Dokumentforsendelse {
-
-    private final DokumentMetadata metadata;
-    private Map<String, FilMetadata> filMetadataMap;
-
-    public Dokumentforsendelse(DokumentMetadata metadata, Map<String, FilMetadata> filMetadataMap) {
-        this.metadata = metadata;
-        this.filMetadataMap = filMetadataMap;
-    }
-
-    public DokumentMetadata getMetadata() {
-        return metadata;
-    }
-
-    public UUID getForsendelsesId() {
-        return metadata.getForsendelseId();
-    }
+public record Dokumentforsendelse(DokumentMetadata metadata, Map<String, FilMetadata> filMetadataMap) {
 
     public FilMetadata håndter(String contentId) {
         return filMetadataMap.remove(contentId);
@@ -30,4 +14,9 @@ public class Dokumentforsendelse {
     public boolean harHåndtertAlleFiler() {
         return filMetadataMap.isEmpty();
     }
+
+    public UUID getForsendelsesId() {
+        return metadata.getForsendelseId();
+    }
+
 }
