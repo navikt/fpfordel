@@ -21,7 +21,7 @@ jobs:
     steps:
 
       - name: Sjekk ut kode
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v2
       - run:  git fetch --prune --unshallow
 
       - name: Cache maven repository
