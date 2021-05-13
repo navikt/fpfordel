@@ -9,14 +9,15 @@ import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
 @Dependent
-public class PersonTjeneste extends AbstractPersonTjeneste {
+@Jersey("onbehalf")
+public class OnBehalfPersonTjeneste extends AbstractPersonTjeneste {
 
     @Inject
-    public PersonTjeneste(@Jersey Pdl pdl) {
+    public OnBehalfPersonTjeneste(@Jersey("onbehalf") Pdl pdl) {
         this(pdl, cache(tilFnr(pdl)), cache(tilAktørId(pdl)));
     }
 
-    private PersonTjeneste(Pdl pdl, LoadingCache<String, String> tilFnr, LoadingCache<String, String> tilAktør) {
+    private OnBehalfPersonTjeneste(Pdl pdl, LoadingCache<String, String> tilFnr, LoadingCache<String, String> tilAktør) {
         super(pdl, tilFnr, tilAktør);
     }
 
