@@ -16,7 +16,7 @@ public class PersonTjeneste extends AbstractPersonTjeneste {
         this(pdl, cache(tilFnr(pdl)), cache(tilAktørId(pdl)));
     }
 
-    private PersonTjeneste(Pdl pdl, LoadingCache<String, String> tilFnr, LoadingCache<String, String> tilAktør) {
+    PersonTjeneste(Pdl pdl, LoadingCache<String, String> tilFnr, LoadingCache<String, String> tilAktør) {
         super(pdl, tilFnr, tilAktør);
     }
 
