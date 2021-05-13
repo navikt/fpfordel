@@ -132,6 +132,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
     }
 
     private Optional<String> finnAvsenderId(DokumentMetadata metaData) {
+        LOG.info("Finner avsenderID");
         String ident = SubjectHandler.getSubjectHandler().getUid();
         if (ident != null) {
             var aktørIdent = aktørConsumer.hentAktørIdForPersonIdent(ident);
