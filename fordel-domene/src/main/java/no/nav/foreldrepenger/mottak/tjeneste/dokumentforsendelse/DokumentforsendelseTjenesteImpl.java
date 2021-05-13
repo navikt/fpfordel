@@ -56,7 +56,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
         this.repository = repository;
         this.prosessTaskRepository = prosessTaskRepository;
         this.aktørConsumer = aktørConsumer;
-        LOG.info("PDL er " + aktørConsumer.getClass());
+        LOG.info("PDL er " + aktørConsumer);
     }
 
     @Override
