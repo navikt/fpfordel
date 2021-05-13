@@ -169,6 +169,7 @@ public class AbstractPersonTjeneste implements PersonInformasjon {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [tilFnr=" + tilFnr + ", tilAktør=" + tilAktør + "]";
+        return getClass().getSimpleName() + " [pdl=" + pdl + "]";
     }
+
 }
