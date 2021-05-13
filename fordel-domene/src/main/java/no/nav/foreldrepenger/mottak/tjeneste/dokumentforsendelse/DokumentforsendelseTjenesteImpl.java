@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatusDto;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
@@ -52,7 +51,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
 
     @Inject
     public DokumentforsendelseTjenesteImpl(DokumentRepository repository,
-            ProsessTaskRepository prosessTaskRepository, @Jersey("onbehalf") PersonInformasjon aktørConsumer) {
+            ProsessTaskRepository prosessTaskRepository, PersonInformasjon aktørConsumer) {
         this.repository = repository;
         this.prosessTaskRepository = prosessTaskRepository;
         this.aktørConsumer = aktørConsumer;
