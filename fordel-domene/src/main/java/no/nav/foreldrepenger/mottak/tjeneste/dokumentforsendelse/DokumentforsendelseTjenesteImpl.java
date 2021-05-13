@@ -14,6 +14,9 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.MediaType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentFeil;
@@ -39,6 +42,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
             ArkivFilType.XML,
             ArkivFilType.PDFA);
 
+    private static final Logger LOG = LoggerFactory.getLogger(DokumentforsendelseTjenesteImpl.class);
     private DokumentRepository repository;
     private ProsessTaskRepository prosessTaskRepository;
     private PersonInformasjon aktørConsumer;
@@ -52,6 +56,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
         this.repository = repository;
         this.prosessTaskRepository = prosessTaskRepository;
         this.aktørConsumer = aktørConsumer;
+        LOG.info("PDL er " + aktørConsumer.getClass());
     }
 
     @Override
