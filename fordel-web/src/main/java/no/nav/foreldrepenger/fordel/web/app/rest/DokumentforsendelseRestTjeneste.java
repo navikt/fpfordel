@@ -56,7 +56,6 @@ import no.nav.foreldrepenger.fordel.web.app.exceptions.ValideringException;
 import no.nav.foreldrepenger.fordel.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.fordel.web.server.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.fordel.web.server.abac.BeskyttetRessursAttributt;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.Dokumentforsendelse;
@@ -117,7 +116,6 @@ public class DokumentforsendelseRestTjeneste {
     @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.FAGSAK)
     public Response uploadFile(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) MultipartInput input) {
         LOG.info("Innsending av dokumentforsendelse");
-        LOG.trace("Fjernes straks " + Environment.current().getRequiredProperty("token.x.private.jwk"));
         List<InputPart> inputParts = input.getParts();
         if (inputParts.size() < 2) {
             throw new IllegalArgumentException("Må ha minst to deler,fikk " + inputParts.size());
