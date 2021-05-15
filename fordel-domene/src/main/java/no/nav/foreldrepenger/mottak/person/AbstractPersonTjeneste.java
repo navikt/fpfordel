@@ -79,6 +79,7 @@ public class AbstractPersonTjeneste implements PersonInformasjon {
 
     @Override
     public String hentNavn(String id) {
+        LOG.trace("Henter navn for {}", id);
         return pdl.hentPerson(personQuery(id),
                 new PersonResponseProjection().navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())).getNavn()
                 .stream()
@@ -89,6 +90,7 @@ public class AbstractPersonTjeneste implements PersonInformasjon {
 
     @Override
     public GeoTilknytning hentGeografiskTilknytning(String id) {
+        LOG.trace("Henter geo-tilknytning for {}", id);
         var query = new HentGeografiskTilknytningQueryRequest();
         query.setIdent(id);
         var pgt = new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand();
