@@ -11,7 +11,6 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +55,7 @@ import no.nav.foreldrepenger.fordel.web.app.exceptions.ValideringException;
 import no.nav.foreldrepenger.fordel.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.fordel.web.server.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.fordel.web.server.abac.BeskyttetRessursAttributt;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.Dokumentforsendelse;
@@ -65,7 +65,6 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Forsendelse
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatusDto;
 import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -146,26 +145,26 @@ public class DokumentforsendelseRestTjeneste {
 
     private Response tilForsendelseStatusRespons(Dokumentforsendelse dokumentforsendelse,
             ForsendelseStatusDto forsendelseStatusDto) {
-        switch (forsendelseStatusDto.getForsendelseStatus()) {
+        return switch (forsendelseStatusDto.getForsendelseStatus()) {
             case FPSAK -> {
                 LOG.info("Forsendelse {} ble fordelt til FPSAK", dokumentforsendelse.getForsendelsesId());
-                return Response.seeOther(lagStatusURI(dokumentforsendelse.getForsendelsesId()))
+                yield Response.seeOther(lagStatusURI(dokumentforsendelse.getForsendelsesId()))
                         .entity(forsendelseStatusDto)
                         .build();
             }
             case GOSYS -> {
                 LOG.info("Forsendelse {} ble fordelt til GOSYS", dokumentforsendelse.getForsendelsesId());
-                return Response.ok(forsendelseStatusDto).build();
+                yield Response.ok(forsendelseStatusDto).build();
             }
             default -> {
                 LOG.info("Forsendelse {} foreløpig ikke fordelt", dokumentforsendelse.getForsendelsesId());
-                return Response.accepted()
+                yield Response.accepted()
                         .location(URI.create(
                                 SERVICE_PATH + "/status?forsendelseId=" + dokumentforsendelse.getForsendelsesId()))
                         .entity(forsendelseStatusDto)
                         .build();
             }
-        }
+        };
     }
 
     @GET
@@ -181,8 +180,7 @@ public class DokumentforsendelseRestTjeneste {
         try {
             forsendelseId = forsendelseIdDto.getForsendelseId();
         } catch (IllegalArgumentException e) { // NOSONAR
-            FeltFeilDto ffd = new FeltFeilDto("forsendelseId", "Ugyldig uuid");
-            throw new ValideringException(Collections.singletonList(ffd));
+            throw new ValideringException(List.of(new FeltFeilDto("forsendelseId", "Ugyldig uuid")));
         }
 
         ForsendelseStatusDto forsendelseStatusDto = service.finnStatusinformasjon(forsendelseId);
@@ -310,10 +308,7 @@ public class DokumentforsendelseRestTjeneste {
 
         Map<String, FilMetadata> map = new HashMap<>();
         for (FilMetadataDto fmDto : dokumentforsendelseDto.getFiler()) {
-            String dokumentTypeId = fmDto.getDokumentTypeId();
-            DokumentTypeId dokumentType = DokumentTypeId.fraOffisiellKode(dokumentTypeId);
-            FilMetadata fmd = new FilMetadata(fmDto.getContentId(), dokumentType);
-            map.put(fmDto.getContentId(), fmd);
+            map.put(fmDto.getContentId(), new FilMetadata(fmDto.getContentId(), DokumentTypeId.fraOffisiellKode(fmDto.getDokumentTypeId())));
         }
 
         return new Dokumentforsendelse(metadata, map);
