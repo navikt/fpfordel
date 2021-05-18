@@ -135,13 +135,13 @@ class DokumentforsendelseTjenesteImplTest {
         subject.getPublicCredentials().add(new AuthenticationLevelCredential(4));
         ((ThreadLocalSubjectHandler)SubjectHandler.getSubjectHandler()).setSubject(subject);
 
-        String aktørIdForIdent = "123";
+        String aktørIdForIdent = "123456789101";
         when(aktørConsumerMock.hentAktørIdForPersonIdent("StaticSubjectHandlerUserId"))
                 .thenReturn(Optional.of(aktørIdForIdent));
         UUID forsendelseId = UUID.randomUUID();
         var metadata = DokumentMetadata.builder()
                 .setForsendelseId(forsendelseId)
-                .setBrukerId("1234")
+                .setBrukerId("1234567890")
                 .setSaksnummer("123")
                 .setForsendelseMottatt(LocalDateTime.now())
                 .build();
