@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse;
 import static java.util.stream.Collectors.toSet;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static no.nav.vedtak.util.env.ConfidentialMarkerFilter.CONFIDENTIAL;
 
 import java.util.Optional;
 import java.util.Set;
@@ -133,10 +134,9 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
     private Optional<String> finnAvsenderId(DokumentMetadata metaData) {
         String ident = SubjectHandler.getSubjectHandler().getUid();
         if (ident != null) {
-            LOG.trace("Finner finnAvsenderId for {}", ident);
+            LOG.trace(CONFIDENTIAL, "Finner finnAvsenderId for {}", ident);
             var aktørIdent = person.hentAktørIdForPersonIdent(ident);
-            LOG.trace("Fant finnAvsenderId {}", aktørIdent);
-
+            LOG.trace(CONFIDENTIAL, "Fant finnAvsenderId {}", aktørIdent);
             var metadataBruker = metaData.getBrukerId();
 
             if (aktørIdent.filter(i -> !metadataBruker.equals(i)).isPresent()) {
