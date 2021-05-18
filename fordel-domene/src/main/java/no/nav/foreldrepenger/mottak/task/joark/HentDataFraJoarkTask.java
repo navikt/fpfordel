@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
@@ -30,6 +29,7 @@ import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.VurderVLSaker;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -67,8 +67,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     @Override
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getArkivId() == null || dataWrapper.getArkivId().isEmpty()) {
-            throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.ARKIV_ID_KEY, dataWrapper.getId());
+            throw new TekniskException("FP-941984",
+            String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.ARKIV_ID_KEY, dataWrapper.getId()));
         }
     }
 
@@ -76,13 +76,13 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     public void postcondition(MottakMeldingDataWrapper dataWrapper) {
         if (!OpprettGSakOppgaveTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())
                 && dataWrapper.getAktørId().isEmpty()) {
-            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId());
+            throw new TekniskException("FP-638068",
+            String.format("Prosessering av postconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()));
         }
         if (TilJournalføringTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())
                 && dataWrapper.getSaksnummer().isEmpty()) {
-            throw MottakMeldingFeil.prosesstaskPostconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId());
+            throw new TekniskException("FP-638068",
+            String.format("Prosessering av postconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId()));
         }
     }
 
@@ -137,7 +137,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
                 } catch (VLException vle) {
                     // Mottatt journalpost har annet saksnummer enn den i endringssøknaden....
                     // Skyldes spesiell bruk av Gosys. Lag oppgave i dette tilfelle, godta i BehandleDokumentService
-                    if (MottakMeldingFeil.ENDRINGSSØKNAD_AVVIK_SAKSNUMMER.equals(vle.getKode())) {
+                    if ("FP-401245".equals(vle.getKode())) {
                         dataWrapper.setSaksnummer(null);
                         return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
                     }
@@ -210,7 +210,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     private void oppdaterInntektsmelding(MottakMeldingDataWrapper dataWrapper) {
         Optional<String> imYtelse = dataWrapper.getInntektsmeldingYtelse();
         if (imYtelse.isEmpty()) {
-            throw MottakMeldingFeil.manglerYtelsePåInntektsmelding();
+            throw new TekniskException("FP-429673", "Mangler Ytelse på Innteksmelding");
         }
         BehandlingTema behandlingTemaFraIM = BehandlingTema.fraTermNavn(imYtelse.get());
 
@@ -234,8 +234,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     private boolean sjekkOmInntektsmeldingGjelderMann(MottakMeldingDataWrapper dataWrapper) {
         String aktørId = dataWrapper.getAktørId().orElseThrow(() -> new IllegalStateException("Utviklerfeil"));
         String fnrBruker = aktørConsumer.hentPersonIdentForAktørId(aktørId)
-                .orElseThrow(() -> MottakMeldingFeil
-                        .fantIkkePersonidentForAktørId(TASKNAME, dataWrapper.getId()));
+                .orElseThrow(() -> new TekniskException("FP-254631",
+                String.format("Fant ikke personident for aktørId i task %s.  TaskId: %s", TASKNAME, dataWrapper.getId())));
         return (Character.getNumericValue(fnrBruker.charAt(8)) % 2) != 0;
     }
 

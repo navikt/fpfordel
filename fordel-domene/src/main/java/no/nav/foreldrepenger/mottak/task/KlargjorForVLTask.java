@@ -10,9 +10,9 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -34,12 +34,12 @@ public class KlargjorForVLTask extends WrappedProsessTaskHandler {
     @Override
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getSaksnummer().isEmpty()) {
-            throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId());
+            throw new TekniskException("FP-941984",
+            String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId()));
         }
         if (dataWrapper.getArkivId() == null) {
-            throw MottakMeldingFeil.prosesstaskPreconditionManglerProperty(TASKNAME,
-                    MottakMeldingDataWrapper.ARKIV_ID_KEY, dataWrapper.getId());
+            throw new TekniskException("FP-941984",
+            String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.ARKIV_ID_KEY, dataWrapper.getId()));
         }
     }
 

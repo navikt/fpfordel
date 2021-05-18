@@ -14,7 +14,7 @@ import javax.xml.bind.JAXBElement;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
+import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.Endringssoeknad;
 import no.nav.vedtak.felles.xml.soeknad.engangsstoenad.v3.Engangsstønad;
@@ -67,17 +67,21 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
         final BehandlingTema behandlingTema = hentBehandlingTema();
         final String aktørId = getSkjema().getSoeker().getAktoerId();
         if (!Objects.equals(dataWrapper.getBehandlingTema().getKode(), behandlingTema.getKode())) {
-            throw MottakMeldingFeil.ulikBehandlingstemaKodeITynnMeldingOgSøknadsdokument(
-                    dataWrapper.getBehandlingTema().getKode(), behandlingTema.getKode());
+            throw new TekniskException("FP-404782",
+            String.format("Ulik behandlingstemakode i tynnmelding (%s) og søknadsdokument (%s)", dataWrapper.getBehandlingTema().getKode(),
+                    behandlingTema.getKode()));
         }
         if (!Objects.equals(dataWrapper.getAktørId().orElse(null), aktørId)) {
-            throw MottakMeldingFeil.ulikAktørIdITynnMeldingOgSøknadsdokument(dataWrapper.getArkivId(), aktørId);
+            throw new TekniskException("FP-502574",
+            String.format("Ulik aktørId i tynnmelding (%s) og søknadsdokument (%s)", dataWrapper.getArkivId(), aktørId));
         }
         if (getYtelse() instanceof Endringssoeknad) {
             final String saksnummer = ((Endringssoeknad) getYtelse()).getSaksnummer();
             if (!Objects.equals(dataWrapper.getSaksnummer().orElse(null), saksnummer)) {
-                throw MottakMeldingFeil.ulikSaksnummerITynnmeldingOgSøknadsdokument(
-                        dataWrapper.getSaksnummer().orElse(null), saksnummer);
+                throw new FunksjonellException("FP-401245",
+                String.format("Ulike saksnummer i melding/VL (%s) og endringssøknad (%s).", dataWrapper.getSaksnummer().orElse(null),
+                        saksnummer),
+                null);
             }
         }
     }

@@ -13,9 +13,9 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.infotrygd.RelevantSakSjekker;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
+import no.nav.vedtak.exception.TekniskException;
 
 @Dependent
 public class VurderInfotrygd {
@@ -49,7 +49,8 @@ public class VurderInfotrygd {
         if (gjelderForeldrepenger(w)) {
             return manuellVurderingForForeldrepenger(w);
         }
-        throw MottakMeldingFeil.ukjentBehandlingstema(w.getBehandlingTema().getKode());
+        throw new TekniskException("FP-785833",
+        String.format("Ukjent behandlingstema {%s}", w.getBehandlingTema().getKode()));
     }
 
     private boolean manuellVurderingForForeldrepenger(MottakMeldingDataWrapper w) {
@@ -82,14 +83,14 @@ public class VurderInfotrygd {
 
     private String fnr(MottakMeldingDataWrapper w) {
         return w.getAktørId().flatMap(aktør::hentPersonIdentForAktørId)
-                .orElseThrow(() -> MottakMeldingFeil
-                        .fantIkkePersonidentForAktørId("VurderInfotrygd", w.getId()));
+                .orElseThrow(() -> new TekniskException("FP-254631",
+                String.format("Fant ikke personident for aktørId i task %s.  TaskId: %s", "VurderInfotrygd", w.getId())));
     }
 
     private String fnrAnnenPart(MottakMeldingDataWrapper w) {
         return w.getAnnenPartId().flatMap(aktør::hentPersonIdentForAktørId)
-                .orElseThrow(() -> MottakMeldingFeil
-                        .fantIkkePersonidentForAktørId("VurderInfotrygd", w.getId()));
+                .orElseThrow(() -> new TekniskException("FP-254631",
+                String.format("Fant ikke personident for aktørId i task %s.  TaskId: %s", "VurderInfotrygd", w.getId())));
     }
 
     private static boolean erMann(String fnr) {

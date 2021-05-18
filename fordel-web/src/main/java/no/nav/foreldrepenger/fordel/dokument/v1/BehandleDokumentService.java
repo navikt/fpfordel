@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
@@ -281,7 +280,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             mottattDokument.kopierTilMottakWrapper(dataWrapper, aktørConsumer::hentAktørIdForPersonIdent);
         } catch (FunksjonellException e) {
             // Her er det "greit" - da har man bestemt seg, men kan lage rot i saken.
-            if (MottakMeldingFeil.ENDRINGSSØKNAD_AVVIK_SAKSNUMMER.equals(e.getKode())) {
+            if ("FP-401245".equals(e.getKode())) {
                 String logMessage = e.getMessage();
                 LOG.info(logMessage);
             } else {
