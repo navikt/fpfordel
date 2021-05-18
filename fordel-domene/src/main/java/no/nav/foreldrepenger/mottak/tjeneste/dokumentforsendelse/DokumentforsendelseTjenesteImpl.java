@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatusDto;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
@@ -44,18 +45,18 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
     private static final Logger LOG = LoggerFactory.getLogger(DokumentforsendelseTjenesteImpl.class);
     private DokumentRepository repository;
     private ProsessTaskRepository prosessTaskRepository;
-    private PersonInformasjon aktørConsumer;
+    private PersonInformasjon person;
 
     public DokumentforsendelseTjenesteImpl() {
     }
 
     @Inject
     public DokumentforsendelseTjenesteImpl(DokumentRepository repository,
-            ProsessTaskRepository prosessTaskRepository, PersonInformasjon aktørConsumer) {
+            ProsessTaskRepository prosessTaskRepository, @Jersey("onbehalf") PersonInformasjon person) {
         this.repository = repository;
         this.prosessTaskRepository = prosessTaskRepository;
-        this.aktørConsumer = aktørConsumer;
-        LOG.info("PDL er " + aktørConsumer);
+        this.person = person;
+        LOG.info("PDL er " + person);
     }
 
     @Override
@@ -134,7 +135,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
         LOG.info("Finner avsenderID");
         String ident = SubjectHandler.getSubjectHandler().getUid();
         if (ident != null) {
-            var aktørIdent = aktørConsumer.hentAktørIdForPersonIdent(ident);
+            var aktørIdent = person.hentAktørIdForPersonIdent(ident);
             var metadataBruker = metaData.getBrukerId();
 
             if (!aktørIdent.map(metadataBruker::equals).orElse(Boolean.TRUE)) {
