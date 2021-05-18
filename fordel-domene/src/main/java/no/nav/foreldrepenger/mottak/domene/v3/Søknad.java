@@ -12,10 +12,10 @@ import java.util.stream.Collectors;
 import javax.xml.bind.JAXBElement;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.mottak.domene.MeldingKonverteringFeil;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingFeil;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.Endringssoeknad;
 import no.nav.vedtak.felles.xml.soeknad.engangsstoenad.v3.Engangsstønad;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Adopsjon;
@@ -97,7 +97,8 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
     public void sjekkNødvendigeFeltEksisterer(UUID forsendelseId) {
         if ((getSkjema().getMottattDato() == null) || (getSkjema().getOmYtelse() == null)
                 || (getSkjema().getSoeker() == null)) {
-            throw MeldingKonverteringFeil.ukjentFormatPåSøknad(forsendelseId);
+            throw new TekniskException("FP-874812",
+            String.format("Ukjent format på søknad eller mangler nødvendig element (Forsendelse med ID: %s)", forsendelseId));
         }
     }
 
