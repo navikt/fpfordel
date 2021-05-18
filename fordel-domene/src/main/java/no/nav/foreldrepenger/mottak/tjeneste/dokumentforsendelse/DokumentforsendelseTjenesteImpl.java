@@ -56,7 +56,6 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
         this.repository = repository;
         this.prosessTaskRepository = prosessTaskRepository;
         this.person = person;
-        LOG.info("PDL er " + person);
     }
 
     @Override
@@ -89,14 +88,14 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
                 opprettProsessTask(forsendelseId, avsenderId);
                 return;
             }
-            throw DokumentforsendelseTjenesteFeil.saksnummerPåkrevdVedEttersendelser();
+            throw new TekniskException("FP-728553", "Saksnummer er påkrevd ved ettersendelser");
         }
         if (korrektAntallOgTyper(hoveddokumenter)) {
             opprettProsessTask(forsendelseId, avsenderId);
             return;
         }
-        throw DokumentforsendelseTjenesteFeil
-                .hoveddokumentSkalSendesSomToDokumenter(CONTENT_TYPE, APPLICATION_XML, APPLICATION_PDF_TYPE);
+        throw new TekniskException("FP-728555", String.format("Hoveddokumentet skal alltid sendes som to dokumenter med %s: %s og %s",
+                CONTENT_TYPE, APPLICATION_XML, APPLICATION_PDF_TYPE));
     }
 
     @Override
@@ -139,8 +138,9 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
             var metadataBruker = metaData.getBrukerId();
 
             if (aktørIdent.filter(i -> !metadataBruker.equals(i)).isPresent()) {
-                var identInfo = ident.length() > 4 ? "****" + ident.substring(ident.length()-4) : ident;
-                LOG.info("Avvik mellom Subject.uid {} og bruker fra forsendelse {}", identInfo, aktørIdent.map(a -> "****" + a.substring(a.length()-4)));
+                var identInfo = ident.length() > 4 ? "****" + ident.substring(ident.length() - 4) : ident;
+                LOG.info("Avvik mellom Subject.uid {} og bruker fra forsendelse {}", identInfo,
+                        aktørIdent.map(a -> "****" + a.substring(a.length() - 4)));
                 return aktørIdent;
             }
         }
@@ -160,21 +160,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
         }
 
         Predicate<ArkivFilType> aftCheck = aft -> dokumentArkivFilTyper.stream().anyMatch(aft::equals);
-        long påkrevdeFunnetIhoveddokumentene = PÅKREVDE_HOVEDDOKUMENT_ARKIV_FIL_TYPER.stream().filter(aftCheck).count();
-        return påkrevdeFunnetIhoveddokumentene == 2;
-    }
-
-    private static class DokumentforsendelseTjenesteFeil {
-
-        static TekniskException saksnummerPåkrevdVedEttersendelser() {
-            return new TekniskException("FP-728553", "Saksnummer er påkrevd ved ettersendelser");
-        }
-
-        static TekniskException hoveddokumentSkalSendesSomToDokumenter(String contentType, String dokumenttype1, MediaType dokumenttype2) {
-            return new TekniskException("FP-728555", String.format("Hoveddokumentet skal alltid sendes som to dokumenter med %s: %s og %s",
-                    contentType, dokumenttype1, dokumenttype2));
-
-        }
+        return PÅKREVDE_HOVEDDOKUMENT_ARKIV_FIL_TYPER.stream().filter(aftCheck).count() == 2;
     }
 
 }
