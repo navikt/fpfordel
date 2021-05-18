@@ -133,7 +133,10 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
     private Optional<String> finnAvsenderId(DokumentMetadata metaData) {
         String ident = SubjectHandler.getSubjectHandler().getUid();
         if (ident != null) {
+            LOG.trace("Finner finnAvsenderId for {}", ident);
             var aktørIdent = person.hentAktørIdForPersonIdent(ident);
+            LOG.trace("Fant finnAvsenderId {}", aktørIdent);
+
             var metadataBruker = metaData.getBrukerId();
 
             if (aktørIdent.filter(i -> !metadataBruker.equals(i)).isPresent()) {
@@ -143,6 +146,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
                 return aktørIdent;
             }
         }
+        LOG.trace("Ingen AvsenderId å finne");
         return Optional.empty();
 
     }
