@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
-import no.nav.foreldrepenger.mottak.domene.dokument.DokumentFeil;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -101,7 +100,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
     @Override
     public ForsendelseStatusDto finnStatusinformasjon(UUID forsendelseId) {
         return finnStatusinformasjonHvisEksisterer(forsendelseId)
-                .orElseThrow(() -> DokumentFeil.fantIkkeForsendelse(forsendelseId));
+                .orElseThrow(() -> new TekniskException("FP-295614", String.format("Ukjent forsendelseId %s", forsendelseId)));
     }
 
     @Override

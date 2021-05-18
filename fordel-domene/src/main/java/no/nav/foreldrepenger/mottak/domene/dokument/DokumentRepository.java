@@ -15,6 +15,7 @@ import javax.persistence.Query;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
+import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class DokumentRepository {
@@ -53,7 +54,7 @@ public class DokumentRepository {
 
         List<Dokument> resultatListe = query.getResultList();
         if (resultatListe.size() > 1) {
-            throw DokumentFeil.fantIkkeUnikResultat();
+            throw new TekniskException("FP-302156", "Spørringen returnerte mer enn eksakt ett resultat");
         }
 
         if (resultatListe.isEmpty()) {
