@@ -84,7 +84,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     private final PersonInformasjon pdl;
     private final FagsakTjeneste fagsak;
     private final VurderVLSaker vurderVLSaker;
-    private final ArkivTjeneste arkivTjeneste;
+    private final ArkivTjeneste arkiv;
     private final DokumentRepository dokumentRepository;
     private final HendelseProdusent hendelseProdusent;
 
@@ -93,14 +93,14 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
             VurderVLSaker vurderVLSaker,
             PersonInformasjon pdl,
             FagsakTjeneste fagsak,
-            ArkivTjeneste arkivTjeneste,
+            ArkivTjeneste arkiv,
             DokumentRepository dokumentRepository,
             HendelseProdusent hendelseProdusent) {
         super(prosessTaskRepository);
         this.vurderVLSaker = vurderVLSaker;
         this.pdl = pdl;
         this.fagsak = fagsak;
-        this.arkivTjeneste = arkivTjeneste;
+        this.arkiv = arkiv;
         this.dokumentRepository = dokumentRepository;
         this.hendelseProdusent = hendelseProdusent;
     }
@@ -200,7 +200,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
                 .orElseThrow(() -> new IllegalStateException("Hvor ble det av brukers id?"));
 
         if (saksnummer != null) {
-            var opprettetJournalpost = arkivTjeneste.opprettJournalpost(forsendelseId, avsenderId, saksnummer);
+            var opprettetJournalpost = arkiv.opprettJournalpost(forsendelseId, avsenderId, saksnummer);
             if (!opprettetJournalpost.ferdigstilt()) {
                 LOG.info("FORDEL FORSENDELSE kunne ikke ferdigstille sak {} journalpost {} forsendelse {}", saksnummer, w.getArkivId(),
                         forsendelseId);
@@ -210,7 +210,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         var referanseId = w.getRetryingTask()
                 .map(s -> UUID.randomUUID())
                 .orElse(forsendelseId);
-        return arkivTjeneste.opprettJournalpost(forsendelseId, referanseId, avsenderId);
+        return arkiv.opprettJournalpost(forsendelseId, referanseId, avsenderId);
 
     }
 
