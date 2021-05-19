@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.fordel.web.server.abac.BeskyttetRessursAttributt;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
-import no.nav.foreldrepenger.mottak.task.KlargjorForVLTask;
+import no.nav.foreldrepenger.mottak.task.KlargjørForVLTask;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.VedlikeholdSchedulerTask;
 import no.nav.security.token.support.core.api.Unprotected;
@@ -93,10 +93,10 @@ public class ForvaltningRestTjeneste {
         }
         data.setCallIdFraEksisterende();
         MottakMeldingDataWrapper dataWrapperFra = new MottakMeldingDataWrapper(data);
-        MottakMeldingDataWrapper dataWrapperTil = dataWrapperFra.nesteSteg(KlargjorForVLTask.TASKNAME);
+        MottakMeldingDataWrapper dataWrapperTil = dataWrapperFra.nesteSteg(KlargjørForVLTask.TASKNAME);
         dataWrapperTil.setSaksnummer(dto.getSaksnummerDto().getSaksnummer());
         dataWrapperTil.setArkivId(dto.getJournalpostIdDto().getJournalpostId());
-        dataWrapperTil.setRetryingTask(KlargjorForVLTask.REINNSEND);
+        dataWrapperTil.setRetryingTask(KlargjørForVLTask.REINNSEND);
         fagsakRestKlient
                 .knyttSakOgJournalpost(new JournalpostKnyttningDto(dto.getSaksnummerDto(), dto.getJournalpostIdDto()));
         prosessTaskRepository.lagre(dataWrapperTil.getProsessTaskData());

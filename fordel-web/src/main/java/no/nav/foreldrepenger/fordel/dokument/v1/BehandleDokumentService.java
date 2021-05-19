@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.foreldrepenger.mottak.task.KlargjorForVLTask;
+import no.nav.foreldrepenger.mottak.task.KlargjørForVLTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
@@ -213,7 +213,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         if (journalpost.getInnholderStrukturertInformasjon()) {
             // Bruker eksisterende infrastruktur for å hente ut og validere XML-data.
             // Tasktype tilfeldig valgt
-            ProsessTaskData prosessTaskData = new ProsessTaskData(KlargjorForVLTask.TASKNAME);
+            ProsessTaskData prosessTaskData = new ProsessTaskData(KlargjørForVLTask.TASKNAME);
             MottakMeldingDataWrapper dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
             dataWrapper.setBehandlingTema(behandlingTema);
             dataWrapper.setSaksnummer(saksnummer);

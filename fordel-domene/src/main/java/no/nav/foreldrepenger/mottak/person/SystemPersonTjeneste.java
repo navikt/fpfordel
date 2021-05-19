@@ -10,7 +10,7 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
 @Dependent
 @Jersey("system")
-public class SystemPersonTjeneste extends AbstractPersonTjeneste {
+public class SystemPersonTjeneste extends AbstractCachingPersonTjeneste {
 
     @Inject
     public SystemPersonTjeneste(@Jersey("system") Pdl pdl) {

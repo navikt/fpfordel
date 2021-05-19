@@ -25,7 +25,7 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 @ApplicationScoped
 public class EnhetsTjeneste implements EnhetsInfo {
     private static final Logger LOG = LoggerFactory.getLogger(EnhetsTjeneste.class);
-    private PersonInformasjon personTjeneste;
+    private PersonInformasjon pdl;
     private Arbeidsfordeling norgKlient;
 
     private List<String> alleJournalførendeEnheter = new ArrayList<>(); // Med klageinstans og kode6
@@ -39,7 +39,7 @@ public class EnhetsTjeneste implements EnhetsInfo {
     public EnhetsTjeneste(
             PersonInformasjon personTjeneste,
             @Jersey Arbeidsfordeling norgKlient) {
-        this.personTjeneste = personTjeneste;
+        this.pdl = personTjeneste;
         this.norgKlient = norgKlient;
     }
 
@@ -59,7 +59,7 @@ public class EnhetsTjeneste implements EnhetsInfo {
     }
 
     private String hentEnhetId(String aktørId, BehandlingTema behandlingTema, Tema tema) {
-        var gt = personTjeneste.hentPersonIdentForAktørId(aktørId)
+        var gt = pdl.hentPersonIdentForAktørId(aktørId)
                 .map(this::hentGeografiskTilknytning)
                 .orElse(GeoTilknytning.INGEN);
 
@@ -82,7 +82,8 @@ public class EnhetsTjeneste implements EnhetsInfo {
     private static String validerOgVelgBehandlendeEnhet(List<ArbeidsfordelingResponse> response, GeoTilknytning gt) {
         // Vi forventer å få én behandlende enhet.
         if (response == null || response.size() != 1) {
-            throw EnhetsTjeneste.EnhetsTjenesteFeil.finnerIkkeBehandlendeEnhet(gt.tilknytning(), gt.diskresjonskode());
+            throw new TekniskException("FP-669566", String.format("Finner ikke behandlende enhet for geografisk tilknytning %s, diskresjonskode %s",
+                    gt.tilknytning(), gt.diskresjonskode()));
         }
 
         return response.get(0).getEnhetNr();
@@ -112,14 +113,7 @@ public class EnhetsTjeneste implements EnhetsInfo {
     }
 
     private GeoTilknytning hentGeografiskTilknytning(String fnr) {
-        return personTjeneste.hentGeografiskTilknytning(fnr);
+        return pdl.hentGeografiskTilknytning(fnr);
     }
 
-    private static class EnhetsTjenesteFeil {
-
-        static TekniskException finnerIkkeBehandlendeEnhet(String geografiskTilknytning, String diskresjonskode) {
-            return new TekniskException("FP-669566", String.format("Finner ikke behandlende enhet for geografisk tilknytning %s, diskresjonskode %s",
-                    geografiskTilknytning, diskresjonskode));
-        }
-    }
 }

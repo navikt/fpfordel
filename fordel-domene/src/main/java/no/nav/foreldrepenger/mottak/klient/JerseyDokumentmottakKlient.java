@@ -5,7 +5,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.net.URI;
 
-import javax.enterprise.context.Dependent;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
@@ -17,17 +17,20 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-@Dependent
-@Jersey("tilbake")
-public class JerseyTilbakekrevingRestKlient extends AbstractJerseyOidcRestClient implements JournalpostSender {
-    private static final String DEFAULT_TILBAKE_BASE_URI = "http://fptilbake";
-    private static final String JOURNALPOST_PATH = "/fptilbake/api/fordel/journalpost";
-    private static final Logger LOG = LoggerFactory.getLogger(JerseyTilbakekrevingRestKlient.class);
+@ApplicationScoped
+@Jersey("dokument")
+public class JerseyDokumentmottakKlient extends AbstractJerseyOidcRestClient implements JournalpostSender {
+    private static final String DEFAULT_FPSAK_BASE_URI = "http://fpsak";
+    private static final String FPSAK_MOTTAK_JOURNALPOST_PATH = "/fpsak/api/fordel/journalpost";
 
-    private final URI endpoint;
+    private URI endpoint;
+    private static final Logger LOG = LoggerFactory.getLogger(JerseyDokumentmottakKlient.class);
+
+    public JerseyDokumentmottakKlient() {
+    }
 
     @Inject
-    public JerseyTilbakekrevingRestKlient(@KonfigVerdi(value = "fptilbake.base.url", defaultVerdi = DEFAULT_TILBAKE_BASE_URI) URI endpoint) {
+    public JerseyDokumentmottakKlient(@KonfigVerdi(value = "fpsak.base.url", defaultVerdi = DEFAULT_FPSAK_BASE_URI) URI endpoint) {
         this.endpoint = endpoint;
     }
 
@@ -35,10 +38,15 @@ public class JerseyTilbakekrevingRestKlient extends AbstractJerseyOidcRestClient
     public void send(JournalpostMottakDto journalpostMottakDto) {
         LOG.info("Sender journalpost");
         client.target(endpoint)
-                .path(JOURNALPOST_PATH)
+                .path(FPSAK_MOTTAK_JOURNALPOST_PATH)
                 .request(APPLICATION_JSON_TYPE)
                 .buildPost(json(journalpostMottakDto))
                 .invoke(Response.class);
         LOG.info("Sendt journalpost OK");
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [endpoint=" + endpoint + "]";
     }
 }

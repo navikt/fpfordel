@@ -9,7 +9,7 @@ import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
 @Dependent
-public class PersonTjeneste extends AbstractPersonTjeneste {
+public class PersonTjeneste extends AbstractCachingPersonTjeneste {
 
     @Inject
     public PersonTjeneste(@Jersey Pdl pdl) {

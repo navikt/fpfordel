@@ -34,9 +34,9 @@ import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlException;
 
-public class AbstractPersonTjeneste implements PersonInformasjon {
+public class AbstractCachingPersonTjeneste implements PersonInformasjon {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractPersonTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractCachingPersonTjeneste.class);
 
     protected static final String SPSF = "SPSF";
     protected static final String SPFO = "SPFO";
@@ -47,7 +47,7 @@ public class AbstractPersonTjeneste implements PersonInformasjon {
     protected final LoadingCache<String, String> tilAktør;
     protected final Pdl pdl;
 
-    AbstractPersonTjeneste(Pdl pdl, LoadingCache<String, String> tilFnr, LoadingCache<String, String> tilAktør) {
+    AbstractCachingPersonTjeneste(Pdl pdl, LoadingCache<String, String> tilFnr, LoadingCache<String, String> tilAktør) {
         this.pdl = pdl;
         this.tilFnr = tilFnr;
         this.tilAktør = tilAktør;
@@ -81,7 +81,7 @@ public class AbstractPersonTjeneste implements PersonInformasjon {
         return pdl.hentPerson(personQuery(id),
                 new PersonResponseProjection().navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())).getNavn()
                 .stream()
-                .map(AbstractPersonTjeneste::mapNavn)
+                .map(AbstractCachingPersonTjeneste::mapNavn)
                 .findFirst()
                 .orElseThrow();
     }

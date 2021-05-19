@@ -28,20 +28,20 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.util.env.Environment;
 
 @Dependent
-public class JerseyFagsakRestKlient extends AbstractJerseyOidcRestClient implements FagsakTjeneste {
+public class JerseyFagsakKlient extends AbstractJerseyOidcRestClient implements FagsakTjeneste {
     private static final String DEFAULT_FPSAK_BASE_URI = "http://fpsak";
     private static final String JOURNALPOSTTILKNYTNING_PATH = "/fpsak/api/fordel/fagsak/knyttJournalpost";
     private static final String FAGSAKINFORMASJON_PATH = "/fpsak/api/fordel/fagsak/informasjon";
     private static final String FAGSAK_OPPRETT_PATH = "/fpsak/api/fordel/fagsak/opprett";
     private static final String VURDER_FAGSYSTEM_PATH = "/fpsak/api/fordel/vurderFagsystem";
 
-    private static final Logger LOG = LoggerFactory.getLogger(JerseyFagsakRestKlient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JerseyFagsakKlient.class);
 
     private static final Environment ENV = Environment.current();
     private final URI endpoint;
 
     @Inject
-    public JerseyFagsakRestKlient(@KonfigVerdi(value = "fpsak.base.url", defaultVerdi = DEFAULT_FPSAK_BASE_URI) URI endpoint) {
+    public JerseyFagsakKlient(@KonfigVerdi(value = "fpsak.base.url", defaultVerdi = DEFAULT_FPSAK_BASE_URI) URI endpoint) {
         this.endpoint = endpoint;
     }
 

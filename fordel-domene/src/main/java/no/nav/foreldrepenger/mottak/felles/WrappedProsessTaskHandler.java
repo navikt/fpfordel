@@ -5,41 +5,26 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
-public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler {
+public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler, Conditions {
+    protected abstract MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper w);
 
     protected ProsessTaskRepository prosessTaskRepository;
 
-    public WrappedProsessTaskHandler(ProsessTaskRepository prosessTaskRepository) {
-        this.prosessTaskRepository = prosessTaskRepository;
+    public WrappedProsessTaskHandler(ProsessTaskRepository repo) {
+        this.prosessTaskRepository = repo;
     }
 
     @Override
-    public void doTask(ProsessTaskData prosessTaskData) {
+    public void doTask(ProsessTaskData data) {
         MDCOperations.ensureCallId();
-        MottakMeldingDataWrapper dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
-        precondition(dataWrapper);
-
-        MottakMeldingDataWrapper prosessTaskDataNesteMedDataFraInput = doTask(dataWrapper);
-
-        if (prosessTaskDataNesteMedDataFraInput != null) {
-            postcondition(prosessTaskDataNesteMedDataFraInput);
-            var taskdata = prosessTaskDataNesteMedDataFraInput.getProsessTaskData();
+        var w = new MottakMeldingDataWrapper(data);
+        precondition(w);
+        var neste = doTask(w);
+        if (neste != null) {
+            postcondition(neste);
+            var taskdata = neste.getProsessTaskData();
             taskdata.setCallIdFraEksisterende();
             prosessTaskRepository.lagre(taskdata);
         }
-    }
-
-    public abstract void precondition(MottakMeldingDataWrapper dataWrapper);
-
-    public void postcondition(@SuppressWarnings("unused") MottakMeldingDataWrapper dataWrapper) {
-        // Override i subtasks hvor det er krav til precondition. Det er typisk i tasker
-        // hvor tasken henter data og det er behov for å sjekke at alt er OK etter at
-        // task er kjørt.
-    }
-
-    public abstract MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper dataWrapper);
-
-    public static String metricMeterNameForProsessTasksFraTil(String fraTaskType, String tilTaskType) {
-        return "mottak.tasks.fra." + fraTaskType + ".til." + tilTaskType;
     }
 }
