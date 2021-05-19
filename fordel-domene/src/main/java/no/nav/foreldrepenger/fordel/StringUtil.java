@@ -64,4 +64,5 @@ public final class StringUtil {
             throw new IllegalArgumentException(e);
         }
     }
+
 }

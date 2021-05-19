@@ -10,8 +10,6 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.function.Function;
 
-import javax.enterprise.context.Dependent;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +34,6 @@ import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlException;
 
-@Dependent
 public class AbstractPersonTjeneste implements PersonInformasjon {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPersonTjeneste.class);
