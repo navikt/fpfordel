@@ -57,6 +57,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
         this.repository = repository;
         this.prosessTaskRepository = prosessTaskRepository;
         this.person = person;
+        LOG.trace("Created");
     }
 
     @Override

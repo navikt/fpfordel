@@ -103,6 +103,7 @@ public class DokumentforsendelseRestTjeneste {
             @KonfigVerdi(value = "fpinfo.base.url", defaultVerdi = DEFAULT_FPINFO_BASE_URI) URI endpoint) {
         this.service = service;
         this.fpStatusUrl = URI.create(endpoint.toString() + DOKUMENTFORSENDELSE_STATUS_PATH);
+        LOG.trace("Created");
     }
 
     @POST

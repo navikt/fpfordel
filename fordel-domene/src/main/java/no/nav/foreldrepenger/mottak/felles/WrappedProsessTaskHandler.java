@@ -1,9 +1,10 @@
 package no.nav.foreldrepenger.mottak.felles;
 
+import static no.nav.vedtak.log.mdc.MDCOperations.ensureCallId;
+
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.log.mdc.MDCOperations;
 
 public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler, Conditions {
     protected abstract MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper w);
@@ -16,7 +17,7 @@ public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler, C
 
     @Override
     public void doTask(ProsessTaskData data) {
-        MDCOperations.ensureCallId();
+        ensureCallId();
         var w = new MottakMeldingDataWrapper(data);
         precondition(w);
         var neste = doTask(w);

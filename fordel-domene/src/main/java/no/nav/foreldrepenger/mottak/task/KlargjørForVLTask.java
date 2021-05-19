@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.mottak.task;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.UUID;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -26,7 +24,7 @@ public class KlargjørForVLTask extends WrappedProsessTaskHandler {
 
     @Inject
     public KlargjørForVLTask(ProsessTaskRepository prosessTaskRepository,
-                             KlargjørForVLTjeneste klargjørForVLTjeneste) {
+            KlargjørForVLTjeneste klargjørForVLTjeneste) {
         super(prosessTaskRepository);
         this.klargjørForVLTjeneste = klargjørForVLTjeneste;
     }
@@ -35,36 +33,38 @@ public class KlargjørForVLTask extends WrappedProsessTaskHandler {
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getSaksnummer().isEmpty()) {
             throw new TekniskException("FP-941984",
-            String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId()));
+                    String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.SAKSNUMMER_KEY,
+                            dataWrapper.getId()));
         }
         if (dataWrapper.getArkivId() == null) {
             throw new TekniskException("FP-941984",
-            String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.ARKIV_ID_KEY, dataWrapper.getId()));
+                    String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.ARKIV_ID_KEY,
+                            dataWrapper.getId()));
         }
     }
 
     @Override
-    public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper dataWrapper) {
-        String xml = dataWrapper.getPayloadAsString().orElse(null);
-        String saksnummer = dataWrapper.getSaksnummer()
+    public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper w) {
+        String xml = w.getPayloadAsString().orElse(null);
+        String saksnummer = w.getSaksnummer()
                 .orElseThrow(() -> new IllegalStateException("Skulle allerede vært sjekket i precondition(...)"));
-        String arkivId = dataWrapper.getArkivId();
-        var dokumenttypeId = dataWrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT);
-        var dokumentKategori = dataWrapper.getDokumentKategori().orElse(DokumentKategori.UDEFINERT);
-        String journalEnhet = dataWrapper.getJournalførendeEnhet().orElse(null);
-        String eksternReferanseId = dataWrapper.getEksternReferanseId().orElse(null);
-        var behandlingsTema = dataWrapper.getBehandlingTema();
-        Optional<UUID> forsendelseId = dataWrapper.getForsendelseId();
-        boolean erReinnsend = dataWrapper.getRetryingTask().map(REINNSEND::equals).orElse(Boolean.FALSE);
+        String arkivId = w.getArkivId();
+        var dokumenttypeId = w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT);
+        var dokumentKategori = w.getDokumentKategori().orElse(DokumentKategori.UDEFINERT);
+        String journalEnhet = w.getJournalførendeEnhet().orElse(null);
+        String eksternReferanseId = w.getEksternReferanseId().orElse(null);
+        var behandlingsTema = w.getBehandlingTema();
+        var forsendelseId = w.getForsendelseId();
+        boolean erReinnsend = w.getRetryingTask().map(REINNSEND::equals).orElse(Boolean.FALSE);
 
         klargjørForVLTjeneste.klargjørForVL(xml, saksnummer, arkivId, dokumenttypeId,
-                dataWrapper.getForsendelseMottattTidspunkt().orElse(null), behandlingsTema,
-                dataWrapper.getForsendelseId().orElse(null), dokumentKategori, journalEnhet, eksternReferanseId);
+                w.getForsendelseMottattTidspunkt().orElse(null), behandlingsTema,
+                w.getForsendelseId().orElse(null), dokumentKategori, journalEnhet, eksternReferanseId);
 
         if (forsendelseId.isPresent() && !erReinnsend) {
             // Gi selvbetjening tid til å polle ferdig + Kafka-hendelse tid til å nå fram
             // (og bli ignorert)
-            return dataWrapper.nesteSteg(SlettForsendelseTask.TASKNAME, true, LocalDateTime.now().plusHours(2));
+            return w.nesteSteg(SlettForsendelseTask.TASKNAME, true, LocalDateTime.now().plusHours(2));
         }
         return null; // Siste steg, fpsak overtar nå
     }
