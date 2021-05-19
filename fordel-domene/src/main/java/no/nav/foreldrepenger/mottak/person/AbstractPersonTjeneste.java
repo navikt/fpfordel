@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.mottak.person;
 import static java.util.function.Predicate.not;
 import static no.nav.pdl.AdressebeskyttelseGradering.UGRADERT;
 import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
+import static no.nav.vedtak.util.env.ConfidentialMarkerFilter.CONFIDENTIAL;
 
 import java.time.Duration;
 import java.util.Date;
@@ -58,7 +59,7 @@ public class AbstractPersonTjeneste implements PersonInformasjon {
     @Override
     public Optional<String> hentAktørIdForPersonIdent(String fnr) {
         try {
-            LOG.trace("Henter for {}", fnr);
+            LOG.trace(CONFIDENTIAL, "Henter for {}", fnr);
             return Optional.ofNullable(tilAktør.get(fnr));
         } catch (PdlException e) {
             LOG.warn("Kunne ikke hente aktørid fra fnr {} ({} {})", StringUtil.mask(fnr), e, expiresAt(), e);
@@ -69,7 +70,7 @@ public class AbstractPersonTjeneste implements PersonInformasjon {
     @Override
     public Optional<String> hentPersonIdentForAktørId(String aktørId) {
         try {
-            LOG.trace("Henter for {}", aktørId);
+            LOG.trace(CONFIDENTIAL, "Henter for {}", aktørId);
             return Optional.ofNullable(tilFnr.get(aktørId));
         } catch (PdlException e) {
             LOG.warn("Kunne ikke hente fnr fra aktørid {} ({} {})", aktørId, e, expiresAt(), e);
@@ -79,7 +80,7 @@ public class AbstractPersonTjeneste implements PersonInformasjon {
 
     @Override
     public String hentNavn(String id) {
-        LOG.trace("Henter navn for {}", id);
+        LOG.trace(CONFIDENTIAL, "Henter navn for {}", id);
         return pdl.hentPerson(personQuery(id),
                 new PersonResponseProjection().navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())).getNavn()
                 .stream()
@@ -90,7 +91,7 @@ public class AbstractPersonTjeneste implements PersonInformasjon {
 
     @Override
     public GeoTilknytning hentGeografiskTilknytning(String id) {
-        LOG.trace("Henter geo-tilknytning for {}", id);
+        LOG.trace(CONFIDENTIAL, "Henter geo-tilknytning for {}", id);
         var query = new HentGeografiskTilknytningQueryRequest();
         query.setIdent(id);
         var pgt = new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand();
