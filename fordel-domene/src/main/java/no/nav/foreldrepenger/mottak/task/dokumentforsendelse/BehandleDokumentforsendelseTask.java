@@ -1,5 +1,31 @@
 package no.nav.foreldrepenger.mottak.task.dokumentforsendelse;
 
+import static java.lang.String.format;
+import static no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType.XML;
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.UDEFINERT;
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.fraOffisiellKode;
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.gjelderForeldrepenger;
+import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG;
+import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD;
+import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER;
+import static no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal.SELVBETJENING;
+import static no.nav.foreldrepenger.fordel.kodeverdi.Tema.FORELDRE_OG_SVANGERSKAPSPENGER;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.AKTØR_ID_KEY;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.ARKIV_ID_KEY;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.BEHANDLINGSTEMA_KEY;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.DOKUMENTKATEGORI_ID_KEY;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.FORSENDELSE_ID_KEY;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.FORSENDELSE_MOTTATT_TIDSPUNKT_KEY;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.SAKSNUMMER_KEY;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.TEMA_KEY;
+import static no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser.unmarshallXml;
+import static no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil.behandlingTemaFraDokumentType;
+import static no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil.utledHovedDokumentType;
+import static no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil.utledKategoriFraDokumentType;
+import static no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus.FPSAK;
+import static no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus.GOSYS;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -12,15 +38,11 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
-import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
-import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
@@ -34,11 +56,8 @@ import no.nav.foreldrepenger.mottak.journal.OpprettetJournalpost;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.KlargjorForVLTask;
-import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
-import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.Destinasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.VurderVLSaker;
-import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -62,8 +81,8 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.behandleDokumentForsendelse";
 
-    private final PersonInformasjon aktørConsumer;
-    private final FagsakTjeneste fagsakRestKlient;
+    private final PersonInformasjon pdl;
+    private final FagsakTjeneste fagsak;
     private final VurderVLSaker vurderVLSaker;
     private final ArkivTjeneste arkivTjeneste;
     private final DokumentRepository dokumentRepository;
@@ -72,240 +91,234 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     @Inject
     public BehandleDokumentforsendelseTask(ProsessTaskRepository prosessTaskRepository,
             VurderVLSaker vurderVLSaker,
-            PersonInformasjon aktørConsumer,
-            FagsakTjeneste fagsakRestKlient,
+            PersonInformasjon pdl,
+            FagsakTjeneste fagsak,
             ArkivTjeneste arkivTjeneste,
             DokumentRepository dokumentRepository,
             HendelseProdusent hendelseProdusent) {
         super(prosessTaskRepository);
         this.vurderVLSaker = vurderVLSaker;
-        this.aktørConsumer = aktørConsumer;
-        this.fagsakRestKlient = fagsakRestKlient;
+        this.pdl = pdl;
+        this.fagsak = fagsak;
         this.arkivTjeneste = arkivTjeneste;
         this.dokumentRepository = dokumentRepository;
         this.hendelseProdusent = hendelseProdusent;
     }
 
     @Override
-    public void precondition(MottakMeldingDataWrapper dataWrapper) {
-        if (dataWrapper.getForsendelseId().isEmpty()) {
-            throw new TekniskException("FP-941984",
-            String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.FORSENDELSE_ID_KEY, dataWrapper.getId()));
+    public void precondition(MottakMeldingDataWrapper w) {
+        if (w.getForsendelseId().isEmpty()) {
+            throw new TekniskException("FP-941984", format("Preconditions for %s mangler %s. TaskId: %s", TASKNAME, FORSENDELSE_ID_KEY, w.getId()));
         }
     }
 
     @Override
-    public void postcondition(MottakMeldingDataWrapper dataWrapper) {
-        if (dataWrapper.getAktørId().isEmpty()) {
-            throw new TekniskException("FP-638068",
-            String.format("Prosessering av postconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.AKTØR_ID_KEY, dataWrapper.getId()));
+    public void postcondition(MottakMeldingDataWrapper w) {
+        if (w.getAktørId().isEmpty()) {
+            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, AKTØR_ID_KEY, w.getId()));
         }
-        if (dataWrapper.getBehandlingTema() == null) {
-            throw new TekniskException("FP-638068",
-            String.format("Prosessering av postconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.BEHANDLINGSTEMA_KEY, dataWrapper.getId()));
+        if (w.getBehandlingTema() == null) {
+            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, BEHANDLINGSTEMA_KEY, w.getId()));
         }
-
-        if (KlargjorForVLTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())) {
-            postconditionJournalføringMedSak(dataWrapper);
+        if (KlargjorForVLTask.TASKNAME.equals(w.getProsessTaskData().getTaskType())) {
+            postconditionJournalføringMedSak(w);
         }
-
-        postConditionHentOgVurderVLSakOgOpprettSak(dataWrapper);
+        postConditionHentOgVurderVLSakOgOpprettSak(w);
     }
 
-    private static void postconditionJournalføringMedSak(MottakMeldingDataWrapper dataWrapper) {
-        if (dataWrapper.getSaksnummer().isEmpty()) {
-            throw new TekniskException("FP-638068",
-            String.format("Prosessering av postconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.SAKSNUMMER_KEY, dataWrapper.getId()));
+    private static void postconditionJournalføringMedSak(MottakMeldingDataWrapper w) {
+        if (w.getSaksnummer().isEmpty()) {
+            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, SAKSNUMMER_KEY, w.getId()));
         }
     }
 
     @Override
-    public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper dataWrapper) {
+    public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper w) {
 
-        UUID forsendelseId = dataWrapper.getForsendelseId().orElseThrow();
-        var hovedDokumentOpt = dokumentRepository.hentUnikDokument(forsendelseId, true,
-                ArkivFilType.XML);
+        var forsendelseId = w.getForsendelseId().orElseThrow();
+        var hovedDokument = dokumentRepository.hentUnikDokument(forsendelseId, true, XML);
         var metadata = dokumentRepository.hentEksaktDokumentMetadata(forsendelseId);
 
-        var behandlingTema = ArkivUtil.behandlingTemaFraDokumentType(BehandlingTema.UDEFINERT,
-                hovedDokumentOpt.map(Dokument::getDokumentTypeId).orElse(DokumentTypeId.UDEFINERT));
-        dataWrapper.setBehandlingTema(behandlingTema);
+        var behandlingTema = behandlingTemaFraDokumentType(UDEFINERT,
+                hovedDokument
+                        .map(Dokument::getDokumentTypeId)
+                        .orElse(DokumentTypeId.UDEFINERT));
+        w.setBehandlingTema(behandlingTema);
 
         LOG.info("FPFORDEL BdTask entry bt {}", behandlingTema);
 
-        setFellesWrapperAttributter(dataWrapper, hovedDokumentOpt.orElse(null), metadata);
+        setFellesWrapperAttributter(w, hovedDokument.orElse(null), metadata);
 
-        var destinasjon = getDestinasjonOppdaterWrapper(dataWrapper, hovedDokumentOpt, metadata);
+        var destinasjon = getDestinasjonOppdaterWrapper(w, hovedDokument, metadata);
         LOG.info("FPFORDEL BdTask destinasjon {}", destinasjon);
 
-        dataWrapper.setDokumentKategori(ArkivUtil.utledKategoriFraDokumentType(dataWrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT)));
-        destinasjon = utledSaksnummerOpprettSakVedBehov(destinasjon, dataWrapper);
-        dataWrapper.setSaksnummer(destinasjon.saksnummer());
+        w.setDokumentKategori(utledKategoriFraDokumentType(w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT)));
+        destinasjon = utledSaksnummerOpprettSakVedBehov(destinasjon, w);
+        w.setSaksnummer(destinasjon.saksnummer());
 
-        var journalpost = opprettJournalpostFerdigstillHvisSaksnummer(forsendelseId, dataWrapper, destinasjon.saksnummer());
-        dataWrapper.setArkivId(journalpost.journalpostId());
+        var journalpost = opprettJournalpostFerdigstillHvisSaksnummer(forsendelseId, w, destinasjon.saksnummer());
+        w.setArkivId(journalpost.journalpostId());
         if (!journalpost.ferdigstilt()) {
             // Det vil komme en Kafka-hendelse om noen sekunder - denne sørger for at vi
             // ikke trigger på den.
-            dokumentRepository.lagreJournalpostLokal(dataWrapper.getArkivId(),
-                    MottakKanal.SELVBETJENING.getKode(), "MIDLERTIDIG", forsendelseId.toString());
+            dokumentRepository.lagreJournalpostLokal(w.getArkivId(),
+                    SELVBETJENING.getKode(), "MIDLERTIDIG", forsendelseId.toString());
         }
 
-        return utledNesteSteg(dataWrapper, forsendelseId, destinasjon, journalpost.ferdigstilt());
+        return utledNesteSteg(w, forsendelseId, destinasjon, journalpost.ferdigstilt());
     }
 
-    private Destinasjon getDestinasjonOppdaterWrapper(MottakMeldingDataWrapper dataWrapper, Optional<Dokument> hovedDokumentOpt,
-            DokumentMetadata metadata) {
+    private Destinasjon getDestinasjonOppdaterWrapper(MottakMeldingDataWrapper w, Optional<Dokument> hovedDokument, DokumentMetadata metadata) {
         if (metadata.getSaksnummer().isPresent()) {
-            String saksnr = metadata.getSaksnummer().get(); // NOSONAR
-            Optional<FagsakInfomasjonDto> fagInfoOpt = fagsakRestKlient.finnFagsakInfomasjon(new SaksnummerDto(saksnr));
-            if (fagInfoOpt.isPresent()) {
-                setFellesWrapperAttributterFraFagsak(dataWrapper, fagInfoOpt.get(), hovedDokumentOpt);
-                return new Destinasjon(ForsendelseStatus.FPSAK, saksnr);
-            } else {
-                if (hovedDokumentOpt.isEmpty()) {
-                    settDokumentTypeKategoriKorrigerSVP(dataWrapper);
-                }
-                dataWrapper.setSaksnummer(null); // Sendt inn på infotrygd-sak
-                return Destinasjon.GOSYS;
+            var saksnr = metadata.getSaksnummer().get(); // NOSONAR
+            var fagInfo = fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnr));
+            if (fagInfo.isPresent()) {
+                setFellesWrapperAttributterFraFagsak(w, fagInfo.get(), hovedDokument);
+                return new Destinasjon(FPSAK, saksnr);
             }
-        } else {
-            return vurderVLSaker.bestemDestinasjon(dataWrapper);
+            if (hovedDokument.isEmpty()) {
+                settDokumentTypeKategoriKorrigerSVP(w);
+            }
+            w.setSaksnummer(null); // Sendt inn på infotrygd-sak
+            return Destinasjon.GOSYS;
+
         }
+        return vurderVLSaker.bestemDestinasjon(w);
     }
 
     private Destinasjon utledSaksnummerOpprettSakVedBehov(Destinasjon destinasjon, MottakMeldingDataWrapper w) {
-        if (!ForsendelseStatus.FPSAK.equals(destinasjon.system()))
+        if (!FPSAK.equals(destinasjon.system())) {
             return Destinasjon.GOSYS;
-        return new Destinasjon(ForsendelseStatus.FPSAK,
-                Optional.ofNullable(destinasjon.saksnummer()).orElseGet(() -> vurderVLSaker.opprettSak(w)));
+        }
+        return new Destinasjon(FPSAK,
+                Optional.ofNullable(destinasjon.saksnummer())
+                        .orElseGet(() -> vurderVLSaker.opprettSak(w)));
     }
 
     private OpprettetJournalpost opprettJournalpostFerdigstillHvisSaksnummer(UUID forsendelseId, MottakMeldingDataWrapper w, String saksnummer) {
         var avsenderId = w.getAvsenderId().or(w::getAktørId)
                 .orElseThrow(() -> new IllegalStateException("Hvor ble det av brukers id?"));
 
-        OpprettetJournalpost opprettetJournalpost;
         if (saksnummer != null) {
-            opprettetJournalpost = arkivTjeneste.opprettJournalpost(forsendelseId, avsenderId, saksnummer);
+            var opprettetJournalpost = arkivTjeneste.opprettJournalpost(forsendelseId, avsenderId, saksnummer);
             if (!opprettetJournalpost.ferdigstilt()) {
                 LOG.info("FORDEL FORSENDELSE kunne ikke ferdigstille sak {} journalpost {} forsendelse {}", saksnummer, w.getArkivId(),
                         forsendelseId);
             }
             return opprettetJournalpost;
-        } else {
-            var referanseId = w.getRetryingTask().map(s -> UUID.randomUUID()).orElse(forsendelseId);
-            return arkivTjeneste.opprettJournalpost(forsendelseId, referanseId, avsenderId);
         }
+        var referanseId = w.getRetryingTask()
+                .map(s -> UUID.randomUUID())
+                .orElse(forsendelseId);
+        return arkivTjeneste.opprettJournalpost(forsendelseId, referanseId, avsenderId);
+
     }
 
-    private MottakMeldingDataWrapper utledNesteSteg(MottakMeldingDataWrapper dataWrapper, UUID forsendelseId,
+    private MottakMeldingDataWrapper utledNesteSteg(MottakMeldingDataWrapper w, UUID forsendelseId,
             Destinasjon destinasjon, boolean ferdigstilt) {
         LOG.info("FPFORDEL BdTask exit {}", destinasjon);
-        if (ForsendelseStatus.GOSYS.equals(destinasjon.system()) || (destinasjon.saksnummer() != null && !ferdigstilt)) {
-            dokumentRepository.oppdaterForsendelseMedArkivId(forsendelseId, dataWrapper.getArkivId(), ForsendelseStatus.GOSYS);
-            dataWrapper.setSaksnummer(null);
-            return dataWrapper.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
-        } else if (ForsendelseStatus.FPSAK.equals(destinasjon.system()) && destinasjon.saksnummer() != null) {
-            dataWrapper.setSaksnummer(destinasjon.saksnummer());
-            dokumentRepository.oppdaterForsendelseMetadata(forsendelseId, dataWrapper.getArkivId(), destinasjon.saksnummer(),
-                    ForsendelseStatus.FPSAK);
-            sendFordeltHendelse(forsendelseId, dataWrapper);
-            return dataWrapper.nesteSteg(KlargjorForVLTask.TASKNAME);
-        } else {
-            throw new IllegalStateException("Ukjent system eller saksnummer mangler");
+        if (GOSYS.equals(destinasjon.system()) || ((destinasjon.saksnummer() != null) && !ferdigstilt)) {
+            dokumentRepository.oppdaterForsendelseMedArkivId(forsendelseId, w.getArkivId(), GOSYS);
+            w.setSaksnummer(null);
+            return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+        }
+        if (FPSAK.equals(destinasjon.system()) && (destinasjon.saksnummer() != null)) {
+            w.setSaksnummer(destinasjon.saksnummer());
+            dokumentRepository.oppdaterForsendelseMetadata(forsendelseId, w.getArkivId(), destinasjon.saksnummer(),
+                    FPSAK);
+            sendFordeltHendelse(forsendelseId, w);
+            return w.nesteSteg(KlargjorForVLTask.TASKNAME);
+        }
+        throw new IllegalStateException("Ukjent system eller saksnummer mangler");
+
+    }
+
+    private static void postConditionHentOgVurderVLSakOgOpprettSak(MottakMeldingDataWrapper w) {
+        if (KlargjorForVLTask.TASKNAME.equals(w.getProsessTaskData().getTaskType())
+                && w.getForsendelseMottattTidspunkt().isEmpty()) {
+            throw new TekniskException("FP-638068",
+                    format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, FORSENDELSE_MOTTATT_TIDSPUNKT_KEY, w.getId()));
+        }
+        if (w.getDokumentTypeId().isEmpty()) {
+            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, DOKUMENTTYPE_ID_KEY, w.getId()));
+        }
+        if (w.getDokumentKategori().isEmpty()) {
+            throw new TekniskException("FP-638068",
+                    format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, DOKUMENTKATEGORI_ID_KEY, w.getId()));
+        }
+        if (DokumentTypeId.erSøknadType(w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT))
+                && w.getPayloadAsString().isEmpty()) {
+            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, "payload", w.getId()));
+        }
+        if (!w.getHarTema()) {
+            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, TEMA_KEY, w.getId()));
+        }
+        if (w.getArkivId() == null) {
+            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, ARKIV_ID_KEY, w.getId()));
         }
     }
 
-    private static void postConditionHentOgVurderVLSakOgOpprettSak(MottakMeldingDataWrapper dataWrapper) {
-        if (KlargjorForVLTask.TASKNAME.equals(dataWrapper.getProsessTaskData().getTaskType())
-                && dataWrapper.getForsendelseMottattTidspunkt().isEmpty()) {
-            throw new TekniskException("FP-638068",
-            String.format("Prosessering av postconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.FORSENDELSE_MOTTATT_TIDSPUNKT_KEY, dataWrapper.getId()));
-        }
-        if (dataWrapper.getDokumentTypeId().isEmpty()) {
-            throw new TekniskException("FP-638068",
-            String.format("Prosessering av postconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY, dataWrapper.getId()));
-        }
-        if (dataWrapper.getDokumentKategori().isEmpty()) {
-            throw new TekniskException("FP-638068",
-            String.format("Prosessering av postconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.DOKUMENTKATEGORI_ID_KEY, dataWrapper.getId()));
-        }
-        if (DokumentTypeId.erSøknadType(dataWrapper.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT))
-                && dataWrapper.getPayloadAsString().isEmpty()) {
-            throw new TekniskException("FP-638068",
-            String.format("Prosessering av postconditions for %s mangler %s. TaskId: %s", TASKNAME, "payload", dataWrapper.getId()));
-        }
-        if (!dataWrapper.getHarTema()) {
-            throw new TekniskException("FP-638068",
-            String.format("Prosessering av postconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.TEMA_KEY, dataWrapper.getId()));
-        }
-        if (dataWrapper.getArkivId() == null) {
-            throw new TekniskException("FP-638068",
-            String.format("Prosessering av postconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.ARKIV_ID_KEY, dataWrapper.getId()));
-        }
-    }
-
-    private void setFellesWrapperAttributter(MottakMeldingDataWrapper dataWrapper, Dokument dokument,
+    private void setFellesWrapperAttributter(MottakMeldingDataWrapper w, Dokument dokument,
             DokumentMetadata metadata) {
-        if (!dataWrapper.getHarTema()) {
-            dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
+        if (!w.getHarTema()) {
+            w.setTema(FORELDRE_OG_SVANGERSKAPSPENGER);
         }
         if (metadata != null) {
-            dataWrapper.setAktørId(metadata.getBrukerId());
-            metadata.getArkivId().ifPresent(dataWrapper::setArkivId);
-            metadata.getSaksnummer().ifPresent(dataWrapper::setSaksnummer);
+            w.setAktørId(metadata.getBrukerId());
+            metadata.getArkivId().ifPresent(w::setArkivId);
+            metadata.getSaksnummer().ifPresent(w::setSaksnummer);
         }
         if (dokument != null) {
-            dataWrapper.setDokumentTypeId(dokument.getDokumentTypeId());
-            dataWrapper.setDokumentKategori(ArkivUtil.utledKategoriFraDokumentType(dokument.getDokumentTypeId()));
-            dataWrapper.setPayload(dokument.getKlartekstDokument());
-            kopierOgValiderAttributterFraSøknad(dataWrapper, dokument);
+            w.setDokumentTypeId(dokument.getDokumentTypeId());
+            w.setDokumentKategori(utledKategoriFraDokumentType(dokument.getDokumentTypeId()));
+            w.setPayload(dokument.getKlartekstDokument());
+            kopierOgValiderAttributterFraSøknad(w, dokument);
         }
-        if (dataWrapper.getForsendelseMottattTidspunkt().isEmpty()) {
-            dataWrapper.setForsendelseMottattTidspunkt(LocalDateTime.now());
+        if (w.getForsendelseMottattTidspunkt().isEmpty()) {
+            w.setForsendelseMottattTidspunkt(LocalDateTime.now());
         }
     }
 
-    private void setFellesWrapperAttributterFraFagsak(MottakMeldingDataWrapper dataWrapper,
+    private void setFellesWrapperAttributterFraFagsak(MottakMeldingDataWrapper w,
             FagsakInfomasjonDto fagsakInfo, Optional<Dokument> dokumentInput) {
-        BehandlingTema behandlingTemaFraSak = BehandlingTema.fraOffisiellKode(
-                fagsakInfo.getBehandlingstemaOffisiellKode());
+        var behandlingTemaFraSak = fraOffisiellKode(fagsakInfo.getBehandlingstemaOffisiellKode());
 
         if (dokumentInput.isPresent()) {
-            Dokument dokument = dokumentInput.get();
-            if (!fagsakInfo.getAktørId().equals(dataWrapper.getAktørId().orElse(null))) {
-                throw BehandleDokumentforsendelseFeil.aktørIdMismatch();
+            var dokument = dokumentInput.get();
+            if (!fagsakInfo.getAktørId().equals(w.getAktørId().orElse(null))) {
+                throw new TekniskException("FP-758390", "Søkers ID samsvarer ikke med søkers ID i eksisterende sak");
             }
-            sjekkForMismatchMellomFagsakOgDokumentInn(dataWrapper.getBehandlingTema(), behandlingTemaFraSak, dokument);
+            sjekkForMismatchMellomFagsakOgDokumentInn(w.getBehandlingTema(), behandlingTemaFraSak, dokument);
         } else {
             // Vedlegg - mangler hoveddokument
-            settDokumentTypeKategoriKorrigerSVP(dataWrapper);
-            dataWrapper.setAktørId(fagsakInfo.getAktørId());
-            dataWrapper.setBehandlingTema(behandlingTemaFraSak);
-            dataWrapper.setForsendelseMottattTidspunkt(LocalDateTime.now());
+            settDokumentTypeKategoriKorrigerSVP(w);
+            w.setAktørId(fagsakInfo.getAktørId());
+            w.setBehandlingTema(behandlingTemaFraSak);
+            w.setForsendelseMottattTidspunkt(LocalDateTime.now());
         }
     }
 
     // TODO: Endre når TFP-4125 er fikset i søknadSvangerskapspenger. Nå kommer
     // vedlegg som søknad og roter til mye.
     private void settDokumentTypeKategoriKorrigerSVP(MottakMeldingDataWrapper w) {
-        var dokumenter = w.getForsendelseId().map(dokumentRepository::hentDokumenter).orElse(List.of());
+        var dokumenter = w.getForsendelseId()
+                .map(dokumentRepository::hentDokumenter)
+                .orElse(List.of());
         var svpSøknader = dokumenter.stream()
-                .filter(d -> DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER.equals(d.getDokumentTypeId()))
+                .filter(d -> SØKNAD_SVANGERSKAPSPENGER.equals(d.getDokumentTypeId()))
                 .collect(Collectors.toList());
-        var svpStrukturert = svpSøknader.stream().anyMatch(d -> ArkivFilType.XML.equals(d.getArkivFilType()));
+        var svpStrukturert = svpSøknader.stream().anyMatch(d -> XML.equals(d.getArkivFilType()));
         if (svpSøknader.isEmpty() || svpStrukturert) {
-            var doktype = ArkivUtil.utledHovedDokumentType(dokumenter.stream().map(Dokument::getDokumentTypeId).collect(Collectors.toSet()));
+            var doktype = utledHovedDokumentType(dokumenter.stream().map(Dokument::getDokumentTypeId).collect(Collectors.toSet()));
             w.setDokumentTypeId(doktype);
-            w.setDokumentKategori(ArkivUtil.utledKategoriFraDokumentType(doktype));
+            w.setDokumentKategori(utledKategoriFraDokumentType(doktype));
         } else {
-            w.setDokumentTypeId(DokumentTypeId.ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG);
+            w.setDokumentTypeId(ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG);
             w.setDokumentKategori(DokumentKategori.IKKE_TOLKBART_SKJEMA);
         }
         if (!svpSøknader.isEmpty() && !svpStrukturert) {
             svpSøknader.forEach(d -> {
-                d.setDokumentTypeId(DokumentTypeId.ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG);
+                d.setDokumentTypeId(ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG);
                 dokumentRepository.lagre(d);
             });
         }
@@ -314,48 +327,32 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     private static void sjekkForMismatchMellomFagsakOgDokumentInn(BehandlingTema behandlingTema,
             BehandlingTema fagsakTema, Dokument dokument) {
 
-        if (DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD.equals(dokument.getDokumentTypeId())) {
+        if (FORELDREPENGER_ENDRING_SØKNAD.equals(dokument.getDokumentTypeId())) {
             // Endringssøknad har ingen info om behandlingstema, slik vi kan ikke utlede
             // et spesifikt tema, så må ha løsere match. Se
             // ArkivUtil.korrigerBehandlingTemaFraDokumentType
-            if (BehandlingTema.gjelderForeldrepenger(behandlingTema)) {
+            if (gjelderForeldrepenger(behandlingTema)) {
                 return;
             }
         }
         if (!fagsakTema.equals(behandlingTema)) {
-            throw BehandleDokumentforsendelseFeil.behandlingTemaMismatch(
-                    behandlingTema.getKode(), fagsakTema.getKode());
+            throw new TekniskException("FP-756353",
+                    format("BehandlingTema i forsendelse samsvarer ikke med BehandlingTema i eksisterende sak {%s : %s}",
+                            behandlingTema.getKode(), fagsakTema.getKode()));
         }
 
     }
 
     private void kopierOgValiderAttributterFraSøknad(MottakMeldingDataWrapper nesteSteg, Dokument dokument) {
-        String xml = dokument.getKlartekstDokument();
-        MottattStrukturertDokument<?> abstractMDto = MeldingXmlParser.unmarshallXml(xml);
-
-        abstractMDto.kopierTilMottakWrapper(nesteSteg, aktørConsumer::hentAktørIdForPersonIdent);
-    }
-
-    static private class BehandleDokumentforsendelseFeil {
-
-        static TekniskException aktørIdMismatch() {
-            return new TekniskException("FP-758390", "Søkers ID samsvarer ikke med søkers ID i eksisterende sak");
-        }
-
-        static TekniskException behandlingTemaMismatch(String behandlingTemaforsendelse, String behandlingTemaSak) {
-            return new TekniskException("FP-756353",
-                    String.format("BehandlingTema i forsendelse samsvarer ikke med BehandlingTema i eksisterende sak {%s : %s}",
-                            behandlingTemaforsendelse, behandlingTemaSak));
-
-        }
+        unmarshallXml(dokument.getKlartekstDokument()).kopierTilMottakWrapper(nesteSteg, pdl::hentAktørIdForPersonIdent);
     }
 
     private void sendFordeltHendelse(UUID forsendelseId, MottakMeldingDataWrapper w) {
         try {
-            Optional<String> fnr = w.getAktørId().flatMap(aktørConsumer::hentPersonIdentForAktørId);
+            Optional<String> fnr = w.getAktørId()
+                    .flatMap(pdl::hentPersonIdentForAktørId);
             if (fnr.isEmpty()) {
-                throw new TekniskException("FP-254631",
-                String.format("Fant ikke personident for aktørId i task %s.  TaskId: %s", TASKNAME, w.getId()));
+                throw new TekniskException("FP-254631", format("Fant ikke personident for aktørId i task %s.  TaskId: %s", TASKNAME, w.getId()));
             }
             var hendelse = new SøknadFordeltOgJournalførtHendelse(w.getArkivId(), forsendelseId, fnr.get(), w.getSaksnummer());
             hendelseProdusent.send(hendelse, forsendelseId.toString());
