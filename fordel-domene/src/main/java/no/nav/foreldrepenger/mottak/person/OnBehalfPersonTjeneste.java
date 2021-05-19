@@ -10,7 +10,7 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
 @Dependent
 @Jersey("onbehalf")
-public class OnBehalfPersonTjeneste extends AbstractPersonTjeneste {
+public class OnBehalfPersonTjeneste extends AbstractCachingPersonTjeneste {
 
     @Inject
     public OnBehalfPersonTjeneste(@Jersey("onbehalf") Pdl pdl) {

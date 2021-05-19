@@ -81,7 +81,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             LOG.info("Feil journaltilstand. Forventet tilstand: endelig, fikk Midlertidig");
             return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
-        return w.nesteSteg(KlargjorForVLTask.TASKNAME);
+        return w.nesteSteg(KlargjørForVLTask.TASKNAME);
     }
 
 }

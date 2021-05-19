@@ -17,15 +17,15 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @Dependent
-@ProsessTask(KlargjorForVLTask.TASKNAME)
-public class KlargjorForVLTask extends WrappedProsessTaskHandler {
+@ProsessTask(KlargjørForVLTask.TASKNAME)
+public class KlargjørForVLTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.klargjoering";
     public static final String REINNSEND = "REINNSEND";
     private final KlargjørForVLTjeneste klargjørForVLTjeneste;
 
     @Inject
-    public KlargjorForVLTask(ProsessTaskRepository prosessTaskRepository,
+    public KlargjørForVLTask(ProsessTaskRepository prosessTaskRepository,
                              KlargjørForVLTjeneste klargjørForVLTjeneste) {
         super(prosessTaskRepository);
         this.klargjørForVLTjeneste = klargjørForVLTjeneste;

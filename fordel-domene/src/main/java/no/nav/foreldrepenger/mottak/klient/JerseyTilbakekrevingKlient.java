@@ -12,22 +12,22 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
-import no.nav.vedtak.konfig.KonfigVerdi;
 
 @Dependent
 @Jersey("tilbake")
-public class JerseyTilbakekrevingRestKlient extends AbstractJerseyOidcRestClient implements JournalpostSender {
+public class JerseyTilbakekrevingKlient extends AbstractJerseyOidcRestClient implements JournalpostSender {
     private static final String DEFAULT_TILBAKE_BASE_URI = "http://fptilbake";
     private static final String JOURNALPOST_PATH = "/fptilbake/api/fordel/journalpost";
-    private static final Logger LOG = LoggerFactory.getLogger(JerseyTilbakekrevingRestKlient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JerseyTilbakekrevingKlient.class);
 
     private final URI endpoint;
 
     @Inject
-    public JerseyTilbakekrevingRestKlient(@KonfigVerdi(value = "fptilbake.base.url", defaultVerdi = DEFAULT_TILBAKE_BASE_URI) URI endpoint) {
+    public JerseyTilbakekrevingKlient(@KonfigVerdi(value = "fptilbake.base.url", defaultVerdi = DEFAULT_TILBAKE_BASE_URI) URI endpoint) {
         this.endpoint = endpoint;
     }
 

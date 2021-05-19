@@ -23,12 +23,12 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
-class KlargjorForVLTaskTest {
+class KlargjørForVLTaskTest {
 
     private static final String ARKIV_ID = "234567";
     private static final String SAKSNUMMER = "234567";
 
-    private KlargjorForVLTask task;
+    private KlargjørForVLTask task;
     private ProsessTaskData ptd;
 
     @Mock
@@ -42,8 +42,8 @@ class KlargjorForVLTaskTest {
     @BeforeEach
     void setup() {
         forsendelseId = UUID.randomUUID();
-        task = new KlargjorForVLTask(prosessTaskRepositoryMock, klargjørForVLTjeneste);
-        ptd = new ProsessTaskData(KlargjorForVLTask.TASKNAME);
+        task = new KlargjørForVLTask(prosessTaskRepositoryMock, klargjørForVLTjeneste);
+        ptd = new ProsessTaskData(KlargjørForVLTask.TASKNAME);
         ptd.setSekvens("1");
 
     }

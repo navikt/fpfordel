@@ -49,7 +49,7 @@ import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.OpprettetJournalpost;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.foreldrepenger.mottak.task.KlargjorForVLTask;
+import no.nav.foreldrepenger.mottak.task.KlargjørForVLTask;
 import no.nav.foreldrepenger.mottak.tjeneste.Destinasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.VurderVLSaker;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
@@ -124,7 +124,7 @@ class BehandleDokumentforsendelseTaskTest {
         when(arkivTjeneste.opprettJournalpost(any(), any(String.class), any())).thenReturn(new OpprettetJournalpost(JOURNALPOST_ID, true));
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
-        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(KlargjorForVLTask.TASKNAME);
+        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(KlargjørForVLTask.TASKNAME);
         assertThat(utdata.getDokumentTypeId()).hasValue(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
         verify(arkivTjeneste).opprettJournalpost(any(), any(String.class), eq("123"));
     }
@@ -142,7 +142,7 @@ class BehandleDokumentforsendelseTaskTest {
         when(arkivTjeneste.opprettJournalpost(any(), any(String.class), eq("123"))).thenReturn(new OpprettetJournalpost(JOURNALPOST_ID, true));
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
-        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(KlargjorForVLTask.TASKNAME);
+        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(KlargjørForVLTask.TASKNAME);
         assertThat(utdata.getDokumentTypeId()).hasValue(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
     }
 
@@ -176,7 +176,7 @@ class BehandleDokumentforsendelseTaskTest {
 
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
-        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(KlargjorForVLTask.TASKNAME);
+        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(KlargjørForVLTask.TASKNAME);
     }
 
     @Test
@@ -197,7 +197,7 @@ class BehandleDokumentforsendelseTaskTest {
 
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
-        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(KlargjorForVLTask.TASKNAME);
+        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(KlargjørForVLTask.TASKNAME);
         assertThat(utdata.getDokumentTypeId()).hasValue(DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD);
     }
 
@@ -238,7 +238,7 @@ class BehandleDokumentforsendelseTaskTest {
 
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
-        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(KlargjorForVLTask.TASKNAME);
+        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(KlargjørForVLTask.TASKNAME);
         assertThat(utdata.getDokumentTypeId()).hasValue(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
     }
 
