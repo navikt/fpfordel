@@ -12,10 +12,10 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
-import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
 @Jersey("dokument")
@@ -35,12 +35,12 @@ public class JerseyDokumentmottakKlient extends AbstractJerseyOidcRestClient imp
     }
 
     @Override
-    public void send(JournalpostMottakDto journalpostMottakDto) {
+    public void send(JournalpostMottakDto journalpost) {
         LOG.info("Sender journalpost");
         client.target(endpoint)
                 .path(FPSAK_MOTTAK_JOURNALPOST_PATH)
                 .request(APPLICATION_JSON_TYPE)
-                .buildPost(json(journalpostMottakDto))
+                .buildPost(json(journalpost))
                 .invoke(Response.class);
         LOG.info("Sendt journalpost OK");
     }

@@ -178,7 +178,7 @@ public class DokumentforsendelseRestTjeneste {
             @TilpassetAbacAttributt(supplierClass = ForsendelseAbacDataSupplier.class) @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
         UUID forsendelseId;
         try {
-            forsendelseId = forsendelseIdDto.getForsendelseId();
+            forsendelseId = forsendelseIdDto.forsendelseId();
         } catch (IllegalArgumentException e) { // NOSONAR
             throw new ValideringException(List.of(new FeltFeilDto("forsendelseId", "Ugyldig uuid")));
         }
@@ -206,12 +206,12 @@ public class DokumentforsendelseRestTjeneste {
         boolean hovedDokument;
         String name = getDirective(inputPart.getHeaders(), CONTENT_DISPOSITION, "name");
         if (name == null) {
-            throw DokumentforsendelseRestTjenesteFeil.ukjentPartNavn();
+            throw new TekniskException("FP-892457", "Unknown part name");
         }
 
         String contentId = inputPart.getHeaders().getFirst(CONTENT_ID);
         if (contentId == null) {
-            throw DokumentforsendelseRestTjenesteFeil.manglerHeaderAttributt(CONTENT_ID);
+            throw new TekniskException("FP-892455", String.format("Mangler %s", CONTENT_ID));
         }
 
         switch (name) {
@@ -221,16 +221,16 @@ public class DokumentforsendelseRestTjeneste {
             case PART_KEY_VEDLEGG:
                 hovedDokument = false;
                 if (!APPLICATION_PDF_TYPE.isCompatible(inputPart.getMediaType())) {
-                    throw DokumentforsendelseRestTjenesteFeil.vedleggErIkkePdf(contentId);
+                    throw new TekniskException("FP-882558", String.format("Vedlegg er ikke pdf, Content-ID=%s", contentId));
                 }
                 break;
             default:
-                throw DokumentforsendelseRestTjenesteFeil.ukjentPartNavn();
+                throw new TekniskException("FP-892457", "Unknown part name");
         }
 
         FilMetadata filMetadata = dokumentforsendelse.håndter(contentId);
         if (filMetadata == null) {
-            throw DokumentforsendelseRestTjenesteFeil.manglerInformasjonIMetadata(contentId);
+            throw new TekniskException("FP-892446", String.format("Metadata inneholder ikke informasjon om Content-ID=%s", contentId));
         }
 
         String partFilename = getDirective(inputPart.getHeaders(), CONTENT_DISPOSITION, "filename");
@@ -253,7 +253,7 @@ public class DokumentforsendelseRestTjeneste {
                         mapMediatypeTilArkivFilType(inputPart.getMediaType()));
             }
         } catch (IOException e) {
-            throw DokumentforsendelseRestTjenesteFeil.feiletUnderInnlesningAvInputPart(name, contentId, e);
+            throw new TekniskException("FP-892467", String.format("Klarte ikke å lese inn dokumentet, name=%s, Content-ID=%s", name, contentId), e);
         }
 
         Dokument dokument = builder.build();
@@ -262,7 +262,7 @@ public class DokumentforsendelseRestTjeneste {
 
     private void validerDokumentforsendelse(Dokumentforsendelse dokumentforsendelse) {
         if (!dokumentforsendelse.harHåndtertAlleFiler()) {
-            throw DokumentforsendelseRestTjenesteFeil.forventetFlereFilerIForsendelsen();
+            throw new TekniskException("FP-892456", "Metadata inneholder flere filer enn det som er lastet opp");
         }
 
         service.validerDokumentforsendelse(dokumentforsendelse.getForsendelsesId());
@@ -271,24 +271,24 @@ public class DokumentforsendelseRestTjeneste {
     private static DokumentforsendelseDto getMetadataDto(InputPart inputPart) {
         String name = getDirective(inputPart.getHeaders(), CONTENT_DISPOSITION, "name");
         if (!PART_KEY_METADATA.equals(name)) {
-            throw DokumentforsendelseRestTjenesteFeil.førsteInputPartSkalVæreMetadata();
+            throw new TekniskException("FP-892453", "The first part must be the metadata part");
         }
         if (!APPLICATION_JSON_TYPE.isCompatible(inputPart.getMediaType())) {
-            throw DokumentforsendelseRestTjenesteFeil.metadataPartSkalHaMediaType(APPLICATION_JSON);
+            throw new TekniskException("FP-892454", String.format("The metadata part should be %s", APPLICATION_JSON));
         }
 
         String body;
         try {
             body = inputPart.getBodyAsString();
         } catch (IOException e1) {
-            throw DokumentforsendelseRestTjenesteFeil.feiletUnderInnlesningAvInputPart(name, e1);
+            throw new TekniskException("FP-892466", String.format("Klarte ikke å lese inn dokumentet, name=%s", name), e1);
         }
 
         DokumentforsendelseDto dokumentforsendelseDto;
         try {
             dokumentforsendelseDto = OBJECT_MAPPER.readValue(body, DokumentforsendelseDto.class);
         } catch (IOException e) {
-            throw DokumentforsendelseRestTjenesteFeil.kunneIkkeParseMetadata(PART_KEY_METADATA, e);
+            throw new TekniskException("FP-892458", String.format("Klarte ikke å parse %s", PART_KEY_METADATA), e);
         }
 
         Set<ConstraintViolation<DokumentforsendelseDto>> violations = VALIDATOR.validate(dokumentforsendelseDto);
@@ -337,7 +337,7 @@ public class DokumentforsendelseRestTjeneste {
         if (mediaType.isCompatible(MediaType.APPLICATION_XML_TYPE)) {
             return ArkivFilType.XML;
         }
-        throw DokumentforsendelseRestTjenesteFeil.ulovligFilType(mediaType.getType());
+        throw new TekniskException("FP-892468", String.format("Ulovlig mediatype %s", mediaType.getType()));
 
     }
 
@@ -360,57 +360,7 @@ public class DokumentforsendelseRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             ForsendelseIdDto dto = ((ForsendelseIdDto) obj);
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FORSENDELSE_UUID, dto.getForsendelseId());
-        }
-    }
-
-    private static class DokumentforsendelseRestTjenesteFeil {
-
-        static TekniskException førsteInputPartSkalVæreMetadata() {
-            return new TekniskException("FP-892453", "The first part must be the metadata part");
-        }
-
-        static TekniskException metadataPartSkalHaMediaType(String mediaType) {
-            return new TekniskException("FP-892454", String.format("The metadata part should be %s", mediaType));
-        }
-
-        static TekniskException manglerHeaderAttributt(String attributt) {
-            return new TekniskException("FP-892455", String.format("Mangler %s", attributt));
-        }
-
-        static TekniskException forventetFlereFilerIForsendelsen() {
-            return new TekniskException("FP-892456", "Metadata inneholder flere filer enn det som er lastet opp");
-
-        }
-
-        static TekniskException manglerInformasjonIMetadata(String contentId) {
-            return new TekniskException("FP-892446", String.format("Metadata inneholder ikke informasjon om Content-ID=%s", contentId));
-        }
-
-        static TekniskException ukjentPartNavn() {
-            return new TekniskException("FP-892457", "Unknown part name");
-
-        }
-
-        static TekniskException kunneIkkeParseMetadata(String json, Exception e) {
-            return new TekniskException("FP-892458", String.format("Klarte ikke å parse %s", json), e);
-        }
-
-        static TekniskException feiletUnderInnlesningAvInputPart(String name, Exception e) {
-            return new TekniskException("FP-892466", String.format("Klarte ikke å lese inn dokumentet, name=%s", name), e);
-
-        }
-
-        static TekniskException feiletUnderInnlesningAvInputPart(String name, String contentId, Exception e) {
-            return new TekniskException("FP-892467", String.format("Klarte ikke å lese inn dokumentet, name=%s, Content-ID=%s", name, contentId), e);
-        }
-
-        static TekniskException ulovligFilType(String type) {
-            return new TekniskException("FP-892468", String.format("Ulovlig mediatype %s", type));
-        }
-
-        static TekniskException vedleggErIkkePdf(String contentId) {
-            return new TekniskException("FP-882558", String.format("Vedlegg er ikke pdf, Content-ID=%s", contentId));
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FORSENDELSE_UUID, dto.forsendelseId());
         }
     }
 

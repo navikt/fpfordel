@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.kontrakter.fordel.BehandlendeFagsystemDto;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
@@ -24,8 +25,6 @@ import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
-import no.nav.vedtak.konfig.KonfigVerdi;
-import no.nav.vedtak.util.env.Environment;
 
 @Dependent
 public class JerseyFagsakKlient extends AbstractJerseyOidcRestClient implements FagsakTjeneste {
@@ -37,7 +36,6 @@ public class JerseyFagsakKlient extends AbstractJerseyOidcRestClient implements 
 
     private static final Logger LOG = LoggerFactory.getLogger(JerseyFagsakKlient.class);
 
-    private static final Environment ENV = Environment.current();
     private final URI endpoint;
 
     @Inject
