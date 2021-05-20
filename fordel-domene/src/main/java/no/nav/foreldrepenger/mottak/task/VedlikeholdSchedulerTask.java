@@ -48,7 +48,7 @@ public class VedlikeholdSchedulerTask implements ProsessTaskHandler {
             MonthDay.of(12, 26),
             MonthDay.of(12, 31));
 
-    VedlikeholdSchedulerTask() {
+    public VedlikeholdSchedulerTask() {
     }
 
     @Inject
@@ -79,7 +79,8 @@ public class VedlikeholdSchedulerTask implements ProsessTaskHandler {
         if (ptdList.isEmpty()) {
             return;
         }
-        resetTilStatusKlar(ptdList, tasktype -> prosessTaskRepository.finnProsessTaskType(tasktype).map(ProsessTaskTypeInfo::getMaksForsøk).orElse(1));
+        resetTilStatusKlar(ptdList,
+                tasktype -> prosessTaskRepository.finnProsessTaskType(tasktype).map(ProsessTaskTypeInfo::getMaksForsøk).orElse(1));
         ptdList.forEach(ptd -> this.prosessTaskRepository.lagre(ptd));
     }
 

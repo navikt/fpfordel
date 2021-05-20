@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
-import javax.enterprise.context.Dependent;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -49,7 +49,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
  * Journalarkivet(joark).
  * </p>
  */
-@Dependent
+@ApplicationScoped
 @ProsessTask(HentDataFraJoarkTask.TASKNAME)
 public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
@@ -57,9 +57,13 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(HentDataFraJoarkTask.class);
 
-    private final PersonInformasjon pdl;
-    private final ArkivTjeneste arkiv;
-    private final DestinasjonsRuter vurderVLSaker;
+    private PersonInformasjon pdl;
+    private ArkivTjeneste arkiv;
+    private DestinasjonsRuter vurderVLSaker;
+
+    public HentDataFraJoarkTask() {
+
+    }
 
     @Inject
     public HentDataFraJoarkTask(ProsessTaskRepository prosessTaskRepository,

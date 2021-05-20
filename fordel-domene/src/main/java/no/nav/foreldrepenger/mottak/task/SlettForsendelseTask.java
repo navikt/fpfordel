@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.mottak.task;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.enterprise.context.Dependent;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
@@ -21,13 +21,17 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
  * ProssessTask som utleder journalføringsbehov og forsøker rette opp disse.
  * </p>
  */
-@Dependent
+@ApplicationScoped
 @ProsessTask(SlettForsendelseTask.TASKNAME)
 public class SlettForsendelseTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.slettForsendelse";
 
-    private final DokumentRepository dokumentRepository;
+    private DokumentRepository dokumentRepository;
+
+    public SlettForsendelseTask() {
+
+    }
 
     @Inject
     public SlettForsendelseTask(ProsessTaskRepository prosessTaskRepository,
@@ -40,7 +44,8 @@ public class SlettForsendelseTask extends WrappedProsessTaskHandler {
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getForsendelseId().isEmpty()) {
             throw new TekniskException("FP-941984",
-            String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.FORSENDELSE_ID_KEY, dataWrapper.getId()));
+                    String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME,
+                            MottakMeldingDataWrapper.FORSENDELSE_ID_KEY, dataWrapper.getId()));
         }
     }
 
