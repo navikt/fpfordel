@@ -52,7 +52,10 @@ abstract class AbstractRetryableJournalpostSender extends AbstractJerseyOidcRest
                 .retryExceptions(SocketTimeoutException.class)
                 .failAfterMaxAttempts(true)
                 .build());
-        registry.getEventPublisher().onEvent(e -> LOG.info(e.toString()));
+        registry.getEventPublisher()
+                .onEntryReplaced(x -> LOG.info("Replaced {} -> {}", x.getOldEntry(), x.getNewEntry()))
+                .onEntryRemoved(r -> LOG.info("Removed {}", r.getRemovedEntry()))
+                .onEntryAdded(e -> LOG.info("Added {}", e.getAddedEntry()));
         return registry;
     }
 
