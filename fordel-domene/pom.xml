@@ -15,6 +15,11 @@
         <jaxb2-maven-plugin.version>1.5</jaxb2-maven-plugin.version>
     </properties>
     <dependencies>
+      <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-retry</artifactId>
+            <version>1.7.0</version>
+        </dependency>
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>

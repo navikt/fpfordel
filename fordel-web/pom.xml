@@ -19,6 +19,7 @@
         <wsdl.directory>src/main/wsdl</wsdl.directory>
     </properties>
     <dependencies>
+      
         <dependency>
             <groupId>no.nav.security</groupId>
             <artifactId>token-validation-jaxrs</artifactId>
