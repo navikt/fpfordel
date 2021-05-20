@@ -21,9 +21,9 @@ import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.klient.JournalpostSender;
 
 @ExtendWith(MockitoExtension.class)
-public class KlargjørForVLTjenesteTest {
+public class VLKlargjørerTest {
 
-    private KlargjørForVLTjeneste klargjørForVLTjeneste;
+    private VLKlargjører klargjørForVLTjeneste;
     @Mock
     private FagsakTjeneste mockFagsakRestKlient;
     @Mock
@@ -37,13 +37,13 @@ public class KlargjørForVLTjenesteTest {
 
     @BeforeEach
     public void setup() {
-        klargjørForVLTjeneste = new KlargjørForVLTjeneste(mockDokumentRestTjeneste, mockFagsakRestKlient, mockTilbakeRestTjeneste);
+        klargjørForVLTjeneste = new VLKlargjører(mockDokumentRestTjeneste, mockFagsakRestKlient, mockTilbakeRestTjeneste);
     }
 
     @Test
     public void skal_knytte_og_sende() {
 
-        klargjørForVLTjeneste.klargjørForVL(null, SAK_ID, ARKIV_ID, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, LocalDate.now().atStartOfDay(),
+        klargjørForVLTjeneste.klargjør(null, SAK_ID, ARKIV_ID, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, LocalDate.now().atStartOfDay(),
                 BehandlingTema.FORELDREPENGER, null, DokumentKategori.SØKNAD, ENHET_ID, null);
 
         var captorJ = ArgumentCaptor.forClass(JournalpostKnyttningDto.class);

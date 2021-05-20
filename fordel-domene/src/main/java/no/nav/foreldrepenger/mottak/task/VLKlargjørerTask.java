@@ -5,28 +5,31 @@ import java.time.LocalDateTime;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
-import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
+import no.nav.foreldrepenger.mottak.tjeneste.VLKlargjører;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @Dependent
-@ProsessTask(KlargjørForVLTask.TASKNAME)
-public class KlargjørForVLTask extends WrappedProsessTaskHandler {
+@ProsessTask(VLKlargjørerTask.TASKNAME)
+public class VLKlargjørerTask extends WrappedProsessTaskHandler {
 
+    private static final Logger LOG = LoggerFactory.getLogger(VLKlargjørerTask.class);
     public static final String TASKNAME = "fordeling.klargjoering";
     public static final String REINNSEND = "REINNSEND";
-    private final KlargjørForVLTjeneste klargjørForVLTjeneste;
+    private final VLKlargjører klargjører;
 
     @Inject
-    public KlargjørForVLTask(ProsessTaskRepository prosessTaskRepository,
-            KlargjørForVLTjeneste klargjørForVLTjeneste) {
+    public VLKlargjørerTask(ProsessTaskRepository prosessTaskRepository, VLKlargjører klargjører) {
         super(prosessTaskRepository);
-        this.klargjørForVLTjeneste = klargjørForVLTjeneste;
+        this.klargjører = klargjører;
     }
 
     @Override
@@ -57,7 +60,7 @@ public class KlargjørForVLTask extends WrappedProsessTaskHandler {
         var forsendelseId = w.getForsendelseId();
         boolean erReinnsend = w.getRetryingTask().map(REINNSEND::equals).orElse(Boolean.FALSE);
 
-        klargjørForVLTjeneste.klargjørForVL(xml, saksnummer, arkivId, dokumenttypeId,
+        klargjører.klargjør(xml, saksnummer, arkivId, dokumenttypeId,
                 w.getForsendelseMottattTidspunkt().orElse(null), behandlingsTema,
                 w.getForsendelseId().orElse(null), dokumentKategori, journalEnhet, eksternReferanseId);
 

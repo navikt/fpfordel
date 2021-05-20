@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.mottak.tjeneste;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -18,29 +18,26 @@ import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.klient.JournalpostSender;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
-@ApplicationScoped
-public class KlargjørForVLTjeneste {
+@Dependent
+public class VLKlargjører {
 
-    private static final Logger LOG = LoggerFactory.getLogger(KlargjørForVLTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VLKlargjører.class);
 
-    private JournalpostSender restKlient;
-    private FagsakTjeneste fagsakRestKlient;
-    private JournalpostSender tilbakekrevingRestKlient;
+    private final JournalpostSender dokumentJournalpostSender;
+    private final FagsakTjeneste fagsak;
+    private final JournalpostSender tilbakeJournalpostSender;
 
     @Inject
-    public KlargjørForVLTjeneste(
-            @Jersey("dokument") JournalpostSender restKlient,
-            FagsakTjeneste fagsakRestKlient,
-            @Jersey("tilbake") JournalpostSender tilbakekrevingRestKlient) {
-        this.restKlient = restKlient;
-        this.fagsakRestKlient = fagsakRestKlient;
-        this.tilbakekrevingRestKlient = tilbakekrevingRestKlient;
+    public VLKlargjører(
+            @Jersey("dokument") JournalpostSender dokumentJournalpostSender,
+            FagsakTjeneste fagsak,
+            @Jersey("tilbake") JournalpostSender tilbakeJournalpostSender) {
+        this.dokumentJournalpostSender = dokumentJournalpostSender;
+        this.fagsak = fagsak;
+        this.tilbakeJournalpostSender = tilbakeJournalpostSender;
     }
 
-    public KlargjørForVLTjeneste() {
-    }
-
-    public void klargjørForVL(String xml, String saksnummer, String arkivId, DokumentTypeId dokumenttypeId,
+    public void klargjør(String xml, String saksnummer, String arkivId, DokumentTypeId dokumenttypeId,
             LocalDateTime forsendelseMottatt,
             BehandlingTema behandlingsTema, UUID forsendelseId, DokumentKategori dokumentKategori,
             String journalFørendeEnhet, String eksternReferanseId) {
@@ -55,15 +52,15 @@ public class KlargjørForVLTjeneste {
         if (dokumentKategori != null) {
             dokumentKategoriOffisiellKode = dokumentKategori.getOffisiellKode();
         }
-        fagsakRestKlient.knyttSakOgJournalpost(new JournalpostKnyttningDto(saksnummer, arkivId));
+        fagsak.knyttSakOgJournalpost(new JournalpostKnyttningDto(saksnummer, arkivId));
 
-        var journalpostMottakDto = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString,
+        var journalpost = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString,
                 dokumentTypeIdOffisiellKode, forsendelseMottatt, xml);
-        journalpostMottakDto.setForsendelseId(forsendelseId);
-        journalpostMottakDto.setDokumentKategoriOffisiellKode(dokumentKategoriOffisiellKode);
-        journalpostMottakDto.setJournalForendeEnhet(journalFørendeEnhet);
-        journalpostMottakDto.setEksternReferanseId(eksternReferanseId);
-        restKlient.send(journalpostMottakDto);
+        journalpost.setForsendelseId(forsendelseId);
+        journalpost.setDokumentKategoriOffisiellKode(dokumentKategoriOffisiellKode);
+        journalpost.setJournalForendeEnhet(journalFørendeEnhet);
+        journalpost.setEksternReferanseId(eksternReferanseId);
+        dokumentJournalpostSender.send(journalpost);
 
         try {
             var tilbakeMottakDto = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString,
@@ -71,10 +68,16 @@ public class KlargjørForVLTjeneste {
             tilbakeMottakDto.setForsendelseId(forsendelseId);
             tilbakeMottakDto.setDokumentKategoriOffisiellKode(dokumentKategoriOffisiellKode);
             tilbakeMottakDto.setJournalForendeEnhet(journalFørendeEnhet);
-            tilbakekrevingRestKlient.send(tilbakeMottakDto);
+            tilbakeJournalpostSender.send(tilbakeMottakDto);
         } catch (Exception e) {
             LOG.warn("Feil ved sending av forsendelse til fptilbake, ukjent feil", e);
         }
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [dokumentJournalpostSender=" + dokumentJournalpostSender + ", fagsak=" + fagsak
+                + ", tilbakeJournalpostSender="
+                + tilbakeJournalpostSender + "]";
+    }
 }

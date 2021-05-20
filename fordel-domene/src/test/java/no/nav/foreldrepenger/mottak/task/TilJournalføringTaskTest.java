@@ -185,7 +185,7 @@ class TilJournalføringTaskTest {
 
         var next = doTaskWithPrecondition(data);
 
-        assertThat(next.getProsessTaskData().getTaskType()).isEqualTo(KlargjørForVLTask.TASKNAME);
+        assertThat(next.getProsessTaskData().getTaskType()).isEqualTo(VLKlargjørerTask.TASKNAME);
     }
 
     @Test

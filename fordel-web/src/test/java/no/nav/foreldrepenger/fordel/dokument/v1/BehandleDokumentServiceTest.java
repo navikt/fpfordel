@@ -53,7 +53,7 @@ import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
+import no.nav.foreldrepenger.mottak.tjeneste.VLKlargjører;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.OppdaterOgFerdigstillJournalfoeringUgyldigInput;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.meldinger.OppdaterOgFerdigstillJournalfoeringRequest;
 import no.nav.vedtak.exception.FunksjonellException;
@@ -77,7 +77,7 @@ class BehandleDokumentServiceTest {
     @Mock
     private ArkivTjeneste arkiv;
     @Mock
-    private KlargjørForVLTjeneste klargjør;
+    private VLKlargjører klargjør;
     @Mock
     private FagsakTjeneste fagsak;
     @Mock
@@ -172,7 +172,7 @@ class BehandleDokumentServiceTest {
 
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
-        verify(klargjør).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+        verify(klargjør).klargjør(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(ENGANGSSTØNAD_FØDSEL), any(), any(), any(), any());
     }
 
@@ -197,7 +197,7 @@ class BehandleDokumentServiceTest {
 
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
-        verify(klargjør).klargjørForVL(eq(readFile("testdata/inntektsmelding-foreldrepenger.xml")), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+        verify(klargjør).klargjør(eq(readFile("testdata/inntektsmelding-foreldrepenger.xml")), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(FORELDREPENGER_FØDSEL), any(), any(), any(), any());
     }
 
@@ -256,7 +256,7 @@ class BehandleDokumentServiceTest {
 
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
-        verify(klargjør).klargjørForVL(eq(readFile("testdata/selvb-soeknad-forp.xml")), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+        verify(klargjør).klargjør(eq(readFile("testdata/selvb-soeknad-forp.xml")), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(FORELDREPENGER_FØDSEL), any(), any(), any(), any());
     }
 
@@ -276,7 +276,7 @@ class BehandleDokumentServiceTest {
 
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
-        verify(klargjør).klargjørForVL(eq(null), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+        verify(klargjør).klargjør(eq(null), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(FORELDREPENGER), any(), any(), any(), any());
     }
 
@@ -296,7 +296,7 @@ class BehandleDokumentServiceTest {
 
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
-        verify(klargjør).klargjørForVL(eq(readFile("testdata/fp-adopsjon-mor.xml")), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+        verify(klargjør).klargjør(eq(readFile("testdata/fp-adopsjon-mor.xml")), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(FORELDREPENGER_ADOPSJON), any(), any(), any(), any());
     }
 
@@ -316,7 +316,7 @@ class BehandleDokumentServiceTest {
 
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
-        verify(klargjør).klargjørForVL(eq(readFile("testdata/selvb-soeknad-endring.xml")), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+        verify(klargjør).klargjør(eq(readFile("testdata/selvb-soeknad-endring.xml")), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(FORELDREPENGER), any(), any(), any(), any());
     }
 
@@ -326,7 +326,7 @@ class BehandleDokumentServiceTest {
         when(journalpost.getHovedtype()).thenReturn(SØKNAD_ENGANGSSTØNAD_FØDSEL);
         behandleDokument.oppdaterOgFerdigstillJournalfoering(req(ENHETID, JOURNALPOST_ID, SAKSNUMMER));
 
-        verify(klargjør).klargjørForVL(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
+        verify(klargjør).klargjør(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
                 eq(ENGANGSSTØNAD_FØDSEL), any(), any(), any(), any());
     }
 
