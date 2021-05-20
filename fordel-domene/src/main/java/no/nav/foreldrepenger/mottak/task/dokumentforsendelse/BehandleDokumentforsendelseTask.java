@@ -32,7 +32,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.Dependent;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -73,7 +73,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
  *
  * OBS: minimer risiko for exception etter journalføring - vasnskelig å rydde
  */
-@Dependent
+@ApplicationScoped
 @ProsessTask(BehandleDokumentforsendelseTask.TASKNAME)
 public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
@@ -81,12 +81,16 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.behandleDokumentForsendelse";
 
-    private final PersonInformasjon pdl;
-    private final FagsakTjeneste fagsak;
-    private final DestinasjonsRuter vurderVLSaker;
-    private final ArkivTjeneste arkiv;
-    private final DokumentRepository dokumentRepository;
-    private final HendelseProdusent hendelseProdusent;
+    private PersonInformasjon pdl;
+    private FagsakTjeneste fagsak;
+    private DestinasjonsRuter vurderVLSaker;
+    private ArkivTjeneste arkiv;
+    private DokumentRepository dokumentRepository;
+    private HendelseProdusent hendelseProdusent;
+
+    public BehandleDokumentforsendelseTask() {
+
+    }
 
     @Inject
     public BehandleDokumentforsendelseTask(ProsessTaskRepository prosessTaskRepository,
