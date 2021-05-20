@@ -53,9 +53,12 @@ abstract class AbstractRetryableJournalpostSender extends AbstractJerseyOidcRest
                 .failAfterMaxAttempts(true)
                 .build());
         registry.getEventPublisher()
-                .onEntryReplaced(x -> LOG.info("Replaced {} -> {}", x.getOldEntry(), x.getNewEntry()))
-                .onEntryRemoved(r -> LOG.info("Removed {}", r.getRemovedEntry()))
-                .onEntryAdded(e -> LOG.info("Added {}", e.getAddedEntry()));
+                .onEntryAdded(entryAddedEvent -> {
+                    entryAddedEvent.getAddedEntry().getEventPublisher().onEvent(e -> LOG.info("Added {}", e));
+                })
+                .onEntryRemoved(entryRemovedEvent -> {
+                    entryRemovedEvent.getRemovedEntry().getEventPublisher().onEvent(e -> LOG.info("Removed {}"));
+                });
         return registry;
     }
 
