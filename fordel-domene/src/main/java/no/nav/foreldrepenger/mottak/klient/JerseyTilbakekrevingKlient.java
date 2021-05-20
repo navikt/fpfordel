@@ -59,10 +59,7 @@ public class JerseyTilbakekrevingKlient extends AbstractJerseyOidcRestClient imp
                 .retryExceptions(SocketTimeoutException.class)
                 .failAfterMaxAttempts(true)
                 .build());
-        registry.getEventPublisher().onEntryAdded(a -> {
-            a.getAddedEntry().getEventPublisher()
-                    .onEvent(e -> LOG.info(e.toString()));
-        });
+        registry.getEventPublisher().onEvent(e -> LOG.info(e.toString()));
         return registry;
     }
 
