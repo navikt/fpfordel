@@ -55,7 +55,7 @@ import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.OpprettetJournalpost;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.foreldrepenger.mottak.task.KlargjørForVLTask;
+import no.nav.foreldrepenger.mottak.task.VLKlargjørerTask;
 import no.nav.foreldrepenger.mottak.tjeneste.Destinasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.DestinasjonsRuter;
 import no.nav.vedtak.exception.TekniskException;
@@ -121,7 +121,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         if (w.getBehandlingTema() == null) {
             throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, BEHANDLINGSTEMA_KEY, w.getId()));
         }
-        if (KlargjørForVLTask.TASKNAME.equals(w.getProsessTaskData().getTaskType())) {
+        if (VLKlargjørerTask.TASKNAME.equals(w.getProsessTaskData().getTaskType())) {
             postconditionJournalføringMedSak(w);
         }
         postConditionHentOgVurderVLSakOgOpprettSak(w);
@@ -228,14 +228,14 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
             dokumentRepository.oppdaterForsendelseMetadata(forsendelseId, w.getArkivId(), destinasjon.saksnummer(),
                     FPSAK);
             sendFordeltHendelse(forsendelseId, w);
-            return w.nesteSteg(KlargjørForVLTask.TASKNAME);
+            return w.nesteSteg(VLKlargjørerTask.TASKNAME);
         }
         throw new IllegalStateException("Ukjent system eller saksnummer mangler");
 
     }
 
     private static void postConditionHentOgVurderVLSakOgOpprettSak(MottakMeldingDataWrapper w) {
-        if (KlargjørForVLTask.TASKNAME.equals(w.getProsessTaskData().getTaskType())
+        if (VLKlargjørerTask.TASKNAME.equals(w.getProsessTaskData().getTaskType())
                 && w.getForsendelseMottattTidspunkt().isEmpty()) {
             throw new TekniskException("FP-638068",
                     format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, FORSENDELSE_MOTTATT_TIDSPUNKT_KEY, w.getId()));

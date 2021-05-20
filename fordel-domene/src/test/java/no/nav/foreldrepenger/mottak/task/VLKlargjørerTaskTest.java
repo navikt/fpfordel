@@ -17,33 +17,33 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
+import no.nav.foreldrepenger.mottak.tjeneste.VLKlargjører;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
-class KlargjørForVLTaskTest {
+class VLKlargjørerTaskTest {
 
     private static final String ARKIV_ID = "234567";
     private static final String SAKSNUMMER = "234567";
 
-    private KlargjørForVLTask task;
+    private VLKlargjørerTask task;
     private ProsessTaskData ptd;
 
     @Mock
     private ProsessTaskRepository prosessTaskRepositoryMock;
 
     @Mock
-    private KlargjørForVLTjeneste klargjørForVLTjeneste;
+    private VLKlargjører klargjørForVLTjeneste;
 
     private UUID forsendelseId;
 
     @BeforeEach
     void setup() {
         forsendelseId = UUID.randomUUID();
-        task = new KlargjørForVLTask(prosessTaskRepositoryMock, klargjørForVLTjeneste);
-        ptd = new ProsessTaskData(KlargjørForVLTask.TASKNAME);
+        task = new VLKlargjørerTask(prosessTaskRepositoryMock, klargjørForVLTjeneste);
+        ptd = new ProsessTaskData(VLKlargjørerTask.TASKNAME);
         ptd.setSekvens("1");
 
     }
@@ -66,7 +66,7 @@ class KlargjørForVLTaskTest {
         data.setPayload("pay the load");
         data.setForsendelseId(UUID.randomUUID());
         var neste = toTaskWithPrecondition(data);
-        verify(klargjørForVLTjeneste).klargjørForVL(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+        verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
         assertThat(neste).isNotNull();
         assertThat(neste.getProsessTaskData().getTaskType()).isEqualTo(SlettForsendelseTask.TASKNAME);
     }
@@ -82,7 +82,7 @@ class KlargjørForVLTaskTest {
         data.setPayload("<xml>test<xml>");
         data.setForsendelseId(UUID.randomUUID());
         var neste = toTaskWithPrecondition(data);
-        verify(klargjørForVLTjeneste).klargjørForVL(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+        verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
         assertThat(neste).isNotNull();
         assertThat(neste.getProsessTaskData().getTaskType()).isEqualTo(SlettForsendelseTask.TASKNAME);
     }
@@ -98,7 +98,7 @@ class KlargjørForVLTaskTest {
         data.setPayload("<xml>test<xml>");
         data.setForsendelseId(forsendelseId);
         var neste = toTaskWithPrecondition(data);
-        verify(klargjørForVLTjeneste).klargjørForVL(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+        verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
         assertThat(neste).isNotNull();
         assertThat(neste.getProsessTaskData().getTaskType()).isEqualTo(SlettForsendelseTask.TASKNAME);
     }
@@ -113,7 +113,7 @@ class KlargjørForVLTaskTest {
         data.setForsendelseMottattTidspunkt(LocalDateTime.now());
         data.setPayload("<xml>test<xml>");
         var neste = toTaskWithPrecondition(data);
-        verify(klargjørForVLTjeneste).klargjørForVL(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+        verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
         assertThat(neste).isNull();
     }
 

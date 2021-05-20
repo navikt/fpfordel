@@ -32,10 +32,10 @@ import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.foreldrepenger.mottak.task.KlargjørForVLTask;
+import no.nav.foreldrepenger.mottak.task.VLKlargjørerTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
-import no.nav.foreldrepenger.mottak.tjeneste.KlargjørForVLTjeneste;
+import no.nav.foreldrepenger.mottak.tjeneste.VLKlargjører;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.BehandleDokumentforsendelseV1;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.OppdaterOgFerdigstillJournalfoeringUgyldigInput;
@@ -72,23 +72,23 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
     static final String SAKSNUMMER_UGYLDIG = "SakId (saksnummer) mangler eller er ugyldig";
     static final String BRUKER_MANGLER = "Journalpost mangler knyting til bruker - prøv igjen om et halv minutt";
 
-    private final KlargjørForVLTjeneste klargjørForVLTjeneste;
-    private final FagsakTjeneste fagsakRestKlient;
-    private final PersonInformasjon aktørConsumer;
+    private final VLKlargjører klargjører;
+    private final FagsakTjeneste fagsak;
+    private final PersonInformasjon pdl;
     private final ArkivTjeneste arkivTjeneste;
     private final DokumentRepository dokumentRepository;
     private final SakClient sakClient;
 
     @Inject
-    public BehandleDokumentService(KlargjørForVLTjeneste klargjørForVLTjeneste,
-            FagsakTjeneste fagsakRestKlient,
+    public BehandleDokumentService(VLKlargjører klargjører,
+            FagsakTjeneste fagsak,
             @Jersey SakClient sakClient,
-            PersonInformasjon aktørConsumer,
+            PersonInformasjon pdl,
             ArkivTjeneste arkivTjeneste,
             DokumentRepository dokumentRepository) {
-        this.klargjørForVLTjeneste = klargjørForVLTjeneste;
-        this.fagsakRestKlient = fagsakRestKlient;
-        this.aktørConsumer = aktørConsumer;
+        this.klargjører = klargjører;
+        this.fagsak = fagsak;
+        this.pdl = pdl;
         this.arkivTjeneste = arkivTjeneste;
         this.dokumentRepository = dokumentRepository;
         this.sakClient = sakClient;
@@ -153,7 +153,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
                     : arkivTjeneste.hentEksternReferanseId(journalpost.getOriginalJournalpost()).orElse(null);
         }
 
-        klargjørForVLTjeneste.klargjørForVL(xml, saksnummer, arkivId, dokumentTypeId, journalpost.getDatoOpprettet(),
+        klargjører.klargjør(xml, saksnummer, arkivId, dokumentTypeId, journalpost.getDatoOpprettet(),
                 behandlingTema, forsendelseId, dokumentKategori, enhetId, eksternReferanseId);
 
         // For å unngå klonede journalposter fra Gosys - de kan komme via Kafka
@@ -213,7 +213,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         if (journalpost.getInnholderStrukturertInformasjon()) {
             // Bruker eksisterende infrastruktur for å hente ut og validere XML-data.
             // Tasktype tilfeldig valgt
-            ProsessTaskData prosessTaskData = new ProsessTaskData(KlargjørForVLTask.TASKNAME);
+            ProsessTaskData prosessTaskData = new ProsessTaskData(VLKlargjørerTask.TASKNAME);
             MottakMeldingDataWrapper dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
             dataWrapper.setBehandlingTema(behandlingTema);
             dataWrapper.setSaksnummer(saksnummer);
@@ -277,7 +277,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);
         }
         try {
-            mottattDokument.kopierTilMottakWrapper(dataWrapper, aktørConsumer::hentAktørIdForPersonIdent);
+            mottattDokument.kopierTilMottakWrapper(dataWrapper, pdl::hentAktørIdForPersonIdent);
         } catch (FunksjonellException e) {
             // Her er det "greit" - da har man bestemt seg, men kan lage rot i saken.
             if ("FP-401245".equals(e.getKode())) {
@@ -320,7 +320,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
      * Redusere kompleksitet og risk ved prodsetting. Rekursjon med stopp
      */
     private String finnRiktigSaksnummer(String saksnummer) {
-        if (fagsakRestKlient.finnFagsakInfomasjon(new SaksnummerDto(saksnummer)).isPresent())
+        if (fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnummer)).isPresent())
             return saksnummer;
         try {
             var funnetSaksnummer = Optional.ofNullable(sakClient.hentSakId(saksnummer)).map(SakJson::getFagsakNr).orElseThrow();
@@ -332,7 +332,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
     }
 
     private FagsakInfomasjonDto finnFagsakInformasjon(String saksnummer) {
-        return fagsakRestKlient.finnFagsakInfomasjon(new SaksnummerDto(saksnummer))
+        return fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnummer))
                 .orElseThrow(() -> BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummer));
     }
 
