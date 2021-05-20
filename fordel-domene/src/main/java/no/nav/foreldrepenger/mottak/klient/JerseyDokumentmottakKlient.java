@@ -1,52 +1,41 @@
 package no.nav.foreldrepenger.mottak.klient;
 
+import static io.github.resilience4j.retry.Retry.decorateFunction;
 import static javax.ws.rs.client.Entity.json;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.net.URI;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
-@ApplicationScoped
+@Dependent
 @Jersey("dokument")
-public class JerseyDokumentmottakKlient extends AbstractJerseyOidcRestClient implements JournalpostSender {
+public class JerseyDokumentmottakKlient extends AbstractRetryableJournalpostSender implements JournalpostSender {
     private static final String DEFAULT_FPSAK_BASE_URI = "http://fpsak";
     private static final String FPSAK_MOTTAK_JOURNALPOST_PATH = "/fpsak/api/fordel/journalpost";
 
-    private URI endpoint;
-    private static final Logger LOG = LoggerFactory.getLogger(JerseyDokumentmottakKlient.class);
-
-    public JerseyDokumentmottakKlient() {
-    }
-
     @Inject
     public JerseyDokumentmottakKlient(@KonfigVerdi(value = "fpsak.base.url", defaultVerdi = DEFAULT_FPSAK_BASE_URI) URI endpoint) {
-        this.endpoint = endpoint;
+        super(endpoint);
     }
 
     @Override
     public void send(JournalpostMottakDto journalpost) {
-        LOG.info("Sender journalpost");
-        client.target(endpoint)
-                .path(FPSAK_MOTTAK_JOURNALPOST_PATH)
-                .request(APPLICATION_JSON_TYPE)
-                .buildPost(json(journalpost))
-                .invoke(Response.class);
-        LOG.info("Sendt journalpost OK");
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + " [endpoint=" + endpoint + "]";
+        decorateFunction(registry.retry("journalpostDokument"), (JournalpostMottakDto dto) -> {
+            LOG.info("Sender journalpost");
+            client.target(endpoint)
+                    .path(FPSAK_MOTTAK_JOURNALPOST_PATH)
+                    .request(APPLICATION_JSON_TYPE)
+                    .buildPost(json(dto))
+                    .invoke(Response.class);
+            LOG.info("Sendt journalpost OK");
+            return null;
+        }).apply(journalpost);
     }
 }
