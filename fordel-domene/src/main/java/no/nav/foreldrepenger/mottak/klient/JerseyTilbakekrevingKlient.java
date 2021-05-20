@@ -40,7 +40,7 @@ public class JerseyTilbakekrevingKlient extends AbstractJerseyOidcRestClient imp
 
     @Override
     public void send(JournalpostMottakDto journalpostMottakDto) {
-        decorateFunction(registry.retry("journalpost"), (JournalpostMottakDto dto) -> {
+        decorateFunction(registry.retry("journalpostTilbakekreving"), (JournalpostMottakDto dto) -> {
             LOG.info("Sender journalpost");
             client.target(endpoint)
                     .path(JOURNALPOST_PATH)
