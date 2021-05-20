@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.mottak.task;
 
 import java.time.LocalDateTime;
 
-import javax.enterprise.context.Dependent;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -17,14 +17,18 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
-@Dependent
+@ApplicationScoped
 @ProsessTask(VLKlargjørerTask.TASKNAME)
 public class VLKlargjørerTask extends WrappedProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(VLKlargjørerTask.class);
     public static final String TASKNAME = "fordeling.klargjoering";
     public static final String REINNSEND = "REINNSEND";
-    private final VLKlargjører klargjører;
+    private VLKlargjører klargjører;
+
+    public VLKlargjørerTask() {
+
+    }
 
     @Inject
     public VLKlargjørerTask(ProsessTaskRepository prosessTaskRepository, VLKlargjører klargjører) {
