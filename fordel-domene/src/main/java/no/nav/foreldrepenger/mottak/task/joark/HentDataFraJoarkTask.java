@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
-import no.nav.foreldrepenger.mottak.tjeneste.VurderVLSaker;
+import no.nav.foreldrepenger.mottak.tjeneste.DestinasjonsRuter;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.exception.VLException;
@@ -59,11 +59,11 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     private final PersonInformasjon pdl;
     private final ArkivTjeneste arkiv;
-    private final VurderVLSaker vurderVLSaker;
+    private final DestinasjonsRuter vurderVLSaker;
 
     @Inject
     public HentDataFraJoarkTask(ProsessTaskRepository prosessTaskRepository,
-            VurderVLSaker vurderVLSaker,
+            DestinasjonsRuter vurderVLSaker,
             PersonInformasjon pdl,
             ArkivTjeneste arkiv) {
         super(prosessTaskRepository);

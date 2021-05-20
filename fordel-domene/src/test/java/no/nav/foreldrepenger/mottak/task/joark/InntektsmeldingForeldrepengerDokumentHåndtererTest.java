@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.tjeneste.Destinasjon;
-import no.nav.foreldrepenger.mottak.tjeneste.VurderVLSaker;
+import no.nav.foreldrepenger.mottak.tjeneste.DestinasjonsRuter;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -43,7 +43,7 @@ class InntektsmeldingForeldrepengerDokumentHåndtererTest {
     @Mock
     private ArkivTjeneste arkivTjeneste;
     @Mock
-    private VurderVLSaker vurderVLSaker;
+    private DestinasjonsRuter vurderVLSaker;
 
     @BeforeEach
     void setUp() {

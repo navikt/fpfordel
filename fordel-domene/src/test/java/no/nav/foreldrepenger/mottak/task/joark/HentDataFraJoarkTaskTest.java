@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.tjeneste.Destinasjon;
-import no.nav.foreldrepenger.mottak.tjeneste.VurderVLSaker;
+import no.nav.foreldrepenger.mottak.tjeneste.DestinasjonsRuter;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -52,7 +52,7 @@ class HentDataFraJoarkTaskTest {
     @Mock
     private ArkivTjeneste arkivTjeneste;
     @Mock
-    private VurderVLSaker vurderVLSaker;
+    private DestinasjonsRuter vurderVLSaker;
 
     private JoarkTestsupport joarkTestsupport = new JoarkTestsupport();
 

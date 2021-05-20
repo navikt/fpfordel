@@ -57,7 +57,7 @@ import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.KlargjørForVLTask;
 import no.nav.foreldrepenger.mottak.tjeneste.Destinasjon;
-import no.nav.foreldrepenger.mottak.tjeneste.VurderVLSaker;
+import no.nav.foreldrepenger.mottak.tjeneste.DestinasjonsRuter;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -83,14 +83,14 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     private final PersonInformasjon pdl;
     private final FagsakTjeneste fagsak;
-    private final VurderVLSaker vurderVLSaker;
+    private final DestinasjonsRuter vurderVLSaker;
     private final ArkivTjeneste arkiv;
     private final DokumentRepository dokumentRepository;
     private final HendelseProdusent hendelseProdusent;
 
     @Inject
     public BehandleDokumentforsendelseTask(ProsessTaskRepository prosessTaskRepository,
-            VurderVLSaker vurderVLSaker,
+            DestinasjonsRuter vurderVLSaker,
             PersonInformasjon pdl,
             FagsakTjeneste fagsak,
             ArkivTjeneste arkiv,
@@ -103,6 +103,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         this.arkiv = arkiv;
         this.dokumentRepository = dokumentRepository;
         this.hendelseProdusent = hendelseProdusent;
+        LOG.trace("Created");
     }
 
     @Override
