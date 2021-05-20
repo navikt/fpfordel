@@ -32,7 +32,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.Dependent;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -73,7 +73,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
  *
  * OBS: minimer risiko for exception etter journalføring - vasnskelig å rydde
  */
-@Dependent
+@ApplicationScoped
 @ProsessTask(BehandleDokumentforsendelseTask.TASKNAME)
 public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
@@ -81,23 +81,27 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.behandleDokumentForsendelse";
 
-    private final PersonInformasjon pdl;
-    private final FagsakTjeneste fagsak;
-    private final DestinasjonsRuter vurderVLSaker;
-    private final ArkivTjeneste arkiv;
-    private final DokumentRepository dokumentRepository;
-    private final HendelseProdusent hendelseProdusent;
+    private PersonInformasjon pdl;
+    private FagsakTjeneste fagsak;
+    private DestinasjonsRuter ruter;
+    private ArkivTjeneste arkiv;
+    private DokumentRepository dokumentRepository;
+    private HendelseProdusent hendelseProdusent;
+
+    public BehandleDokumentforsendelseTask() {
+
+    }
 
     @Inject
     public BehandleDokumentforsendelseTask(ProsessTaskRepository prosessTaskRepository,
-            DestinasjonsRuter vurderVLSaker,
+            DestinasjonsRuter ruter,
             PersonInformasjon pdl,
             FagsakTjeneste fagsak,
             ArkivTjeneste arkiv,
             DokumentRepository dokumentRepository,
             HendelseProdusent hendelseProdusent) {
         super(prosessTaskRepository);
-        this.vurderVLSaker = vurderVLSaker;
+        this.ruter = ruter;
         this.pdl = pdl;
         this.fagsak = fagsak;
         this.arkiv = arkiv;
@@ -184,7 +188,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
             return Destinasjon.GOSYS;
 
         }
-        return vurderVLSaker.bestemDestinasjon(w);
+        return ruter.bestemDestinasjon(w);
     }
 
     private Destinasjon utledSaksnummerOpprettSakVedBehov(Destinasjon destinasjon, MottakMeldingDataWrapper w) {
@@ -193,7 +197,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         }
         return new Destinasjon(FPSAK,
                 Optional.ofNullable(destinasjon.saksnummer())
-                        .orElseGet(() -> vurderVLSaker.opprettSak(w)));
+                        .orElseGet(() -> ruter.opprettSak(w)));
     }
 
     private OpprettetJournalpost opprettJournalpostFerdigstillHvisSaksnummer(UUID forsendelseId, MottakMeldingDataWrapper w, String saksnummer) {
@@ -360,6 +364,12 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         } catch (Exception e) {
             LOG.warn("fpfordel kafka hendelsepublisering feilet for forsendelse {}", forsendelseId.toString(), e);
         }
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [pdl=" + pdl + ", fagsak=" + fagsak + ", ruter=" + ruter + ", arkiv=" + arkiv
+                + ", dokumentRepository=" + dokumentRepository + ", hendelseProdusent=" + hendelseProdusent + "]";
     }
 
 }

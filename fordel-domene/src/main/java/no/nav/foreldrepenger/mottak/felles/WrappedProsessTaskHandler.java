@@ -11,6 +11,10 @@ public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler, C
 
     protected ProsessTaskRepository prosessTaskRepository;
 
+    public WrappedProsessTaskHandler() {
+
+    }
+
     public WrappedProsessTaskHandler(ProsessTaskRepository repo) {
         this.prosessTaskRepository = repo;
     }
