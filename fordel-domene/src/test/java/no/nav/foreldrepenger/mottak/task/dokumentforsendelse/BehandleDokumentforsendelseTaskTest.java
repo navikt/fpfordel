@@ -51,7 +51,7 @@ import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.KlargjørForVLTask;
 import no.nav.foreldrepenger.mottak.tjeneste.Destinasjon;
-import no.nav.foreldrepenger.mottak.tjeneste.VurderVLSaker;
+import no.nav.foreldrepenger.mottak.tjeneste.DestinasjonsRuter;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -76,7 +76,7 @@ class BehandleDokumentforsendelseTaskTest {
     @Mock
     private FagsakTjeneste fagsakRestKlient;
     @Mock
-    private VurderVLSaker vurderVLSaker;
+    private DestinasjonsRuter vurderVLSaker;
     @Mock
     private DokumentRepository dokumentRepository;
     @Mock

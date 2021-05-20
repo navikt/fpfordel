@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.klient.VurderFagsystemResultat;
 import no.nav.foreldrepenger.mottak.tjeneste.VurderInfotrygd;
-import no.nav.foreldrepenger.mottak.tjeneste.VurderVLSaker;
+import no.nav.foreldrepenger.mottak.tjeneste.DestinasjonsRuter;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -36,7 +36,7 @@ class HentOgVurderVLSakTaskTest {
     void neste_steg_skal_være_til_journalføring_når_vurderFagsystem_returnerer_VL_og_saksnummer() {
         when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(saksnummer, true, false, false));
 
-        var vurder = new VurderVLSaker(vurderInfotrygd, fagsakRestKlientMock);
+        var vurder = new DestinasjonsRuter(vurderInfotrygd, fagsakRestKlientMock);
         var dataWrapper = lagDataWrapper();
 
         var result = vurder.bestemDestinasjon(dataWrapper);
@@ -49,7 +49,7 @@ class HentOgVurderVLSakTaskTest {
     void neste_steg_skal_være_til_journalføring_når_vurderFagsystem_returnerer_VL_uten_saksnummer() {
         when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(null, true, false, false));
 
-        var vurder = new VurderVLSaker(vurderInfotrygd, fagsakRestKlientMock);
+        var vurder = new DestinasjonsRuter(vurderInfotrygd, fagsakRestKlientMock);
         var dataWrapper = lagDataWrapper();
 
         var result = vurder.bestemDestinasjon(dataWrapper);
@@ -62,7 +62,7 @@ class HentOgVurderVLSakTaskTest {
     void neste_steg_skal_være_hentOgVurderInfotrygd_når_vurderFagsystem_returnerer_sjekkInfotrygd() {
         when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(null, false, true, false));
 
-        var vurder = new VurderVLSaker(vurderInfotrygd, fagsakRestKlientMock);
+        var vurder = new DestinasjonsRuter(vurderInfotrygd, fagsakRestKlientMock);
         var dataWrapper = lagDataWrapper();
 
         var result = vurder.bestemDestinasjon(dataWrapper);
@@ -75,7 +75,7 @@ class HentOgVurderVLSakTaskTest {
     void neste_steg_skal_være_opprettGsakOppgave_når_vurderFagsystem_returnerer_manuell_vurdering() {
         when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(null, false, false, true));
 
-        var vurder = new VurderVLSaker(vurderInfotrygd, fagsakRestKlientMock);
+        var vurder = new DestinasjonsRuter(vurderInfotrygd, fagsakRestKlientMock);
         var dataWrapper = lagDataWrapper();
 
         var result = vurder.bestemDestinasjon(dataWrapper);
@@ -91,7 +91,7 @@ class HentOgVurderVLSakTaskTest {
         var dataWrapper = lagDataWrapper();
         dataWrapper.setAnnenPartHarRett(true);
         dataWrapper.setBarnFodselsdato(LocalDate.of(2018, 5, 17));
-        var vurder = new VurderVLSaker(vurderInfotrygd, fagsakRestKlientMock);
+        var vurder = new DestinasjonsRuter(vurderInfotrygd, fagsakRestKlientMock);
 
         var result = vurder.bestemDestinasjon(dataWrapper);
 
@@ -107,7 +107,7 @@ class HentOgVurderVLSakTaskTest {
         dataWrapper.setAnnenPartHarRett(true);
         dataWrapper.setBarnFodselsdato(LocalDate.of(2018, 5, 17));
 
-        var vurder = new VurderVLSaker(vurderInfotrygd, fagsakRestKlientMock);
+        var vurder = new DestinasjonsRuter(vurderInfotrygd, fagsakRestKlientMock);
 
         var result = vurder.bestemDestinasjon(dataWrapper);
 
@@ -122,7 +122,7 @@ class HentOgVurderVLSakTaskTest {
         var dataWrapper = lagDataWrapper();
         dataWrapper.setOmsorgsovertakelsedato(LocalDate.of(2018, 5, 17));
 
-        var vurder = new VurderVLSaker(vurderInfotrygd, fagsakRestKlientMock);
+        var vurder = new DestinasjonsRuter(vurderInfotrygd, fagsakRestKlientMock);
 
         var result = vurder.bestemDestinasjon(dataWrapper);
 
@@ -141,7 +141,7 @@ class HentOgVurderVLSakTaskTest {
         dataWrapper.setBarnTermindato(termindato);
         dataWrapper.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
 
-        var vurder = new VurderVLSaker(vurderInfotrygd, fagsakRestKlientMock);
+        var vurder = new DestinasjonsRuter(vurderInfotrygd, fagsakRestKlientMock);
 
         var result = vurder.bestemDestinasjon(dataWrapper);
 

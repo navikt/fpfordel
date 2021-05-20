@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.joark.HentDataFraJoarkTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
-import no.nav.foreldrepenger.mottak.tjeneste.VurderVLSaker;
+import no.nav.foreldrepenger.mottak.tjeneste.DestinasjonsRuter;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,11 +44,11 @@ class OpprettSakTaskTest {
     @Mock
     private PersonInformasjon aktørConsumer;
 
-    private VurderVLSaker vurderVLSaker;
+    private DestinasjonsRuter vurderVLSaker;
 
     @BeforeEach
     void setUp() {
-        vurderVLSaker = new VurderVLSaker(null, fagsakRestKlient);
+        vurderVLSaker = new DestinasjonsRuter(null, fagsakRestKlient);
     }
 
     @Test
