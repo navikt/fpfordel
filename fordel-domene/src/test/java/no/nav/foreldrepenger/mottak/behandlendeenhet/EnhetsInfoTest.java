@@ -49,28 +49,28 @@ class EnhetsInfoTest {
     void skal_returnere_enhetid() throws Exception {
         assertThat(enhetId())
                 .isNotNull()
-                .isEqualTo(ENHET.getEnhetNr());
+                .isEqualTo(ENHET.enhetNr());
     }
 
     @Test
     void skal_returnere_enhetid_og_kalle_arbeidsfordelingstjeneste_med_geografisk_tilknytning() throws Exception {
         assertThat(enhetId())
                 .isNotNull()
-                .isEqualTo(ENHET.getEnhetNr());
+                .isEqualTo(ENHET.enhetNr());
     }
 
     @Test
     void skal_returnere_enhetid_og_kalle_arbeidsfordelingstjeneste_med_diskresjonskode() throws Exception {
         assertThat(enhetId())
                 .isNotNull()
-                .isEqualTo(ENHET.getEnhetNr());
+                .isEqualTo(ENHET.enhetNr());
     }
 
     @Test
     void skal_returnere_enhetid_journalføring() throws Exception {
         assertThat(enhetId())
                 .isNotNull()
-                .isEqualTo(ENHET.getEnhetNr());
+                .isEqualTo(ENHET.enhetNr());
     }
 
     @Test
@@ -78,7 +78,7 @@ class EnhetsInfoTest {
     void skal_returnere_enhetid_journalføring_uten_fnr() {
         assertThat(enhetId(null))
                 .isNotNull()
-                .isEqualTo(FORDELING_ENHET.getEnhetNr());
+                .isEqualTo(FORDELING_ENHET.enhetNr());
     }
 
     private String enhetId() {
