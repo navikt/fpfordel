@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.fordel.web.server.jetty;
 
 import static javax.servlet.DispatcherType.REQUEST;
+import static no.nav.foreldrepenger.konfig.Cluster.NAIS_CLUSTER_NAME;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,17 +48,12 @@ import org.eclipse.jetty.webapp.WebXmlConfiguration;
 import org.slf4j.MDC;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.security.token.support.core.configuration.IssuerProperties;
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration;
 import no.nav.security.token.support.jaxrs.servlet.JaxrsJwtTokenValidationFilter;
-import no.nav.vedtak.util.env.Environment;
 
 abstract class AbstractJettyServer {
-
-    static {
-        LogManager.getLogManager().reset();
-        SLF4JBridgeHandler.install();
-    }
 
     /**
      * @see AbstractNetworkConnector#getHost()
@@ -72,6 +68,12 @@ abstract class AbstractJettyServer {
     public static final String IDPORTEN = "idporten";
 
     private static final Environment ENV = Environment.current();
+
+    static {
+        System.setProperty(NAIS_CLUSTER_NAME, ENV.clusterName());
+        LogManager.getLogManager().reset();
+        SLF4JBridgeHandler.install();
+    }
 
     /**
      * Legges først slik at alltid resetter context før prosesserer nye requests.
