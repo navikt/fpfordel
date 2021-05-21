@@ -86,7 +86,7 @@ public class EnhetsTjeneste implements EnhetsInfo {
                     gt.tilknytning(), gt.diskresjonskode()));
         }
 
-        return response.get(0).getEnhetNr();
+        return response.get(0).enhetNr();
     }
 
     private String tilfeldigNfpEnhet() {
@@ -104,9 +104,9 @@ public class EnhetsTjeneste implements EnhetsInfo {
             var respons = norgKlient.hentAlleAktiveEnheter(request);
             alleJournalførendeEnheter.clear();
             nfpJournalførendeEnheter.clear();
-            respons.stream().map(ArbeidsfordelingResponse::getEnhetNr).forEach(alleJournalførendeEnheter::add);
-            respons.stream().filter(e -> ENHET_TYPE_NFP.equalsIgnoreCase(e.getEnhetType()))
-                    .map(ArbeidsfordelingResponse::getEnhetNr).forEach(nfpJournalførendeEnheter::add);
+            respons.stream().map(ArbeidsfordelingResponse::enhetNr).forEach(alleJournalførendeEnheter::add);
+            respons.stream().filter(e -> ENHET_TYPE_NFP.equalsIgnoreCase(e.enhetType()))
+                    .map(ArbeidsfordelingResponse::enhetNr).forEach(nfpJournalførendeEnheter::add);
             alleJournalførendeEnheter.add(NK_ENHET_ID);
             sisteInnhenting = LocalDate.now();
         }
