@@ -5,7 +5,9 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.net.URI;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -79,9 +81,13 @@ public class JerseyFagsakKlient extends AbstractJerseyOidcRestClient implements 
         try {
             future.get(60, TimeUnit.SECONDS);
             LOG.info("Knyttet sak og journalpost OK");
-        } catch (Exception e) {
-            LOG.warn("Knyttet sak og journalpost feilet");
-            throw new IntegrationException(DEFAULT_FPSAK_BASE_URI, e);
+        } catch (TimeoutException e) {
+            LOG.warn("Knyttet sak og journalpost feilet, timet ut", e);
+            throw new IntegrationException("Knyttet sak og journalpost feilet, timet ut", e);
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.warn("Knyttet sak og journalpost feilet", e);
+            throw new IntegrationException("Knyttet sak og journalpost feilet", e);
+
         }
 
     }
