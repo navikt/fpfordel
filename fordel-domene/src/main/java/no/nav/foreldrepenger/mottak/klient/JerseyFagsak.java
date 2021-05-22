@@ -1,12 +1,13 @@
 package no.nav.foreldrepenger.mottak.klient;
 
+import static java.lang.String.format;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static javax.ws.rs.client.Entity.json;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.net.URI;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import javax.enterprise.context.Dependent;
@@ -31,6 +32,7 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient
 
 @Dependent
 public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak {
+    private static final int TIMEOUT_SECONDS = 60;
     private static final String DEFAULT_FPSAK_BASE_URI = "http://fpsak";
     private static final String JOURNALPOSTTILKNYTNING_PATH = "/fpsak/api/fordel/fagsak/knyttJournalpost";
     private static final String FAGSAKINFORMASJON_PATH = "/fpsak/api/fordel/fagsak/informasjon";
@@ -72,24 +74,22 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
 
     @Override
     public void knyttSakOgJournalpost(JournalpostKnyttningDto dto) {
-        LOG.info("Knytter sak og journalpost");
+        LOG.info("Knytter sak {} og journalpost {}", dto.getSaksnummer(), dto.getJournalpostId());
         var future = client.target(baseUri)
                 .path(JOURNALPOSTTILKNYTNING_PATH)
                 .request(APPLICATION_JSON_TYPE)
                 .async()
                 .post(json(dto));
         try {
-            future.get(60, TimeUnit.SECONDS);
-            LOG.info("Knyttet sak og journalpost OK");
+            future.get(TIMEOUT_SECONDS, SECONDS);
+            LOG.info("Knyttet sak {} og journalpost {} OK", dto.getSaksnummer(), dto.getJournalpostId());
         } catch (TimeoutException e) {
-            LOG.warn("Knyttet sak og journalpost feilet, timet ut", e);
-            throw new IntegrationException("Knyttet sak og journalpost feilet, timet ut", e);
+            LOG.warn("Knytte sak {} og journalpost {} timout", dto.getSaksnummer(), dto.getJournalpostId(), e);
+            throw new IntegrationException(format("Knytte sak %s og journalpost %s timeout", dto.getSaksnummer(), dto.getJournalpostId()), e);
         } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Knyttet sak og journalpost feilet", e);
-            throw new IntegrationException("Knyttet sak og journalpost feilet", e);
-
+            LOG.warn("Knyttet sak {} og journalpost  {} feilet", dto.getSaksnummer(), dto.getJournalpostId(), e);
+            throw new IntegrationException(format("Knytte sak %s og journalpost %s feilet", dto.getSaksnummer(), dto.getJournalpostId()), e);
         }
-
     }
 
     @Override
