@@ -5,10 +5,12 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.net.URI;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
+import org.hibernate.secure.spi.IntegrationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,12 +71,19 @@ public class JerseyFagsakKlient extends AbstractJerseyOidcRestClient implements 
     @Override
     public void knyttSakOgJournalpost(JournalpostKnyttningDto dto) {
         LOG.info("Knytter sak og journalpost");
-        client.target(endpoint)
+        var future = client.target(endpoint)
                 .path(JOURNALPOSTTILKNYTNING_PATH)
                 .request(APPLICATION_JSON_TYPE)
-                .buildPost(json(dto))
-                .invoke();
-        LOG.info("Knyttet sak og journalpost OK");
+                .async()
+                .post(json(dto));
+        try {
+            future.get(60, TimeUnit.SECONDS);
+            LOG.info("Knyttet sak og journalpost OK");
+        } catch (Exception e) {
+            LOG.warn("Knyttet sak og journalpost feilet");
+            throw new IntegrationException(DEFAULT_FPSAK_BASE_URI, e);
+        }
+
     }
 
     @Override
