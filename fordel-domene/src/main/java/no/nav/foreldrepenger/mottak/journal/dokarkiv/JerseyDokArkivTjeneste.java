@@ -66,7 +66,7 @@ public class JerseyDokArkivTjeneste extends AbstractJerseyOidcRestClient impleme
             target
                     .request(APPLICATION_JSON_TYPE)
                     .buildPut(json(req))
-                    .invoke(Response.class);
+                    .invoke();
             LOG.info("Oppdatert journalpost OK ({})", target.getUri());
             return true;
         } catch (Exception e) {

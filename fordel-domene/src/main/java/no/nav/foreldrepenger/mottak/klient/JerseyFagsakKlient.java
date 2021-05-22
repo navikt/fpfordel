@@ -8,7 +8,6 @@ import java.util.Optional;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
-import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,13 +67,13 @@ public class JerseyFagsakKlient extends AbstractJerseyOidcRestClient implements 
     }
 
     @Override
-    public void knyttSakOgJournalpost(JournalpostKnyttningDto journalpostKnyttningDto) {
+    public void knyttSakOgJournalpost(JournalpostKnyttningDto dto) {
         LOG.info("Knytter sak og journalpost");
         client.target(endpoint)
                 .path(JOURNALPOSTTILKNYTNING_PATH)
                 .request(APPLICATION_JSON_TYPE)
-                .buildPost(json(journalpostKnyttningDto))
-                .invoke(Response.class);
+                .buildPost(json(dto))
+                .invoke();
         LOG.info("Knyttet sak og journalpost OK");
     }
 

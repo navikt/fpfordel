@@ -8,8 +8,6 @@ import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.time.Duration;
 
-import javax.ws.rs.core.Response;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +37,7 @@ abstract class AbstractRetryableJournalpostSender extends AbstractJerseyOidcRest
                     .path(path())
                     .request(APPLICATION_JSON_TYPE)
                     .buildPost(json(dto))
-                    .invoke(Response.class);
+                    .invoke();
             LOG.info("Sendt journalpost OK for {}", getClass().getSimpleName());
             return null;
         }).apply(journalpost);
