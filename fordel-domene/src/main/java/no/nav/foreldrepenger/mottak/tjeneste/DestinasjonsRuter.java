@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
+import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.konfig.Tid;
 
@@ -41,12 +41,12 @@ import no.nav.vedtak.konfig.Tid;
 @Dependent
 public class DestinasjonsRuter {
 
-    private final FagsakTjeneste fagsakRestKlient;
+    private final Fagsak fagsakRestKlient;
     private final VurderInfotrygd vurderInfotrygd;
 
     @Inject
     public DestinasjonsRuter(VurderInfotrygd vurderInfotrygd,
-            FagsakTjeneste fagsakRestKlient) {
+            Fagsak fagsakRestKlient) {
         this.vurderInfotrygd = vurderInfotrygd;
         this.fagsakRestKlient = fagsakRestKlient;
     }

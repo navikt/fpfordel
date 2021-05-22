@@ -13,7 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
+import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.VurderFagsystemResultat;
 import no.nav.foreldrepenger.mottak.tjeneste.VurderInfotrygd;
 import no.nav.foreldrepenger.mottak.tjeneste.DestinasjonsRuter;
@@ -24,7 +24,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 class HentOgVurderVLSakTaskTest {
 
     @Mock
-    private FagsakTjeneste fagsakRestKlientMock;
+    private Fagsak fagsakRestKlientMock;
     @Mock
     private VurderInfotrygd vurderInfotrygd;
     private String saksnummer = "123456";

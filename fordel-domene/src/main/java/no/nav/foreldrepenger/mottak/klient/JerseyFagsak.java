@@ -30,19 +30,19 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 
 @Dependent
-public class JerseyFagsakKlient extends AbstractJerseyOidcRestClient implements FagsakTjeneste {
+public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak {
     private static final String DEFAULT_FPSAK_BASE_URI = "http://fpsak";
     private static final String JOURNALPOSTTILKNYTNING_PATH = "/fpsak/api/fordel/fagsak/knyttJournalpost";
     private static final String FAGSAKINFORMASJON_PATH = "/fpsak/api/fordel/fagsak/informasjon";
     private static final String FAGSAK_OPPRETT_PATH = "/fpsak/api/fordel/fagsak/opprett";
     private static final String VURDER_FAGSYSTEM_PATH = "/fpsak/api/fordel/vurderFagsystem";
 
-    private static final Logger LOG = LoggerFactory.getLogger(JerseyFagsakKlient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JerseyFagsak.class);
 
     private final URI endpoint;
 
     @Inject
-    public JerseyFagsakKlient(@KonfigVerdi(value = "fpsak.base.url", defaultVerdi = DEFAULT_FPSAK_BASE_URI) URI endpoint) {
+    public JerseyFagsak(@KonfigVerdi(value = "fpsak.base.url", defaultVerdi = DEFAULT_FPSAK_BASE_URI) URI endpoint) {
         this.endpoint = endpoint;
     }
 

@@ -53,7 +53,7 @@ import no.nav.foreldrepenger.mottak.felles.kafka.HendelseProdusent;
 import no.nav.foreldrepenger.mottak.felles.kafka.SøknadFordeltOgJournalførtHendelse;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.OpprettetJournalpost;
-import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
+import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.VLKlargjørerTask;
 import no.nav.foreldrepenger.mottak.tjeneste.Destinasjon;
@@ -82,7 +82,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     public static final String TASKNAME = "fordeling.behandleDokumentForsendelse";
 
     private PersonInformasjon pdl;
-    private FagsakTjeneste fagsak;
+    private Fagsak fagsak;
     private DestinasjonsRuter ruter;
     private ArkivTjeneste arkiv;
     private DokumentRepository dokumentRepository;
@@ -96,7 +96,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     public BehandleDokumentforsendelseTask(ProsessTaskRepository prosessTaskRepository,
             DestinasjonsRuter ruter,
             PersonInformasjon pdl,
-            FagsakTjeneste fagsak,
+            Fagsak fagsak,
             ArkivTjeneste arkiv,
             DokumentRepository dokumentRepository,
             HendelseProdusent hendelseProdusent) {

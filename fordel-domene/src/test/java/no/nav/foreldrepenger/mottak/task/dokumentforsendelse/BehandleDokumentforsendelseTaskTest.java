@@ -47,7 +47,7 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.kafka.LoggingHendelseProdusent;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.OpprettetJournalpost;
-import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
+import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.VLKlargjørerTask;
 import no.nav.foreldrepenger.mottak.tjeneste.Destinasjon;
@@ -74,7 +74,7 @@ class BehandleDokumentforsendelseTaskTest {
     @Mock
     private PersonInformasjon aktørConsumer;
     @Mock
-    private FagsakTjeneste fagsakRestKlient;
+    private Fagsak fagsakRestKlient;
     @Mock
     private DestinasjonsRuter vurderVLSaker;
     @Mock

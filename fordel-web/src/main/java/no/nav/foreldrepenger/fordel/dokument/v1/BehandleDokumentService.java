@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
-import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
+import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.VLKlargjørerTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
@@ -73,7 +73,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
     static final String BRUKER_MANGLER = "Journalpost mangler knyting til bruker - prøv igjen om et halv minutt";
 
     private final VLKlargjører klargjører;
-    private final FagsakTjeneste fagsak;
+    private final Fagsak fagsak;
     private final PersonInformasjon pdl;
     private final ArkivTjeneste arkivTjeneste;
     private final DokumentRepository dokumentRepository;
@@ -81,7 +81,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
     @Inject
     public BehandleDokumentService(VLKlargjører klargjører,
-            FagsakTjeneste fagsak,
+            Fagsak fagsak,
             @Jersey SakClient sakClient,
             PersonInformasjon pdl,
             ArkivTjeneste arkivTjeneste,

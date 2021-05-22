@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
-import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
+import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.JournalpostSender;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
@@ -24,13 +24,13 @@ public class VLKlargjører {
     private static final Logger LOG = LoggerFactory.getLogger(VLKlargjører.class);
 
     private final JournalpostSender dokumentJournalpostSender;
-    private final FagsakTjeneste fagsak;
+    private final Fagsak fagsak;
     private final JournalpostSender tilbakeJournalpostSender;
 
     @Inject
     public VLKlargjører(
             @Jersey("dokument") JournalpostSender dokumentJournalpostSender,
-            FagsakTjeneste fagsak,
+            Fagsak fagsak,
             @Jersey("tilbake") JournalpostSender tilbakeJournalpostSender) {
         this.dokumentJournalpostSender = dokumentJournalpostSender;
         this.fagsak = fagsak;

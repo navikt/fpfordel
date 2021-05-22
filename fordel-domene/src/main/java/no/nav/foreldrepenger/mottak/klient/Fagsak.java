@@ -8,7 +8,7 @@ import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 
-public interface FagsakTjeneste {
+public interface Fagsak {
 
     Optional<FagsakInfomasjonDto> finnFagsakInfomasjon(SaksnummerDto saksnummerDto);
 

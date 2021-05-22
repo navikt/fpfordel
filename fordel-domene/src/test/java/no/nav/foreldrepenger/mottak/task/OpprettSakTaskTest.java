@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.klient.FagsakTjeneste;
+import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.joark.HentDataFraJoarkTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
@@ -40,7 +40,7 @@ class OpprettSakTaskTest {
     public static final String AKTØR_ID = "9000000000009";
 
     @Mock
-    private FagsakTjeneste fagsakRestKlient;
+    private Fagsak fagsakRestKlient;
     @Mock
     private PersonInformasjon aktørConsumer;
 
