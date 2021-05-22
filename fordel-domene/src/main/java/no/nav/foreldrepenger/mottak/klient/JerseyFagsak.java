@@ -1,19 +1,14 @@
 package no.nav.foreldrepenger.mottak.klient;
 
-import static java.lang.String.format;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static javax.ws.rs.client.Entity.json;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.net.URI;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import org.hibernate.secure.spi.IntegrationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +27,6 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient
 
 @Dependent
 public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak {
-    private static final int TIMEOUT_SECONDS = 60;
     private static final String DEFAULT_FPSAK_BASE_URI = "http://fpsak";
     private static final String JOURNALPOSTTILKNYTNING_PATH = "/fpsak/api/fordel/fagsak/knyttJournalpost";
     private static final String FAGSAKINFORMASJON_PATH = "/fpsak/api/fordel/fagsak/informasjon";
@@ -41,17 +35,17 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
 
     private static final Logger LOG = LoggerFactory.getLogger(JerseyFagsak.class);
 
-    private final URI baseUri;
+    private final URI endpoint;
 
     @Inject
-    public JerseyFagsak(@KonfigVerdi(value = "fpsak.base.url", defaultVerdi = DEFAULT_FPSAK_BASE_URI) URI baseUri) {
-        this.baseUri = baseUri;
+    public JerseyFagsak(@KonfigVerdi(value = "fpsak.base.url", defaultVerdi = DEFAULT_FPSAK_BASE_URI) URI endpoint) {
+        this.endpoint = endpoint;
     }
 
     @Override
     public Optional<FagsakInfomasjonDto> finnFagsakInfomasjon(SaksnummerDto saksnummerDto) {
         LOG.info("Finner fagsakinformasjon");
-        var info = client.target(baseUri)
+        var info = client.target(endpoint)
                 .path(FAGSAKINFORMASJON_PATH)
                 .request(APPLICATION_JSON_TYPE)
                 .buildPost(json(saksnummerDto))
@@ -63,7 +57,7 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
     @Override
     public SaksnummerDto opprettSak(OpprettSakDto opprettSakDto) {
         LOG.info("Oppretter sak");
-        var sak = client.target(baseUri)
+        var sak = client.target(endpoint)
                 .path(FAGSAK_OPPRETT_PATH)
                 .request(APPLICATION_JSON_TYPE)
                 .buildPost(json(opprettSakDto))
@@ -74,22 +68,13 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
 
     @Override
     public void knyttSakOgJournalpost(JournalpostKnyttningDto dto) {
-        LOG.info("Knytter sak {} og journalpost {}", dto.getSaksnummer(), dto.getJournalpostId());
-        var future = client.target(baseUri)
+        LOG.info("Knytter sak og journalpost");
+        client.target(endpoint)
                 .path(JOURNALPOSTTILKNYTNING_PATH)
                 .request(APPLICATION_JSON_TYPE)
-                .async()
-                .post(json(dto));
-        try {
-            future.get(TIMEOUT_SECONDS, SECONDS);
-            LOG.info("Knyttet sak {} og journalpost {} OK", dto.getSaksnummer(), dto.getJournalpostId());
-        } catch (TimeoutException e) {
-            LOG.warn("Knytte sak {} og journalpost {} timout", dto.getSaksnummer(), dto.getJournalpostId(), e);
-            throw new IntegrationException(format("Knytte sak %s og journalpost %s timeout", dto.getSaksnummer(), dto.getJournalpostId()), e);
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Knyttet sak {} og journalpost  {} feilet", dto.getSaksnummer(), dto.getJournalpostId(), e);
-            throw new IntegrationException(format("Knytte sak %s og journalpost %s feilet", dto.getSaksnummer(), dto.getJournalpostId()), e);
-        }
+                .buildPost(json(dto))
+                .invoke();
+        LOG.info("Knyttet sak og journalpost OK");
     }
 
     @Override
@@ -129,7 +114,7 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
             w.getFørsteUttaksdag().ifPresent(dto::setStartDatoForeldrepengerInntektsmelding);
         }
         LOG.info("Vurderer resultat");
-        var res = client.target(baseUri)
+        var res = client.target(endpoint)
                 .path(VURDER_FAGSYSTEM_PATH)
                 .request(APPLICATION_JSON_TYPE)
                 .buildPost(json(dto))
@@ -140,7 +125,7 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [baseUri=" + baseUri + "]";
+        return getClass().getSimpleName() + " [endpoint=" + endpoint + "]";
     }
 
 }
