@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import javax.ws.rs.client.InvocationCallback;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,10 +83,19 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
                     .path(JOURNALPOSTTILKNYTNING_PATH)
                     .request(APPLICATION_JSON_TYPE)
                     .async()
-                    .post(json(dto)).get(TIMEOUT, SECONDS);
-            LOG.info("Knyttet sak og journalpost OK");
+                    .post(json(dto), new InvocationCallback<>() {
+
+                        @Override
+                        public void completed(Object response) {
+                            LOG.info("Knyttet sak og journalpost OK");
+                        }
+
+                        @Override
+                        public void failed(Throwable t) {
+                            LOG.warn("feil ved knytting sak og journalpost", t);
+                        }
+                    }).get(TIMEOUT, SECONDS);
         } catch (Exception e) {
-            LOG.warn("feil ved knytting sak og journalpost", e);
             throw new IntegrasjonException("F-999999", e.getClass().getSimpleName(), e);
         }
     }
