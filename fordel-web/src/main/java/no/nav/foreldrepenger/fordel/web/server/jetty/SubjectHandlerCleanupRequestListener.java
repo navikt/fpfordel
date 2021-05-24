@@ -21,9 +21,9 @@ public class SubjectHandlerCleanupRequestListener implements ServletRequestListe
             var subjectHandler = SubjectHandler.getSubjectHandler();
             var subject = subjectHandler.getSubject();
             if (subject != null) {
-                LOG.info("Servlet request destroyed");
+                LOG.trace("Servlet request destroyed");
                 ThreadLocalSubjectHandler.class.cast(subjectHandler).setSubject(null);
-                LOG.info("Subject fjernet fra ThreadLocal OK");
+                LOG.trace("Subject fjernet fra ThreadLocal OK");
             }
         } catch (Exception e) {
             LOG.trace("Kunne ikke fjerne subject", e);
