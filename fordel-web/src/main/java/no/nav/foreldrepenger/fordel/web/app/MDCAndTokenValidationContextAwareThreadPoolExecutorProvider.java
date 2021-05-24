@@ -81,28 +81,32 @@ public class MDCAndTokenValidationContextAwareThreadPoolExecutorProvider extends
                 propagateContext(holder);
             }
             try {
+                LOG.trace("XXX eksekverer runnable");
                 task.run();
+                LOG.trace("XXX eksekvert runnable OK");
+
             } finally {
+                LOG.trace("XXX rydder opp i tråden");
                 holder.setTokenValidationContext(null);
                 MDC.clear();
             }
         }
 
         private void propagateContext(TokenValidationContextHolder holder) {
-            LOG.trace("Propagating token from context onto thread");
+            LOG.trace("XXX Propagating token from context onto thread");
             holder.setTokenValidationContext(ctx);
         }
 
         private void propagateSubjectIfSet() {
             try {
                 if (subject != null) {
-                    LOG.trace("Propagating token from subject handler onto thread");
+                    LOG.trace("XXX Propagating token from subject handler onto thread");
                     ThreadLocalSubjectHandler.class.cast(getSubjectHandler()).setSubject(subject);
                 } else {
-                    LOG.trace("Intet subject å propagere");
+                    LOG.trace("XXX Intet subject å propagere");
                 }
             } catch (Exception e) {
-                LOG.warn("Feil ved propagering av subject", e);
+                LOG.warn("XXX Feil ved propagering av subject", e);
 
             }
         }
