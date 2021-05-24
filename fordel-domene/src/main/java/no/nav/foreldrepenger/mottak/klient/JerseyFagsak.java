@@ -33,7 +33,8 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient
 
 @Dependent
 public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak {
-    private static final String DEFAULT_TIMEOUT = "fordel.fagsak.timeout";
+    private static final int DEFAULT_TIMEOUT = 60;
+    private static final String TIMEOUT_KEY = "fordel.fagsak.timeout";
     private static final Environment ENV = Environment.current();
     private static final String DEFAULT_FPSAK_BASE_URI = "http://fpsak";
     private static final String JOURNALPOSTTILKNYTNING_PATH = "/fpsak/api/fordel/fagsak/knyttJournalpost";
@@ -83,9 +84,8 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
                 .request(APPLICATION_JSON_TYPE)
                 .async()
                 .post(json(dto));
-
         try {
-            var timeout = ENV.getProperty(DEFAULT_TIMEOUT, int.class, 60);
+            var timeout = ENV.getProperty(TIMEOUT_KEY, int.class, DEFAULT_TIMEOUT);
             LOG.info("Venter max {}s på svar for knytting sak og journalpost", timeout);
             var timer = new StopWatch();
             timer.start();
