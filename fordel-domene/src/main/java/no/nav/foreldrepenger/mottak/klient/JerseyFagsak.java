@@ -72,7 +72,8 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
     @Override
     public void knyttSakOgJournalpost(JournalpostKnyttningDto dto) {
         LOG.info("Knytter sak og journalpost");
-        var f = client.register(MDCAndTokenValidationContextAwareThreadPoolExecutorProvider.class)
+        var f = client
+                .register(MDCAndTokenValidationContextAwareThreadPoolExecutorProvider.class)
                 .target(endpoint)
                 .path(JOURNALPOSTTILKNYTNING_PATH)
                 .request(APPLICATION_JSON_TYPE)
@@ -80,10 +81,11 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
                 .post(json(dto));
 
         try {
+            LOG.info("Venter på svar for knytting sak og journalpost");
             f.get(60, TimeUnit.SECONDS);
             LOG.info("Knyttet sak og journalpost OK");
         } catch (Exception e) {
-            LOG.info("Feil ved knyttet sak og journalpost", e);
+            LOG.warn("Feil ved knytting sak og journalpost", e);
             throw new IntegrasjonException("F-42", "OOPS", e);
         }
     }
