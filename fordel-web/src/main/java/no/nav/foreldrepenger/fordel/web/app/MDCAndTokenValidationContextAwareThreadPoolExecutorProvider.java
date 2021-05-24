@@ -45,9 +45,9 @@ public class MDCAndTokenValidationContextAwareThreadPoolExecutorProvider extends
         }
 
         @Override
-        public void execute(Runnable command) {
+        public void execute(Runnable task) {
             LOG.trace("XXX eksekverer");
-            super.execute(decorate(command));
+            super.execute(decorate(task));
         }
 
         static Runnable decorate(Runnable task) {

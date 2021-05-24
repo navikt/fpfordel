@@ -97,8 +97,9 @@ public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTj
         if (found) {
             LOG.trace("Legger til subject attributter {}", attrs);
             xacmlBuilder.addSubjectAttributeSet(attrs);
+        } else {
+            LOG.trace("Legger IKKE til suject attributter");
         }
-        LOG.trace("Legger IKKE til suject attributter");
     }
 
 }
