@@ -16,7 +16,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.fordel.MDCAndTokenValidationContextAwareThreadPoolExecutorProvider;
+import no.nav.foreldrepenger.fordel.PropagatingThreadPoolExecutorProvider;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -79,7 +79,7 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
     public void knyttSakOgJournalpost(JournalpostKnyttningDto dto) {
         LOG.info("Knytter sak og journalpost");
         var f = client
-                .register(MDCAndTokenValidationContextAwareThreadPoolExecutorProvider.class)
+                .register(PropagatingThreadPoolExecutorProvider.class)
                 .target(endpoint)
                 .path(JOURNALPOSTTILKNYTNING_PATH)
                 .request(APPLICATION_JSON_TYPE)

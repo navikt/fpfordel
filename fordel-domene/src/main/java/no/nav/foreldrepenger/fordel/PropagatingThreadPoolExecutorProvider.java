@@ -24,49 +24,49 @@ import no.nav.security.token.support.jaxrs.JaxrsTokenValidationContextHolder;
 import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
 
 @ClientAsyncExecutor
-public class MDCAndTokenValidationContextAwareThreadPoolExecutorProvider extends ThreadPoolExecutorProvider {
+public class PropagatingThreadPoolExecutorProvider extends ThreadPoolExecutorProvider {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MDCAndTokenValidationContextAwareThreadPoolExecutorProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PropagatingThreadPoolExecutorProvider.class);
 
-    public MDCAndTokenValidationContextAwareThreadPoolExecutorProvider() {
-        this(MDCAndTokenValidationContextAwareThreadPoolExecutorProvider.class.getSimpleName());
+    public PropagatingThreadPoolExecutorProvider() {
+        this(PropagatingThreadPoolExecutorProvider.class.getSimpleName());
     }
 
-    private MDCAndTokenValidationContextAwareThreadPoolExecutorProvider(String name) {
+    private PropagatingThreadPoolExecutorProvider(String name) {
         super(name);
     }
 
     @Override
     public ThreadPoolExecutor createExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, BlockingQueue<Runnable> workQueue,
             ThreadFactory threadFactory, RejectedExecutionHandler handler) {
-        return new MDCAwareThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS, workQueue, threadFactory, handler);
+        return new PropagatingThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS, workQueue, threadFactory, handler);
     }
 
-    static class MDCAwareThreadPoolExecutor extends ThreadPoolExecutor {
-        MDCAwareThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue,
+    static class PropagatingThreadPoolExecutor extends ThreadPoolExecutor {
+        PropagatingThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue,
                 ThreadFactory threadFactory, RejectedExecutionHandler handler) {
             super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
         }
 
         @Override
         public void execute(Runnable task) {
-            super.execute(decorate(task));
+            super.execute(propagate(task));
         }
 
-        static Runnable decorate(Runnable task) {
-            return new DecoratedRunnable(task, getSubjectHandler().getSubject(), getHolder().getTokenValidationContext(), getCopyOfContextMap());
+        static Runnable propagate(Runnable task) {
+            return new PropagatingRunnable(task, getSubjectHandler().getSubject(), getHolder().getTokenValidationContext(), getCopyOfContextMap());
         }
     }
 
-    static class DecoratedRunnable implements Runnable {
+    static class PropagatingRunnable implements Runnable {
 
-        private static final Logger LOG = LoggerFactory.getLogger(DecoratedRunnable.class);
+        private static final Logger LOG = LoggerFactory.getLogger(PropagatingRunnable.class);
         private final Runnable task;
         private final TokenValidationContext ctx;
         private final Map<String, String> mdc;
         private final Subject subject;
 
-        DecoratedRunnable(Runnable task, Subject subject, TokenValidationContext ctx, Map<String, String> mdc) {
+        PropagatingRunnable(Runnable task, Subject subject, TokenValidationContext ctx, Map<String, String> mdc) {
             this.task = task;
             this.subject = subject;
             this.ctx = ctx;
@@ -108,7 +108,6 @@ public class MDCAndTokenValidationContextAwareThreadPoolExecutorProvider extends
                 }
             } catch (Exception e) {
                 LOG.warn("Feil ved propagering av subject", e);
-
             }
         }
 
