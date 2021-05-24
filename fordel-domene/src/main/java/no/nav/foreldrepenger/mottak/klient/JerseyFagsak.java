@@ -1,15 +1,17 @@
 package no.nav.foreldrepenger.mottak.klient;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static javax.ws.rs.client.Entity.json;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.net.URI;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +19,7 @@ import no.nav.foreldrepenger.fordel.MDCAndTokenValidationContextAwareThreadPoolE
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.kontrakter.fordel.BehandlendeFagsystemDto;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
@@ -30,6 +33,8 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient
 
 @Dependent
 public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak {
+    private static final String DEFAULT_TIMEOUT = "fordel.fagsak.timeout";
+    private static final Environment ENV = Environment.current();
     private static final String DEFAULT_FPSAK_BASE_URI = "http://fpsak";
     private static final String JOURNALPOSTTILKNYTNING_PATH = "/fpsak/api/fordel/fagsak/knyttJournalpost";
     private static final String FAGSAKINFORMASJON_PATH = "/fpsak/api/fordel/fagsak/informasjon";
@@ -81,9 +86,16 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
                 .post(json(dto));
 
         try {
-            LOG.info("Venter på svar for knytting sak og journalpost");
-            f.get(60, TimeUnit.SECONDS);
-            LOG.info("Knyttet sak og journalpost OK");
+            var timeout = ENV.getProperty(DEFAULT_TIMEOUT, int.class, 60);
+            LOG.info("Venter max {}s på svar for knytting sak og journalpost", timeout);
+            var timer = new StopWatch();
+            timer.start();
+            f.get(timeout, SECONDS);
+            timer.stop();
+            LOG.info("Knyttet sak og journalpost OK etter {}s", timer.getTime(SECONDS));
+        } catch (TimeoutException e) {
+            LOG.warn("Timeout ved knytting sak og journalpost", e);
+            throw new IntegrasjonException("F-999999", "Timeout", e);
         } catch (Exception e) {
             LOG.warn("Feil ved knytting sak og journalpost", e);
             throw new IntegrasjonException("F-42", "OOPS", e);
