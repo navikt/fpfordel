@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.security.auth.Subject;
 
+import org.glassfish.jersey.client.ClientAsyncExecutor;
 import org.glassfish.jersey.spi.ThreadPoolExecutorProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.jaxrs.JaxrsTokenValidationContextHolder;
 import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
 
+@ClientAsyncExecutor
 public class MDCAndTokenValidationContextAwareThreadPoolExecutorProvider extends ThreadPoolExecutorProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(MDCAndTokenValidationContextAwareThreadPoolExecutorProvider.class);
