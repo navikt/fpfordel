@@ -28,13 +28,13 @@ public class MDCAndTokenValidationContextAwareThreadPoolExecutorProvider extends
 
     public MDCAndTokenValidationContextAwareThreadPoolExecutorProvider(String name) {
         super(name);
-        LOG.trace("XXX Konstruert provider");
+        LOG.info("XXX Konstruert provider");
     }
 
     @Override
     protected ThreadPoolExecutor createExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, BlockingQueue<Runnable> workQueue,
             ThreadFactory threadFactory, RejectedExecutionHandler handler) {
-        LOG.trace("XXX Returnerer executor");
+        LOG.info("XXX Returnerer executor");
         return new MDCAwareThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS, workQueue, threadFactory, handler);
     }
 
@@ -46,7 +46,7 @@ public class MDCAndTokenValidationContextAwareThreadPoolExecutorProvider extends
 
         @Override
         public void execute(Runnable task) {
-            LOG.trace("XXX eksekverer");
+            LOG.info("XXX eksekverer");
             super.execute(decorate(task));
         }
 
@@ -69,7 +69,7 @@ public class MDCAndTokenValidationContextAwareThreadPoolExecutorProvider extends
             this.subject = subject;
             this.ctx = ctx;
             this.mdc = mdc;
-            LOG.trace("XXX konstruert runnable");
+            LOG.info("XXX konstruert runnable");
         }
 
         @Override
@@ -81,29 +81,29 @@ public class MDCAndTokenValidationContextAwareThreadPoolExecutorProvider extends
                 propagateContext(holder);
             }
             try {
-                LOG.trace("XXX eksekverer runnable");
+                LOG.info("XXX eksekverer runnable");
                 task.run();
-                LOG.trace("XXX eksekvert runnable OK");
+                LOG.info("XXX eksekvert runnable OK");
 
             } finally {
-                LOG.trace("XXX rydder opp i tråden");
+                LOG.info("XXX rydder opp i tråden");
                 holder.setTokenValidationContext(null);
                 MDC.clear();
             }
         }
 
         private void propagateContext(TokenValidationContextHolder holder) {
-            LOG.trace("XXX Propagating token from context onto thread");
+            LOG.info("XXX Propagating token from context onto thread");
             holder.setTokenValidationContext(ctx);
         }
 
         private void propagateSubjectIfSet() {
             try {
                 if (subject != null) {
-                    LOG.trace("XXX Propagating token from subject handler onto thread");
+                    LOG.info("XXX Propagating token from subject handler onto thread");
                     ThreadLocalSubjectHandler.class.cast(getSubjectHandler()).setSubject(subject);
                 } else {
-                    LOG.trace("XXX Intet subject å propagere");
+                    LOG.info("XXX Intet subject å propagere");
                 }
             } catch (Exception e) {
                 LOG.warn("XXX Feil ved propagering av subject", e);
@@ -113,7 +113,7 @@ public class MDCAndTokenValidationContextAwareThreadPoolExecutorProvider extends
 
         private static void setMDC(Map<String, String> mdc) {
             MDC.clear();
-            LOG.trace("XXX setter MDC");
+            LOG.info("XXX setter MDC");
             if (mdc != null) {
                 MDC.setContextMap(mdc);
             }
