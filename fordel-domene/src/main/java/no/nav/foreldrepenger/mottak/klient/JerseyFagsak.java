@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.klient;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static javax.ws.rs.client.Entity.json;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
@@ -12,7 +11,6 @@ import java.util.concurrent.TimeoutException;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +41,7 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
     private static final String VURDER_FAGSYSTEM_PATH = "/fpsak/api/fordel/vurderFagsystem";
 
     private static final Logger LOG = LoggerFactory.getLogger(JerseyFagsak.class);
+    private static final int TIMEOUT = ENV.getProperty(TIMEOUT_KEY, int.class, DEFAULT_TIMEOUT);
 
     private final URI endpoint;
 
@@ -77,27 +76,20 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
 
     @Override
     public void knyttSakOgJournalpost(JournalpostKnyttningDto dto) {
-        LOG.info("Knytter sak og journalpost");
-        var f = asyncClient
-                .target(endpoint)
-                .path(JOURNALPOSTTILKNYTNING_PATH)
-                .request(APPLICATION_JSON_TYPE)
-                .async()
-                .post(json(dto));
+        LOG.info("Knytter sak og journalpost, venter max {}s på svar", TIMEOUT);
         try {
-            var timeout = ENV.getProperty(TIMEOUT_KEY, int.class, DEFAULT_TIMEOUT);
-            LOG.info("Venter max {}s på svar for knytting sak og journalpost", timeout);
-            var timer = new StopWatch();
-            timer.start();
-            f.get(timeout, SECONDS);
-            timer.stop();
-            LOG.info("Knyttet sak og journalpost OK etter {}ms", timer.getTime(MILLISECONDS));
+            asyncClient
+                    .target(endpoint)
+                    .path(JOURNALPOSTTILKNYTNING_PATH)
+                    .request(APPLICATION_JSON_TYPE)
+                    .async()
+                    .post(json(dto)).get(TIMEOUT, SECONDS);
+            LOG.info("Knyttet sak og journalpost OK");
         } catch (TimeoutException e) {
             LOG.warn("Timeout ved knytting sak og journalpost", e);
             throw new IntegrasjonException("F-999999", "Timeout", e);
         } catch (Exception e) {
-            LOG.warn("Feil ved knytting sak og journalpost", e);
-            throw new IntegrasjonException("F-42", "OOPS", e);
+            throw new IntegrasjonException("F-999999", e.getClass().getSimpleName(), e);
         }
     }
 
