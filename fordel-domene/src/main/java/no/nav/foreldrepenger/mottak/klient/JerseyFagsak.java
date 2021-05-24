@@ -72,7 +72,7 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
     @Override
     public void knyttSakOgJournalpost(JournalpostKnyttningDto dto) {
         LOG.info("Knytter sak og journalpost");
-        var f = client.register(new MDCAndTokenValidationContextAwareThreadPoolExecutorProvider(getClass().getSimpleName()))
+        var f = client.register(MDCAndTokenValidationContextAwareThreadPoolExecutorProvider.class)
                 .target(endpoint)
                 .path(JOURNALPOSTTILKNYTNING_PATH)
                 .request(APPLICATION_JSON_TYPE)

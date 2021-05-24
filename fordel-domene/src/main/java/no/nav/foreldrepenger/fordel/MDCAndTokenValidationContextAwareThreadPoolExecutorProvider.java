@@ -26,6 +26,10 @@ public class MDCAndTokenValidationContextAwareThreadPoolExecutorProvider extends
 
     private static final Logger LOG = LoggerFactory.getLogger(MDCAndTokenValidationContextAwareThreadPoolExecutorProvider.class);
 
+    public MDCAndTokenValidationContextAwareThreadPoolExecutorProvider() {
+        this(MDCAndTokenValidationContextAwareThreadPoolExecutorProvider.class.getSimpleName());
+    }
+
     public MDCAndTokenValidationContextAwareThreadPoolExecutorProvider(String name) {
         super(name);
         LOG.info("XXX Konstruert provider");
