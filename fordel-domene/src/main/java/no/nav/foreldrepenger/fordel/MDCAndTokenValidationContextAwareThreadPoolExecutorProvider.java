@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.fordel;
 
 import static no.nav.security.token.support.jaxrs.JaxrsTokenValidationContextHolder.getHolder;
 import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
+import static org.slf4j.MDC.getCopyOfContextMap;
 
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -33,13 +34,11 @@ public class MDCAndTokenValidationContextAwareThreadPoolExecutorProvider extends
 
     public MDCAndTokenValidationContextAwareThreadPoolExecutorProvider(String name) {
         super(name);
-        LOG.trace("XXX Konstruert provider");
     }
 
     @Override
     protected ThreadPoolExecutor createExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, BlockingQueue<Runnable> workQueue,
             ThreadFactory threadFactory, RejectedExecutionHandler handler) {
-        LOG.trace("XXX Returnerer executor");
         return new MDCAwareThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS, workQueue, threadFactory, handler);
     }
 
@@ -51,13 +50,11 @@ public class MDCAndTokenValidationContextAwareThreadPoolExecutorProvider extends
 
         @Override
         public void execute(Runnable task) {
-            LOG.trace("XXX eksekverer");
             super.execute(decorate(task));
         }
 
         static Runnable decorate(Runnable task) {
-            return new DecoratedRunnable(task, getSubjectHandler().getSubject(), getHolder().getTokenValidationContext(),
-                    MDC.getCopyOfContextMap());
+            return new DecoratedRunnable(task, getSubjectHandler().getSubject(), getHolder().getTokenValidationContext(), getCopyOfContextMap());
         }
     }
 
@@ -74,17 +71,13 @@ public class MDCAndTokenValidationContextAwareThreadPoolExecutorProvider extends
             this.subject = subject;
             this.ctx = ctx;
             this.mdc = mdc;
-            LOG.trace("XXX konstruert runnable");
         }
 
         @Override
         public void run() {
             propagate();
             try {
-                LOG.trace("XXX eksekverer runnable");
                 task.run();
-                LOG.trace("XXX eksekvert runnable OK");
-
             } finally {
                 cleanup();
             }
@@ -96,33 +89,25 @@ public class MDCAndTokenValidationContextAwareThreadPoolExecutorProvider extends
             propagateContextIfSet();
         }
 
-        private void cleanup() {
-            LOG.trace("XXX rydder opp i tråden");
-            JaxrsTokenValidationContextHolder.getHolder().setTokenValidationContext(null);
-            MDC.clear();
-            ThreadLocalSubjectHandler.class.cast(getSubjectHandler()).setSubject(null);
-            LOG.trace("XXX ryddet opp i tråden OK");
-        }
-
         private void propagateContextIfSet() {
             if (ctx != null && ctx.hasValidToken()) {
-                LOG.trace("XXX propagerer context");
+                LOG.trace("Propagerer context");
                 JaxrsTokenValidationContextHolder.getHolder().setTokenValidationContext(ctx);
             } else {
-                LOG.trace("XXX Ingen context å propagere");
+                LOG.trace("Ingen context å propagere");
             }
         }
 
         private void propagateSubjectIfSet() {
             try {
                 if (subject != null) {
-                    LOG.trace("XXX Propagerer subject fra subject handler");
+                    LOG.trace("Propagerer subject fra subject handler");
                     ThreadLocalSubjectHandler.class.cast(getSubjectHandler()).setSubject(subject);
                 } else {
-                    LOG.trace("XXX Intet subject å propagere");
+                    LOG.trace("Intet subject å propagere");
                 }
             } catch (Exception e) {
-                LOG.warn("XXX Feil ved propagering av subject", e);
+                LOG.warn("Feil ved propagering av subject", e);
 
             }
         }
@@ -130,11 +115,19 @@ public class MDCAndTokenValidationContextAwareThreadPoolExecutorProvider extends
         private void propagateMDCIfSet() {
             MDC.clear();
             if (mdc != null) {
-                LOG.trace("XXX setter MDC");
+                LOG.trace("Propagerer {} verdier fra MDC", mdc.size());
                 MDC.setContextMap(mdc);
             } else {
-                LOG.trace("XXX Ingen MDC å propagere");
+                LOG.trace("Ingen MDC å propagere");
             }
         }
+    }
+
+    private static void cleanup() {
+        LOG.trace("Rydder opp i tråden");
+        JaxrsTokenValidationContextHolder.getHolder().setTokenValidationContext(null);
+        MDC.clear();
+        ThreadLocalSubjectHandler.class.cast(getSubjectHandler()).setSubject(null);
+        LOG.trace("Ryddet opp i tråden OK");
     }
 }
