@@ -83,7 +83,7 @@ public class MDCAndTokenValidationContextAwareThreadPoolExecutorProvider extends
             var holder = JaxrsTokenValidationContextHolder.getHolder();
             setMDC(mdc);
             propagateSubjectIfSet();
-            if (ctx.hasValidToken()) {
+            if (ctx != null && ctx.hasValidToken()) {
                 propagateContext(holder);
             }
             try {
