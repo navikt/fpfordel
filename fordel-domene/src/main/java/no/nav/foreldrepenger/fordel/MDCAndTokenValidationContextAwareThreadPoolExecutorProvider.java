@@ -32,12 +32,12 @@ public class MDCAndTokenValidationContextAwareThreadPoolExecutorProvider extends
         this(MDCAndTokenValidationContextAwareThreadPoolExecutorProvider.class.getSimpleName());
     }
 
-    public MDCAndTokenValidationContextAwareThreadPoolExecutorProvider(String name) {
+    private MDCAndTokenValidationContextAwareThreadPoolExecutorProvider(String name) {
         super(name);
     }
 
     @Override
-    protected ThreadPoolExecutor createExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, BlockingQueue<Runnable> workQueue,
+    public ThreadPoolExecutor createExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, BlockingQueue<Runnable> workQueue,
             ThreadFactory threadFactory, RejectedExecutionHandler handler) {
         return new MDCAwareThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS, workQueue, threadFactory, handler);
     }
