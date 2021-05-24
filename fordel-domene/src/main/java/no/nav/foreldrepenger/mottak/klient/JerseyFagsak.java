@@ -6,7 +6,6 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.net.URI;
 import java.util.Optional;
-import java.util.concurrent.TimeoutException;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -85,10 +84,8 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
                     .async()
                     .post(json(dto)).get(TIMEOUT, SECONDS);
             LOG.info("Knyttet sak og journalpost OK");
-        } catch (TimeoutException e) {
-            LOG.warn("Timeout ved knytting sak og journalpost", e);
-            throw new IntegrasjonException("F-999999", "Timeout", e);
         } catch (Exception e) {
+            LOG.warn("feil ved knytting sak og journalpost", e);
             throw new IntegrasjonException("F-999999", e.getClass().getSimpleName(), e);
         }
     }
