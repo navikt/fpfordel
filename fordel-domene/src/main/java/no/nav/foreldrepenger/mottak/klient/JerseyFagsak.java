@@ -92,7 +92,7 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
 
                         @Override
                         public void failed(Throwable t) {
-                            LOG.warn("feil ved knytting sak og journalpost", t);
+                            LOG.warn("Feil ved knytting sak og journalpost", t);
                         }
                     }).get(TIMEOUT, SECONDS);
         } catch (Exception e) {
