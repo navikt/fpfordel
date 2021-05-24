@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.mottak.klient;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static javax.ws.rs.client.Entity.json;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
@@ -92,7 +93,7 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
             timer.start();
             f.get(timeout, SECONDS);
             timer.stop();
-            LOG.info("Knyttet sak og journalpost OK etter {}s", timer.getTime(SECONDS));
+            LOG.info("Knyttet sak og journalpost OK etter {}ms", timer.getTime(MILLISECONDS));
         } catch (TimeoutException e) {
             LOG.warn("Timeout ved knytting sak og journalpost", e);
             throw new IntegrasjonException("F-999999", "Timeout", e);
