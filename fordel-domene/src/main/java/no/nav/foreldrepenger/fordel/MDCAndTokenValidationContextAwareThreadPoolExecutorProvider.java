@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.fordel.web.app;
+package no.nav.foreldrepenger.fordel;
 
 import static no.nav.security.token.support.jaxrs.JaxrsTokenValidationContextHolder.getHolder;
 import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;

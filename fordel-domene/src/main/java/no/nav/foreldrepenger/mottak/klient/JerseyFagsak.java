@@ -5,6 +5,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.net.URI;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -12,6 +13,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.fordel.MDCAndTokenValidationContextAwareThreadPoolExecutorProvider;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -23,6 +25,7 @@ import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
+import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 
 @Dependent
@@ -69,12 +72,20 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
     @Override
     public void knyttSakOgJournalpost(JournalpostKnyttningDto dto) {
         LOG.info("Knytter sak og journalpost");
-        client.target(endpoint)
+        var f = client.register(new MDCAndTokenValidationContextAwareThreadPoolExecutorProvider(getClass().getSimpleName()))
+                .target(endpoint)
                 .path(JOURNALPOSTTILKNYTNING_PATH)
                 .request(APPLICATION_JSON_TYPE)
-                .buildPost(json(dto))
-                .invoke();
-        LOG.info("Knyttet sak og journalpost OK");
+                .async()
+                .post(json(dto));
+
+        try {
+            f.get(60, TimeUnit.SECONDS);
+            LOG.info("Knyttet sak og journalpost OK");
+        } catch (Exception e) {
+            LOG.info("Feil ved knyttet sak og journalpost", e);
+            throw new IntegrasjonException("F-42", "OOPS", e);
+        }
     }
 
     @Override
