@@ -96,6 +96,7 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
                         }
                     }).get(TIMEOUT, SECONDS);
         } catch (Exception e) {
+            LOG.warn("Kaster exception ved feil av knytting sak og journalpost", e);
             throw new IntegrasjonException("F-999999", e.getClass().getSimpleName(), e);
         }
     }
