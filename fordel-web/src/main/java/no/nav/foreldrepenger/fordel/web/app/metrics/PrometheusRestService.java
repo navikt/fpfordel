@@ -9,7 +9,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
-import io.prometheus.client.hotspot.DefaultExports;
+import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
+import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import io.swagger.v3.oas.annotations.Operation;
 
 @Path("/metrics")
@@ -17,7 +21,11 @@ import io.swagger.v3.oas.annotations.Operation;
 public class PrometheusRestService {
 
     static {
-        DefaultExports.initialize();
+        new ClassLoaderMetrics().bindTo(REGISTRY);
+        new JvmMemoryMetrics().bindTo(REGISTRY);
+        new JvmGcMetrics().bindTo(REGISTRY);
+        new ProcessorMetrics().bindTo(REGISTRY);
+        new JvmThreadMetrics().bindTo(REGISTRY);
     }
 
     @GET
