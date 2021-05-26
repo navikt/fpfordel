@@ -38,8 +38,10 @@ public class PrometheusRestService {
                 .entity(globalRegistry.getRegistries()
                         .stream()
                         .filter(PrometheusMeterRegistry.class::isInstance)
+                        .findFirst()
                         .map(PrometheusMeterRegistry.class::cast)
-                        .map(PrometheusMeterRegistry::scrape))
+                        .map(PrometheusMeterRegistry::scrape)
+                        .orElseThrow())
                 .build();
 
     }
