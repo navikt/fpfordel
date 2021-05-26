@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.fordel.web.app.metrics;
 
+import static io.micrometer.core.instrument.Metrics.globalRegistry;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
-import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.REGISTRY;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.GET;
@@ -14,6 +14,7 @@ import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 import io.swagger.v3.oas.annotations.Operation;
 
 @Path("/metrics")
@@ -21,11 +22,11 @@ import io.swagger.v3.oas.annotations.Operation;
 public class PrometheusRestService {
 
     static {
-        new ClassLoaderMetrics().bindTo(REGISTRY);
-        new JvmMemoryMetrics().bindTo(REGISTRY);
-        new JvmGcMetrics().bindTo(REGISTRY);
-        new ProcessorMetrics().bindTo(REGISTRY);
-        new JvmThreadMetrics().bindTo(REGISTRY);
+        new ClassLoaderMetrics().bindTo(globalRegistry);
+        new JvmMemoryMetrics().bindTo(globalRegistry);
+        new JvmGcMetrics().bindTo(globalRegistry);
+        new ProcessorMetrics().bindTo(globalRegistry);
+        new JvmThreadMetrics().bindTo(globalRegistry);
     }
 
     @GET
@@ -33,8 +34,12 @@ public class PrometheusRestService {
     @Path("/prometheus")
     @Produces(TEXT_PLAIN)
     public Response prometheus() {
-        return Response.ok().encoding("UTF-8")
-                .entity(REGISTRY.scrape())
+        return Response.ok()
+                .entity(globalRegistry.getRegistries()
+                        .stream()
+                        .filter(PrometheusMeterRegistry.class::isInstance)
+                        .map(PrometheusMeterRegistry.class::cast)
+                        .map(PrometheusMeterRegistry::scrape))
                 .build();
 
     }
