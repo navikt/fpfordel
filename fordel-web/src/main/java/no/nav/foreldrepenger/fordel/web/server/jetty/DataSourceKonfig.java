@@ -7,7 +7,6 @@ import javax.sql.DataSource;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import com.zaxxer.hikari.metrics.prometheus.PrometheusMetricsTrackerFactory;
 
 import io.micrometer.core.instrument.Metrics;
 import no.nav.foreldrepenger.konfig.Environment;
@@ -31,7 +30,6 @@ class DataSourceKonfig {
         config.setUsername(ENV.getProperty(dataSourceName + ".username"));
         config.setPassword(ENV.getProperty(dataSourceName + ".password"));
         config.setMetricRegistry(Metrics.globalRegistry);
-        config.setMetricsTrackerFactory(new PrometheusMetricsTrackerFactory());
         config.setConnectionTimeout(1000);
         config.setMinimumIdle(5);
         config.setMaximumPoolSize(30);
