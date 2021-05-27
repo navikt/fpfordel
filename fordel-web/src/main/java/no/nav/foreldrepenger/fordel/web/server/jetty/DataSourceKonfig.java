@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.fordel.web.server.jetty;
 
+import static io.micrometer.core.instrument.Metrics.globalRegistry;
+
 import java.util.List;
 import java.util.Properties;
 
@@ -8,7 +10,6 @@ import javax.sql.DataSource;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-import io.micrometer.core.instrument.Metrics;
 import no.nav.foreldrepenger.konfig.Environment;
 
 class DataSourceKonfig {
@@ -29,7 +30,7 @@ class DataSourceKonfig {
         config.setJdbcUrl(ENV.getProperty(dataSourceName + ".url"));
         config.setUsername(ENV.getProperty(dataSourceName + ".username"));
         config.setPassword(ENV.getProperty(dataSourceName + ".password"));
-        config.setMetricRegistry(Metrics.globalRegistry);
+        config.setMetricRegistry(globalRegistry);
         config.setConnectionTimeout(1000);
         config.setMinimumIdle(5);
         config.setMaximumPoolSize(30);
