@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.fordel.web.app.tjenester;
 
+import static java.util.concurrent.CompletableFuture.runAsync;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
@@ -13,7 +14,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.prometheus.client.hotspot.DefaultExports;
 import no.nav.vedtak.apptjeneste.AppServiceHandler;
 
 @ApplicationScoped
@@ -23,7 +23,6 @@ public class ApplicationServiceStarter {
     private List<AppServiceHandler> handlers;
 
     ApplicationServiceStarter() {
-        // CDI
     }
 
     @Inject
@@ -40,23 +39,24 @@ public class ApplicationServiceStarter {
     }
 
     public void startServices() {
-        DefaultExports.initialize();
-        handlers.forEach(h -> {
-            LOGGER.info("Starter service: {}", h.getClass().getSimpleName());
-            h.start();
-        });
+        LOGGER.info("Starter {} services", handlers.size());
+        CompletableFuture.allOf(handlers.stream()
+                .map(h -> {
+                    return runAsync(() -> h.start());
+                }).toArray(size -> new CompletableFuture[size])).join();
+        LOGGER.info("Startet  {} services", handlers.size());
     }
 
     public void stopServices() {
         LOGGER.info("Stopper {} services", handlers.size());
-        var appHandlers = handlers.stream()
-                .map(h -> CompletableFuture.runAsync(() -> {
-                    LOGGER.info("Stopper service {}", h.getClass().getSimpleName());
-                    h.stop();
-                })).collect(toList());
-
-        CompletableFuture.allOf(appHandlers.toArray(new CompletableFuture[appHandlers.size()])).join();
+        CompletableFuture.allOf(handlers.stream()
+                .map(h -> runAsync(() -> h.stop())).toArray(size -> new CompletableFuture[size])).join();
         LOGGER.info("Stoppet {} services", handlers.size());
-
     }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [handlers=" + handlers + "]";
+    }
+
 }
