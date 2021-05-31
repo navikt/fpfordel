@@ -38,7 +38,7 @@ public class ApplicationConfig extends Application {
                             .openAPI(new OpenAPI().info(new Info()
                                     .title("Vedtaksløsningen - Fordeling")
                                     .version("1.0")
-                                    .description("REST grensesnitt for fordeling."))
+                                    .description("REST grensesnitt for fordeling"))
                                     .addServersItem(new Server()
                                             .url("/fpfordel")))
                             .prettyPrint(true)
