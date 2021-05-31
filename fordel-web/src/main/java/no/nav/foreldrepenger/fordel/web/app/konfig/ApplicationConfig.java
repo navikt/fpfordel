@@ -32,25 +32,19 @@ public class ApplicationConfig extends Application {
 
     public ApplicationConfig() {
 
-        OpenAPI oas = new OpenAPI();
-        Info info = new Info()
-                .title("Vedtaksløsningen - Fordeling")
-                .version("1.0")
-                .description("REST grensesnitt for fordeling.");
-
-        oas.info(info)
-                .addServersItem(new Server()
-                        .url("/fpfordel"));
-        SwaggerConfiguration oasConfig = new SwaggerConfiguration()
-                .openAPI(oas)
-                .prettyPrint(true)
-                .scannerClass("io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner")
-                .resourcePackages(Stream.of("no.nav")
-                        .collect(Collectors.toSet()));
-
         try {
             new GenericOpenApiContextBuilder<>()
-                    .openApiConfiguration(oasConfig)
+                    .openApiConfiguration(new SwaggerConfiguration()
+                            .openAPI(new OpenAPI().info(new Info()
+                                    .title("Vedtaksløsningen - Fordeling")
+                                    .version("1.0")
+                                    .description("REST grensesnitt for fordeling."))
+                                    .addServersItem(new Server()
+                                            .url("/fpfordel")))
+                            .prettyPrint(true)
+                            .scannerClass("io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner")
+                            .resourcePackages(Stream.of("no.nav")
+                                    .collect(Collectors.toSet())))
                     .buildContext(true)
                     .read();
         } catch (OpenApiConfigurationException e) {
@@ -73,6 +67,5 @@ public class ApplicationConfig extends Application {
                 JsonParseExceptionMapper.class,
                 GeneralRestExceptionMapper.class,
                 JacksonJsonConfig.class);
-
     }
 }
