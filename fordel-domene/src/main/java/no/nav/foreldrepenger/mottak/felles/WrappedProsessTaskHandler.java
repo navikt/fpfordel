@@ -10,7 +10,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler, Conditions {
     private static final String TYPE = "type";
-    private static final String FORDEL_TASK = "fordel.task";
+    private static final String FORDEL_TASK_COUNT = "fordel.task,count";
+    private static final String FORDEL_TASK_TIME = "fordel.task.time";
 
     protected abstract MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper w);
 
@@ -30,9 +31,9 @@ public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler, C
         var w = new MottakMeldingDataWrapper(data);
         precondition(w);
 
-        Metrics.counter(FORDEL_TASK, TYPE, data.getTaskType()).increment();
+        Metrics.counter(FORDEL_TASK_COUNT, TYPE, data.getTaskType()).increment();
         try {
-            var neste = Metrics.timer(FORDEL_TASK, TYPE, data.getTaskType()).recordCallable(() -> doTask(w));
+            var neste = Metrics.timer(FORDEL_TASK_TIME, TYPE, data.getTaskType()).recordCallable(() -> doTask(w));
             if (neste != null) {
                 postcondition(neste);
                 var taskdata = neste.getProsessTaskData();
