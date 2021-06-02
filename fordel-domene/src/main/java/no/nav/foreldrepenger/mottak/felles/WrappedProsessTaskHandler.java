@@ -25,7 +25,7 @@ public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler, C
         ensureCallId();
         var w = new MottakMeldingDataWrapper(data);
         precondition(w);
-        Metrics.counter("fordel.task", "id", data.getTaskType()).increment();
+        Metrics.counter("fordel.task", "type", data.getTaskType()).increment();
         var neste = doTask(w);
         if (neste != null) {
             postcondition(neste);
