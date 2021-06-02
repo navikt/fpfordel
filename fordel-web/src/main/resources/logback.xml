@@ -46,6 +46,7 @@
         </syslogConfig>
     </appender>
 	<logger name="no.nav" level="${log.level.no.nav:-INFO}" />
+    <logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="WARN"/>
 	<logger name="auditLogger" level="INFO" additivity="false">
 		<appender-ref ref="auditLogger" />
 	</logger>
