@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.mottak.felles;
 
 import static no.nav.vedtak.log.mdc.MDCOperations.ensureCallId;
 
+import io.micrometer.core.instrument.Metrics;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -24,6 +25,7 @@ public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler, C
         ensureCallId();
         var w = new MottakMeldingDataWrapper(data);
         precondition(w);
+        Metrics.counter("fordel.task", "id", data.getTaskType()).increment();
         var neste = doTask(w);
         if (neste != null) {
             postcondition(neste);
