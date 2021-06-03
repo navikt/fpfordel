@@ -7,7 +7,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -19,9 +18,7 @@ public class PrometheusRestService {
     @Operation(tags = "metrics", hidden = true)
     @Path("/prometheus")
     @Produces(TEXT_PLAIN)
-    public Response prometheus() {
-        return Response.ok()
-                .entity(REGISTRY.scrape())
-                .build();
+    public String prometheus() {
+        return REGISTRY.scrape();
     }
 }
