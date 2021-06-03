@@ -10,7 +10,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler, Conditions {
     private static final String TYPE = "type";
-    private static final String FORDEL_TASK_TIME = "tasks";
+    private static final String FORDEL_TASK_TIME = "tasks1";
 
     protected abstract MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper w);
 
