@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.ExceptionTranslatingInvoker;
 
 @Dependent
 public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak {
@@ -39,10 +40,9 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
     private static final String FAGSAKINFORMASJON_PATH = "/fpsak/api/fordel/fagsak/informasjon";
     private static final String FAGSAK_OPPRETT_PATH = "/fpsak/api/fordel/fagsak/opprett";
     private static final String VURDER_FAGSYSTEM_PATH = "/fpsak/api/fordel/vurderFagsystem";
-
+    private static final ExceptionTranslatingInvoker INVOKER = new ExceptionTranslatingInvoker();
     private static final Logger LOG = LoggerFactory.getLogger(JerseyFagsak.class);
     private static final int TIMEOUT = ENV.getProperty(TIMEOUT_KEY, int.class, DEFAULT_TIMEOUT);
-
     private final URI endpoint;
 
     @Inject
@@ -139,13 +139,13 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
             w.getFørsteUttaksdag().ifPresent(dto::setStartDatoForeldrepengerInntektsmelding);
         }
         LOG.info("Vurderer resultat");
-        var res = client.target(endpoint)
+        var i = client.target(endpoint)
                 .path(VURDER_FAGSYSTEM_PATH)
                 .request(APPLICATION_JSON_TYPE)
-                .buildPost(json(dto))
-                .invoke(BehandlendeFagsystemDto.class);
+                .buildPost(json(dto));
+        var res = new VurderFagsystemResultat(INVOKER.invoke(i, BehandlendeFagsystemDto.class));
         LOG.info("Vurderert resultat OK");
-        return new VurderFagsystemResultat(res);
+        return res;
     }
 
     @Override
