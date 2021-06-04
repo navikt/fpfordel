@@ -139,11 +139,10 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
             w.getFørsteUttaksdag().ifPresent(dto::setStartDatoForeldrepengerInntektsmelding);
         }
         LOG.info("Vurderer resultat");
-        var i = client.target(endpoint)
+        var res = new VurderFagsystemResultat(INVOKER.invoke(client.target(endpoint)
                 .path(VURDER_FAGSYSTEM_PATH)
                 .request(APPLICATION_JSON_TYPE)
-                .buildPost(json(dto));
-        var res = new VurderFagsystemResultat(INVOKER.invoke(i, BehandlendeFagsystemDto.class));
+                .buildPost(json(dto)), BehandlendeFagsystemDto.class));
         LOG.info("Vurderert resultat OK");
         return res;
     }
