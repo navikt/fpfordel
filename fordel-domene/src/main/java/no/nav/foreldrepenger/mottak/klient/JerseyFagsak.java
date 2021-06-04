@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.ExceptionTranslatingInvoker;
 
 @Dependent
 public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak {
@@ -40,7 +39,6 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
     private static final String FAGSAKINFORMASJON_PATH = "/fpsak/api/fordel/fagsak/informasjon";
     private static final String FAGSAK_OPPRETT_PATH = "/fpsak/api/fordel/fagsak/opprett";
     private static final String VURDER_FAGSYSTEM_PATH = "/fpsak/api/fordel/vurderFagsystem";
-    private static final ExceptionTranslatingInvoker INVOKER = new ExceptionTranslatingInvoker();
     private static final Logger LOG = LoggerFactory.getLogger(JerseyFagsak.class);
     private static final int TIMEOUT = ENV.getProperty(TIMEOUT_KEY, int.class, DEFAULT_TIMEOUT);
     private final URI endpoint;
@@ -53,11 +51,10 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
     @Override
     public Optional<FagsakInfomasjonDto> finnFagsakInfomasjon(SaksnummerDto saksnummerDto) {
         LOG.info("Finner fagsakinformasjon");
-        var info = client.target(endpoint)
+        var info = invoker.invoke(client.target(endpoint)
                 .path(FAGSAKINFORMASJON_PATH)
                 .request(APPLICATION_JSON_TYPE)
-                .buildPost(json(saksnummerDto))
-                .invoke(FagsakInfomasjonDto.class);
+                .buildPost(json(saksnummerDto)), FagsakInfomasjonDto.class);
         LOG.info("Fant fagsakinformasjon OK");
         return Optional.ofNullable(info);
     }
@@ -65,11 +62,10 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
     @Override
     public SaksnummerDto opprettSak(OpprettSakDto opprettSakDto) {
         LOG.info("Oppretter sak");
-        var sak = client.target(endpoint)
+        var sak = invoker.invoke(client.target(endpoint)
                 .path(FAGSAK_OPPRETT_PATH)
                 .request(APPLICATION_JSON_TYPE)
-                .buildPost(json(opprettSakDto))
-                .invoke(SaksnummerDto.class);
+                .buildPost(json(opprettSakDto)), SaksnummerDto.class);
         LOG.info("Opprettet sak OK");
         return sak;
     }
@@ -139,7 +135,8 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
             w.getFørsteUttaksdag().ifPresent(dto::setStartDatoForeldrepengerInntektsmelding);
         }
         LOG.info("Vurderer resultat");
-        var res = new VurderFagsystemResultat(INVOKER.invoke(client.target(endpoint)
+
+        var res = new VurderFagsystemResultat(invoker.invoke(client.target(endpoint)
                 .path(VURDER_FAGSYSTEM_PATH)
                 .request(APPLICATION_JSON_TYPE)
                 .buildPost(json(dto)), BehandlendeFagsystemDto.class));

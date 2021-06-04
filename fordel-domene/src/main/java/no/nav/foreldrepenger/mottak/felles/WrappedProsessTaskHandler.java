@@ -23,7 +23,7 @@ public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler, C
                 if (id.getName().startsWith("task")) {
                     return DistributionStatisticConfig.builder()
                             .percentilesHistogram(true)
-                            .percentiles(0.5, 0.95).build().merge(config);
+                            .percentiles(0.5, 0.95, 0.99).build().merge(config);
                 }
                 return config;
             }
