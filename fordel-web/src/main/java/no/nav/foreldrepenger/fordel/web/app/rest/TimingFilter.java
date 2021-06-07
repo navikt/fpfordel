@@ -15,6 +15,8 @@ import javax.ws.rs.ext.Provider;
 @Provider
 public class TimingFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
+    private static final String STATUS = "status";
+    private static final String PATH = "path";
     private static final String METRIC_NAME = "rest";
     private static final ThreadLocalTimer TIMER = new ThreadLocalTimer();
 
@@ -24,7 +26,7 @@ public class TimingFilter implements ContainerRequestFilter, ContainerResponseFi
 
     @Override
     public void filter(ContainerRequestContext req, ContainerResponseContext res) throws IOException {
-        timer(METRIC_NAME, "path", req.getUriInfo().getPath()).record(Duration.ofMillis(TIMER.stop()));
+        timer(METRIC_NAME, PATH, req.getUriInfo().getPath(), STATUS, String.valueOf(res.getStatus())).record(Duration.ofMillis(TIMER.stop()));
     }
 
     @Override
