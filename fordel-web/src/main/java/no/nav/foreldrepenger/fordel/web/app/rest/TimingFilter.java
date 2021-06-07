@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.fordel.web.app.rest;
 
 import java.io.IOException;
+import java.time.Duration;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -11,6 +12,8 @@ import javax.ws.rs.ext.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.micrometer.core.instrument.Metrics;
+
 @Provider
 public class TimingFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
@@ -20,7 +23,7 @@ public class TimingFilter implements ContainerRequestFilter, ContainerResponseFi
     @Override
     public void filter(ContainerRequestContext req, ContainerResponseContext res) throws IOException {
         var stop = TIMER.stop();
-
+        Metrics.timer(req.getUriInfo().getPath()).record(Duration.ofMillis(stop));
         LOG.info("Eksekvering {} tok {}ms", req.getUriInfo().getPath(), stop);
     }
 
