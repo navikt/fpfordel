@@ -1,16 +1,11 @@
 package no.nav.foreldrepenger.fordel.web.app.rest;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
-import javax.ws.rs.container.ResourceInfo;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Provider;
 
 import org.slf4j.Logger;
@@ -19,29 +14,18 @@ import org.slf4j.LoggerFactory;
 @Provider
 public class TimingFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
-    @Context
-    private ResourceInfo resourceInfo;
     private static final Logger LOG = LoggerFactory.getLogger(TimingFilter.class);
     private static final ThreadLocalTimer TIMER = new ThreadLocalTimer();
 
     @Override
     public void filter(ContainerRequestContext req, ContainerResponseContext res) throws IOException {
         var stop = TIMER.stop();
-        LOG.info("Eksekvering {} tok {}ms", templatedURI(req.getUriInfo()), stop);
+        LOG.info("Eksekvering tok {}ms", stop);
     }
 
     @Override
     public void filter(ContainerRequestContext req) throws IOException {
         TIMER.start();
-    }
-
-    private String templatedURI(UriInfo uriInfo) {
-        Class<?> resourceClass = resourceInfo.getResourceClass();
-        Method resourceMethod = resourceInfo.getResourceMethod();
-        return UriBuilder.fromUri(uriInfo.getBaseUri())
-                .path(resourceClass)
-                .path(resourceMethod).toTemplate();
-
     }
 
     private static class ThreadLocalTimer extends ThreadLocal<Long> {
