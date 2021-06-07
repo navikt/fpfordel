@@ -6,10 +6,12 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
+import javax.ws.rs.ext.Provider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Provider
 public class TimingFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(TimingFilter.class);
@@ -17,8 +19,8 @@ public class TimingFilter implements ContainerRequestFilter, ContainerResponseFi
 
     @Override
     public void filter(ContainerRequestContext req, ContainerResponseContext res) throws IOException {
-        TIMER.stop();
-        LOG.info("Eksekvering {} tok {}ms", req.getUriInfo().getMatchedURIs(), TIMER.get());
+        var stop = TIMER.stop();
+        LOG.info("Eksekvering {} tok {}ms", req.getUriInfo().getMatchedURIs(), stop);
     }
 
     @Override
@@ -26,4 +28,18 @@ public class TimingFilter implements ContainerRequestFilter, ContainerResponseFi
         TIMER.start();
     }
 
+    private static class ThreadLocalTimer extends ThreadLocal<Long> {
+        public void start() {
+            this.set(System.currentTimeMillis());
+        }
+
+        public long stop() {
+            return System.currentTimeMillis() - get();
+        }
+
+        @Override
+        protected Long initialValue() {
+            return System.currentTimeMillis();
+        }
+    }
 }
