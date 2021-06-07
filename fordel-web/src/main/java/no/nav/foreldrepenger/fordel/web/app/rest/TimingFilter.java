@@ -21,7 +21,7 @@ public class TimingFilter implements ContainerRequestFilter, ContainerResponseFi
     public void filter(ContainerRequestContext req, ContainerResponseContext res) throws IOException {
         var stop = TIMER.stop();
 
-        LOG.info("Eksekvering {} tok {}ms", req.getUriInfo().getRequestUri(), stop);
+        LOG.info("Eksekvering {} tok {}ms", req.getUriInfo().getPath(), stop);
     }
 
     @Override
