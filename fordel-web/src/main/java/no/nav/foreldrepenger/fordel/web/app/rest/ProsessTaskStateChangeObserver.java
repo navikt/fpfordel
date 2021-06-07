@@ -1,19 +1,22 @@
 package no.nav.foreldrepenger.fordel.web.app.rest;
 
+import static io.micrometer.core.instrument.Metrics.counter;
+import static no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus.FEILET;
+import static no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus.FERDIG;
+import static no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus.KJOERT;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskEvent;
 
 @ApplicationScoped
-public class ProsessTaskObserver {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ProsessTaskObserver.class);
+public class ProsessTaskStateChangeObserver {
 
     public void observerProssestask(@Observes ProsessTaskEvent event) {
-        LOG.info("{} observert transisjon {}->{} ", event.getTaskType(), event.getGammelStatus(), event.getNyStatus());
+        var nyStatus = event.getNyStatus();
+        if (FEILET.equals(nyStatus) || KJOERT.equals(nyStatus) || FERDIG.equals(FERDIG)) {
+            counter("task_transitions", "type", event.getTaskType(), "status", nyStatus.getDbKode()).increment();
+        }
     }
 }
