@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.fordel.web.app.exceptions.JsonParseExceptionMapper;
 import no.nav.foreldrepenger.fordel.web.app.forvaltning.ForvaltningRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste;
+import no.nav.foreldrepenger.fordel.web.app.rest.TimingFilter;
 import no.nav.foreldrepenger.fordel.web.app.tjenester.WhitelistingJwtTokenContainerRequestFilter;
 import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
 
@@ -62,6 +63,7 @@ public class ApplicationConfig extends Application {
                 ForvaltningRestTjeneste.class,
                 SwaggerSerializers.class,
                 OpenApiResource.class,
+                TimingFilter.class,
                 ConstraintViolationMapper.class,
                 JsonMappingExceptionMapper.class,
                 JsonParseExceptionMapper.class,
