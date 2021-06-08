@@ -47,6 +47,10 @@ public class AbstractCachingPersonTjeneste implements PersonInformasjon {
     protected final LoadingCache<String, String> tilAktør;
     protected final Pdl pdl;
 
+    AbstractCachingPersonTjeneste(Pdl pdl) {
+        this(pdl, cache(tilFnr(pdl)), cache(tilAktørId(pdl)));
+    }
+
     AbstractCachingPersonTjeneste(Pdl pdl, LoadingCache<String, String> tilFnr, LoadingCache<String, String> tilAktør) {
         this.pdl = pdl;
         this.tilFnr = tilFnr;

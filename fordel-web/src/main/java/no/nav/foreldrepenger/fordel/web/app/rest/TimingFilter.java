@@ -6,6 +6,8 @@ import static no.nav.vedtak.log.metrics.MetricsUtil.utvidMedHistogram;
 import java.io.IOException;
 import java.time.Duration;
 
+import javax.annotation.Priority;
+import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
@@ -13,6 +15,7 @@ import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.ext.Provider;
 
 @Provider
+@Priority(Priorities.USER)
 public class TimingFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
     private static final String STATUS = "status";
