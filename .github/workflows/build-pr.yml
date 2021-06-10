@@ -1,7 +1,7 @@
 name: Build PR or branch
 
 on:
-  pull_request_target:
+  pull_request:
     paths-ignore:
       - '**.md'
       - '**.MD'
