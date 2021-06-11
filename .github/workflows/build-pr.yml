@@ -32,10 +32,12 @@ jobs:
           distribution: 'adopt'
           java-version: 16
 
-      - name: Log into ghcr registry
-        # GITHUB_TOKEN fungere ikke for PR enda... https://github.community/t/cant-authenticate-with-actions-token-for-pr-event/170752
-        # run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login --username "x-access-token" --password-stdin ghcr.io
-        run: echo "${{ secrets.NOTIFICATION }}" | docker login --username "x-access-token" --password-stdin ghcr.io
+      - name: Login to GitHub Packages Docker Registry
+        uses: docker/login-action@31f1bb4610792058145ecedb9770b0145e118a96 # Use commit-sha1 instead of tag for security concerns
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Hent og start Oracle image
         id: oracle
