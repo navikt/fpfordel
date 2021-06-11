@@ -20,12 +20,12 @@ jobs:
         uses: actions/checkout@v2
       - run:  git fetch --prune --unshallow
 
-      - name: Cache maven repository
-        uses: actions/cache@v2.1.6
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
+#       - name: Cache maven repository
+#         uses: actions/cache@v2.1.6
+#         with:
+#           path: ~/.m2/repository
+#           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+#           restore-keys: ${{ runner.os }}-maven-
 
       - uses: actions/setup-java@v2
         with:
@@ -52,4 +52,4 @@ jobs:
             mvn package --quiet --batch-mode --settings .github/workflows/.m2/settings.xml
         env:
           GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.NOTIFICATION }} # Må ha denne for å hente artifakter fra andre repo i NAV.
+          GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }} # Må ha denne for å hente artifakter fra andre repo i NAV.
