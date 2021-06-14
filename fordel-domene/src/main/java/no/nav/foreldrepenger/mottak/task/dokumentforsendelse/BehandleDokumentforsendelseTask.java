@@ -28,6 +28,7 @@ import static no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Fors
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -176,17 +177,15 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     private Destinasjon getDestinasjonOppdaterWrapper(MottakMeldingDataWrapper w, Optional<Dokument> hovedDokument, DokumentMetadata metadata) {
         if (metadata.getSaksnummer().isPresent()) {
             var saksnr = metadata.getSaksnummer().get(); // NOSONAR
-            var fagInfo = fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnr));
-            if (fagInfo.isPresent()) {
-                setFellesWrapperAttributterFraFagsak(w, fagInfo.get(), hovedDokument);
-                return new Destinasjon(FPSAK, saksnr);
+            var fagsakInfoOpt = fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnr))
+                    .filter(f -> erGyldigSaksnummer(w, saksnr, f, hovedDokument));
+            if (fagsakInfoOpt.isEmpty()) {
+                w.setSaksnummer(null); // Sendt inn på infotrygd-sak
             }
             if (hovedDokument.isEmpty()) {
-                settDokumentTypeKategoriKorrigerSVP(w);
+                fagsakInfoOpt.ifPresent(f -> w.setBehandlingTema(fraOffisiellKode(f.getBehandlingstemaOffisiellKode())));
             }
-            w.setSaksnummer(null); // Sendt inn på infotrygd-sak
-            return Destinasjon.GOSYS;
-
+            return fagsakInfoOpt.isPresent() ? new Destinasjon(FPSAK, saksnr) : Destinasjon.GOSYS;
         }
         return ruter.bestemDestinasjon(w);
     }
@@ -268,39 +267,30 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         if (!w.getHarTema()) {
             w.setTema(FORELDRE_OG_SVANGERSKAPSPENGER);
         }
-        if (metadata != null) {
-            w.setAktørId(metadata.getBrukerId());
-            metadata.getArkivId().ifPresent(w::setArkivId);
-            metadata.getSaksnummer().ifPresent(w::setSaksnummer);
-        }
+        w.setAktørId(metadata.getBrukerId());
+        metadata.getArkivId().ifPresent(w::setArkivId);
+        metadata.getSaksnummer().ifPresent(w::setSaksnummer);
         if (dokument != null) {
             w.setDokumentTypeId(dokument.getDokumentTypeId());
             w.setDokumentKategori(utledKategoriFraDokumentType(dokument.getDokumentTypeId()));
             w.setPayload(dokument.getKlartekstDokument());
             kopierOgValiderAttributterFraSøknad(w, dokument);
+        } else {
+            settDokumentTypeKategoriKorrigerSVP(w);
         }
         if (w.getForsendelseMottattTidspunkt().isEmpty()) {
             w.setForsendelseMottattTidspunkt(LocalDateTime.now());
         }
     }
 
-    private void setFellesWrapperAttributterFraFagsak(MottakMeldingDataWrapper w,
-            FagsakInfomasjonDto fagsakInfo, Optional<Dokument> dokumentInput) {
-        var behandlingTemaFraSak = fraOffisiellKode(fagsakInfo.getBehandlingstemaOffisiellKode());
-
-        if (dokumentInput.isPresent()) {
-            var dokument = dokumentInput.get();
-            if (!fagsakInfo.getAktørId().equals(w.getAktørId().orElse(null))) {
-                throw new TekniskException("FP-758390", "Søkers ID samsvarer ikke med søkers ID i eksisterende sak");
-            }
-            sjekkForMismatchMellomFagsakOgDokumentInn(w.getBehandlingTema(), behandlingTemaFraSak, dokument);
-        } else {
-            // Vedlegg - mangler hoveddokument
-            settDokumentTypeKategoriKorrigerSVP(w);
-            w.setAktørId(fagsakInfo.getAktørId());
-            w.setBehandlingTema(behandlingTemaFraSak);
-            w.setForsendelseMottattTidspunkt(LocalDateTime.now());
+    private boolean erGyldigSaksnummer(MottakMeldingDataWrapper w, String saksnummer, FagsakInfomasjonDto fagsakInfo, Optional<Dokument> hovedDokument) {
+        if (!Objects.equals(fagsakInfo.getAktørId(), w.getAktørId().orElse(null))) {
+            LOG.warn("Søkers ID samsvarer ikke med søkers ID i eksisterende sak {}", saksnummer);
+            return false;
         }
+        var behandlingTemaFraSak = fraOffisiellKode(fagsakInfo.getBehandlingstemaOffisiellKode());
+        hovedDokument.ifPresent(h -> sjekkForMismatchMellomFagsakOgDokumentInn(w.getBehandlingTema(), behandlingTemaFraSak, h));
+        return true;
     }
 
     // TODO: Endre når TFP-4125 er fikset i søknadSvangerskapspenger. Nå kommer
