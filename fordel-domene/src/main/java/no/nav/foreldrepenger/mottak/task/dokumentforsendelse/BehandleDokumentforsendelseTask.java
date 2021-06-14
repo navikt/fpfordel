@@ -59,6 +59,7 @@ import no.nav.foreldrepenger.mottak.task.VLKlargjørerTask;
 import no.nav.foreldrepenger.mottak.tjeneste.Destinasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.DestinasjonsRuter;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -178,8 +179,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
             var saksnr = metadata.getSaksnummer().get(); // NOSONAR
             var fagInfo = fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnr));
             if (fagInfo.isPresent()) {
-                setFellesWrapperAttributterFraFagsak(w, fagInfo.get(), hovedDokument);
-                return new Destinasjon(FPSAK, saksnr);
+                return setFellesWrapperAttributterFraFagsak(w, saksnr, fagInfo.get(), hovedDokument);
             }
             if (hovedDokument.isEmpty()) {
                 settDokumentTypeKategoriKorrigerSVP(w);
@@ -284,14 +284,15 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         }
     }
 
-    private void setFellesWrapperAttributterFraFagsak(MottakMeldingDataWrapper w,
+    private Destinasjon setFellesWrapperAttributterFraFagsak(MottakMeldingDataWrapper w, String saksnummer,
             FagsakInfomasjonDto fagsakInfo, Optional<Dokument> dokumentInput) {
         var behandlingTemaFraSak = fraOffisiellKode(fagsakInfo.getBehandlingstemaOffisiellKode());
 
         if (dokumentInput.isPresent()) {
             var dokument = dokumentInput.get();
             if (!fagsakInfo.getAktørId().equals(w.getAktørId().orElse(null))) {
-                throw new TekniskException("FP-758390", "Søkers ID samsvarer ikke med søkers ID i eksisterende sak");
+                LOG.warn("Søkers ID samsvarer ikke med søkers ID i eksisterende sak {}", saksnummer);
+                return Destinasjon.GOSYS;
             }
             sjekkForMismatchMellomFagsakOgDokumentInn(w.getBehandlingTema(), behandlingTemaFraSak, dokument);
         } else {
@@ -301,6 +302,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
             w.setBehandlingTema(behandlingTemaFraSak);
             w.setForsendelseMottattTidspunkt(LocalDateTime.now());
         }
+        return new Destinasjon(FPSAK, saksnummer);
     }
 
     // TODO: Endre når TFP-4125 er fikset i søknadSvangerskapspenger. Nå kommer
