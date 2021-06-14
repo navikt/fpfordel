@@ -51,7 +51,7 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
     @Override
     public Optional<FagsakInfomasjonDto> finnFagsakInfomasjon(SaksnummerDto saksnummerDto) {
         LOG.info("Finner fagsakinformasjon");
-        var info = invoker.invoke(client.target(endpoint)
+        var info = invoke(client.target(endpoint)
                 .path(FAGSAKINFORMASJON_PATH)
                 .request(APPLICATION_JSON_TYPE)
                 .buildPost(json(saksnummerDto)), FagsakInfomasjonDto.class);
@@ -62,7 +62,7 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
     @Override
     public SaksnummerDto opprettSak(OpprettSakDto opprettSakDto) {
         LOG.info("Oppretter sak");
-        var sak = invoker.invoke(client.target(endpoint)
+        var sak = invoke(client.target(endpoint)
                 .path(FAGSAK_OPPRETT_PATH)
                 .request(APPLICATION_JSON_TYPE)
                 .buildPost(json(opprettSakDto)), SaksnummerDto.class);
@@ -136,7 +136,7 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
         }
         LOG.info("Vurderer resultat");
 
-        var res = new VurderFagsystemResultat(invoker.invoke(client.target(endpoint)
+        var res = new VurderFagsystemResultat(invoke(client.target(endpoint)
                 .path(VURDER_FAGSYSTEM_PATH)
                 .request(APPLICATION_JSON_TYPE)
                 .buildPost(json(dto)), BehandlendeFagsystemDto.class));
