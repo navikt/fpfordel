@@ -13,11 +13,13 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.server.abac.BeskyttetRessursAttributt;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -25,12 +27,15 @@ import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.VLKlargjørerTask;
 import no.nav.foreldrepenger.mottak.task.VedlikeholdSchedulerTask;
+import no.nav.foreldrepenger.mottak.task.dokumentforsendelse.BehandleDokumentforsendelseTask;
+import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseIdDto;
 import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTypeInfo;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 @Path("/forvaltning")
 @RequestScoped
@@ -171,6 +176,27 @@ public class ForvaltningRestTjeneste {
         taskData.setSisteFeil(null);
         taskData.setSisteFeilKode(null);
         repo.lagre(taskData);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/taskForLeftBehind")
+    @Operation(description = "Behandler forsendelse som ikke er plukket opp", tags = "Forvaltning", responses = {
+            @ApiResponse(responseCode = "200", description = "Opprettet prosesstask"),
+            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
+    })
+    @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
+    public Response taskForLeftBehind(
+            @TilpassetAbacAttributt(supplierClass = DokumentforsendelseRestTjeneste.ForsendelseAbacDataSupplier.class)
+            @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
+
+        var prosessTaskData = new ProsessTaskData(BehandleDokumentforsendelseTask.TASKNAME);
+        prosessTaskData.setCallId(forsendelseIdDto.forsendelseId().toString());
+        var dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
+        dataWrapper.setForsendelseId(forsendelseIdDto.forsendelseId());
+
+        repo.lagre(dataWrapper.getProsessTaskData());
+
         return Response.ok().build();
     }
 
