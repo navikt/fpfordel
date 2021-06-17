@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.fordel.dokument.v1;
 import static no.nav.vedtak.log.util.LoggerUtils.removeLineBreaks;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
@@ -114,12 +115,14 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         final String enhetId = request.getEnhetId();
         validerEnhetId(enhetId);
 
-        var saksnummer = finnRiktigSaksnummer(inputSaksnummer); // Gosys sender alltid arkivsaksnummer- dvs sak.id
+        var journalpost = hentJournalpost(arkivId);
+        var journalpostBrukerAktørId = journalpost.getBrukerAktørId();
+
+        var saksnummer = finnRiktigSaksnummer(inputSaksnummer, journalpostBrukerAktørId); // Gosys sender alltid arkivsaksnummer- dvs sak.id
         var fagsakInfomasjonDto = finnFagsakInformasjon(saksnummer);
         BehandlingTema behandlingTemaFagsak = BehandlingTema.fraOffisiellKode(fagsakInfomasjonDto.getBehandlingstemaOffisiellKode());
-        String aktørId = fagsakInfomasjonDto.getAktørId();
+        String fagsakInfoAktørId = fagsakInfomasjonDto.getAktørId();
 
-        var journalpost = hentJournalpost(arkivId);
         validerJournalposttype(journalpost.getJournalposttype());
         final DokumentTypeId dokumentTypeId = journalpost.getHovedtype();
         final DokumentKategori dokumentKategori = ArkivUtil.utledKategoriFraDokumentType(dokumentTypeId);
@@ -129,16 +132,16 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
         validerKanJournalføres(behandlingTemaFagsak, dokumentTypeId, dokumentKategori);
 
-        final String xml = hentDokumentSettMetadata(saksnummer, behandlingTema, aktørId, journalpost);
+        final String xml = hentDokumentSettMetadata(saksnummer, behandlingTema, fagsakInfoAktørId, journalpost);
 
         if (Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
             var brukDokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokumentTypeId) ? DokumentTypeId.ANNET : dokumentTypeId;
-            if (!arkivTjeneste.oppdaterRettMangler(journalpost, aktørId, behandlingTema, brukDokumentTypeId)) {
+            if (!arkivTjeneste.oppdaterRettMangler(journalpost, fagsakInfoAktørId, behandlingTema, brukDokumentTypeId)) {
                 ugyldigBrukerPrøvIgjen(arkivId, null);
             }
             LOG.info(removeLineBreaks("Kaller tilJournalføring")); // NOSONAR
             try {
-                arkivTjeneste.oppdaterMedSak(journalpost.getJournalpostId(), saksnummer, aktørId);
+                arkivTjeneste.oppdaterMedSak(journalpost.getJournalpostId(), saksnummer, fagsakInfoAktørId);
                 arkivTjeneste.ferdigstillJournalføring(journalpost.getJournalpostId(), enhetId);
             } catch (Exception e) {
                 ugyldigBrukerPrøvIgjen(arkivId, e);
@@ -319,8 +322,10 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
      * Midlertidig håndtering mens Gosys fikser koden som identifiserer saksnummer.
      * Redusere kompleksitet og risk ved prodsetting. Rekursjon med stopp
      */
-    private String finnRiktigSaksnummer(String saksnummer) {
-        if (fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnummer)).isPresent())
+    private String finnRiktigSaksnummer(String saksnummer, Optional<String> journalpostBrukerAktørId) {
+        var fagsakInformasjon = fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnummer))
+                .filter(f -> journalpostBrukerAktørId.isEmpty() || Objects.equals(f.getAktørId(), journalpostBrukerAktørId.get()));
+        if (fagsakInformasjon.isPresent())
             return saksnummer;
         try {
             var funnetSaksnummer = Optional.ofNullable(sakClient.hentSakId(saksnummer)).map(SakJson::getFagsakNr).orElseThrow();
