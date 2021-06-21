@@ -33,11 +33,10 @@ abstract class AbstractRetryableJournalpostSender extends AbstractJerseyOidcRest
     public void send(JournalpostMottakDto journalpost) {
         decorateFunction(registry.retry(getClass().getSimpleName()), (JournalpostMottakDto dto) -> {
             LOG.info("Sender journalpost for {}", getClass().getSimpleName());
-            client.target(endpoint)
+            invoke(client.target(endpoint)
                     .path(path())
                     .request(APPLICATION_JSON_TYPE)
-                    .buildPost(json(dto))
-                    .invoke();
+                    .buildPost(json(dto)));
             LOG.info("Sendt journalpost OK for {}", getClass().getSimpleName());
             return null;
         }).apply(journalpost);
