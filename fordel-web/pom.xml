@@ -23,7 +23,7 @@
         <dependency>
             <groupId>no.nav.security</groupId>
             <artifactId>token-validation-jaxrs</artifactId>
-            <version>1.3.7</version>
+            <version>1.3.8</version>
             <exclusions>
                 <exclusion>
                     <groupId>net.minidev</groupId>
