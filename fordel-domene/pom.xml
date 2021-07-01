@@ -114,13 +114,6 @@
             <groupId>no.nav.vedtak.prosesstask</groupId>
             <artifactId>prosesstask</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles</groupId>
-            <artifactId>felles-bom</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>oppgave-rest-klient</artifactId>

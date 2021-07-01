@@ -4,7 +4,7 @@ import static java.util.stream.Collectors.toSet;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static no.nav.foreldrepenger.fordel.StringUtil.partialMask;
-import static no.nav.vedtak.util.env.ConfidentialMarkerFilter.CONFIDENTIAL;
+import static no.nav.vedtak.log.util.ConfidentialMarkerFilter.CONFIDENTIAL;
 
 import java.util.Optional;
 import java.util.Set;

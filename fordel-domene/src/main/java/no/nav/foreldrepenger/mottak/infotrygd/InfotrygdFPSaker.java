@@ -7,27 +7,24 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
-import no.nav.vedtak.konfig.KonfigVerdi;
 
-@ApplicationScoped
+@Dependent
 class InfotrygdFPSaker extends AbstractJerseyOidcRestClient implements InfotrygdTjeneste {
 
     private static final String DEFAULT_URI = "http://infotrygd-foreldrepenger.default/saker";
     private static final Logger LOG = LoggerFactory.getLogger(InfotrygdFPSaker.class);
     private URI endpoint;
 
-    private InfotrygdRestResponseMapper mapper;
-
-    InfotrygdFPSaker() {
-    }
+    private final InfotrygdRestResponseMapper mapper;
 
     @Inject
     public InfotrygdFPSaker(@KonfigVerdi(value = "fpfordel.it.fp.url", defaultVerdi = DEFAULT_URI) URI endpoint) {
@@ -37,12 +34,11 @@ class InfotrygdFPSaker extends AbstractJerseyOidcRestClient implements Infotrygd
 
     @Override
     public List<InfotrygdSak> finnSakListe(String fnr, LocalDate fom) {
-        LOG.info("Henter saksliste fra infotrygd");
-        var liste = mapper.map(client.target(endpoint)
+        LOG.trace("Henter saksliste fra infotrygd");
+        var liste = mapper.map(invoke(client.target(endpoint)
                 .queryParam("fnr", fnr)
                 .queryParam("fom", fom(fom))
-                .request(APPLICATION_JSON_TYPE)
-                .get(Saker.class));
+                .request(APPLICATION_JSON_TYPE).buildGet(), Saker.class));
         LOG.info("Hentet saksliste med {} saker fra infotrygd OK", liste.size());
         return liste;
     }

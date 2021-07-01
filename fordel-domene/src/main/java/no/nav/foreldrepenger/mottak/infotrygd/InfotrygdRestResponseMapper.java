@@ -8,12 +8,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.AvsluttedeSaker;
-import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.AvsluttetSak;
-import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.IkkeStartetSak;
-import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.LøpendeSak;
-import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Sak;
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
+import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker.AvsluttedeSaker;
+import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker.AvsluttedeSaker.AvsluttetSak;
+import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker.IkkeStartetSak;
+import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker.LøpendeSak;
+import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker.Sak;
 
 final class InfotrygdRestResponseMapper {
 
@@ -22,10 +22,10 @@ final class InfotrygdRestResponseMapper {
 
     public List<InfotrygdSak> map(Saker saker) {
         return infotrygdSakerFra(
-                infotrygdSakerFraIkkeStartedeSaker(saker.getIkkeStartedeSaker()),
-                infotrygdSakerFraLøpendeSaker(saker.getLøpendeSaker()),
-                infotrygdSakerFraAvsluttedeSaker(saker.getAvsluttedeSaker()),
-                infotrygdSakerFraSaker(saker.getSaker()));
+                infotrygdSakerFraIkkeStartedeSaker(saker.ikkeStartet()),
+                infotrygdSakerFraLøpendeSaker(saker.løpendeSaker()),
+                infotrygdSakerFraAvsluttedeSaker(saker.avsluttedeSaker()),
+                infotrygdSakerFraSaker(saker.saker()));
     }
 
     private Stream<InfotrygdSak> infotrygdSakerFraIkkeStartedeSaker(List<IkkeStartetSak> ikkeStartedeSaker) {
@@ -39,7 +39,7 @@ final class InfotrygdRestResponseMapper {
     }
 
     private Stream<InfotrygdSak> infotrygdSakerFraAvsluttedeSaker(AvsluttedeSaker avsluttedeSaker) {
-        return stream(avsluttedeSaker.getSaker())
+        return stream(avsluttedeSaker.saker())
                 .map(this::tilInfotrygdSak);
     }
 
@@ -49,19 +49,19 @@ final class InfotrygdRestResponseMapper {
     }
 
     private InfotrygdSak tilInfotrygdSak(AvsluttetSak sak) {
-        return new InfotrygdSak(sak.getIverksatt(), null);
+        return new InfotrygdSak(sak.iverksatt(), null);
     }
 
     private InfotrygdSak tilInfotrygdSak(IkkeStartetSak sak) {
-        return new InfotrygdSak(sak.getIverksatt(), sak.getRegistrert());
+        return new InfotrygdSak(sak.iverksatt(), sak.registrert());
     }
 
     private InfotrygdSak tilInfotrygdSak(Sak sak) {
-        return new InfotrygdSak(sak.getIverksatt(), sak.getVedtatt());
+        return new InfotrygdSak(sak.iverksatt(), sak.vedtatt());
     }
 
     private InfotrygdSak tilInfotrygdSak(LøpendeSak sak) {
-        return new InfotrygdSak(sak.getIverksatt(), null);
+        return new InfotrygdSak(sak.iverksatt(), null);
     }
 
     private static <T> Stream<T> stream(List<T> list) {

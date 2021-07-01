@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.mottak.person;
 
 import static java.util.function.Predicate.not;
 import static no.nav.pdl.AdressebeskyttelseGradering.UGRADERT;
+import static no.nav.vedtak.log.util.ConfidentialMarkerFilter.CONFIDENTIAL;
 import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
-import static no.nav.vedtak.util.env.ConfidentialMarkerFilter.CONFIDENTIAL;
 
 import java.time.Duration;
 import java.util.Date;
