@@ -4,6 +4,7 @@
 *.log
 *.versionsBackup
 *.zip
+.factorypath
 dep.txt
 .classpath
 .idea
