@@ -15,8 +15,8 @@ import org.eclipse.jetty.webapp.WebAppContext;
 
 import no.nav.foreldrepenger.fordel.dbstoette.Databaseskjemainitialisering;
 import no.nav.foreldrepenger.fordel.web.app.konfig.ApplicationConfig;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.isso.IssoApplication;
-import no.nav.vedtak.util.env.Environment;
 
 public class JettyDevServer extends AbstractJettyServer {
 

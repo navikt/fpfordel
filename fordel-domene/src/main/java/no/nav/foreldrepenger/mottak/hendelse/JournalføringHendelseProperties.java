@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
+import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
-import no.nav.vedtak.konfig.KonfigVerdi;
-import no.nav.vedtak.util.env.Environment;
 
 @Dependent
 public class JournalføringHendelseProperties {
