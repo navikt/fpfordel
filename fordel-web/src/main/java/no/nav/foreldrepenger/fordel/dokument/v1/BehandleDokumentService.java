@@ -115,19 +115,18 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         final var journalpost = hentJournalpost(request.getJournalpostId());
         final var journalpostBrukerAktørId = journalpost.getBrukerAktørId();
 
-        String saksnummer1 = request.getSakId();
-        String result;
-        var fagsakInformasjon = fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnummer1))
+        var fagsakInformasjon = fagsak.finnFagsakInfomasjon(new SaksnummerDto(request.getSakId()))
             .filter(f -> journalpostBrukerAktørId.isEmpty() || Objects.equals(f.getAktørId(), journalpostBrukerAktørId.get()));
+        String result;
         if (fagsakInformasjon.isPresent()) {
-            result = saksnummer1;
+            result = request.getSakId();
         } else {
             try {
-                var funnetSaksnummer = Optional.ofNullable(sakClient.hentSakId(saksnummer1)).map(SakJson::getFagsakNr).orElseThrow();
-                LOG.info("FPFORDEL GOSYS slår opp fagsak {} finner {}", saksnummer1, funnetSaksnummer);
+                var funnetSaksnummer = Optional.ofNullable(sakClient.hentSakId(request.getSakId())).map(SakJson::getFagsakNr).orElseThrow();
+                LOG.info("FPFORDEL GOSYS slår opp fagsak {} finner {}", request.getSakId(), funnetSaksnummer);
                 result = funnetSaksnummer;
             } catch (Exception e1) {
-                throw BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummer1);
+                throw BehandleDokumentServiceFeil.finnerIkkeFagsak(request.getSakId());
             }
         }
         final var saksnummer = result; // Gosys sender alltid arkivsaksnummer- dvs sak.id
