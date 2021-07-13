@@ -320,17 +320,21 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
      * Redusere kompleksitet og risk ved prodsetting. Rekursjon med stopp
      */
     private String finnRiktigSaksnummer(String saksnummer, Optional<String> journalpostBrukerAktørId) {
+        String result;
         var fagsakInformasjon = fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnummer))
-                .filter(f -> journalpostBrukerAktørId.isEmpty() || Objects.equals(f.getAktørId(), journalpostBrukerAktørId.get()));
-        if (fagsakInformasjon.isPresent())
-            return saksnummer;
-        try {
-            var funnetSaksnummer = Optional.ofNullable(sakClient.hentSakId(saksnummer)).map(SakJson::getFagsakNr).orElseThrow();
-            LOG.info("FPFORDEL GOSYS slår opp fagsak {} finner {}", saksnummer, funnetSaksnummer);
-            return funnetSaksnummer;
-        } catch (Exception e) {
-            throw BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummer);
+            .filter(f -> journalpostBrukerAktørId.isEmpty() || Objects.equals(f.getAktørId(), journalpostBrukerAktørId.get()));
+        if (fagsakInformasjon.isPresent()) {
+            result = saksnummer;
+        } else {
+            try {
+                var funnetSaksnummer = Optional.ofNullable(sakClient.hentSakId(saksnummer)).map(SakJson::getFagsakNr).orElseThrow();
+                LOG.info("FPFORDEL GOSYS slår opp fagsak {} finner {}", saksnummer, funnetSaksnummer);
+                result = funnetSaksnummer;
+            } catch (Exception e) {
+                throw BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummer);
+            }
         }
+        return result;
     }
 
     private FagsakInfomasjonDto finnFagsakInformasjon(String saksnummer) {
