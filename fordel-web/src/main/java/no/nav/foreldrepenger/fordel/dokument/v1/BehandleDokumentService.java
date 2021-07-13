@@ -112,10 +112,9 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         validerEnhetId(request.getEnhetId());
 
         final var journalpost = hentJournalpost(request.getJournalpostId());
-        final var journalpostBrukerAktørId = journalpost.getBrukerAktørId();
 
         var fagsakInformasjon = fagsak.finnFagsakInfomasjon(new SaksnummerDto(request.getSakId()))
-            .filter(f -> journalpostBrukerAktørId.isEmpty() || Objects.equals(f.getAktørId(), journalpostBrukerAktørId.get()));
+            .filter(f -> journalpost.getBrukerAktørId().isEmpty() || Objects.equals(f.getAktørId(), journalpost.getBrukerAktørId().get()));
         String saksnummer;
         if (fagsakInformasjon.isPresent()) {
             saksnummer = request.getSakId();
