@@ -108,17 +108,14 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             throws OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet,
             OppdaterOgFerdigstillJournalfoeringUgyldigInput {
 
-        final String inputSaksnummer = request.getSakId();
-        validerSaksnummer(inputSaksnummer);
-        final String arkivId = request.getJournalpostId();
-        validerArkivId(arkivId);
-        final String enhetId = request.getEnhetId();
-        validerEnhetId(enhetId);
+        validerSaksnummer(request.getSakId());
+        validerArkivId(request.getJournalpostId());
+        validerEnhetId(request.getEnhetId());
 
-        var journalpost = hentJournalpost(arkivId);
+        var journalpost = hentJournalpost(request.getJournalpostId());
         var journalpostBrukerAktørId = journalpost.getBrukerAktørId();
 
-        var saksnummer = finnRiktigSaksnummer(inputSaksnummer, journalpostBrukerAktørId); // Gosys sender alltid arkivsaksnummer- dvs sak.id
+        var saksnummer = finnRiktigSaksnummer(request.getSakId(), journalpostBrukerAktørId); // Gosys sender alltid arkivsaksnummer- dvs sak.id
         var fagsakInfomasjonDto = finnFagsakInformasjon(saksnummer);
         BehandlingTema behandlingTemaFagsak = BehandlingTema.fraOffisiellKode(fagsakInfomasjonDto.getBehandlingstemaOffisiellKode());
         String fagsakInfoAktørId = fagsakInfomasjonDto.getAktørId();
@@ -137,14 +134,14 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         if (Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
             var brukDokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokumentTypeId) ? DokumentTypeId.ANNET : dokumentTypeId;
             if (!arkivTjeneste.oppdaterRettMangler(journalpost, fagsakInfoAktørId, behandlingTema, brukDokumentTypeId)) {
-                ugyldigBrukerPrøvIgjen(arkivId, null);
+                ugyldigBrukerPrøvIgjen(request.getJournalpostId(), null);
             }
             LOG.info(removeLineBreaks("Kaller tilJournalføring")); // NOSONAR
             try {
                 arkivTjeneste.oppdaterMedSak(journalpost.getJournalpostId(), saksnummer, fagsakInfoAktørId);
-                arkivTjeneste.ferdigstillJournalføring(journalpost.getJournalpostId(), enhetId);
+                arkivTjeneste.ferdigstillJournalføring(journalpost.getJournalpostId(), request.getEnhetId());
             } catch (Exception e) {
-                ugyldigBrukerPrøvIgjen(arkivId, e);
+                ugyldigBrukerPrøvIgjen(request.getJournalpostId(), e);
             }
         }
 
@@ -156,11 +153,11 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
                     : arkivTjeneste.hentEksternReferanseId(journalpost.getOriginalJournalpost()).orElse(null);
         }
 
-        klargjører.klargjør(xml, saksnummer, arkivId, dokumentTypeId, journalpost.getDatoOpprettet(),
-                behandlingTema, forsendelseId, dokumentKategori, enhetId, eksternReferanseId);
+        klargjører.klargjør(xml, saksnummer, request.getJournalpostId(), dokumentTypeId, journalpost.getDatoOpprettet(),
+                behandlingTema, forsendelseId, dokumentKategori, request.getEnhetId(), eksternReferanseId);
 
         // For å unngå klonede journalposter fra Gosys - de kan komme via Kafka
-        dokumentRepository.lagreJournalpostLokal(arkivId, journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
+        dokumentRepository.lagreJournalpostLokal(request.getJournalpostId(), journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
     }
 
     private static UUID getForsendelseId(String eksternReferanseId) {
