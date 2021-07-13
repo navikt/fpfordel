@@ -145,7 +145,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             }
         }
 
-        final UUID forsendelseId = getForsendelseId(journalpost.getEksternReferanseId());
+        final Optional<UUID> forsendelseId = asUUID(journalpost.getEksternReferanseId());
 
         String eksternReferanseId = null;
         if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
@@ -154,17 +154,17 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         }
 
         klargjører.klargjør(xml, saksnummer, request.getJournalpostId(), dokumentTypeId, journalpost.getDatoOpprettet(),
-                behandlingTema, forsendelseId, dokumentKategori, request.getEnhetId(), eksternReferanseId);
+                behandlingTema, forsendelseId.orElse(null), dokumentKategori, request.getEnhetId(), eksternReferanseId);
 
         // For å unngå klonede journalposter fra Gosys - de kan komme via Kafka
         dokumentRepository.lagreJournalpostLokal(request.getJournalpostId(), journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
     }
 
-    private static UUID getForsendelseId(String eksternReferanseId) {
+    private static Optional<UUID> asUUID(String eksternReferanseId) {
         try {
-            return UUID.fromString(eksternReferanseId);
+            return Optional.of(UUID.fromString(eksternReferanseId));
         } catch (Exception e) {
-            return null;
+            return Optional.empty();
         }
     }
 
