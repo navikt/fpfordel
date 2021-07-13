@@ -116,19 +116,19 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
         var fagsakInformasjon = fagsak.finnFagsakInfomasjon(new SaksnummerDto(request.getSakId()))
             .filter(f -> journalpostBrukerAktørId.isEmpty() || Objects.equals(f.getAktørId(), journalpostBrukerAktørId.get()));
-        String result;
+        String saksnummer;
         if (fagsakInformasjon.isPresent()) {
-            result = request.getSakId();
+            saksnummer = request.getSakId();
         } else {
             try {
                 var funnetSaksnummer = Optional.ofNullable(sakClient.hentSakId(request.getSakId())).map(SakJson::getFagsakNr).orElseThrow();
                 LOG.info("FPFORDEL GOSYS slår opp fagsak {} finner {}", request.getSakId(), funnetSaksnummer);
-                result = funnetSaksnummer;
+                saksnummer = funnetSaksnummer;
             } catch (Exception e1) {
                 throw BehandleDokumentServiceFeil.finnerIkkeFagsak(request.getSakId());
             }
         }
-        final var saksnummer = result; // Gosys sender alltid arkivsaksnummer- dvs sak.id
+        // Gosys sender alltid arkivsaksnummer- dvs sak.id
         final var fagsakInfomasjonDto = fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnummer))
             .orElseThrow(() -> BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummer));
         final BehandlingTema behandlingTemaFagsak = BehandlingTema.fraOffisiellKode(fagsakInfomasjonDto.getBehandlingstemaOffisiellKode());
