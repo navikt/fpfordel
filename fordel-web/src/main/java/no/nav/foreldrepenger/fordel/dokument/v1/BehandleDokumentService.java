@@ -115,7 +115,22 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         final var journalpost = hentJournalpost(request.getJournalpostId());
         final var journalpostBrukerAktørId = journalpost.getBrukerAktørId();
 
-        final var saksnummer = finnRiktigSaksnummer(request.getSakId(), journalpostBrukerAktørId); // Gosys sender alltid arkivsaksnummer- dvs sak.id
+        String saksnummer1 = request.getSakId();
+        String result;
+        var fagsakInformasjon = fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnummer1))
+            .filter(f -> journalpostBrukerAktørId.isEmpty() || Objects.equals(f.getAktørId(), journalpostBrukerAktørId.get()));
+        if (fagsakInformasjon.isPresent()) {
+            result = saksnummer1;
+        } else {
+            try {
+                var funnetSaksnummer = Optional.ofNullable(sakClient.hentSakId(saksnummer1)).map(SakJson::getFagsakNr).orElseThrow();
+                LOG.info("FPFORDEL GOSYS slår opp fagsak {} finner {}", saksnummer1, funnetSaksnummer);
+                result = funnetSaksnummer;
+            } catch (Exception e1) {
+                throw BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummer1);
+            }
+        }
+        final var saksnummer = result; // Gosys sender alltid arkivsaksnummer- dvs sak.id
         final var fagsakInfomasjonDto = finnFagsakInformasjon(saksnummer);
         final BehandlingTema behandlingTemaFagsak = BehandlingTema.fraOffisiellKode(fagsakInfomasjonDto.getBehandlingstemaOffisiellKode());
         final String fagsakInfoAktørId = fagsakInfomasjonDto.getAktørId();
@@ -319,23 +334,6 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
      * Midlertidig håndtering mens Gosys fikser koden som identifiserer saksnummer.
      * Redusere kompleksitet og risk ved prodsetting. Rekursjon med stopp
      */
-    private String finnRiktigSaksnummer(String saksnummer, Optional<String> journalpostBrukerAktørId) {
-        String result;
-        var fagsakInformasjon = fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnummer))
-            .filter(f -> journalpostBrukerAktørId.isEmpty() || Objects.equals(f.getAktørId(), journalpostBrukerAktørId.get()));
-        if (fagsakInformasjon.isPresent()) {
-            result = saksnummer;
-        } else {
-            try {
-                var funnetSaksnummer = Optional.ofNullable(sakClient.hentSakId(saksnummer)).map(SakJson::getFagsakNr).orElseThrow();
-                LOG.info("FPFORDEL GOSYS slår opp fagsak {} finner {}", saksnummer, funnetSaksnummer);
-                result = funnetSaksnummer;
-            } catch (Exception e) {
-                throw BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummer);
-            }
-        }
-        return result;
-    }
 
     private FagsakInfomasjonDto finnFagsakInformasjon(String saksnummer) {
         return fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnummer))
