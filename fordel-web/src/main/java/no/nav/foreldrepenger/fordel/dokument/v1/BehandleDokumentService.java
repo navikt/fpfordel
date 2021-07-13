@@ -7,12 +7,14 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.jws.WebService;
 import javax.transaction.Transactional;
 
+import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,30 +109,32 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             throws OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet,
             OppdaterOgFerdigstillJournalfoeringUgyldigInput {
 
-        final var saksnrFraRequest = request.getSakId();
-        validerSaksnummer(saksnrFraRequest);
+        final var saksnummerFraRequest = request.getSakId();
+        validerSaksnummer(saksnummerFraRequest);
         validerArkivId(request.getJournalpostId());
         validerEnhetId(request.getEnhetId());
 
         final var journalpost = hentJournalpost(request.getJournalpostId());
 
-        var fagsakInformasjon = fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnrFraRequest))
-            .filter(f -> journalpost.getBrukerAktørId().isEmpty() || Objects.equals(f.getAktørId(), journalpost.getBrukerAktørId().get()));
+        final var fagsakFraRequestSomTrefferRettAktør =
+            fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnummerFraRequest))
+                .filter(rettAktør(journalpost.getBrukerAktørId()));
+
         String saksnummer;
-        if (fagsakInformasjon.isPresent()) {
-            saksnummer = saksnrFraRequest;
+        FagsakInfomasjonDto fagsakInfomasjonDto;
+        if (fagsakFraRequestSomTrefferRettAktør.isPresent()) {
+            saksnummer = saksnummerFraRequest;
+            fagsakInfomasjonDto = fagsakFraRequestSomTrefferRettAktør.get();
         } else {
-            try {
-                final var funnetSaksnummer = Optional.ofNullable(sakClient.hentSakId(saksnrFraRequest)).map(SakJson::getFagsakNr).orElseThrow();
-                LOG.info("FPFORDEL GOSYS slår opp fagsak {} finner {}", saksnrFraRequest, funnetSaksnummer);
-                saksnummer = funnetSaksnummer;
-            } catch (Exception e1) {
-                throw BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnrFraRequest);
-            }
+            // Gosys sender alltid arkivsaksnummer- dvs sak.id
+            final var saksnummerFraArkiv = saksnummerOppslagMotArkiv(saksnummerFraRequest)
+                .orElseThrow(() -> BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummerFraRequest));
+            LOG.info("FPFORDEL GOSYS slår opp fagsak {} finner {}", saksnummerFraRequest, saksnummerFraArkiv);
+            fagsakInfomasjonDto = fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnummerFraArkiv))
+                .orElseThrow(() -> BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummerFraArkiv));
+            saksnummer = saksnummerFraArkiv;
         }
-        // Gosys sender alltid arkivsaksnummer- dvs sak.id
-        final var fagsakInfomasjonDto = fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnummer))
-            .orElseThrow(() -> BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummer));
+
         final BehandlingTema behandlingTemaFagsak = BehandlingTema.fraOffisiellKode(fagsakInfomasjonDto.getBehandlingstemaOffisiellKode());
         final String fagsakInfoAktørId = fagsakInfomasjonDto.getAktørId();
 
@@ -172,6 +176,10 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
         // For å unngå klonede journalposter fra Gosys - de kan komme via Kafka
         dokumentRepository.lagreJournalpostLokal(request.getJournalpostId(), journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
+    }
+
+    private static Predicate<FagsakInfomasjonDto> rettAktør(Optional<String> brukerAktørId) {
+        return f -> brukerAktørId.isEmpty() || Objects.equals(f.getAktørId(), brukerAktørId.get());
     }
 
     private static Optional<UUID> asUUID(String eksternReferanseId) {
@@ -329,10 +337,14 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         }
     }
 
-    /*
-     * Midlertidig håndtering mens Gosys fikser koden som identifiserer saksnummer.
-     * Redusere kompleksitet og risk ved prodsetting. Rekursjon med stopp
-     */
+    // Midlertidig håndtering mens Gosys fikser koden som identifiserer saksnummer.
+    private Optional<String> saksnummerOppslagMotArkiv(String saksnrFraRequest) {
+        try {
+            return Optional.ofNullable(sakClient.hentSakId(saksnrFraRequest)).map(SakJson::getFagsakNr);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
 
     private static UgyldigInput lagUgyldigInput(String melding) {
         UgyldigInput faultInfo = new UgyldigInput();
