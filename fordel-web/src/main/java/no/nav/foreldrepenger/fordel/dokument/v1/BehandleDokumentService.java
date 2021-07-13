@@ -112,20 +112,20 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         validerArkivId(request.getJournalpostId());
         validerEnhetId(request.getEnhetId());
 
-        var journalpost = hentJournalpost(request.getJournalpostId());
-        var journalpostBrukerAktørId = journalpost.getBrukerAktørId();
+        final var journalpost = hentJournalpost(request.getJournalpostId());
+        final var journalpostBrukerAktørId = journalpost.getBrukerAktørId();
 
-        var saksnummer = finnRiktigSaksnummer(request.getSakId(), journalpostBrukerAktørId); // Gosys sender alltid arkivsaksnummer- dvs sak.id
-        var fagsakInfomasjonDto = finnFagsakInformasjon(saksnummer);
-        BehandlingTema behandlingTemaFagsak = BehandlingTema.fraOffisiellKode(fagsakInfomasjonDto.getBehandlingstemaOffisiellKode());
-        String fagsakInfoAktørId = fagsakInfomasjonDto.getAktørId();
+        final var saksnummer = finnRiktigSaksnummer(request.getSakId(), journalpostBrukerAktørId); // Gosys sender alltid arkivsaksnummer- dvs sak.id
+        final var fagsakInfomasjonDto = finnFagsakInformasjon(saksnummer);
+        final BehandlingTema behandlingTemaFagsak = BehandlingTema.fraOffisiellKode(fagsakInfomasjonDto.getBehandlingstemaOffisiellKode());
+        final String fagsakInfoAktørId = fagsakInfomasjonDto.getAktørId();
 
         validerJournalposttype(journalpost.getJournalposttype());
         final DokumentTypeId dokumentTypeId = journalpost.getHovedtype();
         final DokumentKategori dokumentKategori = ArkivUtil.utledKategoriFraDokumentType(dokumentTypeId);
-        BehandlingTema behandlingTemaDok = ArkivUtil.behandlingTemaFraDokumentType(BehandlingTema.UDEFINERT, dokumentTypeId);
+        final BehandlingTema behandlingTemaDok = ArkivUtil.behandlingTemaFraDokumentType(BehandlingTema.UDEFINERT, dokumentTypeId);
 
-        BehandlingTema behandlingTema = validerOgVelgBehandlingTema(behandlingTemaFagsak, behandlingTemaDok, dokumentTypeId);
+        final BehandlingTema behandlingTema = validerOgVelgBehandlingTema(behandlingTemaFagsak, behandlingTemaDok, dokumentTypeId);
 
         validerKanJournalføres(behandlingTemaFagsak, dokumentTypeId, dokumentKategori);
 
@@ -145,7 +145,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             }
         }
 
-        UUID forsendelseId = getForsendelseId(journalpost.getEksternReferanseId());
+        final UUID forsendelseId = getForsendelseId(journalpost.getEksternReferanseId());
 
         String eksternReferanseId = null;
         if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
