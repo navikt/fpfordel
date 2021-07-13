@@ -107,24 +107,25 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             throws OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet,
             OppdaterOgFerdigstillJournalfoeringUgyldigInput {
 
-        validerSaksnummer(request.getSakId());
+        final var saksnrFraRequest = request.getSakId();
+        validerSaksnummer(saksnrFraRequest);
         validerArkivId(request.getJournalpostId());
         validerEnhetId(request.getEnhetId());
 
         final var journalpost = hentJournalpost(request.getJournalpostId());
 
-        var fagsakInformasjon = fagsak.finnFagsakInfomasjon(new SaksnummerDto(request.getSakId()))
+        var fagsakInformasjon = fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnrFraRequest))
             .filter(f -> journalpost.getBrukerAktørId().isEmpty() || Objects.equals(f.getAktørId(), journalpost.getBrukerAktørId().get()));
         String saksnummer;
         if (fagsakInformasjon.isPresent()) {
-            saksnummer = request.getSakId();
+            saksnummer = saksnrFraRequest;
         } else {
             try {
-                var funnetSaksnummer = Optional.ofNullable(sakClient.hentSakId(request.getSakId())).map(SakJson::getFagsakNr).orElseThrow();
-                LOG.info("FPFORDEL GOSYS slår opp fagsak {} finner {}", request.getSakId(), funnetSaksnummer);
+                final var funnetSaksnummer = Optional.ofNullable(sakClient.hentSakId(saksnrFraRequest)).map(SakJson::getFagsakNr).orElseThrow();
+                LOG.info("FPFORDEL GOSYS slår opp fagsak {} finner {}", saksnrFraRequest, funnetSaksnummer);
                 saksnummer = funnetSaksnummer;
             } catch (Exception e1) {
-                throw BehandleDokumentServiceFeil.finnerIkkeFagsak(request.getSakId());
+                throw BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnrFraRequest);
             }
         }
         // Gosys sender alltid arkivsaksnummer- dvs sak.id
