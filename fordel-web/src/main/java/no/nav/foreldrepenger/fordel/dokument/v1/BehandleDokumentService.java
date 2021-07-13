@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.fordel.web.server.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.fordel.web.server.abac.BeskyttetRessursAttributt;
-import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
@@ -130,7 +129,8 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             }
         }
         final var saksnummer = result; // Gosys sender alltid arkivsaksnummer- dvs sak.id
-        final var fagsakInfomasjonDto = finnFagsakInformasjon(saksnummer);
+        final var fagsakInfomasjonDto = fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnummer))
+            .orElseThrow(() -> BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummer));
         final BehandlingTema behandlingTemaFagsak = BehandlingTema.fraOffisiellKode(fagsakInfomasjonDto.getBehandlingstemaOffisiellKode());
         final String fagsakInfoAktørId = fagsakInfomasjonDto.getAktørId();
 
@@ -333,11 +333,6 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
      * Midlertidig håndtering mens Gosys fikser koden som identifiserer saksnummer.
      * Redusere kompleksitet og risk ved prodsetting. Rekursjon med stopp
      */
-
-    private FagsakInfomasjonDto finnFagsakInformasjon(String saksnummer) {
-        return fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnummer))
-                .orElseThrow(() -> BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummer));
-    }
 
     private static UgyldigInput lagUgyldigInput(String melding) {
         UgyldigInput faultInfo = new UgyldigInput();
