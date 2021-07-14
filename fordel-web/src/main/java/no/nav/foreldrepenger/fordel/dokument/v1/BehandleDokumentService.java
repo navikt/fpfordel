@@ -117,7 +117,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         final var journalpost = hentJournalpost(request.getJournalpostId());
 
         final var fagsakFraRequestSomTrefferRettAktør =
-            fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnummerFraRequest))
+            hentFagsakInfo(saksnummerFraRequest)
                 .filter(rettAktør(journalpost.getBrukerAktørId()));
 
         String saksnummer;
@@ -130,7 +130,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             final var saksnummerFraArkiv = saksnummerOppslagMotArkiv(saksnummerFraRequest)
                 .orElseThrow(() -> BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummerFraRequest));
             LOG.info("FPFORDEL GOSYS slår opp fagsak {} finner {}", saksnummerFraRequest, saksnummerFraArkiv);
-            fagsakInfomasjonDto = fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnummerFraArkiv))
+            fagsakInfomasjonDto = hentFagsakInfo(saksnummerFraArkiv)
                 .orElseThrow(() -> BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummerFraArkiv));
             saksnummer = saksnummerFraArkiv;
         }
@@ -176,6 +176,10 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
         // For å unngå klonede journalposter fra Gosys - de kan komme via Kafka
         dokumentRepository.lagreJournalpostLokal(request.getJournalpostId(), journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
+    }
+
+    private Optional<FagsakInfomasjonDto> hentFagsakInfo(String saksnummerFraArkiv) {
+        return fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnummerFraArkiv));
     }
 
     private static Predicate<FagsakInfomasjonDto> rettAktør(Optional<String> brukerAktørId) {
