@@ -109,6 +109,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             throws OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet,
             OppdaterOgFerdigstillJournalfoeringUgyldigInput {
 
+        // Vi vet ikke om dette er vårt saksnummer eller et arkivsaksnummer ...
         final var saksnummerFraRequest = request.getSakId();
         validerSaksnummer(saksnummerFraRequest);
         validerArkivId(request.getJournalpostId());
@@ -116,6 +117,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
         final var journalpost = hentJournalpost(request.getJournalpostId());
 
+        // Dersom vi finner en av våre saker med saksnummerFraRequest og den har "rett aktør" så antar vi at det er vårt saksnummer
         final var fagsakFraRequestSomTrefferRettAktør =
             hentFagsakInfo(saksnummerFraRequest)
                 .filter(rettAktør(journalpost.getBrukerAktørId()));
@@ -124,6 +126,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         FagsakInfomasjonDto fagsakInfomasjonDto;
         if (fagsakFraRequestSomTrefferRettAktør.isPresent()) {
             saksnummer = saksnummerFraRequest;
+            LOG.info("FPFORDEL Fant en FP-sak med saksnummer {} som har rett aktør", saksnummerFraRequest);
             fagsakInfomasjonDto = fagsakFraRequestSomTrefferRettAktør.get();
         } else {
             // Gosys sender alltid arkivsaksnummer- dvs sak.id
