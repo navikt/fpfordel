@@ -19,8 +19,8 @@ import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.fordel.web.app.tjenester.ApplicationServiceStarter;
-import no.nav.foreldrepenger.mottak.felles.LivenessAware;
-import no.nav.foreldrepenger.mottak.felles.ReadinessAware;
+import no.nav.vedtak.log.metrics.LivenessAware;
+import no.nav.vedtak.log.metrics.ReadinessAware;
 
 @Path("/health")
 @ApplicationScoped

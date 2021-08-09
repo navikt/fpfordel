@@ -11,12 +11,14 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.fordel.dbstoette.Databaseskjemainitialisering;
 import no.nav.foreldrepenger.mottak.extensions.EntityManagerAwareTest;
 
 /** Tester at alle migreringer følger standarder for navn og god praksis. */
+@Disabled
 public class SjekkDbStrukturTest extends EntityManagerAwareTest {
 
     private static final String HJELP = "\n\nDu har nylig lagt til en ny tabell eller kolonne som ikke er dokumentert ihht. gjeldende regler for dokumentasjon."
