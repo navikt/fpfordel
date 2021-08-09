@@ -154,14 +154,13 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
             return false;
         }
 
-        Set<ArkivFilType> dokumentArkivFilTyper = hoveddokumentene.stream().map(Dokument::getArkivFilType)
+        var dokumentArkivFilTyper = hoveddokumentene.stream().map(Dokument::getArkivFilType)
                 .collect(toSet());
         if (dokumentArkivFilTyper.size() != 2) {
             return false;
         }
 
-        Predicate<ArkivFilType> aftCheck = aft -> dokumentArkivFilTyper.stream().anyMatch(aft::equals);
-        return PÅKREVDE_HOVEDDOKUMENT_ARKIV_FIL_TYPER.stream().filter(aftCheck).count() == 2;
+        return PÅKREVDE_HOVEDDOKUMENT_ARKIV_FIL_TYPER.stream().filter((Predicate<ArkivFilType>) aft -> dokumentArkivFilTyper.stream().anyMatch(aft::equals)).count() == 2;
     }
 
 }

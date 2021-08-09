@@ -137,7 +137,7 @@ public class DokumentforsendelseRestTjeneste {
     }
 
     private void lagreDokumentForsendelse(List<InputPart> inputParts, Dokumentforsendelse dokumentforsendelse) {
-        service.nyDokumentforsendelse(dokumentforsendelse.getMetadata());
+        service.nyDokumentforsendelse(dokumentforsendelse.metadata());
         for (var inputPart : inputParts) {
             lagreDokument(dokumentforsendelse, inputPart);
         }

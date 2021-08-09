@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.TekniskException;
 
-@EnvironmentAlternative
 @ApplicationScoped
 public class KafkaHendelseProdusent implements HendelseProdusent {
 

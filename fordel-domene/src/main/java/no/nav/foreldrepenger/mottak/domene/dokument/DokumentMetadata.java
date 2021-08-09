@@ -97,12 +97,12 @@ public class DokumentMetadata {
         private LocalDateTime forsendelseMottatt;
 
         public Builder setForsendelseId(UUID forsendelseId) {
-            this.forsendelseId = forsendelseId;
+            this.forsendelseId = Objects.requireNonNull(forsendelseId);
             return this;
         }
 
         public Builder setBrukerId(String brukerId) {
-            this.brukerId = brukerId;
+            this.brukerId = Objects.requireNonNull(brukerId);
             return this;
         }
 
@@ -122,12 +122,11 @@ public class DokumentMetadata {
         }
 
         public Builder setForsendelseMottatt(LocalDateTime forsendelseMottatt) {
-            this.forsendelseMottatt = forsendelseMottatt;
+            this.forsendelseMottatt = Objects.requireNonNull(forsendelseMottatt);
             return this;
         }
 
         public DokumentMetadata build() {
-            verifyStateForBuild();
             DokumentMetadata dokumentMetadata = new DokumentMetadata();
             dokumentMetadata.brukerId = brukerId;
             dokumentMetadata.arkivId = arkivId;
@@ -136,12 +135,6 @@ public class DokumentMetadata {
             dokumentMetadata.forsendelseMottatt = forsendelseMottatt;
             dokumentMetadata.status = status.name();
             return dokumentMetadata;
-        }
-
-        private void verifyStateForBuild() {
-            Objects.requireNonNull(brukerId);
-            Objects.requireNonNull(forsendelseId);
-            Objects.requireNonNull(forsendelseMottatt);
         }
     }
 }
