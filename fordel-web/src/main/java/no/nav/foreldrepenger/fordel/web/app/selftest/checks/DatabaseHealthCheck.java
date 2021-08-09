@@ -10,8 +10,8 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.mottak.felles.LivenessAware;
-import no.nav.foreldrepenger.mottak.felles.ReadinessAware;
+import no.nav.vedtak.log.metrics.LivenessAware;
+import no.nav.vedtak.log.metrics.ReadinessAware;
 
 @ApplicationScoped
 public class DatabaseHealthCheck implements ReadinessAware, LivenessAware {
