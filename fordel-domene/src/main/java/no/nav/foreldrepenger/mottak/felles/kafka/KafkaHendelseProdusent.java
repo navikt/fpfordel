@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.mottak.felles.kafka;
 
+import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 import static no.nav.foreldrepenger.mottak.felles.kafka.KafkaProperties.properties;
+import static no.nav.vedtak.log.mdc.MDCOperations.HTTP_HEADER_CALL_ID;
 import static no.nav.vedtak.log.mdc.MDCOperations.generateCallId;
 import static no.nav.vedtak.log.mdc.MDCOperations.getCallId;
 
 import java.util.Optional;
-import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -18,25 +19,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.TekniskException;
-
 @ApplicationScoped
 public class KafkaHendelseProdusent implements HendelseProdusent {
 
     private static final Logger LOG = LoggerFactory.getLogger(KafkaHendelseProdusent.class);
 
-    private static final String CALLID_NAME = "Nav-CallId";
     private final Producer<String, String> producer;
-    private static final ObjectMapper OM = new ObjectMapper();
+
+    private final String topic;
+
 
     @Inject
-    @KonfigVerdi("kafka.topics.fordeling")
-    private String topic;
-
-    public KafkaHendelseProdusent() {
+    public KafkaHendelseProdusent(@KonfigVerdi("kafka.topics.fordeling") String topic) {
+        this.topic = topic;
         this.producer = new KafkaProducer<>(properties());
     }
 
@@ -53,16 +51,21 @@ public class KafkaHendelseProdusent implements HendelseProdusent {
     }
 
     private ProducerRecord<String, String> meldingFra(Object objekt, String nøkkel) {
-        return new ProducerRecord<>(topic, null, nøkkel, jsonFra(objekt, KafkaFeil::kanIkkeSerialisere),
-                new RecordHeaders().add(CALLID_NAME,
+        return new ProducerRecord<>(topic, null, nøkkel, jsonFra(objekt),
+                new RecordHeaders().add(HTTP_HEADER_CALL_ID,
                         Optional.ofNullable(getCallId()).orElseGet(() -> generateCallId()).getBytes()));
     }
 
-    private static String jsonFra(Object object, Function<JsonProcessingException, TekniskException> feilFactory) {
+    private static String jsonFra(Object object) {
         try {
-            return OM.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+            return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(object);
         } catch (JsonProcessingException e) {
-            throw feilFactory.apply(e);
+            throw new TekniskException("FP-190496", "Kunne ikke serialisere til json", e);
         }
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [producer=" + producer + ", topic=" + topic + "]";
     }
 }

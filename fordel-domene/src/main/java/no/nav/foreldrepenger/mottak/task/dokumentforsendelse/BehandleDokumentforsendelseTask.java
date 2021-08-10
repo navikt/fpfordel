@@ -349,7 +349,8 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
             if (fnr.isEmpty()) {
                 throw new TekniskException("FP-254631", format("Fant ikke personident for aktørId i task %s.  TaskId: %s", TASKNAME, w.getId()));
             }
-            var hendelse = new SøknadFordeltOgJournalførtHendelse(w.getArkivId(), forsendelseId, fnr.get(), w.getSaksnummer());
+            var hendelse = new SøknadFordeltOgJournalførtHendelse(w.getArkivId(), forsendelseId, fnr.orElse(null),
+                    w.getSaksnummer().orElse(null));
             hendelseProdusent.send(hendelse, forsendelseId.toString());
         } catch (Exception e) {
             LOG.warn("fpfordel kafka hendelsepublisering feilet for forsendelse {}", forsendelseId.toString(), e);
