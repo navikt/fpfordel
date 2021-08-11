@@ -26,7 +26,7 @@ public class ApplicationServiceStarter {
 
     @Inject
     public ApplicationServiceStarter(@Any Instance<AppServiceHandler> handlers) {
-        this(handlers.stream().collect(toList()));
+        this(handlers.stream().toList());
     }
 
     ApplicationServiceStarter(AppServiceHandler handler) {
