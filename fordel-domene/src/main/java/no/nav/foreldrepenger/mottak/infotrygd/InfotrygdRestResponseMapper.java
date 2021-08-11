@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.infotrygd;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
 
 import java.util.Collections;
@@ -73,7 +72,7 @@ final class InfotrygdRestResponseMapper {
     private static <T> List<T> infotrygdSakerFra(Stream<T> s1, Stream<T> s2, Stream<T> s3,
             Stream<T> s4) {
         return concat(s1, concat(s2, concat(s3, s4)))
-                .collect(toList());
+                .toList();
     }
 
     @Override

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.fordel.web.app.selftest;
 
-import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.Response.Status.SERVICE_UNAVAILABLE;
 
 import java.util.List;
@@ -41,7 +40,7 @@ public class HealthCheckRestService {
     @Inject
     public HealthCheckRestService(ApplicationServiceStarter starter, @Any Instance<LivenessAware> livenessAware,
             @Any Instance<ReadinessAware> readinessAware) {
-        this(starter, livenessAware.stream().collect(toList()), readinessAware.stream().collect(toList()));
+        this(starter, livenessAware.stream().toList(), readinessAware.stream().toList());
     }
 
     public HealthCheckRestService(ApplicationServiceStarter starter, List<LivenessAware> live, List<ReadinessAware> ready) {

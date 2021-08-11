@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.felles;
 
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 
 import java.sql.Clob;
 import java.time.LocalDate;
@@ -264,7 +263,7 @@ public class MottakMeldingDataWrapper {
                 .stream(Optional.ofNullable(prosessTaskData.getPropertyValue(ADOPSJONSBARN_FODSELSDATOER_KEY)).map(p -> p.split(";"))
                         .orElse(new String[0]))
                 .map(LocalDate::parse)
-                .collect(toList());
+                .toList();
     }
 
     public void setAdopsjonsbarnFodselsdatoer(List<LocalDate> datoer) {

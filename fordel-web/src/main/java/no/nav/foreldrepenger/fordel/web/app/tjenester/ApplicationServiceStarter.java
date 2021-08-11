@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.fordel.web.app.tjenester;
 
 import static java.util.concurrent.CompletableFuture.runAsync;
-import static java.util.stream.Collectors.toList;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

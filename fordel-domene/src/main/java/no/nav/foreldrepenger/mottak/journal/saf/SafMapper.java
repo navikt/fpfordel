@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.journal.saf;
 
-import static java.util.stream.Collectors.toList;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -34,7 +33,7 @@ class SafMapper {
     static List<Journalpost> mapJP(List<no.nav.saf.Journalpost> p) {
         return safeStream(p)
                 .map(SafMapper::map)
-                .collect(toList());
+                .toList();
     }
 
     static Journalpost map(no.nav.saf.Journalpost res) {
@@ -83,13 +82,13 @@ class SafMapper {
     private static List<Tilleggsopplysning> mapTO(List<no.nav.saf.Tilleggsopplysning> tilleggsopplysninger) {
         return safeStream(tilleggsopplysninger)
                 .map(t -> new Tilleggsopplysning(t.getNokkel(), t.getVerdi()))
-                .collect(toList());
+                .toList();
     }
 
     private static List<DokumentInfo> map(List<no.nav.saf.DokumentInfo> dokumenter) {
         return safeStream(dokumenter)
                 .map(SafMapper::map)
-                .collect(toList());
+                .toList();
     }
 
     private static DokumentInfo map(no.nav.saf.DokumentInfo info) {
@@ -102,7 +101,7 @@ class SafMapper {
     private static List<Dokumentvariant> mapDV(List<no.nav.saf.Dokumentvariant> dv) {
         return safeStream(dv)
                 .map(SafMapper::map)
-                .collect(toList());
+                .toList();
     }
 
     private static Dokumentvariant map(no.nav.saf.Dokumentvariant dv) {
@@ -125,7 +124,7 @@ class SafMapper {
     private static List<LogiskVedlegg> mapLV(List<no.nav.saf.LogiskVedlegg> v) {
         return safeStream(v)
                 .map(SafMapper::map)
-                .collect(toList());
+                .toList();
     }
 
     private static LogiskVedlegg map(no.nav.saf.LogiskVedlegg vedlegg) {
