@@ -12,7 +12,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
-import java.util.stream.Collectors;
 
 import javax.security.auth.message.config.AuthConfigFactory;
 import javax.servlet.http.HttpServletRequest;
@@ -196,7 +195,7 @@ abstract class AbstractJettyServer {
         var resources = getWebInfClasses().stream()
                 .map(c -> Resource.newResource(c.getProtectionDomain().getCodeSource().getLocation()))
                 .distinct()
-                .collect(Collectors.toList());
+                .toList();
 
         // metaData.setWebInfClassesDirs(resources);
         metaData.setWebInfClassesResources(resources);

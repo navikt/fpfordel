@@ -301,7 +301,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
                 .orElse(List.of());
         var svpSøknader = dokumenter.stream()
                 .filter(d -> SØKNAD_SVANGERSKAPSPENGER.equals(d.getDokumentTypeId()))
-                .collect(Collectors.toList());
+                .toList();
         var svpStrukturert = svpSøknader.stream().anyMatch(d -> XML.equals(d.getArkivFilType()));
         if (svpSøknader.isEmpty() || svpStrukturert) {
             var doktype = utledHovedDokumentType(dokumenter.stream().map(Dokument::getDokumentTypeId).collect(Collectors.toSet()));
