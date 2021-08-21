@@ -76,12 +76,12 @@ class OpprettGSakOppgaveTjenesteTaskTest {
 
         String beskrivelse = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getTermNavn();
 
-        ArgumentCaptor<OpprettOppgave.Builder> captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
+        var captor = ArgumentCaptor.forClass(OpprettOppgave.class);
         when(oppgaver.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
 
         task.doTask(taskData);
 
-        OpprettOppgave request = captor.getValue().build();
+        OpprettOppgave request = captor.getValue();
         assertThat(request.getBeskrivelse()).isEqualTo(beskrivelse);
         assertThat(request.getOppgavetype()).isEqualTo(OPPGAVETYPER_JFR);
     }
@@ -96,13 +96,13 @@ class OpprettGSakOppgaveTjenesteTaskTest {
         taskData.setProperty(JOURNAL_ENHET, enhet);
         String beskrivelse = BehandlingTema.ENGANGSSTØNAD_FØDSEL.getTermNavn();
 
-        ArgumentCaptor<OpprettOppgave.Builder> captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
+        var captor = ArgumentCaptor.forClass(OpprettOppgave.class);
         when(oppgaver.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
         when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), eq(Optional.of(enhet)), any())).thenReturn(enhet);
 
         task.doTask(taskData);
 
-        OpprettOppgave request = captor.getValue().build();
+        OpprettOppgave request = captor.getValue();
         assertThat(request.getBeskrivelse()).isEqualTo(beskrivelse);
         assertThat(request.getOppgavetype()).isEqualTo(OPPGAVETYPER_JFR);
         assertThat(request.getTildeltEnhetsnr()).isEqualTo(enhet);
@@ -121,12 +121,12 @@ class OpprettGSakOppgaveTjenesteTaskTest {
 
         String beskrivelse = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.getTermNavn();
 
-        ArgumentCaptor<OpprettOppgave.Builder> captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
+        var captor = ArgumentCaptor.forClass(OpprettOppgave.class);
         when(oppgaver.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
 
         task.doTask(taskData);
 
-        OpprettOppgave request = captor.getValue().build();
+        OpprettOppgave request = captor.getValue();
         assertThat(request.getBeskrivelse()).isEqualTo(beskrivelse);
     }
 }

@@ -2,9 +2,6 @@ package no.nav.foreldrepenger.fordel.web.app.exceptions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -25,28 +22,10 @@ class GeneralRestExceptionMapperTest {
     }
 
     @Test
-    void skalMappeValideringsfeil() {
-        FeltFeilDto feltFeilDto = new FeltFeilDto("Et feltnavn", "En feilmelding");
-        ValideringException valideringsfeil = new ValideringException(List.of(feltFeilDto));
-
-        Response response = mapper.toResponse(new WebApplicationException(valideringsfeil));
-
-        assertThat(response.getStatus()).isEqualTo(400);
-        assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
-        FeilDto feilDto = (FeilDto) response.getEntity();
-
-        assertThat(feilDto.feilmelding()).contains(
-                "Det oppstod en valideringsfeil på felt [Et feltnavn]");
-        assertThat(feilDto.feltFeil()).hasSize(1);
-        assertThat(feilDto.feltFeil().iterator().next()).isEqualTo(feltFeilDto);
-    }
-
-    @Test
     void skalMappeManglerTilgangFeil() {
         var manglerTilgangFeil = TestFeil.manglerTilgangFeil();
 
-        Response response = mapper
-                .toResponse(new WebApplicationException(manglerTilgangFeil));
+        Response response = mapper.toResponse(manglerTilgangFeil);
 
         assertThat(response.getStatus()).isEqualTo(403);
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
@@ -60,8 +39,7 @@ class GeneralRestExceptionMapperTest {
     void skalMappeFunksjonellFeil() {
         var funksjonellFeil = TestFeil.funksjonellFeil();
 
-        Response response = mapper
-                .toResponse(new WebApplicationException(funksjonellFeil));
+        Response response = mapper.toResponse(funksjonellFeil);
 
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
         FeilDto feilDto = (FeilDto) response.getEntity();
@@ -75,7 +53,7 @@ class GeneralRestExceptionMapperTest {
     void skalMappeVLException() {
         VLException vlException = TestFeil.tekniskFeil();
 
-        Response response = mapper.toResponse(new WebApplicationException(vlException));
+        Response response = mapper.toResponse(vlException);
 
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
         FeilDto feilDto = (FeilDto) response.getEntity();
@@ -89,7 +67,7 @@ class GeneralRestExceptionMapperTest {
         String feilmelding = "en helt generell feil";
         RuntimeException generellFeil = new RuntimeException(feilmelding);
 
-        Response response = mapper.toResponse(new WebApplicationException(generellFeil));
+        Response response = mapper.toResponse(generellFeil);
 
         assertThat(response.getStatus()).isEqualTo(500);
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);

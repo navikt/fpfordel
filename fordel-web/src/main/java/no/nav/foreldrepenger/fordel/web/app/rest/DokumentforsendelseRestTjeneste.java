@@ -51,8 +51,6 @@ import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.web.app.exceptions.FeltFeilDto;
-import no.nav.foreldrepenger.fordel.web.app.exceptions.ValideringException;
 import no.nav.foreldrepenger.fordel.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.fordel.web.server.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.fordel.web.server.abac.BeskyttetRessursAttributt;
@@ -181,7 +179,7 @@ public class DokumentforsendelseRestTjeneste {
         try {
             forsendelseId = forsendelseIdDto.forsendelseId();
         } catch (IllegalArgumentException e) { // NOSONAR
-            throw new ValideringException(List.of(new FeltFeilDto("forsendelseId", "Ugyldig uuid")));
+            return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
         ForsendelseStatusDto forsendelseStatusDto = service.finnStatusinformasjon(forsendelseId);

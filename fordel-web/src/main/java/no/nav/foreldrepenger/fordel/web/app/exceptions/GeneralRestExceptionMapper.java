@@ -1,12 +1,8 @@
 package no.nav.foreldrepenger.fordel.web.app.exceptions;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
@@ -16,57 +12,31 @@ import org.slf4j.MDC;
 
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.ManglerTilgangException;
-import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.log.util.LoggerUtils;
 
-// TODO (tor) Har berre fått denne til å fungera med ApplicationException. Dermed blir denne mapperen heilt
-// generell. (Eigen mapper for ConstraintViolationException.)
 
 @Provider
-public class GeneralRestExceptionMapper implements ExceptionMapper<WebApplicationException> {
+public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeneralRestExceptionMapper.class);
 
     @Override
-    public Response toResponse(WebApplicationException e) {
-        Throwable cause = e.getCause();
-
-        if (cause instanceof ValideringException) {
-            return handleValideringsfeil((ValideringException) cause);
-        }
-
+    public Response toResponse(Throwable cause) {
         loggTilApplikasjonslogg(cause);
-        String callId = MDCOperations.getCallId();
-
-        if (cause instanceof VLException vl) {
-            return handleVLException(vl, callId);
+        if (cause instanceof WebApplicationException wae && wae.getResponse() != null) {
+            return wae.getResponse();
         }
-        return handleGenerellFeil(cause, callId);
-    }
-
-    private static Response handleValideringsfeil(ValideringException valideringsfeil) {
-        List<String> feltNavn = valideringsfeil.getFeltFeil().stream().map(felt -> felt.navn())
-                .collect(Collectors.toList());
-        return Response
-                .status(Status.BAD_REQUEST)
-                .entity(new FeilDto(
-                        new FunksjonellException("FP-328673", String.format("Det oppstod en valideringsfeil på felt %s", feltNavn),
-                                "Kontroller at alle feltverdier er korrekte").getMessage(),
-                        valideringsfeil.getFeltFeil()))
-                .type(MediaType.APPLICATION_JSON)
-                .build();
-    }
-
-    private static Response handleVLException(VLException e, String callId) {
-        if (e instanceof ManglerTilgangException) {
-            return ikkeTilgang((ManglerTilgangException) e);
+        // TODO re-enable og slett den over etter validering loggTilApplikasjonslogg(cause);
+        if (cause instanceof ManglerTilgangException mte) {
+            return ikkeTilgang(mte);
+        } else {
+            return serverError(cause);
         }
-        return serverError(callId, e);
     }
 
-    private static Response serverError(String callId, VLException feil) {
-        String feilmelding = getVLExceptionFeilmelding(callId, feil);
+    private static Response serverError(Throwable feil) {
+        String feilmelding = getVLExceptionFeilmelding(feil);
         return Response.serverError()
                 .entity(new FeilDto(feilmelding, FeilType.GENERELL_FEIL))
                 .type(MediaType.APPLICATION_JSON)
@@ -74,36 +44,26 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<WebApplicatio
     }
 
     private static Response ikkeTilgang(ManglerTilgangException feil) {
-        String feilmelding = feil.getMessage();
-        FeilType feilType = FeilType.MANGLER_TILGANG_FEIL;
         return Response.status(Response.Status.FORBIDDEN)
-                .entity(new FeilDto(feilmelding, feilType))
+                .entity(new FeilDto(feil.getMessage(), FeilType.MANGLER_TILGANG_FEIL))
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }
 
-    private static String getVLExceptionFeilmelding(String callId, VLException feil) {
-        String feilbeskrivelse = feil.getMessage();
+    private static String getVLExceptionFeilmelding(Throwable feil) {
+        var callId = MDCOperations.getCallId();
+        String feilbeskrivelse = getExceptionMelding(feil);
         if (feil instanceof FunksjonellException f) {
             String løsningsforslag = f.getLøsningsforslag();
-            return "Det oppstod en feil: " //$NON-NLS-1$
+            return "Det oppstod en feil: "
                     + avsluttMedPunktum(feilbeskrivelse)
                     + avsluttMedPunktum(løsningsforslag)
                     + ". Referanse-id: " + callId;
-        } else {
-            return "Det oppstod en serverfeil: "
-                    + avsluttMedPunktum(feilbeskrivelse)
-                    + ". Meld til support med referanse-id: " + callId;
         }
-    }
-
-    private static Response handleGenerellFeil(Throwable cause, String callId) {
-        String generellFeilmelding = "Det oppstod en serverfeil: " + cause.getMessage()
+        return "Det oppstod en serverfeil: "
+                + avsluttMedPunktum(feilbeskrivelse)
                 + ". Meld til support med referanse-id: " + callId;
-        return Response.serverError()
-                .entity(new FeilDto(generellFeilmelding, FeilType.GENERELL_FEIL))
-                .type(MediaType.APPLICATION_JSON)
-                .build();
+
     }
 
     private static String avsluttMedPunktum(String tekst) {
@@ -111,15 +71,23 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<WebApplicatio
     }
 
     private static void loggTilApplikasjonslogg(Throwable cause) {
-        if (cause instanceof VLException) {
-            LOGGER.warn(cause.getMessage());
+        var feil = getExceptionMelding(cause);
+        if (cause instanceof ManglerTilgangException) {
+            LOGGER.info(feil, cause);
         } else {
-            String message = cause.getMessage() != null ? LoggerUtils.removeLineBreaks(cause.getMessage()) : "";
-            LOGGER.error("Fikk uventet feil:" + message, cause);
+            LOGGER.error("Fikk uventet feil:" + feil, cause);
         }
 
         // key for å tracke prosess -- nullstill denne
         MDC.remove("prosess");
+    }
+
+    private static String getExceptionMelding(Throwable feil) {
+        return getTextForField(feil.getMessage());
+    }
+
+    private static String getTextForField(String input) {
+        return input != null ? LoggerUtils.removeLineBreaks(input) : "";
     }
 
 }

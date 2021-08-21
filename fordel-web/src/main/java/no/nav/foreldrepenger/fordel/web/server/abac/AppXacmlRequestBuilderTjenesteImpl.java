@@ -24,7 +24,6 @@ import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.pdp.XacmlRequestBuilderTjeneste;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlAttributeSet;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
-import no.nav.vedtak.util.Tuple;
 
 @Dependent
 @Alternative
@@ -58,23 +57,23 @@ public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTj
         return xacmlBuilder;
     }
 
-    private static XacmlAttributeSet byggRessursAttributter(PdpRequest pdpRequest, Tuple<String, String> ident) {
+    private static XacmlAttributeSet byggRessursAttributter(PdpRequest pdpRequest, IdentKey ident) {
         var resourceAttributeSet = new XacmlAttributeSet();
         resourceAttributeSet.addAttribute(RESOURCE_FELLES_DOMENE,
                 pdpRequest.getString(RESOURCE_FELLES_DOMENE));
         resourceAttributeSet.addAttribute(RESOURCE_FELLES_RESOURCE_TYPE,
                 pdpRequest.getString(RESOURCE_FELLES_RESOURCE_TYPE));
         if (ident != null) {
-            resourceAttributeSet.addAttribute(ident.getElement1(), ident.getElement2());
+            resourceAttributeSet.addAttribute(ident.key(), ident.ident());
         }
         return resourceAttributeSet;
     }
 
-    private static List<Tuple<String, String>> hentIdenter(PdpRequest pdpRequest, String... identNøkler) {
-        List<Tuple<String, String>> identer = new ArrayList<>();
+    private static List<IdentKey> hentIdenter(PdpRequest pdpRequest, String... identNøkler) {
+        List<IdentKey> identer = new ArrayList<>();
         for (String key : identNøkler) {
             identer.addAll(pdpRequest.getListOfString(key).stream()
-                    .map(it -> new Tuple<>(key, it))
+                    .map(it -> new IdentKey(key, it))
                     .collect(Collectors.toList()));
         }
         return identer;
@@ -101,5 +100,5 @@ public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTj
             LOG.trace("Legger IKKE til suject attributter");
         }
     }
-
+    private static record IdentKey(String key, String ident) {}
 }
