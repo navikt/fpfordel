@@ -34,14 +34,17 @@ import javax.ws.rs.Path;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.http.client.utils.URIBuilder;
 import org.glassfish.jersey.media.multipart.BodyPart;
 import org.glassfish.jersey.media.multipart.MultiPart;
+import org.glassfish.jersey.uri.internal.JerseyUriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,6 +100,9 @@ public class DokumentforsendelseRestTjeneste {
     private DokumentforsendelseTjeneste service;
 
     private URI fpStatusUrl;
+
+    @Context
+    UriInfo uriInfo;
 
     public DokumentforsendelseRestTjeneste() {
     }
@@ -160,6 +166,8 @@ public class DokumentforsendelseRestTjeneste {
                 yield Response.ok(forsendelseStatusDto).build();
             }
             default -> {
+                var redirect = new JerseyUriBuilder().uri(uriInfo.getBaseUri()).path(uriInfo.getPath()).queryParam("forsendelseId", dokumentforsendelse.getForsendelsesId()).build();
+                LOG.info("REDIRECT " + redirect);
                 LOG.info("Forsendelse {} foreløpig ikke fordelt", dokumentforsendelse.getForsendelsesId());
                 yield Response.accepted()
                         .location(URI.create(
