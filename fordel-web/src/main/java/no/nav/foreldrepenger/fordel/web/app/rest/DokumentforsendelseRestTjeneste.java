@@ -45,6 +45,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.http.client.utils.URIBuilder;
 import org.glassfish.jersey.media.multipart.BodyPart;
 import org.glassfish.jersey.media.multipart.MultiPart;
+import org.glassfish.jersey.uri.internal.JerseyUriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -170,7 +171,7 @@ public class DokumentforsendelseRestTjeneste {
             default -> {
                 LOG.info("Forsendelse {} foreløpig ikke fordelt", dokumentforsendelse.getForsendelsesId());
                 yield Response.accepted()
-                        .location(UriBuilder
+                        .location(JerseyUriBuilder
                                 .fromUri(uriInfo.getBaseUri())
                                 .path(uriInfo.getPath()+  "/status")
                                 .queryParam(FORSENDELSESID, dokumentforsendelse.getForsendelsesId())
