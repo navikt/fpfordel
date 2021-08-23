@@ -82,7 +82,8 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 public class DokumentforsendelseRestTjeneste {
     static final String SERVICE_PATH = "/dokumentforsendelse";
 
-    static final String STATUS_PATH = "/status";
+    private static final String STATUS_PATH = "/status";
+    private static final String FORSENDELSE_PARAM = "forsendelseId";
 
     private static final String FPFORDEL_CONTEXT = "/fpfordel/api";
 
@@ -123,7 +124,7 @@ public class DokumentforsendelseRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.FAGSAK)
     public Response uploadFile(@Context HttpServletRequest request,
-                               @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) MultiPart input) {
+                               @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) @Valid MultiPart input) {
         LOG.info("Innsending av dokumentforsendelse");
         var inputParts = input.getBodyParts();
         if (inputParts.size() < 2) {
@@ -183,7 +184,7 @@ public class DokumentforsendelseRestTjeneste {
         Optional.ofNullable(request).map(HttpServletRequest::getServletPath).ifPresent(uriBuilder::path);
         return uriBuilder.path(SERVICE_PATH)
                 .path(STATUS_PATH)
-                .queryParam("forsendelseId", dokumentforsendelse.getForsendelsesId());
+                .queryParam(FORSENDELSE_PARAM, dokumentforsendelse.getForsendelsesId());
     }
 
     @GET
@@ -194,7 +195,7 @@ public class DokumentforsendelseRestTjeneste {
             @ApiResponse(responseCode = "303", description = "See Other")
     })
     public Response finnStatusinformasjon(
-            @TilpassetAbacAttributt(supplierClass = ForsendelseAbacDataSupplier.class) @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
+            @TilpassetAbacAttributt(supplierClass = ForsendelseAbacDataSupplier.class) @NotNull @QueryParam(FORSENDELSE_PARAM) @Parameter(name = FORSENDELSE_PARAM) @Valid ForsendelseIdDto forsendelseIdDto) {
 
         var forsendelseId = forsendelseIdDto.forsendelseId();
         var forsendelseStatusDto = service.finnStatusinformasjon(forsendelseId);
@@ -210,7 +211,7 @@ public class DokumentforsendelseRestTjeneste {
 
     private URI lagStatusURI(UUID forsendelseId) {
         try {
-            return new URIBuilder(fpStatusUrl).addParameter("forsendelseId", forsendelseId.toString()).build();
+            return new URIBuilder(fpStatusUrl).addParameter(FORSENDELSE_PARAM, forsendelseId.toString()).build();
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException(forsendelseId.toString());
         }

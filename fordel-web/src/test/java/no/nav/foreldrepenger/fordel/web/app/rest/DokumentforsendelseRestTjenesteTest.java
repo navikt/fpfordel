@@ -82,7 +82,7 @@ class DokumentforsendelseRestTjenesteTest {
         when(dokumentTjeneste.finnStatusinformasjonHvisEksisterer(any(UUID.class)))
                 .thenReturn(Optional.of(forsendelseStatusDto));
 
-        assertThatThrownBy(() -> tjeneste.uploadFile(input))
+        assertThatThrownBy(() -> tjeneste.uploadFile(null, input))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Må ha minst to deler,fikk 0");
     }
@@ -92,7 +92,7 @@ class DokumentforsendelseRestTjenesteTest {
         MultivaluedMap<String, String> map = new StringKeyIgnoreCaseMultivaluedMap<>();
         map.put(CONTENT_DISPOSITION, List.of("ikke_metadata"));
         when(metadataPart.getHeaders()).thenReturn(map);
-        assertThatThrownBy(() -> tjeneste.uploadFile(input))
+        assertThatThrownBy(() -> tjeneste.uploadFile(null, input))
                 .isInstanceOf(TekniskException.class)
                 .hasMessage("FP-892453:The first part must be the metadata part");
     }
@@ -100,7 +100,7 @@ class DokumentforsendelseRestTjenesteTest {
     @Test
     void skal_kaste_teknisk_exception_hvis_metadata_ikke_er_json() {
         when(metadataPart.getMediaType()).thenReturn(APPLICATION_XML_TYPE);
-        assertThatThrownBy(() -> tjeneste.uploadFile(input))
+        assertThatThrownBy(() -> tjeneste.uploadFile(null, input))
                 .isInstanceOf(TekniskException.class)
                 .hasMessage("FP-892454:The metadata part should be application/json");
     }
@@ -108,7 +108,7 @@ class DokumentforsendelseRestTjenesteTest {
     @Test
     void skal_kaste_teknisk_exception_hvis_man_ikke_kan_hente_body_for_metadata() throws Exception {
         when(metadataPart.getEntityAs(String.class)).thenThrow(ProcessingException.class);
-        assertThatThrownBy(() -> tjeneste.uploadFile(input))
+        assertThatThrownBy(() -> tjeneste.uploadFile(null, input))
                 .isInstanceOf(TekniskException.class)
                 .hasMessageContaining("FP-892466:Klarte ikke å lese inn dokumentet");
     }
@@ -116,7 +116,7 @@ class DokumentforsendelseRestTjenesteTest {
     @Test
     void skal_kaste_teknisk_exception_hvis_metadata_har_flere_filer_enn_lastet_opp() {
         when(input.getBodyParts()).thenReturn(List.of(metadataPart, hoveddokumentPart, hoveddokumentPartPdf));
-        assertThatThrownBy(() -> tjeneste.uploadFile(input))
+        assertThatThrownBy(() -> tjeneste.uploadFile(null, input))
                 .isInstanceOf(TekniskException.class)
                 .hasMessageContaining("FP-892456:Metadata inneholder flere filer enn det som er lastet opp");
     }
@@ -128,7 +128,7 @@ class DokumentforsendelseRestTjenesteTest {
                 mockVedleggPart(contentId));
         when(input.getBodyParts()).thenReturn(inputParts);
 
-        assertThatThrownBy(() -> tjeneste.uploadFile(input))
+        assertThatThrownBy(() -> tjeneste.uploadFile(null, input))
                 .isInstanceOf(TekniskException.class)
                 .hasMessageContaining("FP-892446:")
                 .hasMessageContaining(contentId);
@@ -140,7 +140,7 @@ class DokumentforsendelseRestTjenesteTest {
         map.put("Content-Disposition", List.of("mangler ; foo=name"));
         when(hoveddokumentPart.getHeaders()).thenReturn(map);
 
-        assertThatThrownBy(() -> tjeneste.uploadFile(input))
+        assertThatThrownBy(() -> tjeneste.uploadFile(null, input))
                 .isInstanceOf(TekniskException.class)
                 .hasMessageContaining("FP-892457:Unknown part name");
     }
@@ -148,7 +148,7 @@ class DokumentforsendelseRestTjenesteTest {
     @Test
     void skal_kaste_teknisk_exception_hvis_vedlegg_ikke_er_mediatype_pdf() {
         when(vedleggPart.getMediaType()).thenReturn(APPLICATION_XML_TYPE);
-        assertThatThrownBy(() -> tjeneste.uploadFile(input))
+        assertThatThrownBy(() -> tjeneste.uploadFile(null, input))
                 .isInstanceOf(TekniskException.class)
                 .hasMessageContaining("FP-882558:Vedlegg er ikke pdf, Content-ID=<some ID 3>");
     }
@@ -158,7 +158,7 @@ class DokumentforsendelseRestTjenesteTest {
         var forsendelseStatusDto = new ForsendelseStatusDto(ForsendelseStatus.PENDING);
         when(dokumentTjeneste.finnStatusinformasjonHvisEksisterer(any(UUID.class)))
                 .thenReturn(Optional.of(forsendelseStatusDto));
-        var response = tjeneste.uploadFile(input);
+        var response = tjeneste.uploadFile(null, input);
         assertThat(response.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
         assertThat(response.getHeaderString(LOCATION))
                 .contains("/dokumentforsendelse/status?forsendelseId=48f6e1cf-c5d8-4355-8e8c-b75494703959");
@@ -168,7 +168,7 @@ class DokumentforsendelseRestTjenesteTest {
     void skal_returnere_see_other_redirect_når_status_fpsak() {
         var status = new ForsendelseStatusDto(ForsendelseStatus.FPSAK);
         when(dokumentTjeneste.finnStatusinformasjon(any(UUID.class))).thenReturn(status);
-        var response = tjeneste.uploadFile(input);
+        var response = tjeneste.uploadFile(null, input);
         assertThat(response.getStatus()).isEqualTo(303);
     }
 
@@ -176,7 +176,7 @@ class DokumentforsendelseRestTjenesteTest {
     void skal_returnere_status_ok_når_status_gosys() {
         var status = new ForsendelseStatusDto(ForsendelseStatus.GOSYS);
         when(dokumentTjeneste.finnStatusinformasjon(any(UUID.class))).thenReturn(status);
-        var response = tjeneste.uploadFile(input);
+        var response = tjeneste.uploadFile(null, input);
         assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_OK);
         assertThat(response.getEntity()).isEqualTo(status);
     }
@@ -185,9 +185,9 @@ class DokumentforsendelseRestTjenesteTest {
     void skal_håndtere_duplikate_kall() {
         var status = new ForsendelseStatusDto(ForsendelseStatus.FPSAK);
         when(dokumentTjeneste.finnStatusinformasjon(any(UUID.class))).thenReturn(status);
-        var response1 = tjeneste.uploadFile(input);
+        var response1 = tjeneste.uploadFile(null, input);
         when(dokumentTjeneste.finnStatusinformasjonHvisEksisterer(any(UUID.class))).thenReturn(Optional.of(status));
-        var response2 = tjeneste.uploadFile(input);
+        var response2 = tjeneste.uploadFile(null, input);
 
         assertThat(response1.getStatus()).isEqualTo(HttpStatus.SC_SEE_OTHER);
         assertThat(response1.getEntity()).isEqualTo(status);
