@@ -161,7 +161,7 @@ class DokumentforsendelseRestTjenesteTest {
         var response = tjeneste.uploadFile(input);
         assertThat(response.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
         assertThat(response.getHeaderString(LOCATION))
-                .isEqualTo("/dokumentforsendelse/status?forsendelseId=48f6e1cf-c5d8-4355-8e8c-b75494703959");
+                .contains("/dokumentforsendelse/status?forsendelseId=48f6e1cf-c5d8-4355-8e8c-b75494703959");
     }
 
     @Test
