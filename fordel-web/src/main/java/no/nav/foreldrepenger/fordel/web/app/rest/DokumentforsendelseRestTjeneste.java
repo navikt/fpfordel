@@ -15,12 +15,14 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
@@ -34,10 +36,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 
 import org.apache.http.client.utils.URIBuilder;
 import org.glassfish.jersey.media.multipart.BodyPart;
@@ -78,6 +82,8 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 public class DokumentforsendelseRestTjeneste {
     static final String SERVICE_PATH = "/dokumentforsendelse";
 
+    static final String STATUS_PATH = "/status";
+
     private static final String FPFORDEL_CONTEXT = "/fpfordel/api";
 
     private static final String DEFAULT_FPINFO_BASE_URI = "http://fpinfo";
@@ -116,7 +122,8 @@ public class DokumentforsendelseRestTjeneste {
                     @Header(name = HttpHeaders.LOCATION, description = "Link til hvor man kan følge statusen på dokumentforsendelsen") }),
     })
     @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.FAGSAK)
-    public Response uploadFile(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) MultiPart input) {
+    public Response uploadFile(@Context HttpServletRequest request,
+                               @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) MultiPart input) {
         LOG.info("Innsending av dokumentforsendelse");
         var inputParts = input.getBodyParts();
         if (inputParts.size() < 2) {
@@ -129,10 +136,10 @@ public class DokumentforsendelseRestTjeneste {
                 dokumentforsendelse.getForsendelsesId());
 
         var response = eksisterendeForsendelseStatus.map(
-                status -> tilForsendelseStatusRespons(dokumentforsendelse, status)).orElseGet(() -> {
+                status -> tilForsendelseStatusRespons(request, dokumentforsendelse, status)).orElseGet(() -> {
                     lagreDokumentForsendelse(inputParts.subList(1, inputParts.size()), dokumentforsendelse);
                     var status = service.finnStatusinformasjon(dokumentforsendelse.getForsendelsesId());
-                    return tilForsendelseStatusRespons(dokumentforsendelse, status);
+                    return tilForsendelseStatusRespons(request, dokumentforsendelse, status);
                 });
         LOG.info("Innsending av dokumentforsendelse med id prosessert {}", dokumentforsendelse.getForsendelsesId());
         return response;
@@ -146,7 +153,8 @@ public class DokumentforsendelseRestTjeneste {
         validerDokumentforsendelse(dokumentforsendelse);
     }
 
-    private Response tilForsendelseStatusRespons(Dokumentforsendelse dokumentforsendelse,
+    private Response tilForsendelseStatusRespons(HttpServletRequest request,
+            Dokumentforsendelse dokumentforsendelse,
             ForsendelseStatusDto forsendelseStatusDto) {
         return switch (forsendelseStatusDto.getForsendelseStatus()) {
             case FPSAK -> {
@@ -162,16 +170,24 @@ public class DokumentforsendelseRestTjeneste {
             default -> {
                 LOG.info("Forsendelse {} foreløpig ikke fordelt", dokumentforsendelse.getForsendelsesId());
                 yield Response.accepted()
-                        .location(URI.create(
-                                FPFORDEL_CONTEXT + SERVICE_PATH + "/status?forsendelseId=" + dokumentforsendelse.getForsendelsesId()))
+                        .location(getUriBuilderForFpfordelStatus(request, dokumentforsendelse).build())
                         .entity(forsendelseStatusDto)
                         .build();
             }
         };
     }
 
+    private static UriBuilder getUriBuilderForFpfordelStatus(HttpServletRequest request, Dokumentforsendelse dokumentforsendelse) {
+        UriBuilder uriBuilder = request == null || request.getContextPath() == null ? UriBuilder.fromUri("") :
+                UriBuilder.fromUri(URI.create(request.getContextPath()));
+        Optional.ofNullable(request).map(HttpServletRequest::getServletPath).ifPresent(uriBuilder::path);
+        return uriBuilder.path(SERVICE_PATH)
+                .path(STATUS_PATH)
+                .queryParam("forsendelseId", dokumentforsendelse.getForsendelsesId());
+    }
+
     @GET
-    @Path("/status")
+    @Path(STATUS_PATH)
     @BeskyttetRessurs(action = READ, resource = BeskyttetRessursAttributt.FAGSAK)
     @Operation(description = "Finner status på prosessering av mottatt dokumentforsendelse", tags = "Mottak", summary = "Format: \"8-4-4-4-12\" eksempel \"48F6E1CF-C5D8-4355-8E8C-B75494703959\"", responses = {
             @ApiResponse(responseCode = "200", description = "Status og Periode"),
