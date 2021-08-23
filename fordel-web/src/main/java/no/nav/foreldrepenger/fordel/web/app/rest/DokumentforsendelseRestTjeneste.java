@@ -177,13 +177,8 @@ public class DokumentforsendelseRestTjeneste {
     })
     public Response finnStatusinformasjon(
             @TilpassetAbacAttributt(supplierClass = ForsendelseAbacDataSupplier.class) @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
-        UUID forsendelseId;
-        try {
-            forsendelseId = forsendelseIdDto.forsendelseId();
-        } catch (IllegalArgumentException e) { // NOSONAR
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
 
+        var forsendelseId = forsendelseIdDto.forsendelseId();
         var forsendelseStatusDto = service.finnStatusinformasjon(forsendelseId);
         if (FPSAK.equals(forsendelseStatusDto.getForsendelseStatus())) {
             URI statusURI = lagStatusURI(forsendelseId);

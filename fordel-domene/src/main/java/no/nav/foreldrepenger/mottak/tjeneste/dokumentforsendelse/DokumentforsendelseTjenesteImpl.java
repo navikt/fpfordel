@@ -110,6 +110,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
     public Optional<ForsendelseStatusDto> finnStatusinformasjonHvisEksisterer(UUID forsendelseId) {
         LOG.info("Finner statusinformasjon");
         return repository.hentUnikDokumentMetadata(forsendelseId).map(dokumentMetadata -> {
+            LOG.info("Fant dokumentMetadata {}", dokumentMetadata);
             var status = dokumentMetadata.getStatus();
             var forsendelseStatusDto = new ForsendelseStatusDto(status);
 
@@ -119,6 +120,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
                 dokumentMetadata.getArkivId().ifPresent(forsendelseStatusDto::setJournalpostId);
                 dokumentMetadata.getSaksnummer().ifPresent(forsendelseStatusDto::setSaksnummer);
             }
+            LOG.info("Fant statusinformasjon {}", forsendelseStatusDto);
             return forsendelseStatusDto;
         });
     }
