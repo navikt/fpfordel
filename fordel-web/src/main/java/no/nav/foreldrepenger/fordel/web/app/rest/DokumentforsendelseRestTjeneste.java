@@ -78,6 +78,8 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 public class DokumentforsendelseRestTjeneste {
     static final String SERVICE_PATH = "/dokumentforsendelse";
 
+    private static final String FPFORDEL_CONTEXT = "/fpfordel/api";
+
     private static final String DEFAULT_FPINFO_BASE_URI = "http://fpinfo";
     private static final String DOKUMENTFORSENDELSE_STATUS_PATH = "/fpinfo/api/dokumentforsendelse/status";
 
@@ -161,7 +163,7 @@ public class DokumentforsendelseRestTjeneste {
                 LOG.info("Forsendelse {} foreløpig ikke fordelt", dokumentforsendelse.getForsendelsesId());
                 yield Response.accepted()
                         .location(URI.create(
-                                SERVICE_PATH + "/status?forsendelseId=" + dokumentforsendelse.getForsendelsesId()))
+                                FPFORDEL_CONTEXT + SERVICE_PATH + "/status?forsendelseId=" + dokumentforsendelse.getForsendelsesId()))
                         .entity(forsendelseStatusDto)
                         .build();
             }
