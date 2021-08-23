@@ -34,10 +34,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.http.client.utils.URIBuilder;
 import org.glassfish.jersey.media.multipart.BodyPart;
@@ -87,6 +90,8 @@ public class DokumentforsendelseRestTjeneste {
     private static final String PART_KEY_HOVEDDOKUMENT = "hoveddokument";
     private static final String PART_KEY_VEDLEGG = "vedlegg";
 
+    private static final String FORSENDELSESID = "forsendelseId";
+
     public static final MediaType APPLICATION_PDF_TYPE = MediaType.valueOf("application/pdf");
 
     private static final ObjectMapper OBJECT_MAPPER = new JacksonJsonConfig().getObjectMapper();
@@ -97,6 +102,9 @@ public class DokumentforsendelseRestTjeneste {
     private DokumentforsendelseTjeneste service;
 
     private URI fpStatusUrl;
+
+    @Context
+    private UriInfo uriInfo;
 
     public DokumentforsendelseRestTjeneste() {
     }
@@ -162,8 +170,11 @@ public class DokumentforsendelseRestTjeneste {
             default -> {
                 LOG.info("Forsendelse {} foreløpig ikke fordelt", dokumentforsendelse.getForsendelsesId());
                 yield Response.accepted()
-                        .location(URI.create(
-                                FPFORDEL_CONTEXT + SERVICE_PATH + "/status?forsendelseId=" + dokumentforsendelse.getForsendelsesId()))
+                        .location(UriBuilder
+                                .fromUri(uriInfo.getBaseUri())
+                                .path(uriInfo.getPath()+  "/status")
+                                .queryParam(FORSENDELSESID, dokumentforsendelse.getForsendelsesId())
+                                .build())
                         .entity(forsendelseStatusDto)
                         .build();
             }
@@ -178,7 +189,7 @@ public class DokumentforsendelseRestTjeneste {
             @ApiResponse(responseCode = "303", description = "See Other")
     })
     public Response finnStatusinformasjon(
-            @TilpassetAbacAttributt(supplierClass = ForsendelseAbacDataSupplier.class) @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
+            @TilpassetAbacAttributt(supplierClass = ForsendelseAbacDataSupplier.class) @NotNull @QueryParam(FORSENDELSESID) @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
 
         var forsendelseId = forsendelseIdDto.forsendelseId();
         var forsendelseStatusDto = service.finnStatusinformasjon(forsendelseId);
