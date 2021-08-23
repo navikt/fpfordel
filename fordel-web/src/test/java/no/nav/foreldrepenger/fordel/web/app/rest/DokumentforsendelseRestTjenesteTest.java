@@ -12,7 +12,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
@@ -24,14 +23,15 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.apache.http.HttpStatus;
-import org.jboss.resteasy.plugins.providers.multipart.InputPart;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartInput;
-import org.jboss.resteasy.specimpl.MultivaluedMapImpl;
+import org.glassfish.jersey.internal.util.collection.StringKeyIgnoreCaseMultivaluedMap;
+import org.glassfish.jersey.media.multipart.BodyPart;
+import org.glassfish.jersey.media.multipart.MultiPart;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,12 +56,12 @@ class DokumentforsendelseRestTjenesteTest {
     @Mock
     private DokumentforsendelseTjeneste dokumentTjeneste;
     private DokumentforsendelseRestTjeneste tjeneste;
-    private InputPart metadataPart;
-    private InputPart hoveddokumentPart;
-    private InputPart hoveddokumentPartPdf;
-    private InputPart vedleggPart;
+    private BodyPart metadataPart;
+    private BodyPart hoveddokumentPart;
+    private BodyPart hoveddokumentPartPdf;
+    private BodyPart vedleggPart;
     @Mock
-    private MultipartInput input;
+    private MultiPart input;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -70,12 +70,12 @@ class DokumentforsendelseRestTjenesteTest {
         hoveddokumentPart = mockHoveddokumentPartXml();
         hoveddokumentPartPdf = mockHoveddokumentPartPdf();
         vedleggPart = mockVedleggPart("<some ID 3>");
-        when(input.getParts()).thenReturn(List.of(metadataPart, hoveddokumentPart, hoveddokumentPartPdf, vedleggPart));
+        when(input.getBodyParts()).thenReturn(List.of(metadataPart, hoveddokumentPart, hoveddokumentPartPdf, vedleggPart));
     }
 
     @Test
     void input_skal_kaste_exception_når_inputpart_ikke_har_minst_2_parts() {
-        when(input.getParts()).thenReturn(new ArrayList<>());
+        when(input.getBodyParts()).thenReturn(new ArrayList<>());
         var forsendelseStatusDto = new ForsendelseStatusDto(ForsendelseStatus.PENDING);
         when(dokumentTjeneste.finnStatusinformasjon(any(UUID.class)))
                 .thenReturn(forsendelseStatusDto);
@@ -89,7 +89,7 @@ class DokumentforsendelseRestTjenesteTest {
 
     @Test
     void skal_kaste_teknisk_exception_hvis_metadata_ikke_er_første_part() {
-        MultivaluedMap<String, String> map = new MultivaluedMapImpl<>();
+        MultivaluedMap<String, String> map = new StringKeyIgnoreCaseMultivaluedMap<>();
         map.put(CONTENT_DISPOSITION, List.of("ikke_metadata"));
         when(metadataPart.getHeaders()).thenReturn(map);
         assertThatThrownBy(() -> tjeneste.uploadFile(input))
@@ -107,7 +107,7 @@ class DokumentforsendelseRestTjenesteTest {
 
     @Test
     void skal_kaste_teknisk_exception_hvis_man_ikke_kan_hente_body_for_metadata() throws Exception {
-        when(metadataPart.getBodyAsString()).thenThrow(IOException.class);
+        when(metadataPart.getEntityAs(String.class)).thenThrow(ProcessingException.class);
         assertThatThrownBy(() -> tjeneste.uploadFile(input))
                 .isInstanceOf(TekniskException.class)
                 .hasMessageContaining("FP-892466:Klarte ikke å lese inn dokumentet");
@@ -115,7 +115,7 @@ class DokumentforsendelseRestTjenesteTest {
 
     @Test
     void skal_kaste_teknisk_exception_hvis_metadata_har_flere_filer_enn_lastet_opp() {
-        when(input.getParts()).thenReturn(List.of(metadataPart, hoveddokumentPart, hoveddokumentPartPdf));
+        when(input.getBodyParts()).thenReturn(List.of(metadataPart, hoveddokumentPart, hoveddokumentPartPdf));
         assertThatThrownBy(() -> tjeneste.uploadFile(input))
                 .isInstanceOf(TekniskException.class)
                 .hasMessageContaining("FP-892456:Metadata inneholder flere filer enn det som er lastet opp");
@@ -126,7 +126,7 @@ class DokumentforsendelseRestTjenesteTest {
         String contentId = "<some ID 4>";
         var inputParts = List.of(metadataPart, hoveddokumentPart, hoveddokumentPartPdf, vedleggPart,
                 mockVedleggPart(contentId));
-        when(input.getParts()).thenReturn(inputParts);
+        when(input.getBodyParts()).thenReturn(inputParts);
 
         assertThatThrownBy(() -> tjeneste.uploadFile(input))
                 .isInstanceOf(TekniskException.class)
@@ -136,7 +136,7 @@ class DokumentforsendelseRestTjenesteTest {
 
     @Test
     void skal_kaste_teknisk_exception_hvis_hoveddokument_mangler_name() {
-        MultivaluedMap<String, String> map = new MultivaluedMapImpl<>();
+        MultivaluedMap<String, String> map = new StringKeyIgnoreCaseMultivaluedMap<>();
         map.put("Content-Disposition", List.of("mangler ; foo=name"));
         when(hoveddokumentPart.getHeaders()).thenReturn(map);
 
@@ -226,9 +226,9 @@ class DokumentforsendelseRestTjenesteTest {
         assertThat(new DokumentforsendelseRestTjeneste.AbacDataSupplier().apply(input).toString()).contains("AKTØR_ID=[MASKERT#1]");
     }
 
-    private static InputPart mockBasicInputPart(Optional<String> contentId, String contentDispositionName) {
-        var part = mock(InputPart.class);
-        MultivaluedMap<String, String> map = new MultivaluedMapImpl<>();
+    private static BodyPart mockBasicInputPart(Optional<String> contentId, String contentDispositionName) {
+        var part = mock(BodyPart.class);
+        MultivaluedMap<String, String> map = new StringKeyIgnoreCaseMultivaluedMap<>();
         map.put("Content-Disposition",
                 List.of("attachment; name=\"" + contentDispositionName + "\"; filename=\"" + "Farskap\""));
         contentId.ifPresent(id -> map.put("Content-ID", List.of(id)));
@@ -236,33 +236,33 @@ class DokumentforsendelseRestTjenesteTest {
         return part;
     }
 
-    private InputPart mockMetadataPart() throws Exception, Exception {
+    private BodyPart mockMetadataPart() throws Exception, Exception {
         var part = mockBasicInputPart(Optional.empty(), "metadata");
         when(part.getMediaType()).thenReturn(APPLICATION_JSON_TYPE);
-        when(part.getBodyAsString()).thenReturn(byggMetadataString());
+        when(part.getEntityAs(String.class)).thenReturn(byggMetadataString());
         return part;
     }
 
-    private static InputPart mockHoveddokumentPartXml() throws Exception {
+    private static BodyPart mockHoveddokumentPartXml() throws Exception {
         var part = mockBasicInputPart(Optional.of("<some ID 1>"), "hoveddokument");
         when(part.getMediaType()).thenReturn(APPLICATION_XML_TYPE);
-        when(part.getBodyAsString()).thenReturn("body");
+        when(part.getEntityAs(String.class)).thenReturn("body");
         return part;
     }
 
-    private static InputPart mockHoveddokumentPartPdf() throws Exception {
+    private static BodyPart mockHoveddokumentPartPdf() throws Exception {
         var part = mockBasicInputPart(Optional.of("<some ID 2>"), "hoveddokument");
         when(part.getMediaType()).thenReturn(MediaType.valueOf("application/pdf"));
-        when(part.getBodyAsString()).thenReturn("");
-        when(part.getBody(byte[].class, null)).thenReturn("body".getBytes(UTF_8));
+        when(part.getEntityAs(String.class)).thenReturn("");
+        when(part.getEntityAs(byte[].class)).thenReturn("body".getBytes(UTF_8));
         return part;
     }
 
-    private static InputPart mockVedleggPart(String contentId) throws Exception {
+    private static BodyPart mockVedleggPart(String contentId) throws Exception {
         var part = mockBasicInputPart(Optional.of(contentId), "vedlegg");
         when(part.getMediaType()).thenReturn(MediaType.valueOf("application/pdf"));
-        when(part.getBodyAsString()).thenReturn("");
-        when(part.getBody(byte[].class, null)).thenReturn("body".getBytes(UTF_8));
+        when(part.getEntityAs(String.class)).thenReturn("");
+        when(part.getEntityAs(byte[].class)).thenReturn("body".getBytes(UTF_8));
         return part;
     }
 

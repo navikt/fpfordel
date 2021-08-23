@@ -19,7 +19,7 @@
     <logger name="org.apache" level="${org.apache:-ERROR}" />
     
     <logger name="org.jboss.weld" level="${org.jboss.weld:-WARN}" />
-    <logger name="org.jboss.resteasy" level="${org.jboss.resteasy:-WARN}" />
+    <logger name="org.glassfish.jersey" level="${org.glassfish.jersey:-WARN}" />
     
     <logger name="org.eclipse.jetty" level="${org.eclipse.jetty:-WARN}" />
 

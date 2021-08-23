@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import javax.ws.rs.Path;
 
-import org.jboss.resteasy.plugins.providers.multipart.MultipartInput;
+import org.glassfish.jersey.media.multipart.MultiPart;
 
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 
@@ -35,7 +35,7 @@ class RestApiTester {
     private static boolean erRestMetodeSomErUnntatt(Method method) {
         boolean unntatt = // Et unntak pr linje
                 ((method.getParameterCount() == 1)
-                        && MultipartInput.class.isAssignableFrom(method.getParameterTypes()[0]));
+                        && MultiPart.class.isAssignableFrom(method.getParameterTypes()[0]));
         return unntatt;
     }
 

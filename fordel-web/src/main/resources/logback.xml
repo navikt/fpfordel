@@ -20,11 +20,6 @@
 				<exclude>org\.jboss\.weld\.interceptor\.proxy\.NonTerminalAroundInvokeInvocationContext</exclude>
 				<exclude>org\.jboss\.weld\.interceptor\.proxy\.TerminalAroundInvokeInvocationContext</exclude>
 				<exclude>org\.jboss\.weld\.interceptor\.reader\.SimpleInterceptorInvocation</exclude>
-				<exclude>org\.jboss\.resteasy\.core\.MethodInjectorImpl</exclude>
-				<exclude>org\.jboss\.resteasy\.core\.ResourceMethodInvoker</exclude>
-				<exclude>org\.jboss\.resteasy\.core\.SynchronousDispatcher</exclude>
-				<exclude>org\.jboss\.resteasy\.core\.interception\.PreMatchContainerRequestContext</exclude>
-				<exclude>io\.astefanutti\.metrics\.cdi\.TimedInterceptor</exclude>
 				<rootCauseFirst>false</rootCauseFirst>
 			</throwableConverter>
 		</encoder>

@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.fordel.web.app.konfig;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -7,7 +9,9 @@ import java.util.stream.Stream;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-import io.swagger.v3.jaxrs2.SwaggerSerializers;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.server.ServerProperties;
+
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import io.swagger.v3.oas.integration.GenericOpenApiContextBuilder;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
@@ -61,13 +65,22 @@ public class ApplicationConfig extends Application {
                 ProsessTaskRestTjeneste.class,
                 DokumentforsendelseRestTjeneste.class,
                 ForvaltningRestTjeneste.class,
-                SwaggerSerializers.class,
                 OpenApiResource.class,
                 TimingFilter.class,
+                MultiPartFeature.class,
                 ConstraintViolationMapper.class,
                 JsonMappingExceptionMapper.class,
                 JsonParseExceptionMapper.class,
                 GeneralRestExceptionMapper.class,
                 JacksonJsonConfig.class);
+    }
+
+    @Override
+    public Map<String, Object> getProperties() {
+        Map<String, Object> properties = new HashMap<>();
+        // Ref Jersey doc
+        properties.put(ServerProperties.BV_SEND_ERROR_IN_RESPONSE, true);
+        properties.put(ServerProperties.PROCESSING_RESPONSE_ERRORS_ENABLED, true);
+        return properties;
     }
 }
