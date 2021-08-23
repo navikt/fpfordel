@@ -10,6 +10,7 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +39,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
+import org.apache.http.client.utils.URIBuilder;
 import org.glassfish.jersey.media.multipart.BodyPart;
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.slf4j.Logger;
@@ -114,7 +116,7 @@ public class DokumentforsendelseRestTjeneste {
     @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.FAGSAK)
     public Response uploadFile(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) MultiPart input) {
         LOG.info("Innsending av dokumentforsendelse");
-        List<BodyPart> inputParts = input.getBodyParts();
+        var inputParts = input.getBodyParts();
         if (inputParts.size() < 2) {
             throw new IllegalArgumentException("Må ha minst to deler,fikk " + inputParts.size());
         }
@@ -182,18 +184,24 @@ public class DokumentforsendelseRestTjeneste {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
-        ForsendelseStatusDto forsendelseStatusDto = service.finnStatusinformasjon(forsendelseId);
+        var forsendelseStatusDto = service.finnStatusinformasjon(forsendelseId);
         if (FPSAK.equals(forsendelseStatusDto.getForsendelseStatus())) {
-            return Response.seeOther(lagStatusURI(forsendelseId))
+            URI statusURI = lagStatusURI(forsendelseId);
+            LOG.info("Returnerer redirect {}", statusURI);
+            return Response.seeOther(statusURI)
                     .entity(forsendelseStatusDto)
                     .build();
-        } else {
-            return Response.ok(forsendelseStatusDto).build();
         }
+        return Response.ok(forsendelseStatusDto).build();
     }
 
     private URI lagStatusURI(UUID forsendelseId) {
-        return URI.create(fpStatusUrl + "?forsendelseId=" + forsendelseId);
+        try {
+            return new URIBuilder(fpStatusUrl).addParameter("forsendelseId", forsendelseId.toString()).build();
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(forsendelseId.toString());
+        }
+        // return URI.create(fpStatusUrl + "?forsendelseId=" + forsendelseId);
     }
 
     private Dokumentforsendelse map(BodyPart inputPart) {
@@ -203,21 +211,21 @@ public class DokumentforsendelseRestTjeneste {
 
     private void lagreDokument(Dokumentforsendelse dokumentforsendelse, BodyPart inputPart) {
         boolean hovedDokument;
-        String name = getDirective(inputPart.getHeaders(), CONTENT_DISPOSITION, "name");
+        var name = getDirective(inputPart.getHeaders(), CONTENT_DISPOSITION, "name");
         if (name == null) {
             throw new TekniskException("FP-892457", "Unknown part name");
         }
 
-        String contentId = inputPart.getHeaders().getFirst(CONTENT_ID);
+        var contentId = inputPart.getHeaders().getFirst(CONTENT_ID);
         if (contentId == null) {
             throw new TekniskException("FP-892455", String.format("Mangler %s", CONTENT_ID));
         }
 
         switch (name) {
-            case PART_KEY_HOVEDDOKUMENT:
+            case PART_KEY_HOVEDDOKUMENT :
                 hovedDokument = true;
                 break;
-            case PART_KEY_VEDLEGG:
+            case PART_KEY_VEDLEGG :
                 hovedDokument = false;
                 if (!APPLICATION_PDF_TYPE.isCompatible(inputPart.getMediaType())) {
                     throw new TekniskException("FP-882558", String.format("Vedlegg er ikke pdf, Content-ID=%s", contentId));
@@ -227,18 +235,18 @@ public class DokumentforsendelseRestTjeneste {
                 throw new TekniskException("FP-892457", "Unknown part name");
         }
 
-        FilMetadata filMetadata = dokumentforsendelse.håndter(contentId);
+        var filMetadata = dokumentforsendelse.håndter(contentId);
         if (filMetadata == null) {
             throw new TekniskException("FP-892446", String.format("Metadata inneholder ikke informasjon om Content-ID=%s", contentId));
         }
 
-        String partFilename = getDirective(inputPart.getHeaders(), CONTENT_DISPOSITION, "filename");
-        String finalFilename = partFilename != null ? partFilename.strip() : partFilename;
-        if ((finalFilename != null) && DokumentTypeId.ANNET.equals(filMetadata.dokumentTypeId())) {
+        var partFilename = getDirective(inputPart.getHeaders(), CONTENT_DISPOSITION, "filename");
+        var finalFilename = partFilename != null ? partFilename.strip() : partFilename;
+        if (finalFilename != null && DokumentTypeId.ANNET.equals(filMetadata.dokumentTypeId())) {
             LOG.info("Mottatt vedlegg av type ANNET med filename {}", partFilename);
         }
 
-        Dokument.Builder builder = Dokument.builder()
+        var builder = Dokument.builder()
                 .setForsendelseId(dokumentforsendelse.getForsendelsesId())
                 .setHovedDokument(hovedDokument)
                 .setBeskrivelse(finalFilename)
@@ -252,10 +260,11 @@ public class DokumentforsendelseRestTjeneste {
                         mapMediatypeTilArkivFilType(inputPart.getMediaType()));
             }
         } catch (ProcessingException e) {
-            throw new TekniskException("FP-892467", String.format("Klarte ikke å lese inn dokumentet, name=%s, Content-ID=%s", name, contentId), e);
+            throw new TekniskException("FP-892467",
+                    String.format("Klarte ikke å lese inn dokumentet, name=%s, Content-ID=%s", name, contentId), e);
         }
 
-        Dokument dokument = builder.build();
+        var dokument = builder.build();
         service.lagreDokument(dokument);
     }
 
@@ -268,7 +277,7 @@ public class DokumentforsendelseRestTjeneste {
     }
 
     private static DokumentforsendelseDto getMetadataDto(BodyPart inputPart) {
-        String name = getDirective(inputPart.getHeaders(), CONTENT_DISPOSITION, "name");
+        var name = getDirective(inputPart.getHeaders(), CONTENT_DISPOSITION, "name");
         if (!PART_KEY_METADATA.equals(name)) {
             throw new TekniskException("FP-892453", "The first part must be the metadata part");
         }
@@ -298,7 +307,7 @@ public class DokumentforsendelseRestTjeneste {
     }
 
     private static Dokumentforsendelse map(DokumentforsendelseDto dokumentforsendelseDto) {
-        DokumentMetadata metadata = DokumentMetadata.builder()
+        var metadata = DokumentMetadata.builder()
                 .setForsendelseId(dokumentforsendelseDto.getForsendelsesId())
                 .setBrukerId(dokumentforsendelseDto.getBrukerId())
                 .setSaksnummer(dokumentforsendelseDto.getSaksnummer())
@@ -307,7 +316,8 @@ public class DokumentforsendelseRestTjeneste {
 
         Map<String, FilMetadata> map = new HashMap<>();
         for (FilMetadataDto fmDto : dokumentforsendelseDto.getFiler()) {
-            map.put(fmDto.getContentId(), new FilMetadata(fmDto.getContentId(), DokumentTypeId.fraOffisiellKode(fmDto.getDokumentTypeId())));
+            map.put(fmDto.getContentId(),
+                    new FilMetadata(fmDto.getContentId(), DokumentTypeId.fraOffisiellKode(fmDto.getDokumentTypeId())));
         }
 
         return new Dokumentforsendelse(metadata, map);
@@ -315,14 +325,14 @@ public class DokumentforsendelseRestTjeneste {
 
     private static String getDirective(MultivaluedMap<String, String> headers, String headerName,
             String directiveName) {
-        String[] directives = new String[0];
-        String header = headers.getFirst(headerName);
+        var directives = new String[0];
+        var header = headers.getFirst(headerName);
         if (header != null) {
             directives = header.split(";");
         }
         for (String directive : directives) {
             if (directive.trim().startsWith(directiveName)) {
-                String[] val = directive.split("=");
+                var val = directive.split("=");
                 return val[1].trim().replace("\"", "");
             }
         }
@@ -344,12 +354,12 @@ public class DokumentforsendelseRestTjeneste {
 
         @Override
         public AbacDataAttributter apply(Object obj) {
-            List<BodyPart> inputParts = ((MultiPart) obj).getBodyParts();
+            var inputParts = ((MultiPart) obj).getBodyParts();
             if (inputParts.isEmpty()) {
                 throw new IllegalArgumentException("No parts");
             }
 
-            DokumentforsendelseDto dto = getMetadataDto(inputParts.get(0));
+            var dto = getMetadataDto(inputParts.get(0));
             return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, dto.getBrukerId());
         }
     }
@@ -358,7 +368,7 @@ public class DokumentforsendelseRestTjeneste {
 
         @Override
         public AbacDataAttributter apply(Object obj) {
-            ForsendelseIdDto dto = ((ForsendelseIdDto) obj);
+            var dto = (ForsendelseIdDto) obj;
             return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FORSENDELSE_UUID, dto.forsendelseId());
         }
     }
