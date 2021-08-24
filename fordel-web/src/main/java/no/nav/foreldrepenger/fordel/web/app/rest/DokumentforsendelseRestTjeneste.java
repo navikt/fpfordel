@@ -44,6 +44,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.http.client.utils.URIBuilder;
 import org.glassfish.jersey.media.multipart.BodyPart;
 import org.glassfish.jersey.media.multipart.MultiPart;
+import org.glassfish.jersey.uri.internal.JerseyUriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -167,9 +168,15 @@ public class DokumentforsendelseRestTjeneste {
             }
             default -> {
                 LOG.info("Forsendelse {} foreløpig ikke fordelt", dokumentforsendelse.getForsendelsesId());
+                var status = URI.create(
+                        FPFORDEL_CONTEXT + SERVICE_PATH + "/status?forsendelseId=" + dokumentforsendelse.getForsendelsesId());
+                LOG.info("URIINFO status {}, old skool status {}",
+                        uriInfo.getBaseUriBuilder().path("status").queryParam("forsendelseId", dokumentforsendelse.getForsendelsesId())
+                                .build(),
+                        status);
+
                 yield Response.accepted()
-                        .location(URI.create(
-                                FPFORDEL_CONTEXT + SERVICE_PATH + "/status?forsendelseId=" + dokumentforsendelse.getForsendelsesId()))
+                        .location(status)
                         .entity(forsendelseStatusDto)
                         .build();
             }
@@ -186,7 +193,6 @@ public class DokumentforsendelseRestTjeneste {
     public Response finnStatusinformasjon(
             @TilpassetAbacAttributt(supplierClass = ForsendelseAbacDataSupplier.class) @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
 
-        LOG.info("URIINFO " + uriInfo);
         var forsendelseId = forsendelseIdDto.forsendelseId();
         var forsendelseStatusDto = service.finnStatusinformasjon(forsendelseId);
         if (FPSAK.equals(forsendelseStatusDto.getForsendelseStatus())) {
@@ -201,6 +207,8 @@ public class DokumentforsendelseRestTjeneste {
 
     private URI lagStatusURI(UUID forsendelseId) {
         try {
+            var fpinfo = JerseyUriBuilder.fromUri(fpStatusUrl).queryParam("forsendelseId", forsendelseId.toString()).build();
+            LOG.info("FPINFO {}", fpinfo);
             return new URIBuilder(fpStatusUrl).addParameter("forsendelseId", forsendelseId.toString()).build();
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException(forsendelseId.toString());
