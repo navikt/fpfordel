@@ -34,10 +34,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.http.client.utils.URIBuilder;
 import org.glassfish.jersey.media.multipart.BodyPart;
@@ -98,6 +100,8 @@ public class DokumentforsendelseRestTjeneste {
 
     private URI fpStatusUrl;
 
+    @Context
+    private UriInfo uriInfo;
 
 
     public DokumentforsendelseRestTjeneste() {
@@ -182,6 +186,7 @@ public class DokumentforsendelseRestTjeneste {
     public Response finnStatusinformasjon(
             @TilpassetAbacAttributt(supplierClass = ForsendelseAbacDataSupplier.class) @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
 
+        LOG.info("URIINFO " + uriInfo);
         var forsendelseId = forsendelseIdDto.forsendelseId();
         var forsendelseStatusDto = service.finnStatusinformasjon(forsendelseId);
         if (FPSAK.equals(forsendelseStatusDto.getForsendelseStatus())) {
