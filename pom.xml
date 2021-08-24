@@ -40,11 +40,6 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>net.minidev</groupId>
-                <artifactId>json-smart</artifactId>
-                <version>2.4.7</version>
-            </dependency>
-            <dependency>
                 <groupId>com.github.tomakehurst</groupId>
                 <artifactId>wiremock</artifactId>
                 <version>2.27.2</version>
