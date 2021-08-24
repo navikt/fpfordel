@@ -170,11 +170,12 @@ public class DokumentforsendelseRestTjeneste {
                 LOG.info("Forsendelse {} foreløpig ikke fordelt", dokumentforsendelse.getForsendelsesId());
                 var status = URI.create(
                         FPFORDEL_CONTEXT + SERVICE_PATH + "/status?forsendelseId=" + dokumentforsendelse.getForsendelsesId());
+                if (uriInfo != null) {
                 LOG.info("URIINFO status {}, old skool status {}",
                         uriInfo.getBaseUriBuilder().path("status").queryParam("forsendelseId", dokumentforsendelse.getForsendelsesId())
                                 .build(),
                         status);
-
+                }
                 yield Response.accepted()
                         .location(status)
                         .entity(forsendelseStatusDto)
