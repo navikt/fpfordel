@@ -209,7 +209,9 @@ public class DokumentforsendelseRestTjeneste {
         try {
             var fpinfo = JerseyUriBuilder.fromUri(fpStatusUrl).queryParam("forsendelseId", forsendelseId.toString()).build();
             LOG.info("FPINFO {}", fpinfo);
-            return new URIBuilder(fpStatusUrl).addParameter("forsendelseId", forsendelseId.toString()).build();
+            var old = new URIBuilder(fpStatusUrl).addParameter("forsendelseId", forsendelseId.toString()).build();
+            LOG.info("FPINFO {}, old skool {}", fpinfo, old);
+            return old;
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException(forsendelseId.toString());
         }
