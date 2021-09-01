@@ -124,7 +124,14 @@ public class OppdaterJournalpostRequest {
             return this;
         }
 
-        public Builder medTilleggsopplysning(Tilleggsopplysning tilleggsopplysning) {
+        public Builder medTilleggsopplysninger(List<Tilleggsopplysning> tilleggsopplysninger) {
+            if (this.request.tilleggsopplysninger == null) {
+                this.request.tilleggsopplysninger = new ArrayList<>();
+            }
+            return this;
+        }
+
+        public Builder leggTilTilleggsopplysning(Tilleggsopplysning tilleggsopplysning) {
             if (this.request.tilleggsopplysninger == null) {
                 this.request.tilleggsopplysninger = new ArrayList<>();
             }
