@@ -128,6 +128,7 @@ public class OppdaterJournalpostRequest {
             if (this.request.tilleggsopplysninger == null) {
                 this.request.tilleggsopplysninger = new ArrayList<>();
             }
+            this.request.tilleggsopplysninger.addAll(tilleggsopplysninger);
             return this;
         }
 
