@@ -146,7 +146,7 @@ public class ArkivTjeneste {
     public void oppdaterBehandlingstemaBruker(String journalpostId, DokumentTypeId dokumentTypeId, String behandlingstema, String aktørId) {
         var builder = OppdaterJournalpostRequest.ny()
                 .medBehandlingstema(behandlingstema)
-                .medTilleggsopplysning(new Tilleggsopplysning(FP_DOK_TYPE, dokumentTypeId.getOffisiellKode()))
+                .leggTilTilleggsopplysning(new Tilleggsopplysning(FP_DOK_TYPE, dokumentTypeId.getOffisiellKode()))
                 .medBruker(aktørId);
         if (!dokArkivTjeneste.oppdaterJournalpost(journalpostId, builder.build())) {
             throw new IllegalStateException("FPFORDEL Kunne ikke oppdatere " + journalpostId);
@@ -195,7 +195,9 @@ public class ArkivTjeneste {
                 .filter(rank -> MapNAVSkjemaDokumentTypeId.dokumentTypeRank(hovedtype) < rank).isPresent();
         if (tilleggDokumentType.isEmpty() || skalOppdatereTilleggsopplysning) {
             LOG.info("FPFORDEL oppdaterer tilleggsopplysninger for {} med {}", journalpost.journalpostId(), hovedtype.getOffisiellKode());
-            builder.medTilleggsopplysning(new Tilleggsopplysning(FP_DOK_TYPE, hovedtype.getOffisiellKode()));
+            if (!arkivJournalpost.getTilleggsopplysninger().isEmpty())
+                builder.medTilleggsopplysninger(arkivJournalpost.getTilleggsopplysninger());
+            builder.leggTilTilleggsopplysning(new Tilleggsopplysning(FP_DOK_TYPE, hovedtype.getOffisiellKode()));
         } else {
             LOG.info("FPFORDEL tilleggsopplysninger allerede satt for {} med {}", journalpost.journalpostId(), tilleggDokumentType);
         }
