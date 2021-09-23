@@ -29,6 +29,8 @@ public enum NAVSkjema implements Kodeverdi {
     SKJEMA_INNTEKTSOPPLYSNING_SELVSTENDIG("SIOS", "NAV 14-35.01", "Inntektsopplysninger for selvstendig næringsdrivende og frilansere som skal ha foreldrepenger eller svangerskapspenger"),
     SKJEMA_INNTEKTSOPPLYSNINGER("SIOP", "NAV 08-30.01", "Inntektsopplysninger for arbeidstaker som skal ha sykepenger foreldrepenger svangerskapspenger pleie-/opplæringspenger og omsorgspenger"),
     SKJEMA_KLAGE_DOKUMENT("SKLAGE", "NAV 90-00.08", "Klage/anke"),
+    SKJEMA_KLAGE_A_DOKUMENT("SKANKE", "NAV 90-00.08 A", "Anke"),
+    SKJEMA_KLAGE_K_DOKUMENT("SKKLAG", "NAV 90-00.08 K", "Klage"),
     SKJEMA_FORELDREPENGER_ENDRING("SEND", "NAV 14-05.10", "Søknad om endring av uttak av foreldrepenger eller overføring av kvote"),
 
     SKJEMAE_SVANGERSKAPSPENGER("SESV", "NAVe 14-04.10", "Ettersendelse til søknad om svangerskapspenger til selvstendig næringsdrivende og frilanser"),
