@@ -27,7 +27,10 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
+import no.nav.foreldrepenger.fordel.kodeverdi.NAVSkjema;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsInfo;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
@@ -154,6 +157,15 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         }
         if (w.getForsendelseMottattTidspunkt().isEmpty()) {
             w.setForsendelseMottattTidspunkt(LocalDateTime.now());
+        }
+
+        // Egen rute for rene ankedokument - journalføringsoppgave Klageinstans
+        if (journalpost.getAlleTyper().contains(DokumentTypeId.KLAGE_DOKUMENT)
+                && journalpost.getSaksnummer().isEmpty()
+                && (journalpost.getTittel().filter(t -> t.equalsIgnoreCase("anke")).isPresent() ||
+                    ArkivTjeneste.harBrevKode(journalpost.getOriginalJournalpost(), NAVSkjema.SKJEMA_KLAGE_A_DOKUMENT))) {
+            w.setJournalførendeEnhet(EnhetsInfo.NK_ENHET_ID);
+            return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
         }
 
         // Journalposter uten kanalreferanse er vanligvis slike som er "klonet" av SBH

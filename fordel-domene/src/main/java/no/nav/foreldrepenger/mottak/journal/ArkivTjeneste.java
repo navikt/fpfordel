@@ -287,6 +287,18 @@ public class ArkivTjeneste {
         return alletyper;
     }
 
+    public static boolean harBrevKode(Journalpost journalpost, NAVSkjema brevkode) {
+        if (journalpost == null || brevkode == null) return false;
+        Set<NAVSkjema> allebrevkoder = new HashSet<>();
+        allebrevkoder.add(NAVSkjema.fraTermNavn(journalpost.tittel()));
+        journalpost.dokumenter().forEach(d -> {
+                allebrevkoder.add(NAVSkjema.fraOffisiellKode(d.brevkode()));
+                allebrevkoder.add(NAVSkjema.fraTermNavn(d.tittel()));
+                d.logiskeVedlegg().forEach(v -> allebrevkoder.add(NAVSkjema.fraTermNavn(v.tittel())));
+        });
+        return allebrevkoder.contains(brevkode);
+    }
+
     private Optional<String> mapIdent(Journalpost journalpost) {
         var bruker = journalpost.bruker();
         if (bruker == null) {
