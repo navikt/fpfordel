@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -62,6 +63,7 @@ import no.nav.foreldrepenger.fordel.web.server.abac.BeskyttetRessursAttributt;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
+import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.Dokumentforsendelse;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.DokumentforsendelseTjeneste;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.FilMetadata;
@@ -131,13 +133,19 @@ public class DokumentforsendelseRestTjeneste {
         }
         MDCOperations.ensureCallId();
 
-        var dokumentforsendelse = map(inputParts.get(0));
+        // Robusthet: Når man flytter Transactional til servicelaget så må man gjøre alle ut-kall som kan feile før man begynner lagre....
+        var dokumentforsendelseDto = getMetadataDto(inputParts.get(0));
+        var avsenderId = service.bestemAvsenderAktørId(dokumentforsendelseDto.getBrukerId());
+
+        var dokumentforsendelse =  map(dokumentforsendelseDto);
         var eksisterendeForsendelseStatus = service.finnStatusinformasjonHvisEksisterer(
                 dokumentforsendelse.getForsendelsesId());
 
-        var response = eksisterendeForsendelseStatus.map(
-                status -> tilForsendelseStatusRespons(dokumentforsendelse, status)).orElseGet(() -> {
-                    lagreDokumentForsendelse(inputParts.subList(1, inputParts.size()), dokumentforsendelse);
+        var response = eksisterendeForsendelseStatus
+                .map(status -> tilForsendelseStatusRespons(dokumentforsendelse, status))
+                .orElseGet(() -> {
+                    var dokumenter = mapInputPartsToDokument(inputParts.subList(1, inputParts.size()), dokumentforsendelse);
+                    service.lagreForsendelseValider(dokumentforsendelse.metadata(), dokumenter, avsenderId);
                     var status = service.finnStatusinformasjon(dokumentforsendelse.getForsendelsesId());
                     return tilForsendelseStatusRespons(dokumentforsendelse, status);
                 });
@@ -145,12 +153,13 @@ public class DokumentforsendelseRestTjeneste {
         return response;
     }
 
-    private void lagreDokumentForsendelse(List<BodyPart> inputParts, Dokumentforsendelse dokumentforsendelse) {
-        service.nyDokumentforsendelse(dokumentforsendelse.metadata());
-        for (var inputPart : inputParts) {
-            lagreDokument(dokumentforsendelse, inputPart);
-        }
+    private List<Dokument> mapInputPartsToDokument(List<BodyPart> inputParts,
+                                          Dokumentforsendelse dokumentforsendelse) {
+        var dokumenter = inputParts.stream()
+                .map(ip -> mapInputPartToDokument(dokumentforsendelse, ip))
+                .collect(Collectors.toList());
         validerDokumentforsendelse(dokumentforsendelse);
+        return dokumenter;
     }
 
     private Response tilForsendelseStatusRespons(Dokumentforsendelse dokumentforsendelse,
@@ -219,12 +228,8 @@ public class DokumentforsendelseRestTjeneste {
         // return URI.create(fpStatusUrl + "?forsendelseId=" + forsendelseId);
     }
 
-    private Dokumentforsendelse map(BodyPart inputPart) {
-        var dokumentforsendelseDto = getMetadataDto(inputPart);
-        return map(dokumentforsendelseDto);
-    }
 
-    private void lagreDokument(Dokumentforsendelse dokumentforsendelse, BodyPart inputPart) {
+    private Dokument mapInputPartToDokument(Dokumentforsendelse dokumentforsendelse, BodyPart inputPart) {
         boolean hovedDokument;
         var name = getDirective(inputPart.getHeaders(), CONTENT_DISPOSITION, "name");
         if (name == null) {
@@ -280,15 +285,21 @@ public class DokumentforsendelseRestTjeneste {
         }
 
         var dokument = builder.build();
-        service.lagreDokument(dokument);
+        if (dokument.erHovedDokument() && ArkivFilType.XML.equals(dokument.getArkivFilType())) {
+            // Sjekker om nødvendige elementer er satt
+            var abstractDto = MeldingXmlParser.unmarshallXml(dokument.getKlartekstDokument());
+            if (no.nav.foreldrepenger.mottak.domene.v3.Søknad.class.isInstance(abstractDto)) {
+                ((no.nav.foreldrepenger.mottak.domene.v3.Søknad) abstractDto)
+                        .sjekkNødvendigeFeltEksisterer(dokument.getForsendelseId());
+            }
+        }
+        return dokument;
     }
 
     private void validerDokumentforsendelse(Dokumentforsendelse dokumentforsendelse) {
         if (!dokumentforsendelse.harHåndtertAlleFiler()) {
             throw new TekniskException("FP-892456", "Metadata inneholder flere filer enn det som er lastet opp");
         }
-
-        service.validerDokumentforsendelse(dokumentforsendelse.getForsendelsesId());
     }
 
     private static DokumentforsendelseDto getMetadataDto(BodyPart inputPart) {

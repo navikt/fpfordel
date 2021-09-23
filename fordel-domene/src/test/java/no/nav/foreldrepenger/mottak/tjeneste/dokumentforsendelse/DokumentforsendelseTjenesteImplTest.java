@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse;
 
-import static java.util.Arrays.asList;
 import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -13,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
@@ -79,9 +79,8 @@ class DokumentforsendelseTjenesteImplTest {
                 .setBrukerId(BRUKER_ID)
                 .setForsendelseMottatt(LocalDateTime.now())
                 .build();
-        when(dokumentRepositoryMock.hentEksaktDokumentMetadata(any())).thenReturn(metadata);
-        when(dokumentRepositoryMock.hentDokumenter(any())).thenReturn(asList(createDokument(ArkivFilType.PDFA, false)));
-        var e = assertThrows(TekniskException.class, () -> tjeneste.validerDokumentforsendelse(forsendelseId));
+        var dokumentListe = List.of(createDokument(ArkivFilType.PDFA, false));
+        var e = assertThrows(TekniskException.class, () -> tjeneste.lagreForsendelseValider(metadata, dokumentListe, Optional.empty()));
         assertTrue(e.getMessage().contains("FP-728553"));
     }
 
@@ -94,10 +93,9 @@ class DokumentforsendelseTjenesteImplTest {
                 .setSaksnummer("123")
                 .setForsendelseMottatt(LocalDateTime.now())
                 .build();
-        when(dokumentRepositoryMock.hentEksaktDokumentMetadata(any())).thenReturn(metadata);
-        when(dokumentRepositoryMock.hentDokumenter(any())).thenReturn(asList(createDokument(ArkivFilType.PDFA, false)));
+        var dokumentListe = List.of(createDokument(ArkivFilType.PDFA, false));
 
-        tjeneste.validerDokumentforsendelse(forsendelseId);
+        tjeneste.lagreForsendelseValider(metadata, dokumentListe, Optional.empty());
 
         verify(prosessTaskRepositoryMock).lagre(any(ProsessTaskData.class));
     }
@@ -111,11 +109,10 @@ class DokumentforsendelseTjenesteImplTest {
                 .setSaksnummer("123")
                 .setForsendelseMottatt(LocalDateTime.now())
                 .build();
-        when(dokumentRepositoryMock.hentEksaktDokumentMetadata(any())).thenReturn(metadata);
-        when(dokumentRepositoryMock.hentDokumenter(any()))
-                .thenReturn(asList(createDokument(ArkivFilType.PDFA, true), createDokument(ArkivFilType.XML, true)));
+        var dokumentListe = List.of(createDokument(ArkivFilType.PDFA, true), createDokument(ArkivFilType.XML, true));
 
-        tjeneste.validerDokumentforsendelse(forsendelseId);
+
+        tjeneste.lagreForsendelseValider(metadata, dokumentListe, Optional.empty());
 
         ArgumentCaptor<ProsessTaskData> prosessTaskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskRepositoryMock).lagre(prosessTaskCaptor.capture());
@@ -145,11 +142,10 @@ class DokumentforsendelseTjenesteImplTest {
                 .setSaksnummer("123")
                 .setForsendelseMottatt(LocalDateTime.now())
                 .build();
-        when(dokumentRepositoryMock.hentEksaktDokumentMetadata(any())).thenReturn(metadata);
-        when(dokumentRepositoryMock.hentDokumenter(any()))
-                .thenReturn(asList(createDokument(ArkivFilType.PDFA, true), createDokument(ArkivFilType.XML, true)));
+        var dokumentListe = List.of(createDokument(ArkivFilType.PDFA, true), createDokument(ArkivFilType.XML, true));
 
-        tjeneste.validerDokumentforsendelse(forsendelseId);
+        var avsenderId = tjeneste.bestemAvsenderAktørId("1234567890");
+        tjeneste.lagreForsendelseValider(metadata, dokumentListe, avsenderId);
 
         ArgumentCaptor<ProsessTaskData> prosessTaskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskRepositoryMock).lagre(prosessTaskCaptor.capture());

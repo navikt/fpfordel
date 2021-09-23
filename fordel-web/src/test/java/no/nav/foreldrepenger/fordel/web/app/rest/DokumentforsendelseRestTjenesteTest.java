@@ -243,10 +243,10 @@ class DokumentforsendelseRestTjenesteTest {
         return part;
     }
 
-    private static BodyPart mockHoveddokumentPartXml() throws Exception {
+    private BodyPart mockHoveddokumentPartXml() throws Exception {
         var part = mockBasicInputPart(Optional.of("<some ID 1>"), "hoveddokument");
         when(part.getMediaType()).thenReturn(APPLICATION_XML_TYPE);
-        when(part.getEntityAs(String.class)).thenReturn("body");
+        when(part.getEntityAs(String.class)).thenReturn(lesInnSøknad());
         return part;
     }
 
@@ -264,6 +264,12 @@ class DokumentforsendelseRestTjenesteTest {
         when(part.getEntityAs(String.class)).thenReturn("");
         when(part.getEntityAs(byte[].class)).thenReturn("body".getBytes(UTF_8));
         return part;
+    }
+
+    private String lesInnSøknad() throws Exception {
+        URL resource = this.getClass().getClassLoader().getResource("testdata/selvb-soeknad-forp.xml");
+        Path path = Paths.get(resource.toURI());
+        return new String(Files.readAllBytes(path));
     }
 
     private String byggMetadataString() throws Exception {

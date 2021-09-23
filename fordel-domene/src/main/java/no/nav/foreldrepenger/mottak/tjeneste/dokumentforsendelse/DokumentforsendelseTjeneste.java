@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,11 +12,9 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Forsendelse
 public interface DokumentforsendelseTjeneste {
     Duration POLL_INTERVALL = Duration.ofSeconds(1);
 
-    void nyDokumentforsendelse(DokumentMetadata metadata);
+    void lagreForsendelseValider(DokumentMetadata metadata, List<Dokument> dokumenter, Optional<String> avsenderId);
 
-    void lagreDokument(Dokument dokument);
-
-    void validerDokumentforsendelse(UUID forsendelsesId);
+    Optional<String> bestemAvsenderAktørId(String aktørId);
 
     ForsendelseStatusDto finnStatusinformasjon(UUID forsendelseId);
 
