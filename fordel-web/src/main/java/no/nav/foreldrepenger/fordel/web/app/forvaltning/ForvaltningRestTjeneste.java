@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.fordel.web.server.abac.BeskyttetRessursAttributt;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
+import no.nav.foreldrepenger.mottak.task.SlettForsendelseTask;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.VLKlargjørerTask;
 import no.nav.foreldrepenger.mottak.task.VedlikeholdSchedulerTask;
@@ -180,13 +181,13 @@ public class ForvaltningRestTjeneste {
     }
 
     @POST
-    @Path("/taskForLeftBehind")
+    @Path("/taskForBehandleForsendelse")
     @Operation(description = "Behandler forsendelse som ikke er plukket opp", tags = "Forvaltning", responses = {
             @ApiResponse(responseCode = "200", description = "Opprettet prosesstask"),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
     })
     @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
-    public Response taskForLeftBehind(
+    public Response taskForBehandleForsendelse(
             @TilpassetAbacAttributt(supplierClass = DokumentforsendelseRestTjeneste.ForsendelseAbacDataSupplier.class)
             @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
 
@@ -194,6 +195,28 @@ public class ForvaltningRestTjeneste {
         prosessTaskData.setCallId(forsendelseIdDto.forsendelseId().toString());
         var dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
         dataWrapper.setForsendelseId(forsendelseIdDto.forsendelseId());
+
+        repo.lagre(dataWrapper.getProsessTaskData());
+
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/taskForSlettForsendelse")
+    @Operation(description = "Sletter forsendelse som ikke skal behandles videre", tags = "Forvaltning", responses = {
+            @ApiResponse(responseCode = "200", description = "Opprettet prosesstask"),
+            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
+    })
+    @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
+    public Response taskForSlettForsendelse(
+            @TilpassetAbacAttributt(supplierClass = DokumentforsendelseRestTjeneste.ForsendelseAbacDataSupplier.class)
+            @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
+
+        var prosessTaskData = new ProsessTaskData(SlettForsendelseTask.TASKNAME);
+        prosessTaskData.setCallId(forsendelseIdDto.forsendelseId().toString());
+        var dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
+        dataWrapper.setForsendelseId(forsendelseIdDto.forsendelseId());
+        dataWrapper.getProsessTaskData().setProperty(SlettForsendelseTask.FORCE_SLETT_KEY, "forvaltning");
 
         repo.lagre(dataWrapper.getProsessTaskData());
 
