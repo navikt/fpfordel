@@ -27,7 +27,7 @@
         <changelist>-SNAPSHOT</changelist>
         <felles.version>4.0.6</felles.version>
         <prosesstask.version>2.6.6</prosesstask.version>
-        <java.version>17</java.version>
+        <java.version>16</java.version>
         <argLine>-Xms256m -Dfile.encoding=UTF-8</argLine>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -39,6 +39,11 @@
     </properties>
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>net.minidev</groupId>
+                <artifactId>json-smart</artifactId>
+                <version>2.3</version>
+            </dependency>
             <dependency>
                 <groupId>com.github.tomakehurst</groupId>
                 <artifactId>wiremock</artifactId>
@@ -300,6 +305,9 @@
                     <version>3.8.1</version>
                     <configuration>
                         <fork>true</fork>
+                        <compilerArgs>
+                            <arg>--enable-preview</arg>
+                        </compilerArgs>
                         <parameters>true</parameters>
                         <encoding>UTF-8</encoding>
                         <release>${java.version}</release>
@@ -330,7 +338,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.2</version>
                     <configuration>
-                        <argLine>${argLine}</argLine>
+                        <argLine>--enable-preview</argLine>
                     </configuration>
                 </plugin>
                 <plugin>

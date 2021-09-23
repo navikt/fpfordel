@@ -34,7 +34,7 @@ jobs:
       - uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
-          java-version: 17
+          java-version: 16
 
       - name: Set build version
         run: |
