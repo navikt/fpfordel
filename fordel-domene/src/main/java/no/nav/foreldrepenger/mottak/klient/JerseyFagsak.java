@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsInfo;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
@@ -41,6 +42,7 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
     private static final String FAGSAKINFORMASJON_PATH = "/fpsak/api/fordel/fagsak/informasjon";
     private static final String FAGSAK_OPPRETT_PATH = "/fpsak/api/fordel/fagsak/opprett";
     private static final String VURDER_FAGSYSTEM_PATH = "/fpsak/api/fordel/vurderFagsystem";
+    private static final String KLAGEINSTANS_FAGSYSTEM_PATH = "/fpsak/api/fordel/klageinstans";
     private static final Logger LOG = LoggerFactory.getLogger(JerseyFagsak.class);
     private static final int TIMEOUT = ENV.getProperty(TIMEOUT_KEY, int.class, DEFAULT_TIMEOUT);
     private final URI endpoint;
@@ -102,7 +104,7 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
 
     @Override
     public VurderFagsystemResultat vurderFagsystem(MottakMeldingDataWrapper w) {
-        String aktørId = w.getAktørId().get();
+        var aktørId = w.getAktørId().orElseThrow();
         boolean strukturertSøknad = w.erStrukturertDokument().orElse(Boolean.FALSE);
         var dokumentTypeId = w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT);
         var dokumentKategori = w.getDokumentKategori().orElse(DokumentKategori.UDEFINERT);
@@ -138,8 +140,11 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
         }
         LOG.info("Vurderer resultat");
 
+        var brukPath = w.getJournalførendeEnhet().filter(EnhetsInfo.NK_ENHET_ID::equals).isPresent() ?
+                KLAGEINSTANS_FAGSYSTEM_PATH : VURDER_FAGSYSTEM_PATH;
+
         var res = new VurderFagsystemResultat(invoke(client.target(endpoint)
-                .path(VURDER_FAGSYSTEM_PATH)
+                .path(brukPath)
                 .request(APPLICATION_JSON_TYPE)
                 .buildPost(json(dto)), BehandlendeFagsystemDto.class));
         LOG.info("Vurderert resultat OK");

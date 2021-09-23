@@ -30,7 +30,7 @@ jobs:
       - uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
-          java-version: 16
+          java-version: 17
 
       - name: Login to GitHub Packages Docker Registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9 # Use commit-sha1 instead of tag for security concerns
@@ -52,4 +52,4 @@ jobs:
             mvn package --quiet --batch-mode --settings .github/workflows/.m2/settings.xml
         env:
           GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }} # Må ha denne pga avhengighet til intern repo "legacy-avhengigheter".
+          GITHUB_PASSWORD: ${{ secrets.NOTIFICATION }} # Må ha denne pga avhengighet til intern repo "legacy-avhengigheter".
