@@ -4,8 +4,8 @@ import static java.util.stream.Collectors.toSet;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static no.nav.foreldrepenger.fordel.StringUtil.partialMask;
-import static no.nav.vedtak.log.util.ConfidentialMarkerFilter.CONFIDENTIAL;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.dokumentforsendelse.BehandleDokumentforsendelseTask;
-import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatusDto;
 import no.nav.vedtak.exception.TekniskException;
@@ -57,47 +56,29 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
         this.repository = repository;
         this.prosessTaskRepository = prosessTaskRepository;
         this.person = person;
-        LOG.trace("Created");
     }
 
     @Override
-    public void nyDokumentforsendelse(DokumentMetadata metadata) {
-        repository.lagre(metadata);
-    }
-
-    @Override
-    public void lagreDokument(Dokument dokument) {
-        if (dokument.erHovedDokument() && ArkivFilType.XML.equals(dokument.getArkivFilType())) {
-            // Sjekker om nødvendige elementer er satt
-            var abstractDto = MeldingXmlParser.unmarshallXml(dokument.getKlartekstDokument());
-            if (no.nav.foreldrepenger.mottak.domene.v3.Søknad.class.isInstance(abstractDto)) {
-                ((no.nav.foreldrepenger.mottak.domene.v3.Søknad) abstractDto)
-                        .sjekkNødvendigeFeltEksisterer(dokument.getForsendelseId());
-            }
-        }
-        repository.lagre(dokument);
-    }
-
-    @Override
-    public void validerDokumentforsendelse(UUID forsendelseId) {
-        var dokumentMetadata = repository.hentEksaktDokumentMetadata(forsendelseId);
-        var dokumenter = repository.hentDokumenter(forsendelseId);
+    public void lagreForsendelseValider(DokumentMetadata metadata, List<Dokument> dokumenter, Optional<String> avsenderId) {
         var hoveddokumenter = dokumenter.stream().filter(Dokument::erHovedDokument).collect(toSet());
-
-        var avsenderId = finnAvsenderId(dokumentMetadata);
-        if (hoveddokumenter.isEmpty()) {
-            if (dokumentMetadata.getSaksnummer().isPresent()) {
-                opprettProsessTask(forsendelseId, avsenderId);
-                return;
-            }
+        if (hoveddokumenter.isEmpty() && metadata.getSaksnummer().isEmpty()) {
             throw new TekniskException("FP-728553", "Saksnummer er påkrevd ved ettersendelser");
+        } else if (!hoveddokumenter.isEmpty() && !korrektAntallOgTyper(hoveddokumenter)) {
+            throw new TekniskException("FP-728555", String.format("Hoveddokumentet skal alltid sendes som to dokumenter med %s: %s og %s",
+                    CONTENT_TYPE, APPLICATION_XML, APPLICATION_PDF_TYPE));
         }
-        if (korrektAntallOgTyper(hoveddokumenter)) {
-            opprettProsessTask(forsendelseId, avsenderId);
-            return;
+
+        repository.lagre(metadata);
+        dokumenter.forEach(repository::lagre);
+
+
+        if (hoveddokumenter.isEmpty() && metadata.getSaksnummer().isPresent()) {
+            opprettProsessTask(metadata.getForsendelseId(), avsenderId);
+        } else if (!hoveddokumenter.isEmpty() && korrektAntallOgTyper(hoveddokumenter)) {
+            opprettProsessTask(metadata.getForsendelseId(), avsenderId);
+        } else {
+            throw new IllegalStateException("Utviklerfeil: Logisk brist");
         }
-        throw new TekniskException("FP-728555", String.format("Hoveddokumentet skal alltid sendes som to dokumenter med %s: %s og %s",
-                CONTENT_TYPE, APPLICATION_XML, APPLICATION_PDF_TYPE));
     }
 
     @Override
@@ -137,17 +118,20 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
     }
 
     private Optional<String> finnAvsenderId(DokumentMetadata metaData) {
+        return Optional.of(metaData.getBrukerId());
+
+    }
+
+    @Override
+    public Optional<String> bestemAvsenderAktørId(String aktørId) {
         String ident = SubjectHandler.getSubjectHandler().getUid();
         if (ident != null) {
-            LOG.trace(CONFIDENTIAL, "Finner avsenderId for fnr {}", ident);
             var aktørIdent = person.hentAktørIdForPersonIdent(ident);
-            LOG.trace(CONFIDENTIAL, "Fant avsenderId aktørid {}", aktørIdent);
-            if (aktørIdent.filter(i -> !metaData.getBrukerId().equals(i)).isPresent()) {
-                LOG.info("Avvik mellom Subject.uid {} og bruker fra forsendelse {}", partialMask(ident), partialMask(aktørIdent.get()));
+            if ((aktørIdent.isPresent() && aktørId == null) || aktørIdent.filter(i -> !aktørId.equals(i)).isPresent()) {
+                LOG.warn("Avvik mellom Subject.uid {} og bruker fra forsendelse {}", partialMask(ident), partialMask(aktørIdent.get()));
                 return aktørIdent;
             }
         }
-        LOG.trace("Ingen avsenderId å finne");
         return Optional.empty();
 
     }

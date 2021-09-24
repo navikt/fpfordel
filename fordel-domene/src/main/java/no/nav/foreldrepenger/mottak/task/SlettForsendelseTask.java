@@ -26,6 +26,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 public class SlettForsendelseTask extends WrappedProsessTaskHandler {
 
     public static final String TASKNAME = "fordeling.slettForsendelse";
+    public static final String FORCE_SLETT_KEY = "force.slett";
+
 
     private DokumentRepository dokumentRepository;
 
@@ -54,9 +56,10 @@ public class SlettForsendelseTask extends WrappedProsessTaskHandler {
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper dataWrapper) {
         Optional<UUID> forsendelseId = dataWrapper.getForsendelseId();
         if (forsendelseId.isPresent()) {
-            Optional<DokumentMetadata> metadata = dokumentRepository.hentUnikDokumentMetadata(forsendelseId.get());
-            if (metadata.isPresent() && metadata.get().getArkivId().isPresent()
-                    && (metadata.get().getStatus() != ForsendelseStatus.PENDING)) {
+            var metadata = dokumentRepository.hentUnikDokumentMetadata(forsendelseId.get());
+            if (dataWrapper.getProsessTaskData().getPropertyValue("FORCE_SLETT_KEY") != null ||
+                    (metadata.flatMap(DokumentMetadata::getArkivId).isPresent() &&
+                            metadata.filter(m -> !ForsendelseStatus.PENDING.equals(m.getStatus())).isPresent())) {
                 dokumentRepository.slettForsendelse(forsendelseId.get());
             }
         }
