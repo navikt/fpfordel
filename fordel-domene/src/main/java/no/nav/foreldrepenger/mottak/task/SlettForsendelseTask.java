@@ -57,7 +57,7 @@ public class SlettForsendelseTask extends WrappedProsessTaskHandler {
         Optional<UUID> forsendelseId = dataWrapper.getForsendelseId();
         if (forsendelseId.isPresent()) {
             var metadata = dokumentRepository.hentUnikDokumentMetadata(forsendelseId.get());
-            if (dataWrapper.getProsessTaskData().getPropertyValue("FORCE_SLETT_KEY") != null ||
+            if (dataWrapper.getProsessTaskData().getPropertyValue(FORCE_SLETT_KEY) != null ||
                     (metadata.flatMap(DokumentMetadata::getArkivId).isPresent() &&
                             metadata.filter(m -> !ForsendelseStatus.PENDING.equals(m.getStatus())).isPresent())) {
                 dokumentRepository.slettForsendelse(forsendelseId.get());
