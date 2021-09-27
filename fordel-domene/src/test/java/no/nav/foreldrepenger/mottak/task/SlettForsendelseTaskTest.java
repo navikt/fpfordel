@@ -43,8 +43,7 @@ class SlettForsendelseTaskTest {
     void setup() {
         forsendelseId = UUID.randomUUID();
         task = new SlettForsendelseTask(prosessTaskRepositoryMock, dokumentRepositoryMock);
-        ptd = ProsessTaskData.forProsessTaskHandler(SlettForsendelseTask.class);
-        ptd.setSekvens("1");
+        ptd = ProsessTaskData.forProsessTask(SlettForsendelseTask.class);
     }
 
     @Test

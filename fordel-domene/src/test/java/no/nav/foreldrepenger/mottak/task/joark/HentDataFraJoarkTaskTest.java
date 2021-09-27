@@ -41,8 +41,8 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 class HentDataFraJoarkTaskTest {
 
     private static final String ARKIV_ID = JoarkTestsupport.ARKIV_ID;
-    private static final TaskType TASK_TIL_JOURNAL = TaskType.forProsessTaskHandler(TilJournalføringTask.class);
-    private static final TaskType TASK_GOSYS = TaskType.forProsessTaskHandler(OpprettGSakOppgaveTask.class);
+    private static final TaskType TASK_TIL_JOURNAL = TaskType.forProsessTask(TilJournalføringTask.class);
+    private static final TaskType TASK_GOSYS = TaskType.forProsessTask(OpprettGSakOppgaveTask.class);
 
     private ProsessTaskData taskData;
     private HentDataFraJoarkTask joarkTaskTestobjekt;
@@ -63,8 +63,7 @@ class HentDataFraJoarkTaskTest {
     void setUp() {
         doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(aktørConsumer).hentAktørIdForPersonIdent(any());
         joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, vurderVLSaker, aktørConsumer, arkivTjeneste));
-        taskData = ProsessTaskData.forProsessTaskHandler(HentDataFraJoarkTask.class);
-        taskData.setSekvens("1");
+        taskData = ProsessTaskData.forProsessTask(HentDataFraJoarkTask.class);
         dataWrapper = new MottakMeldingDataWrapper(taskData);
         dataWrapper.setArkivId(ARKIV_ID);
     }

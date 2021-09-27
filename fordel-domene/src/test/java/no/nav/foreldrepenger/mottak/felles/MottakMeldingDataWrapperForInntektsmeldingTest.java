@@ -8,10 +8,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 class MottakMeldingDataWrapperForInntektsmeldingTest {
 
-    private static final String PROSESSTASK_STEG1 = "prosesstask.steg1";
+    private static final TaskType PROSESSTASK_STEG1 = new TaskType("prosesstask.steg1");
 
     private ProsessTaskData eksisterendeData;
 
@@ -19,8 +20,7 @@ class MottakMeldingDataWrapperForInntektsmeldingTest {
 
     @BeforeEach
     void setUp() {
-        eksisterendeData = new ProsessTaskData(PROSESSTASK_STEG1);
-        eksisterendeData.setSekvens("1");
+        eksisterendeData = ProsessTaskData.forTaskType(PROSESSTASK_STEG1);
         testObjekt = new MottakMeldingDataWrapper(eksisterendeData);
     }
 

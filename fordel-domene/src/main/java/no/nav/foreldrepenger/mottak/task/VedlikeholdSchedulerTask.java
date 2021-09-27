@@ -52,7 +52,7 @@ public class VedlikeholdSchedulerTask implements ProsessTaskHandler {
     public void doTask(ProsessTaskData prosessTaskData) {
         var dagensDato = LocalDate.now();
         // Lagre neste instans av daglig scheduler straks over midnatt
-        var batchScheduler = ProsessTaskData.forProsessTaskHandler(VedlikeholdSchedulerTask.class);
+        var batchScheduler = ProsessTaskData.forProsessTask(VedlikeholdSchedulerTask.class);
         var nesteScheduler = dagensDato.plusDays(1).atStartOfDay().plusHours(7).plusMinutes(1);
         batchScheduler.setNesteKjøringEtter(nesteScheduler);
         var gruppeScheduler = new ProsessTaskGruppe(batchScheduler);

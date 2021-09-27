@@ -57,8 +57,7 @@ class TilJournalføringTaskTest {
 
         task = new TilJournalføringTask(prosessTaskRepositoryMock, arkivTjeneste, aktørConsumerMock);
 
-        ptd = ProsessTaskData.forProsessTaskHandler(TilJournalføringTask.class);
-        ptd.setSekvens("1");
+        ptd = ProsessTaskData.forProsessTask(TilJournalføringTask.class);
 
     }
 
@@ -89,7 +88,7 @@ class TilJournalføringTaskTest {
         assertThat(wrapper).isNotNull();
         assertThat(wrapper.getProsessTaskData().taskType())
                 .as("Forventer at sak uten mangler går videre til neste steg")
-                .isNotEqualTo(TaskType.forProsessTaskHandler(TilJournalføringTask.class));
+                .isNotEqualTo(TaskType.forProsessTask(TilJournalføringTask.class));
     }
 
     @Test
@@ -115,7 +114,7 @@ class TilJournalføringTaskTest {
         assertThat(wrapper).isNotNull();
         assertThat(wrapper.getProsessTaskData().taskType())
                 .as("Forventer at sak uten mangler går videre til neste steg")
-                .isNotEqualTo(TaskType.forProsessTaskHandler(TilJournalføringTask.class));
+                .isNotEqualTo(TaskType.forProsessTask(TilJournalføringTask.class));
     }
 
     @Test
@@ -135,7 +134,7 @@ class TilJournalføringTaskTest {
 
         assertThat(wrapper).isNotNull();
         assertThat(wrapper.getProsessTaskData().taskType()).as("Forventer at sak med mangler går til Gosys")
-                .isEqualTo(TaskType.forProsessTaskHandler(OpprettGSakOppgaveTask.class));
+                .isEqualTo(TaskType.forProsessTask(OpprettGSakOppgaveTask.class));
     }
 
     private MottakMeldingDataWrapper doTaskWithPrecondition(MottakMeldingDataWrapper data) {
@@ -158,7 +157,7 @@ class TilJournalføringTaskTest {
 
         assertThat(wrapper).isNotNull();
         assertThat(wrapper.getProsessTaskData().taskType()).as("Forventer at sak med dokumentmangler går til Gosys")
-                .isEqualTo(TaskType.forProsessTaskHandler(OpprettGSakOppgaveTask.class));
+                .isEqualTo(TaskType.forProsessTask(OpprettGSakOppgaveTask.class));
     }
 
     @Test
@@ -186,7 +185,7 @@ class TilJournalføringTaskTest {
 
         var next = doTaskWithPrecondition(data);
 
-        assertThat(next.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTaskHandler(VLKlargjørerTask.class));
+        assertThat(next.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTask(VLKlargjørerTask.class));
     }
 
     @Test
@@ -204,6 +203,6 @@ class TilJournalføringTaskTest {
 
         data = doTaskWithPrecondition(data);
 
-        assertThat(data.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTaskHandler(OpprettGSakOppgaveTask.class));
+        assertThat(data.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTask(OpprettGSakOppgaveTask.class));
     }
 }

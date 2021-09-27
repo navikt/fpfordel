@@ -67,7 +67,7 @@ class OpprettGSakOppgaveTjenesteTaskTest {
         final String aktørId = "9000000000009";
         final BehandlingTema behandlingTema = BehandlingTema.ENGANGSSTØNAD_FØDSEL;
 
-        var taskData = ProsessTaskData.forProsessTaskHandler(OpprettGSakOppgaveTask.class);
+        var taskData = ProsessTaskData.forProsessTask(OpprettGSakOppgaveTask.class);
         taskData.setProperty(TEMA_KEY, Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getKode());
         taskData.setProperty(BEHANDLINGSTEMA_KEY, behandlingTema.getKode());
         taskData.setProperty(DOKUMENTTYPE_ID_KEY, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getKode());
@@ -88,7 +88,7 @@ class OpprettGSakOppgaveTjenesteTaskTest {
     @Test
     void testServiceTask_uten_aktørId_fordelingsoppgave() {
         String enhet = "4292";
-        var taskData = ProsessTaskData.forProsessTaskHandler(OpprettGSakOppgaveTask.class);
+        var taskData = ProsessTaskData.forProsessTask(OpprettGSakOppgaveTask.class);
         taskData.setProperty(TEMA_KEY, Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getKode());
         taskData.setProperty(BEHANDLINGSTEMA_KEY, BehandlingTema.ENGANGSSTØNAD_FØDSEL.getKode());
         taskData.setProperty(DOKUMENTTYPE_ID_KEY, DokumentTypeId.UDEFINERT.getKode());
@@ -110,7 +110,7 @@ class OpprettGSakOppgaveTjenesteTaskTest {
     @Test
     void testSkalJournalføreDokumentForsendelse() {
         var forsendelseId = UUID.randomUUID();
-        var taskData = ProsessTaskData.forProsessTaskHandler(OpprettGSakOppgaveTask.class);
+        var taskData = ProsessTaskData.forProsessTask(OpprettGSakOppgaveTask.class);
         taskData.setProperty(TEMA_KEY, Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getKode());
         taskData.setProperty(BEHANDLINGSTEMA_KEY, BehandlingTema.FORELDREPENGER.getKode());
         taskData.setProperty(MottakMeldingDataWrapper.FORSENDELSE_ID_KEY, forsendelseId.toString());

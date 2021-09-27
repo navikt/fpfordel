@@ -69,8 +69,8 @@ class BehandleDokumentforsendelseTaskTest {
     private static final String FIL_SØKNAD_ENDRING = "selvb-soeknad-endring.xml";
     private static final String FIL_SØKNAD_FORP_UTTAK_FØR_KONFIGVERDI = "selvb-soeknad-forp-uttak-før-konfigverdi.xml";
 
-    private static final TaskType KLARGJOR_TASK = TaskType.forProsessTaskHandler(VLKlargjørerTask.class);
-    private static final TaskType GOSYS_TASK = TaskType.forProsessTaskHandler(OpprettGSakOppgaveTask.class);
+    private static final TaskType KLARGJOR_TASK = TaskType.forProsessTask(VLKlargjørerTask.class);
+    private static final TaskType GOSYS_TASK = TaskType.forProsessTask(OpprettGSakOppgaveTask.class);
 
     @Mock
     private ProsessTaskTjeneste prosessTaskRepository;
@@ -92,8 +92,7 @@ class BehandleDokumentforsendelseTaskTest {
     void setup() {
         fordelDokTask = new BehandleDokumentforsendelseTask(prosessTaskRepository, vurderVLSaker, aktørConsumer,
                 fagsakRestKlient, arkivTjeneste, dokumentRepository, new LoggingHendelseProdusent());
-        ptd = ProsessTaskData.forProsessTaskHandler(BehandleDokumentforsendelseTask.class);
-        ptd.setSekvens("1");
+        ptd = ProsessTaskData.forProsessTask(BehandleDokumentforsendelseTask.class);
 
         when(aktørConsumer.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(PERSON_IDENT));
     }

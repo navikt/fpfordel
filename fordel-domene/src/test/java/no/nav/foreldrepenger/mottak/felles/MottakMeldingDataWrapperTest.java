@@ -27,8 +27,7 @@ class MottakMeldingDataWrapperTest {
 
     @BeforeEach
     void setUp() {
-        eksisterendeData = new ProsessTaskData(PROSESSTASK_STEG1);
-        eksisterendeData.setSekvens("1");
+        eksisterendeData = ProsessTaskData.forTaskType(PROSESSTASK_STEG1);
         wrapper = new MottakMeldingDataWrapper(eksisterendeData);
     }
 

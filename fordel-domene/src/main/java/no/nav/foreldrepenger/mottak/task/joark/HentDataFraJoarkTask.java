@@ -59,8 +59,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     static final String TASKNAME = "fordeling.hentFraJoark";
 
-    private static final TaskType TASK_GOSYS = TaskType.forProsessTaskHandler(OpprettGSakOppgaveTask.class);
-    private static final TaskType TASK_JOURNALFØR = TaskType.forProsessTaskHandler(TilJournalføringTask.class);
+    private static final TaskType TASK_GOSYS = TaskType.forProsessTask(OpprettGSakOppgaveTask.class);
+    private static final TaskType TASK_JOURNALFØR = TaskType.forProsessTask(TilJournalføringTask.class);
 
     private static final Logger LOG = LoggerFactory.getLogger(HentDataFraJoarkTask.class);
 

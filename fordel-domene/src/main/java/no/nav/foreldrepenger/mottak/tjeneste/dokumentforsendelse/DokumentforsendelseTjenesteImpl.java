@@ -109,7 +109,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
     }
 
     private void opprettProsessTask(UUID forsendelseId, Optional<String> avsenderId) {
-        var prosessTaskData = ProsessTaskData.forProsessTaskHandler(BehandleDokumentforsendelseTask.class);
+        var prosessTaskData = ProsessTaskData.forProsessTask(BehandleDokumentforsendelseTask.class);
         prosessTaskData.setCallIdFraEksisterende();
         var dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
         dataWrapper.setForsendelseId(forsendelseId);

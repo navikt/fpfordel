@@ -39,7 +39,7 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 @MockitoSettings(strictness = Strictness.WARN)
 class ManuellJournalføringDokumentHåndtererTest {
 
-    private static final TaskType DEFAULT_TASK_FOR_MANUELL_JOURNALFØRING = TaskType.forProsessTaskHandler(OpprettGSakOppgaveTask.class);
+    private static final TaskType DEFAULT_TASK_FOR_MANUELL_JOURNALFØRING = TaskType.forProsessTask(OpprettGSakOppgaveTask.class);
 
     private static final String ARKIV_ID = JoarkTestsupport.ARKIV_ID;
 
@@ -60,8 +60,7 @@ class ManuellJournalføringDokumentHåndtererTest {
         var ptr = mock(ProsessTaskTjeneste.class);
         when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));
         joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, vurderVLSaker, aktørConsumer, arkivTjeneste));
-        taskData = ProsessTaskData.forProsessTaskHandler(HentDataFraJoarkTask.class);
-        taskData.setSekvens("1");
+        taskData = ProsessTaskData.forProsessTask(HentDataFraJoarkTask.class);
         dataWrapper = new MottakMeldingDataWrapper(taskData);
         dataWrapper.setArkivId(ARKIV_ID);
     }
@@ -96,7 +95,7 @@ class ManuellJournalføringDokumentHåndtererTest {
         MottakMeldingDataWrapper result = joarkTaskTestobjekt.doTask(dataWrapper);
 
         assertThat(result.getArkivId()).isEqualTo(ARKIV_ID);
-        assertThat(result.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTaskHandler(TilJournalføringTask.class));
+        assertThat(result.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTask(TilJournalføringTask.class));
         assertThat(result.getAktørId().get()).isEqualTo(AKTØR_ID);
     }
 

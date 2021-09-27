@@ -15,10 +15,11 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.VurderFagsystemResultat;
-import no.nav.foreldrepenger.mottak.tjeneste.VurderInfotrygd;
 import no.nav.foreldrepenger.mottak.tjeneste.DestinasjonsRuter;
+import no.nav.foreldrepenger.mottak.tjeneste.VurderInfotrygd;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 class HentOgVurderVLSakTaskTest {
@@ -134,8 +135,7 @@ class HentOgVurderVLSakTaskTest {
     void neste_steg_skal_være_tilJournalføring_når_vl_returnerer_saksnummer_for_svangerskapspenger() {
         when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(saksnummer, true, false, false));
 
-        var data = new ProsessTaskData("TEST");
-        data.setSekvens("1");
+        var data = ProsessTaskData.forTaskType(new TaskType("TEST"));
         var dataWrapper = new MottakMeldingDataWrapper(data);
         dataWrapper.setAktørId(aktørId);
         dataWrapper.setBarnTermindato(termindato);
@@ -150,8 +150,7 @@ class HentOgVurderVLSakTaskTest {
     }
 
     private MottakMeldingDataWrapper lagDataWrapper() {
-        var data = new ProsessTaskData("TEST");
-        data.setSekvens("1");
+        var data = ProsessTaskData.forTaskType(new TaskType("TEST"));
         var dataWrapper = new MottakMeldingDataWrapper(data);
         dataWrapper.setAktørId(aktørId);
         dataWrapper.setBarnTermindato(termindato);

@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.VurderInfotrygd;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.WARN)
@@ -265,8 +266,7 @@ class HentOgVurderInfotrygdSakTaskTest {
     }
 
     private static ProsessTaskData taskData() {
-        var data = new ProsessTaskData("DUMMY");
-        data.setSekvens("1");
+        var data = ProsessTaskData.forTaskType(new TaskType("DUMMY"));
         return data;
     }
 

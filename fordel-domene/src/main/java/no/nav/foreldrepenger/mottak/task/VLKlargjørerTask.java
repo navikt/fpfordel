@@ -78,7 +78,7 @@ public class VLKlargjørerTask extends WrappedProsessTaskHandler {
         if (forsendelseId.isPresent() && !erReinnsend) {
             // Gi selvbetjening tid til å polle ferdig + Kafka-hendelse tid til å nå fram
             // (og bli ignorert)
-            return w.nesteSteg(TaskType.forProsessTaskHandler(SlettForsendelseTask.class), true, LocalDateTime.now().plusHours(2));
+            return w.nesteSteg(TaskType.forProsessTask(SlettForsendelseTask.class), true, LocalDateTime.now().plusHours(2));
         }
         return null; // Siste steg, fpsak overtar nå
     }

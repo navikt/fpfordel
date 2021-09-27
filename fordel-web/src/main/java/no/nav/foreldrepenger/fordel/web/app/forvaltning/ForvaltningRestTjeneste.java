@@ -94,7 +94,7 @@ public class ForvaltningRestTjeneste {
         }
         data.setCallIdFraEksisterende();
         var fra = new MottakMeldingDataWrapper(data);
-        var til = fra.nesteSteg(TaskType.forProsessTaskHandler(VLKlargjørerTask.class));
+        var til = fra.nesteSteg(TaskType.forProsessTask(VLKlargjørerTask.class));
         til.setSaksnummer(dto.getSaksnummerDto().getSaksnummer());
         til.setArkivId(dto.getJournalpostIdDto().getJournalpostId());
         til.setRetryingTask(VLKlargjørerTask.REINNSEND);
@@ -119,7 +119,7 @@ public class ForvaltningRestTjeneste {
         if (!fra.getArkivId().equals(dto.getJournalpostIdDto().getJournalpostId())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        var til = fra.nesteSteg(TaskType.forProsessTaskHandler(TilJournalføringTask.class));
+        var til = fra.nesteSteg(TaskType.forProsessTask(TilJournalføringTask.class));
         til.setSaksnummer(dto.getSaksnummerDto().getSaksnummer());
         fagsak.knyttSakOgJournalpost(new JournalpostKnyttningDto(dto.getSaksnummerDto(), dto.getJournalpostIdDto()));
         taskTjeneste.lagre(til.getProsessTaskData());
@@ -134,14 +134,14 @@ public class ForvaltningRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
     public Response autoRunBatch() {
-        var vedlikeholdTask = TaskType.forProsessTaskHandler(VedlikeholdSchedulerTask.class);
+        var vedlikeholdTask = TaskType.forProsessTask(VedlikeholdSchedulerTask.class);
         boolean eksisterende = taskTjeneste.finnAlle(ProsessTaskStatus.KLAR)
                 .stream()
                 .filter(t -> t.getSistKjørt() == null)
                 .map(ProsessTaskData::taskType)
                 .anyMatch(vedlikeholdTask::equals);
         if (!eksisterende) {
-            taskTjeneste.lagre(ProsessTaskData.forProsessTaskHandler(VedlikeholdSchedulerTask.class));
+            taskTjeneste.lagre(ProsessTaskData.forTaskType(vedlikeholdTask));
         }
         return Response.ok().build();
     }
@@ -180,7 +180,7 @@ public class ForvaltningRestTjeneste {
     public Response taskForBehandleForsendelse(
             @TilpassetAbacAttributt(supplierClass = DokumentforsendelseRestTjeneste.ForsendelseAbacDataSupplier.class)
             @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
-        var builder = ProsessTaskDataBuilder.forProsessTaskHandler(BehandleDokumentforsendelseTask.class)
+        var builder = ProsessTaskDataBuilder.forProsessTask(BehandleDokumentforsendelseTask.class)
                 .medCallId(forsendelseIdDto.forsendelseId().toString())
                 .medProperty(FORSENDELSE_ID_KEY, forsendelseIdDto.forsendelseId().toString());
 
@@ -200,7 +200,7 @@ public class ForvaltningRestTjeneste {
             @TilpassetAbacAttributt(supplierClass = DokumentforsendelseRestTjeneste.ForsendelseAbacDataSupplier.class)
             @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
 
-        var builder = ProsessTaskDataBuilder.forProsessTaskHandler(SlettForsendelseTask.class)
+        var builder = ProsessTaskDataBuilder.forProsessTask(SlettForsendelseTask.class)
                 .medCallId(forsendelseIdDto.forsendelseId().toString())
                 .medProperty(FORSENDELSE_ID_KEY, forsendelseIdDto.forsendelseId().toString())
                 .medProperty(SlettForsendelseTask.FORCE_SLETT_KEY, "forvaltning");

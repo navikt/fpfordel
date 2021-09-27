@@ -44,8 +44,7 @@ class VLKlargjørerTaskTest {
     void setup() {
         forsendelseId = UUID.randomUUID();
         task = new VLKlargjørerTask(prosessTaskRepositoryMock, klargjørForVLTjeneste);
-        ptd = ProsessTaskData.forProsessTaskHandler(VLKlargjørerTask.class);
-        ptd.setSekvens("1");
+        ptd = ProsessTaskData.forProsessTask(VLKlargjørerTask.class);
 
     }
 
@@ -69,7 +68,7 @@ class VLKlargjørerTaskTest {
         var neste = toTaskWithPrecondition(data);
         verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
         assertThat(neste).isNotNull();
-        assertThat(neste.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTaskHandler(SlettForsendelseTask.class));
+        assertThat(neste.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTask(SlettForsendelseTask.class));
     }
 
     @Test
@@ -85,7 +84,7 @@ class VLKlargjørerTaskTest {
         var neste = toTaskWithPrecondition(data);
         verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
         assertThat(neste).isNotNull();
-        assertThat(neste.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTaskHandler(SlettForsendelseTask.class));
+        assertThat(neste.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTask(SlettForsendelseTask.class));
     }
 
     @Test
@@ -101,7 +100,7 @@ class VLKlargjørerTaskTest {
         var neste = toTaskWithPrecondition(data);
         verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
         assertThat(neste).isNotNull();
-        assertThat(neste.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTaskHandler(SlettForsendelseTask.class));
+        assertThat(neste.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTask(SlettForsendelseTask.class));
     }
 
     @Test

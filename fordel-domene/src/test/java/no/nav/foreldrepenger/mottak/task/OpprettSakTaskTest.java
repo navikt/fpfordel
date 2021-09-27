@@ -54,8 +54,7 @@ class OpprettSakTaskTest {
     @Test
     void test_doTask_fødsel_strukturert() throws Exception {
 
-        var prosessTaskData = ProsessTaskData.forProsessTaskHandler(HentDataFraJoarkTask.class);
-        prosessTaskData.setSekvens("1");
+        var prosessTaskData = ProsessTaskData.forProsessTask(HentDataFraJoarkTask.class);
 
         String filename = "testsoknader/engangsstoenad-termin-soeknad.xml";
         Path path = Paths.get(getClass().getClassLoader().getResource(filename).toURI());
@@ -80,8 +79,7 @@ class OpprettSakTaskTest {
 
     @Test
     void test_doTask_fødsel_ustrukturert() {
-        var prosessTaskData = ProsessTaskData.forProsessTaskHandler(HentDataFraJoarkTask.class);
-        prosessTaskData.setSekvens("1");
+        var prosessTaskData = ProsessTaskData.forProsessTask(HentDataFraJoarkTask.class);
 
         var ptData = new MottakMeldingDataWrapper(prosessTaskData);
         ptData.setArkivId("123");
@@ -100,8 +98,7 @@ class OpprettSakTaskTest {
 
     @Test
     void test_doTask_anke_klage() {
-        var innData = ProsessTaskData.forProsessTaskHandler(HentDataFraJoarkTask.class);
-        innData.setSekvens("1");
+        var innData = ProsessTaskData.forProsessTask(HentDataFraJoarkTask.class);
 
         var ptData = new MottakMeldingDataWrapper(innData);
 
@@ -117,8 +114,7 @@ class OpprettSakTaskTest {
     @Test
     void test_doTask_svangerskapspenger_søknad() throws Exception {
 
-        var prosessTaskData = ProsessTaskData.forProsessTaskHandler(HentDataFraJoarkTask.class);
-        prosessTaskData.setSekvens("1");
+        var prosessTaskData = ProsessTaskData.forProsessTask(HentDataFraJoarkTask.class);
 
         String filename = "testsoknader/svangerskapspenger.xml";
         Path path = Paths.get(getClass().getClassLoader().getResource(filename).toURI());
@@ -144,8 +140,7 @@ class OpprettSakTaskTest {
     @Test
     void test_doTask_svangerskapspenger_inntektsmelding() throws Exception {
 
-        var prosessTaskData = ProsessTaskData.forProsessTaskHandler(HentDataFraJoarkTask.class);
-        prosessTaskData.setSekvens("1");
+        var prosessTaskData = ProsessTaskData.forProsessTask(HentDataFraJoarkTask.class);
 
         String filename = "testsoknader/inntektsmelding-svp.xml";
         Path path = Paths.get(getClass().getClassLoader().getResource(filename).toURI());

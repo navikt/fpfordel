@@ -242,7 +242,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         if (journalpost.getInnholderStrukturertInformasjon()) {
             // Bruker eksisterende infrastruktur for å hente ut og validere XML-data.
             // Tasktype tilfeldig valgt
-            ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTaskHandler(VLKlargjørerTask.class);
+            ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTask(VLKlargjørerTask.class);
             MottakMeldingDataWrapper dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
             dataWrapper.setBehandlingTema(behandlingTema);
             dataWrapper.setSaksnummer(saksnummer);

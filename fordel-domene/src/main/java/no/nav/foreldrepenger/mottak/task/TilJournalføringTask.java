@@ -88,9 +88,9 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             arkivTjeneste.ferdigstillJournalføring(w.getArkivId(), w.getJournalførendeEnhet().orElse(AUTOMATISK_ENHET));
         } catch (Exception e) {
             LOG.info("Feil journaltilstand. Forventet tilstand: endelig, fikk Midlertidig");
-            return w.nesteSteg(TaskType.forProsessTaskHandler(OpprettGSakOppgaveTask.class));
+            return w.nesteSteg(TaskType.forProsessTask(OpprettGSakOppgaveTask.class));
         }
-        return w.nesteSteg(TaskType.forProsessTaskHandler(VLKlargjørerTask.class));
+        return w.nesteSteg(TaskType.forProsessTask(VLKlargjørerTask.class));
     }
 
 }

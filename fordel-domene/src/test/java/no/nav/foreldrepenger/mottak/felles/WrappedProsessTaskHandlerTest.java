@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 class WrappedProsessTaskHandlerTest {
@@ -26,7 +27,7 @@ class WrappedProsessTaskHandlerTest {
     @BeforeEach
     void setup() {
         wrappedProsessTaskHandler = new MyWrappedProsessTaskHandler(mockProsessTaskRepository);
-        prosessTaskData = new ProsessTaskData("type");
+        prosessTaskData = ProsessTaskData.forTaskType(new TaskType("type"));
         returnedDataWrapper = null;
     }
 

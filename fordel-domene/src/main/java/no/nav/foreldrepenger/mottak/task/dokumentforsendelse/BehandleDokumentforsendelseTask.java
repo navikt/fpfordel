@@ -83,8 +83,8 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(BehandleDokumentforsendelseTask.class);
 
-    private static final TaskType TASK_GOSYS = TaskType.forProsessTaskHandler(OpprettGSakOppgaveTask.class);
-    private static final TaskType TASK_FPSAK = TaskType.forProsessTaskHandler(VLKlargjørerTask.class);
+    private static final TaskType TASK_GOSYS = TaskType.forProsessTask(OpprettGSakOppgaveTask.class);
+    private static final TaskType TASK_FPSAK = TaskType.forProsessTask(VLKlargjørerTask.class);
 
     private PersonInformasjon pdl;
     private Fagsak fagsak;

@@ -26,7 +26,7 @@
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
         <felles.version>4.0.6</felles.version>
-        <prosesstask.version>3.0.1</prosesstask.version>
+        <prosesstask.version>3.0.2</prosesstask.version>
         <java.version>17</java.version>
         <argLine>-Xms256m -Dfile.encoding=UTF-8</argLine>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

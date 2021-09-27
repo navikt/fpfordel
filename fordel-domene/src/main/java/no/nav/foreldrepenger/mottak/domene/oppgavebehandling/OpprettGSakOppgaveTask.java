@@ -80,7 +80,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     }
 
     private void opprettSletteTask(ProsessTaskData prosessTaskData) {
-        var nesteStegProsessTaskData = ProsessTaskData.forProsessTaskHandler(SlettForsendelseTask.class);
+        var nesteStegProsessTaskData = ProsessTaskData.forProsessTask(SlettForsendelseTask.class);
         // Gi selvbetjening tid til å polle ferdig + Kafka-hendelse tid til å nå fram
         // (og bli ignorert)
         nesteStegProsessTaskData.setNesteKjøringEtter(LocalDateTime.now().plusHours(2));
