@@ -38,7 +38,7 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Forsendelse
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
 import no.nav.vedtak.sikkerhet.domene.AuthenticationLevelCredential;
@@ -59,7 +59,7 @@ class DokumentforsendelseTjenesteImplTest {
     @Mock
     private DokumentRepository dokumentRepositoryMock;
     @Mock
-    private ProsessTaskRepository prosessTaskRepositoryMock;
+    private ProsessTaskTjeneste prosessTaskTjenesteMock;
     @Mock
     private PersonInformasjon aktørConsumerMock;
 
@@ -68,7 +68,7 @@ class DokumentforsendelseTjenesteImplTest {
     @BeforeEach
     void setUp() {
         tjeneste = new DokumentforsendelseTjenesteImpl(dokumentRepositoryMock,
-                prosessTaskRepositoryMock, aktørConsumerMock);
+                prosessTaskTjenesteMock, aktørConsumerMock);
     }
 
     @Test
@@ -97,7 +97,7 @@ class DokumentforsendelseTjenesteImplTest {
 
         tjeneste.lagreForsendelseValider(metadata, dokumentListe, Optional.empty());
 
-        verify(prosessTaskRepositoryMock).lagre(any(ProsessTaskData.class));
+        verify(prosessTaskTjenesteMock).lagre(any(ProsessTaskData.class));
     }
 
     @Test
@@ -115,7 +115,7 @@ class DokumentforsendelseTjenesteImplTest {
         tjeneste.lagreForsendelseValider(metadata, dokumentListe, Optional.empty());
 
         ArgumentCaptor<ProsessTaskData> prosessTaskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskRepositoryMock).lagre(prosessTaskCaptor.capture());
+        verify(prosessTaskTjenesteMock).lagre(prosessTaskCaptor.capture());
         var capturedProssessTaskData = prosessTaskCaptor.getValue();
         assertNotNull(capturedProssessTaskData);
         assertThat(capturedProssessTaskData.getPropertyValue(MottakMeldingDataWrapper.FORSENDELSE_ID_KEY))
@@ -148,7 +148,7 @@ class DokumentforsendelseTjenesteImplTest {
         tjeneste.lagreForsendelseValider(metadata, dokumentListe, avsenderId);
 
         ArgumentCaptor<ProsessTaskData> prosessTaskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskRepositoryMock).lagre(prosessTaskCaptor.capture());
+        verify(prosessTaskTjenesteMock).lagre(prosessTaskCaptor.capture());
         var capturedProssessTaskData = prosessTaskCaptor.getValue();
         assertThat(capturedProssessTaskData.getPropertyValue(MottakMeldingDataWrapper.AVSENDER_ID_KEY))
                 .isEqualTo(aktørIdForIdent);

@@ -26,8 +26,8 @@
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
         <felles.version>4.0.6</felles.version>
-        <prosesstask.version>2.6.6</prosesstask.version>
-        <java.version>16</java.version>
+        <prosesstask.version>3.0.2</prosesstask.version>
+        <java.version>17</java.version>
         <argLine>-Xms256m -Dfile.encoding=UTF-8</argLine>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -39,11 +39,6 @@
     </properties>
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>net.minidev</groupId>
-                <artifactId>json-smart</artifactId>
-                <version>2.3</version>
-            </dependency>
             <dependency>
                 <groupId>com.github.tomakehurst</groupId>
                 <artifactId>wiremock</artifactId>
@@ -117,6 +112,13 @@
                 <version>${tjenestespesifikasjon.version}</version>
             </dependency>
 
+            <!-- trengs for Java17 inntil jetty 10.0.7 kommer -->
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>9.2</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-text</artifactId>
@@ -170,17 +172,17 @@
             <dependency>
                 <groupId>io.confluent</groupId>
                 <artifactId>kafka-streams-avro-serde</artifactId>
-                <version>6.2.0</version>
+                <version>6.2.1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-streams</artifactId>
-                <version>6.2.0-ce</version>
+                <version>6.2.1-ce</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-clients</artifactId>
-                <version>6.2.0-ce</version>
+                <version>6.2.1-ce</version>
             </dependency>
 
             <dependency>
@@ -305,10 +307,9 @@
                     <version>3.8.1</version>
                     <configuration>
                         <fork>true</fork>
-                        <compilerArgs>
-                            <arg>--enable-preview</arg>
-                        </compilerArgs>
                         <parameters>true</parameters>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
                         <encoding>UTF-8</encoding>
                         <release>${java.version}</release>
                     </configuration>
@@ -338,7 +339,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.2</version>
                     <configuration>
-                        <argLine>--enable-preview</argLine>
+                        <argLine>${argLine}</argLine>
                     </configuration>
                 </plugin>
                 <plugin>

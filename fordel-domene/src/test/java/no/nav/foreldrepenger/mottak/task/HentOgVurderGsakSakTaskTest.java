@@ -34,6 +34,7 @@ import no.nav.foreldrepenger.mottak.infotrygd.RelevantSakSjekker;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.VurderInfotrygd;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.WARN)
@@ -123,8 +124,7 @@ class HentOgVurderGsakSakTaskTest {
     }
 
     private static MottakMeldingDataWrapper opprettMottaksMelding() {
-        ProsessTaskData data = new ProsessTaskData("DUMMY");
-        data.setSekvens("1");
+        ProsessTaskData data = ProsessTaskData.forTaskType(new TaskType("DUMMY"));
         MottakMeldingDataWrapper wrapperIn = new MottakMeldingDataWrapper(data);
         wrapperIn.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         wrapperIn.setAktørId(BRUKER_AKTØR_ID);

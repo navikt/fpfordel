@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Forsendelse
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @ApplicationScoped
@@ -44,7 +44,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
 
     private static final Logger LOG = LoggerFactory.getLogger(DokumentforsendelseTjenesteImpl.class);
     private DokumentRepository repository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste prosessTaskTjeneste;
     private PersonInformasjon person;
 
     public DokumentforsendelseTjenesteImpl() {
@@ -52,9 +52,10 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
 
     @Inject
     public DokumentforsendelseTjenesteImpl(DokumentRepository repository,
-            ProsessTaskRepository prosessTaskRepository, @Jersey("onbehalf") PersonInformasjon person) {
+                                           ProsessTaskTjeneste prosessTaskTjeneste,
+                                           @Jersey("onbehalf") PersonInformasjon person) {
         this.repository = repository;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.person = person;
     }
 
@@ -108,18 +109,13 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
     }
 
     private void opprettProsessTask(UUID forsendelseId, Optional<String> avsenderId) {
-        var prosessTaskData = new ProsessTaskData(BehandleDokumentforsendelseTask.TASKNAME);
+        var prosessTaskData = ProsessTaskData.forProsessTask(BehandleDokumentforsendelseTask.class);
         prosessTaskData.setCallIdFraEksisterende();
         var dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
         dataWrapper.setForsendelseId(forsendelseId);
         avsenderId.ifPresent(dataWrapper::setAvsenderId);
 
-        prosessTaskRepository.lagre(dataWrapper.getProsessTaskData());
-    }
-
-    private Optional<String> finnAvsenderId(DokumentMetadata metaData) {
-        return Optional.of(metaData.getBrukerId());
-
+        prosessTaskTjeneste.lagre(dataWrapper.getProsessTaskData());
     }
 
     @Override

@@ -11,7 +11,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 class WrappedProsessTaskHandlerTest {
@@ -19,14 +20,14 @@ class WrappedProsessTaskHandlerTest {
     private WrappedProsessTaskHandler wrappedProsessTaskHandler;
 
     @Mock
-    private ProsessTaskRepository mockProsessTaskRepository;
+    private ProsessTaskTjeneste mockProsessTaskRepository;
     private ProsessTaskData prosessTaskData;
     private MottakMeldingDataWrapper returnedDataWrapper;
 
     @BeforeEach
     void setup() {
         wrappedProsessTaskHandler = new MyWrappedProsessTaskHandler(mockProsessTaskRepository);
-        prosessTaskData = new ProsessTaskData("type");
+        prosessTaskData = ProsessTaskData.forTaskType(new TaskType("type"));
         returnedDataWrapper = null;
     }
 
@@ -45,8 +46,8 @@ class WrappedProsessTaskHandlerTest {
 
     private class MyWrappedProsessTaskHandler extends WrappedProsessTaskHandler {
 
-        MyWrappedProsessTaskHandler(ProsessTaskRepository prosessTaskRepository) {
-            super(prosessTaskRepository);
+        MyWrappedProsessTaskHandler(ProsessTaskTjeneste taskTjeneste) {
+            super(taskTjeneste);
         }
 
         @Override

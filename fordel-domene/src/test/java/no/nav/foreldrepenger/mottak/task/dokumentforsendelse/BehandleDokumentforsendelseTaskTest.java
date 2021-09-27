@@ -54,7 +54,8 @@ import no.nav.foreldrepenger.mottak.tjeneste.DestinasjonsRuter;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.WARN)
@@ -68,8 +69,11 @@ class BehandleDokumentforsendelseTaskTest {
     private static final String FIL_SØKNAD_ENDRING = "selvb-soeknad-endring.xml";
     private static final String FIL_SØKNAD_FORP_UTTAK_FØR_KONFIGVERDI = "selvb-soeknad-forp-uttak-før-konfigverdi.xml";
 
+    private static final TaskType KLARGJOR_TASK = TaskType.forProsessTask(VLKlargjørerTask.class);
+    private static final TaskType GOSYS_TASK = TaskType.forProsessTask(OpprettGSakOppgaveTask.class);
+
     @Mock
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste prosessTaskRepository;
     @Mock
     private PersonInformasjon aktørConsumer;
     @Mock
@@ -88,8 +92,7 @@ class BehandleDokumentforsendelseTaskTest {
     void setup() {
         fordelDokTask = new BehandleDokumentforsendelseTask(prosessTaskRepository, vurderVLSaker, aktørConsumer,
                 fagsakRestKlient, arkivTjeneste, dokumentRepository, new LoggingHendelseProdusent());
-        ptd = new ProsessTaskData(BehandleDokumentforsendelseTask.TASKNAME);
-        ptd.setSekvens("1");
+        ptd = ProsessTaskData.forProsessTask(BehandleDokumentforsendelseTask.class);
 
         when(aktørConsumer.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(PERSON_IDENT));
     }
@@ -123,7 +126,7 @@ class BehandleDokumentforsendelseTaskTest {
         when(arkivTjeneste.opprettJournalpost(any(), any(String.class), any())).thenReturn(new OpprettetJournalpost(JOURNALPOST_ID, true));
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
-        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(VLKlargjørerTask.TASKNAME);
+        assertThat(utdata.getProsessTaskData().taskType()).isEqualTo(KLARGJOR_TASK);
         assertThat(utdata.getDokumentTypeId()).hasValue(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
         verify(arkivTjeneste).opprettJournalpost(any(), any(String.class), eq("123"));
     }
@@ -141,7 +144,7 @@ class BehandleDokumentforsendelseTaskTest {
         when(arkivTjeneste.opprettJournalpost(any(), any(String.class), eq("123"))).thenReturn(new OpprettetJournalpost(JOURNALPOST_ID, true));
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
-        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(VLKlargjørerTask.TASKNAME);
+        assertThat(utdata.getProsessTaskData().taskType()).isEqualTo(KLARGJOR_TASK);
         assertThat(utdata.getDokumentTypeId()).hasValue(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
     }
 
@@ -157,7 +160,7 @@ class BehandleDokumentforsendelseTaskTest {
         when(arkivTjeneste.opprettJournalpost(any(), any(UUID.class), any())).thenReturn(new OpprettetJournalpost(JOURNALPOST_ID, false));
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
-        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+        assertThat(utdata.getProsessTaskData().taskType()).isEqualTo(GOSYS_TASK);
     }
 
     @Test
@@ -175,7 +178,7 @@ class BehandleDokumentforsendelseTaskTest {
 
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
-        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(VLKlargjørerTask.TASKNAME);
+        assertThat(utdata.getProsessTaskData().taskType()).isEqualTo(KLARGJOR_TASK);
     }
 
     @Test
@@ -196,7 +199,7 @@ class BehandleDokumentforsendelseTaskTest {
 
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
-        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(VLKlargjørerTask.TASKNAME);
+        assertThat(utdata.getProsessTaskData().taskType()).isEqualTo(KLARGJOR_TASK);
         assertThat(utdata.getDokumentTypeId()).hasValue(DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD);
     }
 
@@ -216,7 +219,7 @@ class BehandleDokumentforsendelseTaskTest {
         when(arkivTjeneste.opprettJournalpost(any(), any(UUID.class), any())).thenReturn(new OpprettetJournalpost(JOURNALPOST_ID, false));
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
-        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+        assertThat(utdata.getProsessTaskData().taskType()).isEqualTo(GOSYS_TASK);
         assertThat(utdata.getDokumentTypeId()).hasValue(DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD);
     }
 
@@ -237,7 +240,7 @@ class BehandleDokumentforsendelseTaskTest {
 
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
-        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(VLKlargjørerTask.TASKNAME);
+        assertThat(utdata.getProsessTaskData().taskType()).isEqualTo(KLARGJOR_TASK);
         assertThat(utdata.getDokumentTypeId()).hasValue(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
     }
 
@@ -258,7 +261,7 @@ class BehandleDokumentforsendelseTaskTest {
 
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
-        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+        assertThat(utdata.getProsessTaskData().taskType()).isEqualTo(GOSYS_TASK);
         assertThat(utdata.getAktørId()).isEqualTo(Optional.of(AKTØR_ID));
         assertThat(utdata.getDokumentTypeId()).hasValue(DokumentTypeId.ANNET);
     }
@@ -277,7 +280,7 @@ class BehandleDokumentforsendelseTaskTest {
 
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
-        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+        assertThat(utdata.getProsessTaskData().taskType()).isEqualTo(GOSYS_TASK);
     }
 
     @Test
@@ -314,7 +317,7 @@ class BehandleDokumentforsendelseTaskTest {
         data.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
 
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(data);
-        assertThat(utdata.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+        assertThat(utdata.getProsessTaskData().taskType()).isEqualTo(GOSYS_TASK);
 
         verify(arkivTjeneste).opprettJournalpost(eq(FORSENDELSE_ID), eq(FORSENDELSE_ID), any());
         verify(dokumentRepository).oppdaterForsendelseMedArkivId(any(UUID.class), any(), eq(ForsendelseStatus.GOSYS));

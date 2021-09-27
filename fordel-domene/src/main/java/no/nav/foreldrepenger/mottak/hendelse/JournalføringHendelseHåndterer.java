@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.task.joark.HentDataFraJoarkTask;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 /*
@@ -38,7 +38,7 @@ public class JournalføringHendelseHåndterer {
 
     private static final String EESSI = MottakKanal.EESSI.getKode();
 
-    private ProsessTaskRepository taskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private DokumentRepository dokumentRepository;
 
     JournalføringHendelseHåndterer() {
@@ -46,9 +46,9 @@ public class JournalføringHendelseHåndterer {
     }
 
     @Inject
-    public JournalføringHendelseHåndterer(ProsessTaskRepository taskRepository,
+    public JournalføringHendelseHåndterer(ProsessTaskTjeneste taskTjeneste,
             DokumentRepository dokumentRepository) {
-        this.taskRepository = taskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.dokumentRepository = dokumentRepository;
     }
 
@@ -103,7 +103,7 @@ public class JournalføringHendelseHåndterer {
     }
 
     private void lagreJoarkTask(JournalfoeringHendelseRecord payload, String arkivId, String eksternReferanse, Duration delay) {
-        var taskdata = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
+        var taskdata = ProsessTaskData.forProsessTask(HentDataFraJoarkTask.class);
         taskdata.setCallIdFraEksisterende();
         MottakMeldingDataWrapper melding = new MottakMeldingDataWrapper(taskdata);
         melding.setArkivId(arkivId);
@@ -115,7 +115,7 @@ public class JournalføringHendelseHåndterer {
         }
         var oppdatertTaskdata = melding.getProsessTaskData();
         oppdatertTaskdata.setNesteKjøringEtter(LocalDateTime.now().plus(delay));
-        taskRepository.lagre(oppdatertTaskdata);
+        taskTjeneste.lagre(oppdatertTaskdata);
     }
 
     private static void setCallIdForHendelse(JournalfoeringHendelseRecord payload) {

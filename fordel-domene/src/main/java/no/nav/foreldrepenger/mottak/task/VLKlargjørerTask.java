@@ -15,15 +15,22 @@ import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.tjeneste.VLKlargjører;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
+/*
+ * Sender dokument til fpsak og evt til fptilbake
+*/
 @ApplicationScoped
-@ProsessTask(VLKlargjørerTask.TASKNAME)
+@ProsessTask(value = VLKlargjørerTask.TASKNAME, maxFailedRuns = 4, firstDelay = 10, thenDelay = 30)
 public class VLKlargjørerTask extends WrappedProsessTaskHandler {
 
+    static final String TASKNAME = "fordeling.klargjoering";
+
     private static final Logger LOG = LoggerFactory.getLogger(VLKlargjørerTask.class);
-    public static final String TASKNAME = "fordeling.klargjoering";
+
     public static final String REINNSEND = "REINNSEND";
+
     private VLKlargjører klargjører;
 
     public VLKlargjørerTask() {
@@ -31,8 +38,8 @@ public class VLKlargjørerTask extends WrappedProsessTaskHandler {
     }
 
     @Inject
-    public VLKlargjørerTask(ProsessTaskRepository prosessTaskRepository, VLKlargjører klargjører) {
-        super(prosessTaskRepository);
+    public VLKlargjørerTask(ProsessTaskTjeneste taskTjeneste, VLKlargjører klargjører) {
+        super(taskTjeneste);
         this.klargjører = klargjører;
     }
 
@@ -71,7 +78,7 @@ public class VLKlargjørerTask extends WrappedProsessTaskHandler {
         if (forsendelseId.isPresent() && !erReinnsend) {
             // Gi selvbetjening tid til å polle ferdig + Kafka-hendelse tid til å nå fram
             // (og bli ignorert)
-            return w.nesteSteg(SlettForsendelseTask.TASKNAME, true, LocalDateTime.now().plusHours(2));
+            return w.nesteSteg(TaskType.forProsessTask(SlettForsendelseTask.class), true, LocalDateTime.now().plusHours(2));
         }
         return null; // Siste steg, fpsak overtar nå
     }

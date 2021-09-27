@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 class SlettForsendelseTaskTest {
@@ -31,7 +31,7 @@ class SlettForsendelseTaskTest {
     private static final String AKTØR_ID = "9000000000009";
 
     @Mock
-    private ProsessTaskRepository prosessTaskRepositoryMock;
+    private ProsessTaskTjeneste prosessTaskRepositoryMock;
     @Mock
     private DokumentRepository dokumentRepositoryMock;
 
@@ -43,8 +43,7 @@ class SlettForsendelseTaskTest {
     void setup() {
         forsendelseId = UUID.randomUUID();
         task = new SlettForsendelseTask(prosessTaskRepositoryMock, dokumentRepositoryMock);
-        ptd = new ProsessTaskData(SlettForsendelseTask.TASKNAME);
-        ptd.setSekvens("1");
+        ptd = ProsessTaskData.forProsessTask(SlettForsendelseTask.class);
     }
 
     @Test

@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.fordel.web.app.forvaltning;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.FORSENDELSE_ID_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.RETRY_KEY;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 
@@ -32,9 +33,10 @@ import no.nav.foreldrepenger.mottak.task.dokumentforsendelse.BehandleDokumentfor
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseIdDto;
 import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTypeInfo;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
@@ -46,7 +48,7 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 @Produces(APPLICATION_JSON)
 public class ForvaltningRestTjeneste {
 
-    private ProsessTaskRepository repo;
+    private ProsessTaskTjeneste taskTjeneste;
     private Fagsak fagsak;
 
     public ForvaltningRestTjeneste() {
@@ -54,8 +56,8 @@ public class ForvaltningRestTjeneste {
     }
 
     @Inject
-    public ForvaltningRestTjeneste(ProsessTaskRepository prosessTaskRepository, Fagsak fagsak) {
-        this.repo = prosessTaskRepository;
+    public ForvaltningRestTjeneste(ProsessTaskTjeneste taskTjeneste, Fagsak fagsak) {
+        this.taskTjeneste = taskTjeneste;
         this.fagsak = fagsak;
     }
 
@@ -68,12 +70,12 @@ public class ForvaltningRestTjeneste {
     @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
     public Response setRetrySuffix(
             @Parameter(description = "Sett kanalreferanse-suffix før restart prosesstask") @NotNull @Valid RetryTaskKanalrefDto dto) {
-        var data = repo.finn(dto.getProsessTaskIdDto().getProsessTaskId());
+        var data = taskTjeneste.finn(dto.getProsessTaskIdDto().getProsessTaskId());
         if (data == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         data.setProperty(RETRY_KEY, dto.getRetrySuffix());
-        repo.lagre(data);
+        taskTjeneste.lagre(data);
         return Response.ok().build();
     }
 
@@ -86,18 +88,18 @@ public class ForvaltningRestTjeneste {
     @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
     public Response submitJournalførtInntektsmelding(
             @Parameter(description = "Send im til angitt sak") @NotNull @Valid SubmitJfortIMDto dto) {
-        var data = repo.finn(dto.getProsessTaskIdDto().getProsessTaskId());
+        var data = taskTjeneste.finn(dto.getProsessTaskIdDto().getProsessTaskId());
         if (data == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         data.setCallIdFraEksisterende();
         var fra = new MottakMeldingDataWrapper(data);
-        var til = fra.nesteSteg(VLKlargjørerTask.TASKNAME);
+        var til = fra.nesteSteg(TaskType.forProsessTask(VLKlargjørerTask.class));
         til.setSaksnummer(dto.getSaksnummerDto().getSaksnummer());
         til.setArkivId(dto.getJournalpostIdDto().getJournalpostId());
         til.setRetryingTask(VLKlargjørerTask.REINNSEND);
         fagsak.knyttSakOgJournalpost(new JournalpostKnyttningDto(dto.getSaksnummerDto(), dto.getJournalpostIdDto()));
-        repo.lagre(til.getProsessTaskData());
+        taskTjeneste.lagre(til.getProsessTaskData());
         return Response.ok().build();
     }
 
@@ -108,7 +110,7 @@ public class ForvaltningRestTjeneste {
     @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
     public Response submitJournalpostEndeligKlargjor(
             @Parameter(description = "Send im til angitt sak") @NotNull @Valid SubmitJfortIMDto dto) {
-        var data = repo.finn(dto.getProsessTaskIdDto().getProsessTaskId());
+        var data = taskTjeneste.finn(dto.getProsessTaskIdDto().getProsessTaskId());
         if (data == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
@@ -117,10 +119,10 @@ public class ForvaltningRestTjeneste {
         if (!fra.getArkivId().equals(dto.getJournalpostIdDto().getJournalpostId())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        var til = fra.nesteSteg(TilJournalføringTask.TASKNAME);
+        var til = fra.nesteSteg(TaskType.forProsessTask(TilJournalføringTask.class));
         til.setSaksnummer(dto.getSaksnummerDto().getSaksnummer());
         fagsak.knyttSakOgJournalpost(new JournalpostKnyttningDto(dto.getSaksnummerDto(), dto.getJournalpostIdDto()));
-        repo.lagre(til.getProsessTaskData());
+        taskTjeneste.lagre(til.getProsessTaskData());
         return Response.ok().build();
     }
 
@@ -132,12 +134,14 @@ public class ForvaltningRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
     public Response autoRunBatch() {
-        boolean eksisterende = repo.finnIkkeStartet()
+        var vedlikeholdTask = TaskType.forProsessTask(VedlikeholdSchedulerTask.class);
+        boolean eksisterende = taskTjeneste.finnAlle(ProsessTaskStatus.KLAR)
                 .stream()
-                .map(ProsessTaskData::getTaskType)
-                .anyMatch(VedlikeholdSchedulerTask.TASKTYPE::equals);
+                .filter(t -> t.getSistKjørt() == null)
+                .map(ProsessTaskData::taskType)
+                .anyMatch(vedlikeholdTask::equals);
         if (!eksisterende) {
-            repo.lagre(new ProsessTaskData(VedlikeholdSchedulerTask.TASKTYPE));
+            taskTjeneste.lagre(ProsessTaskData.forTaskType(vedlikeholdTask));
         }
         return Response.ok().build();
     }
@@ -150,14 +154,7 @@ public class ForvaltningRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
     public Response retryAlleProsessTasks() {
-
-        var ptdList = this.repo.finnAlle(ProsessTaskStatus.FEILET);
-        if (ptdList.isEmpty()) {
-            return Response.ok().build();
-        }
-        VedlikeholdSchedulerTask.resetTilStatusKlar(ptdList,
-                tasktype -> repo.finnProsessTaskType(tasktype).map(ProsessTaskTypeInfo::getMaksForsøk).orElse(1));
-        ptdList.forEach(repo::lagre);
+        taskTjeneste.flaggAlleFeileteProsessTasksForRestart();
         return Response.ok().build();
     }
 
@@ -169,14 +166,7 @@ public class ForvaltningRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
     public Response setFeiletTaskFerdig(@Parameter(description = "Prosesstask-id for feilet prosesstask") @NotNull @Valid RetryTaskKanalrefDto dto) {
-        var taskData = repo.finn(dto.getProsessTaskIdDto().getProsessTaskId());
-        if ((taskData == null) || !taskData.getStatus().getDbKode().equals(dto.getRetrySuffix())) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-        taskData.setStatus(ProsessTaskStatus.KJOERT);
-        taskData.setSisteFeil(null);
-        taskData.setSisteFeilKode(null);
-        repo.lagre(taskData);
+        taskTjeneste.setProsessTaskFerdig(dto.getProsessTaskIdDto().getProsessTaskId(), ProsessTaskStatus.valueOf(dto.getRetrySuffix()));
         return Response.ok().build();
     }
 
@@ -190,13 +180,11 @@ public class ForvaltningRestTjeneste {
     public Response taskForBehandleForsendelse(
             @TilpassetAbacAttributt(supplierClass = DokumentforsendelseRestTjeneste.ForsendelseAbacDataSupplier.class)
             @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
+        var builder = ProsessTaskDataBuilder.forProsessTask(BehandleDokumentforsendelseTask.class)
+                .medCallId(forsendelseIdDto.forsendelseId().toString())
+                .medProperty(FORSENDELSE_ID_KEY, forsendelseIdDto.forsendelseId().toString());
 
-        var prosessTaskData = new ProsessTaskData(BehandleDokumentforsendelseTask.TASKNAME);
-        prosessTaskData.setCallId(forsendelseIdDto.forsendelseId().toString());
-        var dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
-        dataWrapper.setForsendelseId(forsendelseIdDto.forsendelseId());
-
-        repo.lagre(dataWrapper.getProsessTaskData());
+        taskTjeneste.lagre(builder.build());
 
         return Response.ok().build();
     }
@@ -212,13 +200,12 @@ public class ForvaltningRestTjeneste {
             @TilpassetAbacAttributt(supplierClass = DokumentforsendelseRestTjeneste.ForsendelseAbacDataSupplier.class)
             @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
 
-        var prosessTaskData = new ProsessTaskData(SlettForsendelseTask.TASKNAME);
-        prosessTaskData.setCallId(forsendelseIdDto.forsendelseId().toString());
-        var dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
-        dataWrapper.setForsendelseId(forsendelseIdDto.forsendelseId());
-        dataWrapper.getProsessTaskData().setProperty(SlettForsendelseTask.FORCE_SLETT_KEY, "forvaltning");
+        var builder = ProsessTaskDataBuilder.forProsessTask(SlettForsendelseTask.class)
+                .medCallId(forsendelseIdDto.forsendelseId().toString())
+                .medProperty(FORSENDELSE_ID_KEY, forsendelseIdDto.forsendelseId().toString())
+                .medProperty(SlettForsendelseTask.FORCE_SLETT_KEY, "forvaltning");
 
-        repo.lagre(dataWrapper.getProsessTaskData());
+        taskTjeneste.lagre(builder.build());
 
         return Response.ok().build();
     }

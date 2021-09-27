@@ -33,20 +33,23 @@ import no.nav.foreldrepenger.mottak.tjeneste.DestinasjonsRuter;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.WARN)
 class HentDataFraJoarkTaskTest {
 
     private static final String ARKIV_ID = JoarkTestsupport.ARKIV_ID;
+    private static final TaskType TASK_TIL_JOURNAL = TaskType.forProsessTask(TilJournalføringTask.class);
+    private static final TaskType TASK_GOSYS = TaskType.forProsessTask(OpprettGSakOppgaveTask.class);
 
     private ProsessTaskData taskData;
     private HentDataFraJoarkTask joarkTaskTestobjekt;
     private MottakMeldingDataWrapper dataWrapper;
 
     @Mock
-    ProsessTaskRepository ptr;
+    ProsessTaskTjeneste ptr;
     @Mock
     private PersonInformasjon aktørConsumer;
     @Mock
@@ -60,8 +63,7 @@ class HentDataFraJoarkTaskTest {
     void setUp() {
         doReturn(Optional.of(JoarkTestsupport.AKTØR_ID)).when(aktørConsumer).hentAktørIdForPersonIdent(any());
         joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, vurderVLSaker, aktørConsumer, arkivTjeneste));
-        taskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
-        taskData.setSekvens("1");
+        taskData = ProsessTaskData.forProsessTask(HentDataFraJoarkTask.class);
         dataWrapper = new MottakMeldingDataWrapper(taskData);
         dataWrapper.setArkivId(ARKIV_ID);
     }
@@ -77,7 +79,7 @@ class HentDataFraJoarkTaskTest {
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
-        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+        assertThat(resultat.getProsessTaskData().taskType()).isEqualTo(TASK_GOSYS);
     }
 
     @Test
@@ -93,7 +95,7 @@ class HentDataFraJoarkTaskTest {
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
-        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+        assertThat(resultat.getProsessTaskData().taskType()).isEqualTo(TASK_GOSYS);
     }
 
     @Test
@@ -110,7 +112,7 @@ class HentDataFraJoarkTaskTest {
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
-        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
+        assertThat(resultat.getProsessTaskData().taskType()).isEqualTo(TASK_TIL_JOURNAL);
     }
 
     @Test
@@ -127,7 +129,7 @@ class HentDataFraJoarkTaskTest {
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
-        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
+        assertThat(resultat.getProsessTaskData().taskType()).isEqualTo(TASK_TIL_JOURNAL);
     }
 
     @Test
@@ -142,7 +144,7 @@ class HentDataFraJoarkTaskTest {
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
-        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
+        assertThat(resultat.getProsessTaskData().taskType()).isEqualTo(TASK_TIL_JOURNAL);
     }
 
     @Test
@@ -156,7 +158,7 @@ class HentDataFraJoarkTaskTest {
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
-        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+        assertThat(resultat.getProsessTaskData().taskType()).isEqualTo(TASK_GOSYS);
     }
 
     @Test
@@ -169,7 +171,7 @@ class HentDataFraJoarkTaskTest {
         dataWrapper.setTema(Tema.UDEFINERT);
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
-        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+        assertThat(resultat.getProsessTaskData().taskType()).isEqualTo(TASK_GOSYS);
     }
 
     @Test
@@ -182,7 +184,7 @@ class HentDataFraJoarkTaskTest {
         dataWrapper.setTema(Tema.UDEFINERT);
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
-        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
+        assertThat(resultat.getProsessTaskData().taskType()).isEqualTo(TASK_TIL_JOURNAL);
     }
 
     @Test
@@ -196,7 +198,7 @@ class HentDataFraJoarkTaskTest {
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
-        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+        assertThat(resultat.getProsessTaskData().taskType()).isEqualTo(TASK_GOSYS);
     }
 
     @Test
@@ -210,7 +212,7 @@ class HentDataFraJoarkTaskTest {
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
-        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+        assertThat(resultat.getProsessTaskData().taskType()).isEqualTo(TASK_GOSYS);
     }
 
     @Test
@@ -228,7 +230,7 @@ class HentDataFraJoarkTaskTest {
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
-        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
+        assertThat(resultat.getProsessTaskData().taskType()).isEqualTo(TASK_TIL_JOURNAL);
     }
 
     @Test
@@ -244,7 +246,7 @@ class HentDataFraJoarkTaskTest {
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
-        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+        assertThat(resultat.getProsessTaskData().taskType()).isEqualTo(TASK_GOSYS);
     }
 
     @Test
@@ -262,7 +264,7 @@ class HentDataFraJoarkTaskTest {
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
-        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+        assertThat(resultat.getProsessTaskData().taskType()).isEqualTo(TASK_GOSYS);
     }
 
     @Test
@@ -280,7 +282,7 @@ class HentDataFraJoarkTaskTest {
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
-        assertThat(resultat.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
+        assertThat(resultat.getProsessTaskData().taskType()).isEqualTo(TASK_TIL_JOURNAL);
     }
 
     @Test

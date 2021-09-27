@@ -14,18 +14,20 @@ import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 /**
  * <p>
- * ProssessTask som utleder journalføringsbehov og forsøker rette opp disse.
+ * ProssessTask som sletter forsendelse etter journalføring
  * </p>
  */
 @ApplicationScoped
 @ProsessTask(SlettForsendelseTask.TASKNAME)
 public class SlettForsendelseTask extends WrappedProsessTaskHandler {
 
-    public static final String TASKNAME = "fordeling.slettForsendelse";
+    static final String TASKNAME = "fordeling.slettForsendelse";
+
     public static final String FORCE_SLETT_KEY = "force.slett";
 
 
@@ -36,9 +38,9 @@ public class SlettForsendelseTask extends WrappedProsessTaskHandler {
     }
 
     @Inject
-    public SlettForsendelseTask(ProsessTaskRepository prosessTaskRepository,
-            DokumentRepository dokumentRepository) {
-        super(prosessTaskRepository);
+    public SlettForsendelseTask(ProsessTaskTjeneste taskTjeneste,
+                                DokumentRepository dokumentRepository) {
+        super(taskTjeneste);
         this.dokumentRepository = dokumentRepository;
     }
 

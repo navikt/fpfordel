@@ -14,20 +14,20 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 class MottakMeldingDataWrapperTest {
 
-    private static final String PROSESSTASK_STEG1 = "prosesstask.steg1";
-    private static final String PROSESSTASK_STEG2 = "prosesstask.steg2";
-    private static final String PROSESSTASK_STEG3 = "prosesstask.steg3";
+    private static final TaskType PROSESSTASK_STEG1 = new TaskType("prosesstask.steg1");
+    private static final TaskType PROSESSTASK_STEG2 = new TaskType("prosesstask.steg2");
+    private static final TaskType PROSESSTASK_STEG3 = new TaskType("prosesstask.steg3");
 
     private ProsessTaskData eksisterendeData;
     private MottakMeldingDataWrapper wrapper;
 
     @BeforeEach
     void setUp() {
-        eksisterendeData = new ProsessTaskData(PROSESSTASK_STEG1);
-        eksisterendeData.setSekvens("1");
+        eksisterendeData = ProsessTaskData.forTaskType(PROSESSTASK_STEG1);
         wrapper = new MottakMeldingDataWrapper(eksisterendeData);
     }
 
@@ -44,7 +44,7 @@ class MottakMeldingDataWrapperTest {
         wrapper.setPayload("<xml>test</xml>");
         var wrapperNesteSteg = wrapper.nesteSteg(PROSESSTASK_STEG2);
         assertThat(wrapperNesteSteg.getArkivId()).as("Forventer at arkivId blir med til neste steg.").isEqualTo(wrapper.getArkivId());
-        assertThat(wrapperNesteSteg.getProsessTaskData().getPayload()).as("Forventer at payload også blir kopiert over").isNotNull();
+        assertThat(wrapperNesteSteg.getProsessTaskData().getPayloadAsString()).as("Forventer at payload også blir kopiert over").isNotNull();
     }
 
     @Test

@@ -4,20 +4,20 @@ import static no.nav.vedtak.log.mdc.MDCOperations.ensureCallId;
 
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler, Conditions {
 
     protected abstract MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper w);
 
-    protected ProsessTaskRepository prosessTaskRepository;
+    protected ProsessTaskTjeneste prosessTaskTjeneste;
 
     public WrappedProsessTaskHandler() {
 
     }
 
-    public WrappedProsessTaskHandler(ProsessTaskRepository repo) {
-        this.prosessTaskRepository = repo;
+    public WrappedProsessTaskHandler(ProsessTaskTjeneste prosessTaskTjeneste) {
+        this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
 
     @Override
@@ -30,7 +30,7 @@ public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler, C
             postcondition(neste);
             var taskdata = neste.getProsessTaskData();
             taskdata.setCallIdFraEksisterende();
-            prosessTaskRepository.lagre(taskdata);
+            prosessTaskTjeneste.lagre(taskdata);
         }
     }
 }

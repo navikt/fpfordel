@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.Endringssoeknad;
 import no.nav.vedtak.felles.xml.soeknad.engangsstoenad.v3.Engangsstønad;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Adopsjon;
@@ -55,7 +56,7 @@ class SøknadTest {
         bruker.setAktoerId(AKTØR_ID);
         søknad.setSoeker(bruker);
         søknad.setMottattDato(LocalDate.of(2018, 3, 8));
-        test = new MottakMeldingDataWrapper(new ProsessTaskData("TEST"));
+        test = new MottakMeldingDataWrapper(ProsessTaskData.forTaskType(new TaskType("TEST")));
         test.setAktørId(AKTØR_ID);
         søknadXmlWrapper = (Søknad) MottattStrukturertDokument.toXmlWrapper(søknad);
     }

@@ -28,8 +28,7 @@ class JoarkTestsupport {
     final ProsessTaskData taskData;
 
     JoarkTestsupport() {
-        taskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
-        taskData.setSekvens("1");
+        taskData = ProsessTaskData.forProsessTask(HentDataFraJoarkTask.class);
     }
 
     ArkivJournalpost.Builder lagArkivJournalpost(List<String> brukerListe,

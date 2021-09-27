@@ -20,7 +20,8 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.tjeneste.VLKlargjører;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 class VLKlargjørerTaskTest {
@@ -32,7 +33,7 @@ class VLKlargjørerTaskTest {
     private ProsessTaskData ptd;
 
     @Mock
-    private ProsessTaskRepository prosessTaskRepositoryMock;
+    private ProsessTaskTjeneste prosessTaskRepositoryMock;
 
     @Mock
     private VLKlargjører klargjørForVLTjeneste;
@@ -43,8 +44,7 @@ class VLKlargjørerTaskTest {
     void setup() {
         forsendelseId = UUID.randomUUID();
         task = new VLKlargjørerTask(prosessTaskRepositoryMock, klargjørForVLTjeneste);
-        ptd = new ProsessTaskData(VLKlargjørerTask.TASKNAME);
-        ptd.setSekvens("1");
+        ptd = ProsessTaskData.forProsessTask(VLKlargjørerTask.class);
 
     }
 
@@ -68,7 +68,7 @@ class VLKlargjørerTaskTest {
         var neste = toTaskWithPrecondition(data);
         verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
         assertThat(neste).isNotNull();
-        assertThat(neste.getProsessTaskData().getTaskType()).isEqualTo(SlettForsendelseTask.TASKNAME);
+        assertThat(neste.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTask(SlettForsendelseTask.class));
     }
 
     @Test
@@ -84,7 +84,7 @@ class VLKlargjørerTaskTest {
         var neste = toTaskWithPrecondition(data);
         verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
         assertThat(neste).isNotNull();
-        assertThat(neste.getProsessTaskData().getTaskType()).isEqualTo(SlettForsendelseTask.TASKNAME);
+        assertThat(neste.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTask(SlettForsendelseTask.class));
     }
 
     @Test
@@ -100,7 +100,7 @@ class VLKlargjørerTaskTest {
         var neste = toTaskWithPrecondition(data);
         verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
         assertThat(neste).isNotNull();
-        assertThat(neste.getProsessTaskData().getTaskType()).isEqualTo(SlettForsendelseTask.TASKNAME);
+        assertThat(neste.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTask(SlettForsendelseTask.class));
     }
 
     @Test
