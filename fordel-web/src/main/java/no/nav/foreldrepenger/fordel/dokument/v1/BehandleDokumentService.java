@@ -14,7 +14,6 @@ import javax.inject.Inject;
 import javax.jws.WebService;
 import javax.transaction.Transactional;
 
-import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +25,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.fordel.web.server.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.fordel.web.server.abac.BeskyttetRessursAttributt;
+import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
@@ -242,7 +242,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         if (journalpost.getInnholderStrukturertInformasjon()) {
             // Bruker eksisterende infrastruktur for å hente ut og validere XML-data.
             // Tasktype tilfeldig valgt
-            ProsessTaskData prosessTaskData = new ProsessTaskData(VLKlargjørerTask.TASKNAME);
+            ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTaskHandler(VLKlargjørerTask.class);
             MottakMeldingDataWrapper dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
             dataWrapper.setBehandlingTema(behandlingTema);
             dataWrapper.setSaksnummer(saksnummer);

@@ -44,19 +44,22 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Forsendelse
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 /**
  * <p>
- * ProssessTask som håndterer uthenting av saksinformasjon fra
- * Journalarkivet(joark).
+ * ProssessTask som håndterer uthenting av saksinformasjon fra Journalarkivet(joark).
+ * Henter journalpost / metadata og original (XML) dokument og finner destinasjon for journalposten
  * </p>
  */
 @ApplicationScoped
-@ProsessTask(HentDataFraJoarkTask.TASKNAME)
+@ProsessTask("fordeling.hentFraJoark")
 public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
-    public static final String TASKNAME = "fordeling.hentFraJoark";
+    private static final String TASKNAME = TaskType.forProsessTaskHandler(HentDataFraJoarkTask.class).value();
+    private static final TaskType TASK_GOSYS = TaskType.forProsessTaskHandler(OpprettGSakOppgaveTask.class);
+    private static final TaskType TASK_JOURNALFØR = TaskType.forProsessTaskHandler(TilJournalføringTask.class);
 
     private static final Logger LOG = LoggerFactory.getLogger(HentDataFraJoarkTask.class);
 
@@ -69,11 +72,11 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     }
 
     @Inject
-    public HentDataFraJoarkTask(ProsessTaskRepository prosessTaskRepository,
-            DestinasjonsRuter vurderVLSaker,
-            PersonInformasjon pdl,
-            ArkivTjeneste arkiv) {
-        super(prosessTaskRepository);
+    public HentDataFraJoarkTask(ProsessTaskTjeneste taskTjeneste,
+                                DestinasjonsRuter vurderVLSaker,
+                                PersonInformasjon pdl,
+                                ArkivTjeneste arkiv) {
+        super(taskTjeneste);
         this.vurderVLSaker = vurderVLSaker;
         this.pdl = pdl;
         this.arkiv = arkiv;
@@ -88,10 +91,10 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     @Override
     public void postcondition(MottakMeldingDataWrapper w) {
-        if (!OpprettGSakOppgaveTask.TASKNAME.equals(w.getProsessTaskData().getTaskType()) && w.getAktørId().isEmpty()) {
+        if (!TASK_GOSYS.equals(w.getProsessTaskData().taskType()) && w.getAktørId().isEmpty()) {
             throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, AKTØR_ID_KEY, w.getId()));
         }
-        if (TilJournalføringTask.TASKNAME.equals(w.getProsessTaskData().getTaskType()) && w.getSaksnummer().isEmpty()) {
+        if (TASK_JOURNALFØR.equals(w.getProsessTaskData().taskType()) && w.getSaksnummer().isEmpty()) {
             throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, SAKSNUMMER_KEY, w.getId()));
         }
     }
@@ -146,11 +149,12 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
                     w.setPayload(journalpost.getStrukturertPayload());
                 } catch (VLException vle) {
                     // Mottatt journalpost har annet saksnummer enn den i endringssøknaden....
-                    // Skyldes spesiell bruk av Gosys. Lag oppgave i dette tilfelle, godta i
-                    // BehandleDokumentService
+                    // Skyldes spesiell bruk av Gosys. Lag oppgave i dette tilfelle, godta i BehandleDokumentService
                     if ("FP-401245".equals(vle.getKode())) {
                         w.setSaksnummer(null);
-                        return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+                        LOG.info("FPFORDEL HentFraArkiv journalpost avvikende saksnummer i XML journalpost {} avvik {}",
+                                journalpost.getJournalpostId(), vle.getFeilmelding());
+                        return w.nesteSteg(TASK_GOSYS);
                     }
                 }
             }
@@ -164,8 +168,10 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
                 && journalpost.getSaksnummer().isEmpty()
                 && (journalpost.getTittel().filter(t -> t.equalsIgnoreCase("anke")).isPresent() ||
                     ArkivTjeneste.harBrevKode(journalpost.getOriginalJournalpost(), NAVSkjema.SKJEMA_KLAGE_A_DOKUMENT))) {
+            LOG.info("FPFORDEL HentFraArkiv ankedokument til KA journalpost {} kanal {} dokumenttype {}",
+                    journalpost.getJournalpostId(), journalpost.getKanal(), journalpost.getHovedtype());
             w.setJournalførendeEnhet(EnhetsInfo.NK_ENHET_ID);
-            return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+            return w.nesteSteg(TASK_GOSYS);
         }
 
         // Journalposter uten kanalreferanse er vanligvis slike som er "klonet" av SBH
@@ -175,25 +181,25 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
                 && !MottakKanal.SELVBETJENING.getKode().equals(journalpost.getKanal())) {
             LOG.info("FPFORDEL HentFraArkiv journalpost uten kanalreferanse journalpost {} kanal {} dokumenttype {}",
                     journalpost.getJournalpostId(), journalpost.getKanal(), journalpost.getHovedtype());
-            return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+            return w.nesteSteg(TASK_GOSYS);
         }
         // Vesentlige mangler
         if (!FORELDRE_OG_SVANGERSKAPSPENGER.equals(w.getTema())) {
             LOG.info("FPFORDEL HentFraArkiv feil tema for journalpost {} kanal {} tema {}",
                     w.getArkivId(), journalpost.getKanal(), journalpost.getTema().getKode());
-            return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+            return w.nesteSteg(TASK_GOSYS);
         }
         if (w.getAktørId().isEmpty()) {
             var avsender = journalpost.getAvsenderIdent() == null ? "ikke satt"
                     : pdl.hentAktørIdForPersonIdent(journalpost.getAvsenderIdent()).orElse("finnes ikke");
             LOG.info("FPFORDEL HentFraArkiv manglende bruker for journalpost {} kanal {} type {} avsender {}",
                     w.getArkivId(), journalpost.getKanal(), journalpost.getHovedtype(), avsender);
-            return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+            return w.nesteSteg(TASK_GOSYS);
         }
         if (UDEFINERT.equals(journalpost.getHovedtype())) {
             LOG.info("FPFORDEL HentFraArkiv udefinert dokumenttype journalpost {} kanal {} tittel {}",
                     w.getArkivId(), journalpost.getKanal(), journalpost.getTittel());
-            return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+            return w.nesteSteg(TASK_GOSYS);
         }
 
         LOG.info("FPFORDEL INNGÅENDE journalpost {} kanal {} tilstand {} hovedtype {} alle typer {}",
@@ -203,28 +209,33 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         if (erInntektsmelding(journalpost.getHovedtype())) {
             oppdaterInntektsmelding(w);
             if (kreverInntektsmeldingManuellVurdering(w)) {
-                return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+                LOG.info("FPFORDEL HentFraArkiv inntektsmelding til manuell murdering journalpost {}", journalpost.getJournalpostId());
+                return w.nesteSteg(TASK_GOSYS);
             }
         } else if (!arkiv.oppdaterRettMangler(journalpost, w.getAktørId().get(), w.getBehandlingTema(),
                 w.getDokumentTypeId().orElse(UDEFINERT))) {
             LOG.info("FPFORDEL HentFraArkiv kunne ikke rette opp mangler journalpost {} kanal {} hovedtype {} alle typer {}",
                     w.getArkivId(), journalpost.getKanal(), journalpost.getHovedtype(), journalpost.getAlleTyper());
-            return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+            return w.nesteSteg(TASK_GOSYS);
         }
 
         var destinasjon = vurderVLSaker.bestemDestinasjon(w);
         LOG.info("FPFORDEL HentFraArkiv destinasjon {} journalpost {} kanal {} dokumenttype {} saksnummer {}",
                 destinasjon, w.getArkivId(), journalpost.getKanal(), journalpost.getHovedtype(), journalpost.getSaksnummer());
         if (ForsendelseStatus.GOSYS.equals(destinasjon.system())) {
-            return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+            LOG.info("FPFORDEL HentFraArkiv destinasjon GOSYS journalpost {} kanal {} dokumenttype {}",
+                    journalpost.getJournalpostId(), journalpost.getKanal(), journalpost.getHovedtype());
+            return w.nesteSteg(TASK_GOSYS);
         } else {
             if (destinasjon.saksnummer() == null && !vurderVLSaker.kanOppretteSak(w)) {
-                return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+                LOG.info("FPFORDEL HentFraArkiv kan ikke opprette sak - til GOSYS journalpost {} kanal {} dokumenttype {}",
+                        journalpost.getJournalpostId(), journalpost.getKanal(), journalpost.getHovedtype());
+                return w.nesteSteg(TASK_GOSYS);
             }
             var saksnummer = Optional.ofNullable(destinasjon.saksnummer())
                     .orElseGet(() -> vurderVLSaker.opprettSak(w));
             w.setSaksnummer(saksnummer);
-            return w.nesteSteg(TilJournalføringTask.TASKNAME);
+            return w.nesteSteg(TASK_JOURNALFØR);
         }
     }
 

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.domene.oppgavebehandling;
 
-import static no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask.TASKNAME;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.ARKIV_ID_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.BEHANDLINGSTEMA_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY;
@@ -33,7 +32,7 @@ import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 /**
  * <p>
@@ -43,25 +42,23 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
  * </p>
  */
 @Dependent
-@ProsessTask(TASKNAME)
+@ProsessTask(value = "integrasjon.gsak.opprettOppgave", maxFailedRuns = 2)
 public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
-
-    public static final String TASKNAME = "integrasjon.gsak.opprettOppgave";
 
     private static final Logger LOG = LoggerFactory.getLogger(OpprettGSakOppgaveTask.class);
 
     static final String OPPGAVETYPER_JFR = "JFR"; // Fra offisielt kodeverk
 
     private final EnhetsInfo enhetsidTjeneste;
-    private final ProsessTaskRepository prosessTaskRepository;
+    private final ProsessTaskTjeneste taskTjeneste;
     private final Oppgaver oppgaver;
 
     @Inject
-    public OpprettGSakOppgaveTask(ProsessTaskRepository prosessTaskRepository,
+    public OpprettGSakOppgaveTask(ProsessTaskTjeneste taskTjeneste,
             EnhetsInfo enhetsidTjeneste,
             /* Vent på ny felles @Jersey */ Oppgaver oppgaver) {
         this.enhetsidTjeneste = enhetsidTjeneste;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.oppgaver = oppgaver;
     }
 
@@ -83,7 +80,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     }
 
     private void opprettSletteTask(ProsessTaskData prosessTaskData) {
-        var nesteStegProsessTaskData = new ProsessTaskData(SlettForsendelseTask.TASKNAME);
+        var nesteStegProsessTaskData = ProsessTaskData.forProsessTaskHandler(SlettForsendelseTask.class);
         // Gi selvbetjening tid til å polle ferdig + Kafka-hendelse tid til å nå fram
         // (og bli ignorert)
         nesteStegProsessTaskData.setNesteKjøringEtter(LocalDateTime.now().plusHours(2));
@@ -91,10 +88,10 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
                 : Long.parseLong(prosessTaskData.getSekvens()) + 1;
         nesteStegProsessTaskData.setSekvens(Long.toString(nesteSekvens));
         nesteStegProsessTaskData.setProperties(prosessTaskData.getProperties());
-        nesteStegProsessTaskData.setPayload(prosessTaskData.getPayload());
+        nesteStegProsessTaskData.setPayload(prosessTaskData.getPayloadAsString());
         nesteStegProsessTaskData.setGruppe(prosessTaskData.getGruppe());
         nesteStegProsessTaskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(nesteStegProsessTaskData);
+        taskTjeneste.lagre(nesteStegProsessTaskData);
     }
 
     private String opprettOppgave(ProsessTaskData prosessTaskData, BehandlingTema behandlingTema,

@@ -16,7 +16,8 @@ import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 /**
  * <p>
@@ -24,10 +25,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
  * </p>
  */
 @ApplicationScoped
-@ProsessTask(TilJournalføringTask.TASKNAME)
+@ProsessTask("fordeling.tilJournalforing")
 public class TilJournalføringTask extends WrappedProsessTaskHandler {
 
-    public static final String TASKNAME = "fordeling.tilJournalforing";
+    private static final String TASKNAME = TaskType.forProsessTaskHandler(TilJournalføringTask.class).value();
 
     private static final Logger LOG = LoggerFactory.getLogger(TilJournalføringTask.class);
     private static final String AUTOMATISK_ENHET = "9999";
@@ -40,10 +41,10 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
     }
 
     @Inject
-    public TilJournalføringTask(ProsessTaskRepository prosessTaskRepository,
-            ArkivTjeneste arkivTjeneste,
-            PersonInformasjon aktørConsumer) {
-        super(prosessTaskRepository);
+    public TilJournalføringTask(ProsessTaskTjeneste taskTjeneste,
+                                ArkivTjeneste arkivTjeneste,
+                                PersonInformasjon aktørConsumer) {
+        super(taskTjeneste);
         this.arkivTjeneste = arkivTjeneste;
         this.aktør = aktørConsumer;
     }
@@ -87,9 +88,9 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             arkivTjeneste.ferdigstillJournalføring(w.getArkivId(), w.getJournalførendeEnhet().orElse(AUTOMATISK_ENHET));
         } catch (Exception e) {
             LOG.info("Feil journaltilstand. Forventet tilstand: endelig, fikk Midlertidig");
-            return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+            return w.nesteSteg(TaskType.forProsessTaskHandler(OpprettGSakOppgaveTask.class));
         }
-        return w.nesteSteg(VLKlargjørerTask.TASKNAME);
+        return w.nesteSteg(TaskType.forProsessTaskHandler(VLKlargjørerTask.class));
     }
 
 }

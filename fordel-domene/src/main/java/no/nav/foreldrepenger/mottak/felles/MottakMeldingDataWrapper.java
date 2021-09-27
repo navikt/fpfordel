@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.felles;
 
 import static java.util.stream.Collectors.joining;
 
-import java.sql.Clob;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -17,6 +16,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 public class MottakMeldingDataWrapper {
 
@@ -64,11 +64,11 @@ public class MottakMeldingDataWrapper {
         return prosessTaskData;
     }
 
-    public MottakMeldingDataWrapper nesteSteg(String stegnavn) {
+    public MottakMeldingDataWrapper nesteSteg(TaskType stegnavn) {
         return nesteSteg(stegnavn, true, LocalDateTime.now());
     }
 
-    public MottakMeldingDataWrapper nesteSteg(String stegnavn, boolean økSekvens, LocalDateTime nesteKjøringEtter) {
+    public MottakMeldingDataWrapper nesteSteg(TaskType stegnavn, boolean økSekvens, LocalDateTime nesteKjøringEtter) {
         var nesteStegProsessTaskData = new ProsessTaskData(stegnavn);
         nesteStegProsessTaskData.setNesteKjøringEtter(nesteKjøringEtter);
 
@@ -84,13 +84,9 @@ public class MottakMeldingDataWrapper {
         return neste;
     }
 
-    public MottakMeldingDataWrapper nesteSteg(String stegnavn, LocalDateTime nesteKjøring) {
-        return nesteSteg(stegnavn, true, nesteKjøring);
-    }
-
     private void copyData(MottakMeldingDataWrapper fra) {
         this.addProperties(fra.getProsessTaskData().getProperties());
-        this.setPayload(fra.getProsessTaskData().getPayload());
+        this.setPayload(fra.getProsessTaskData().getPayloadAsString());
         this.getProsessTaskData().setGruppe(fra.getProsessTaskData().getGruppe());
     }
 
@@ -216,10 +212,6 @@ public class MottakMeldingDataWrapper {
     }
 
     public void setPayload(String payload) {
-        prosessTaskData.setPayload(payload);
-    }
-
-    public void setPayload(Clob payload) {
         prosessTaskData.setPayload(payload);
     }
 

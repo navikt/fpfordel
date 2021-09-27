@@ -28,7 +28,7 @@ class JoarkTestsupport {
     final ProsessTaskData taskData;
 
     JoarkTestsupport() {
-        taskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
+        taskData = ProsessTaskData.forProsessTaskHandler(HentDataFraJoarkTask.class);
         taskData.setSekvens("1");
     }
 

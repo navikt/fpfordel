@@ -19,20 +19,21 @@ import no.nav.foreldrepenger.mottak.extensions.FPfordelEntityManagerAwareExtensi
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskInfo;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
+import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskTjenesteImpl;
 
 @ExtendWith(FPfordelEntityManagerAwareExtension.class)
 class JournalføringHendelseHåndtererTest {
 
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste prosessTaskRepository;
     private DokumentRepository dokumentRepository;
     private JournalføringHendelseHåndterer hendelseHåndterer;
 
     @BeforeEach
     void setup(EntityManager em) {
-        prosessTaskRepository = new ProsessTaskRepositoryImpl(em, null, null);
+        prosessTaskRepository = new ProsessTaskTjenesteImpl(new ProsessTaskRepositoryImpl(em, null, null));
         dokumentRepository = new DokumentRepository(em);
         hendelseHåndterer = new JournalføringHendelseHåndterer(prosessTaskRepository, dokumentRepository);
     }

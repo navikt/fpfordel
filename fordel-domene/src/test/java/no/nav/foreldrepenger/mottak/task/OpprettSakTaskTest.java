@@ -54,7 +54,7 @@ class OpprettSakTaskTest {
     @Test
     void test_doTask_fødsel_strukturert() throws Exception {
 
-        var prosessTaskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
+        var prosessTaskData = ProsessTaskData.forProsessTaskHandler(HentDataFraJoarkTask.class);
         prosessTaskData.setSekvens("1");
 
         String filename = "testsoknader/engangsstoenad-termin-soeknad.xml";
@@ -80,7 +80,7 @@ class OpprettSakTaskTest {
 
     @Test
     void test_doTask_fødsel_ustrukturert() {
-        var prosessTaskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
+        var prosessTaskData = ProsessTaskData.forProsessTaskHandler(HentDataFraJoarkTask.class);
         prosessTaskData.setSekvens("1");
 
         var ptData = new MottakMeldingDataWrapper(prosessTaskData);
@@ -100,7 +100,7 @@ class OpprettSakTaskTest {
 
     @Test
     void test_doTask_anke_klage() {
-        ProsessTaskData innData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
+        var innData = ProsessTaskData.forProsessTaskHandler(HentDataFraJoarkTask.class);
         innData.setSekvens("1");
 
         var ptData = new MottakMeldingDataWrapper(innData);
@@ -117,7 +117,7 @@ class OpprettSakTaskTest {
     @Test
     void test_doTask_svangerskapspenger_søknad() throws Exception {
 
-        var prosessTaskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
+        var prosessTaskData = ProsessTaskData.forProsessTaskHandler(HentDataFraJoarkTask.class);
         prosessTaskData.setSekvens("1");
 
         String filename = "testsoknader/svangerskapspenger.xml";
@@ -144,7 +144,7 @@ class OpprettSakTaskTest {
     @Test
     void test_doTask_svangerskapspenger_inntektsmelding() throws Exception {
 
-        var prosessTaskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
+        var prosessTaskData = ProsessTaskData.forProsessTaskHandler(HentDataFraJoarkTask.class);
         prosessTaskData.setSekvens("1");
 
         String filename = "testsoknader/inntektsmelding-svp.xml";

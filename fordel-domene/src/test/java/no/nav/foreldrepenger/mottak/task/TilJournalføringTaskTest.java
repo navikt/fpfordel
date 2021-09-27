@@ -28,7 +28,8 @@ import no.nav.foreldrepenger.mottak.journal.OpprettetJournalpost;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.WARN)
@@ -39,7 +40,7 @@ class TilJournalføringTaskTest {
     private static final String BRUKER_FNR = "99999999899";
 
     @Mock
-    private ProsessTaskRepository prosessTaskRepositoryMock;
+    private ProsessTaskTjeneste prosessTaskRepositoryMock;
     @Mock
     private ArkivTjeneste arkivTjeneste;
     @Mock
@@ -56,7 +57,7 @@ class TilJournalføringTaskTest {
 
         task = new TilJournalføringTask(prosessTaskRepositoryMock, arkivTjeneste, aktørConsumerMock);
 
-        ptd = new ProsessTaskData(TilJournalføringTask.TASKNAME);
+        ptd = ProsessTaskData.forProsessTaskHandler(TilJournalføringTask.class);
         ptd.setSekvens("1");
 
     }
@@ -86,9 +87,9 @@ class TilJournalføringTaskTest {
         var wrapper = doTaskWithPrecondition(data);
 
         assertThat(wrapper).isNotNull();
-        assertThat(wrapper.getProsessTaskData().getTaskType())
+        assertThat(wrapper.getProsessTaskData().taskType())
                 .as("Forventer at sak uten mangler går videre til neste steg")
-                .isNotEqualTo(TilJournalføringTask.TASKNAME);
+                .isNotEqualTo(TaskType.forProsessTaskHandler(TilJournalføringTask.class));
     }
 
     @Test
@@ -112,9 +113,9 @@ class TilJournalføringTaskTest {
         assertThat(sak).isEqualTo(SAKSNUMMER);
 
         assertThat(wrapper).isNotNull();
-        assertThat(wrapper.getProsessTaskData().getTaskType())
+        assertThat(wrapper.getProsessTaskData().taskType())
                 .as("Forventer at sak uten mangler går videre til neste steg")
-                .isNotEqualTo(TilJournalføringTask.TASKNAME);
+                .isNotEqualTo(TaskType.forProsessTaskHandler(TilJournalføringTask.class));
     }
 
     @Test
@@ -133,8 +134,8 @@ class TilJournalføringTaskTest {
         var wrapper = doTaskWithPrecondition(data);
 
         assertThat(wrapper).isNotNull();
-        assertThat(wrapper.getProsessTaskData().getTaskType()).as("Forventer at sak med mangler går til Gosys")
-                .isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+        assertThat(wrapper.getProsessTaskData().taskType()).as("Forventer at sak med mangler går til Gosys")
+                .isEqualTo(TaskType.forProsessTaskHandler(OpprettGSakOppgaveTask.class));
     }
 
     private MottakMeldingDataWrapper doTaskWithPrecondition(MottakMeldingDataWrapper data) {
@@ -156,8 +157,8 @@ class TilJournalføringTaskTest {
         var wrapper = doTaskWithPrecondition(data);
 
         assertThat(wrapper).isNotNull();
-        assertThat(wrapper.getProsessTaskData().getTaskType()).as("Forventer at sak med dokumentmangler går til Gosys")
-                .isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+        assertThat(wrapper.getProsessTaskData().taskType()).as("Forventer at sak med dokumentmangler går til Gosys")
+                .isEqualTo(TaskType.forProsessTaskHandler(OpprettGSakOppgaveTask.class));
     }
 
     @Test
@@ -185,7 +186,7 @@ class TilJournalføringTaskTest {
 
         var next = doTaskWithPrecondition(data);
 
-        assertThat(next.getProsessTaskData().getTaskType()).isEqualTo(VLKlargjørerTask.TASKNAME);
+        assertThat(next.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTaskHandler(VLKlargjørerTask.class));
     }
 
     @Test
@@ -203,6 +204,6 @@ class TilJournalføringTaskTest {
 
         data = doTaskWithPrecondition(data);
 
-        assertThat(data.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+        assertThat(data.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTaskHandler(OpprettGSakOppgaveTask.class));
     }
 }

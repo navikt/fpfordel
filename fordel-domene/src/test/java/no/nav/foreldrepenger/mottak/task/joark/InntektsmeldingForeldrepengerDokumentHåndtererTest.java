@@ -27,7 +27,8 @@ import no.nav.foreldrepenger.mottak.tjeneste.Destinasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.DestinasjonsRuter;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 class InntektsmeldingForeldrepengerDokumentHåndtererTest {
@@ -47,10 +48,10 @@ class InntektsmeldingForeldrepengerDokumentHåndtererTest {
 
     @BeforeEach
     void setUp() {
-        ProsessTaskRepository ptr = mock(ProsessTaskRepository.class);
+        var ptr = mock(ProsessTaskTjeneste.class);
         joarkTaskTestobjekt = spy(new HentDataFraJoarkTask(ptr, vurderVLSaker, aktørConsumer, arkivTjeneste));
         when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));
-        taskData = new ProsessTaskData(HentDataFraJoarkTask.TASKNAME);
+        taskData = ProsessTaskData.forProsessTaskHandler(HentDataFraJoarkTask.class);
         taskData.setSekvens("1");
         dataWrapper = new MottakMeldingDataWrapper(taskData);
         dataWrapper.setArkivId(ARKIV_ID);
@@ -70,7 +71,7 @@ class InntektsmeldingForeldrepengerDokumentHåndtererTest {
 
         MottakMeldingDataWrapper wrapper = joarkTaskTestobjekt.doTask(dataWrapper);
         assertThat(wrapper.getAktørId()).hasValue(JoarkTestsupport.AKTØR_ID);
-        assertThat(wrapper.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+        assertThat(wrapper.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTaskHandler(OpprettGSakOppgaveTask.class));
     }
 
     @Test
@@ -86,7 +87,7 @@ class InntektsmeldingForeldrepengerDokumentHåndtererTest {
 
         MottakMeldingDataWrapper wrapper = joarkTaskTestobjekt.doTask(dataWrapper);
 
-        assertThat(wrapper.getProsessTaskData().getTaskType()).isEqualTo(TilJournalføringTask.TASKNAME);
+        assertThat(wrapper.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTaskHandler(TilJournalføringTask.class));
     }
 
     @Test
@@ -103,7 +104,7 @@ class InntektsmeldingForeldrepengerDokumentHåndtererTest {
 
         MottakMeldingDataWrapper wrapper = joarkTaskTestobjekt.doTask(dataWrapper);
         assertThat(wrapper.getAktørId()).hasValue(JoarkTestsupport.AKTØR_ID);
-        assertThat(wrapper.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+        assertThat(wrapper.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTaskHandler(OpprettGSakOppgaveTask.class));
     }
 
     @Test
@@ -121,6 +122,6 @@ class InntektsmeldingForeldrepengerDokumentHåndtererTest {
 
         MottakMeldingDataWrapper wrapper = joarkTaskTestobjekt.doTask(dataWrapper);
         assertThat(wrapper.getAktørId()).isEmpty();
-        assertThat(wrapper.getProsessTaskData().getTaskType()).isEqualTo(OpprettGSakOppgaveTask.TASKNAME);
+        assertThat(wrapper.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTaskHandler(OpprettGSakOppgaveTask.class));
     }
 }

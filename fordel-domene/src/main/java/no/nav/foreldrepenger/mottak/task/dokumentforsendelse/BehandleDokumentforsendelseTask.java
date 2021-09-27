@@ -61,7 +61,8 @@ import no.nav.foreldrepenger.mottak.tjeneste.Destinasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.DestinasjonsRuter;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 /*
  * Hovedgangen i tasken
@@ -75,12 +76,14 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
  * OBS: minimer risiko for exception etter journalføring - vasnskelig å rydde
  */
 @ApplicationScoped
-@ProsessTask(BehandleDokumentforsendelseTask.TASKNAME)
+@ProsessTask(value = "fordeling.behandleDokumentForsendelse", maxFailedRuns = 4, firstDelay = 10, thenDelay = 30)
 public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(BehandleDokumentforsendelseTask.class);
 
-    public static final String TASKNAME = "fordeling.behandleDokumentForsendelse";
+    private static final String TASK_NAME = TaskType.forProsessTaskHandler(BehandleDokumentforsendelseTask.class).value();
+    private static final TaskType TASK_GOSYS = TaskType.forProsessTaskHandler(OpprettGSakOppgaveTask.class);
+    private static final TaskType TASK_FPSAK = TaskType.forProsessTaskHandler(VLKlargjørerTask.class);
 
     private PersonInformasjon pdl;
     private Fagsak fagsak;
@@ -94,14 +97,14 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     }
 
     @Inject
-    public BehandleDokumentforsendelseTask(ProsessTaskRepository prosessTaskRepository,
-            DestinasjonsRuter ruter,
-            PersonInformasjon pdl,
-            Fagsak fagsak,
-            ArkivTjeneste arkiv,
-            DokumentRepository dokumentRepository,
-            HendelseProdusent hendelseProdusent) {
-        super(prosessTaskRepository);
+    public BehandleDokumentforsendelseTask(ProsessTaskTjeneste taskTjeneste,
+                                           DestinasjonsRuter ruter,
+                                           PersonInformasjon pdl,
+                                           Fagsak fagsak,
+                                           ArkivTjeneste arkiv,
+                                           DokumentRepository dokumentRepository,
+                                           HendelseProdusent hendelseProdusent) {
+        super(taskTjeneste);
         this.ruter = ruter;
         this.pdl = pdl;
         this.fagsak = fagsak;
@@ -114,19 +117,19 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     @Override
     public void precondition(MottakMeldingDataWrapper w) {
         if (w.getForsendelseId().isEmpty()) {
-            throw new TekniskException("FP-941984", format("Preconditions for %s mangler %s. TaskId: %s", TASKNAME, FORSENDELSE_ID_KEY, w.getId()));
+            throw new TekniskException("FP-941984", format("Preconditions for %s mangler %s. TaskId: %s", TASK_NAME, FORSENDELSE_ID_KEY, w.getId()));
         }
     }
 
     @Override
     public void postcondition(MottakMeldingDataWrapper w) {
         if (w.getAktørId().isEmpty()) {
-            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, AKTØR_ID_KEY, w.getId()));
+            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASK_NAME, AKTØR_ID_KEY, w.getId()));
         }
         if (w.getBehandlingTema() == null) {
-            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, BEHANDLINGSTEMA_KEY, w.getId()));
+            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASK_NAME, BEHANDLINGSTEMA_KEY, w.getId()));
         }
-        if (VLKlargjørerTask.TASKNAME.equals(w.getProsessTaskData().getTaskType())) {
+        if (TASK_FPSAK.equals(w.getProsessTaskData().taskType())) {
             postconditionJournalføringMedSak(w);
         }
         postConditionHentOgVurderVLSakOgOpprettSak(w);
@@ -134,7 +137,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     private static void postconditionJournalføringMedSak(MottakMeldingDataWrapper w) {
         if (w.getSaksnummer().isEmpty()) {
-            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, SAKSNUMMER_KEY, w.getId()));
+            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASK_NAME, SAKSNUMMER_KEY, w.getId()));
         }
     }
 
@@ -224,41 +227,41 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         if (GOSYS.equals(destinasjon.system()) || ((destinasjon.saksnummer() != null) && !ferdigstilt)) {
             dokumentRepository.oppdaterForsendelseMedArkivId(forsendelseId, w.getArkivId(), GOSYS);
             w.setSaksnummer(null);
-            return w.nesteSteg(OpprettGSakOppgaveTask.TASKNAME);
+            return w.nesteSteg(TASK_GOSYS);
         }
         if (FPSAK.equals(destinasjon.system()) && (destinasjon.saksnummer() != null)) {
             w.setSaksnummer(destinasjon.saksnummer());
             dokumentRepository.oppdaterForsendelseMetadata(forsendelseId, w.getArkivId(), destinasjon.saksnummer(),
                     FPSAK);
             sendFordeltHendelse(forsendelseId, w);
-            return w.nesteSteg(VLKlargjørerTask.TASKNAME);
+            return w.nesteSteg(TASK_FPSAK);
         }
         throw new IllegalStateException("Ukjent system eller saksnummer mangler");
 
     }
 
     private static void postConditionHentOgVurderVLSakOgOpprettSak(MottakMeldingDataWrapper w) {
-        if (VLKlargjørerTask.TASKNAME.equals(w.getProsessTaskData().getTaskType())
+        if (TASK_FPSAK.equals(w.getProsessTaskData().taskType())
                 && w.getForsendelseMottattTidspunkt().isEmpty()) {
             throw new TekniskException("FP-638068",
-                    format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, FORSENDELSE_MOTTATT_TIDSPUNKT_KEY, w.getId()));
+                    format("Postconditions for %s mangler %s. TaskId: %s", TASK_NAME, FORSENDELSE_MOTTATT_TIDSPUNKT_KEY, w.getId()));
         }
         if (w.getDokumentTypeId().isEmpty()) {
-            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, DOKUMENTTYPE_ID_KEY, w.getId()));
+            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASK_NAME, DOKUMENTTYPE_ID_KEY, w.getId()));
         }
         if (w.getDokumentKategori().isEmpty()) {
             throw new TekniskException("FP-638068",
-                    format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, DOKUMENTKATEGORI_ID_KEY, w.getId()));
+                    format("Postconditions for %s mangler %s. TaskId: %s", TASK_NAME, DOKUMENTKATEGORI_ID_KEY, w.getId()));
         }
         if (DokumentTypeId.erSøknadType(w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT))
                 && w.getPayloadAsString().isEmpty()) {
-            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, "payload", w.getId()));
+            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASK_NAME, "payload", w.getId()));
         }
         if (!w.getHarTema()) {
-            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, TEMA_KEY, w.getId()));
+            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASK_NAME, TEMA_KEY, w.getId()));
         }
         if (w.getArkivId() == null) {
-            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, ARKIV_ID_KEY, w.getId()));
+            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASK_NAME, ARKIV_ID_KEY, w.getId()));
         }
     }
 
@@ -347,7 +350,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
             Optional<String> fnr = w.getAktørId()
                     .flatMap(pdl::hentPersonIdentForAktørId);
             if (fnr.isEmpty()) {
-                throw new TekniskException("FP-254631", format("Fant ikke personident for aktørId i task %s.  TaskId: %s", TASKNAME, w.getId()));
+                throw new TekniskException("FP-254631", format("Fant ikke personident for aktørId i task %s.  TaskId: %s", TASK_NAME, w.getId()));
             }
             var hendelse = new SøknadFordeltOgJournalførtHendelse(w.getArkivId(), forsendelseId, fnr.orElse(null),
                     w.getSaksnummer().orElse(null));
