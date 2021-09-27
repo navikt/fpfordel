@@ -112,7 +112,7 @@
                 <version>${tjenestespesifikasjon.version}</version>
             </dependency>
 
-            <!-- trengs inntil jetty 10.0.7 kommer -->
+            <!-- trengs for Java17 inntil jetty 10.0.7 kommer -->
             <dependency>
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm</artifactId>
