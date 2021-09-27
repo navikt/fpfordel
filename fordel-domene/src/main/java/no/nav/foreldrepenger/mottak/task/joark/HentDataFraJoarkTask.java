@@ -54,10 +54,11 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
  * </p>
  */
 @ApplicationScoped
-@ProsessTask("fordeling.hentFraJoark")
+@ProsessTask(HentDataFraJoarkTask.TASKNAME)
 public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
-    private static final String TASKNAME = TaskType.forProsessTaskHandler(HentDataFraJoarkTask.class).value();
+    static final String TASKNAME = "fordeling.hentFraJoark";
+
     private static final TaskType TASK_GOSYS = TaskType.forProsessTaskHandler(OpprettGSakOppgaveTask.class);
     private static final TaskType TASK_JOURNALFØR = TaskType.forProsessTaskHandler(TilJournalføringTask.class);
 

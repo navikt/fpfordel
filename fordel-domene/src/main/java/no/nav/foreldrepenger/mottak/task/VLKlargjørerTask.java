@@ -22,11 +22,12 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
  * Sender dokument til fpsak og evt til fptilbake
 */
 @ApplicationScoped
-@ProsessTask(value = "fordeling.klargjoering", maxFailedRuns = 4, firstDelay = 10, thenDelay = 30)
+@ProsessTask(value = VLKlargjørerTask.TASKNAME, maxFailedRuns = 4, firstDelay = 10, thenDelay = 30)
 public class VLKlargjørerTask extends WrappedProsessTaskHandler {
 
+    static final String TASKNAME = "fordeling.klargjoering";
+
     private static final Logger LOG = LoggerFactory.getLogger(VLKlargjørerTask.class);
-    private static final String TASKNAME = TaskType.forProsessTaskHandler(VLKlargjørerTask.class).value();
 
     public static final String REINNSEND = "REINNSEND";
 

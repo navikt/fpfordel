@@ -76,12 +76,13 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
  * OBS: minimer risiko for exception etter journalføring - vasnskelig å rydde
  */
 @ApplicationScoped
-@ProsessTask(value = "fordeling.behandleDokumentForsendelse", maxFailedRuns = 4, firstDelay = 10, thenDelay = 30)
+@ProsessTask(value = BehandleDokumentforsendelseTask.TASKNAME, maxFailedRuns = 4, firstDelay = 10, thenDelay = 30)
 public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
+
+    static final String TASKNAME = "fordeling.behandleDokumentForsendelse";
 
     private static final Logger LOG = LoggerFactory.getLogger(BehandleDokumentforsendelseTask.class);
 
-    private static final String TASK_NAME = TaskType.forProsessTaskHandler(BehandleDokumentforsendelseTask.class).value();
     private static final TaskType TASK_GOSYS = TaskType.forProsessTaskHandler(OpprettGSakOppgaveTask.class);
     private static final TaskType TASK_FPSAK = TaskType.forProsessTaskHandler(VLKlargjørerTask.class);
 
@@ -117,17 +118,17 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     @Override
     public void precondition(MottakMeldingDataWrapper w) {
         if (w.getForsendelseId().isEmpty()) {
-            throw new TekniskException("FP-941984", format("Preconditions for %s mangler %s. TaskId: %s", TASK_NAME, FORSENDELSE_ID_KEY, w.getId()));
+            throw new TekniskException("FP-941984", format("Preconditions for %s mangler %s. TaskId: %s", TASKNAME, FORSENDELSE_ID_KEY, w.getId()));
         }
     }
 
     @Override
     public void postcondition(MottakMeldingDataWrapper w) {
         if (w.getAktørId().isEmpty()) {
-            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASK_NAME, AKTØR_ID_KEY, w.getId()));
+            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, AKTØR_ID_KEY, w.getId()));
         }
         if (w.getBehandlingTema() == null) {
-            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASK_NAME, BEHANDLINGSTEMA_KEY, w.getId()));
+            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, BEHANDLINGSTEMA_KEY, w.getId()));
         }
         if (TASK_FPSAK.equals(w.getProsessTaskData().taskType())) {
             postconditionJournalføringMedSak(w);
@@ -137,7 +138,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     private static void postconditionJournalføringMedSak(MottakMeldingDataWrapper w) {
         if (w.getSaksnummer().isEmpty()) {
-            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASK_NAME, SAKSNUMMER_KEY, w.getId()));
+            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, SAKSNUMMER_KEY, w.getId()));
         }
     }
 
@@ -244,24 +245,24 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         if (TASK_FPSAK.equals(w.getProsessTaskData().taskType())
                 && w.getForsendelseMottattTidspunkt().isEmpty()) {
             throw new TekniskException("FP-638068",
-                    format("Postconditions for %s mangler %s. TaskId: %s", TASK_NAME, FORSENDELSE_MOTTATT_TIDSPUNKT_KEY, w.getId()));
+                    format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, FORSENDELSE_MOTTATT_TIDSPUNKT_KEY, w.getId()));
         }
         if (w.getDokumentTypeId().isEmpty()) {
-            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASK_NAME, DOKUMENTTYPE_ID_KEY, w.getId()));
+            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, DOKUMENTTYPE_ID_KEY, w.getId()));
         }
         if (w.getDokumentKategori().isEmpty()) {
             throw new TekniskException("FP-638068",
-                    format("Postconditions for %s mangler %s. TaskId: %s", TASK_NAME, DOKUMENTKATEGORI_ID_KEY, w.getId()));
+                    format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, DOKUMENTKATEGORI_ID_KEY, w.getId()));
         }
         if (DokumentTypeId.erSøknadType(w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT))
                 && w.getPayloadAsString().isEmpty()) {
-            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASK_NAME, "payload", w.getId()));
+            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, "payload", w.getId()));
         }
         if (!w.getHarTema()) {
-            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASK_NAME, TEMA_KEY, w.getId()));
+            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, TEMA_KEY, w.getId()));
         }
         if (w.getArkivId() == null) {
-            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASK_NAME, ARKIV_ID_KEY, w.getId()));
+            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, ARKIV_ID_KEY, w.getId()));
         }
     }
 
@@ -350,7 +351,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
             Optional<String> fnr = w.getAktørId()
                     .flatMap(pdl::hentPersonIdentForAktørId);
             if (fnr.isEmpty()) {
-                throw new TekniskException("FP-254631", format("Fant ikke personident for aktørId i task %s.  TaskId: %s", TASK_NAME, w.getId()));
+                throw new TekniskException("FP-254631", format("Fant ikke personident for aktørId i task %s.  TaskId: %s", TASKNAME, w.getId()));
             }
             var hendelse = new SøknadFordeltOgJournalførtHendelse(w.getArkivId(), forsendelseId, fnr.orElse(null),
                     w.getSaksnummer().orElse(null));

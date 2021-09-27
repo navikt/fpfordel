@@ -25,10 +25,10 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
  * </p>
  */
 @ApplicationScoped
-@ProsessTask("fordeling.tilJournalforing")
+@ProsessTask(TilJournalføringTask.TASKNAME)
 public class TilJournalføringTask extends WrappedProsessTaskHandler {
 
-    private static final String TASKNAME = TaskType.forProsessTaskHandler(TilJournalføringTask.class).value();
+    static final String TASKNAME = "fordeling.tilJournalforing";
 
     private static final Logger LOG = LoggerFactory.getLogger(TilJournalføringTask.class);
     private static final String AUTOMATISK_ENHET = "9999";

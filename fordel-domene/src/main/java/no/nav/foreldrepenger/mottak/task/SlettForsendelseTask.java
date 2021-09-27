@@ -23,10 +23,11 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
  * </p>
  */
 @ApplicationScoped
-@ProsessTask("fordeling.slettForsendelse")
+@ProsessTask(SlettForsendelseTask.TASKNAME)
 public class SlettForsendelseTask extends WrappedProsessTaskHandler {
 
-    private static final String TASKNAME = TaskType.forProsessTaskHandler(SlettForsendelseTask.class).value();
+    static final String TASKNAME = "fordeling.slettForsendelse";
+
     public static final String FORCE_SLETT_KEY = "force.slett";
 
 
