@@ -15,7 +15,7 @@ jobs:
         uses: actions/github-script@v5
         with:
           script: |
-            github.reactions.createForIssueComment({
+            github.rest.reactions.createForIssueComment({
               comment_id: context.payload.comment.id,
               owner: context.repo.owner,
               repo: context.repo.repo,
