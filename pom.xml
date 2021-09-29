@@ -25,12 +25,10 @@
         <revision>2.0</revision>
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
-        <felles.version>4.0.6</felles.version>
-        <prosesstask.version>3.0.2</prosesstask.version>
+        <felles.version>4.0.8</felles.version>
+        <prosesstask.version>3.0.3</prosesstask.version>
         <java.version>17</java.version>
         <argLine>-Xms256m -Dfile.encoding=UTF-8</argLine>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <jersey.version>2.34</jersey.version>
         <prometheus.version>0.12.0</prometheus.version>
         <fp-kontrakter.version>6.0.4</fp-kontrakter.version>

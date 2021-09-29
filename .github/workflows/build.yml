@@ -71,18 +71,18 @@ jobs:
 
       - name: Lukk gamle bygg-issues
         if: success()
-        uses: actions/github-script@v4.1
+        uses: actions/github-script@v5
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            github.issues.listForRepo({
+            github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'open',
               labels: ['deployment']
             }).then(response => {
               response.data.forEach(issue => {
-                github.issues.update({
+                github.rest.issues.update({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: issue.number,
@@ -94,11 +94,11 @@ jobs:
       -  name: Opprett deployment issue
          id: createdeployissue
          if: success()
-         uses: actions/github-script@v4.1
+         uses: actions/github-script@v5
          with:
            github-token: ${{secrets.GITHUB_TOKEN}}
            script: |
-             github.issues.create( {
+             github.rest.issues.create( {
                owner: context.issue.owner,
                repo: context.issue.repo,
                labels: ['deployment'],
