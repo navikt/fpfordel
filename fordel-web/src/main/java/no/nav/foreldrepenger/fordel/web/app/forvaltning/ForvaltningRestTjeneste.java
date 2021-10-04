@@ -154,8 +154,8 @@ public class ForvaltningRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
     public Response retryAlleProsessTasks() {
-        taskTjeneste.flaggAlleFeileteProsessTasksForRestart();
-        return Response.ok().build();
+        var antall = "Antall " + taskTjeneste.restartAlleFeiledeTasks();
+        return Response.ok(antall).build();
     }
 
     @POST
