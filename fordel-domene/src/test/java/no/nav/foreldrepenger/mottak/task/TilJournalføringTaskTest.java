@@ -40,7 +40,7 @@ class TilJournalføringTaskTest {
     private static final String BRUKER_FNR = "99999999899";
 
     @Mock
-    private ProsessTaskTjeneste prosessTaskRepositoryMock;
+    private ProsessTaskTjeneste taskTjenesteMock;
     @Mock
     private ArkivTjeneste arkivTjeneste;
     @Mock
@@ -55,7 +55,7 @@ class TilJournalføringTaskTest {
         forsendelseId = UUID.randomUUID();
         when(aktørConsumerMock.hentPersonIdentForAktørId(AKTØR_ID)).thenReturn(Optional.of(BRUKER_FNR));
 
-        task = new TilJournalføringTask(prosessTaskRepositoryMock, arkivTjeneste, aktørConsumerMock);
+        task = new TilJournalføringTask(taskTjenesteMock, arkivTjeneste, aktørConsumerMock);
 
         ptd = ProsessTaskData.forProsessTask(TilJournalføringTask.class);
 
