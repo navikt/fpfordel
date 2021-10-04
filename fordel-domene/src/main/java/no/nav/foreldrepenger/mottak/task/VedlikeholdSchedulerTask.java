@@ -67,7 +67,7 @@ public class VedlikeholdSchedulerTask implements ProsessTaskHandler {
     }
 
     private void retryAlleProsessTasksFeilet() {
-        prosessTaskTjeneste.flaggAlleFeileteProsessTasksForRestart();
+        prosessTaskTjeneste.restartAlleFeiledeTasks();
     }
 
     private static boolean erFastInfotrygdStengtDag(LocalDate dato) {

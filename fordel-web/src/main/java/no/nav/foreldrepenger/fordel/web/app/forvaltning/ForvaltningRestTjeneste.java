@@ -154,8 +154,8 @@ public class ForvaltningRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
     public Response retryAlleProsessTasks() {
-        taskTjeneste.flaggAlleFeileteProsessTasksForRestart();
-        return Response.ok().build();
+        var antall = "Antall " + taskTjeneste.restartAlleFeiledeTasks();
+        return Response.ok(antall).build();
     }
 
     @POST
@@ -168,6 +168,18 @@ public class ForvaltningRestTjeneste {
     public Response setFeiletTaskFerdig(@Parameter(description = "Prosesstask-id for feilet prosesstask") @NotNull @Valid RetryTaskKanalrefDto dto) {
         taskTjeneste.setProsessTaskFerdig(dto.getProsessTaskIdDto().getProsessTaskId(), ProsessTaskStatus.valueOf(dto.getRetrySuffix()));
         return Response.ok().build();
+    }
+
+    @POST
+    @Path("/searchTasks")
+    @Operation(description = "Søker etter journalpostId mv i taskparametre innen angitt tidsrom", tags = "Forvaltning", responses = {
+            @ApiResponse(responseCode = "200", description = "Angitt prosesstask-id satt til status FERDIG"),
+            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
+    })
+    @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
+    public Response searchTasks(@Parameter(description = "Søkefilter") @NotNull @Valid FordelSokeFilterDto dto) {
+        var tasks = taskTjeneste.finnAlleMedParameterTekst(dto.getTekst(), dto.getOpprettetFraOgMed(), dto.getOpprettetTilOgMed());
+        return Response.ok(tasks).build();
     }
 
     @POST

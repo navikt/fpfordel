@@ -25,11 +25,12 @@
         <revision>2.0</revision>
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
-        <felles.version>4.0.8</felles.version>
-        <prosesstask.version>3.0.3</prosesstask.version>
+        <felles.version>4.0.10</felles.version>
+        <prosesstask.version>3.0.6</prosesstask.version>
         <java.version>17</java.version>
         <argLine>-Xms256m -Dfile.encoding=UTF-8</argLine>
         <jersey.version>2.34</jersey.version>
+        <swagger.version>2.1.11</swagger.version>
         <prometheus.version>0.12.0</prometheus.version>
         <fp-kontrakter.version>6.0.4</fp-kontrakter.version>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -110,13 +111,6 @@
                 <version>${tjenestespesifikasjon.version}</version>
             </dependency>
 
-            <!-- trengs for Java17 inntil jetty 10.0.7 kommer -->
-            <dependency>
-                <groupId>org.ow2.asm</groupId>
-                <artifactId>asm</artifactId>
-                <version>9.2</version>
-            </dependency>
-
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-text</artifactId>
@@ -186,22 +180,22 @@
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-compat-spec-parser</artifactId>
-                <version>1.0.55</version>
+                <version>1.0.56</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-jaxrs2</artifactId>
-                <version>2.1.10</version>
+                <version>${swagger.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-core</artifactId>
-                <version>2.1.10</version>
+                <version>${swagger.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-annotations</artifactId>
-                <version>2.1.10</version>
+                <version>${swagger.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.owasp.encoder</groupId>

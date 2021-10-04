@@ -20,13 +20,13 @@ class WrappedProsessTaskHandlerTest {
     private WrappedProsessTaskHandler wrappedProsessTaskHandler;
 
     @Mock
-    private ProsessTaskTjeneste mockProsessTaskRepository;
+    private ProsessTaskTjeneste taskTjenesteMock;
     private ProsessTaskData prosessTaskData;
     private MottakMeldingDataWrapper returnedDataWrapper;
 
     @BeforeEach
     void setup() {
-        wrappedProsessTaskHandler = new MyWrappedProsessTaskHandler(mockProsessTaskRepository);
+        wrappedProsessTaskHandler = new MyWrappedProsessTaskHandler(taskTjenesteMock);
         prosessTaskData = ProsessTaskData.forTaskType(new TaskType("type"));
         returnedDataWrapper = null;
     }
@@ -35,13 +35,13 @@ class WrappedProsessTaskHandlerTest {
     void test_doTask_returnedWrapper() {
         returnedDataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
         wrappedProsessTaskHandler.doTask(prosessTaskData);
-        verify(mockProsessTaskRepository).lagre(prosessTaskData);
+        verify(taskTjenesteMock).lagre(prosessTaskData);
     }
 
     @Test
     void test_doTask_returnedNull() {
         wrappedProsessTaskHandler.doTask(prosessTaskData);
-        verify(mockProsessTaskRepository, never()).lagre(any(ProsessTaskData.class));
+        verify(taskTjenesteMock, never()).lagre(any(ProsessTaskData.class));
     }
 
     private class MyWrappedProsessTaskHandler extends WrappedProsessTaskHandler {

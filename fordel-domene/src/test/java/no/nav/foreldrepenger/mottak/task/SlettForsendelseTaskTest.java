@@ -31,7 +31,7 @@ class SlettForsendelseTaskTest {
     private static final String AKTØR_ID = "9000000000009";
 
     @Mock
-    private ProsessTaskTjeneste prosessTaskRepositoryMock;
+    private ProsessTaskTjeneste taskTjenesteMock;
     @Mock
     private DokumentRepository dokumentRepositoryMock;
 
@@ -42,7 +42,7 @@ class SlettForsendelseTaskTest {
     @BeforeEach
     void setup() {
         forsendelseId = UUID.randomUUID();
-        task = new SlettForsendelseTask(prosessTaskRepositoryMock, dokumentRepositoryMock);
+        task = new SlettForsendelseTask(taskTjenesteMock, dokumentRepositoryMock);
         ptd = ProsessTaskData.forProsessTask(SlettForsendelseTask.class);
     }
 

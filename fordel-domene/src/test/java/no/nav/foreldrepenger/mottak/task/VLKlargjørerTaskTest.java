@@ -33,7 +33,7 @@ class VLKlargjørerTaskTest {
     private ProsessTaskData ptd;
 
     @Mock
-    private ProsessTaskTjeneste prosessTaskRepositoryMock;
+    private ProsessTaskTjeneste taskTjenesteMock;
 
     @Mock
     private VLKlargjører klargjørForVLTjeneste;
@@ -43,7 +43,7 @@ class VLKlargjørerTaskTest {
     @BeforeEach
     void setup() {
         forsendelseId = UUID.randomUUID();
-        task = new VLKlargjørerTask(prosessTaskRepositoryMock, klargjørForVLTjeneste);
+        task = new VLKlargjørerTask(taskTjenesteMock, klargjørForVLTjeneste);
         ptd = ProsessTaskData.forProsessTask(VLKlargjørerTask.class);
 
     }

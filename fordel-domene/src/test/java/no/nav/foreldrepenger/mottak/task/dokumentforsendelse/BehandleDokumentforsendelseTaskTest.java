@@ -73,7 +73,7 @@ class BehandleDokumentforsendelseTaskTest {
     private static final TaskType GOSYS_TASK = TaskType.forProsessTask(OpprettGSakOppgaveTask.class);
 
     @Mock
-    private ProsessTaskTjeneste prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     @Mock
     private PersonInformasjon aktørConsumer;
     @Mock
@@ -90,7 +90,7 @@ class BehandleDokumentforsendelseTaskTest {
 
     @BeforeEach
     void setup() {
-        fordelDokTask = new BehandleDokumentforsendelseTask(prosessTaskRepository, vurderVLSaker, aktørConsumer,
+        fordelDokTask = new BehandleDokumentforsendelseTask(taskTjeneste, vurderVLSaker, aktørConsumer,
                 fagsakRestKlient, arkivTjeneste, dokumentRepository, new LoggingHendelseProdusent());
         ptd = ProsessTaskData.forProsessTask(BehandleDokumentforsendelseTask.class);
 
