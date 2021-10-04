@@ -1,6 +1,9 @@
 package no.nav.foreldrepenger.mottak.hendelse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,6 +13,9 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
@@ -19,23 +25,21 @@ import no.nav.foreldrepenger.mottak.extensions.FPfordelEntityManagerAwareExtensi
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskInfo;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskTjenesteImpl;
 
+@ExtendWith(MockitoExtension.class)
 @ExtendWith(FPfordelEntityManagerAwareExtension.class)
 class JournalføringHendelseHåndtererTest {
 
-    private ProsessTaskTjeneste prosessTaskRepository;
+    @Mock
+    private ProsessTaskTjeneste taskTjeneste;
     private DokumentRepository dokumentRepository;
     private JournalføringHendelseHåndterer hendelseHåndterer;
 
     @BeforeEach
     void setup(EntityManager em) {
-        prosessTaskRepository = new ProsessTaskTjenesteImpl(new ProsessTaskRepositoryImpl(em, null, null));
         dokumentRepository = new DokumentRepository(em);
-        hendelseHåndterer = new JournalføringHendelseHåndterer(prosessTaskRepository, dokumentRepository);
+        hendelseHåndterer = new JournalføringHendelseHåndterer(taskTjeneste, dokumentRepository);
     }
 
     @Test
@@ -52,7 +56,10 @@ class JournalføringHendelseHåndtererTest {
 
         hendelseHåndterer.handleMessage(builder.build());
         em.flush();
-        List<ProsessTaskData> result = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verify(taskTjeneste, times(1)).lagre(captor.capture());
+        List<ProsessTaskData> result = captor.getAllValues();
         assertThat(result).as("Forventer at en prosesstask er lagt til").hasSize(1);
 
         ProsessTaskInfo prosessTaskData = result.get(0);
@@ -74,7 +81,10 @@ class JournalføringHendelseHåndtererTest {
 
         hendelseHåndterer.handleMessage(builder.build());
         em.flush();
-        List<ProsessTaskData> result = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verify(taskTjeneste, times(1)).lagre(captor.capture());
+        List<ProsessTaskData> result = captor.getAllValues();
         assertThat(result).as("Forventer at en prosesstask er lagt til").hasSize(1);
         ProsessTaskInfo prosessTaskData = result.get(0);
         assertThat(prosessTaskData.getTaskType()).as("Forventer at prosesstask av korrekt type blir opprettet. ")
@@ -96,7 +106,9 @@ class JournalføringHendelseHåndtererTest {
         hendelseHåndterer.handleMessage(builder.build());
         em.flush();
 
-        List<ProsessTaskData> result = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verify(taskTjeneste, times(1)).lagre(captor.capture());
+        List<ProsessTaskData> result = captor.getAllValues();
         assertThat(result).as("Forventer at en prosesstask er lagt til").hasSize(1);
         ProsessTaskInfo prosessTaskData = result.get(0);
         assertThat(prosessTaskData.getNesteKjøringEtter()).isAfter(LocalDateTime.now().plusHours(1));
@@ -116,8 +128,7 @@ class JournalføringHendelseHåndtererTest {
         hendelseHåndterer.handleMessage(builder.build());
         em.flush();
 
-        List<ProsessTaskData> result = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        assertThat(result).as("Forventer at en prosesstask er lagt til").isEmpty();
+        verifyNoInteractions(taskTjeneste);
     }
 
     @Test
