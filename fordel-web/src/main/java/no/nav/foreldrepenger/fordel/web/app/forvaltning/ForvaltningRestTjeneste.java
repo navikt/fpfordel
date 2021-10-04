@@ -171,6 +171,18 @@ public class ForvaltningRestTjeneste {
     }
 
     @POST
+    @Path("/searchTasks")
+    @Operation(description = "Søker etter journalpostId mv i taskparametre innen angitt tidsrom", tags = "Forvaltning", responses = {
+            @ApiResponse(responseCode = "200", description = "Angitt prosesstask-id satt til status FERDIG"),
+            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
+    })
+    @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
+    public Response searchTasks(@Parameter(description = "Søkefilter") @NotNull @Valid FordelSokeFilterDto dto) {
+        var tasks = taskTjeneste.finnAlleMedParameterTekst(dto.getTekst(), dto.getOpprettetFraOgMed(), dto.getOpprettetTilOgMed());
+        return Response.ok(tasks).build();
+    }
+
+    @POST
     @Path("/taskForBehandleForsendelse")
     @Operation(description = "Behandler forsendelse som ikke er plukket opp", tags = "Forvaltning", responses = {
             @ApiResponse(responseCode = "200", description = "Opprettet prosesstask"),
