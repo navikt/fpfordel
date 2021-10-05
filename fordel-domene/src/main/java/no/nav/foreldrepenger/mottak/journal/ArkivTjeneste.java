@@ -153,6 +153,27 @@ public class ArkivTjeneste {
         }
     }
 
+    public void settTilleggsOpplysninger(ArkivJournalpost arkivJournalpost, DokumentTypeId defaultDokumentTypeId) {
+        var journalpost = arkivJournalpost.getOriginalJournalpost();
+        var hovedtype = DokumentTypeId.UDEFINERT.equals(arkivJournalpost.getHovedtype()) ?
+                defaultDokumentTypeId : arkivJournalpost.getHovedtype();
+        var tilleggDokumentType = arkivJournalpost.getTilleggsopplysninger()
+                .stream().filter(to -> FP_DOK_TYPE.equals(to.nokkel())).findFirst();
+        if (tilleggDokumentType.isEmpty()) {
+            var builder = OppdaterJournalpostRequest.ny();
+            LOG.info("FPFORDEL oppdaterer tilleggsopplysninger for {} med {}", journalpost.journalpostId(), hovedtype.getOffisiellKode());
+            if (!arkivJournalpost.getTilleggsopplysninger().isEmpty()) {
+                builder.medTilleggsopplysninger(arkivJournalpost.getTilleggsopplysninger());
+            }
+            builder.leggTilTilleggsopplysning(new Tilleggsopplysning(FP_DOK_TYPE, hovedtype.getOffisiellKode()));
+            if (!dokArkivTjeneste.oppdaterJournalpost(journalpost.journalpostId(), builder.build())) {
+                throw new IllegalStateException("FPFORDEL Kunne ikke oppdatere " + journalpost.journalpostId());
+            }
+        } else {
+            LOG.info("FPFORDEL tilleggsopplysninger allerede satt for {} med {}", journalpost.journalpostId(), tilleggDokumentType);
+        }
+    }
+
     public boolean oppdaterRettMangler(ArkivJournalpost arkivJournalpost, String aktørId, BehandlingTema behandlingTema,
             DokumentTypeId defaultDokumentTypeId) {
         var journalpost = arkivJournalpost.getOriginalJournalpost();
@@ -188,18 +209,6 @@ public class ArkivTjeneste {
         if ((journalpost.bruker() == null) || (journalpost.bruker().id() == null)) {
             LOG.info("FPFORDEL oppdaterer manglende bruker for {}", journalpost.journalpostId());
             builder.medBruker(aktørId);
-        }
-        var tilleggDokumentType = arkivJournalpost.getTilleggsopplysninger().stream().filter(to -> FP_DOK_TYPE.equals(to.nokkel())).findFirst();
-        var skalOppdatereTilleggsopplysning = tilleggDokumentType.map(Tilleggsopplysning::verdi).map(DokumentTypeId::fraOffisiellKode)
-                .map(MapNAVSkjemaDokumentTypeId::dokumentTypeRank)
-                .filter(rank -> MapNAVSkjemaDokumentTypeId.dokumentTypeRank(hovedtype) < rank).isPresent();
-        if (tilleggDokumentType.isEmpty() || skalOppdatereTilleggsopplysning) {
-            LOG.info("FPFORDEL oppdaterer tilleggsopplysninger for {} med {}", journalpost.journalpostId(), hovedtype.getOffisiellKode());
-            if (!arkivJournalpost.getTilleggsopplysninger().isEmpty())
-                builder.medTilleggsopplysninger(arkivJournalpost.getTilleggsopplysninger());
-            builder.leggTilTilleggsopplysning(new Tilleggsopplysning(FP_DOK_TYPE, hovedtype.getOffisiellKode()));
-        } else {
-            LOG.info("FPFORDEL tilleggsopplysninger allerede satt for {} med {}", journalpost.journalpostId(), tilleggDokumentType);
         }
         var oppdaterDok = journalpost.dokumenter().stream()
                 .filter(d -> (d.tittel() == null) || d.tittel().isEmpty())

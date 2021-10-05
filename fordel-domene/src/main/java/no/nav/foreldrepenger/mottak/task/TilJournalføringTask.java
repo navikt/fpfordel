@@ -9,6 +9,7 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
@@ -77,6 +78,12 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
                     String.format("Fant ikke personident for aktørId i task %s.  TaskId: %s", TASKNAME, w.getId()));
         }
         var saksnummer = w.getSaksnummer().orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mangler saksnummer"));
+        try {
+            var journalpost = arkivTjeneste.hentArkivJournalpost(w.getArkivId());
+            arkivTjeneste.settTilleggsOpplysninger(journalpost, w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT));
+        } catch (Exception e) {
+            LOG.info("Feil ved setting av tilleggsopplysninger for journalpostId {}", w.getArkivId());
+        }
         // Annet dokument fra dokumentmottak (scanning, altinn). Kan skippe
         // unntakshåndtering. Bør feile.
         try {
