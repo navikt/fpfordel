@@ -157,6 +157,11 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             if (!arkivTjeneste.oppdaterRettMangler(journalpost, fagsakInfoAktørId, behandlingTema, brukDokumentTypeId)) {
                 ugyldigBrukerPrøvIgjen(request.getJournalpostId(), null);
             }
+            try {
+                arkivTjeneste.settTilleggsOpplysninger(journalpost, brukDokumentTypeId);
+            } catch (Exception e) {
+                LOG.info("Feil ved setting av tilleggsopplysninger for journalpostId {}", journalpost.getJournalpostId());
+            }
             LOG.info(removeLineBreaks("Kaller tilJournalføring")); // NOSONAR
             try {
                 arkivTjeneste.oppdaterMedSak(journalpost.getJournalpostId(), saksnummer, fagsakInfoAktørId);
