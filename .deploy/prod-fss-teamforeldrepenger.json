@@ -9,7 +9,7 @@
 		"ABAC_ATTRIBUTT_DRIFT": "no.nav.abac.attributter.foreldrepenger.drift",
 		"APPDYNAMICS_AGENT_ACCOUNT_NAME": "PROD",
 		"ARBEIDSFORDELING_RS_URL": "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter",
-		"DOKARKIV_BASE_URL": "http://dokarkiv.default/rest/journalpostapi/v1/journalpost",
+		"DOKARKIV_BASE_URL": "http://dokarkiv.teamdokumenthandtering/rest/journalpostapi/v1/journalpost",
 		"KAFKA_BOOTSTRAP_SERVERS": "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443",
 		"KAFKA_SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.adeo.no",
 		"KAFKA_TOPIC_JOURNAL_HENDELSE": "aapen-dok-journalfoering-v1-p",
@@ -23,7 +23,7 @@
 		"OPENIDCONNECT_ISSOHOST": "https://isso.adeo.no:443/isso/oauth2",
 		"PERSON_V3_URL": "https://wasapp.adeo.no/tpsws/ws/Person/v3",
 		"OPPGAVE_RS_URI": "https://oppgave.nais.adeo.no/api/v1/oppgaver",
-		"SAF_BASE_URL" : "https://saf.nais.adeo.no",
+		"SAF_BASE_URL" : "https://saf.intern.nav.no",
 		"SECURITYTOKENSERVICE_URL": "https://sts.adeo.no/SecurityTokenServiceProvider/"
 	}
 }
