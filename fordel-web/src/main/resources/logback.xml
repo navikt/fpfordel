@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <turboFilter class="no.nav.vedtak.util.env.ConfidentialMarkerFilter">
+    <turboFilter class="no.nav.vedtak.log.util.ConfidentialMarkerFilter">
 		<Marker>CONFIDENTIAL</Marker>
 	</turboFilter>
 	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
