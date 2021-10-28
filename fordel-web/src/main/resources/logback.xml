@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <turboFilter class="no.nav.vedtak.log.util.ConfidentialMarkerFilter">
-		<Marker>CONFIDENTIAL</Marker>
-	</turboFilter>
+    <turboFilter class="no.nav.vedtak.log.util.ENV.ConfidentialMarkerFilter"/>
 	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder class="net.logstash.logback.encoder.LogstashEncoder">
 			<throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
