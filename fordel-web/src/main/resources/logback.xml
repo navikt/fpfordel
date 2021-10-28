@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <turboFilter class="no.nav.vedtak.util.env.ConfidentialMarkerFilter"/>
+    <turboFilter class="no.nav.vedtak.util.env.ConfidentialMarkerFilter">
+		<Marker>CONFIDENTIAL</Marker>
+	</turboFilter>
 	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder class="net.logstash.logback.encoder.LogstashEncoder">
 			<throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
@@ -24,7 +26,7 @@
 			</throwableConverter>
 		</encoder>
 	</appender>
-    
+
     <appender name="auditLogger" class="com.papertrailapp.logback.Syslog4jAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
             <pattern>%m%n%xEx</pattern>
