@@ -21,7 +21,9 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.TekniskException;
+
 @ApplicationScoped
 public class KafkaHendelseProdusent implements HendelseProdusent {
 
@@ -41,13 +43,20 @@ public class KafkaHendelseProdusent implements HendelseProdusent {
     @Override
     public void send(Object objekt, String nøkkel) {
         LOG.info("Sender melding {}", objekt);
-        producer.send(meldingFra(objekt, nøkkel), (md, e) -> {
-            if (e == null) {
-                LOG.info("Sendte melding {} med offset {} på {}", objekt, md.offset(), topic);
-            } else {
-                LOG.warn("Kunne ikke sende melding {} på {}", objekt, topic, e);
-            }
-        });
+        var record = meldingFra(objekt, nøkkel);
+        try {
+            var md = producer.send(record).get();
+            LOG.info("Sendte melding {} med offset {} på {}", objekt, md.offset(), topic);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw kafkaPubliseringException(e);
+        } catch (Exception e) {
+            throw kafkaPubliseringException(e);
+        }
+    }
+
+    private IntegrasjonException kafkaPubliseringException(Exception e) {
+        return new IntegrasjonException("FP-190497", "Uventet feil ved sending til Kafka, topic " + topic, e);
     }
 
     private ProducerRecord<String, String> meldingFra(Object objekt, String nøkkel) {
