@@ -169,7 +169,7 @@
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-streams</artifactId>
-                <version>6.2.1-ce</version>
+                <version>7.0.0-ce</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.kafka</groupId>
