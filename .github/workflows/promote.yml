@@ -23,12 +23,12 @@ jobs:
             });
       - name: Sett variabler for cluster og tag
         run: |
-          echo "TAG=$(echo '${{ github.event.issue.title }}' | awk '{print $NF}' | awk -F- '{print $NF}')" >> $GITHUB_ENV
+          echo "TAG=$(echo '${{ github.event.issue.body }}')" >> $GITHUB_ENV
           echo "IMAGE=$IMAGE_BASE:$(echo '${{  github.event.issue.title }}' | awk '{print $NF}')" >> $GITHUB_ENV
           echo "CLUSTER=$(echo '${{github.event.comment.body}}' | cut -d' ' -f2)" >> $GITHUB_ENV
 
       - name: Sjekk ut kode
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
         with:
           ref: ${{ env.TAG }}
 

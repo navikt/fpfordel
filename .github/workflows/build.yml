@@ -24,17 +24,11 @@ jobs:
         uses: actions/checkout@v2
       - run:  git fetch --prune --unshallow
 
-      - name: Cache maven repository
-        uses: actions/cache@v2.1.6
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-
       - uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
           java-version: 17
+          cache: 'maven'
 
       - name: Set build version
         run: |
@@ -57,11 +51,10 @@ jobs:
 
       - name: Kompiler
         run: |
-           mvn --quiet  package  -Dchangelist= -Dsha1=-${BUILD_VERSION}   --settings .github/workflows/.m2/settings.xml
-           echo "TAG=$(mvn help:evaluate --batch-mode --settings .github/workflows/.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+           mvn --quiet  package  -Dchangelist= -Dsha1=-${BUILD_VERSION} --settings .github/.m2/settings.xml
+           echo "TAG=$(mvn help:evaluate --batch-mode --settings .github/.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
         env:
-          GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.NOTIFICATION }} # Må ha denne pga avhengighet til intern repo "legacy-avhengigheter".
+          GITHUB_TOKEN: ${{ secrets.NOTIFICATION }} # Må ha denne pga avhengighet til intern repo "legacy-avhengigheter".
           SONAR: ${{ secrets.SONAR }}
 
       - name: Bygg, tag og push Docker image
@@ -102,7 +95,8 @@ jobs:
                owner: context.issue.owner,
                repo: context.issue.repo,
                labels: ['deployment'],
-               title: 'Deploy av ${{ env.TAG }}'})
+               title: 'Deploy av ${{ env.TAG }}',
+               body: '${{ github.sha }}'})
              .then(response => {
                      core.setOutput('number', response.data.number);
               });
