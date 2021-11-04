@@ -13,7 +13,7 @@
 	"env": {
 		"APPDYNAMICS_AGENT_ACCOUNT_NAME": "NON-PROD",
 		"ARBEIDSFORDELING_RS_URL": "https://app-q1.adeo.no/norg2/api/v1/arbeidsfordeling/enheter",
-		"DOKARKIV_BASE_URL": "http://dokarkiv.teamdokumenthandtering/rest/journalpostapi/v1/journalpost",
+		"DOKARKIV_BASE_URL": "http://dokarkiv-q1.teamdokumenthandtering/rest/journalpostapi/v1/journalpost",
 		"KAFKA_BOOTSTRAP_SERVERS": "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
 		"KAFKA_SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.preprod.local",
 		"KAFKA_TOPIC_JOURNAL_HENDELSE": "aapen-dok-journalfoering-v1-q1",
