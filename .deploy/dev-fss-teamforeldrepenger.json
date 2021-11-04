@@ -13,7 +13,7 @@
 	"env": {
 		"APPDYNAMICS_AGENT_ACCOUNT_NAME": "NON-PROD",
 		"ARBEIDSFORDELING_RS_URL": "https://app-q1.adeo.no/norg2/api/v1/arbeidsfordeling/enheter",
-		"DOKARKIV_BASE_URL": "http://dokarkiv.q1/rest/journalpostapi/v1/journalpost",
+		"DOKARKIV_BASE_URL": "http://dokarkiv.teamdokumenthandtering/rest/journalpostapi/v1/journalpost",
 		"KAFKA_BOOTSTRAP_SERVERS": "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
 		"KAFKA_SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.preprod.local",
 		"KAFKA_TOPIC_JOURNAL_HENDELSE": "aapen-dok-journalfoering-v1-q1",
@@ -23,7 +23,7 @@
 		"OIDC_OPENAM_JWKSURL": "https://isso-q.adeo.no:443/isso/oauth2/connect/jwk_uri",
 		"OIDC_STS_ISSUER_URL": "http://security-token-service.default",
 		"OIDC_STS_JWKS_URL": "http://security-token-service.default/rest/v1/sts/jwks",
-		"OPENIDCONNECT_USERNAME": "fpfordel-q1",		
+		"OPENIDCONNECT_USERNAME": "fpfordel-q1",
 		"OPENIDCONNECT_ISSOHOST": "https://isso-q.adeo.no:443/isso/oauth2",
 		"PERSON_V3_URL": "https://wasapp-q1.adeo.no/tpsws/ws/Person/v3",
 		"OPPGAVE_RS_URI": "http://oppgave-q1.oppgavehandtering/api/v1/oppgaver",
