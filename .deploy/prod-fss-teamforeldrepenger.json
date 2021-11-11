@@ -24,6 +24,7 @@
 		"PERSON_V3_URL": "https://wasapp.adeo.no/tpsws/ws/Person/v3",
 		"OPPGAVE_RS_URI": "https://oppgave.nais.adeo.no/api/v1/oppgaver",
 		"SAF_BASE_URL" : "https://saf.intern.nav.no",
+		"SAK_RS_URL": "http://sak.teamdokumenthandtering/api/v1/saker",
 		"SECURITYTOKENSERVICE_URL": "https://sts.adeo.no/SecurityTokenServiceProvider/"
 	}
 }
