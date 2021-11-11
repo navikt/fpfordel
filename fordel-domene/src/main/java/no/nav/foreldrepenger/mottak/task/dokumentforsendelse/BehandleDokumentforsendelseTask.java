@@ -167,12 +167,14 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         w.setSaksnummer(destinasjon.saksnummer());
 
         var journalpost = opprettJournalpostFerdigstillHvisSaksnummer(forsendelseId, w, destinasjon.saksnummer());
-        w.setArkivId(journalpost.journalpostId());
-        if (!journalpost.ferdigstilt()) {
-            // Det vil komme en Kafka-hendelse om noen sekunder - denne sørger for at vi
-            // ikke trigger på den.
-            dokumentRepository.lagreJournalpostLokal(w.getArkivId(),
-                    SELVBETJENING.getKode(), "MIDLERTIDIG", forsendelseId.toString());
+        if (w.getArkivId() == null) {
+            w.setArkivId(journalpost.journalpostId());
+            if (!journalpost.ferdigstilt()) {
+                // Det vil komme en Kafka-hendelse om noen sekunder - denne sørger for at vi
+                // ikke trigger på den.
+                dokumentRepository.lagreJournalpostLokal(w.getArkivId(),
+                        SELVBETJENING.getKode(), "MIDLERTIDIG", forsendelseId.toString());
+            }
         }
 
         return utledNesteSteg(w, forsendelseId, destinasjon, journalpost.ferdigstilt());

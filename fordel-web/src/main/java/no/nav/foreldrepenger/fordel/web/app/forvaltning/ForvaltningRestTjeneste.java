@@ -222,4 +222,25 @@ public class ForvaltningRestTjeneste {
         return Response.ok().build();
     }
 
+    @POST
+    @Operation(description = "Send inntektsmelding til angitt sak (allerede journalført)", tags = "Forvaltning", summary = "Bruker eksisterende task til å sende dokument til VL", responses =
+
+            { @ApiResponse(responseCode = "200", description = "Inntektsmelding sendt til VL") })
+
+    @Path("/fiks-arkiv-feil")
+    @BeskyttetRessurs(action = CREATE, resource = BeskyttetRessursAttributt.DRIFT)
+    public Response fiksarkivFeil(
+            @Parameter(description = "Arkivfeil") @NotNull @Valid SubmitJfortIMDto dto) {
+        var data = taskTjeneste.finn(dto.getProsessTaskIdDto().getProsessTaskId());
+        if (data == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        data.setCallIdFraEksisterende();
+        var fra = new MottakMeldingDataWrapper(data);
+        fra.setSaksnummer(dto.getSaksnummerDto().getSaksnummer());
+        fra.setArkivId(dto.getJournalpostIdDto().getJournalpostId());
+        taskTjeneste.lagre(fra.getProsessTaskData());
+        return Response.ok().build();
+    }
+
 }
