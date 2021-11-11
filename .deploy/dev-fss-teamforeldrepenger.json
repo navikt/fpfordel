@@ -28,7 +28,7 @@
 		"PERSON_V3_URL": "https://wasapp-q1.adeo.no/tpsws/ws/Person/v3",
 		"OPPGAVE_RS_URI": "http://oppgave-q1.oppgavehandtering/api/v1/oppgaver",
 		"SAF_BASE_URL" : "http://saf-q1.teamdokumenthandtering",
-		"SAK_RS_URL": "http://sak.q1/api/v1/saker",
+		"SAK_RS_URL": "http://sak-q1.teamdokumenthandtering/api/v1/saker",
 		"SECURITYTOKENSERVICE_URL": "https://sts-q1.preprod.local/SecurityTokenServiceProvider/"
 	}
 }
