@@ -176,8 +176,7 @@ abstract class AbstractJettyServer {
 
     private static MultiIssuerConfiguration config() {
         return new MultiIssuerConfiguration(
-                Map.of(TOKENX, issuerProperties("token.x.well.known.url", "token.x.client.id"),
-                        IDPORTEN, issuerProperties("loginservice.idporten.discovery.url", "loginservice.idporten.audience")));
+                Map.of(TOKENX, issuerProperties("token.x.well.known.url", "token.x.client.id")));
     }
 
     private static IssuerProperties issuerProperties(String wellKnownUrl, String clientId) {
