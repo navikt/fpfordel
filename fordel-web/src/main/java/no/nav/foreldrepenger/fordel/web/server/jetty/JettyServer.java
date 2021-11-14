@@ -13,6 +13,8 @@ import no.nav.vedtak.isso.IssoApplication;
 public class JettyServer extends AbstractJettyServer {
 
     private static final Logger LOG = LoggerFactory.getLogger(JettyServer.class);
+
+    private static final String FLYWAY_SCHEMA_TABLE = "schema_version";
     private DataSourceKonfig dataSourceKonfig;
 
     public JettyServer(int serverPort) {
@@ -44,12 +46,14 @@ public class JettyServer extends AbstractJettyServer {
     protected void migrerDatabaser() {
         for (var cfg : dataSourceKonfig.getDataSources()) {
             LOG.info("Migrerer {}", cfg);
-            var flyway = new Flyway();
-            flyway.setDataSource(cfg.getDatasource());
-            flyway.setLocations(cfg.getLocations());
-            flyway.setBaselineOnMigrate(true);
-            flyway.migrate();
+            var flyway = Flyway.configure()
+                    .dataSource(cfg.getDatasource())
+                    .locations(cfg.getLocations())
+                    .baselineOnMigrate(true)
+                    .table(FLYWAY_SCHEMA_TABLE)
+                    .load();
 
+            flyway.migrate();
         }
     }
 
