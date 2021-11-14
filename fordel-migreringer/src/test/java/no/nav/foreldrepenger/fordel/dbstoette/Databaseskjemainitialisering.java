@@ -21,6 +21,7 @@ public final class Databaseskjemainitialisering {
 
     private static final Logger LOG = LoggerFactory.getLogger(Databaseskjemainitialisering.class);
     private static final Environment ENV = Environment.current();
+    private static final String FLYWAY_SCHEMA_TABLE = "schema_version";
 
     public static final DBProperties DEFAULT_DS_PROPERTIES = dbProperties("defaultDS", "fpfordel");
     public static final DBProperties DVH_DS_PROPERTIES = dbProperties("defaultDS", "fpfordel_unit");
@@ -50,12 +51,13 @@ public final class Databaseskjemainitialisering {
 
     private static void migrer(DBProperties dbProperties) {
         LOG.info("Migrerer {}", dbProperties.schema());
-        Flyway flyway = new Flyway();
-        flyway.setBaselineOnMigrate(true);
-        flyway.setDataSource(dbProperties.dataSource());
-        flyway.setTable("schema_version");
-        flyway.setLocations(dbProperties.scriptLocation);
-        flyway.setCleanOnValidationError(true);
+        var flyway = Flyway.configure()
+                .baselineOnMigrate(true)
+                .dataSource(dbProperties.dataSource())
+                .table(FLYWAY_SCHEMA_TABLE)
+                .locations(dbProperties.scriptLocation)
+                .cleanOnValidationError(true)
+                .load();
         if (!ENV.isLocal()) {
             throw new IllegalStateException("Forventer at denne migreringen bare kjøres lokalt");
         }
