@@ -5,7 +5,7 @@ metadata:
   namespace: {{namespace}}
   labels:
     team: teamforeldrepenger
-    
+
 spec:
   accessPolicy:
      inbound:
@@ -13,8 +13,6 @@ spec:
         - application: fpsoknad-mottak
   tokenx:
     enabled: true
-  envFrom:
-    - configmap: loginservice-idporten
   image:  {{image}}
   ingresses:
 {{#each ingresses as |url|}}
@@ -49,7 +47,7 @@ spec:
     max: {{maxReplicas}}
 {{else}}
     max: 3
-{{/if}} 
+{{/if}}
     cpuThresholdPercentage: 80
   resources:
     limits:
@@ -65,13 +63,13 @@ spec:
     - kvPath: {{oraclecredskv}}
       mountPath: /var/run/secrets/nais.io/defaultDS
     - kvPath: {{oracleconfigkv}}
-      mountPath: /var/run/secrets/nais.io/defaultDSconfig   
+      mountPath: /var/run/secrets/nais.io/defaultDSconfig
     - kvPath: {{serviceuserkv}}
       mountPath: /var/run/secrets/nais.io/srvfpfordel
     - kvPath: /kv/{{cluster}}/fss/fpfordel/{{namespace}}
       mountPath: /var/run/secrets/nais.io/vault
-  env: 
+  env:
 {{#each env}}
    - name: {{@key}}
      value: "{{this}}"
-{{/each}}    
+{{/each}}

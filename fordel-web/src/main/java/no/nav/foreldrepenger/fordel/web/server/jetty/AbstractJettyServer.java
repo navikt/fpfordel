@@ -62,9 +62,7 @@ abstract class AbstractJettyServer {
     // med null, settes den default til null eller binder den mot et interface?
 
     protected static final String SERVER_HOST = "0.0.0.0";
-    public static final String ACR_LEVEL4 = "acr=Level4";
     public static final String TOKENX = "tokenx";
-    public static final String IDPORTEN = "idporten";
 
     private static final Environment ENV = Environment.current();
 
@@ -176,8 +174,7 @@ abstract class AbstractJettyServer {
 
     private static MultiIssuerConfiguration config() {
         return new MultiIssuerConfiguration(
-                Map.of(TOKENX, issuerProperties("token.x.well.known.url", "token.x.client.id"),
-                        IDPORTEN, issuerProperties("loginservice.idporten.discovery.url", "loginservice.idporten.audience")));
+                Map.of(TOKENX, issuerProperties("token.x.well.known.url", "token.x.client.id")));
     }
 
     private static IssuerProperties issuerProperties(String wellKnownUrl, String clientId) {
