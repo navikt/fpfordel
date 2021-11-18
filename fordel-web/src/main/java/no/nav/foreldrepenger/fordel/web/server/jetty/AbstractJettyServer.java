@@ -62,9 +62,7 @@ abstract class AbstractJettyServer {
     // med null, settes den default til null eller binder den mot et interface?
 
     protected static final String SERVER_HOST = "0.0.0.0";
-    public static final String ACR_LEVEL4 = "acr=Level4";
     public static final String TOKENX = "tokenx";
-    public static final String IDPORTEN = "idporten";
 
     private static final Environment ENV = Environment.current();
 
