@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.fordel.kodeverdi;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MapNAVSkjemaDokumentTypeId {
 
@@ -79,34 +80,8 @@ public class MapNAVSkjemaDokumentTypeId {
             Map.entry(DokumentTypeId.ANNET, 98),
             Map.entry(DokumentTypeId.UDEFINERT, UDEF_RANK));
 
-    private static final Map<Integer, DokumentTypeId> RANK_DOKUMENT_TYPE = Map.ofEntries(
-            Map.entry(1, DokumentTypeId.INNTEKTSMELDING),
-            Map.entry(2, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL),
-            Map.entry(3, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL),
-            Map.entry(4, DokumentTypeId.FLEKSIBELT_UTTAK_FORELDREPENGER),
-            Map.entry(5, DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER),
-            Map.entry(6, DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD),
-            Map.entry(7, DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON),
-            Map.entry(8, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON),
-            Map.entry(9, DokumentTypeId.KLAGE_DOKUMENT),
-            Map.entry(10, DokumentTypeId.ETTERSENDT_KLAGE),
-            Map.entry(11, DokumentTypeId.TILBAKEKREV_UTTALELSE),
-            Map.entry(20, DokumentTypeId.LEGEERKLÆRING),
-            Map.entry(21, DokumentTypeId.DOK_INNLEGGELSE),
-            Map.entry(22, DokumentTypeId.DOKUMENTASJON_FORSVARSTJENESTE),
-            Map.entry(23, DokumentTypeId.DOKUMENTASJON_NAVTILTAK),
-            Map.entry(30, DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL),
-            Map.entry(31, DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO),
-            Map.entry(32, DokumentTypeId.FØDSELSATTEST),
-            Map.entry(33, DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE),
-            Map.entry(34, DokumentTypeId.DOKUMENTASJON_ALENEOMSORG),
-            Map.entry(40, DokumentTypeId.DOK_FERIE),
-            Map.entry(41, DokumentTypeId.DOK_MORS_UTDANNING_ARBEID_SYKDOM),
-            Map.entry(42, DokumentTypeId.BESKRIVELSE_FUNKSJONSNEDSETTELSE),
-            Map.entry(43, DokumentTypeId.BEKREFTELSE_FRA_ARBEIDSGIVER),
-            Map.entry(44, DokumentTypeId.BEKREFTELSE_FRA_STUDIESTED),
-            Map.entry(98, DokumentTypeId.ANNET),
-            Map.entry(UDEF_RANK, DokumentTypeId.UDEFINERT));
+    private static final Map<Integer, DokumentTypeId> RANK_DOKUMENT_TYPE = DOKUMENT_TYPE_RANK.entrySet().stream()
+            .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
 
     public static DokumentTypeId mapBrevkode(NAVSkjema brevkode) {
         if (brevkode == null) {

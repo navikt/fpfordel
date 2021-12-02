@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse;
 import static java.util.stream.Collectors.toSet;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static no.nav.foreldrepenger.fordel.StringUtil.partialMask;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.fordel.StringUtil;
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
@@ -121,14 +121,13 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
     @Override
     public Optional<String> bestemAvsenderAktørId(String aktørId) {
         String ident = SubjectHandler.getSubjectHandler().getUid();
-        if (ident != null) {
-            var aktørIdent = person.hentAktørIdForPersonIdent(ident);
-            if ((aktørIdent.isPresent() && aktørId == null) || aktørIdent.filter(i -> !aktørId.equals(i)).isPresent()) {
-                LOG.warn("Avvik mellom Subject.uid {} og bruker fra forsendelse {}", partialMask(ident), partialMask(aktørIdent.get()));
-                return aktørIdent;
-            }
+        var aktørIdForSubject = Optional.ofNullable(ident)
+                .flatMap(person::hentAktørIdForPersonIdent)
+                .filter(a -> !a.equals(aktørId));
+        if (aktørIdForSubject.isPresent()) {
+            LOG.warn("Avvik mellom Subject.uid {} og bruker fra forsendelse {}", StringUtil.mask(aktørIdForSubject.get()), StringUtil.mask(aktørId));
         }
-        return Optional.empty();
+        return aktørIdForSubject;
 
     }
 
