@@ -2,10 +2,6 @@ package no.nav.foreldrepenger.fordel.kodeverdi;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
-
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -145,48 +141,5 @@ public enum NAVSkjema implements Kodeverdi {
         return termnavn;
     }
 
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<NAVSkjema, String> {
-        @Override
-        public String convertToDatabaseColumn(NAVSkjema attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public NAVSkjema convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-    }
-
-    private static final Set<NAVSkjema> SØKNAD_TYPER = Set.of(
-            SKJEMA_SVANGERSKAPSPENGER,
-            SKJEMA_SVANGERSKAPSPENGER_SN,
-            SKJEMA_TILRETTELEGGING_B,
-            SKJEMA_TILRETTELEGGING_N,
-            FORSIDE_SVP_GAMMEL,
-            SKJEMA_ENGANGSSTØNAD_ADOPSJON,
-            SKJEMA_ENGANGSSTØNAD_FØDSEL,
-            SKJEMA_FORELDREPENGER_ADOPSJON,
-            SKJEMA_FORELDREPENGER_FØDSEL);
-
-    private static final Set<NAVSkjema> KLAGE_TYPER = Set.of(
-            SKJEMAE_KLAGE,
-            SKJEMA_KLAGE_DOKUMENT);
-
-    private static final Set<NAVSkjema> ENDRING_SØKNAD_TYPER = Set.of(
-            SKJEMA_FLEKSIBELT_UTTAK,
-            SKJEMA_FORELDREPENGER_ENDRING);
-
-    public static boolean erInntektsmelding(NAVSkjema kode) {
-        return SKJEMA_INNTEKTSMELDING.equals(kode);
-    }
-
-    public static boolean erSøknadType(NAVSkjema kode) {
-        return SØKNAD_TYPER.contains(kode) || ENDRING_SØKNAD_TYPER.contains(kode);
-    }
-
-    public static boolean erKlageType(NAVSkjema kode) {
-        return KLAGE_TYPER.contains(kode);
-    }
 
 }

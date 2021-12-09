@@ -8,13 +8,13 @@ import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.ENGANGSSTØN
 import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.FORELDREPENGER;
 import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.FORELDREPENGER_ADOPSJON;
 import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.FORELDREPENGER_FØDSEL;
+import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.ETTERSENDT_KLAGE;
 import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD;
 import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.INNTEKTSMELDING;
 import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.KLAGE_DOKUMENT;
 import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
 import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON;
 import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
-import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_KONTANTSTØTTE;
 import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER;
 import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.UDEFINERT;
 import static no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype.INNGÅENDE;
@@ -262,7 +262,7 @@ class BehandleDokumentServiceTest {
 
     @Test
     void skalIgnorereUkjentStrukturertData() throws Exception {
-        when(journalpost.getHovedtype()).thenReturn(SØKNAD_KONTANTSTØTTE);
+        when(journalpost.getHovedtype()).thenReturn(ETTERSENDT_KLAGE);
         when(fagsak.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any()))
                 .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, FORELDREPENGER.getOffisiellKode())));
 

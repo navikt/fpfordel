@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.tjeneste;
 
-import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.ENGANGSSTØNAD;
 import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.ENGANGSSTØNAD_ADOPSJON;
 import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.ENGANGSSTØNAD_FØDSEL;
 import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.FORELDREPENGER;
@@ -26,12 +25,9 @@ import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_SVAN
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-
-import com.google.common.collect.BiMap;
-import com.google.common.collect.ImmutableBiMap;
+import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
@@ -58,16 +54,19 @@ public final class ArkivUtil {
             Map.entry(ETTERSENDT_FLEKSIBELT_UTTAK_FORELDREPENGER, FORELDREPENGER),
             Map.entry(ETTERSENDT_FORELDREPENGER_ENDRING_SØKNAD, FORELDREPENGER));
 
-    private static BiMap<Integer, BehandlingTema> RANK_TEMA = new ImmutableBiMap.Builder<Integer, BehandlingTema>()
-            .put(1, FORELDREPENGER_FØDSEL)
-            .put(2, ENGANGSSTØNAD_FØDSEL)
-            .put(3, FORELDREPENGER_ADOPSJON)
-            .put(4, ENGANGSSTØNAD_ADOPSJON)
-            .put(5, FORELDREPENGER)
-            .put(6, ENGANGSSTØNAD)
-            .put(7, SVANGERSKAPSPENGER)
-            .put(UDEF_RANK, UDEFINERT)
-            .build();
+    private static final Map<BehandlingTema, Integer> BTEMA_RANK = Map.ofEntries(
+            Map.entry(BehandlingTema.FORELDREPENGER_FØDSEL, 1),
+            Map.entry(BehandlingTema.ENGANGSSTØNAD_FØDSEL, 2),
+            Map.entry(BehandlingTema.FORELDREPENGER_ADOPSJON, 3),
+            Map.entry(BehandlingTema.ENGANGSSTØNAD_ADOPSJON, 4),
+            Map.entry(BehandlingTema.FORELDREPENGER, 5),
+            Map.entry(BehandlingTema.ENGANGSSTØNAD, 6),
+            Map.entry(BehandlingTema.SVANGERSKAPSPENGER, 7),
+            Map.entry(BehandlingTema.UDEFINERT, UDEF_RANK));
+
+    private static final Map<Integer, BehandlingTema> RANK_BTEMA = BTEMA_RANK.entrySet().stream()
+            .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+
 
     private ArkivUtil() {
     }
@@ -117,19 +116,17 @@ public final class ArkivUtil {
     private static BehandlingTema mapDokumenttype(DokumentTypeId type) {
         return Optional.ofNullable(type)
                 .map(DOKUMENT_BEHANDLING_TEMA::get)
-                .filter(Objects::nonNull)
                 .orElse(UDEFINERT);
     }
 
     private static int behandlingstemaRank(BehandlingTema bt) {
         return Optional.ofNullable(bt)
-                .map(RANK_TEMA.inverse()::get)
-                .filter(Objects::nonNull)
+                .map(BTEMA_RANK::get)
                 .orElse(UDEF_RANK);
     }
 
     private static BehandlingTema behandlingstemaFromRank(int rank) {
-        return RANK_TEMA.getOrDefault(rank, UDEFINERT);
+        return RANK_BTEMA.getOrDefault(rank, UDEFINERT);
     }
 
 }

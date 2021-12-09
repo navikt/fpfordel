@@ -12,7 +12,6 @@ import static org.mockito.Mockito.when;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,11 +20,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
-import com.github.benmanes.caffeine.cache.RemovalCause;
-import com.github.benmanes.caffeine.cache.RemovalListener;
 
 import no.nav.pdl.Adressebeskyttelse;
 import no.nav.pdl.AdressebeskyttelseGradering;
@@ -47,7 +41,7 @@ class PersonTjenesteTest {
 
     @BeforeEach
     void setup() {
-        personTjeneste = new PersonTjeneste(pdl, cache(tilFnr()), cache(tilAktørId()));
+        personTjeneste = new PersonTjeneste(pdl, 500);
     }
 
     @Test
@@ -139,29 +133,5 @@ class PersonTjenesteTest {
 
         assertThat(gt.tilknytning()).isEqualTo("POL");
         assertThat(gt.diskresjonskode()).isEqualTo("SPSF");
-    }
-
-    private static LoadingCache<String, String> cache(Function<? super String, ? extends String> loader) {
-        return Caffeine.newBuilder()
-                .expireAfterWrite(DURATION)
-                .maximumSize(1)
-                .removalListener(new RemovalListener<String, String>() {
-                    @Override
-                    public void onRemoval(String key, String value, RemovalCause cause) {
-                        LOG.info("Fjerner {} for {} grunnet {}", value, key, cause);
-                    }
-                })
-                .build(loader::apply);
-    }
-
-    private Function<? super String, ? extends String> tilAktørId() {
-        return fnr -> pdl.hentAktørIdForPersonIdent(fnr)
-                .orElseGet(() -> null);
-    }
-
-    private Function<? super String, ? extends String> tilFnr() {
-        return aktørId -> pdl.hentPersonIdentForAktørId(aktørId)
-                .orElseGet(() -> null);
-
     }
 }

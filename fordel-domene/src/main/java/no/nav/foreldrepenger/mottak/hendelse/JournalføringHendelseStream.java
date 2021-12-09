@@ -26,6 +26,8 @@ import no.nav.vedtak.log.metrics.ReadinessAware;
 public class JournalføringHendelseStream implements LivenessAware, ReadinessAware, AppServiceHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(JournalføringHendelseStream.class);
+    private static final String HENDELSE_MIDL = "MidlertidigJournalført";
+    private static final String HENDELSE_ENDRET = "TemaEndret";
     private static final String TEMA_FOR = Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode();
 
     private KafkaStreams stream;
@@ -59,9 +61,15 @@ public class JournalføringHendelseStream implements LivenessAware, ReadinessAwa
         final StreamsBuilder builder = new StreamsBuilder();
         builder.stream(topic.getTopic(), consumed)
                 .filter((key, value) -> TEMA_FOR.equals(value.getTemaNytt().toString()))
+                .filter((key, value) -> hendelseSkalHåndteres(value))
                 .foreach((key, value) -> journalføringHendelseHåndterer.handleMessage(value));
 
         return new KafkaStreams(builder.build(), properties.getProperties());
+    }
+
+    private static boolean hendelseSkalHåndteres(JournalfoeringHendelseRecord payload) {
+        var hendelse = payload.getHendelsesType().toString();
+        return HENDELSE_MIDL.equalsIgnoreCase(hendelse) || HENDELSE_ENDRET.equalsIgnoreCase(hendelse);
     }
 
     private void addShutdownHooks() {

@@ -2,22 +2,15 @@ package no.nav.foreldrepenger.mottak.person;
 
 import static java.util.function.Predicate.not;
 import static no.nav.pdl.AdressebeskyttelseGradering.UGRADERT;
-import static no.nav.vedtak.log.util.ConfidentialMarkerFilter.CONFIDENTIAL;
 import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
 
-import java.time.Duration;
 import java.util.Date;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
-import com.github.benmanes.caffeine.cache.RemovalCause;
-import com.github.benmanes.caffeine.cache.RemovalListener;
-import com.google.common.base.Joiner;
 import com.nimbusds.jwt.SignedJWT;
 
 import no.nav.foreldrepenger.fordel.StringUtil;
@@ -33,6 +26,7 @@ import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlException;
+import no.nav.vedtak.util.LRUCache;
 
 public class AbstractCachingPersonTjeneste implements PersonInformasjon {
 
@@ -41,27 +35,28 @@ public class AbstractCachingPersonTjeneste implements PersonInformasjon {
     protected static final String SPSF = "SPSF";
     protected static final String SPFO = "SPFO";
     protected static final int DEFAULT_CACHE_SIZE = 1000;
-    protected static final Duration DEFAULT_CACHE_DURATION = Duration.ofMinutes(55);
+    private static final long DEFAULT_CACHE_TIMEOUT = TimeUnit.MILLISECONDS.convert(10, TimeUnit.MINUTES);
 
-    protected final LoadingCache<String, String> tilFnr;
-    protected final LoadingCache<String, String> tilAktør;
     protected final Pdl pdl;
 
+    private LRUCache<String, String> cacheAktørIdTilIdent;
+    private LRUCache<String, String> cacheIdentTilAktørId;
+
     AbstractCachingPersonTjeneste(Pdl pdl) {
-        this(pdl, cache(tilFnr(pdl)), cache(tilAktørId(pdl)));
+        this(pdl, DEFAULT_CACHE_TIMEOUT);
     }
 
-    AbstractCachingPersonTjeneste(Pdl pdl, LoadingCache<String, String> tilFnr, LoadingCache<String, String> tilAktør) {
+    AbstractCachingPersonTjeneste(Pdl pdl, long timeoutMs) {
         this.pdl = pdl;
-        this.tilFnr = tilFnr;
-        this.tilAktør = tilAktør;
+        this.cacheAktørIdTilIdent = new LRUCache<>(DEFAULT_CACHE_SIZE, timeoutMs);
+        this.cacheIdentTilAktørId = new LRUCache<>(DEFAULT_CACHE_SIZE, timeoutMs);
     }
 
     @Override
     public Optional<String> hentAktørIdForPersonIdent(String fnr) {
         try {
-            LOG.trace(CONFIDENTIAL, "Henter for {}", fnr);
-            return Optional.ofNullable(tilAktør.get(fnr));
+            return Optional.ofNullable(cacheIdentTilAktørId.get(fnr))
+                    .or(() -> tilAktørId(fnr));
         } catch (PdlException e) {
             LOG.warn("Kunne ikke hente aktørid fra fnr {} ({} {})", StringUtil.mask(fnr), e, expiresAt(), e);
             return Optional.empty();
@@ -71,8 +66,8 @@ public class AbstractCachingPersonTjeneste implements PersonInformasjon {
     @Override
     public Optional<String> hentPersonIdentForAktørId(String aktørId) {
         try {
-            LOG.trace(CONFIDENTIAL, "Henter for {}", aktørId);
-            return Optional.ofNullable(tilFnr.get(aktørId));
+            return Optional.ofNullable(cacheAktørIdTilIdent.get(aktørId))
+                    .or(() -> tilFnr(aktørId));
         } catch (PdlException e) {
             LOG.warn("Kunne ikke hente fnr fra aktørid {} ({} {})", aktørId, e, expiresAt(), e);
             return Optional.empty();
@@ -81,7 +76,6 @@ public class AbstractCachingPersonTjeneste implements PersonInformasjon {
 
     @Override
     public String hentNavn(String id) {
-        LOG.trace(CONFIDENTIAL, "Henter navn for {}", id);
         return pdl.hentPerson(personQuery(id),
                 new PersonResponseProjection().navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())).getNavn()
                 .stream()
@@ -92,7 +86,6 @@ public class AbstractCachingPersonTjeneste implements PersonInformasjon {
 
     @Override
     public GeoTilknytning hentGeografiskTilknytning(String id) {
-        LOG.trace(CONFIDENTIAL, "Henter geo-tilknytning for {}", id);
         var query = new HentGeografiskTilknytningQueryRequest();
         query.setIdent(id);
         var pgt = new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand();
@@ -111,14 +104,19 @@ public class AbstractCachingPersonTjeneste implements PersonInformasjon {
         }
     }
 
-    protected static Function<? super String, ? extends String> tilAktørId(Pdl pdl) {
-        return fnr -> pdl.hentAktørIdForPersonIdent(fnr)
-                .orElseGet(() -> null);
+    private Optional<String> tilAktørId(String fnr) {
+        var aktørId = pdl.hentAktørIdForPersonIdent(fnr);
+        aktørId.ifPresent(a -> cacheIdentTilAktørId.put(fnr, a));
+        return aktørId;
     }
 
-    protected static Function<? super String, ? extends String> tilFnr(Pdl pdl) {
-        return aktørId -> pdl.hentPersonIdentForAktørId(aktørId)
-                .orElseGet(() -> null);
+    private Optional<String> tilFnr(String aktørId) {
+        var personIdent = pdl.hentPersonIdentForAktørId(aktørId);
+        personIdent.ifPresent(pi -> {
+            cacheAktørIdTilIdent.put(aktørId, pi);
+            cacheIdentTilAktørId.put(pi, aktørId);
+        });
+        return personIdent;
 
     }
 
@@ -130,9 +128,8 @@ public class AbstractCachingPersonTjeneste implements PersonInformasjon {
 
     private static String mapNavn(Navn navn) {
         return Optional.ofNullable(navn.getForkortetNavn())
-                .orElseGet(() -> Joiner.on(' ')
-                        .skipNulls()
-                        .join(navn.getEtternavn(), navn.getFornavn(), navn.getMellomnavn()));
+                .orElseGet(() -> navn.getEtternavn() + " " + navn.getFornavn() +
+                        Optional.ofNullable(navn.getMellomnavn()).map(n -> " " + n).orElse(""));
     }
 
     private String tilknytning(GeografiskTilknytning res) {
@@ -156,19 +153,6 @@ public class AbstractCachingPersonTjeneste implements PersonInformasjon {
             case FORTROLIG -> SPFO;
             default -> null;
         };
-    }
-
-    protected static LoadingCache<String, String> cache(Function<? super String, ? extends String> loader) {
-        return Caffeine.newBuilder()
-                .expireAfterWrite(DEFAULT_CACHE_DURATION)
-                .maximumSize(DEFAULT_CACHE_SIZE)
-                .removalListener(new RemovalListener<String, String>() {
-                    @Override
-                    public void onRemoval(String key, String value, RemovalCause cause) {
-                        LOG.trace("Fjerner {} for {} grunnet {}", value, key, cause);
-                    }
-                })
-                .build(loader::apply);
     }
 
     @Override
