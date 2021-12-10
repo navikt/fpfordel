@@ -47,7 +47,7 @@ jobs:
           echo "Henter og starter Oracle image"
           cd .oracle
           docker-compose up --quiet-pull > nohup.out 2>&1 &
-          sh -c 'tail -n +0 -f nohup.out | { sed "/Disconnected/q" && kill $$; }' || true
+          sh -c 'tail -n +0 -f nohup.out | { sed "/Database opened./q" && kill $$; }' || true
 
       - name: Kompiler
         run: |
