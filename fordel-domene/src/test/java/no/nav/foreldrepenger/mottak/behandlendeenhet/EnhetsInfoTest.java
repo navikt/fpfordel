@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import no.nav.foreldrepenger.mottak.behandlendeenhet.nom.SkjermetPersonKlient;
 import no.nav.foreldrepenger.mottak.person.GeoTilknytning;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.Arbeidsfordeling;
@@ -35,12 +36,14 @@ class EnhetsInfoTest {
     private Arbeidsfordeling arbeidsfordeling;
     @Mock
     private PersonInformasjon personTjeneste;
+    @Mock
+    private SkjermetPersonKlient skjermetPersonKlient;
 
     @BeforeEach
     void setup() {
         when(personTjeneste.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(FNR));
         when(arbeidsfordeling.hentAlleAktiveEnheter(any())).thenReturn(List.of(FORDELING_ENHET));
-        enhetsTjeneste = new EnhetsTjeneste(personTjeneste, arbeidsfordeling);
+        enhetsTjeneste = new EnhetsTjeneste(personTjeneste, arbeidsfordeling, skjermetPersonKlient);
         when(arbeidsfordeling.finnEnhet(any())).thenReturn(List.of(ENHET));
         when(personTjeneste.hentGeografiskTilknytning(any())).thenReturn(new GeoTilknytning(GEOGRAFISK_TILKNYTNING, DISKRESJONSKODE));
     }
@@ -53,24 +56,12 @@ class EnhetsInfoTest {
     }
 
     @Test
-    void skal_returnere_enhetid_og_kalle_arbeidsfordelingstjeneste_med_geografisk_tilknytning() throws Exception {
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    void skal_returnere_enhetid_skjermet() throws Exception {
+        when(skjermetPersonKlient.erSkjermet(any())).thenReturn(true);
         assertThat(enhetId())
                 .isNotNull()
-                .isEqualTo(ENHET.enhetNr());
-    }
-
-    @Test
-    void skal_returnere_enhetid_og_kalle_arbeidsfordelingstjeneste_med_diskresjonskode() throws Exception {
-        assertThat(enhetId())
-                .isNotNull()
-                .isEqualTo(ENHET.enhetNr());
-    }
-
-    @Test
-    void skal_returnere_enhetid_journalføring() throws Exception {
-        assertThat(enhetId())
-                .isNotNull()
-                .isEqualTo(ENHET.enhetNr());
+                .isEqualTo(EnhetsInfo.SKJERMET_ENHET_ID);
     }
 
     @Test

@@ -29,6 +29,7 @@
 		"OPPGAVE_RS_URI": "http://oppgave-q1.oppgavehandtering/api/v1/oppgaver",
 		"SAF_BASE_URL" : "http://saf-q1.teamdokumenthandtering",
 		"SAK_RS_URL": "http://sak-q1.teamdokumenthandtering/api/v1/saker",
-		"SECURITYTOKENSERVICE_URL": "https://sts-q1.preprod.local/SecurityTokenServiceProvider/"
+		"SECURITYTOKENSERVICE_URL": "https://sts-q1.preprod.local/SecurityTokenServiceProvider/",
+		"SKJERMET_PERSON_RS_URL": "http://skjermede-personer-pip.nom/skjermet"
 	}
 }
