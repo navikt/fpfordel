@@ -3,8 +3,10 @@ package no.nav.foreldrepenger.mottak.behandlendeenhet;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -14,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.nom.SkjermetPersonKlient;
 import no.nav.foreldrepenger.mottak.person.GeoTilknytning;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.TekniskException;
@@ -27,8 +30,9 @@ public class EnhetsTjeneste implements EnhetsInfo {
     private static final Logger LOG = LoggerFactory.getLogger(EnhetsTjeneste.class);
     private PersonInformasjon pdl;
     private Arbeidsfordeling norgKlient;
+    private SkjermetPersonKlient skjermetPersonKlient;
 
-    private List<String> alleJournalførendeEnheter = new ArrayList<>(); // Med klageinstans og kode6
+    private Set<String> alleJournalførendeEnheter = new HashSet<>(); // Med klageinstans og kode6 og skjermet
     private List<String> nfpJournalførendeEnheter = new ArrayList<>(); // Kun NFP
     private LocalDate sisteInnhenting = LocalDate.MIN;
 
@@ -38,16 +42,18 @@ public class EnhetsTjeneste implements EnhetsInfo {
     @Inject
     public EnhetsTjeneste(
             PersonInformasjon personTjeneste,
-            @Jersey Arbeidsfordeling norgKlient) {
+            @Jersey Arbeidsfordeling norgKlient,
+            SkjermetPersonKlient skjermetPersonKlient) {
         this.pdl = personTjeneste;
         this.norgKlient = norgKlient;
+        this.skjermetPersonKlient = skjermetPersonKlient;
     }
 
     @Override
     public String hentFordelingEnhetId(Tema tema, BehandlingTema behandlingTema, Optional<String> enhetInput, String aktørId) {
         LOG.info("Henter enhet id for {},{}", tema, behandlingTema);
         oppdaterEnhetCache();
-        if (enhetInput.map(alleJournalførendeEnheter::contains).orElse(Boolean.FALSE)) {
+        if (enhetInput.filter(alleJournalførendeEnheter::contains).isPresent()) {
             return enhetInput.get();
         }
 
@@ -59,9 +65,13 @@ public class EnhetsTjeneste implements EnhetsInfo {
     }
 
     private String hentEnhetId(String aktørId, BehandlingTema behandlingTema, Tema tema) {
-        var gt = pdl.hentPersonIdentForAktørId(aktørId)
-                .map(this::hentGeografiskTilknytning)
+        var personIdent = pdl.hentPersonIdentForAktørId(aktørId);
+        var gt = personIdent.map(this::hentGeografiskTilknytning)
                 .orElse(GeoTilknytning.INGEN);
+
+        if (personIdent.filter(fnr -> skjermetPersonKlient.erSkjermet(fnr)).isPresent()) {
+            return SKJERMET_ENHET_ID;
+        }
 
         if (GeoTilknytning.INGEN.equals(gt)) {
             return tilfeldigNfpEnhet();
@@ -104,10 +114,13 @@ public class EnhetsTjeneste implements EnhetsInfo {
             var respons = norgKlient.hentAlleAktiveEnheter(request);
             alleJournalførendeEnheter.clear();
             nfpJournalførendeEnheter.clear();
-            respons.stream().map(ArbeidsfordelingResponse::enhetNr).forEach(alleJournalførendeEnheter::add);
-            respons.stream().filter(e -> ENHET_TYPE_NFP.equalsIgnoreCase(e.enhetType()))
-                    .map(ArbeidsfordelingResponse::enhetNr).forEach(nfpJournalførendeEnheter::add);
-            alleJournalførendeEnheter.add(NK_ENHET_ID);
+            respons.stream()
+                    .filter(e -> ENHET_TYPE_NFP.equalsIgnoreCase(e.enhetType()))
+                    .map(ArbeidsfordelingResponse::enhetNr)
+                    .filter(e -> !SPESIALENHETER.contains(e))
+                    .forEach(nfpJournalførendeEnheter::add);
+            alleJournalførendeEnheter.addAll(respons.stream().map(ArbeidsfordelingResponse::enhetNr).toList());
+            alleJournalførendeEnheter.addAll(SPESIALENHETER);
             sisteInnhenting = LocalDate.now();
         }
     }
