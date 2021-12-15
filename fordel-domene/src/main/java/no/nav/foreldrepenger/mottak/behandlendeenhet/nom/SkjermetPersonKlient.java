@@ -23,8 +23,6 @@ public class SkjermetPersonKlient {
 
     private static final Logger LOG = LoggerFactory.getLogger(SkjermetPersonKlient.class);
 
-    private static final boolean SKAL_SJEKKE = Environment.current().isProd() || Environment.current().isDev();
-
     private OidcRestClient restClient;
     private URI uri;
 
@@ -40,8 +38,7 @@ public class SkjermetPersonKlient {
 
 
     public boolean erSkjermet(String fnr) {
-        if (!SKAL_SJEKKE || fnr == null) return false;
-
+        if (fnr == null) return false;
         var request = new SkjermetRequestDto(fnr);
         var skjermet = restClient.post(uri, request);
         if ("true".equalsIgnoreCase(skjermet)) {
