@@ -54,7 +54,7 @@ jobs:
            mvn --quiet  package  -Dchangelist= -Dsha1=-${BUILD_VERSION} --settings .github/.m2/settings.xml
            echo "TAG=$(mvn help:evaluate --batch-mode --settings .github/.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Må ha denne pga avhengighet til intern repo "legacy-avhengigheter".
+          GITHUB_TOKEN: ${{ secrets.READER_TOKEN }} # Må ha denne pga avhengighet til intern repo "legacy-avhengigheter".
           SONAR: ${{ secrets.SONAR }}
 
       - name: Bygg, tag og push Docker image
