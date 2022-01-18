@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.nom.SkjermetPersonKlient;
-import no.nav.foreldrepenger.mottak.person.GeoTilknytning;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.Arbeidsfordeling;
@@ -65,15 +64,17 @@ public class EnhetsTjeneste implements EnhetsInfo {
     }
 
     private String hentEnhetId(String aktørId, BehandlingTema behandlingTema, Tema tema) {
-        var personIdent = pdl.hentPersonIdentForAktørId(aktørId);
-        var gt = personIdent.map(this::hentGeografiskTilknytning)
-                .orElse(GeoTilknytning.INGEN);
+        if (pdl.harStrengDiskresjonskode(aktørId)) {
+            return SF_ENHET_ID;
+        }
 
-        if (personIdent.filter(fnr -> skjermetPersonKlient.erSkjermet(fnr)).isPresent()) {
+        var personIdent = pdl.hentPersonIdentForAktørId(aktørId);
+        if (personIdent.filter(skjermetPersonKlient::erSkjermet).isPresent()) {
             return SKJERMET_ENHET_ID;
         }
 
-        if (GeoTilknytning.INGEN.equals(gt)) {
+        var gt = pdl.hentGeografiskTilknytning(aktørId);
+        if (gt == null) {
             return tilfeldigNfpEnhet();
         }
 
@@ -83,17 +84,15 @@ public class EnhetsTjeneste implements EnhetsInfo {
                 .medBehandlingstema(behandlingTema.getOffisiellKode())
                 .medBehandlingstype(BEHANDLINGTYPE)
                 .medOppgavetype(OPPGAVETYPE_JFR)
-                .medDiskresjonskode(gt.diskresjonskode())
-                .medGeografiskOmraade(gt.tilknytning())
+                .medGeografiskOmraade(gt)
                 .build();
         return validerOgVelgBehandlendeEnhet(norgKlient.finnEnhet(request), gt);
     }
 
-    private static String validerOgVelgBehandlendeEnhet(List<ArbeidsfordelingResponse> response, GeoTilknytning gt) {
+    private static String validerOgVelgBehandlendeEnhet(List<ArbeidsfordelingResponse> response, String gt) {
         // Vi forventer å få én behandlende enhet.
         if (response == null || response.size() != 1) {
-            throw new TekniskException("FP-669566", String.format("Finner ikke behandlende enhet for geografisk tilknytning %s, diskresjonskode %s",
-                    gt.tilknytning(), gt.diskresjonskode()));
+            throw new TekniskException("FP-669566", String.format("Finner ikke behandlende enhet for geografisk tilknytning %s", gt));
         }
 
         return response.get(0).enhetNr();
@@ -123,10 +122,6 @@ public class EnhetsTjeneste implements EnhetsInfo {
             alleJournalførendeEnheter.addAll(SPESIALENHETER);
             sisteInnhenting = LocalDate.now();
         }
-    }
-
-    private GeoTilknytning hentGeografiskTilknytning(String fnr) {
-        return pdl.hentGeografiskTilknytning(fnr);
     }
 
 }

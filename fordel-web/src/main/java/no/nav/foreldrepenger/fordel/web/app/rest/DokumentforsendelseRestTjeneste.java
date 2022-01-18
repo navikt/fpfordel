@@ -135,7 +135,6 @@ public class DokumentforsendelseRestTjeneste {
 
         // Robusthet: Når man flytter Transactional til servicelaget så må man gjøre alle ut-kall som kan feile før man begynner lagre....
         var dokumentforsendelseDto = getMetadataDto(inputParts.get(0));
-        var avsenderId = service.bestemAvsenderAktørId(dokumentforsendelseDto.getBrukerId());
 
         var dokumentforsendelse =  map(dokumentforsendelseDto);
         var eksisterendeForsendelseStatus = service.finnStatusinformasjonHvisEksisterer(
@@ -145,7 +144,7 @@ public class DokumentforsendelseRestTjeneste {
                 .map(status -> tilForsendelseStatusRespons(dokumentforsendelse, status))
                 .orElseGet(() -> {
                     var dokumenter = mapInputPartsToDokument(inputParts.subList(1, inputParts.size()), dokumentforsendelse);
-                    service.lagreForsendelseValider(dokumentforsendelse.metadata(), dokumenter, avsenderId);
+                    service.lagreForsendelseValider(dokumentforsendelse.metadata(), dokumenter);
                     var status = service.finnStatusinformasjon(dokumentforsendelse.getForsendelsesId());
                     return tilForsendelseStatusRespons(dokumentforsendelse, status);
                 });

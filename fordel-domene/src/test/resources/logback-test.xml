@@ -7,8 +7,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.github.tomakehurst.wiremock" level="TRACE" />
-        <logger name="org.apache.http" level="INFO" />
+    <logger name="org.apache.http" level="INFO" />
    
     <logger name="no.nav" level="DEBUG" />
     <root level="INFO">

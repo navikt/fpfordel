@@ -18,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import no.nav.foreldrepenger.mottak.behandlendeenhet.nom.SkjermetPersonKlient;
-import no.nav.foreldrepenger.mottak.person.GeoTilknytning;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.Arbeidsfordeling;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingResponse;
@@ -45,7 +44,7 @@ class EnhetsInfoTest {
         when(arbeidsfordeling.hentAlleAktiveEnheter(any())).thenReturn(List.of(FORDELING_ENHET));
         enhetsTjeneste = new EnhetsTjeneste(personTjeneste, arbeidsfordeling, skjermetPersonKlient);
         when(arbeidsfordeling.finnEnhet(any())).thenReturn(List.of(ENHET));
-        when(personTjeneste.hentGeografiskTilknytning(any())).thenReturn(new GeoTilknytning(GEOGRAFISK_TILKNYTNING, DISKRESJONSKODE));
+        when(personTjeneste.hentGeografiskTilknytning(any())).thenReturn(GEOGRAFISK_TILKNYTNING);
     }
 
     @Test

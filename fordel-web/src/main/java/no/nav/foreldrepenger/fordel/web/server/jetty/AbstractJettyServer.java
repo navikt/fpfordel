@@ -3,10 +3,8 @@ package no.nav.foreldrepenger.fordel.web.server.jetty;
 import static javax.servlet.DispatcherType.REQUEST;
 import static no.nav.foreldrepenger.konfig.Cluster.NAIS_CLUSTER_NAME;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.security.Security;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -17,16 +15,13 @@ import javax.security.auth.message.config.AuthConfigFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.geronimo.components.jaspi.AuthConfigFactoryImpl;
-import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.jaas.JAASLoginService;
-import org.eclipse.jetty.plus.webapp.EnvConfiguration;
-import org.eclipse.jetty.plus.webapp.PlusConfiguration;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.DefaultIdentityService;
 import org.eclipse.jetty.security.SecurityHandler;
+import org.eclipse.jetty.security.jaspi.DefaultAuthConfigFactory;
 import org.eclipse.jetty.security.jaspi.JaspiAuthenticatorFactory;
-import org.eclipse.jetty.server.AbstractNetworkConnector;
+import org.eclipse.jetty.security.jaspi.provider.JaspiAuthConfigProvider;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -38,12 +33,8 @@ import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
-import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.MetaData;
-import org.eclipse.jetty.webapp.WebAppConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.eclipse.jetty.webapp.WebInfConfiguration;
-import org.eclipse.jetty.webapp.WebXmlConfiguration;
 import org.slf4j.MDC;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
@@ -51,17 +42,10 @@ import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.security.token.support.core.configuration.IssuerProperties;
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration;
 import no.nav.security.token.support.jaxrs.servlet.JaxrsJwtTokenValidationFilter;
+import no.nav.vedtak.sikkerhet.jaspic.OidcAuthModule;
 
 abstract class AbstractJettyServer {
 
-    /**
-     * @see AbstractNetworkConnector#getHost()
-     * @see org.eclipse.jetty.server.ServerConnector#openAcceptChannel()
-     */
-    // TODO : Trenger vi egentlig å sette denne? Spec ser ut til å si at det er eq
-    // med null, settes den default til null eller binder den mot et interface?
-
-    protected static final String SERVER_HOST = "0.0.0.0";
     public static final String TOKENX = "tokenx";
 
     private static final Environment ENV = Environment.current();
@@ -83,14 +67,6 @@ abstract class AbstractJettyServer {
         }
     }
 
-    protected static final Configuration[] CONFIGURATIONS = new Configuration[] {
-            new WebInfConfiguration(),
-            new WebXmlConfiguration(),
-            new WebAppConfiguration(),
-            new AnnotationConfiguration(),
-            new EnvConfiguration(),
-            new PlusConfiguration(),
-    };
     private final JettyWebKonfigurasjon webKonfigurasjon;
 
     protected AbstractJettyServer(JettyWebKonfigurasjon webKonfigurasjon) {
@@ -112,13 +88,13 @@ abstract class AbstractJettyServer {
     protected abstract void konfigurerMiljø() throws Exception; // NOSONAR
 
     protected void konfigurerSikkerhet() {
-        Security.setProperty(AuthConfigFactory.DEFAULT_FACTORY_SECURITY_PROPERTY, AuthConfigFactoryImpl.class.getCanonicalName());
+        var factory = new DefaultAuthConfigFactory();
+        factory.registerConfigProvider(new JaspiAuthConfigProvider(new OidcAuthModule()),
+                "HttpServlet",
+                "server " + webKonfigurasjon.getContextPath(),
+                "OIDC Authentication");
 
-        var jaspiConf = new File(System.getProperty("conf", "./conf") + "/jaspi-conf.xml");
-        if (!jaspiConf.exists()) {
-            throw new IllegalStateException("Missing required file: " + jaspiConf.getAbsolutePath());
-        }
-        System.setProperty("org.apache.geronimo.jaspic.configurationFile", jaspiConf.getAbsolutePath());
+        AuthConfigFactory.setFactory(factory);
     }
 
     protected abstract void konfigurerJndi() throws Exception; // NOSONAR
@@ -138,7 +114,6 @@ abstract class AbstractJettyServer {
         List<Connector> connectors = new ArrayList<>();
         var httpConnector = new ServerConnector(server, new HttpConnectionFactory(createHttpConfiguration()));
         httpConnector.setPort(jettyWebKonfigurasjon.getServerPort());
-        httpConnector.setHost(SERVER_HOST);
         connectors.add(httpConnector);
 
         return connectors;
@@ -157,7 +132,7 @@ abstract class AbstractJettyServer {
         ctx.setDescriptor(descriptor);
         ctx.setBaseResource(createResourceCollection());
         ctx.setContextPath(webKonfigurasjon.getContextPath());
-        ctx.setConfigurations(CONFIGURATIONS);
+        ctx.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
         ctx.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", "^.*jersey-.*.jar$|^.*felles-.*.jar$");
         ctx.setSecurityHandler(createSecurityHandler());
         addTokenValidationFilter(ctx);

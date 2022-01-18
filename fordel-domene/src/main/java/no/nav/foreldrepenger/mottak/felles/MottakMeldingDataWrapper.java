@@ -40,7 +40,6 @@ public class MottakMeldingDataWrapper {
     public static final String FORSENDELSE_MOTTATT_TIDSPUNKT_KEY = "forsendelse.mottatt.tidspunkt";
     public static final String JOURNAL_ENHET = "journalforende.enhet";
     public static final String FORSENDELSE_ID_KEY = "forsendelse.id";
-    public static final String AVSENDER_ID_KEY = "avsender.id";
     public static final String ANNEN_PART_ID_KEY = "annen.part.id";
     public static final String ANNEN_PART_HAR_RETT_KEY = "annen.part.har.rett";
     public static final String FØRSTE_UTTAKSDAG_KEY = "forste.uttaksdag";
@@ -338,14 +337,6 @@ public class MottakMeldingDataWrapper {
 
     public void setForsendelseId(UUID forsendelseId) {
         prosessTaskData.setProperty(FORSENDELSE_ID_KEY, forsendelseId.toString());
-    }
-
-    public Optional<String> getAvsenderId() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(AVSENDER_ID_KEY));
-    }
-
-    public void setAvsenderId(String avsenderId) {
-        prosessTaskData.setProperty(AVSENDER_ID_KEY, avsenderId);
     }
 
     public Optional<String> getAnnenPartId() {

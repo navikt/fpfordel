@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_FORE
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -17,8 +16,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
-
-import javax.security.auth.Subject;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,17 +30,11 @@ import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
-import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseIdDto;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
-import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
-import no.nav.vedtak.sikkerhet.domene.AuthenticationLevelCredential;
-import no.nav.vedtak.sikkerhet.domene.ConsumerId;
-import no.nav.vedtak.sikkerhet.domene.SluttBruker;
 
 @ExtendWith(MockitoExtension.class)
 class DokumentforsendelseTjenesteImplTest {
@@ -60,15 +51,12 @@ class DokumentforsendelseTjenesteImplTest {
     private DokumentRepository dokumentRepositoryMock;
     @Mock
     private ProsessTaskTjeneste prosessTaskTjenesteMock;
-    @Mock
-    private PersonInformasjon aktørConsumerMock;
 
     private DokumentforsendelseTjenesteImpl tjeneste;
 
     @BeforeEach
     void setUp() {
-        tjeneste = new DokumentforsendelseTjenesteImpl(dokumentRepositoryMock,
-                prosessTaskTjenesteMock, aktørConsumerMock);
+        tjeneste = new DokumentforsendelseTjenesteImpl(dokumentRepositoryMock, prosessTaskTjenesteMock);
     }
 
     @Test
@@ -80,7 +68,7 @@ class DokumentforsendelseTjenesteImplTest {
                 .setForsendelseMottatt(LocalDateTime.now())
                 .build();
         var dokumentListe = List.of(createDokument(ArkivFilType.PDFA, false));
-        var e = assertThrows(TekniskException.class, () -> tjeneste.lagreForsendelseValider(metadata, dokumentListe, Optional.empty()));
+        var e = assertThrows(TekniskException.class, () -> tjeneste.lagreForsendelseValider(metadata, dokumentListe));
         assertTrue(e.getMessage().contains("FP-728553"));
     }
 
@@ -95,7 +83,7 @@ class DokumentforsendelseTjenesteImplTest {
                 .build();
         var dokumentListe = List.of(createDokument(ArkivFilType.PDFA, false));
 
-        tjeneste.lagreForsendelseValider(metadata, dokumentListe, Optional.empty());
+        tjeneste.lagreForsendelseValider(metadata, dokumentListe);
 
         verify(prosessTaskTjenesteMock).lagre(any(ProsessTaskData.class));
     }
@@ -112,48 +100,13 @@ class DokumentforsendelseTjenesteImplTest {
         var dokumentListe = List.of(createDokument(ArkivFilType.PDFA, true), createDokument(ArkivFilType.XML, true));
 
 
-        tjeneste.lagreForsendelseValider(metadata, dokumentListe, Optional.empty());
+        tjeneste.lagreForsendelseValider(metadata, dokumentListe);
 
         ArgumentCaptor<ProsessTaskData> prosessTaskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskTjenesteMock).lagre(prosessTaskCaptor.capture());
         var capturedProssessTaskData = prosessTaskCaptor.getValue();
         assertNotNull(capturedProssessTaskData);
-        assertThat(capturedProssessTaskData.getPropertyValue(MottakMeldingDataWrapper.FORSENDELSE_ID_KEY))
-                .isEqualTo(forsendelseId.toString());
-        assertNull(capturedProssessTaskData.getPropertyValue(MottakMeldingDataWrapper.AVSENDER_ID_KEY));
-    }
-
-    @Test
-    void validerDokumentforsendelse__skal_sette_avsender_id_fra_subjecthandler_når_forskjellig_fra_bruker_id() {
-        var eksisterende = SubjectHandler.getSubjectHandler().getSubject();
-        var subject = new Subject();
-        subject.getPrincipals().add(SluttBruker.internBruker("StaticSubjectHandlerUserId"));
-        subject.getPrincipals().add(new ConsumerId("StaticSubjectHandlerConsumerId"));
-        subject.getPublicCredentials().add(new AuthenticationLevelCredential(4));
-        ((ThreadLocalSubjectHandler) SubjectHandler.getSubjectHandler()).setSubject(subject);
-
-        String aktørIdForIdent = "123456789101";
-        when(aktørConsumerMock.hentAktørIdForPersonIdent("StaticSubjectHandlerUserId"))
-                .thenReturn(Optional.of(aktørIdForIdent));
-        UUID forsendelseId = UUID.randomUUID();
-        var metadata = DokumentMetadata.builder()
-                .setForsendelseId(forsendelseId)
-                .setBrukerId("1234567890")
-                .setSaksnummer("123")
-                .setForsendelseMottatt(LocalDateTime.now())
-                .build();
-        var dokumentListe = List.of(createDokument(ArkivFilType.PDFA, true), createDokument(ArkivFilType.XML, true));
-
-        var avsenderId = tjeneste.bestemAvsenderAktørId("1234567890");
-        tjeneste.lagreForsendelseValider(metadata, dokumentListe, avsenderId);
-
-        ArgumentCaptor<ProsessTaskData> prosessTaskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskTjenesteMock).lagre(prosessTaskCaptor.capture());
-        var capturedProssessTaskData = prosessTaskCaptor.getValue();
-        assertThat(capturedProssessTaskData.getPropertyValue(MottakMeldingDataWrapper.AVSENDER_ID_KEY))
-                .isEqualTo(aktørIdForIdent);
-
-        ((ThreadLocalSubjectHandler) SubjectHandler.getSubjectHandler()).setSubject(eksisterende);
+        assertThat(capturedProssessTaskData.getPropertyValue(MottakMeldingDataWrapper.FORSENDELSE_ID_KEY)).isEqualTo(forsendelseId.toString());
     }
 
     @Test

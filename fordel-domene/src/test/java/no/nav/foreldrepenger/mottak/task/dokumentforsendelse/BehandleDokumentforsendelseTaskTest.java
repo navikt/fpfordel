@@ -5,6 +5,7 @@ import static no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil.JOURNAL
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -90,11 +91,10 @@ class BehandleDokumentforsendelseTaskTest {
 
     @BeforeEach
     void setup() {
+        when(aktørConsumer.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(PERSON_IDENT));
         fordelDokTask = new BehandleDokumentforsendelseTask(taskTjeneste, vurderVLSaker, aktørConsumer,
                 fagsakRestKlient, arkivTjeneste, dokumentRepository, new LoggingHendelseProdusent());
         ptd = ProsessTaskData.forProsessTask(BehandleDokumentforsendelseTask.class);
-
-        when(aktørConsumer.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(PERSON_IDENT));
     }
 
     @Test
@@ -321,6 +321,31 @@ class BehandleDokumentforsendelseTaskTest {
 
         verify(arkivTjeneste).opprettJournalpost(eq(FORSENDELSE_ID), eq(FORSENDELSE_ID), any());
         verify(dokumentRepository).oppdaterForsendelseMedArkivId(any(UUID.class), any(), eq(ForsendelseStatus.GOSYS));
+    }
+
+    @Test
+    void validerSjekkAvsenderOppretter() {
+        String aktørIdForIdent = "1234567890123";
+        String aktørIdForAnnen = "1234567890987";
+        String fnrForIdent = "12345678901";
+
+        UUID forsendelseId = UUID.randomUUID();
+        var metadata = DokumentMetadata.builder()
+                .setForsendelseId(forsendelseId)
+                .setBrukerId(aktørIdForIdent)
+                .setSaksnummer("123")
+                .setForsendelseMottatt(LocalDateTime.now())
+                .build();
+        metadata.setOpprettetAv(fnrForIdent);
+
+        when(aktørConsumer.hentAktørIdForPersonIdent(fnrForIdent)).thenReturn(Optional.of(aktørIdForIdent));
+        assertDoesNotThrow(() -> fordelDokTask.validerBrukerAvsender(metadata));
+
+        when(aktørConsumer.hentAktørIdForPersonIdent(fnrForIdent)).thenReturn(Optional.of(aktørIdForAnnen));
+        assertThrows(TekniskException.class, () -> fordelDokTask.validerBrukerAvsender(metadata));
+
+        metadata.setOpprettetAv("VL");
+        assertDoesNotThrow(() -> fordelDokTask.validerBrukerAvsender(metadata));
     }
 
     private static Optional<FagsakInfomasjonDto> genFagsakInformasjon(String behTemaOffisiellKode) {

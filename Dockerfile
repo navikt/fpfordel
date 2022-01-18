@@ -10,7 +10,6 @@ RUN mkdir /app/lib
 RUN mkdir /app/conf
 
 # Config
-COPY fordel-web/target/classes/jetty/jaspi-conf.xml /app/conf/
 COPY fordel-web/target/classes/*.xml /app/
 
 # Application Container (Jetty)

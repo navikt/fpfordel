@@ -18,21 +18,17 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.fordel.StringUtil;
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.dokumentforsendelse.BehandleDokumentforsendelseTask;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatusDto;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @ApplicationScoped
 @Transactional
@@ -45,22 +41,19 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
     private static final Logger LOG = LoggerFactory.getLogger(DokumentforsendelseTjenesteImpl.class);
     private DokumentRepository repository;
     private ProsessTaskTjeneste prosessTaskTjeneste;
-    private PersonInformasjon person;
 
     public DokumentforsendelseTjenesteImpl() {
     }
 
     @Inject
     public DokumentforsendelseTjenesteImpl(DokumentRepository repository,
-                                           ProsessTaskTjeneste prosessTaskTjeneste,
-                                           @Jersey("onbehalf") PersonInformasjon person) {
+                                           ProsessTaskTjeneste prosessTaskTjeneste) {
         this.repository = repository;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
-        this.person = person;
     }
 
     @Override
-    public void lagreForsendelseValider(DokumentMetadata metadata, List<Dokument> dokumenter, Optional<String> avsenderId) {
+    public void lagreForsendelseValider(DokumentMetadata metadata, List<Dokument> dokumenter) {
         var hoveddokumenter = dokumenter.stream().filter(Dokument::erHovedDokument).collect(toSet());
         if (hoveddokumenter.isEmpty() && metadata.getSaksnummer().isEmpty()) {
             throw new TekniskException("FP-728553", "Saksnummer er påkrevd ved ettersendelser");
@@ -74,9 +67,9 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
 
 
         if (hoveddokumenter.isEmpty() && metadata.getSaksnummer().isPresent()) {
-            opprettProsessTask(metadata.getForsendelseId(), avsenderId);
+            opprettProsessTask(metadata.getForsendelseId());
         } else if (!hoveddokumenter.isEmpty() && korrektAntallOgTyper(hoveddokumenter)) {
-            opprettProsessTask(metadata.getForsendelseId(), avsenderId);
+            opprettProsessTask(metadata.getForsendelseId());
         } else {
             throw new IllegalStateException("Utviklerfeil: Logisk brist");
         }
@@ -108,27 +101,13 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
         return info;
     }
 
-    private void opprettProsessTask(UUID forsendelseId, Optional<String> avsenderId) {
+    private void opprettProsessTask(UUID forsendelseId) {
         var prosessTaskData = ProsessTaskData.forProsessTask(BehandleDokumentforsendelseTask.class);
         prosessTaskData.setCallIdFraEksisterende();
         var dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
         dataWrapper.setForsendelseId(forsendelseId);
-        avsenderId.ifPresent(dataWrapper::setAvsenderId);
 
         prosessTaskTjeneste.lagre(dataWrapper.getProsessTaskData());
-    }
-
-    @Override
-    public Optional<String> bestemAvsenderAktørId(String aktørId) {
-        String ident = SubjectHandler.getSubjectHandler().getUid();
-        var aktørIdForSubject = Optional.ofNullable(ident)
-                .flatMap(person::hentAktørIdForPersonIdent)
-                .filter(a -> !a.equals(aktørId));
-        if (aktørIdForSubject.isPresent()) {
-            LOG.warn("Avvik mellom Subject.uid {} og bruker fra forsendelse {}", StringUtil.mask(aktørIdForSubject.get()), StringUtil.mask(aktørId));
-        }
-        return aktørIdForSubject;
-
     }
 
     boolean korrektAntallOgTyper(Set<Dokument> hoveddokumentene) {
