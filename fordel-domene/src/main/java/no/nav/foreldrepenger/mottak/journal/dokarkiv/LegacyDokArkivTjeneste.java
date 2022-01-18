@@ -39,7 +39,7 @@ class LegacyDokArkivTjeneste implements DokArkiv {
         try {
             LOG.info("Oppretter journalpost");
             var opprett = ferdigstill ? new URIBuilder(dokarkiv).addParameter("forsoekFerdigstill", "true").build() : dokarkiv;
-            var res = restKlient.post(opprett, request, OpprettJournalpostResponse.class);
+            var res = restKlient.postAcceptConflict(opprett, request, OpprettJournalpostResponse.class);
             LOG.info("Opprettet journalpost OK");
             return res;
         } catch (Exception e) {
