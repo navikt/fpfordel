@@ -53,11 +53,11 @@ import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
+import no.nav.foreldrepenger.mottak.sak.SakClient;
 import no.nav.foreldrepenger.mottak.tjeneste.VLKlargjører;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.OppdaterOgFerdigstillJournalfoeringUgyldigInput;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.meldinger.OppdaterOgFerdigstillJournalfoeringRequest;
 import no.nav.vedtak.exception.FunksjonellException;
-import no.nav.vedtak.felles.integrasjon.sak.v1.SakClient;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.WARN)

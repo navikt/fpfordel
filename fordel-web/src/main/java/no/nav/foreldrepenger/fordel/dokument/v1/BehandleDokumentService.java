@@ -34,6 +34,8 @@ import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
+import no.nav.foreldrepenger.mottak.sak.SakClient;
+import no.nav.foreldrepenger.mottak.sak.SakJson;
 import no.nav.foreldrepenger.mottak.task.VLKlargjørerTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
@@ -47,8 +49,6 @@ import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.meldinger.Oppda
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebService;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
-import no.nav.vedtak.felles.integrasjon.sak.v1.SakClient;
-import no.nav.vedtak.felles.integrasjon.sak.v1.SakJson;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -126,7 +126,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         FagsakInfomasjonDto fagsakInfomasjonDto;
         if (fagsakFraRequestSomTrefferRettAktør.isPresent()) {
             saksnummer = saksnummerFraRequest;
-            LOG.info("FPFORDEL Fant en FP-sak med saksnummer {} som har rett aktør", saksnummerFraRequest);
+            LOG.info("FPFORDEL GOSYS Fant en FP-sak med saksnummer {} som har rett aktør", saksnummerFraRequest);
             fagsakInfomasjonDto = fagsakFraRequestSomTrefferRettAktør.get();
         } else {
             // Gosys sender alltid arkivsaksnummer- dvs sak.id
@@ -160,9 +160,9 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             try {
                 arkivTjeneste.settTilleggsOpplysninger(journalpost, brukDokumentTypeId);
             } catch (Exception e) {
-                LOG.info("Feil ved setting av tilleggsopplysninger for journalpostId {}", journalpost.getJournalpostId());
+                LOG.info("FPFORDEL GOSYS Feil ved setting av tilleggsopplysninger for journalpostId {}", journalpost.getJournalpostId());
             }
-            LOG.info(removeLineBreaks("Kaller tilJournalføring")); // NOSONAR
+            LOG.info("FPFORDEL GOSYS Kaller tilJournalføring"); // NOSONAR
             try {
                 arkivTjeneste.oppdaterMedSak(journalpost.getJournalpostId(), saksnummer, fagsakInfoAktørId);
                 arkivTjeneste.ferdigstillJournalføring(journalpost.getJournalpostId(), request.getEnhetId());
@@ -273,7 +273,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
     private static void ugyldigBrukerPrøvIgjen(String arkivId, Exception e) throws OppdaterOgFerdigstillJournalfoeringUgyldigInput {
         if (e != null) {
-            LOG.warn("FPFORDEL oppdaterOgFerdigstillJournalfoering feiler for {}", arkivId, e);
+            LOG.warn("FPFORDEL GOSYS oppdaterOgFerdigstillJournalfoering feiler for {}", arkivId, e);
         }
         UgyldigInput ugyldigInput = lagUgyldigInput(BRUKER_MANGLER);
         throw new OppdaterOgFerdigstillJournalfoeringUgyldigInput(ugyldigInput.getFeilmelding(), ugyldigInput);
@@ -303,7 +303,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         try {
             mottattDokument = MeldingXmlParser.unmarshallXml(xml);
         } catch (Exception e) {
-            LOG.info("Journalpost med type {} er strukturert men er ikke gyldig XML", dokumentTypeId);
+            LOG.info("FPFORDEL GOSYS Journalpost med type {} er strukturert men er ikke gyldig XML", dokumentTypeId);
             return null;
         }
         if (DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD.equals(dokumentTypeId)
@@ -316,7 +316,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             // Her er det "greit" - da har man bestemt seg, men kan lage rot i saken.
             if ("FP-401245".equals(e.getKode())) {
                 String logMessage = e.getMessage();
-                LOG.info(logMessage);
+                LOG.info("FPFORDEL GOSYS" + logMessage);
             } else {
                 throw e;
             }
@@ -352,7 +352,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
     // Midlertidig håndtering mens Gosys fikser koden som identifiserer saksnummer.
     private Optional<String> saksnummerOppslagMotArkiv(String saksnrFraRequest) {
         try {
-            return Optional.ofNullable(sakClient.hentSakId(saksnrFraRequest)).map(SakJson::getFagsakNr);
+            return Optional.ofNullable(sakClient.hentSakId(saksnrFraRequest)).map(SakJson::fagsakNr);
         } catch (Exception e) {
             return Optional.empty();
         }

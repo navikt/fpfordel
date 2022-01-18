@@ -102,9 +102,10 @@ class PersonTjenesteTest {
         response.setAdressebeskyttelse(List.of(responsebeskyttelse));
         when(pdl.hentPerson(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
         when(pdl.hentGT(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(responsegt);
-        GeoTilknytning gt = personTjeneste.hentGeografiskTilknytning(AKTØR_ID);
-        assertThat(gt.tilknytning()).isNull();
-        assertThat(gt.diskresjonskode()).isNull();
+        var gt = personTjeneste.hentGeografiskTilknytning(AKTØR_ID);
+        var diskresjonskode = personTjeneste.harStrengDiskresjonskode(AKTØR_ID);
+        assertThat(gt).isNull();
+        assertThat(diskresjonskode).isFalse();
     }
 
     @Test
@@ -115,9 +116,10 @@ class PersonTjenesteTest {
         response.setAdressebeskyttelse(List.of(responsebeskyttelse));
         when(pdl.hentPerson(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
         when(pdl.hentGT(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(responsegt);
-        GeoTilknytning gt = personTjeneste.hentGeografiskTilknytning(AKTØR_ID);
-        assertThat(gt.tilknytning()).isEqualTo("030110");
-        assertThat(gt.diskresjonskode()).isEqualTo("SPFO");
+        var gt = personTjeneste.hentGeografiskTilknytning(AKTØR_ID);
+        var diskresjonskode = personTjeneste.harStrengDiskresjonskode(AKTØR_ID);
+        assertThat(gt).isEqualTo("030110");
+        assertThat(diskresjonskode).isFalse();
     }
 
     @Test
@@ -129,9 +131,9 @@ class PersonTjenesteTest {
         when(pdl.hentPerson(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
         when(pdl.hentGT(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(responsegt);
 
-        GeoTilknytning gt = personTjeneste.hentGeografiskTilknytning(AKTØR_ID);
-
-        assertThat(gt.tilknytning()).isEqualTo("POL");
-        assertThat(gt.diskresjonskode()).isEqualTo("SPSF");
+        var gt = personTjeneste.hentGeografiskTilknytning(AKTØR_ID);
+        var diskresjonskode = personTjeneste.harStrengDiskresjonskode(AKTØR_ID);
+        assertThat(gt).isEqualTo("POL");
+        assertThat(diskresjonskode).isTrue();
     }
 }

@@ -12,11 +12,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import no.nav.foreldrepenger.fordel.BaseEntitet;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 
 @Entity(name = "DokumentMetadata")
 @Table(name = "DOKUMENT_METADATA")
-public class DokumentMetadata {
+public class DokumentMetadata extends BaseEntitet {
     public static final String UNIQUE_FORSENDELSE_ID_CONSTRAINT = "CHK_UNIQUE_FORS_DOKUMENT_MT";
 
     @Id

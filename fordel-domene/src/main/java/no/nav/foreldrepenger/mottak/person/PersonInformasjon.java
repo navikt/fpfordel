@@ -10,6 +10,8 @@ public interface PersonInformasjon {
 
     String hentNavn(String id);
 
-    GeoTilknytning hentGeografiskTilknytning(String aktørId);
+    String hentGeografiskTilknytning(String aktørId);
+
+    boolean harStrengDiskresjonskode(String aktørId);
 
 }

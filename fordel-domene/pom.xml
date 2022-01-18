@@ -71,32 +71,14 @@
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>arbeidsfordeling-klient</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>net.minidev</groupId>
-                    <artifactId>json-smart</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>infotrygd-saker-klient</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>net.minidev</groupId>
-                    <artifactId>json-smart</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
          <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>saf-klient</artifactId>
-             <exclusions>
-                 <exclusion>
-                     <groupId>net.minidev</groupId>
-                     <artifactId>json-smart</artifactId>
-                 </exclusion>
-             </exclusions>
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
@@ -113,30 +95,14 @@
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>oppgave-rest-klient</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>net.minidev</groupId>
-                    <artifactId>json-smart</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>pdl-klient</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>net.minidev</groupId>
-                    <artifactId>json-smart</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.kontrakter</groupId>
             <artifactId>fordel-v1</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.tomakehurst</groupId>
-            <artifactId>wiremock</artifactId>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.inject</groupId>
@@ -144,10 +110,6 @@
         </dependency>
 
         <!-- NAV -->
-        <dependency>
-            <groupId>no.nav.tjenestespesifikasjoner</groupId>
-            <artifactId>nav-virksomhet-dokumentnotifikasjon-v1-meldingsdefinisjon</artifactId>
-        </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.kontrakter</groupId>
             <artifactId>inntektsmelding-v1</artifactId>
@@ -170,20 +132,4 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>wiremocktest</id>
-            <dependencyManagement>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-bom</artifactId>
-                        <version>9.4.37.v20210219</version>
-                        <scope>import</scope>
-                        <type>pom</type>
-                    </dependency>
-                </dependencies>
-            </dependencyManagement>
-        </profile>
-    </profiles>
 </project>

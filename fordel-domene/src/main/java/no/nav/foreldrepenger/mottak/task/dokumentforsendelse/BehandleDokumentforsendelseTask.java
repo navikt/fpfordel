@@ -39,6 +39,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.fordel.StringUtil;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -86,6 +87,9 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     private static final TaskType TASK_GOSYS = TaskType.forProsessTask(OpprettGSakOppgaveTask.class);
     private static final TaskType TASK_FPSAK = TaskType.forProsessTask(VLKlargjørerTask.class);
 
+    private static final String POSTCOND_CODE = "FP-638068";
+    private static final String POSTCOND_TEXT = "Postconditions for %s mangler %s. TaskId: %s";
+
     private PersonInformasjon pdl;
     private Fagsak fagsak;
     private DestinasjonsRuter ruter;
@@ -125,10 +129,10 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     @Override
     public void postcondition(MottakMeldingDataWrapper w) {
         if (w.getAktørId().isEmpty()) {
-            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, AKTØR_ID_KEY, w.getId()));
+            throw new TekniskException(POSTCOND_CODE, format(POSTCOND_TEXT, TASKNAME, AKTØR_ID_KEY, w.getId()));
         }
         if (w.getBehandlingTema() == null) {
-            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, BEHANDLINGSTEMA_KEY, w.getId()));
+            throw new TekniskException(POSTCOND_CODE, format(POSTCOND_TEXT, TASKNAME, BEHANDLINGSTEMA_KEY, w.getId()));
         }
         if (TASK_FPSAK.equals(w.getProsessTaskData().taskType())) {
             postconditionJournalføringMedSak(w);
@@ -138,7 +142,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     private static void postconditionJournalføringMedSak(MottakMeldingDataWrapper w) {
         if (w.getSaksnummer().isEmpty()) {
-            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, SAKSNUMMER_KEY, w.getId()));
+            throw new TekniskException(POSTCOND_CODE, format(POSTCOND_TEXT, TASKNAME, SAKSNUMMER_KEY, w.getId()));
         }
     }
 
@@ -148,6 +152,8 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         var forsendelseId = w.getForsendelseId().orElseThrow();
         var hovedDokument = dokumentRepository.hentUnikDokument(forsendelseId, true, XML);
         var metadata = dokumentRepository.hentEksaktDokumentMetadata(forsendelseId);
+
+        validerBrukerAvsender(metadata);
 
         var behandlingTema = behandlingTemaFraDokumentType(UDEFINERT,
                 hovedDokument
@@ -179,8 +185,18 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         } else {
             return utledNesteSteg(w, forsendelseId, destinasjon, true);
         }
+    }
 
-
+    public void validerBrukerAvsender(DokumentMetadata metadata) {
+        var brukerAktørId = metadata.getBrukerId();
+        var avvik = Optional.ofNullable(metadata.getOpprettetAv())
+                .filter(id -> id.length() == 11)
+                .flatMap(pdl::hentAktørIdForPersonIdent)
+                .filter(kontekstAktørId -> !kontekstAktørId.equals(brukerAktørId));
+        if (avvik.isPresent()) {
+            LOG.warn("Avvik mellom Subject.uid {} og bruker fra forsendelse {}", StringUtil.mask(metadata.getOpprettetAv()), StringUtil.mask(brukerAktørId));
+            throw new TekniskException("FP-638069", "Avvik mellom oppgitt bruker og innlogget bruker fra forsendelse");
+        }
     }
 
     private Destinasjon getDestinasjonOppdaterWrapper(MottakMeldingDataWrapper w, Optional<Dokument> hovedDokument, DokumentMetadata metadata) {
@@ -209,8 +225,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     }
 
     private OpprettetJournalpost opprettJournalpostFerdigstillHvisSaksnummer(UUID forsendelseId, MottakMeldingDataWrapper w, String saksnummer) {
-        var avsenderId = w.getAvsenderId().or(w::getAktørId)
-                .orElseThrow(() -> new IllegalStateException("Hvor ble det av brukers id?"));
+        var avsenderId = w.getAktørId().orElseThrow(() -> new IllegalStateException("Hvor ble det av brukers id?"));
 
         if (saksnummer != null) {
             var opprettetJournalpost = arkiv.opprettJournalpost(forsendelseId, avsenderId, saksnummer);
@@ -249,25 +264,25 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     private static void postConditionHentOgVurderVLSakOgOpprettSak(MottakMeldingDataWrapper w) {
         if (TASK_FPSAK.equals(w.getProsessTaskData().taskType())
                 && w.getForsendelseMottattTidspunkt().isEmpty()) {
-            throw new TekniskException("FP-638068",
-                    format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, FORSENDELSE_MOTTATT_TIDSPUNKT_KEY, w.getId()));
+            throw new TekniskException(POSTCOND_CODE,
+                    format(POSTCOND_TEXT, TASKNAME, FORSENDELSE_MOTTATT_TIDSPUNKT_KEY, w.getId()));
         }
         if (w.getDokumentTypeId().isEmpty()) {
-            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, DOKUMENTTYPE_ID_KEY, w.getId()));
+            throw new TekniskException(POSTCOND_CODE, format(POSTCOND_TEXT, TASKNAME, DOKUMENTTYPE_ID_KEY, w.getId()));
         }
         if (w.getDokumentKategori().isEmpty()) {
-            throw new TekniskException("FP-638068",
-                    format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, DOKUMENTKATEGORI_ID_KEY, w.getId()));
+            throw new TekniskException(POSTCOND_CODE,
+                    format(POSTCOND_TEXT, TASKNAME, DOKUMENTKATEGORI_ID_KEY, w.getId()));
         }
         if (DokumentTypeId.erSøknadType(w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT))
                 && w.getPayloadAsString().isEmpty()) {
-            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, "payload", w.getId()));
+            throw new TekniskException(POSTCOND_CODE, format(POSTCOND_TEXT, TASKNAME, "payload", w.getId()));
         }
         if (!w.getHarTema()) {
-            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, TEMA_KEY, w.getId()));
+            throw new TekniskException(POSTCOND_CODE, format(POSTCOND_TEXT, TASKNAME, TEMA_KEY, w.getId()));
         }
         if (w.getArkivId() == null) {
-            throw new TekniskException("FP-638068", format("Postconditions for %s mangler %s. TaskId: %s", TASKNAME, ARKIV_ID_KEY, w.getId()));
+            throw new TekniskException(POSTCOND_CODE, format(POSTCOND_TEXT, TASKNAME, ARKIV_ID_KEY, w.getId()));
         }
     }
 
@@ -302,8 +317,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         return true;
     }
 
-    // TODO: Endre når TFP-4125 er fikset i søknadSvangerskapspenger. Nå kommer
-    // vedlegg som søknad og roter til mye.
+    // TODO: Endre når TFP-4125 er fikset i søknadSvangerskapspenger. Nå kommer vedlegg som søknad og roter til mye.
     private void settDokumentTypeKategoriKorrigerSVP(MottakMeldingDataWrapper w) {
         var dokumenter = w.getForsendelseId()
                 .map(dokumentRepository::hentDokumenter)
@@ -331,13 +345,10 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     private static void sjekkForMismatchMellomFagsakOgDokumentInn(BehandlingTema behandlingTema,
             BehandlingTema fagsakTema, Dokument dokument) {
 
-        if (FORELDREPENGER_ENDRING_SØKNAD.equals(dokument.getDokumentTypeId())) {
-            // Endringssøknad har ingen info om behandlingstema, slik vi kan ikke utlede
-            // et spesifikt tema, så må ha løsere match. Se
-            // ArkivUtil.korrigerBehandlingTemaFraDokumentType
-            if (gjelderForeldrepenger(behandlingTema)) {
-                return;
-            }
+        if (FORELDREPENGER_ENDRING_SØKNAD.equals(dokument.getDokumentTypeId()) && gjelderForeldrepenger(behandlingTema)) {
+            // Endringssøknad har ingen info om behandlingstema, slik vi kan ikke utlede et spesifikt tema, så må ha løsere match.
+            // Se ArkivUtil.korrigerBehandlingTemaFraDokumentType
+            return;
         }
         if (!fagsakTema.equals(behandlingTema)) {
             throw new TekniskException("FP-756353",

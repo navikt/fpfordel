@@ -55,6 +55,11 @@ public class BaseEntitet implements Serializable {
         return endretTidspunkt;
     }
 
+    // Test only
+    public void setOpprettetAv(String opprettetAv) {
+        this.opprettetAv = opprettetAv;
+    }
+
     private static String finnBrukernavn() {
         String brukerident = SubjectHandler.getSubjectHandler().getUid();
         return brukerident != null ? brukerident : BRUKERNAVN_NÅR_SIKKERHETSKONTEKST_IKKE_FINNES;

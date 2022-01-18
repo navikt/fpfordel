@@ -12,9 +12,7 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Forsendelse
 public interface DokumentforsendelseTjeneste {
     Duration POLL_INTERVALL = Duration.ofSeconds(1);
 
-    void lagreForsendelseValider(DokumentMetadata metadata, List<Dokument> dokumenter, Optional<String> avsenderId);
-
-    Optional<String> bestemAvsenderAktørId(String aktørId);
+    void lagreForsendelseValider(DokumentMetadata metadata, List<Dokument> dokumenter);
 
     ForsendelseStatusDto finnStatusinformasjon(UUID forsendelseId);
 

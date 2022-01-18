@@ -5,12 +5,8 @@ import java.io.IOException;
 import java.util.List;
 
 import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.SslConnectionFactory;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import no.nav.foreldrepenger.fordel.dbstoette.Databaseskjemainitialisering;
@@ -65,11 +61,6 @@ public class JettyDevServer extends AbstractJettyServer {
         var https = createHttpConfiguration();
         https.addCustomizer(new SecureRequestCustomizer());
 
-        var sslConnector = new ServerConnector(server,
-                new SslConnectionFactory(new SslContextFactory.Server(), "http/1.1"),
-                new HttpConnectionFactory(https));
-        sslConnector.setPort(HTTP_PORT - 1);
-        connectors.add(sslConnector);
         return connectors;
     }
 
