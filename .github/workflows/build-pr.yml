@@ -45,4 +45,4 @@ jobs:
         run: |
             mvn package --quiet --batch-mode --settings .github/.m2/settings.xml
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }} # Må ha denne pga avhengighet til intern repo "legacy-avhengigheter".
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Må ha denne pga avhengighet til intern repo "legacy-avhengigheter".
