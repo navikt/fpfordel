@@ -17,7 +17,7 @@
 		"KAFKA_SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.preprod.local",
 		"KAFKA_TOPIC_JOURNAL_HENDELSE": "aapen-dok-journalfoering-v1-q1",
 		"OIDC_OPEN_AM_WELL_KNOWN_URL": "https://isso-q.adeo.no:443/isso/oauth2/.well-known/openid-configuration",
-		"OIDC_STS_WELL_KNOWN_URL":  "http://security-token-service.default/.well-known/openid-configuration",
+		"OIDC_STS_WELL_KNOWN_URL":  "https://security-token-service.nais.preprod.local/.well-known/openid-configuration",
 		"OIDC_OPEN_AM_CLIENT_ID": "fpfordel-q1",
 		"OPENIDCONNECT_USERNAME": "fpfordel-q1",
 		"OPENIDCONNECT_ISSOHOST": "https://isso-q.adeo.no:443/isso/oauth2",
