@@ -220,7 +220,7 @@
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>konfig</artifactId>
-            <version>1.1.4</version>
+            <version>1.1.5</version>
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
