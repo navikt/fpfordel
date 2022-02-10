@@ -15,6 +15,8 @@ import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OppdaterJournalpostRe
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostResponse;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.StsStandardRestKlient;
+import no.nav.vedtak.felles.integrasjon.rest.SystemUserOidcRestClient;
 
 @Dependent
 class LegacyDokArkivTjeneste implements DokArkiv {
@@ -25,10 +27,10 @@ class LegacyDokArkivTjeneste implements DokArkiv {
 
     private final URI dokarkiv;
     private final String uriString;
-    private final OidcRestClient restKlient;
+    private final SystemUserOidcRestClient restKlient;
 
     @Inject
-    public LegacyDokArkivTjeneste(@KonfigVerdi(value = "dokarkiv.base.url", defaultVerdi = DEFAULT_URI) URI endpoint, OidcRestClient restKlient) {
+    public LegacyDokArkivTjeneste(@KonfigVerdi(value = "dokarkiv.base.url", defaultVerdi = DEFAULT_URI) URI endpoint, SystemUserOidcRestClient restKlient) {
         this.dokarkiv = endpoint;
         this.uriString = endpoint.toString();
         this.restKlient = restKlient;

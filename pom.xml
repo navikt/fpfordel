@@ -30,8 +30,8 @@
         <java.version>17</java.version>
         <argLine>-Xms256m -Dfile.encoding=UTF-8</argLine>
         <jersey.version>2.35</jersey.version>
-        <swagger.version>2.1.12</swagger.version>
-        <prometheus.version>0.14.1</prometheus.version>
+        <swagger.version>2.1.13</swagger.version>
+        <prometheus.version>0.15.0</prometheus.version>
         <fp-kontrakter.version>6.1.4</fp-kontrakter.version>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.organization>navit</sonar.organization>
@@ -42,7 +42,7 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-bom</artifactId>
-                <version>10.0.7</version>
+                <version>10.0.8</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -177,7 +177,7 @@
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-compat-spec-parser</artifactId>
-                <version>1.0.56</version>
+                <version>1.0.57</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
