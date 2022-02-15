@@ -13,6 +13,8 @@ spec:
         - application: fpsoknad-mottak
   tokenx:
     enabled: true
+  kafka:
+    pool: {{kafkaPool}}
   image:  {{image}}
   ingresses:
 {{#each ingresses as |url|}}
