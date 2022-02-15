@@ -16,7 +16,7 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.errors.LogAndFailExceptionHandler;
 
-import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
+import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
@@ -71,6 +71,10 @@ class JournalHendelseProperties {
         return schemaRegistryUrl;
     }
 
+    String getBasicAuth() {
+        return schemaRegistryUsername+":"+schemaRegistryPassword;
+    }
+
     Properties getProperties() {
         Properties props = new Properties();
 
@@ -88,9 +92,9 @@ class JournalHendelseProperties {
             props.put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, "PKCS12");
             props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, keyStoreLocation);
             props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, credStorePassword);
-            props.put(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
-            props.put(KafkaAvroDeserializerConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO");
-            props.put(KafkaAvroDeserializerConfig.USER_INFO_CONFIG, schemaRegistryUsername+":"+schemaRegistryPassword);
+            props.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
+            props.put(AbstractKafkaSchemaSerDeConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO");
+            props.put(AbstractKafkaSchemaSerDeConfig.USER_INFO_CONFIG, getBasicAuth());
         } else {
             props.setProperty(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SASL_SSL.name);
             props.setProperty(SaslConfigs.SASL_MECHANISM, "PLAIN");

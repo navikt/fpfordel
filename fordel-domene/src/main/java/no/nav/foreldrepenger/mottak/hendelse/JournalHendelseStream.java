@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.mottak.hendelse;
 
+import static io.confluent.kafka.serializers.KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG;
+
 import java.time.Duration;
 import java.util.Map;
 
@@ -13,6 +15,7 @@ import org.apache.kafka.streams.kstream.Consumed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
@@ -53,7 +56,10 @@ public class JournalHendelseStream implements LivenessAware, ReadinessAware, App
                                                    JournalHendelseProperties properties) {
         if ((properties.getSchemaRegistryUrl() != null) && !properties.getSchemaRegistryUrl().isEmpty()) {
             var schemaMap =
-                Map.of("schema.registry.url", properties.getSchemaRegistryUrl(), "specific.avro.reader", true);
+                Map.of(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, properties.getSchemaRegistryUrl(),
+                    AbstractKafkaSchemaSerDeConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO",
+                    AbstractKafkaSchemaSerDeConfig.USER_INFO_CONFIG, properties.getBasicAuth(),
+                    SPECIFIC_AVRO_READER_CONFIG, true);
             topic.serdeKey().configure(schemaMap, true);
             topic.serdeValue().configure(schemaMap, false);
         }
