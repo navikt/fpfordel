@@ -40,15 +40,11 @@ public class JournalHendelseStream implements LivenessAware, ReadinessAware, App
     JournalHendelseStream() {
     }
 
-    //        this.topic = journalføringHendelseProperties.topic();
-    //        this.stream = createKafkaStreams(topic, journalføringHendelseHåndterer, journalføringHendelseProperties);
-    //    }
-
     @Inject
     public JournalHendelseStream(JournalføringHendelseHåndterer journalføringHendelseHåndterer,
                                  JournalHendelseProperties streamKafkaProperties) {
         this.topic = streamKafkaProperties.getTopic();
-        this.stream = createKafkaStreams(topic, journalføringHendelseHåndterer, streamKafkaProperties);
+        this.stream = isDeployment ? createKafkaStreams(topic, journalføringHendelseHåndterer, streamKafkaProperties) : null;
     }
 
     @SuppressWarnings("resource")
