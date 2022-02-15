@@ -43,11 +43,11 @@ class JournalHendelseProperties {
 
     @SuppressWarnings("resource")
     @Inject
-    JournalHendelseProperties(@KonfigVerdi(value = "KAFKA_JOURNAL_TOPIC") String topicName,
-                              @KonfigVerdi(value = "KAFKA_BROKERS") String bootstrapServers,
-                              @KonfigVerdi(value = "KAFKA_SCHEMA_REGISTRY") String schemaRegistryUrl,
-                              @KonfigVerdi(value = "KAFKA_SCHEMA_REGISTRY_USER") String schemaRegistryUsername,
-                              @KonfigVerdi(value = "KAFKA_SCHEMA_REGISTRY_PASSWORD") String schemaRegistryPassword,
+    JournalHendelseProperties(@KonfigVerdi(value = "KAFKA_JOURNAL_TOPIC", required = false) String topicName,
+                              @KonfigVerdi(value = "KAFKA_BROKERS", required = false) String bootstrapServers,
+                              @KonfigVerdi(value = "KAFKA_SCHEMA_REGISTRY", required = false) String schemaRegistryUrl,
+                              @KonfigVerdi(value = "KAFKA_SCHEMA_REGISTRY_USER", required = false) String schemaRegistryUsername,
+                              @KonfigVerdi(value = "KAFKA_SCHEMA_REGISTRY_PASSWORD", required = false) String schemaRegistryPassword,
                               @KonfigVerdi(value = "KAFKA_TRUSTSTORE_PATH", required = false) String trustStorePath,
                               @KonfigVerdi(value = "KAFKA_KEYSTORE_PATH", required = false) String keyStoreLocation,
                               @KonfigVerdi(value = "KAFKA_CREDSTORE_PASSWORD", required = false) String credStorePassword) {
