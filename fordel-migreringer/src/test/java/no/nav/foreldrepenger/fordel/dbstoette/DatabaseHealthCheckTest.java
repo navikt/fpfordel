@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.fordel.web.app.selftest.checks;
+package no.nav.foreldrepenger.fordel.dbstoette;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

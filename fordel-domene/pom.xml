@@ -49,6 +49,14 @@
             <artifactId>felles-db</artifactId>
         </dependency>
 
+        <!-- Joark skjema - bruk etter switch-over?
+        <dependency>
+            <groupId>no.nav.teamdokumenthandtering</groupId>
+            <artifactId>teamdokumenthandtering-avro-schemas</artifactId>
+            <version>96ec5ebb</version>
+        </dependency>
+        -->
+
         <!-- Eksterne -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

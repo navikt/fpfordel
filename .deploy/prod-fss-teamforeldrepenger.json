@@ -4,6 +4,7 @@
 	"oraclecredskv": "/oracle/data/prod/creds/fpfordel_p-fpfordel_p",
 	"serviceuserkv": "/serviceuser/data/prod/srvfpfordel",
 	"namespace": "teamforeldrepenger",
+	"kafkaPool": "nav-prod",
 	"ingresses": [ "https://fpfordel.nais.adeo.no" ],
 	"env": {
 		"ABAC_ATTRIBUTT_DRIFT": "no.nav.abac.attributter.foreldrepenger.drift",
@@ -12,6 +13,7 @@
 		"KAFKA_BOOTSTRAP_SERVERS": "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443",
 		"KAFKA_SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.adeo.no",
 		"KAFKA_TOPIC_JOURNAL_HENDELSE": "aapen-dok-journalfoering-v1-p",
+		"KAFKA_JOURNAL_TOPIC": "teamdokumenthandtering.aapen-dok-journalfoering",
 		"OIDC_OPEN_AM_WELL_KNOWN_URL": "https://isso.adeo.no:443/isso/oauth2/.well-known/openid-configuration",
 		"OIDC_STS_WELL_KNOWN_URL": "https://security-token-service.nais.adeo.no/.well-known/openid-configuration",
 		"OIDC_OPEN_AM_CLIENT_ID": "fpfordel-p",

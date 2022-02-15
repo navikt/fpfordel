@@ -49,6 +49,15 @@ public class JournalføringHendelseHåndterer {
         this.dokumentRepository = dokumentRepository;
     }
 
+    void loggMessage(JournalfoeringHendelseRecord payload) {
+        var arkivId = payload.getJournalpostId().toString();
+        var hendelseType = payload.getHendelsesType().toString();
+        var eksternReferanseId = (payload.getKanalReferanseId() == null) || payload.getKanalReferanseId().toString().isEmpty()
+            ? null : payload.getKanalReferanseId().toString();
+
+        LOG.info("FPFORDEL Mottatt Journalføringhendelse type {} journalpost {} referanse {}", hendelseType, arkivId, eksternReferanseId);
+    }
+
     void handleMessage(JournalfoeringHendelseRecord payload) {
         setCallIdForHendelse(payload);
 
