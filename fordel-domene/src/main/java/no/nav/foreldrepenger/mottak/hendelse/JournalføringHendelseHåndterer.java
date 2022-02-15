@@ -55,7 +55,7 @@ public class JournalføringHendelseHåndterer {
         var eksternReferanseId = (payload.getKanalReferanseId() == null) || payload.getKanalReferanseId().toString().isEmpty()
             ? null : payload.getKanalReferanseId().toString();
 
-        LOG.info("FPFORDEL Mottatt Journalføringhendelse type {} journalpost {} referanse {}", hendelseType, arkivId, eksternReferanseId);
+        LOG.info("FPFORDEL Mottatt joark-hendelse type {} journalpost {} referanse {}", hendelseType, arkivId, eksternReferanseId);
     }
 
     void handleMessage(JournalfoeringHendelseRecord payload) {
