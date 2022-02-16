@@ -67,7 +67,7 @@ public class JournalføringHendelseStream implements LivenessAware, ReadinessAwa
         builder.stream(topic.topic(), consumed)
                 .filter((key, value) -> TEMA_FOR.equals(value.getTemaNytt().toString()))
                 .filter((key, value) -> hendelseSkalHåndteres(value))
-                .foreach((key, value) -> journalføringHendelseHåndterer.handleMessage(value));
+                .foreach((key, value) -> journalføringHendelseHåndterer.handleMessage(value, Duration.ofMinutes(10)));
 
         return new KafkaStreams(builder.build(), properties.getProperties());
     }
