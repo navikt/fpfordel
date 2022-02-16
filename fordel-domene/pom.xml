@@ -29,8 +29,8 @@
             <artifactId>kafka-clients</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.dok</groupId>
-            <artifactId>dok-journalfoering-hendelse-v1</artifactId>
+            <groupId>no.nav.teamdokumenthandtering</groupId>
+            <artifactId>teamdokumenthandtering-avro-schemas</artifactId>
         </dependency>
         <dependency>
             <groupId>io.confluent</groupId>
@@ -49,13 +49,7 @@
             <artifactId>felles-db</artifactId>
         </dependency>
 
-        <!-- Joark skjema - bruk etter switch-over?
-        <dependency>
-            <groupId>no.nav.teamdokumenthandtering</groupId>
-            <artifactId>teamdokumenthandtering-avro-schemas</artifactId>
-            <version>96ec5ebb</version>
-        </dependency>
-        -->
+
 
         <!-- Eksterne -->
         <dependency>
