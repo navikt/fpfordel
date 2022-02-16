@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
 import no.nav.vedtak.apptjeneste.AppServiceHandler;
 import no.nav.vedtak.log.metrics.LivenessAware;
@@ -25,15 +24,11 @@ import no.nav.vedtak.log.metrics.ReadinessAware;
 @ApplicationScoped
 public class JournalHendelseStream implements LivenessAware, ReadinessAware, AppServiceHandler {
 
-    private static final Environment ENV = Environment.current();
-
     private static final Logger LOG = LoggerFactory.getLogger(JournalHendelseStream.class);
     private static final String HENDELSE_MIDL = "JournalpostMottatt";
     private static final String HENDELSE_MIDL_LEGACY = "MidlertidigJournalført";
     private static final String HENDELSE_ENDRET = "TemaEndret";
     private static final String TEMA_FOR = Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode();
-
-    private static final boolean isDeployment = ENV.isProd() || ENV.isDev();
 
     private KafkaStreams stream;
     private Topic<String, JournalfoeringHendelseRecord> topic;
@@ -44,15 +39,14 @@ public class JournalHendelseStream implements LivenessAware, ReadinessAware, App
     @Inject
     public JournalHendelseStream(JournalføringHendelseHåndterer journalføringHendelseHåndterer,
                                  JournalHendelseProperties streamKafkaProperties) {
-        this.topic = streamKafkaProperties.getConfiguredTopic();
-        this.stream = isDeployment ? createKafkaStreams(topic, journalføringHendelseHåndterer, streamKafkaProperties) : null;
+        this.topic = streamKafkaProperties.getTopic();
+        this.stream = createKafkaStreams(topic, journalføringHendelseHåndterer, streamKafkaProperties);
     }
 
     @SuppressWarnings("resource")
     private static KafkaStreams createKafkaStreams(Topic<String, JournalfoeringHendelseRecord> topic,
                                                    JournalføringHendelseHåndterer journalføringHendelseHåndterer,
                                                    JournalHendelseProperties properties) {
-        if (!isDeployment) return null;
         final Consumed<String, JournalfoeringHendelseRecord> consumed = Consumed
             .<String, JournalfoeringHendelseRecord>with(Topology.AutoOffsetReset.LATEST)
             .withKeySerde(topic.serdeKey())
@@ -60,7 +54,7 @@ public class JournalHendelseStream implements LivenessAware, ReadinessAware, App
 
         final StreamsBuilder builder = new StreamsBuilder();
         builder.stream(topic.topic(), consumed)
-            .filter((key, value) -> TEMA_FOR.equals(value.getTemaNytt().toString()))
+            .filter((key, value) -> TEMA_FOR.equals(value.getTemaNytt()))
             .filter((key, value) -> hendelseSkalHåndteres(value))
             .foreach((key, value) -> journalføringHendelseHåndterer.handleMessage(value));
 
@@ -68,7 +62,7 @@ public class JournalHendelseStream implements LivenessAware, ReadinessAware, App
     }
 
     private static boolean hendelseSkalHåndteres(JournalfoeringHendelseRecord payload) {
-        var hendelse = payload.getHendelsesType().toString();
+        var hendelse = payload.getHendelsesType();
         return HENDELSE_MIDL.equalsIgnoreCase(hendelse) || HENDELSE_ENDRET.equalsIgnoreCase(hendelse) || HENDELSE_MIDL_LEGACY.equalsIgnoreCase(hendelse);
     }
 
@@ -90,7 +84,6 @@ public class JournalHendelseStream implements LivenessAware, ReadinessAware, App
 
     @Override
     public void start() {
-        if (!isDeployment) return;
         addShutdownHooks();
 
         stream.start();
@@ -103,19 +96,16 @@ public class JournalHendelseStream implements LivenessAware, ReadinessAware, App
 
     @Override
     public boolean isAlive() {
-        if (!isDeployment) return true;
         return (stream != null) && stream.state().isRunningOrRebalancing();
     }
 
     @Override
     public boolean isReady() {
-        if (!isDeployment) return true;
         return isAlive();
     }
 
     @Override
     public void stop() {
-        if (!isDeployment) return;
         LOG.info("Starter shutdown av topic={}, tilstand={} med 15 sekunder timeout", getTopicName(), stream.state());
         stream.close(Duration.ofSeconds(15));
         LOG.info("Shutdown av topic={}, tilstand={} med 15 sekunder timeout", getTopicName(), stream.state());

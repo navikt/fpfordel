@@ -37,51 +37,31 @@ class JournalHendelseProperties {
     private final String trustStorePath;
     private final String keyStoreLocation;
     private final String credStorePassword;
-    private final Topic<String, JournalfoeringHendelseRecord> journalfoeringHendelseTopic;
-    private final String schemaRegistryUrl;
-    private final String schemaRegistryUsername;
-    private final String schemaRegistryPassword;
+    private final Topic<String, JournalfoeringHendelseRecord> topic;
     private final boolean isDeployment = ENV.isProd() || ENV.isDev();
 
 
-    @SuppressWarnings("resource")
     @Inject
-    JournalHendelseProperties(@KonfigVerdi(value = "KAFKA_JOURNAL_TOPIC", required = false) String topicName,
-                              @KonfigVerdi(value = "KAFKA_BROKERS", required = false) String bootstrapServers,
-                              @KonfigVerdi(value = "KAFKA_SCHEMA_REGISTRY", required = false) String schemaRegistryUrl,
-                              @KonfigVerdi(value = "KAFKA_SCHEMA_REGISTRY_USER", required = false) String schemaRegistryUsername,
-                              @KonfigVerdi(value = "KAFKA_SCHEMA_REGISTRY_PASSWORD", required = false) String schemaRegistryPassword,
-                              @KonfigVerdi(value = "KAFKA_TRUSTSTORE_PATH", required = false) String trustStorePath,
-                              @KonfigVerdi(value = "KAFKA_KEYSTORE_PATH", required = false) String keyStoreLocation,
-                              @KonfigVerdi(value = "KAFKA_CREDSTORE_PASSWORD", required = false) String credStorePassword) {
+    JournalHendelseProperties(@KonfigVerdi("kafka.topic.journal.hendelse") String topicName,
+                              // De neste stammer fra Aivenator
+                              @KonfigVerdi("KAFKA_BROKERS") String bootstrapServers,
+                              @KonfigVerdi("KAFKA_SCHEMA_REGISTRY") String schemaRegistryUrl,
+                              @KonfigVerdi("KAFKA_SCHEMA_REGISTRY_USER") String schemaRegistryUsername,
+                              @KonfigVerdi("KAFKA_SCHEMA_REGISTRY_PASSWORD") String schemaRegistryPassword,
+                              @KonfigVerdi("KAFKA_TRUSTSTORE_PATH") String trustStorePath,
+                              @KonfigVerdi("KAFKA_KEYSTORE_PATH") String keyStoreLocation,
+                              @KonfigVerdi("KAFKA_CREDSTORE_PASSWORD") String credStorePassword) {
         this.trustStorePath = trustStorePath;
         this.keyStoreLocation = keyStoreLocation;
         this.credStorePassword = credStorePassword;
-        this.journalfoeringHendelseTopic = new Topic<>(topicName, Serdes.String(), getSerde());
         this.applicationId = "fpfordel";
         this.clientId = "fpfordel";
         this.bootstrapServers = bootstrapServers;
-        this.schemaRegistryUrl = schemaRegistryUrl;
-        this.schemaRegistryUsername = schemaRegistryUsername;
-        this.schemaRegistryPassword = schemaRegistryPassword;
+        this.topic = createConfiguredTopic(topicName, schemaRegistryUrl, getBasicAuth(schemaRegistryUsername, schemaRegistryPassword));
     }
 
-    Topic<String, JournalfoeringHendelseRecord> getConfiguredTopic() {
-        if (schemaRegistryUrl != null && !schemaRegistryUrl.isEmpty()) {
-            var schemaMap =
-                Map.of(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl,
-                    AbstractKafkaSchemaSerDeConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO",
-                    AbstractKafkaSchemaSerDeConfig.USER_INFO_CONFIG, getBasicAuth(),
-                    SPECIFIC_AVRO_READER_CONFIG, true);
-            journalfoeringHendelseTopic.serdeKey().configure(schemaMap, true);
-            journalfoeringHendelseTopic.serdeValue().configure(schemaMap, false);
-        }
-        return journalfoeringHendelseTopic;
-    }
-
-
-    private String getBasicAuth() {
-        return schemaRegistryUsername+":"+schemaRegistryPassword;
+    public Topic<String, JournalfoeringHendelseRecord> getTopic() {
+        return topic;
     }
 
     Properties getProperties() {
@@ -110,8 +90,8 @@ class JournalHendelseProperties {
         }
 
         // Serde
-        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, journalfoeringHendelseTopic.serdeKey().getClass());
-        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, journalfoeringHendelseTopic.serdeValue().getClass());
+        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, topic.serdeKey().getClass());
+        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, topic.serdeValue().getClass());
         props.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, LogAndFailExceptionHandler.class);
 
         // Polling
@@ -119,6 +99,25 @@ class JournalHendelseProperties {
         props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, "60000");
 
         return props;
+    }
+
+    private Topic<String, JournalfoeringHendelseRecord> createConfiguredTopic(String topicName, String schemaRegistryUrl,
+                                                                              String basicAuth) {
+        var configuredTopic = new Topic<>(topicName, Serdes.String(), getSerde());
+        if (schemaRegistryUrl != null && !schemaRegistryUrl.isEmpty()) {
+            var schemaMap =
+                Map.of(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl,
+                    AbstractKafkaSchemaSerDeConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO",
+                    AbstractKafkaSchemaSerDeConfig.USER_INFO_CONFIG, basicAuth,
+                    SPECIFIC_AVRO_READER_CONFIG, true);
+            configuredTopic.serdeKey().configure(schemaMap, true);
+            configuredTopic.serdeValue().configure(schemaMap, false);
+        }
+        return configuredTopic;
+    }
+
+    private String getBasicAuth(String schemaRegistryUsername, String schemaRegistryPassword) {
+        return schemaRegistryUsername+":"+schemaRegistryPassword;
     }
 
     private Serde<JournalfoeringHendelseRecord> getSerde() {

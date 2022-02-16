@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.domene.v2;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -12,8 +13,10 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.vedtak.exception.TekniskException;
+import no.seres.xsd.nav.inntektsmelding_m._20181211.Arbeidsforhold;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Arbeidsgiver;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.ArbeidsgiverPrivat;
+import no.seres.xsd.nav.inntektsmelding_m._20181211.Avsendersystem;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.InntektsmeldingM;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Skjemainnhold;
 
@@ -33,6 +36,7 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
         getVirksomhetsnummer().ifPresent(dataWrapper::setVirksomhetsnummer);
         getArbeidsgiverAktørId(aktørIdFinder).ifPresent(dataWrapper::setArbeidsgiverAktørId);
         getArbeidsforholdsid().ifPresent(dataWrapper::setArbeidsforholdsid);
+        getInnsendingstidspunkt().ifPresent(dataWrapper::setForsendelseMottattTidspunkt);
         dataWrapper.setFørsteUttakssdag(getStartdatoForeldrepengeperiode());
         dataWrapper.setInntekstmeldingStartdato(getStartdatoForeldrepengeperiode());
         dataWrapper.setInntektsmeldingYtelse(getYtelse());
@@ -60,15 +64,9 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
     }
 
     private LocalDate getStartdatoForeldrepengeperiode() {
-        final Skjemainnhold skjemainnhold = getSkjema().getSkjemainnhold();
-        if (skjemainnhold == null) {
-            return null;
-        }
-        final JAXBElement<LocalDate> startdatoForeldrepengeperiode = skjemainnhold.getStartdatoForeldrepengeperiode();
-        if (startdatoForeldrepengeperiode == null) {
-            return null;
-        }
-        return startdatoForeldrepengeperiode.getValue();
+        return Optional.ofNullable(getSkjema().getSkjemainnhold())
+            .map(Skjemainnhold::getStartdatoForeldrepengeperiode)
+            .map(JAXBElement::getValue).orElse(null);
     }
 
     // FIXME (GS) Disse to verdiene må bli kodeverk her og i fpsak, men hardkodes nå
@@ -84,15 +82,10 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
     }
 
     private Optional<String> getVirksomhetsnummer() {
-        Skjemainnhold skjemainnhold = getSkjema().getSkjemainnhold();
-        if (null == skjemainnhold) {
-            return Optional.empty();
-        }
-        JAXBElement<Arbeidsgiver> arbeidsgiver = skjemainnhold.getArbeidsgiver();
-        if (null == arbeidsgiver) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(arbeidsgiver.getValue().getVirksomhetsnummer());
+        return Optional.ofNullable(getSkjema().getSkjemainnhold())
+            .map(Skjemainnhold::getArbeidsgiver)
+            .map(JAXBElement::getValue)
+            .map(Arbeidsgiver::getVirksomhetsnummer);
     }
 
     private String getYtelse() {
@@ -100,12 +93,18 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
     }
 
     private Optional<String> getArbeidsforholdsid() {
-        if ((getSkjema().getSkjemainnhold().getArbeidsforhold() != null)
-                && (getSkjema().getSkjemainnhold().getArbeidsforhold().getValue().getArbeidsforholdId() != null)) {
-            return Optional.ofNullable(
-                    getSkjema().getSkjemainnhold().getArbeidsforhold().getValue().getArbeidsforholdId().getValue());
-        }
-        return Optional.empty();
+        return Optional.ofNullable(getSkjema().getSkjemainnhold())
+            .map(Skjemainnhold::getArbeidsforhold)
+            .map(JAXBElement::getValue)
+            .map(Arbeidsforhold::getArbeidsforholdId)
+            .map(JAXBElement::getValue);
+    }
+
+    private Optional<LocalDateTime> getInnsendingstidspunkt() {
+        return Optional.ofNullable(getSkjema().getSkjemainnhold())
+            .map(Skjemainnhold::getAvsendersystem)
+            .map(Avsendersystem::getInnsendingstidspunkt)
+            .map(JAXBElement::getValue);
     }
 
 }

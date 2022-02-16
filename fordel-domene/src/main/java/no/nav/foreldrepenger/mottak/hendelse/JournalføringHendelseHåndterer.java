@@ -49,36 +49,24 @@ public class JournalføringHendelseHåndterer {
         this.dokumentRepository = dokumentRepository;
     }
 
-    void loggMessage(JournalfoeringHendelseRecord payload) {
-        var arkivId = payload.getJournalpostId().toString();
-        var hendelseType = payload.getHendelsesType().toString();
-        var eksternReferanseId = (payload.getKanalReferanseId() == null) || payload.getKanalReferanseId().toString().isEmpty()
-            ? null : payload.getKanalReferanseId().toString();
-
-        LOG.info("FPFORDEL Mottatt joark-hendelse type {} journalpost {} referanse {}", hendelseType, arkivId, eksternReferanseId);
-    }
     void handleMessage(JournalfoeringHendelseRecord payload) {
-        handleMessage(payload, Duration.ZERO);
-    }
-
-    void handleMessage(JournalfoeringHendelseRecord payload, Duration delayExt) {
         setCallIdForHendelse(payload);
 
-        var arkivId = payload.getJournalpostId().toString();
-        var hendelseType = payload.getHendelsesType().toString();
-        var mottaksKanal = payload.getMottaksKanal().toString();
-        var eksternReferanseId = (payload.getKanalReferanseId() == null) || payload.getKanalReferanseId().toString().isEmpty()
-                ? null : payload.getKanalReferanseId().toString();
+        var arkivId = String.valueOf(payload.getJournalpostId());
+        var hendelseType = payload.getHendelsesType();
+        var mottaksKanal = payload.getMottaksKanal();
+        var eksternReferanseId = (payload.getKanalReferanseId() == null) || payload.getKanalReferanseId().isEmpty()
+                ? null : payload.getKanalReferanseId();
 
         // De uten kanalreferanse er "klonet" av SBH og journalført fra Gosys.
         // Normalt blir de journalført, men det feiler av og til pga tilgang.
         // Håndterer disse journalpostene senere (18h) i tilfelle SBH skal ha klart å ordne ting selv
-        var delay = eksternReferanseId == null && !mottaksKanal.equals(MottakKanal.SELVBETJENING.getKode()) ? Duration.ofHours(2) : delayExt;
+        var delay = eksternReferanseId == null && !mottaksKanal.equals(MottakKanal.SELVBETJENING.getKode()) ? Duration.ofHours(2) : Duration.ZERO;
 
-        if (HENDELSE_ENDRET.equalsIgnoreCase(payload.getHendelsesType().toString())) {
+        if (HENDELSE_ENDRET.equalsIgnoreCase(payload.getHendelsesType())) {
             // Hendelsen kan komme før arkivet er oppdatert .....
             delay = Duration.ofSeconds(30);
-            var gammeltTema = payload.getTemaGammelt() != null ? payload.getTemaGammelt().toString() : null;
+            var gammeltTema = payload.getTemaGammelt() != null ? payload.getTemaGammelt() : null;
             LOG.info("FPFORDEL Tema Endret fra {} journalpost {} kanal {} referanse {}", gammeltTema, arkivId, mottaksKanal, eksternReferanseId);
         }
 
@@ -109,9 +97,8 @@ public class JournalføringHendelseHåndterer {
         taskdata.setCallIdFraEksisterende();
         MottakMeldingDataWrapper melding = new MottakMeldingDataWrapper(taskdata);
         melding.setArkivId(arkivId);
-        melding.setTema(Tema.fraOffisiellKode(payload.getTemaNytt().toString()));
-        melding.setBehandlingTema(
-                BehandlingTema.fraOffisiellKode(payload.getBehandlingstema() != null ? payload.getBehandlingstema().toString() : null));
+        melding.setTema(Tema.fraOffisiellKode(payload.getTemaNytt()));
+        melding.setBehandlingTema(BehandlingTema.fraOffisiellKode(payload.getBehandlingstema()));
         if (eksternReferanse != null) {
             melding.setEksternReferanseId(eksternReferanse);
         }
@@ -122,10 +109,10 @@ public class JournalføringHendelseHåndterer {
 
     private static void setCallIdForHendelse(JournalfoeringHendelseRecord payload) {
         var hendelsesId = payload.getHendelsesId();
-        if (hendelsesId == null || hendelsesId.isEmpty() || hendelsesId.toString().isBlank()) {
+        if (hendelsesId == null || hendelsesId.isEmpty() || hendelsesId.isBlank()) {
             MDCOperations.putCallId();
         } else {
-            MDCOperations.putCallId(hendelsesId.toString());
+            MDCOperations.putCallId(hendelsesId);
         }
     }
 }
