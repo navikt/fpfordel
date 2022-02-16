@@ -33,7 +33,7 @@ public class JournalføringHendelseStream implements LivenessAware, ReadinessAwa
     private static final String HENDELSE_ENDRET = "TemaEndret";
     private static final String TEMA_FOR = Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode();
 
-    private final boolean isDeployment = ENV.isProd() || ENV.isDev();
+    private static final boolean isDeployment = ENV.isProd() || ENV.isDev();
 
     private KafkaStreams stream;
     private Topic<String, JournalfoeringHendelseRecord> topic;
@@ -52,6 +52,7 @@ public class JournalføringHendelseStream implements LivenessAware, ReadinessAwa
     private static KafkaStreams createKafkaStreams(Topic<String, JournalfoeringHendelseRecord> topic,
             JournalføringHendelseHåndterer journalføringHendelseHåndterer,
             JournalføringHendelseProperties properties) {
+        if (isDeployment) return null;
         if ((properties.getSchemaRegistryUrl() != null) && !properties.getSchemaRegistryUrl().isEmpty()) {
             var schemaMap = Map.of("schema.registry.url", properties.getSchemaRegistryUrl(), "specific.avro.reader", true);
             topic.serdeKey().configure(schemaMap, true);
@@ -67,7 +68,7 @@ public class JournalføringHendelseStream implements LivenessAware, ReadinessAwa
         builder.stream(topic.topic(), consumed)
                 .filter((key, value) -> TEMA_FOR.equals(value.getTemaNytt().toString()))
                 .filter((key, value) -> hendelseSkalHåndteres(value))
-                .foreach((key, value) -> journalføringHendelseHåndterer.handleMessage(value, Duration.ofMinutes(10)));
+                .foreach((key, value) -> journalføringHendelseHåndterer.handleMessage(value));
 
         return new KafkaStreams(builder.build(), properties.getProperties());
     }
@@ -95,6 +96,7 @@ public class JournalføringHendelseStream implements LivenessAware, ReadinessAwa
 
     @Override
     public void start() {
+        if (isDeployment) return;
         addShutdownHooks();
 
         stream.start();
@@ -111,16 +113,19 @@ public class JournalføringHendelseStream implements LivenessAware, ReadinessAwa
 
     @Override
     public boolean isAlive() {
+        if (isDeployment) return true;
         return (stream != null) && stream.state().isRunningOrRebalancing();
     }
 
     @Override
     public boolean isReady() {
+        if (isDeployment) return true;
         return isAlive();
     }
 
     @Override
     public void stop() {
+        if (isDeployment) return;
         LOG.info("Starter shutdown av topic={}, tilstand={} med 10 sekunder timeout", getTopicName(), stream.state());
         stream.close(Duration.ofSeconds(20));
         LOG.info("Shutdown av topic={}, tilstand={} med 10 sekunder timeout", getTopicName(), stream.state());
