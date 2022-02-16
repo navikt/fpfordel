@@ -1,9 +1,6 @@
 package no.nav.foreldrepenger.mottak.hendelse;
 
-import static io.confluent.kafka.serializers.KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG;
-
 import java.time.Duration;
-import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -15,7 +12,6 @@ import org.apache.kafka.streams.kstream.Consumed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
@@ -23,7 +19,9 @@ import no.nav.vedtak.apptjeneste.AppServiceHandler;
 import no.nav.vedtak.log.metrics.LivenessAware;
 import no.nav.vedtak.log.metrics.ReadinessAware;
 
-
+/*
+ * Dokumentasjon https://confluence.adeo.no/pages/viewpage.action?pageId=432217859
+ */
 @ApplicationScoped
 public class JournalHendelseStream implements LivenessAware, ReadinessAware, AppServiceHandler {
 
@@ -46,7 +44,7 @@ public class JournalHendelseStream implements LivenessAware, ReadinessAware, App
     @Inject
     public JournalHendelseStream(JournalføringHendelseHåndterer journalføringHendelseHåndterer,
                                  JournalHendelseProperties streamKafkaProperties) {
-        this.topic = streamKafkaProperties.getTopic();
+        this.topic = streamKafkaProperties.getConfiguredTopic();
         this.stream = isDeployment ? createKafkaStreams(topic, journalføringHendelseHåndterer, streamKafkaProperties) : null;
     }
 
@@ -54,15 +52,6 @@ public class JournalHendelseStream implements LivenessAware, ReadinessAware, App
     private static KafkaStreams createKafkaStreams(Topic<String, JournalfoeringHendelseRecord> topic,
                                                    JournalføringHendelseHåndterer journalføringHendelseHåndterer,
                                                    JournalHendelseProperties properties) {
-        if ((properties.getSchemaRegistryUrl() != null) && !properties.getSchemaRegistryUrl().isEmpty()) {
-            var schemaMap =
-                Map.of(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, properties.getSchemaRegistryUrl(),
-                    AbstractKafkaSchemaSerDeConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO",
-                    AbstractKafkaSchemaSerDeConfig.USER_INFO_CONFIG, properties.getBasicAuth(),
-                    SPECIFIC_AVRO_READER_CONFIG, true);
-            topic.serdeKey().configure(schemaMap, true);
-            topic.serdeValue().configure(schemaMap, false);
-        }
 
         final Consumed<String, JournalfoeringHendelseRecord> consumed = Consumed
             .<String, JournalfoeringHendelseRecord>with(Topology.AutoOffsetReset.LATEST)

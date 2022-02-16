@@ -8,8 +8,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,32 +19,30 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
-import no.nav.foreldrepenger.mottak.extensions.FPfordelEntityManagerAwareExtension;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskInfo;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
-@ExtendWith(FPfordelEntityManagerAwareExtension.class)
 class JournalføringHendelseHåndtererTest {
 
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
+    @Mock
     private DokumentRepository dokumentRepository;
     private JournalføringHendelseHåndterer hendelseHåndterer;
 
     @BeforeEach
-    void setup(EntityManager em) {
-        dokumentRepository = new DokumentRepository(em);
+    void setup() {
         hendelseHåndterer = new JournalføringHendelseHåndterer(taskTjeneste, dokumentRepository);
     }
 
     @Test
-    void testSoknadEngangstonadOppretterKorrektTask(EntityManager em) {
+    void testSoknadEngangstonadOppretterKorrektTask() {
         var builder = JournalfoeringHendelseRecord.newBuilder()
                 .setHendelsesId("12345").setVersjon(1)
-                .setHendelsesType("MidlertidigJournalført")
+                .setHendelsesType("JournalpostMottatt")
                 .setTemaNytt(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode()).setTemaGammelt("")
                 .setBehandlingstema(BehandlingTema.ENGANGSSTØNAD_FØDSEL.getOffisiellKode())
                 .setMottaksKanal(MottakKanal.SELVBETJENING.getKode())
@@ -55,7 +51,6 @@ class JournalføringHendelseHåndtererTest {
                 .setJournalpostStatus("M");
 
         hendelseHåndterer.handleMessage(builder.build());
-        em.flush();
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste, times(1)).lagre(captor.capture());
@@ -69,10 +64,10 @@ class JournalføringHendelseHåndtererTest {
     }
 
     @Test
-    void testSoknadUkjentTypeSendesLikevelTilNesteSteg(EntityManager em) {
+    void testSoknadUkjentTypeSendesLikevelTilNesteSteg() {
         var builder = JournalfoeringHendelseRecord.newBuilder()
                 .setHendelsesId("12345").setVersjon(1)
-                .setHendelsesType("MidlertidigJournalført")
+                .setHendelsesType("JournalpostMottatt")
                 .setTemaNytt(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode()).setTemaGammelt("")
                 .setMottaksKanal(MottakKanal.ALTINN.getKode())
                 .setKanalReferanseId("AR325657")
@@ -80,7 +75,6 @@ class JournalføringHendelseHåndtererTest {
                 .setJournalpostStatus("M");
 
         hendelseHåndterer.handleMessage(builder.build());
-        em.flush();
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste, times(1)).lagre(captor.capture());
@@ -93,10 +87,10 @@ class JournalføringHendelseHåndtererTest {
     }
 
     @Test
-    void testDokumentFraKloningUtsettes(EntityManager em) {
+    void testDokumentFraKloningUtsettes() {
         var builder = JournalfoeringHendelseRecord.newBuilder()
                 .setHendelsesId("12345").setVersjon(1)
-                .setHendelsesType("MidlertidigJournalført")
+                .setHendelsesType("JournalpostMottatt")
                 .setTemaNytt(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode()).setTemaGammelt("")
                 .setMottaksKanal(MottakKanal.HELSENETTET.getKode())
                 .setKanalReferanseId("")
@@ -104,7 +98,6 @@ class JournalføringHendelseHåndtererTest {
                 .setJournalpostStatus("M");
 
         hendelseHåndterer.handleMessage(builder.build());
-        em.flush();
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste, times(1)).lagre(captor.capture());
@@ -115,10 +108,10 @@ class JournalføringHendelseHåndtererTest {
     }
 
     @Test
-    void testDokumentFraEESSIIgnoreres(EntityManager em) {
+    void testDokumentFraEESSIIgnoreres() {
         var builder = JournalfoeringHendelseRecord.newBuilder()
                 .setHendelsesId("12345").setVersjon(1)
-                .setHendelsesType("MidlertidigJournalført")
+                .setHendelsesType("JournalpostMottatt")
                 .setTemaNytt(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode()).setTemaGammelt("")
                 .setMottaksKanal(MottakKanal.EESSI.getKode())
                 .setKanalReferanseId("minfil.pdf")
@@ -126,7 +119,6 @@ class JournalføringHendelseHåndtererTest {
                 .setJournalpostStatus("M");
 
         hendelseHåndterer.handleMessage(builder.build());
-        em.flush();
 
         verifyNoInteractions(taskTjeneste);
     }

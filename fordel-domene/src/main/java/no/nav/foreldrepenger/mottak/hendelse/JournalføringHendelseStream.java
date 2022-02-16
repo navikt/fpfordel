@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
 import no.nav.vedtak.apptjeneste.AppServiceHandler;
 import no.nav.vedtak.log.metrics.LivenessAware;
@@ -25,10 +26,14 @@ import no.nav.vedtak.log.metrics.ReadinessAware;
 @ApplicationScoped
 public class JournalføringHendelseStream implements LivenessAware, ReadinessAware, AppServiceHandler {
 
+    private static final Environment ENV = Environment.current();
+
     private static final Logger LOG = LoggerFactory.getLogger(JournalføringHendelseStream.class);
     private static final String HENDELSE_MIDL = "MidlertidigJournalført";
     private static final String HENDELSE_ENDRET = "TemaEndret";
     private static final String TEMA_FOR = Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode();
+
+    private final boolean isDeployment = ENV.isProd() || ENV.isDev();
 
     private KafkaStreams stream;
     private Topic<String, JournalfoeringHendelseRecord> topic;
