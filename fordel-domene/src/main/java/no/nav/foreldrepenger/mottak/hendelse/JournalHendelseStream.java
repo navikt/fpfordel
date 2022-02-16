@@ -33,7 +33,7 @@ public class JournalHendelseStream implements LivenessAware, ReadinessAware, App
     private static final String HENDELSE_ENDRET = "TemaEndret";
     private static final String TEMA_FOR = Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode();
 
-    private final boolean isDeployment = ENV.isProd() || ENV.isDev();
+    private static final boolean isDeployment = ENV.isProd() || ENV.isDev();
 
     private KafkaStreams stream;
     private Topic<String, JournalfoeringHendelseRecord> topic;
@@ -52,7 +52,7 @@ public class JournalHendelseStream implements LivenessAware, ReadinessAware, App
     private static KafkaStreams createKafkaStreams(Topic<String, JournalfoeringHendelseRecord> topic,
                                                    JournalføringHendelseHåndterer journalføringHendelseHåndterer,
                                                    JournalHendelseProperties properties) {
-
+        if (!isDeployment) return null;
         final Consumed<String, JournalfoeringHendelseRecord> consumed = Consumed
             .<String, JournalfoeringHendelseRecord>with(Topology.AutoOffsetReset.LATEST)
             .withKeySerde(topic.serdeKey())

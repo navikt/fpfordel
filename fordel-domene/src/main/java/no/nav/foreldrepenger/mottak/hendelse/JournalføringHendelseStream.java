@@ -33,7 +33,7 @@ public class JournalføringHendelseStream implements LivenessAware, ReadinessAwa
     private static final String HENDELSE_ENDRET = "TemaEndret";
     private static final String TEMA_FOR = Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode();
 
-    private final boolean isDeployment = ENV.isProd() || ENV.isDev();
+    private static final boolean isDeployment = ENV.isProd() || ENV.isDev();
 
     private KafkaStreams stream;
     private Topic<String, JournalfoeringHendelseRecord> topic;
@@ -52,6 +52,7 @@ public class JournalføringHendelseStream implements LivenessAware, ReadinessAwa
     private static KafkaStreams createKafkaStreams(Topic<String, JournalfoeringHendelseRecord> topic,
             JournalføringHendelseHåndterer journalføringHendelseHåndterer,
             JournalføringHendelseProperties properties) {
+        if (isDeployment) return null;
         if ((properties.getSchemaRegistryUrl() != null) && !properties.getSchemaRegistryUrl().isEmpty()) {
             var schemaMap = Map.of("schema.registry.url", properties.getSchemaRegistryUrl(), "specific.avro.reader", true);
             topic.serdeKey().configure(schemaMap, true);
