@@ -57,8 +57,11 @@ public class JournalføringHendelseHåndterer {
 
         LOG.info("FPFORDEL Mottatt joark-hendelse type {} journalpost {} referanse {}", hendelseType, arkivId, eksternReferanseId);
     }
-
     void handleMessage(JournalfoeringHendelseRecord payload) {
+        handleMessage(payload, Duration.ZERO);
+    }
+
+    void handleMessage(JournalfoeringHendelseRecord payload, Duration delayExt) {
         setCallIdForHendelse(payload);
 
         var arkivId = payload.getJournalpostId().toString();
@@ -70,7 +73,7 @@ public class JournalføringHendelseHåndterer {
         // De uten kanalreferanse er "klonet" av SBH og journalført fra Gosys.
         // Normalt blir de journalført, men det feiler av og til pga tilgang.
         // Håndterer disse journalpostene senere (18h) i tilfelle SBH skal ha klart å ordne ting selv
-        var delay = eksternReferanseId == null && !mottaksKanal.equals(MottakKanal.SELVBETJENING.getKode()) ? Duration.ofHours(2) : Duration.ZERO;
+        var delay = eksternReferanseId == null && !mottaksKanal.equals(MottakKanal.SELVBETJENING.getKode()) ? Duration.ofHours(2) : delayExt;
 
         if (HENDELSE_ENDRET.equalsIgnoreCase(payload.getHendelsesType().toString())) {
             // Hendelsen kan komme før arkivet er oppdatert .....

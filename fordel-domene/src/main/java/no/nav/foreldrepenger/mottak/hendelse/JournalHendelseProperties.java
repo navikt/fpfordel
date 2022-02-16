@@ -1,6 +1,9 @@
 package no.nav.foreldrepenger.mottak.hendelse;
 
 
+import static io.confluent.kafka.serializers.KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG;
+
+import java.util.Map;
 import java.util.Properties;
 
 import javax.enterprise.context.Dependent;
@@ -63,15 +66,21 @@ class JournalHendelseProperties {
         this.schemaRegistryPassword = schemaRegistryPassword;
     }
 
-    public Topic<String, JournalfoeringHendelseRecord> getTopic() {
-            return journalfoeringHendelseTopic;
+    Topic<String, JournalfoeringHendelseRecord> getConfiguredTopic() {
+        if (schemaRegistryUrl != null && !schemaRegistryUrl.isEmpty()) {
+            var schemaMap =
+                Map.of(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl,
+                    AbstractKafkaSchemaSerDeConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO",
+                    AbstractKafkaSchemaSerDeConfig.USER_INFO_CONFIG, getBasicAuth(),
+                    SPECIFIC_AVRO_READER_CONFIG, true);
+            journalfoeringHendelseTopic.serdeKey().configure(schemaMap, true);
+            journalfoeringHendelseTopic.serdeValue().configure(schemaMap, false);
+        }
+        return journalfoeringHendelseTopic;
     }
 
-    String getSchemaRegistryUrl() {
-        return schemaRegistryUrl;
-    }
 
-    String getBasicAuth() {
+    private String getBasicAuth() {
         return schemaRegistryUsername+":"+schemaRegistryPassword;
     }
 
@@ -92,9 +101,6 @@ class JournalHendelseProperties {
             props.put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, "PKCS12");
             props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, keyStoreLocation);
             props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, credStorePassword);
-            props.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
-            props.put(AbstractKafkaSchemaSerDeConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO");
-            props.put(AbstractKafkaSchemaSerDeConfig.USER_INFO_CONFIG, getBasicAuth());
         } else {
             props.setProperty(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SASL_SSL.name);
             props.setProperty(SaslConfigs.SASL_MECHANISM, "PLAIN");
