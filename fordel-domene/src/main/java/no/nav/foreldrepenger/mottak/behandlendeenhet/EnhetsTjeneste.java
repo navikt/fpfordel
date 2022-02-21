@@ -108,6 +108,7 @@ public class EnhetsTjeneste implements EnhetsInfo {
                     .medTemagruppe(TEMAGRUPPE)
                     .medTema(TEMA)
                     .medBehandlingstype(BEHANDLINGTYPE)
+                    .medBehandlingstema(BehandlingTema.FORELDREPENGER.getOffisiellKode())
                     .medOppgavetype(OPPGAVETYPE_JFR)
                     .build();
             var respons = norgKlient.hentAlleAktiveEnheter(request);
