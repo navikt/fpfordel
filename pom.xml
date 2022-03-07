@@ -32,7 +32,7 @@
         <jersey.version>2.35</jersey.version>
         <swagger.version>2.1.13</swagger.version>
         <prometheus.version>0.15.0</prometheus.version>
-        <fp-kontrakter.version>6.1.6</fp-kontrakter.version>
+        <fp-kontrakter.version>6.1.12</fp-kontrakter.version>
         <confluent.version>7.0.1</confluent.version>
         <kafka.version>3.1.0</kafka.version>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
