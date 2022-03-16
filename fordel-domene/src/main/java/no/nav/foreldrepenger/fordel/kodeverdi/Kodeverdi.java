@@ -5,6 +5,4 @@ public interface Kodeverdi {
 
     String getKode();
 
-    String getKodeverk();
-
 }

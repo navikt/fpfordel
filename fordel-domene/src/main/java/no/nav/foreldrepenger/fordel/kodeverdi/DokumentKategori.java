@@ -3,16 +3,8 @@ package no.nav.foreldrepenger.fordel.kodeverdi;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum DokumentKategori implements Kodeverdi {
 
     BRV("BRV", "B"),
@@ -34,24 +26,18 @@ public enum DokumentKategori implements Kodeverdi {
     ;
 
     private static final Map<String, DokumentKategori> KODER = new LinkedHashMap<>();
-    private static final Map<String, DokumentKategori> OFFISIELLE_KODER = new LinkedHashMap<>();
-
-    public static final String KODEVERK = "DOKUMENT_KATEGORI";
 
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
                 throw new IllegalArgumentException("Duplikat : " + v.kode);
             }
-            if (v.offisiellKode != null) {
-                OFFISIELLE_KODER.putIfAbsent(v.offisiellKode, v);
-            }
         }
     }
 
+    @JsonValue
     private String kode;
 
-    @JsonIgnore
     private String offisiellKode;
 
     private DokumentKategori(String kode, String offisiellKode) {
@@ -59,39 +45,13 @@ public enum DokumentKategori implements Kodeverdi {
         this.offisiellKode = offisiellKode;
     }
 
-    @JsonCreator
-    public static DokumentKategori fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent Tema: " + kode);
-        }
-        return ad;
-    }
-
-    public static DokumentKategori fraKodeDefaultUdefinert(@JsonProperty("kode") String kode) {
+    public static DokumentKategori fraKodeDefaultUdefinert(String kode) {
         if (kode == null) {
             return UDEFINERT;
         }
         return KODER.getOrDefault(kode, UDEFINERT);
     }
 
-    public static DokumentKategori fraOffisiellKode(String kode) {
-        if (kode == null) {
-            return UDEFINERT;
-        }
-        return OFFISIELLE_KODER.getOrDefault(kode, UDEFINERT);
-    }
-
-    @JsonProperty
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
-    }
-
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
