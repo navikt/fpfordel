@@ -2,18 +2,11 @@ package no.nav.foreldrepenger.fordel.kodeverdi;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum BehandlingTema implements Kodeverdi {
 
     ENGANGSSTØNAD("ENGST", "ab0327", "Engangsstønad"),
@@ -40,8 +33,6 @@ public enum BehandlingTema implements Kodeverdi {
     private static final Map<String, BehandlingTema> OFFISIELLE_KODER = new LinkedHashMap<>();
     private static final Map<String, BehandlingTema> ALLE_TERMNAVN = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "BEHANDLING_TEMA";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -56,12 +47,11 @@ public enum BehandlingTema implements Kodeverdi {
         }
     }
 
+    @JsonValue
     private String kode;
 
-    @JsonIgnore
     private String offisiellKode;
 
-    @JsonIgnore
     private String termnavn;
 
     private BehandlingTema(String kode, String offisiellKode, String termnavn) {
@@ -70,19 +60,15 @@ public enum BehandlingTema implements Kodeverdi {
         this.termnavn = termnavn;
     }
 
-    @JsonCreator
-    public static BehandlingTema fraKode(@JsonProperty("kode") String kode) {
+    public static BehandlingTema fraKode(String kode) {
         if (kode == null) {
             return null;
         }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent Tema: " + kode);
-        }
-        return ad;
+        return Optional.ofNullable(KODER.get(kode))
+            .orElseThrow(() -> new IllegalArgumentException("Ukjent Tema: " + kode));
     }
 
-    public static BehandlingTema fraKodeDefaultUdefinert(@JsonProperty("kode") String kode) {
+    public static BehandlingTema fraKodeDefaultUdefinert(String kode) {
         if (kode == null) {
             return UDEFINERT;
         }
@@ -103,13 +89,6 @@ public enum BehandlingTema implements Kodeverdi {
         return ALLE_TERMNAVN.getOrDefault(termnavn, UDEFINERT);
     }
 
-    @JsonProperty
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
-    }
-
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;

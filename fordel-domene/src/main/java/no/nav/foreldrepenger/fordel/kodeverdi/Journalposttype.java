@@ -3,15 +3,8 @@ package no.nav.foreldrepenger.fordel.kodeverdi;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum Journalposttype implements Kodeverdi {
 
     INNGÅENDE("I"),
@@ -25,10 +18,9 @@ public enum Journalposttype implements Kodeverdi {
     UDEFINERT("-"),
     ;
 
-    public static final String KODEVERK = "JOURNALPOSTTYPE";
-
     private static final Map<String, Journalposttype> KODER = new LinkedHashMap<>();
 
+    @JsonValue
     private String kode;
 
     Journalposttype() {
@@ -39,32 +31,13 @@ public enum Journalposttype implements Kodeverdi {
         this.kode = kode;
     }
 
-    @JsonCreator
-    public static Journalposttype fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent Fagsystem: " + kode);
-        }
-        return ad;
-    }
-
-    public static Journalposttype fraKodeDefaultUdefinert(@JsonProperty("kode") String kode) {
+    public static Journalposttype fraKodeDefaultUdefinert(String kode) {
         if (kode == null) {
             return UDEFINERT;
         }
         return KODER.getOrDefault(kode, UDEFINERT);
     }
 
-    @JsonProperty
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
-    }
-
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;

@@ -3,16 +3,8 @@ package no.nav.foreldrepenger.fordel.kodeverdi;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum NAVSkjema implements Kodeverdi {
 
     SKJEMA_SVANGERSKAPSPENGER("SSVPA", "NAV 14-04.10", "Søknad om svangerskapspenger for arbeidstakere"),
@@ -54,17 +46,11 @@ public enum NAVSkjema implements Kodeverdi {
 
     UDEFINERT("-", null, "Ukjent type dokument");
 
-    private static final Map<String, NAVSkjema> KODER = new LinkedHashMap<>();
     private static final Map<String, NAVSkjema> OFFISIELLE_KODER = new LinkedHashMap<>();
     private static final Map<String, NAVSkjema> TERMNAVN_KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "NAV_SKJEMA";
-
     static {
         for (var v : values()) {
-            if (KODER.putIfAbsent(v.kode, v) != null) {
-                throw new IllegalArgumentException("Duplikat : " + v.kode);
-            }
             if (v.offisiellKode != null) {
                 OFFISIELLE_KODER.putIfAbsent(v.offisiellKode, v);
             }
@@ -74,37 +60,17 @@ public enum NAVSkjema implements Kodeverdi {
         }
     }
 
+    @JsonValue
     private String kode;
 
-    @JsonIgnore
     private String offisiellKode;
 
-    @JsonIgnore
     private String termnavn;
 
     private NAVSkjema(String kode, String offisiellKode, String termnavn) {
         this.kode = kode;
         this.offisiellKode = offisiellKode;
         this.termnavn = termnavn;
-    }
-
-    @JsonCreator
-    public static NAVSkjema fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent Tema: " + kode);
-        }
-        return ad;
-    }
-
-    public static NAVSkjema fraKodeDefaultUdefinert(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return UDEFINERT;
-        }
-        return KODER.getOrDefault(kode, UDEFINERT);
     }
 
     public static NAVSkjema fraOffisiellKode(String kode) {
@@ -121,13 +87,6 @@ public enum NAVSkjema implements Kodeverdi {
         return TERMNAVN_KODER.getOrDefault(navn, UDEFINERT);
     }
 
-    @JsonProperty
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
-    }
-
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;

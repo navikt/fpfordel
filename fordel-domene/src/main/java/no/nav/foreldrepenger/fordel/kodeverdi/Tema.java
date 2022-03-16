@@ -2,17 +2,10 @@ package no.nav.foreldrepenger.fordel.kodeverdi;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum Tema implements Kodeverdi {
 
     FORELDRE_OG_SVANGERSKAPSPENGER("FOR_SVA", "FOR"),
@@ -22,8 +15,6 @@ public enum Tema implements Kodeverdi {
 
     private static final Map<String, Tema> KODER = new LinkedHashMap<>();
     private static final Map<String, Tema> OFFISIELLE_KODER = new LinkedHashMap<>();
-
-    public static final String KODEVERK = "TEMA";
 
     static {
         for (var v : values()) {
@@ -36,9 +27,9 @@ public enum Tema implements Kodeverdi {
         }
     }
 
+    @JsonValue
     private String kode;
 
-    @JsonIgnore
     private String offisiellKode;
 
     private Tema(String kode, String offisiellKode) {
@@ -46,23 +37,12 @@ public enum Tema implements Kodeverdi {
         this.offisiellKode = offisiellKode;
     }
 
-    @JsonCreator
-    public static Tema fraKode(@JsonProperty("kode") String kode) {
+    public static Tema fraKode(String kode) {
         if (kode == null) {
             return null;
         }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent Tema: " + kode);
-        }
-        return ad;
-    }
-
-    public static Tema fraKodeDefaultUdefinert(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return UDEFINERT;
-        }
-        return KODER.getOrDefault(kode, UDEFINERT);
+        return Optional.ofNullable(KODER.get(kode))
+            .orElseThrow(() -> new IllegalArgumentException("Ukjent Tema: " + kode));
     }
 
     public static Tema fraOffisiellKode(String kode) {
@@ -72,13 +52,6 @@ public enum Tema implements Kodeverdi {
         return OFFISIELLE_KODER.getOrDefault(kode, UDEFINERT);
     }
 
-    @JsonProperty
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
-    }
-
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;

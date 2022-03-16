@@ -8,16 +8,8 @@ import java.util.Set;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum DokumentTypeId implements Kodeverdi {
 
     // Søknader
@@ -112,12 +104,11 @@ public enum DokumentTypeId implements Kodeverdi {
         }
     }
 
+    @JsonValue
     private String kode;
 
-    @JsonIgnore
     private String offisiellKode;
 
-    @JsonIgnore
     private String termnavn;
 
     private DokumentTypeId(String kode, String offisiellKode, String termnavn) {
@@ -126,8 +117,7 @@ public enum DokumentTypeId implements Kodeverdi {
         this.termnavn = termnavn;
     }
 
-    @JsonCreator
-    public static DokumentTypeId fraKode(@JsonProperty("kode") String kode) {
+    public static DokumentTypeId fraKode(String kode) {
         if (kode == null) {
             return null;
         }
@@ -138,7 +128,7 @@ public enum DokumentTypeId implements Kodeverdi {
         return ad;
     }
 
-    public static DokumentTypeId fraKodeDefaultUdefinert(@JsonProperty("kode") String kode) {
+    public static DokumentTypeId fraKodeDefaultUdefinert(String kode) {
         if (kode == null) {
             return UDEFINERT;
         }
@@ -158,13 +148,6 @@ public enum DokumentTypeId implements Kodeverdi {
                 .orElse(UDEFINERT);
     }
 
-    @JsonProperty
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
-    }
-
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
