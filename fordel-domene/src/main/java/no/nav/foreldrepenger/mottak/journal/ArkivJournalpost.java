@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.Tilleggsopplysning;
+import no.nav.foreldrepenger.mottak.journal.saf.model.DokumentInfo;
 import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
 
 public class ArkivJournalpost {
@@ -129,6 +130,14 @@ public class ArkivJournalpost {
 
     public boolean getInnholderStrukturertInformasjon() {
         return (strukturertPayload != null) && !strukturertPayload.isEmpty();
+    }
+
+    public boolean harBrevkodeCrm() {
+        return Optional.ofNullable(original)
+            .map(Journalpost::dokumenter).orElse(List.of()).stream()
+            .map(DokumentInfo::brevkode)
+            .filter(Objects::nonNull)
+            .anyMatch(bk -> bk.startsWith("CRM"));
     }
 
     public static Builder getBuilder() {
