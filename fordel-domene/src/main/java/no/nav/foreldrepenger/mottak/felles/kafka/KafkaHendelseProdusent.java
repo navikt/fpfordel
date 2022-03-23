@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.felles.kafka;
 
-import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 import static no.nav.foreldrepenger.mottak.felles.kafka.KafkaProperties.properties;
 import static no.nav.vedtak.log.mdc.MDCOperations.HTTP_HEADER_CALL_ID;
 import static no.nav.vedtak.log.mdc.MDCOperations.generateCallId;
@@ -23,6 +22,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ApplicationScoped
 public class KafkaHendelseProdusent implements HendelseProdusent {
@@ -67,7 +67,7 @@ public class KafkaHendelseProdusent implements HendelseProdusent {
 
     private static String jsonFra(Object object) {
         try {
-            return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+            return DefaultJsonMapper.getObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(object);
         } catch (JsonProcessingException e) {
             throw new TekniskException("FP-190496", "Kunne ikke serialisere til json", e);
         }
