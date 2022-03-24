@@ -205,7 +205,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
             var fagsakInfoOpt = fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnr))
                     .filter(f -> erGyldigSaksnummer(w, saksnr, f, hovedDokument));
             if (fagsakInfoOpt.isEmpty()) {
-                w.setSaksnummer(null); // Sendt inn på infotrygd-sak
+                w.setSaksnummer(null); // Sendt inn på ukjent sak
             }
             if (hovedDokument.isEmpty()) {
                 fagsakInfoOpt.ifPresent(f -> w.setBehandlingTema(fraOffisiellKode(f.getBehandlingstemaOffisiellKode())));

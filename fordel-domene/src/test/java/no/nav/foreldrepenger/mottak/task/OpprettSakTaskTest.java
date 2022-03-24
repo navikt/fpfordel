@@ -48,7 +48,7 @@ class OpprettSakTaskTest {
 
     @BeforeEach
     void setUp() {
-        vurderVLSaker = new DestinasjonsRuter(null, fagsakRestKlient);
+        vurderVLSaker = new DestinasjonsRuter(fagsakRestKlient);
     }
 
     @Test

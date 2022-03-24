@@ -36,8 +36,7 @@ public class VedlikeholdSchedulerTask implements ProsessTaskHandler {
             MonthDay.of(5, 1),
             MonthDay.of(5, 17),
             MonthDay.of(12, 25),
-            MonthDay.of(12, 26),
-            MonthDay.of(12, 31));
+            MonthDay.of(12, 26));
 
     VedlikeholdSchedulerTask() {
         // CDI
@@ -59,7 +58,7 @@ public class VedlikeholdSchedulerTask implements ProsessTaskHandler {
         prosessTaskTjeneste.lagre(gruppeScheduler);
 
         // Ingenting å kjøre i helgene enn så lenge
-        if ((DayOfWeek.FRIDAY.getValue() < DayOfWeek.from(dagensDato).getValue()) || erFastInfotrygdStengtDag(dagensDato)) {
+        if ((DayOfWeek.FRIDAY.getValue() < DayOfWeek.from(dagensDato).getValue()) || erFastOppdragStengtDag(dagensDato)) {
             return;
         }
 
@@ -70,7 +69,7 @@ public class VedlikeholdSchedulerTask implements ProsessTaskHandler {
         prosessTaskTjeneste.restartAlleFeiledeTasks();
     }
 
-    private static boolean erFastInfotrygdStengtDag(LocalDate dato) {
+    private static boolean erFastOppdragStengtDag(LocalDate dato) {
         return FASTE_STENGTE_DAGER.contains(MonthDay.from(dato));
     }
 }
