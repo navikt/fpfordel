@@ -25,7 +25,7 @@ public final class Databaseskjemainitialisering {
 
     public static final DBProperties DEFAULT_DS_PROPERTIES = dbProperties("defaultDS", "fpfordel");
     public static final DBProperties DVH_DS_PROPERTIES = dbProperties("defaultDS", "fpfordel_unit");
-    public static final String URL_DEFAULT = "jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=tcp) (HOST=127.0.0.1)(PORT=1522))(CONNECT_DATA=(SERVICE_NAME=XEPDB1)))";
+    public static final String URL_DEFAULT = "jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=tcp) (HOST=127.0.0.1)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=XE)))";
 
     public static void main(String[] args) {
         migrer();
