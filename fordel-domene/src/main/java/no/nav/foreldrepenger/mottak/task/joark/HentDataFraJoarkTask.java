@@ -106,13 +106,19 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         var journalpost = arkiv.hentArkivJournalpost(w.getArkivId());
 
         if (journalpost.harBrevkodeCrm()) {
-            LOG.info("FPFORDEL HentFraArkiv CRM-brevkode for journalpost {} kanal {} tema {}  tilstand {} hovedtype {} alle typer {}",
-                w.getArkivId(), journalpost.getKanal(), journalpost.getTema().getKode(), journalpost.getTilstand(),
+            var ref = Optional.ofNullable(journalpost.getEksternReferanseId()).orElse("");
+            LOG.info("FPFORDEL HentFraArkiv CRM-brevkode for journalpost {} kanal {} ref {} tilstand {} hovedtype {} alle typer {}",
+                w.getArkivId(), journalpost.getKanal(), ref, journalpost.getTilstand(),
                 journalpost.getHovedtype(), journalpost.getAlleTyper());
+            if (!MOTTATT.equals(journalpost.getTilstand())) {
+                return null;
+            }
         }
 
         if (!MOTTATT.equals(journalpost.getTilstand())) {
-            LOG.info("FPFORDEL HentFraArkiv feil tilstand på journalpost {} med {}", journalpost.getJournalpostId(), journalpost.getTilstand());
+            LOG.info("FPFORDEL HentFraArkiv feil tilstand på journalpost {} kanal {} tema {} tilstand {} hovedtype {} alle typer {}",
+                w.getArkivId(), journalpost.getKanal(), journalpost.getTema().getKode(), journalpost.getTilstand(),
+                journalpost.getHovedtype(), journalpost.getAlleTyper());
             return null;
         }
 

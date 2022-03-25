@@ -143,7 +143,7 @@ public class JerseyFagsak extends AbstractJerseyOidcRestClient implements Fagsak
         var brukPath = w.getJournalførendeEnhet().filter(EnhetsInfo.NK_ENHET_ID::equals).isPresent() ?
                 KLAGEINSTANS_FAGSYSTEM_PATH : VURDER_FAGSYSTEM_PATH;
 
-        var res = new VurderFagsystemResultat(invoke(client.target(endpoint)
+        var res = VurderFagsystemResultat.fra(invoke(client.target(endpoint)
                 .path(brukPath)
                 .request(APPLICATION_JSON_TYPE)
                 .buildPost(json(dto)), BehandlendeFagsystemDto.class));

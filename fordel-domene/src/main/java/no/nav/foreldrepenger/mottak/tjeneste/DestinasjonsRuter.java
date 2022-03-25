@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
+import no.nav.foreldrepenger.mottak.klient.VurderFagsystemResultat;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.konfig.Tid;
 
@@ -42,12 +43,9 @@ import no.nav.vedtak.konfig.Tid;
 public class DestinasjonsRuter {
 
     private final Fagsak fagsakRestKlient;
-    private final VurderInfotrygd vurderInfotrygd;
 
     @Inject
-    public DestinasjonsRuter(VurderInfotrygd vurderInfotrygd,
-            Fagsak fagsakRestKlient) {
-        this.vurderInfotrygd = vurderInfotrygd;
+    public DestinasjonsRuter(Fagsak fagsakRestKlient) {
         this.fagsakRestKlient = fagsakRestKlient;
     }
 
@@ -56,27 +54,20 @@ public class DestinasjonsRuter {
         var res = fagsakRestKlient.vurderFagsystem(w);
 
         res.getSaksnummer().ifPresent(w::setSaksnummer);
-        if (res.isBehandlesIVedtaksløsningen() && res.getSaksnummer().isPresent()) {
+        if (VurderFagsystemResultat.SendTil.FPSAK.equals(res.destinasjon()) && res.getSaksnummer().isPresent()) {
             return new Destinasjon(ForsendelseStatus.FPSAK, res.getSaksnummer().orElseThrow());
         }
         if (skalBehandlesEtterTidligereRegler(w)) {
             return Destinasjon.GOSYS;
         }
-        if (res.isBehandlesIVedtaksløsningen()) {
+        if (VurderFagsystemResultat.SendTil.FPSAK.equals(res.destinasjon())) {
             return Destinasjon.FPSAK_UTEN_SAK;
         }
-        if (res.isSjekkMotInfotrygd()) {
-            return sjekkInfotrygd(w);
-        }
-        if (res.isManuellVurdering()) {
+        if (VurderFagsystemResultat.SendTil.GOSYS.equals(res.destinasjon())) {
             return Destinasjon.GOSYS;
         }
         throw new IllegalStateException("Utviklerfeil"); // fix korrekt feilhåndtering
 
-    }
-
-    private Destinasjon sjekkInfotrygd(MottakMeldingDataWrapper w) {
-        return vurderInfotrygd.kreverManuellVurdering(w) ? Destinasjon.GOSYS : Destinasjon.FPSAK_UTEN_SAK;
     }
 
     private static boolean skalBehandlesEtterTidligereRegler(MottakMeldingDataWrapper dataWrapper) {
