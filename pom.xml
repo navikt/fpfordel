@@ -23,14 +23,14 @@
     <properties>
         <tjenestespesifikasjon.version>1.2021.02.22-10.45-4201aaea72fb</tjenestespesifikasjon.version>
         <revision>2.0</revision>
-        <sha1 />
+        <sha1/>
         <changelist>-SNAPSHOT</changelist>
         <felles.version>4.1.22</felles.version>
         <prosesstask.version>3.1.7</prosesstask.version>
         <java.version>17</java.version>
         <argLine>-Xms256m -Dfile.encoding=UTF-8</argLine>
         <jersey.version>2.35</jersey.version>
-        <swagger.version>2.1.13</swagger.version>
+        <swagger.version>2.2.0</swagger.version>
         <prometheus.version>0.15.0</prometheus.version>
         <fp-kontrakter.version>6.1.19</fp-kontrakter.version>
         <confluent.version>7.0.1</confluent.version>
