@@ -33,7 +33,7 @@
         <swagger.version>2.2.0</swagger.version>
         <prometheus.version>0.15.0</prometheus.version>
         <fp-kontrakter.version>6.1.19</fp-kontrakter.version>
-        <confluent.version>7.0.1</confluent.version>
+        <confluent.version>7.1.1</confluent.version>
         <kafka.version>3.1.0</kafka.version>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.organization>navit</sonar.organization>
@@ -44,7 +44,7 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-bom</artifactId>
-                <version>10.0.8</version>
+                <version>10.0.9</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -123,7 +123,7 @@
             <dependency>
                 <groupId>net.logstash.logback</groupId>
                 <artifactId>logstash-logback-encoder</artifactId>
-                <version>7.1</version>
+                <version>7.1.1</version>
             </dependency>
             <dependency>
                 <groupId>com.papertrailapp</groupId>
@@ -179,7 +179,7 @@
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-compat-spec-parser</artifactId>
-                <version>1.0.58</version>
+                <version>1.0.59</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
@@ -214,7 +214,7 @@
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
-                <version>8.5.4</version>
+                <version>8.5.8</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -273,7 +273,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.7</version>
+                    <version>0.8.8</version>
                     <executions>
                         <execution>
                             <goals>
