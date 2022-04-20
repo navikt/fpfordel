@@ -358,7 +358,7 @@ public class ArkivTjeneste {
             var strukturert = hoveddokument.stream()
                     .filter(dok -> ArkivFilType.XML.equals(dok.getArkivFilType()))
                     .findFirst()
-                    .map(dok -> new Dokumentvariant(Variantformat.ORIGINAL, dok.getArkivFilType().getKode(), dok.getBase64EncodetDokument()))
+                    .map(dok -> new Dokumentvariant(Variantformat.ORIGINAL, dok.getArkivFilType().name(), dok.getBase64EncodetDokument()))
                     .orElse(null);
             var arkivvariant = hoveddokument.stream()
                     .filter(dok -> !ArkivFilType.XML.equals(dok.getArkivFilType()))
@@ -377,7 +377,7 @@ public class ArkivTjeneste {
         if (struktuert != null) {
             varianter.add(struktuert);
         }
-        varianter.add(new Dokumentvariant(Variantformat.ARKIV, dokument.getArkivFilType().getKode(), dokument.getBase64EncodetDokument()));
+        varianter.add(new Dokumentvariant(Variantformat.ARKIV, dokument.getArkivFilType().name(), dokument.getBase64EncodetDokument()));
         var type = DokumentTypeId.UDEFINERT.equals(dokument.getDokumentTypeId()) ? DokumentTypeId.ANNET : dokument.getDokumentTypeId();
         var tittel = DokumentTypeId.ANNET.equals(type) && (dokument.getBeskrivelse() != null) ? dokument.getBeskrivelse() : type.getTermNavn();
         var brevkode = MapNAVSkjemaDokumentTypeId.mapDokumentTypeId(type);
