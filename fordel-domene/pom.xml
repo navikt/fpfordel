@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.fordel</groupId>
         <artifactId>fpfordel</artifactId>
-        <version>${revision}${sha1}${changelist}</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>domene</artifactId>

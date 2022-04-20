@@ -7,7 +7,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.fordel</groupId>
         <artifactId>fpfordel</artifactId>
-        <version>${revision}${sha1}${changelist}</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>migreringer</artifactId>
@@ -91,7 +91,7 @@
 
         <pluginManagement>
             <plugins>
-                <!--This plugin's configuration is used to store Eclipse 
+                <!--This plugin's configuration is used to store Eclipse
                     m2e settings only. It has no influence on the Maven build itself. -->
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>
