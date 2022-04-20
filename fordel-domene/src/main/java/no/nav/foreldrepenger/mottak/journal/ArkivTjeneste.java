@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.kodeverdi.MapNAVSkjemaDokumentTypeId;
@@ -269,7 +268,7 @@ public class ArkivTjeneste {
     }
 
     private Sak lagSakForSaksnummer(String saksnummer) {
-        return new Sak(saksnummer, Fagsystem.FPSAK.getKode(), "FAGSAK");
+        return new Sak(saksnummer, "FS36", "FAGSAK");
     }
 
     private static Set<DokumentTypeId> utledDokumentTyper(Journalpost journalpost) {
