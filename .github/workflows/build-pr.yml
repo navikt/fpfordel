@@ -43,6 +43,6 @@ jobs:
 
       - name: Kompiler
         run: |
-            mvn package --quiet --batch-mode --settings .github/.m2/settings.xml
+            mvn package -q -B -e -s .github/.m2/settings.xml
         env:
           GITHUB_TOKEN: ${{ secrets.READER_TOKEN }} # Må ha denne pga avhengighet til intern repo "legacy-avhengigheter".
