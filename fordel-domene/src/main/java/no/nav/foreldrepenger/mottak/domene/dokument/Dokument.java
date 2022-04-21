@@ -9,6 +9,8 @@ import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -41,9 +43,9 @@ public class Dokument extends BaseEntitet {
     @Column(name = "HOVED_DOKUMENT")
     private Boolean hovedDokument;
 
-    @Convert(converter = ArkivFilType.KodeverdiConverter.class)
-    @Column(name = "arkiv_filtype", nullable = false)
-    private ArkivFilType arkivFilType = ArkivFilType.UDEFINERT;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "arkiv_filtype")
+    private ArkivFilType arkivFilType;
 
     @Column(name = "BESKRIVELSE")
     private String beskrivelse;

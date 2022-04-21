@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverdi.Fagsystem;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.kodeverdi.MapNAVSkjemaDokumentTypeId;
@@ -269,7 +268,7 @@ public class ArkivTjeneste {
     }
 
     private Sak lagSakForSaksnummer(String saksnummer) {
-        return new Sak(saksnummer, Fagsystem.FPSAK.getKode(), "FAGSAK");
+        return new Sak(saksnummer, "FS36", "FAGSAK");
     }
 
     private static Set<DokumentTypeId> utledDokumentTyper(Journalpost journalpost) {
@@ -358,7 +357,7 @@ public class ArkivTjeneste {
             var strukturert = hoveddokument.stream()
                     .filter(dok -> ArkivFilType.XML.equals(dok.getArkivFilType()))
                     .findFirst()
-                    .map(dok -> new Dokumentvariant(Variantformat.ORIGINAL, dok.getArkivFilType().getKode(), dok.getBase64EncodetDokument()))
+                    .map(dok -> new Dokumentvariant(Variantformat.ORIGINAL, dok.getArkivFilType().name(), dok.getBase64EncodetDokument()))
                     .orElse(null);
             var arkivvariant = hoveddokument.stream()
                     .filter(dok -> !ArkivFilType.XML.equals(dok.getArkivFilType()))
@@ -377,7 +376,7 @@ public class ArkivTjeneste {
         if (struktuert != null) {
             varianter.add(struktuert);
         }
-        varianter.add(new Dokumentvariant(Variantformat.ARKIV, dokument.getArkivFilType().getKode(), dokument.getBase64EncodetDokument()));
+        varianter.add(new Dokumentvariant(Variantformat.ARKIV, dokument.getArkivFilType().name(), dokument.getBase64EncodetDokument()));
         var type = DokumentTypeId.UDEFINERT.equals(dokument.getDokumentTypeId()) ? DokumentTypeId.ANNET : dokument.getDokumentTypeId();
         var tittel = DokumentTypeId.ANNET.equals(type) && (dokument.getBeskrivelse() != null) ? dokument.getBeskrivelse() : type.getTermNavn();
         var brevkode = MapNAVSkjemaDokumentTypeId.mapDokumentTypeId(type);
