@@ -16,9 +16,12 @@ jobs:
         with:
           repositories: '[
             { "id": "github", "name": "github", "url": "https://maven.pkg.github.com/${{ github.repository }}", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } },
+            { "id": "legacy", "name": "legacy", "url": "https://maven.pkg.github.com/navikt/legacy-avhengigheter", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } },
             { "id": "dok-github", "name": "dok-github", "url": "https://maven.pkg.github.com/navikt/teamdokumenthandtering-avro-schemas", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }
           ]'
-          servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.READER_TOKEN }}" },
+          servers: '[
+            { "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.READER_TOKEN }}" },
+            { "id": "legacy", "username": "${{ github.actor }}", "password": "${{ secrets.READER_TOKEN }}" },
             { "id": "dok-github", "username": "${{ github.actor }}", "password": "${{ secrets.READER_TOKEN }}" }]'
           output_file: settings.xml
 

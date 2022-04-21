@@ -205,19 +205,24 @@
 
     <distributionManagement>
         <repository>
-            <id>fpfordel</id>
+            <id>github</id>
             <name>Github navikt Maven Packages</name>
             <url>https://maven.pkg.github.com/navikt/fpfordel</url>
         </repository>
     </distributionManagement>
+
     <repositories>
-        <repository>
-            <id>dok-github</id>
-            <url>https://maven.pkg.github.com/navikt/teamdokumenthandtering-avro-schemas</url>
-        </repository>
         <repository>
             <id>confluent</id>
             <url>https://packages.confluent.io/maven/</url>
+        </repository>
+        <repository>
+            <id>legacy</id>
+            <url>https://maven.pkg.github.com/navikt/legacy-avhengigheter</url>
+        </repository>
+        <repository>
+            <id>dok-github</id>
+            <url>https://maven.pkg.github.com/navikt/teamdokumenthandtering-avro-schemas</url>
         </repository>
     </repositories>
 </project>
