@@ -14,9 +14,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
-import no.nav.foreldrepenger.mottak.extensions.FPfordelEntityManagerAwareExtension;
+import no.nav.foreldrepenger.mottak.extensions.JpaExtension;
 
-@ExtendWith(FPfordelEntityManagerAwareExtension.class)
+@ExtendWith(JpaExtension.class)
 public class PipRepositoryTest {
 
     private PipRepository pipRepository;
