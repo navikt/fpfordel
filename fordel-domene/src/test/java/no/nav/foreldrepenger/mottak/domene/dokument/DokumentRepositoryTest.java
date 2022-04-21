@@ -15,11 +15,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.mottak.extensions.FPfordelEntityManagerAwareExtension;
+import no.nav.foreldrepenger.mottak.extensions.JpaExtension;
 import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 
-@ExtendWith(FPfordelEntityManagerAwareExtension.class)
+@ExtendWith(JpaExtension.class)
 class DokumentRepositoryTest {
 
     private static final UUID FORSENDELSE_ID = UUID.randomUUID();
