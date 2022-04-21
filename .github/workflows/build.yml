@@ -65,7 +65,7 @@ jobs:
 
       - name: Kompiler
         run: |
-          mvn jacoco:prepare-agent deploy jacoco:report sonar:sonar -q -e -B -s settings.xml -Drevision=${BUILD_VERSION} -Dsonar.login=${SONAR_TOKEN}
+          mvn jacoco:prepare-agent verify jacoco:report sonar:sonar -q -e -B -s settings.xml -Drevision=${BUILD_VERSION} -Dsonar.login=${SONAR_TOKEN}
         env:
           GITHUB_TOKEN: ${{ secrets.READER_TOKEN }} # Må ha denne pga avhengighet til intern repo "legacy-avhengigheter".
           SONAR_TOKEN: ${{ secrets.SONAR }}
