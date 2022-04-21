@@ -83,8 +83,7 @@ public class ArkivTjeneste {
 
         var infoList = journalpost.dokumenter().stream()
                 .filter(it -> it.dokumentvarianter().stream().anyMatch(at -> VariantFormat.ORIGINAL.equals(at.variantFormat())))
-                .map(DokumentInfo::dokumentInfoId)
-                .collect(Collectors.toList());
+                .map(DokumentInfo::dokumentInfoId).toList();
 
         if (infoList.size() > 1) {
             throw new IllegalStateException("Journalposten har flere dokumenter med VariantFormat = ORIGINAL");
@@ -113,7 +112,7 @@ public class ArkivTjeneste {
                 .medDatoOpprettet(journalpost.datoOpprettet())
                 .medEksternReferanseId(journalpost.eksternReferanseId())
                 .medTilleggsopplysninger(journalpost.tilleggsopplysninger())
-                .medSaksnummer(Optional.ofNullable(journalpost.sak()).map(s -> s.fagsakId()).orElse(null))
+                .medSaksnummer(Optional.ofNullable(journalpost.sak()).map(no.nav.foreldrepenger.mottak.journal.saf.model.Sak::fagsakId).orElse(null))
                 .build();
     }
 
@@ -212,8 +211,7 @@ public class ArkivTjeneste {
         var oppdaterDok = journalpost.dokumenter().stream()
                 .filter(d -> (d.tittel() == null) || d.tittel().isEmpty())
                 .filter(d -> d.brevkode() != null)
-                .map(d -> new DokumentInfoOppdater(d.dokumentInfoId(), NAVSkjema.fraOffisiellKode(d.brevkode()).getTermNavn(), d.brevkode()))
-                .collect(Collectors.toList());
+                .map(d -> new DokumentInfoOppdater(d.dokumentInfoId(), NAVSkjema.fraOffisiellKode(d.brevkode()).getTermNavn(), d.brevkode())).toList();
         if (!oppdaterDok.isEmpty()) {
             LOG.info("FPFORDEL oppdaterer manglende dokumenttitler for {}", journalpost.journalpostId());
         }
@@ -352,7 +350,7 @@ public class ArkivTjeneste {
 
     private static List<DokumentInfoOpprett> lagAlleDokumentForOpprett(List<Dokument> dokumenter) {
         List<DokumentInfoOpprett> dokumenterRequest = new ArrayList<>();
-        var hoveddokument = dokumenter.stream().filter(Dokument::erHovedDokument).collect(Collectors.toList());
+        var hoveddokument = dokumenter.stream().filter(Dokument::erHovedDokument).toList();
         if (!hoveddokument.isEmpty()) {
             var strukturert = hoveddokument.stream()
                     .filter(dok -> ArkivFilType.XML.equals(dok.getArkivFilType()))
