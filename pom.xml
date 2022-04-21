@@ -30,6 +30,9 @@
     <properties>
         <revision>2.0-SNAPSHOT</revision>
 
+        <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
+        <sonar.projectKey>navikt_fp-fordel</sonar.projectKey>
+
         <tjenestespesifikasjon.version>1.2021.02.22-10.45-4201aaea72fb</tjenestespesifikasjon.version>
 
         <felles.version>4.1.22</felles.version>
