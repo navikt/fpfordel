@@ -32,7 +32,7 @@ public class TokenSupportTokenProvider implements TokenProvider {
     public String userToken() {
         return firstToken("USER")
                 .map(JwtToken::getTokenAsString)
-                .orElseGet(() -> saksbehandlerToken());
+                .orElseGet(this::saksbehandlerToken);
     }
 
     private String saksbehandlerToken() {
