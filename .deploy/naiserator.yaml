@@ -2,7 +2,7 @@ kind: Application
 apiVersion: nais.io/v1alpha1
 metadata:
   name: fpfordel
-  namespace: {{namespace}}
+  namespace: teamforeldrepenger
   labels:
     team: teamforeldrepenger
 
@@ -40,16 +40,8 @@ spec:
     failureThreshold: 27
     timeout: 3
   replicas:
-{{#if minReplicas}}
     min: {{minReplicas}}
-{{else}}
-    min: 2
-{{/if}}
-{{#if maxReplicas}}
     max: {{maxReplicas}}
-{{else}}
-    max: 3
-{{/if}}
     cpuThresholdPercentage: 80
   resources:
     limits:
@@ -68,8 +60,6 @@ spec:
       mountPath: /var/run/secrets/nais.io/defaultDSconfig
     - kvPath: {{serviceuserkv}}
       mountPath: /var/run/secrets/nais.io/srvfpfordel
-    - kvPath: /kv/{{cluster}}/fss/fpfordel/{{namespace}}
-      mountPath: /var/run/secrets/nais.io/vault
   env:
 {{#each env}}
    - name: {{@key}}

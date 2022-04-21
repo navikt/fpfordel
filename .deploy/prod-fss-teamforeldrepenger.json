@@ -1,9 +1,9 @@
  {
-	"cluster": "prod",
+	"serviceuserkv": "/serviceuser/data/prod/srvfpfordel",
 	"oracleconfigkv": "/oracle/data/prod/config/fpfordel_p",
 	"oraclecredskv": "/oracle/data/prod/creds/fpfordel_p-fpfordel_p",
-	"serviceuserkv": "/serviceuser/data/prod/srvfpfordel",
-	"namespace": "teamforeldrepenger",
+	"minReplicas": "2",
+	"maxReplicas": "3",
 	"kafkaPool": "nav-prod",
 	"ingresses": [ "https://fpfordel.nais.adeo.no" ],
 	"env": {
