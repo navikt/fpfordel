@@ -2,7 +2,7 @@
 	"serviceuserkv": "/serviceuser/data/dev/srvfpfordel",
 	"oracleconfigkv": "/oracle/data/dev/config/fpfordel_q1",
 	"oraclecredskv": "/oracle/data/dev/creds/fpfordel_q1-fpfordel_q1",
-	"minReplicas": "1",
+	"minReplicas": "2",
 	"maxReplicas": "3",
 	"kafkaPool": "nav-dev",
 	"ingresses": [

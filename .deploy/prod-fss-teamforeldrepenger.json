@@ -7,23 +7,6 @@
 	"kafkaPool": "nav-prod",
 	"ingresses": [ "https://fpfordel.nais.adeo.no" ],
 	"env": {
-		"ABAC_ATTRIBUTT_DRIFT": "no.nav.abac.attributter.foreldrepenger.drift",
-		"APPDYNAMICS_AGENT_ACCOUNT_NAME": "PROD",
-		"LOADBALANCER_URL": "https://fpfordel.nais.adeo.no",
-		"KAFKA_BOOTSTRAP_SERVERS": "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443",
-		"KAFKA_SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.adeo.no",
-		"KAFKA_TOPIC_JOURNAL_HENDELSE": "teamdokumenthandtering.aapen-dok-journalfoering",
-		"OIDC_OPEN_AM_WELL_KNOWN_URL": "https://isso.adeo.no:443/isso/oauth2/.well-known/openid-configuration",
-		"OIDC_STS_WELL_KNOWN_URL": "https://security-token-service.nais.adeo.no/.well-known/openid-configuration",
-		"OIDC_OPEN_AM_CLIENT_ID": "fpfordel-p",
-		"OPENIDCONNECT_USERNAME": "fpfordel-p",
-		"OPENIDCONNECT_ISSOHOST": "https://isso.adeo.no:443/isso/oauth2",
-		"ARBEIDSFORDELING_RS_URL": "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter",
-		"DOKARKIV_BASE_URL": "http://dokarkiv.teamdokumenthandtering/rest/journalpostapi/v1/journalpost",
-		"OPPGAVE_RS_URI": "https://oppgave.nais.adeo.no/api/v1/oppgaver",
-		"SAF_BASE_URL" : "http://saf.teamdokumenthandtering",
-		"SAK_RS_URL": "http://sak.teamdokumenthandtering/api/v1/saker",
-		"SECURITYTOKENSERVICE_URL": "https://sts.adeo.no/SecurityTokenServiceProvider/",
-		"SKJERMET_PERSON_RS_URL": "http://skjermede-personer-pip.nom/skjermet"
+		"APPDYNAMICS_AGENT_ACCOUNT_NAME": "PROD"
 	}
 }
