@@ -29,9 +29,9 @@ jobs:
             { "id": "dok-github", "name": "dok-github", "url": "https://maven.pkg.github.com/navikt/teamdokumenthandtering-avro-schemas", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }
           ]'
           servers: '[
-            { "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.READER_TOKEN }}" },
-            { "id": "legacy", "username": "${{ github.actor }}", "password": "${{ secrets.READER_TOKEN }}" },
-            { "id": "dok-github", "username": "${{ github.actor }}", "password": "${{ secrets.READER_TOKEN }}" }]'
+            { "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.GITHUB_TOKEN }}" },
+            { "id": "legacy", "username": "${{ github.actor }}", "password": "${{ secrets.GITHUB_TOKEN }}" },
+            { "id": "dok-github", "username": "${{ github.actor }}", "password": "${{ secrets.GITHUB_TOKEN }}" }]'
           output_file: settings.xml
 
       - uses: actions/setup-java@v3
