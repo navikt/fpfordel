@@ -10,6 +10,11 @@ registries:
     url: https://maven.pkg.github.com/navikt/legacy-avhengigheter
     username: x-access-token
     password: ${{ secrets.PAT }}
+ teamdokumenthandtering-avro-schemas: # Gir tilgang til registre som inngang (PATen bestemmer)
+    type: maven-repository
+    url: https://maven.pkg.github.com/navikt/teamdokumenthandtering-avro-schemas
+    username: x-access-token
+    password: ${{ secrets.PAT }}
 
 updates:
   - package-ecosystem: github-actions
@@ -22,6 +27,7 @@ updates:
     registries:
       - fp-felles
       - legacy-avhengigheter
+      - teamdokumenthandtering-avro-schemas
     schedule:
       interval: daily
     open-pull-requests-limit: 20
