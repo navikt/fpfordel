@@ -10,12 +10,12 @@ registries:
     url: https://maven.pkg.github.com/navikt/legacy-avhengigheter
     username: x-access-token
     password: ${{ secrets.PAT }}
- teamdokumenthandtering-avro-schemas: # Gir tilgang til registre som inngang (PATen bestemmer)
+  teamdokumenthandtering-avro-schemas: # Gir tilgang til registre som inngang (PATen bestemmer)
     type: maven-repository
     url: https://maven.pkg.github.com/navikt/teamdokumenthandtering-avro-schemas
     username: x-access-token
     password: ${{ secrets.PAT }}
-
+    
 updates:
   - package-ecosystem: github-actions
     directory: "/"
