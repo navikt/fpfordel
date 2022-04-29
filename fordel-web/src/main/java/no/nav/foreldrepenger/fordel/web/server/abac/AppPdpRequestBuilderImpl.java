@@ -10,6 +10,7 @@ import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.XACML10_SUBJ
 
 import java.text.ParseException;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.Priority;
@@ -62,7 +63,8 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         pdpRequest.put(RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, aktørIder);
         if (attributter.getIdToken().getTokenType().equals(TokenType.TOKENX)) {
             LOG.trace("Legger til ekstra tokenX attributter");
-            pdpRequest.put(XACML10_SUBJECT_ID, claim(attributter.getIdToken().getToken(), "sub"));
+            pdpRequest.put(XACML10_SUBJECT_ID, Optional.ofNullable(claim(attributter.getIdToken().getToken(), "pid"))
+                    .orElseGet(() -> claim(attributter.getIdToken().getToken(), "sub")));
             pdpRequest.put(SUBJECT_LEVEL, claim(attributter.getIdToken().getToken(), "acr").replace("Level", ""));
             pdpRequest.put(SUBJECT_TYPE, "EksternBruker");
         } else {
