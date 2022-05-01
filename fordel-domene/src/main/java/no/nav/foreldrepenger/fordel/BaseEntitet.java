@@ -8,7 +8,6 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @MappedSuperclass
@@ -63,10 +62,6 @@ public class BaseEntitet implements Serializable {
 
     private static String finnBrukernavn() {
         String brukerident = SubjectHandler.getSubjectHandler().getUid();
-        if (Environment.current().isDev() && brukerident != null && !brukerident.startsWith("srv")) {
-            // workaround i dev i påvente av fix i fp-felles
-            return BRUKERNAVN_NÅR_SIKKERHETSKONTEKST_IKKE_FINNES;
-        }
         return brukerident != null ? brukerident : BRUKERNAVN_NÅR_SIKKERHETSKONTEKST_IKKE_FINNES;
     }
 }
