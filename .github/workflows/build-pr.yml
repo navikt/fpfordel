@@ -15,6 +15,18 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    services:
+      oracle:
+        image: gvenzl/oracle-xe:18.4.0-slim
+        env:
+          ORACLE_RANDOM_PASSWORD: true
+          APP_USER: fpfordel_unit
+          APP_USER_PASSWORD: fpfordel_unit
+        ports:
+          - 1521:1521
+        options: --health-cmd healthcheck.sh --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
       - name: Sjekk ut kode
         uses: actions/checkout@v3
@@ -40,21 +52,6 @@ jobs:
           java-version: 17
           cache: 'maven'
 
-      - name: Login to GitHub Packages Docker Registry
-        uses: docker/login-action@dd4fa0671be5250ee6f50aedf4cb05514abda2c7 # Use commit-sha1 instead of tag for security concerns
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Hent og start Oracle image
-        id: oracle
-        run: |
-          echo "Henter og starter Oracle image"
-          cd .oracle
-          docker-compose up --quiet-pull > nohup.out 2>&1 &
-          sh -c 'tail -n +0 -f nohup.out | { sed "/Database opened./q" && kill $$; }' || true
-
       - name: Set build version
         run: |
           echo "BUILD_VERSION=2.0-$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
@@ -63,12 +60,19 @@ jobs:
         if: github.actor != 'dependabot[bot]'
         run: |
           echo "Building $BUILD_VERSION"
-          mvn jacoco:prepare-agent verify jacoco:report -q -e -B -s settings.xml -Drevision=${BUILD_VERSION} -Dsonar.login=${SONAR_TOKEN}
+          mvn jacoco:prepare-agent verify jacoco:report sonar:sonar -q -e -B -s settings.xml -Drevision=${BUILD_VERSION} -Dsonar.login=${SONAR_TOKEN}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR }}
+          DATABASE_HOST: localhost
+          DATABASE_PORT: ${{ job.services.oracle.ports[1521] }}
+          DATABASE_SERVICE: XEPDB1
 
       - name: Build uten sonar analyse
         if: github.actor == 'dependabot[bot]'
         run: |
           echo "Building $BUILD_VERSION"
           mvn verify -q -e -B -s settings.xml -Drevision=${BUILD_VERSION}
+        env:
+          DATABASE_HOST: localhost
+          DATABASE_PORT: ${{ job.services.oracle.ports[1521] }}
+          DATABASE_SERVICE: XEPDB1
