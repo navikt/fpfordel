@@ -64,8 +64,8 @@ jobs:
         run: |
           mvn jacoco:prepare-agent verify jacoco:report sonar:sonar -q -e -B -s settings.xml -Drevision=${BUILD_VERSION}
         env:
-          GITHUB_TOKEN: ${{ secrets.READER_TOKEN }} # Må ha denne pga avhengighet til intern repo "legacy-avhengigheter".
           SONAR_TOKEN: ${{ secrets.SONAR }}
+          GITHUB_TOKEN: ${{ secrets.READER_TOKEN }} # Må ha denne pga avhengighet til intern repo "legacy-avhengigheter".
           DATABASE_HOST: localhost
           DATABASE_PORT: ${{ job.services.oracle.ports[1521] }}
           DATABASE_SERVICE: XEPDB1
