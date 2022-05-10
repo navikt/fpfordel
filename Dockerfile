@@ -1,21 +1,25 @@
 FROM navikt/java:17-appdynamics
 
-ENV APPD_NAME=fpfordel
 ENV APPD_ENABLED=true
-ENV APPDYNAMICS_CONTROLLER_HOST_NAME=appdynamics.adeo.no
-ENV APPDYNAMICS_CONTROLLER_PORT=443
-ENV APPDYNAMICS_CONTROLLER_SSL_ENABLED=true
-ENV TZ=Europe/Oslo
 
-RUN mkdir /app/lib
-RUN mkdir /app/conf
+RUN mkdir lib
+RUN mkdir conf
+
+ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0 \
+    -Djava.security.egd=file:/dev/urandom \
+    -Duser.timezone=Europe/Oslo \
+    -Dlogback.configurationFile=conf/logback.xml"
+
+# Import vault properties
+COPY .scripts/03-import-appd.sh /init-scripts/03-import-appd.sh
+COPY .scripts/05-import-users.sh /init-scripts/05-import-users.sh
 
 # Config
-COPY fordel-web/target/classes/*.xml /app/
+COPY web/target/classes/logback*.xml conf/
 
 # Application Container (Jetty)
-COPY fordel-web/target/app.jar /app/
-COPY fordel-web/target/lib/*.jar /app/lib/
-COPY export-vault.sh /init-scripts/
+COPY web/target/app.jar .
+COPY web/target/lib/*.jar ./
 
-ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0  -Djava.security.egd=file:/dev/./urandom -Duser.timezone=Europe/Oslo "
+ENV TZ=Europe/Oslo
+LABEL org.opencontainers.image.source=https://github.com/navikt/fpfordel

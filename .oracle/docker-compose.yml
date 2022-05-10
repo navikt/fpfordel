@@ -1,8 +1,12 @@
 version: '3.7'
 services:
   oracle:
-    image: ghcr.io/navikt/oracle-foreldrepenger:18-migrert
-    container_name: oraclefpfordel
+    image: gvenzl/oracle-xe:18.4.0-slim
+    environment:
+      - ORACLE_RANDOM_PASSWORD=true
     shm_size: 2gb
     ports:
-      - 1521:1521
+      - "1521:1521"
+    volumes:
+      - ./oracle-init:/docker-entrypoint-initdb.d/
+    container_name: oraclefpfordel
