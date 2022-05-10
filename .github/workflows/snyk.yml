@@ -1,7 +1,7 @@
 name: Snyk vulnerabilities scanning of dependencies
 on:
   schedule:
-    - cron:  '0 0 * * 1'
+    - cron:  '0 0 * * *'
   workflow_dispatch:
 
 jobs:
@@ -24,6 +24,12 @@ jobs:
             { "id": "legacy", "username": "${{ github.actor }}", "password": "${{ secrets.READER_TOKEN }}" },
             { "id": "dok-github", "username": "${{ github.actor }}", "password": "${{ secrets.READER_TOKEN }}" }]'
           output_file: settings.xml
+
+      - name: Build
+        run: |
+          echo "Building snyk-snapshot"
+          mvn -B -s settings.xml versions:set -DnewVersion=snyk-snapshot
+          mvn install -q -B -s settings.xml -DskipTests
 
       - name: Run Snyk monitor
         run: >
