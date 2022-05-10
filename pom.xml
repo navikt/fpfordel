@@ -17,9 +17,9 @@
 
     <description>Fordeling av mottatte dokumenter for FPSAK</description>
     <modules>
-        <module>fordel-migreringer</module>
-        <module>fordel-domene</module>
-        <module>fordel-web</module>
+        <module>migreringer</module>
+        <module>domene</module>
+        <module>web</module>
     </modules>
     <licenses>
         <license>

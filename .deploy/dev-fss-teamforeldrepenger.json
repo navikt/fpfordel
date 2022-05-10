@@ -1,4 +1,5 @@
 {
+	"environment": "dev",
 	"serviceuserkv": "/serviceuser/data/dev/srvfpfordel",
 	"oracleconfigkv": "/oracle/data/dev/config/fpfordel_q1",
 	"oraclecredskv": "/oracle/data/dev/creds/fpfordel_q1-fpfordel_q1",
