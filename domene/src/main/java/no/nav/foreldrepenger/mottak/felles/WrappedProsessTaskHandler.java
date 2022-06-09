@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.mottak.felles;
 
-import static no.nav.vedtak.log.mdc.MDCOperations.ensureCallId;
+import static no.nav.foreldrepenger.fordel.MDCUtils.ensureCallId;
 
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -33,4 +33,5 @@ public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler, C
             prosessTaskTjeneste.lagre(taskdata);
         }
     }
+
 }

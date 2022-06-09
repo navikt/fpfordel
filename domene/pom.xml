@@ -15,7 +15,7 @@
         <jaxb2-maven-plugin.version>1.5</jaxb2-maven-plugin.version>
     </properties>
     <dependencies>
-      <dependency>
+        <dependency>
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-retry</artifactId>
             <version>1.7.1</version>
@@ -79,9 +79,23 @@
             <artifactId>saf-klient</artifactId>
         </dependency>
         <dependency>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+            <artifactId>oppgave-rest-klient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+            <artifactId>pdl-klient</artifactId>
+        </dependency>
+        <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-feil</artifactId>
         </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-mapper</artifactId>
+        </dependency>
+
+        <!-- FP-Prosesstask -->
         <dependency>
             <groupId>no.nav.vedtak.prosesstask</groupId>
             <artifactId>prosesstask-legacy</artifactId>
@@ -90,14 +104,7 @@
             <groupId>no.nav.vedtak.prosesstask</groupId>
             <artifactId>prosesstask</artifactId>
         </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-            <artifactId>oppgave-rest-klient</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-            <artifactId>pdl-klient</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>no.nav.foreldrepenger.kontrakter</groupId>
             <artifactId>fordel-v1</artifactId>
@@ -125,8 +132,19 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>no.nav.foreldrepenger.felles</groupId>
-            <artifactId>felles-mapper</artifactId>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-plus</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

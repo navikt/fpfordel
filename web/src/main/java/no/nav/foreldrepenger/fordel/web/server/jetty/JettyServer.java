@@ -11,7 +11,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
-import java.util.stream.Collectors;
 
 import javax.naming.NamingException;
 import javax.security.auth.message.config.AuthConfigFactory;

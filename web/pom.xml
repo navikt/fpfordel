@@ -13,8 +13,6 @@
     <packaging>jar</packaging>
     <name>Fordel :: Web :: Applikasjon</name>
     <properties>
-        <jakarta-persistence-api.version>2.3.3</jakarta-persistence-api.version>
-        <swagger-ui.version>4.10.3</swagger-ui.version>
         <org.jvnet.jaxb2.version>0.12.0</org.jvnet.jaxb2.version>
         <wsdl.directory>src/main/wsdl</wsdl.directory>
     </properties>
@@ -44,7 +42,11 @@
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>swagger-ui</artifactId>
-            <version>${swagger-ui.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>
@@ -167,7 +169,10 @@
             <groupId>io.prometheus</groupId>
             <artifactId>simpleclient_common</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
@@ -254,7 +259,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
-            <version>1.7.36</version>
         </dependency>
     </dependencies>
 
