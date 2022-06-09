@@ -4,6 +4,7 @@ import static javax.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_ID;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static no.nav.foreldrepenger.fordel.MDCUtils.ensureCallId;
 import static no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus.FPSAK;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
@@ -71,7 +72,6 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Forsendelse
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatusDto;
 import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -131,7 +131,7 @@ public class DokumentforsendelseRestTjeneste {
         if (inputParts.size() < 2) {
             throw new IllegalArgumentException("Må ha minst to deler,fikk " + inputParts.size());
         }
-        MDCOperations.ensureCallId();
+        ensureCallId();
 
         // Robusthet: Når man flytter Transactional til servicelaget så må man gjøre alle ut-kall som kan feile før man begynner lagre....
         var dokumentforsendelseDto = getMetadataDto(inputParts.get(0));
