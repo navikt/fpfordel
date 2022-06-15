@@ -72,7 +72,7 @@ public class VLKlargjørerTask extends WrappedProsessTaskHandler {
         boolean erReinnsend = w.getRetryingTask().map(REINNSEND::equals).orElse(Boolean.FALSE);
 
         klargjører.klargjør(xml, saksnummer, arkivId, dokumenttypeId,
-                w.getForsendelseMottattTidspunkt().orElse(null), behandlingsTema,
+                w.getForsendelseMottattTidspunkt().orElseGet(LocalDateTime::now), behandlingsTema,
                 w.getForsendelseId().orElse(null), dokumentKategori, journalEnhet, eksternReferanseId);
 
         if (forsendelseId.isPresent() && !erReinnsend) {

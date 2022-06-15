@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.fordel.dokument.v1;
 import static no.nav.vedtak.log.util.LoggerUtils.removeLineBreaks;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -179,7 +180,8 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
                     : arkivTjeneste.hentEksternReferanseId(journalpost.getOriginalJournalpost()).orElse(null);
         }
 
-        klargjører.klargjør(xml, saksnummer, request.getJournalpostId(), dokumentTypeId, journalpost.getDatoOpprettet(),
+        var mottattTidspunkt = Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now);
+        klargjører.klargjør(xml, saksnummer, request.getJournalpostId(), dokumentTypeId, mottattTidspunkt,
                 behandlingTema, forsendelseId.orElse(null), dokumentKategori, request.getEnhetId(), eksternReferanseId);
 
         // For å unngå klonede journalposter fra Gosys - de kan komme via Kafka
