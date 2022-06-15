@@ -67,9 +67,9 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
 
 
         if (hoveddokumenter.isEmpty() && metadata.getSaksnummer().isPresent()) {
-            opprettProsessTask(metadata.getForsendelseId());
+            opprettProsessTask(metadata);
         } else if (!hoveddokumenter.isEmpty() && korrektAntallOgTyper(hoveddokumenter)) {
-            opprettProsessTask(metadata.getForsendelseId());
+            opprettProsessTask(metadata);
         } else {
             throw new IllegalStateException("Utviklerfeil: Logisk brist");
         }
@@ -101,11 +101,12 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
         return info;
     }
 
-    private void opprettProsessTask(UUID forsendelseId) {
+    private void opprettProsessTask(DokumentMetadata metadata) {
         var prosessTaskData = ProsessTaskData.forProsessTask(BehandleDokumentforsendelseTask.class);
         prosessTaskData.setCallIdFraEksisterende();
         var dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
-        dataWrapper.setForsendelseId(forsendelseId);
+        dataWrapper.setForsendelseId(metadata.getForsendelseId());
+        dataWrapper.setForsendelseMottattTidspunkt(metadata.getForsendelseMottatt());
 
         prosessTaskTjeneste.lagre(dataWrapper.getProsessTaskData());
     }

@@ -129,7 +129,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             w.setEksternReferanseId(journalpost.getEksternReferanseId());
         }
 
-        w.setForsendelseMottattTidspunkt(journalpost.getDatoOpprettet());
+        w.setForsendelseMottattTidspunkt(Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now));
         w.setDokumentTypeId(journalpost.getHovedtype());
         w.setBehandlingTema(ArkivUtil.behandlingTemaFraDokumentType(w.getBehandlingTema(), journalpost.getHovedtype()));
         w.setDokumentKategori(ArkivUtil.utledKategoriFraDokumentType(journalpost.getHovedtype()));
@@ -171,9 +171,6 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
                     }
                 }
             }
-        }
-        if (w.getForsendelseMottattTidspunkt().isEmpty()) {
-            w.setForsendelseMottattTidspunkt(LocalDateTime.now());
         }
 
         // Egen rute for rene ankedokument - journalføringsoppgave Klageinstans
