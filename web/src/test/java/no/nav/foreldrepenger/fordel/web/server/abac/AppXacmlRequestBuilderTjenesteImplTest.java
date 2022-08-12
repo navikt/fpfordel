@@ -13,19 +13,15 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 import no.nav.vedtak.sikkerhet.abac.PdpKlient;
@@ -33,7 +29,7 @@ import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.pdp.PdpConsumer;
 import no.nav.vedtak.sikkerhet.pdp.PdpKlientImpl;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
-import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponseWrapper;
+import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponse;
 
 public class AppXacmlRequestBuilderTjenesteImplTest {
 
@@ -52,7 +48,7 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
     @Test
     public void kallPdpMedSamlTokenNårIdTokenErSamlToken() throws Exception {
         AbacIdToken idToken = AbacIdToken.withSamlToken("SAML");
-        XacmlResponseWrapper responseWrapper = createResponse("testdata/xacmlresponse.json");
+        var responseWrapper = createResponse("testdata/xacmlresponse.json");
         ArgumentCaptor<XacmlRequestBuilder> captor = ArgumentCaptor.forClass(XacmlRequestBuilder.class);
 
         when(pdpConsumerMock.evaluate(captor.capture())).thenReturn(responseWrapper);
@@ -61,7 +57,7 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
         pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
         pdpKlient.forespørTilgang(pdpRequest);
 
-        JsonObject request = captor.getValue().build();
+        var request = captor.getValue().build();
         assertThat(request.toString().contains(ENVIRONMENT_FELLES_SAML_TOKEN)).isTrue();
         assertThat(request.toString().contains(RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE)).isTrue();
     }
@@ -69,7 +65,7 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
     @Test
     public void kallPdpUtenFnrResourceHvisPersonlisteErTom() throws FileNotFoundException {
         AbacIdToken idToken = AbacIdToken.withOidcToken(JWT_TOKEN);
-        XacmlResponseWrapper responseWrapper = createResponse("testdata/xacmlresponse.json");
+        var responseWrapper = createResponse("testdata/xacmlresponse.json");
         ArgumentCaptor<XacmlRequestBuilder> captor = ArgumentCaptor.forClass(XacmlRequestBuilder.class);
 
         when(pdpConsumerMock.evaluate(captor.capture())).thenReturn(responseWrapper);
@@ -85,7 +81,7 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
     @Test
     public void kallPdpMedJwtTokenBodyNårIdTokenErJwtToken() throws Exception {
         AbacIdToken idToken = AbacIdToken.withOidcToken(JWT_TOKEN);
-        XacmlResponseWrapper responseWrapper = createResponse("testdata/xacmlresponse.json");
+        var responseWrapper = createResponse("testdata/xacmlresponse.json");
         ArgumentCaptor<XacmlRequestBuilder> captor = ArgumentCaptor.forClass(XacmlRequestBuilder.class);
 
         when(pdpConsumerMock.evaluate(captor.capture())).thenReturn(responseWrapper);
@@ -101,7 +97,7 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
     @Test
     public void kallPdpMedFlereAttributtSettNårPersonlisteStørreEnn1() throws FileNotFoundException {
         AbacIdToken idToken = AbacIdToken.withOidcToken(JWT_TOKEN);
-        XacmlResponseWrapper responseWrapper = createResponse("testdata/xacml3response.json");
+        var responseWrapper = createResponse("testdata/xacml3response.json");
         ArgumentCaptor<XacmlRequestBuilder> captor = ArgumentCaptor.forClass(XacmlRequestBuilder.class);
 
         when(pdpConsumerMock.evaluate(captor.capture())).thenReturn(responseWrapper);
@@ -130,12 +126,14 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
         return request;
     }
 
-    private XacmlResponseWrapper createResponse(String jsonFile) throws FileNotFoundException {
+    private XacmlResponse createResponse(String jsonFile) {
         File file = new File(getClass().getClassLoader().getResource(jsonFile).getFile());
-        JsonReader reader = Json.createReader(new FileReader(file));
-        JsonObject jo = (JsonObject) reader.read();
-        reader.close();
-        return new XacmlResponseWrapper(jo);
+        try {
+            return DefaultJsonMapper.getObjectMapper().readValue(file, XacmlResponse.class);
+        } catch (Exception e) {
+            //
+        }
+        return null;
 
     }
 }
