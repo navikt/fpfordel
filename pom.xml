@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>0.3.2</version>
+        <version>0.3.4</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger.fordel</groupId>
@@ -35,8 +35,8 @@
 
         <tjenestespesifikasjon.version>1.2021.02.22-10.45-4201aaea72fb</tjenestespesifikasjon.version>
 
-        <felles.version>4.1.34</felles.version>
-        <prosesstask.version>3.1.9</prosesstask.version>
+        <felles.version>4.1.35</felles.version>
+        <prosesstask.version>3.1.10</prosesstask.version>
         <fp-kontrakter.version>6.1.25</fp-kontrakter.version>
 
         <confluent.version>7.2.1</confluent.version>
