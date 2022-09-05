@@ -52,7 +52,7 @@ public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTj
                 xacmlBuilder.addResourceAttributeSet(byggRessursAttributter(pdpRequest, ident));
             }
         }
-        //populerSubjects(pdpRequest, xacmlBuilder);
+        populerSubjects(pdpRequest, xacmlBuilder);
 
         return xacmlBuilder;
     }

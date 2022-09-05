@@ -13,6 +13,11 @@ import no.nav.security.token.support.core.jwt.JwtToken;
 import no.nav.security.token.support.jaxrs.JaxrsTokenValidationContextHolder;
 import no.nav.vedtak.sikkerhet.abac.TokenProvider;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 @Alternative
 @Dependent
@@ -23,16 +28,26 @@ public class TokenSupportTokenProvider implements TokenProvider {
 
     @Override
     public String getUid() {
-        return firstToken("UID")
+        return firstToken()
                 .map(JwtToken::getSubject)
                 .orElseGet(() -> SubjectHandler.getSubjectHandler().getUid());
     }
 
     @Override
     public String userToken() {
-        return firstToken("USER")
+        return firstToken()
                 .map(JwtToken::getTokenAsString)
                 .orElseGet(this::saksbehandlerToken);
+    }
+
+    @Override
+    public OpenIDToken openIdToken() {
+        return firstToken()
+            .map(j -> new OpenIDToken(ConfigProvider.getOpenIDConfiguration(j.getIssuer())
+                .map(OpenIDConfiguration::type).orElse(OpenIDProvider.TOKENX),
+                new TokenString(j.getTokenAsString())))
+            .orElseGet(() -> SubjectHandler.getSubjectHandler().getOpenIDToken());
+
     }
 
     private String saksbehandlerToken() {
@@ -46,11 +61,9 @@ public class TokenSupportTokenProvider implements TokenProvider {
 
     }
 
-    private Optional<JwtToken> firstToken(String type) {
+    private Optional<JwtToken> firstToken() {
         try {
-            var token = JaxrsTokenValidationContextHolder.getHolder().getTokenValidationContext().getFirstValidToken();
-            token.ifPresent(t -> LOG.trace("{} Issuer {}", type, t.getIssuer()));
-            return token;
+            return JaxrsTokenValidationContextHolder.getHolder().getTokenValidationContext().getFirstValidToken();
         } catch (Exception e) {
             return Optional.empty();
         }

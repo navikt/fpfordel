@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.fordel.web.server.abac.AppAbacAttributtType;
-import no.nav.foreldrepenger.fordel.web.server.abac.BeskyttetRessursAttributt;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
@@ -54,8 +53,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
 
 /**
  * Webservice for å oppdatere og ferdigstille journalføring. For så å klargjøre
@@ -104,7 +105,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
     @Override
     @Transactional
-    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = BeskyttetRessursAttributt.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, serviceType = ServiceType.WEBSERVICE)
     public void oppdaterOgFerdigstillJournalfoering(
             @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) OppdaterOgFerdigstillJournalfoeringRequest request)
             throws OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet,
