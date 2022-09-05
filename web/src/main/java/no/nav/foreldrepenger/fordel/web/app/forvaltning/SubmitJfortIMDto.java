@@ -4,7 +4,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import no.nav.foreldrepenger.fordel.web.server.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskIdDto;
@@ -66,9 +65,7 @@ public class SubmitJfortIMDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett()
-                .leggTil(AppAbacAttributtType.SAKSNUMMER, saksnummerDto.getSaksnummer())
-                .leggTil(AppAbacAttributtType.JOURNALPOST_ID, journalpostIdDto.getJournalpostId());
+        return AbacDataAttributter.opprett();
 
     }
 

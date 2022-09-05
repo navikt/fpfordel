@@ -34,13 +34,6 @@ public class TokenSupportTokenProvider implements TokenProvider {
     }
 
     @Override
-    public String userToken() {
-        return firstToken()
-                .map(JwtToken::getTokenAsString)
-                .orElseGet(this::saksbehandlerToken);
-    }
-
-    @Override
     public OpenIDToken openIdToken() {
         return firstToken()
             .map(j -> new OpenIDToken(ConfigProvider.getOpenIDConfiguration(j.getIssuer())

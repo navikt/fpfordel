@@ -12,10 +12,6 @@ public enum AppAbacAttributtType implements AbacAttributtType {
 
     public static final AbacAttributtType AKTØR_ID = StandardAbacAttributtType.AKTØR_ID;
 
-    public static final AbacAttributtType JOURNALPOST_ID = StandardAbacAttributtType.JOURNALPOST_ID;
-
-    public static final AbacAttributtType SAKSNUMMER = StandardAbacAttributtType.SAKSNUMMER;
-
     private final boolean maskerOutput;
     private final String sporingsloggEksternKode;
     private final boolean valider;
