@@ -25,10 +25,12 @@ import com.nimbusds.jwt.SignedJWT;
 
 import no.nav.foreldrepenger.pip.PipRepository;
 import no.nav.vedtak.sikkerhet.abac.AbacAttributtSamling;
+import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken.TokenType;
 import no.nav.vedtak.sikkerhet.abac.PdpKlient;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.abac.PdpRequestBuilder;
+import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 
 /**
  * Implementasjon av PDP request for denne applikasjonen.
@@ -72,6 +74,20 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         }
         LOG.trace("Request er {}", pdpRequest);
         return pdpRequest;
+    }
+
+    @Override
+    public boolean nyttAbacGrensesnitt() {
+        return true;
+    }
+
+    @Override
+    public AppRessursData lagAppRessursData(AbacDataAttributter dataAttributter) {
+        return AppRessursData.builder()
+            .leggTilAktørIdSet(dataAttributter.getVerdier(AppAbacAttributtType.AKTØR_ID))
+            .leggTilAktørIdSet(pipRepository.hentAktørIdForForsendelser(dataAttributter.getVerdier(AppAbacAttributtType.FORSENDELSE_UUID)))
+            .build();
+
     }
 
     private Set<String> utledAktørIder(AbacAttributtSamling attributter) {
