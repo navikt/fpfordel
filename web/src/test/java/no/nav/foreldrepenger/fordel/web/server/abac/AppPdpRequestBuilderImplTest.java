@@ -59,7 +59,7 @@ class AppPdpRequestBuilderImplTest {
                 .thenReturn(Collections.singleton(AKTØR));
 
         var request = requestBuilder.lagAppRessursData(attributter);
-        assertThat(request.getAktørIdSet()).containsOnly(AKTØR);
+        assertThat(request.getAktørIdSet()).contains(AKTØR);
         assertThat(request.getAktørIdSet()).hasSize(2);
     }
 
