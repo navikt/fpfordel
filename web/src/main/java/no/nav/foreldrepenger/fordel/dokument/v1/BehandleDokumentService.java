@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
-import no.nav.foreldrepenger.fordel.web.server.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
@@ -372,13 +371,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
         @Override
         public AbacDataAttributter apply(Object obj) {
-            OppdaterOgFerdigstillJournalfoeringRequest req = (OppdaterOgFerdigstillJournalfoeringRequest) obj;
-            var attributter = AbacDataAttributter.opprett()
-                    .leggTil(AppAbacAttributtType.SAKSNUMMER, req.getSakId());
-            if (req.getJournalpostId() != null) {
-                attributter.leggTil(AppAbacAttributtType.JOURNALPOST_ID, req.getJournalpostId());
-            }
-            return attributter;
+            return AbacDataAttributter.opprett();
         }
     }
 
