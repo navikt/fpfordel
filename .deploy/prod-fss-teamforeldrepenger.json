@@ -6,7 +6,10 @@
 	"minReplicas": "2",
 	"maxReplicas": "3",
 	"kafkaPool": "nav-prod",
-	"ingresses": [ "https://fpfordel.nais.adeo.no" ],
+	"ingresses": [
+		"https://fpfordel.intern.nav.no",
+		"https://fpfordel.nais.adeo.no"
+	],
 	"env": {
 		"APPDYNAMICS_AGENT_ACCOUNT_NAME": "PROD"
 	}

@@ -3,14 +3,12 @@
 	"serviceuserkv": "/serviceuser/data/dev/srvfpfordel",
 	"oracleconfigkv": "/oracle/data/dev/config/fpfordel_q1",
 	"oraclecredskv": "/oracle/data/dev/creds/fpfordel_q1-fpfordel_q1",
-	"minReplicas": "2",
-	"maxReplicas": "3",
+	"minReplicas": "1",
+	"maxReplicas": "2",
 	"kafkaPool": "nav-dev",
 	"ingresses": [
-		"https://fpfordel.dev.adeo.no",
-		"https://fpfordel.nais.preprod.local",
-		"https://fpfordel-q1.dev.adeo.no",
-		"https://fpfordel-q1.nais.preprod.local"
+		"https://fpfordel.dev.intern.nav.no",
+		"https://fpfordel.nais.preprod.local"
 	],
 	"env": {
 		"APPDYNAMICS_AGENT_ACCOUNT_NAME": "NON-PROD"
