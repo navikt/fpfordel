@@ -11,6 +11,7 @@
 		"https://fpfordel.nais.preprod.local"
 	],
 	"env": {
-		"APPDYNAMICS_AGENT_ACCOUNT_NAME": "NON-PROD"
+		"APPDYNAMICS_AGENT_ACCOUNT_NAME": "NON-PROD",
+		"APPD_ENABLED": "false"
 	}
 }
