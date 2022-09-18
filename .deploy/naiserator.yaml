@@ -60,12 +60,29 @@ spec:
 {{/each}}
   tokenx:
     enabled: true
+  kafka:
+    pool: {{kafkaPool}}
   azure:
     application:
       enabled: true
-  kafka:
-    pool: {{kafkaPool}}
+      claims:
+        extra:
+          - "NAVident"
+          - "azp_name"
+  {{#if AZURE_IAC_RULES}}
   accessPolicy:
-    inbound:
-      rules:
-        - application: fpsoknad-mottak
+      inbound:
+        rules:
+        {{#each AZURE_IAC_RULES}}
+           - application: {{app}}
+             namespace: {{namespace}}
+             cluster: {{cluster}}
+             {{#if scopes}}
+             permissions:
+                scopes:
+                {{#each scopes}}
+                - "{{this}}"
+                {{/each}}
+             {{/if}}
+        {{/each}}
+  {{/if}}

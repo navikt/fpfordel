@@ -13,5 +13,20 @@
 	"env": {
 		"APPDYNAMICS_AGENT_ACCOUNT_NAME": "PROD",
 		"APPD_ENABLED": "true"
-	}
+	},
+	 "AZURE_IAC_RULES": [
+		 {
+			 "app": "fp-swagger",
+			 "namespace": "teamforeldrepenger",
+			 "cluster": "prod-fss",
+			 "scopes": [
+				 "swagger"
+			 ]
+		 },
+		 {
+			 "app": "fpsoknad-mottak",
+			 "namespace": "teamforeldrepenger",
+			 "cluster": "prod-fss"
+		 }
+	 ]
 }
