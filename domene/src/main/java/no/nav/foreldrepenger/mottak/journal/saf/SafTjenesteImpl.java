@@ -23,22 +23,22 @@ import no.nav.saf.Tilknytning;
 import no.nav.saf.TilknyttedeJournalposterQueryRequest;
 import no.nav.saf.TilknyttedeJournalposterQueryResponse;
 import no.nav.saf.TilleggsopplysningResponseProjection;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
+import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 import no.nav.vedtak.felles.integrasjon.saf.HentDokumentQuery;
 import no.nav.vedtak.felles.integrasjon.saf.Saf;
 
 @ApplicationScoped
-class JerseySafTjeneste implements SafTjeneste {
+class SafTjenesteImpl implements SafTjeneste {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JerseySafTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SafTjenesteImpl.class);
 
     private Saf saf;
 
-    public JerseySafTjeneste() {
+    public SafTjenesteImpl() {
     }
 
     @Inject
-    public JerseySafTjeneste(@Jersey Saf saf) {
+    public SafTjenesteImpl(@NativeClient Saf saf) {
         this.saf = saf;
     }
 
