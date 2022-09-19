@@ -47,7 +47,7 @@ import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.feil.UgyldigInp
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.meldinger.OppdaterOgFerdigstillJournalfoeringRequest;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebService;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
+import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -84,8 +84,8 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
     @Inject
     public BehandleDokumentService(VLKlargjører klargjører,
-            Fagsak fagsak,
-            @Jersey SakClient sakClient,
+            @NativeClient Fagsak fagsak,
+            @NativeClient SakClient sakClient,
             PersonInformasjon pdl,
             ArkivTjeneste arkivTjeneste,
             DokumentRepository dokumentRepository) {

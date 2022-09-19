@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.VurderFagsystemResultat;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
+import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 import no.nav.vedtak.konfig.Tid;
 
 /**
@@ -45,7 +46,7 @@ public class DestinasjonsRuter {
     private final Fagsak fagsakRestKlient;
 
     @Inject
-    public DestinasjonsRuter(Fagsak fagsakRestKlient) {
+    public DestinasjonsRuter(@NativeClient Fagsak fagsakRestKlient) {
         this.fagsakRestKlient = fagsakRestKlient;
     }
 

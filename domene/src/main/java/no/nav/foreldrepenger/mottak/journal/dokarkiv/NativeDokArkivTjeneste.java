@@ -2,35 +2,39 @@ package no.nav.foreldrepenger.mottak.journal.dokarkiv;
 
 import java.net.URI;
 
-import javax.enterprise.context.Dependent;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.core.UriBuilder;
 
-import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.FerdigstillJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OppdaterJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRequest;
 import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostResponse;
-import no.nav.vedtak.felles.integrasjon.rest.SystemUserOidcRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
-@Dependent
-class LegacyDokArkivTjeneste implements DokArkiv {
+@NativeClient
+@RestClientConfig(tokenConfig = TokenFlow.STS_CC, endpointProperty = "dokarkiv.base.url", endpointDefault = "http://dokarkiv.default/rest/journalpostapi/v1/journalpost")
+@ApplicationScoped
+class NativeDokArkivTjeneste implements DokArkiv {
 
-    private static final String DEFAULT_URI = "http://dokarkiv.default/rest/journalpostapi/v1/journalpost";
-
-    private static final Logger LOG = LoggerFactory.getLogger(LegacyDokArkivTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NativeDokArkivTjeneste.class);
 
     private final URI dokarkiv;
     private final String uriString;
-    private final SystemUserOidcRestClient restKlient;
+    private final RestClient restKlient;
 
     @Inject
-    public LegacyDokArkivTjeneste(@KonfigVerdi(value = "dokarkiv.base.url", defaultVerdi = DEFAULT_URI) URI endpoint, SystemUserOidcRestClient restKlient) {
-        this.dokarkiv = endpoint;
-        this.uriString = endpoint.toString();
+    public NativeDokArkivTjeneste(RestClient restKlient) {
+        this.dokarkiv = RestConfig.endpointFromAnnotation(NativeDokArkivTjeneste.class);
+        this.uriString = dokarkiv.toString();
         this.restKlient = restKlient;
     }
 
@@ -38,8 +42,9 @@ class LegacyDokArkivTjeneste implements DokArkiv {
     public OpprettJournalpostResponse opprettJournalpost(OpprettJournalpostRequest request, boolean ferdigstill) {
         try {
             LOG.info("Oppretter journalpost");
-            var opprett = ferdigstill ? new URIBuilder(dokarkiv).addParameter("forsoekFerdigstill", "true").build() : dokarkiv;
-            var res = restKlient.postAcceptConflict(opprett, request, OpprettJournalpostResponse.class);
+            var opprett = ferdigstill ? UriBuilder.fromUri(dokarkiv).queryParam("forsoekFerdigstill", "true").build() : dokarkiv;
+            var rrequest = RestRequest.newPOSTJson(request, opprett, NativeDokArkivTjeneste.class);
+            var res = restKlient.sendExpectConflict(rrequest, OpprettJournalpostResponse.class);
             LOG.info("Opprettet journalpost OK");
             return res;
         } catch (Exception e) {
@@ -53,7 +58,9 @@ class LegacyDokArkivTjeneste implements DokArkiv {
         try {
             LOG.info("Oppdaterer journalpost");
             var oppdater = URI.create(uriString + String.format("/%s", journalpostId));
-            restKlient.put(oppdater, request);
+            var method = new RestRequest.Method(RestRequest.WebMethod.PUT, RestRequest.jsonPublisher(request));
+            var rrequest = RestRequest.newRequest(method, oppdater, NativeDokArkivTjeneste.class);
+            restKlient.send(rrequest, String.class);
             LOG.info("Oppdatert journalpost OK");
             return true;
         } catch (Exception e) {
@@ -67,7 +74,9 @@ class LegacyDokArkivTjeneste implements DokArkiv {
         try {
             LOG.info("Ferdigstiller journalpost");
             var ferdigstill = URI.create(uriString + String.format("/%s/ferdigstill", journalpostId));
-            restKlient.patch(ferdigstill, new FerdigstillJournalpostRequest(enhet));
+            var method = new RestRequest.Method(RestRequest.WebMethod.PATCH, RestRequest.jsonPublisher(new FerdigstillJournalpostRequest(enhet)));
+            var rrequest = RestRequest.newRequest(method, ferdigstill, NativeDokArkivTjeneste.class);
+            restKlient.send(rrequest, String.class);
             LOG.info("Ferdigstilt journalpost OK");
             return true;
         } catch (Exception e) {

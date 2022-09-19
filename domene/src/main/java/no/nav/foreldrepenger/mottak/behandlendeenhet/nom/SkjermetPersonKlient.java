@@ -5,34 +5,35 @@ import java.net.URI;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.vedtak.felles.integrasjon.rest.AzureADRestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 /*
  * Klient for å sjekke om person er skjermet.
  * Grensesnitt se #skjermingsløsningen
  */
 @ApplicationScoped
+@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "skjermet.person.rs.url", endpointDefault = "https://skjermede-personer-pip.intern.nav.no/skjermet",
+    scopesProperty = "skjermet.person.rs.azure.scope", scopesDefault = "api://prod-gcp.nom.skjermede-personer-pip/.default")
 public class SkjermetPersonKlient {
-
-    private static final String DEFAULT_URI = "https://skjermede-personer-pip.intern.nav.no/skjermet";
-    private static final String DEFAULT_AZURE_SCOPE = "api://prod-gcp.nom.skjermede-personer-pip/.default";
 
     private static final Logger LOG = LoggerFactory.getLogger(SkjermetPersonKlient.class);
 
     private URI uri;
 
-    private AzureADRestClient client;
+    private RestClient client;
 
-    
+
     @Inject
-    public SkjermetPersonKlient(@KonfigVerdi(value = "skjermet.person.rs.url", defaultVerdi = DEFAULT_URI) URI uri,
-                                @KonfigVerdi(value = "skjermet.person.rs.azure.scope", defaultVerdi = DEFAULT_AZURE_SCOPE) String scope) {
-        this.uri = uri;
-        this.client = AzureADRestClient.builder().scope(scope).build();
+    public SkjermetPersonKlient(RestClient client) {
+        this.uri = RestConfig.endpointFromAnnotation(SkjermetPersonKlient.class);
+        this.client = client;
     }
 
     public SkjermetPersonKlient() {
@@ -42,8 +43,8 @@ public class SkjermetPersonKlient {
 
     public boolean erSkjermet(String fnr) {
         if (fnr == null) return false;
-        var request = new SkjermetRequestDto(fnr);
-        var respons = client.post(uri, request);
+        var request = RestRequest.newPOSTJson(new SkjermetRequestDto(fnr), uri, SkjermetPersonKlient.class);
+        var respons = client.sendReturnOptional(request, String.class).orElse("");
         if ("true".equalsIgnoreCase(respons)) {
             LOG.info("FPFORDEL skjermet person funnet");
             return true;

@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.JournalpostSender;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
+import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 
 @Dependent
 public class VLKlargjører {
@@ -29,9 +29,9 @@ public class VLKlargjører {
 
     @Inject
     public VLKlargjører(
-            @Jersey("dokument") JournalpostSender dokumentJournalpostSender,
-            Fagsak fagsak,
-            @Jersey("tilbake") JournalpostSender tilbakeJournalpostSender) {
+            @NativeClient("dokument") JournalpostSender dokumentJournalpostSender,
+            @NativeClient Fagsak fagsak,
+            @NativeClient("tilbake") JournalpostSender tilbakeJournalpostSender) {
         this.dokumentJournalpostSender = dokumentJournalpostSender;
         this.fagsak = fagsak;
         this.tilbakeJournalpostSender = tilbakeJournalpostSender;

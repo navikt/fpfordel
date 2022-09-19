@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
+import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -56,7 +57,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     @Inject
     public OpprettGSakOppgaveTask(ProsessTaskTjeneste taskTjeneste,
             EnhetsInfo enhetsidTjeneste,
-            /* Vent på ny felles @Jersey */ Oppgaver oppgaver) {
+            @NativeClient Oppgaver oppgaver) {
         this.enhetsidTjeneste = enhetsidTjeneste;
         this.taskTjeneste = taskTjeneste;
         this.oppgaver = oppgaver;

@@ -47,6 +47,7 @@ import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
 import no.nav.foreldrepenger.mottak.journal.saf.model.VariantFormat;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
+import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 
 @Dependent
 public class ArkivTjeneste {
@@ -67,7 +68,7 @@ public class ArkivTjeneste {
 
     @Inject
     public ArkivTjeneste(SafTjeneste saf,
-            /* @Jersey */ DokArkiv dokArkivTjeneste,
+            @NativeClient DokArkiv dokArkivTjeneste,
             DokumentRepository dokumentRepository,
             PersonInformasjon personTjeneste) {
         this.saf = saf;

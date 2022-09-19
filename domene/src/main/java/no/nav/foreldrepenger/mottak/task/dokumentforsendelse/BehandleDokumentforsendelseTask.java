@@ -61,6 +61,7 @@ import no.nav.foreldrepenger.mottak.task.VLKlargjørerTask;
 import no.nav.foreldrepenger.mottak.tjeneste.Destinasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.DestinasjonsRuter;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
@@ -105,7 +106,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     public BehandleDokumentforsendelseTask(ProsessTaskTjeneste taskTjeneste,
                                            DestinasjonsRuter ruter,
                                            PersonInformasjon pdl,
-                                           Fagsak fagsak,
+                                           @NativeClient Fagsak fagsak,
                                            ArkivTjeneste arkiv,
                                            DokumentRepository dokumentRepository,
                                            HendelseProdusent hendelseProdusent) {
