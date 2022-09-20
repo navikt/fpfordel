@@ -208,6 +208,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         try {
             return arkivTjeneste.hentArkivJournalpost(arkivId);
         } catch (Exception e) {
+            LOG.warn("FORDEL WS fikk feil fra hentjournalpost: ", e);
             JournalpostIkkeFunnet journalpostIkkeFunnet = new JournalpostIkkeFunnet();
             journalpostIkkeFunnet.setFeilmelding("Finner ikke journalpost med id " + arkivId);
             journalpostIkkeFunnet.setFeilaarsak("Finner ikke journalpost");
