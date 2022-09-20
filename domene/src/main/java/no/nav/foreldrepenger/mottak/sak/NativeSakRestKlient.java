@@ -4,6 +4,7 @@ import java.net.URI;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.core.UriBuilder;
 
 import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 import no.nav.vedtak.felles.integrasjon.rest.NavHeaders;
@@ -32,7 +33,7 @@ public class NativeSakRestKlient implements SakClient {
 
     @Override
     public SakJson hentSakId(String sakId) {
-        var target = URI.create(endpoint.toString() + "/" + sakId);
+        var target = UriBuilder.fromUri(endpoint).path(sakId).build();
         var request = RestRequest.newGET(target, NativeSakRestKlient.class)
             .otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
         return sender.send(request, SakJson.class);
