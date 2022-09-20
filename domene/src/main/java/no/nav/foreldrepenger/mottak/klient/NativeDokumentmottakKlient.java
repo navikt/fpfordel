@@ -4,6 +4,7 @@ import java.net.URI;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.core.UriBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,8 @@ public class NativeDokumentmottakKlient implements JournalpostSender {
     @Inject
     public NativeDokumentmottakKlient(RestClient klient) {
         this.klient = klient;
-        this.endpoint = URI.create(RestConfig.endpointFromAnnotation(NativeDokumentmottakKlient.class).toString() + MOTTAK_JOURNALPOST_PATH);
+        this.endpoint = UriBuilder.fromUri(RestConfig.contextPathFromAnnotation(NativeDokumentmottakKlient.class))
+            .path(MOTTAK_JOURNALPOST_PATH).build();
     }
 
     @Override

@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.core.UriBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,12 +56,12 @@ public class NativeFagsak implements Fagsak {
     @Inject
     public NativeFagsak(RestClient klient) {
         this.klient = klient;
-        var endpoint = RestConfig.endpointFromAnnotation(NativeFagsak.class).toString();
-        this.knytningEndpoint = URI.create(endpoint + JOURNALPOSTTILKNYTNING_PATH);
-        this.fagsakinfoEndpoint = URI.create(endpoint + FAGSAKINFORMASJON_PATH);
-        this.opprettsakEndpoint = URI.create(endpoint + FAGSAK_OPPRETT_PATH);
-        this.fagsystemEndpoint = URI.create(endpoint + VURDER_FAGSYSTEM_PATH);
-        this.klageinstansEndpoint = URI.create(endpoint + KLAGEINSTANS_FAGSYSTEM_PATH);
+        var endpoint = RestConfig.contextPathFromAnnotation(NativeFagsak.class);
+        this.knytningEndpoint = lagURI(endpoint, JOURNALPOSTTILKNYTNING_PATH);
+        this.fagsakinfoEndpoint = lagURI(endpoint, FAGSAKINFORMASJON_PATH);
+        this.opprettsakEndpoint = lagURI(endpoint, FAGSAK_OPPRETT_PATH);
+        this.fagsystemEndpoint = lagURI(endpoint, VURDER_FAGSYSTEM_PATH);
+        this.klageinstansEndpoint = lagURI(endpoint, KLAGEINSTANS_FAGSYSTEM_PATH);
     }
 
     @Override
@@ -141,6 +142,10 @@ public class NativeFagsak implements Fagsak {
     @Override
     public String toString() {
         return getClass().getSimpleName() + " [endpoint=" + fagsystemEndpoint + "]";
+    }
+
+    private URI lagURI(URI context, String api) {
+        return UriBuilder.fromUri(context).path(api).build();
     }
 
 }
