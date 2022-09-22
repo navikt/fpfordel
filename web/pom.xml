@@ -198,12 +198,6 @@
             <artifactId>saaj-impl</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
-            <scope>test</scope>
-        </dependency>
-
 
         <dependency>
             <groupId>no.nav.foreldrepenger.fordel</groupId>
