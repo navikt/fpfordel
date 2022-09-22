@@ -9,7 +9,6 @@ import static no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Fors
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
@@ -39,12 +38,11 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.http.client.utils.URIBuilder;
 import org.glassfish.jersey.media.multipart.BodyPart;
 import org.glassfish.jersey.media.multipart.MultiPart;
-import org.glassfish.jersey.uri.internal.JerseyUriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -214,16 +212,7 @@ public class DokumentforsendelseRestTjeneste {
     }
 
     private URI lagStatusURI(UUID forsendelseId) {
-        try {
-            var fpinfo = JerseyUriBuilder.fromUri(fpStatusUrl).queryParam("forsendelseId", forsendelseId.toString()).build();
-            LOG.info("FPINFO {}", fpinfo);
-            var old = new URIBuilder(fpStatusUrl).addParameter("forsendelseId", forsendelseId.toString()).build();
-            LOG.info("FPINFO {}, old skool {}", fpinfo, old);
-            return old;
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException(forsendelseId.toString());
-        }
-        // return URI.create(fpStatusUrl + "?forsendelseId=" + forsendelseId);
+        return UriBuilder.fromUri(fpStatusUrl).queryParam("forsendelseId", forsendelseId.toString()).build();
     }
 
 
