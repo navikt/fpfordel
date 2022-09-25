@@ -24,6 +24,14 @@
 			]
 		},
 		{
+			"app": "fp-swagger",
+			"namespace": "teamforeldrepenger",
+			"cluster": "dev-gcp",
+			"scopes": [
+				"swagger"
+			]
+		},
+		{
 			"app": "fpsoknad-mottak",
 			"namespace": "teamforeldrepenger",
 			"cluster": "dev-fss"

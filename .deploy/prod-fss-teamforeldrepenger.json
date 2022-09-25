@@ -18,7 +18,7 @@
 		 {
 			 "app": "fp-swagger",
 			 "namespace": "teamforeldrepenger",
-			 "cluster": "prod-fss",
+			 "cluster": "prod-gcp",
 			 "scopes": [
 				 "swagger"
 			 ]
