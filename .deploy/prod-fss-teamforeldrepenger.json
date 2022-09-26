@@ -8,6 +8,7 @@
 	"kafkaPool": "nav-prod",
 	"ingresses": [
 		"https://fpfordel.intern.nav.no",
+		"https://fpfordel.prod-fss-pub.nais.io",
 		"https://fpfordel.nais.adeo.no"
 	],
 	"env": {

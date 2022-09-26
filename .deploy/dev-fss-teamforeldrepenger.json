@@ -8,6 +8,7 @@
 	"kafkaPool": "nav-dev",
 	"ingresses": [
 		"https://fpfordel.dev.intern.nav.no",
+		"https://fpfordel.dev-fss-pub.nais.io",
 		"https://fpfordel.nais.preprod.local"
 	],
 	"env": {
@@ -15,14 +16,6 @@
 		"APPD_ENABLED": "false"
 	},
 	"AZURE_IAC_RULES": [
-		{
-			"app": "fp-swagger",
-			"namespace": "teamforeldrepenger",
-			"cluster": "dev-fss",
-			"scopes": [
-				"swagger"
-			]
-		},
 		{
 			"app": "fp-swagger",
 			"namespace": "teamforeldrepenger",
