@@ -56,7 +56,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.fordel.web.server.abac.AppAbacAttributtType;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
@@ -67,6 +66,7 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Forsendelse
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatusDto;
 import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -82,8 +82,7 @@ public class DokumentforsendelseRestTjeneste {
 
     private static final String FPFORDEL_CONTEXT = "/fpfordel/api";
 
-    private static final String DEFAULT_FPINFO_BASE_URI = "http://fpinfo";
-    private static final String DOKUMENTFORSENDELSE_STATUS_PATH = "/fpinfo/api/dokumentforsendelse/status";
+    private static final String DOKUMENTFORSENDELSE_STATUS_PATH = "/api/dokumentforsendelse/status";
 
     private static final String PART_KEY_METADATA = "metadata";
     private static final String PART_KEY_HOVEDDOKUMENT = "hoveddokument";
@@ -108,10 +107,9 @@ public class DokumentforsendelseRestTjeneste {
     }
 
     @Inject
-    public DokumentforsendelseRestTjeneste(DokumentforsendelseTjeneste service,
-            @KonfigVerdi(value = "fpinfo.base.url", defaultVerdi = DEFAULT_FPINFO_BASE_URI) URI endpoint) {
+    public DokumentforsendelseRestTjeneste(DokumentforsendelseTjeneste service) {
         this.service = service;
-        this.fpStatusUrl = URI.create(endpoint.toString() + DOKUMENTFORSENDELSE_STATUS_PATH);
+        this.fpStatusUrl = URI.create(FpApplication.contextPathFor(FpApplication.FPINFO) + DOKUMENTFORSENDELSE_STATUS_PATH);
         LOG.trace("Created");
     }
 

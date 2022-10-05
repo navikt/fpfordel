@@ -13,7 +13,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -65,7 +64,7 @@ class DokumentforsendelseRestTjenesteTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        tjeneste = new DokumentforsendelseRestTjeneste(dokumentTjeneste, URI.create("http://fpinfo"));
+        tjeneste = new DokumentforsendelseRestTjeneste(dokumentTjeneste);
         metadataPart = mockMetadataPart();
         hoveddokumentPart = mockHoveddokumentPartXml();
         hoveddokumentPartPdf = mockHoveddokumentPartPdf();
