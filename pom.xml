@@ -38,7 +38,7 @@
         <felles.version>4.2.2</felles.version>
         <prosesstask.version>3.1.11</prosesstask.version>
         <fp-kontrakter.version>6.1.27</fp-kontrakter.version>
-        <kafka.version>3.2.1</kafka.version> <!-- mens vi venter på ny versjon av confluent -->
+
         <confluent.version>7.2.1</confluent.version>
     </properties>
 
