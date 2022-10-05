@@ -4,7 +4,6 @@ import java.net.URI;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.ws.rs.core.UriBuilder;
 
 import org.slf4j.Logger;
@@ -19,44 +18,39 @@ import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
-import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsInfo;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.JournalføringsOppgave;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
-import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
-@NativeClient
 @RestClientConfig(tokenConfig = TokenFlow.STS_CC, application = FpApplication.FPSAK)
 @ApplicationScoped
-public class NativeFagsak implements Fagsak {
+public class FagsakKlient implements Fagsak {
 
     private static final String JOURNALPOSTTILKNYTNING_PATH = "/api/fordel/fagsak/knyttJournalpost";
     private static final String FAGSAKINFORMASJON_PATH = "/api/fordel/fagsak/informasjon";
     private static final String FAGSAK_OPPRETT_PATH = "/api/fordel/fagsak/opprett";
     private static final String VURDER_FAGSYSTEM_PATH = "/api/fordel/vurderFagsystem";
     private static final String KLAGEINSTANS_FAGSYSTEM_PATH = "/api/fordel/klageinstans";
-    private static final Logger LOG = LoggerFactory.getLogger(NativeFagsak.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FagsakKlient.class);
 
-    private URI knytningEndpoint;
-    private URI fagsakinfoEndpoint;
-    private URI opprettsakEndpoint;
-    private URI fagsystemEndpoint;
-    private URI klageinstansEndpoint;
-    private RestClient klient;
+    private final URI knytningEndpoint;
+    private final URI fagsakinfoEndpoint;
+    private final URI opprettsakEndpoint;
+    private final URI fagsystemEndpoint;
+    private final URI klageinstansEndpoint;
+    private final RestClient klient;
+    private final RestConfig restConfig;
 
 
-    NativeFagsak() {
-        // CDI
-    }
-
-    @Inject
-    public NativeFagsak(RestClient klient) {
-        this.klient = klient;
-        var endpoint = RestConfig.contextPathFromAnnotation(NativeFagsak.class);
+    public FagsakKlient() {
+        this.klient = RestClient.client();
+        this.restConfig = RestConfig.forClient(this.getClass());
+        var endpoint = restConfig.fpContextPath();
         this.knytningEndpoint = lagURI(endpoint, JOURNALPOSTTILKNYTNING_PATH);
         this.fagsakinfoEndpoint = lagURI(endpoint, FAGSAKINFORMASJON_PATH);
         this.opprettsakEndpoint = lagURI(endpoint, FAGSAK_OPPRETT_PATH);
@@ -67,7 +61,7 @@ public class NativeFagsak implements Fagsak {
     @Override
     public Optional<FagsakInfomasjonDto> finnFagsakInfomasjon(SaksnummerDto saksnummerDto) {
         LOG.info("Finner fagsakinformasjon");
-        var request= RestRequest.newPOSTJson(saksnummerDto, fagsakinfoEndpoint, NativeFagsak.class);
+        var request= RestRequest.newPOSTJson(saksnummerDto, fagsakinfoEndpoint, restConfig);
         var info = klient.send(request, FagsakInfomasjonDto.class);
         LOG.info("Fant fagsakinformasjon OK");
         return Optional.ofNullable(info);
@@ -76,7 +70,7 @@ public class NativeFagsak implements Fagsak {
     @Override
     public SaksnummerDto opprettSak(OpprettSakDto opprettSakDto) {
         LOG.info("Oppretter sak");
-        var request = RestRequest.newPOSTJson(opprettSakDto, opprettsakEndpoint, NativeFagsak.class);
+        var request = RestRequest.newPOSTJson(opprettSakDto, opprettsakEndpoint, restConfig);
         var sak = klient.send(request, SaksnummerDto.class);
         LOG.info("Opprettet sak OK");
         return sak;
@@ -85,7 +79,7 @@ public class NativeFagsak implements Fagsak {
     @Override
     public void knyttSakOgJournalpost(JournalpostKnyttningDto dto) {
         LOG.info("Knytter sak og journalpost");
-        var request = RestRequest.newPOSTJson(dto, knytningEndpoint, NativeFagsak.class);
+        var request = RestRequest.newPOSTJson(dto, knytningEndpoint, restConfig);
         klient.sendReturnOptional(request, String.class);
     }
 
@@ -127,10 +121,10 @@ public class NativeFagsak implements Fagsak {
         }
         LOG.info("Vurderer resultat");
 
-        var brukPath = w.getJournalførendeEnhet().filter(EnhetsInfo.NK_ENHET_ID::equals).isPresent() ?
+        var brukPath = w.getJournalførendeEnhet().filter(JournalføringsOppgave.NK_ENHET_ID::equals).isPresent() ?
                 klageinstansEndpoint : fagsystemEndpoint;
 
-        var request = RestRequest.newPOSTJson(dto, brukPath, NativeFagsak.class);
+        var request = RestRequest.newPOSTJson(dto, brukPath, restConfig);
         var respons = klient.send(request, BehandlendeFagsystemDto.class);
 
         var vurdering = VurderFagsystemResultat.fra(respons);

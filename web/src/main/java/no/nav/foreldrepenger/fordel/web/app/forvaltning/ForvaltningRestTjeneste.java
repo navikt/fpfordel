@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.mottak.task.VedlikeholdSchedulerTask;
 import no.nav.foreldrepenger.mottak.task.dokumentforsendelse.BehandleDokumentforsendelseTask;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseIdDto;
 import no.nav.security.token.support.core.api.Unprotected;
-import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
@@ -57,7 +56,7 @@ public class ForvaltningRestTjeneste {
     }
 
     @Inject
-    public ForvaltningRestTjeneste(ProsessTaskTjeneste taskTjeneste, @NativeClient Fagsak fagsak) {
+    public ForvaltningRestTjeneste(ProsessTaskTjeneste taskTjeneste, Fagsak fagsak) {
         this.taskTjeneste = taskTjeneste;
         this.fagsak = fagsak;
     }

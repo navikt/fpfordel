@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.mottak.tjeneste;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import javax.enterprise.context.Dependent;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -14,24 +14,27 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
+import no.nav.foreldrepenger.mottak.klient.DokumentmottakKlient;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
-import no.nav.foreldrepenger.mottak.klient.JournalpostSender;
-import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
+import no.nav.foreldrepenger.mottak.klient.TilbakekrevingKlient;
 
-@Dependent
+@ApplicationScoped
 public class VLKlargjører {
 
     private static final Logger LOG = LoggerFactory.getLogger(VLKlargjører.class);
 
-    private final JournalpostSender dokumentJournalpostSender;
-    private final Fagsak fagsak;
-    private final JournalpostSender tilbakeJournalpostSender;
+    private DokumentmottakKlient dokumentJournalpostSender;
+    private Fagsak fagsak;
+    private TilbakekrevingKlient tilbakeJournalpostSender;
+
+    VLKlargjører() {
+        // CDI
+    }
 
     @Inject
-    public VLKlargjører(
-            @NativeClient("dokument") JournalpostSender dokumentJournalpostSender,
-            @NativeClient Fagsak fagsak,
-            @NativeClient("tilbake") JournalpostSender tilbakeJournalpostSender) {
+    public VLKlargjører(DokumentmottakKlient dokumentJournalpostSender,
+                        Fagsak fagsak,
+                        TilbakekrevingKlient tilbakeJournalpostSender) {
         this.dokumentJournalpostSender = dokumentJournalpostSender;
         this.fagsak = fagsak;
         this.tilbakeJournalpostSender = tilbakeJournalpostSender;

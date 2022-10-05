@@ -17,8 +17,9 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
+import no.nav.foreldrepenger.mottak.klient.DokumentmottakKlient;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
-import no.nav.foreldrepenger.mottak.klient.JournalpostSender;
+import no.nav.foreldrepenger.mottak.klient.TilbakekrevingKlient;
 
 @ExtendWith(MockitoExtension.class)
 public class VLKlargjørerTest {
@@ -27,9 +28,9 @@ public class VLKlargjørerTest {
     @Mock
     private Fagsak mockFagsakRestKlient;
     @Mock
-    private JournalpostSender mockDokumentRestTjeneste;
+    private DokumentmottakKlient mockDokumentRestTjeneste;
     @Mock
-    JournalpostSender mockTilbakeRestTjeneste;
+    private TilbakekrevingKlient mockTilbakeRestTjeneste;
 
     private static final String ARKIV_ID = "123";
     private static final String SAK_ID = "456";

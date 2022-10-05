@@ -17,32 +17,34 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import no.nav.foreldrepenger.mottak.behandlendeenhet.nom.SkjermetPersonKlient;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.Arbeidsfordeling;
-import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingResponse;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.Arbeidsfordeling;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingResponse;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 
 @ExtendWith(MockitoExtension.class)
-class EnhetsInfoTest {
+class JournalføringsOppgaveTest {
     private static final String AKTØR_ID = "9999999999999";
     private static final String FNR = "99999999999";
     private static final ArbeidsfordelingResponse ENHET = new ArbeidsfordelingResponse("4801", "Enhet", "Aktiv", "FPY");
     private static final ArbeidsfordelingResponse FORDELING_ENHET = new ArbeidsfordelingResponse("4825", "Oslo", "Aktiv", "FPY");
     public static final String GEOGRAFISK_TILKNYTNING = "test";
     public static final String DISKRESJONSKODE = "diskresjonskode";
-    private EnhetsInfo enhetsTjeneste;
+    private JournalføringsOppgave enhetsTjeneste;
     @Mock
     private Arbeidsfordeling arbeidsfordeling;
     @Mock
     private PersonInformasjon personTjeneste;
     @Mock
     private SkjermetPersonKlient skjermetPersonKlient;
+    @Mock
+    private Oppgaver oppgaver;
 
     @BeforeEach
     void setup() {
         when(personTjeneste.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(FNR));
         when(arbeidsfordeling.hentAlleAktiveEnheter(any())).thenReturn(List.of(FORDELING_ENHET));
-        enhetsTjeneste = new EnhetsTjeneste(personTjeneste, arbeidsfordeling, skjermetPersonKlient);
+        enhetsTjeneste = new EnhetsTjeneste(personTjeneste, arbeidsfordeling, skjermetPersonKlient, oppgaver);
         when(arbeidsfordeling.finnEnhet(any())).thenReturn(List.of(ENHET));
         when(personTjeneste.hentGeografiskTilknytning(any())).thenReturn(GEOGRAFISK_TILKNYTNING);
     }
@@ -60,7 +62,7 @@ class EnhetsInfoTest {
         when(skjermetPersonKlient.erSkjermet(any())).thenReturn(true);
         assertThat(enhetId())
                 .isNotNull()
-                .isEqualTo(EnhetsInfo.SKJERMET_ENHET_ID);
+                .isEqualTo(JournalføringsOppgave.SKJERMET_ENHET_ID);
     }
 
     @Test

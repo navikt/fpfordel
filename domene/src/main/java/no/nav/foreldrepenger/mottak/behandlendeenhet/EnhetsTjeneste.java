@@ -16,20 +16,23 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.mottak.behandlendeenhet.nom.SkjermetPersonKlient;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.Arbeidsfordeling;
-import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRequest;
-import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingResponse;
-import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.Arbeidsfordeling;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingRequest;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingResponse;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 
 @ApplicationScoped
-public class EnhetsTjeneste implements EnhetsInfo {
+public class EnhetsTjeneste implements JournalføringsOppgave {
     private static final Logger LOG = LoggerFactory.getLogger(EnhetsTjeneste.class);
     private PersonInformasjon pdl;
     private Arbeidsfordeling norgKlient;
     private SkjermetPersonKlient skjermetPersonKlient;
+    private Oppgaver oppgaver;
 
     private Set<String> alleJournalførendeEnheter = new HashSet<>(); // Med klageinstans og kode6 og skjermet
     private List<String> nfpJournalførendeEnheter = new ArrayList<>(); // Kun NFP
@@ -39,13 +42,14 @@ public class EnhetsTjeneste implements EnhetsInfo {
     }
 
     @Inject
-    public EnhetsTjeneste(
-            PersonInformasjon personTjeneste,
-            @NativeClient Arbeidsfordeling norgKlient,
-            SkjermetPersonKlient skjermetPersonKlient) {
+    public EnhetsTjeneste(PersonInformasjon personTjeneste,
+                          Arbeidsfordeling norgKlient,
+                          SkjermetPersonKlient skjermetPersonKlient,
+                          Oppgaver oppgaver) {
         this.pdl = personTjeneste;
         this.norgKlient = norgKlient;
         this.skjermetPersonKlient = skjermetPersonKlient;
+        this.oppgaver = oppgaver;
     }
 
     @Override
@@ -61,6 +65,21 @@ public class EnhetsTjeneste implements EnhetsInfo {
                 .orElseGet(this::tilfeldigNfpEnhet);
         LOG.info("returnerer enhet id  {}", id);
         return id;
+    }
+
+    @Override
+    public String opprettJournalføringsOppgave(String journalpostId, String enhetId, String aktørId, String saksref, String behandlingTema, String beskrivelse) {
+        var request = OpprettOppgave.getBuilderTemaFOR(Oppgavetype.JOURNALFØRING, Prioritet.NORM, 1)
+            .medAktoerId(aktørId)
+            .medSaksreferanse(saksref)
+            .medTildeltEnhetsnr(enhetId)
+            .medOpprettetAvEnhetsnr(enhetId)
+            .medJournalpostId(journalpostId)
+            .medBeskrivelse(beskrivelse)
+            .medBehandlingstema(behandlingTema);
+        var oppgave = oppgaver.opprettetOppgave(request.build());
+        LOG.info("FPFORDEL GOSYS opprettet oppgave {}", oppgave);
+        return oppgave.id().toString();
     }
 
     private String hentEnhetId(String aktørId, BehandlingTema behandlingTema, Tema tema) {

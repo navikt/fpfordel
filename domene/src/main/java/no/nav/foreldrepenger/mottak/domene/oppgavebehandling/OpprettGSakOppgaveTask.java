@@ -7,8 +7,6 @@ import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.FORSE
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.JOURNAL_ENHET;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.SAKSNUMMER_KEY;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -21,15 +19,10 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.fordel.kodeverdi.Temagrupper;
-import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsInfo;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.JournalføringsOppgave;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.task.SlettForsendelseTask;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
-import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -50,17 +43,14 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
     static final String OPPGAVETYPER_JFR = "JFR"; // Fra offisielt kodeverk
 
-    private final EnhetsInfo enhetsidTjeneste;
+    private final JournalføringsOppgave enhetsidTjeneste;
     private final ProsessTaskTjeneste taskTjeneste;
-    private final Oppgaver oppgaver;
 
     @Inject
     public OpprettGSakOppgaveTask(ProsessTaskTjeneste taskTjeneste,
-            EnhetsInfo enhetsidTjeneste,
-            @NativeClient Oppgaver oppgaver) {
+                                  JournalføringsOppgave enhetsidTjeneste) {
         this.enhetsidTjeneste = enhetsidTjeneste;
         this.taskTjeneste = taskTjeneste;
-        this.oppgaver = oppgaver;
     }
 
     @Override
@@ -108,24 +98,8 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         final String enhetId = enhetsidTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, behandlingTema,
                 Optional.ofNullable(enhetInput), prosessTaskData.getAktørId());
         final String beskrivelse = lagBeskrivelse(behandlingTema, dokumentTypeId, prosessTaskData);
-
-        var request = OpprettOppgave.getBuilder()
-                .medAktoerId(prosessTaskData.getAktørId())
-                .medSaksreferanse(prosessTaskData.getPropertyValue(SAKSNUMMER_KEY))
-                .medTildeltEnhetsnr(enhetId)
-                .medOpprettetAvEnhetsnr(enhetId)
-                .medJournalpostId(arkivId)
-                .medAktivDato(LocalDate.now())
-                .medFristFerdigstillelse(helgeJustertFrist(LocalDate.now().plusDays(1L)))
-                .medBeskrivelse(beskrivelse)
-                .medTemagruppe(Temagrupper.FAMILIEYTELSER.getKode())
-                .medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode())
-                .medBehandlingstema(brukBT)
-                .medOppgavetype(OPPGAVETYPER_JFR)
-                .medPrioritet(Prioritet.NORM);
-        var oppgave = oppgaver.opprettetOppgave(request.build());
-        LOG.info("FPFORDEL GOSYS opprettet oppgave {}", oppgave);
-        return oppgave.getId().toString();
+        return enhetsidTjeneste.opprettJournalføringsOppgave(arkivId, enhetId, prosessTaskData.getAktørId(),
+            prosessTaskData.getPropertyValue(SAKSNUMMER_KEY), brukBT, beskrivelse);
     }
 
     private static String lagBeskrivelse(BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId, ProsessTaskData data) {
@@ -151,11 +125,4 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         return beskrivelse;
     }
 
-    // Sett frist til mandag hvis fristen er i helgen.
-    private static LocalDate helgeJustertFrist(LocalDate dato) {
-        if (dato.getDayOfWeek().getValue() > DayOfWeek.FRIDAY.getValue()) {
-            return dato.plusDays((1L + DayOfWeek.SUNDAY.getValue()) - dato.getDayOfWeek().getValue());
-        }
-        return dato;
-    }
 }

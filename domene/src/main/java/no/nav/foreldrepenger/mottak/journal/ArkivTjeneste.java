@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.Dependent;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -47,9 +47,8 @@ import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
 import no.nav.foreldrepenger.mottak.journal.saf.model.VariantFormat;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
-import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 
-@Dependent
+@ApplicationScoped
 public class ArkivTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArkivTjeneste.class);
@@ -61,16 +60,20 @@ public class ArkivTjeneste {
             "Klage", DokumentTypeId.KLAGE_DOKUMENT,
             "Anke", DokumentTypeId.KLAGE_DOKUMENT);
 
-    private final SafTjeneste saf;
-    private final DokArkiv dokArkivTjeneste;
-    private final DokumentRepository dokumentRepository;
-    private final PersonInformasjon personTjeneste;
+    private SafTjeneste saf;
+    private DokArkiv dokArkivTjeneste;
+    private DokumentRepository dokumentRepository;
+    private PersonInformasjon personTjeneste;
+
+    ArkivTjeneste() {
+        // CDI
+    }
 
     @Inject
     public ArkivTjeneste(SafTjeneste saf,
-            @NativeClient DokArkiv dokArkivTjeneste,
-            DokumentRepository dokumentRepository,
-            PersonInformasjon personTjeneste) {
+                         DokArkiv dokArkivTjeneste,
+                         DokumentRepository dokumentRepository,
+                         PersonInformasjon personTjeneste) {
         this.saf = saf;
         this.dokArkivTjeneste = dokArkivTjeneste;
         this.dokumentRepository = dokumentRepository;

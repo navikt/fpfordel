@@ -26,9 +26,8 @@ import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.Navn;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.PersonResponseProjection;
-import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
-import no.nav.vedtak.felles.integrasjon.pdl.PdlException;
-import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
+import no.nav.vedtak.felles.integrasjon.person.PdlException;
+import no.nav.vedtak.felles.integrasjon.person.Persondata;
 import no.nav.vedtak.util.LRUCache;
 
 @ApplicationScoped
@@ -42,17 +41,17 @@ public class PersonTjeneste implements PersonInformasjon {
     private static final int DEFAULT_CACHE_SIZE = 1000;
     private static final long DEFAULT_CACHE_TIMEOUT = TimeUnit.MILLISECONDS.convert(10, TimeUnit.MINUTES);
 
-    protected final Pdl pdl;
+    protected final Persondata pdl;
 
     private LRUCache<String, String> cacheAktørIdTilIdent;
     private LRUCache<String, String> cacheIdentTilAktørId;
 
     @Inject
-    public PersonTjeneste(@NativeClient Pdl pdl) {
+    public PersonTjeneste(Persondata pdl) {
         this(pdl, DEFAULT_CACHE_TIMEOUT);
     }
 
-    PersonTjeneste(Pdl pdl, long timeoutMs) {
+    PersonTjeneste(Persondata pdl, long timeoutMs) {
         this.pdl = pdl;
         this.cacheAktørIdTilIdent = new LRUCache<>(DEFAULT_CACHE_SIZE, timeoutMs);
         this.cacheIdentTilAktørId = new LRUCache<>(DEFAULT_CACHE_SIZE, timeoutMs);

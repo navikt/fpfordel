@@ -27,7 +27,6 @@ import no.nav.foreldrepenger.fordel.web.app.forvaltning.ForvaltningRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.tjenester.WhitelistingJwtTokenContainerRequestFilter;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.TimingFilter;
 import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
 
 @ApplicationPath(ApplicationConfig.API_URI)
@@ -66,7 +65,6 @@ public class ApplicationConfig extends Application {
                 DokumentforsendelseRestTjeneste.class,
                 ForvaltningRestTjeneste.class,
                 OpenApiResource.class,
-                TimingFilter.class,
                 MultiPartFeature.class,
                 ConstraintViolationMapper.class,
                 JsonMappingExceptionMapper.class,

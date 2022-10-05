@@ -27,7 +27,8 @@ import no.nav.pdl.GeografiskTilknytning;
 import no.nav.pdl.GtType;
 import no.nav.pdl.Navn;
 import no.nav.pdl.Person;
-import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
+import no.nav.vedtak.felles.integrasjon.person.Persondata;
+
 
 @ExtendWith(MockitoExtension.class)
 class PersonTjenesteTest {
@@ -37,7 +38,7 @@ class PersonTjenesteTest {
     private static final Logger LOG = LoggerFactory.getLogger(PersonTjenesteTest.class);
     private PersonInformasjon personTjeneste;
     @Mock
-    private Pdl pdl;
+    private Persondata pdl;
 
     @BeforeEach
     void setup() {
