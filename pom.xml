@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>0.3.5</version>
+        <version>0.3.6</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger.fordel</groupId>
@@ -35,11 +35,11 @@
 
         <tjenestespesifikasjon.version>1.2021.02.22-10.45-4201aaea72fb</tjenestespesifikasjon.version>
 
-        <felles.version>4.1.45</felles.version>
-        <prosesstask.version>3.1.10</prosesstask.version>
-        <fp-kontrakter.version>6.1.25</fp-kontrakter.version>
+        <felles.version>4.2.2</felles.version>
+        <prosesstask.version>3.1.11</prosesstask.version>
+        <fp-kontrakter.version>6.1.27</fp-kontrakter.version>
 
-        <confluent.version>7.2.1</confluent.version>
+        <confluent.version>7.2.2</confluent.version>
     </properties>
 
     <dependencyManagement>
@@ -125,12 +125,6 @@
                 <groupId>no.nav.tjenestespesifikasjoner</groupId>
                 <artifactId>behandledokumentforsendelse-v1-tjenestespesifikasjon</artifactId>
                 <version>${tjenestespesifikasjon.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-text</artifactId>
-                <version>1.9</version>
             </dependency>
 
             <dependency>

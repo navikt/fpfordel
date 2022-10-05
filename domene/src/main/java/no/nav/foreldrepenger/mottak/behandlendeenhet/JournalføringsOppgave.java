@@ -7,7 +7,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Temagrupper;
 
-public interface EnhetsInfo {
+public interface JournalføringsOppgave {
     static final String TEMAGRUPPE = Temagrupper.FAMILIEYTELSER.getKode(); // Kodeverk Temagrupper - dekker FOR + OMS
     static final String TEMA = Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode();
     static final String OPPGAVETYPE_JFR = "JFR"; // Kodeverk Oppgavetyper - NFP , uten spesialenheter
@@ -19,5 +19,7 @@ public interface EnhetsInfo {
     static final Set<String> SPESIALENHETER = Set.of(NK_ENHET_ID, SKJERMET_ENHET_ID, SF_ENHET_ID);
 
     String hentFordelingEnhetId(Tema tema, BehandlingTema behandlingTema, Optional<String> enhetInput, String aktørId);
+
+    String opprettJournalføringsOppgave(String journalpostId, String enhetId, String aktørId, String saksref, String behandlingTema, String beskrivelse);
 
 }

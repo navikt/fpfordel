@@ -23,7 +23,6 @@ import no.nav.saf.Tilknytning;
 import no.nav.saf.TilknyttedeJournalposterQueryRequest;
 import no.nav.saf.TilknyttedeJournalposterQueryResponse;
 import no.nav.saf.TilleggsopplysningResponseProjection;
-import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 import no.nav.vedtak.felles.integrasjon.saf.HentDokumentQuery;
 import no.nav.vedtak.felles.integrasjon.saf.Saf;
 
@@ -38,7 +37,7 @@ class SafTjenesteImpl implements SafTjeneste {
     }
 
     @Inject
-    public SafTjenesteImpl(@NativeClient Saf saf) {
+    public SafTjenesteImpl(Saf saf) {
         this.saf = saf;
     }
 

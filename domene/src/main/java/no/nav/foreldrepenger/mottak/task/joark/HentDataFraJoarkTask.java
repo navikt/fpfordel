@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.NAVSkjema;
-import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsInfo;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.JournalføringsOppgave;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
@@ -180,7 +180,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
                     ArkivTjeneste.harBrevKode(journalpost.getOriginalJournalpost(), NAVSkjema.SKJEMA_KLAGE_A_DOKUMENT))) {
             LOG.info("FPFORDEL HentFraArkiv ankedokument til KA journalpost {} kanal {} dokumenttype {}",
                     journalpost.getJournalpostId(), journalpost.getKanal(), journalpost.getHovedtype());
-            w.setJournalførendeEnhet(EnhetsInfo.NK_ENHET_ID);
+            w.setJournalførendeEnhet(JournalføringsOppgave.NK_ENHET_ID);
             return w.nesteSteg(TASK_GOSYS);
         }
 
