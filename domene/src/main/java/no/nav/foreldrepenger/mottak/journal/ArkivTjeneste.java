@@ -353,9 +353,7 @@ public class ArkivTjeneste {
         if (!hoveddokument.isEmpty()) {
             var strukturert = hoveddokument.stream()
                     .filter(dok -> ArkivFilType.XML.equals(dok.getArkivFilType()))
-                    .findFirst()
-                    .map(dok -> new Dokumentvariant(Dokumentvariant.Variantformat.ORIGINAL, Dokumentvariant.Filtype.valueOf(dok.getArkivFilType().name()), dok.getByteArrayDokument()))
-                    .orElse(null);
+                    .findFirst().orElse(null);
             var arkivvariant = hoveddokument.stream()
                     .filter(dok -> !ArkivFilType.XML.equals(dok.getArkivFilType()))
                     .findFirst().orElseThrow(() -> new IllegalStateException("Utviklerfeil mangler arkivversjon"));
@@ -368,16 +366,13 @@ public class ArkivTjeneste {
         return dokumenterRequest;
     }
 
-    private static DokumentInfoOpprett lagDokumentForOpprett(Dokument dokument, Dokumentvariant struktuert) {
-        List<Dokumentvariant> varianter = new ArrayList<>();
-        if (struktuert != null) {
-            varianter.add(struktuert);
-        }
-        varianter.add(new Dokumentvariant(Dokumentvariant.Variantformat.ARKIV,
-            Dokumentvariant.Filtype.valueOf(dokument.getArkivFilType().name()),
-            dokument.getByteArrayDokument()));
-        var type = DokumentTypeId.UDEFINERT.equals(dokument.getDokumentTypeId()) ? DokumentTypeId.ANNET : dokument.getDokumentTypeId();
-        var tittel = DokumentTypeId.ANNET.equals(type) && (dokument.getBeskrivelse() != null) ? dokument.getBeskrivelse() : type.getTermNavn();
+    private static DokumentInfoOpprett lagDokumentForOpprett(Dokument arkivdokument, Dokument struktuert) {
+        var arkiv = Dokumentvariant.builder().medVariantformat(Dokumentvariant.Variantformat.ARKIV)
+            .medFiltype(Dokumentvariant.Filtype.valueOf(arkivdokument.getArkivFilType().name()))
+            .medDokument(arkivdokument.getByteArrayDokument())
+            .build();
+        var type = DokumentTypeId.UDEFINERT.equals(arkivdokument.getDokumentTypeId()) ? DokumentTypeId.ANNET : arkivdokument.getDokumentTypeId();
+        var tittel = DokumentTypeId.ANNET.equals(type) && (arkivdokument.getBeskrivelse() != null) ? arkivdokument.getBeskrivelse() : type.getTermNavn();
         var brevkode = MapNAVSkjemaDokumentTypeId.mapDokumentTypeId(type);
         final DokumentKategori kategori;
         if (DokumentTypeId.erSøknadType(type)) {
@@ -385,7 +380,19 @@ public class ArkivTjeneste {
         } else {
             kategori = DokumentTypeId.erKlageType(type) ? DokumentKategori.KLAGE_ELLER_ANKE : DokumentKategori.IKKE_TOLKBART_SKJEMA;
         }
-        return new DokumentInfoOpprett(tittel, brevkode.getOffisiellKode(), kategori.getOffisiellKode(), varianter);
+        var builder = DokumentInfoOpprett.builder()
+            .medTittel(tittel)
+            .medBrevkode(brevkode.getOffisiellKode())
+            .medDokumentkategori(kategori.getOffisiellKode())
+            .leggTilDokumentvariant(arkiv);
+        if (struktuert != null) {
+            var original = Dokumentvariant.builder()
+                .medVariantformat(Dokumentvariant.Variantformat.ORIGINAL)
+                .medFiltype(Dokumentvariant.Filtype.valueOf(struktuert.getArkivFilType().name()))
+                .medDokument(struktuert.getByteArrayDokument());
+            builder.leggTilDokumentvariant(original);
+        }
+        return builder.build();
     }
 
 }
