@@ -23,11 +23,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.DokArkiv;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRequest;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostResponse;
 import no.nav.foreldrepenger.mottak.journal.saf.SafTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.DokArkiv;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OpprettJournalpostRequest;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OpprettJournalpostResponse;
 
 @ExtendWith(MockitoExtension.class)
 class ArkivTjenesteTest {
@@ -68,11 +68,11 @@ class ArkivTjenesteTest {
         var resultat = arkivTjeneste.opprettJournalpost(forsendelseId, AVSENDER_ID, SAK_ID);
         verify(dokArkivTjeneste).opprettJournalpost(captor.capture(), eq(Boolean.TRUE));
         var captured = captor.getValue();
-        assertThat(captured.getEksternReferanseId()).isEqualTo(forsendelseId.toString());
-        assertThat(captured.getDokumenter()).hasSize(2);
-        assertThat(captured.getDokumenter().get(0).dokumentvarianter()).hasSize(2);
-        assertThat(captured.getJournalfoerendeEnhet()).isEqualTo("9999");
-        assertThat(captured.getTittel()).isEqualTo(SØKNAD_FORELDREPENGER_FØDSEL.getTermNavn());
+        assertThat(captured.eksternReferanseId()).isEqualTo(forsendelseId.toString());
+        assertThat(captured.dokumenter()).hasSize(2);
+        assertThat(captured.dokumenter().get(0).dokumentvarianter()).hasSize(2);
+        assertThat(captured.journalfoerendeEnhet()).isEqualTo("9999");
+        assertThat(captured.tittel()).isEqualTo(SØKNAD_FORELDREPENGER_FØDSEL.getTermNavn());
         assertThat(resultat.journalpostId()).isEqualTo(DokumentArkivTestUtil.JOURNALPOST_ID);
         assertThat(resultat.ferdigstilt()).isEqualTo(Boolean.TRUE);
     }
@@ -88,15 +88,15 @@ class ArkivTjenesteTest {
         when(dokumentRepository.hentDokumenter(any(UUID.class))).thenReturn(dokumenter);
         when(dokArkivTjeneste.opprettJournalpost(any(), anyBoolean()))
                 .thenReturn(new OpprettJournalpostResponse(DokumentArkivTestUtil.JOURNALPOST_ID, true, Collections.emptyList()));
-        ArgumentCaptor<OpprettJournalpostRequest> captor = ArgumentCaptor.forClass(OpprettJournalpostRequest.class);
+        var captor = ArgumentCaptor.forClass(OpprettJournalpostRequest.class);
 
         var resultat = arkivTjeneste.opprettJournalpost(forsendelseId, AVSENDER_ID, SAK_ID);
 
         verify(dokArkivTjeneste).opprettJournalpost(captor.capture(), eq(Boolean.TRUE));
         var captured = captor.getValue();
-        assertThat(captured.getEksternReferanseId()).isEqualTo(forsendelseId.toString());
-        assertThat(captured.getDokumenter()).hasSize(1);
-        assertThat(captured.getTittel()).isEqualTo(SØKNAD_FORELDREPENGER_FØDSEL.getTermNavn());
+        assertThat(captured.eksternReferanseId()).isEqualTo(forsendelseId.toString());
+        assertThat(captured.dokumenter()).hasSize(1);
+        assertThat(captured.tittel()).isEqualTo(SØKNAD_FORELDREPENGER_FØDSEL.getTermNavn());
         assertThat(resultat.journalpostId()).isEqualTo(DokumentArkivTestUtil.JOURNALPOST_ID);
         assertThat(resultat.ferdigstilt()).isEqualTo(Boolean.TRUE);
     }

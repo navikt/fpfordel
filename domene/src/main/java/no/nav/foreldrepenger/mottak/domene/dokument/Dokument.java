@@ -76,6 +76,10 @@ public class Dokument extends BaseEntitet {
         return Base64.getEncoder().encodeToString(blob);
     }
 
+    public byte[] getByteArrayDokument() {
+        return blob;
+    }
+
     public Boolean erHovedDokument() {
         return hovedDokument;
     }

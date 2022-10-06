@@ -8,8 +8,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
-import no.nav.foreldrepenger.mottak.journal.saf.model.VariantFormat;
 import no.nav.saf.AvsenderMottakerResponseProjection;
 import no.nav.saf.BrukerResponseProjection;
 import no.nav.saf.DokumentInfoResponseProjection;
@@ -23,6 +21,7 @@ import no.nav.saf.Tilknytning;
 import no.nav.saf.TilknyttedeJournalposterQueryRequest;
 import no.nav.saf.TilknyttedeJournalposterQueryResponse;
 import no.nav.saf.TilleggsopplysningResponseProjection;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Dokumentvariant;
 import no.nav.vedtak.felles.integrasjon.saf.HentDokumentQuery;
 import no.nav.vedtak.felles.integrasjon.saf.Saf;
 
@@ -82,7 +81,7 @@ class SafTjenesteImpl implements SafTjeneste {
     }
 
     @Override
-    public String hentDokument(String journalpostId, String dokumentInfoId, VariantFormat variantFormat) {
+    public String hentDokument(String journalpostId, String dokumentInfoId, Dokumentvariant.Variantformat variantFormat) {
         LOG.info("Henter dokument");
         var res = new String(saf.hentDokument(new HentDokumentQuery(journalpostId, dokumentInfoId, variantFormat.name())));
         LOG.info("Hentet dokument OK");

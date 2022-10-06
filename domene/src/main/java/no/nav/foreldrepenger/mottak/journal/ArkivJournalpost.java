@@ -13,9 +13,9 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.Tilleggsopplysning;
-import no.nav.foreldrepenger.mottak.journal.saf.model.DokumentInfo;
-import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
+import no.nav.foreldrepenger.mottak.journal.saf.DokumentInfo;
+import no.nav.foreldrepenger.mottak.journal.saf.Journalpost;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Tilleggsopplysning;
 
 public class ArkivJournalpost {
 
