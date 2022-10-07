@@ -43,6 +43,7 @@ import no.nav.foreldrepenger.mottak.tjeneste.DestinasjonsRuter;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.exception.VLException;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.AvsenderMottaker;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
@@ -291,13 +292,17 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         if (journalpost.getBrukerAktørId().isPresent()) {
             return journalpost.getBrukerAktørId();
         }
-        if (journalpost.getAvsenderIdent() != null && journalpost.getOriginalJournalpost().avsenderMottaker().getIdHvisFNR().isPresent()) {
+        if (journalpost.getAvsenderIdent() != null && getIdHvisFNR(journalpost.getOriginalJournalpost().avsenderMottaker()).isPresent()) {
             LOG.info("FPFORDEL HentFraArkiv journalpost uten bruker med FNR-avsender journalpost {} kanal {} tittel {}",
                     journalpost.getJournalpostId(), journalpost.getKanal(), journalpost.getTittel());
             // return
             // aktørConsumer.hentAktørIdForPersonIdent(journalpost.getAvsenderIdent());
         }
         return Optional.empty();
+    }
+
+    private Optional<String> getIdHvisFNR(AvsenderMottaker avsenderMottaker) {
+        return AvsenderMottaker.AvsenderMottakerIdType.FNR.equals(avsenderMottaker.idType()) ? Optional.ofNullable(avsenderMottaker.id()) : Optional.empty();
     }
 
     @Override

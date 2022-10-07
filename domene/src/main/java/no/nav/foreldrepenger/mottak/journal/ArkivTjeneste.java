@@ -28,25 +28,20 @@ import no.nav.foreldrepenger.fordel.kodeverdi.NAVSkjema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.DokArkiv;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.AvsenderMottaker;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.AvsenderMottakerIdType;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.Bruker;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.DokumentInfoOppdater;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.DokumentInfoOpprett;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.Dokumentvariant;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OppdaterJournalpostRequest;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.OpprettJournalpostRequest;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.Sak;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.Tilleggsopplysning;
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.Variantformat;
+import no.nav.foreldrepenger.mottak.journal.saf.DokumentInfo;
+import no.nav.foreldrepenger.mottak.journal.saf.Journalpost;
 import no.nav.foreldrepenger.mottak.journal.saf.SafTjeneste;
-import no.nav.foreldrepenger.mottak.journal.saf.model.BrukerIdType;
-import no.nav.foreldrepenger.mottak.journal.saf.model.DokumentInfo;
-import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
-import no.nav.foreldrepenger.mottak.journal.saf.model.VariantFormat;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.DokArkiv;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.AvsenderMottaker;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Bruker;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.DokumentInfoOpprett;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Dokumentvariant;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OppdaterJournalpostRequest;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OpprettJournalpostRequest;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Sak;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Tilleggsopplysning;
 
 @ApplicationScoped
 public class ArkivTjeneste {
@@ -86,21 +81,21 @@ public class ArkivTjeneste {
         var builder = ArkivJournalpost.getBuilder().medJournalpost(journalpost).medJournalpostId(journalpostId);
 
         var infoList = journalpost.dokumenter().stream()
-                .filter(it -> it.dokumentvarianter().stream().anyMatch(at -> VariantFormat.ORIGINAL.equals(at.variantFormat())))
+                .filter(it -> it.dokumentvarianter().stream().anyMatch(at -> Dokumentvariant.Variantformat.ORIGINAL.equals(at.variantformat())))
                 .map(DokumentInfo::dokumentInfoId).toList();
 
         if (infoList.size() > 1) {
             throw new IllegalStateException("Journalposten har flere dokumenter med VariantFormat = ORIGINAL");
         } else if (!infoList.isEmpty()) {
             var dokumentInfo = infoList.get(0);
-            var payload = saf.hentDokument(journalpostId, dokumentInfo, VariantFormat.ORIGINAL);
+            var payload = saf.hentDokument(journalpostId, dokumentInfo, Dokumentvariant.Variantformat.ORIGINAL);
             builder.medStrukturertPayload(payload).medDokumentInfoId(dokumentInfo);
         }
 
         var alleTyper = utledDokumentTyper(journalpost);
         var behandlingTema = utledBehandlingTema(journalpost.behandlingstema(), alleTyper);
         mapIdent(journalpost).ifPresent(builder::medBrukerAktørId);
-        if ((journalpost.avsenderMottaker() != null) && (journalpost.avsenderMottaker().type() != null)) {
+        if ((journalpost.avsenderMottaker() != null) && (journalpost.avsenderMottaker().idType() != null)) {
             builder.medAvsender(journalpost.avsenderMottaker().id(), journalpost.avsenderMottaker().navn());
         }
 
@@ -116,7 +111,7 @@ public class ArkivTjeneste {
                 .medDatoOpprettet(journalpost.datoOpprettet())
                 .medEksternReferanseId(journalpost.eksternReferanseId())
                 .medTilleggsopplysninger(journalpost.tilleggsopplysninger())
-                .medSaksnummer(Optional.ofNullable(journalpost.sak()).map(no.nav.foreldrepenger.mottak.journal.saf.model.Sak::fagsakId).orElse(null))
+                .medSaksnummer(Optional.ofNullable(journalpost.sak()).map(Sak::fagsakId).orElse(null))
                 .build();
     }
 
@@ -133,15 +128,15 @@ public class ArkivTjeneste {
 
     public OpprettetJournalpost opprettJournalpost(UUID forsendelse, UUID eksternReferanse, String avsenderAktørId) {
         var request = lagOpprettRequest(forsendelse, eksternReferanse, avsenderAktørId);
-        var response = dokArkivTjeneste.opprettJournalpost(request, false);
+        var response = dokArkivTjeneste.opprettJournalpost(request.build(), false);
         return new OpprettetJournalpost(response.journalpostId(), response.journalpostferdigstilt());
     }
 
     public OpprettetJournalpost opprettJournalpost(UUID forsendelse, String avsenderAktørId, String saksnummer) {
-        var request = lagOpprettRequest(forsendelse, forsendelse, avsenderAktørId);
-        request.setSak(lagSakForSaksnummer(saksnummer));
-        request.setJournalfoerendeEnhet("9999");
-        var response = dokArkivTjeneste.opprettJournalpost(request, true);
+        var request = lagOpprettRequest(forsendelse, forsendelse, avsenderAktørId)
+            .medSak(lagSakForSaksnummer(saksnummer))
+            .medJournalfoerendeEnhet("9999");
+        var response = dokArkivTjeneste.opprettJournalpost(request.build(), true);
         return new OpprettetJournalpost(response.journalpostId(), response.journalpostferdigstilt());
     }
 
@@ -215,7 +210,7 @@ public class ArkivTjeneste {
         var oppdaterDok = journalpost.dokumenter().stream()
                 .filter(d -> (d.tittel() == null) || d.tittel().isEmpty())
                 .filter(d -> d.brevkode() != null)
-                .map(d -> new DokumentInfoOppdater(d.dokumentInfoId(), NAVSkjema.fraOffisiellKode(d.brevkode()).getTermNavn(), d.brevkode())).toList();
+                .map(d -> new OppdaterJournalpostRequest.DokumentInfoOppdater(d.dokumentInfoId(), NAVSkjema.fraOffisiellKode(d.brevkode()).getTermNavn(), d.brevkode())).toList();
         if (!oppdaterDok.isEmpty()) {
             LOG.info("FPFORDEL oppdaterer manglende dokumenttitler for {}", journalpost.journalpostId());
         }
@@ -270,7 +265,7 @@ public class ArkivTjeneste {
     }
 
     private Sak lagSakForSaksnummer(String saksnummer) {
-        return new Sak(saksnummer, "FS36", "FAGSAK");
+        return new Sak(saksnummer, "FS36", Sak.Sakstype.FAGSAK);
     }
 
     private static Set<DokumentTypeId> utledDokumentTyper(Journalpost journalpost) {
@@ -314,17 +309,17 @@ public class ArkivTjeneste {
         if (bruker == null) {
             return Optional.empty();
         }
-        if (bruker.erAktoerId()) {
+        if (Bruker.BrukerIdType.AKTOERID.equals(bruker.idType())) {
             return Optional.of(bruker.id());
-        } else if (BrukerIdType.FNR.equals(bruker.type())) {
+        } else if (Bruker.BrukerIdType.FNR.equals(bruker.idType())) {
             return personTjeneste.hentAktørIdForPersonIdent(bruker.id());
-        } else if (BrukerIdType.ORGNR.equals(bruker.type())) {
+        } else if (Bruker.BrukerIdType.ORGNR.equals(bruker.idType())) {
             return Optional.empty();
         }
-        throw new IllegalArgumentException("Ukjent brukerType=" + bruker.type());
+        throw new IllegalArgumentException("Ukjent brukerType=" + bruker.idType());
     }
 
-    private OpprettJournalpostRequest lagOpprettRequest(UUID forsendelseId, UUID eksternReferanse, String avsenderAktørId) {
+    private OpprettJournalpostRequest.OpprettJournalpostRequestBuilder lagOpprettRequest(UUID forsendelseId, UUID eksternReferanse, String avsenderAktørId) {
         var metadata = dokumentRepository.hentEksaktDokumentMetadata(forsendelseId);
         var dokumenter = dokumentRepository.hentDokumenter(forsendelseId);
         var opprettDokumenter = lagAlleDokumentForOpprett(dokumenter);
@@ -332,21 +327,21 @@ public class ArkivTjeneste {
         var hovedtype = ArkivUtil.utledHovedDokumentType(dokumenttyper);
         var behandlingstema = utledBehandlingTema(null, dokumenttyper);
         var tittel = DokumentTypeId.UDEFINERT.equals(hovedtype) ? DokumentTypeId.ANNET.getTermNavn() : hovedtype.getTermNavn();
-        var bruker = new Bruker(metadata.getBrukerId(), BrukerIdType.AKTOERID);
+        var bruker = new Bruker(metadata.getBrukerId(), Bruker.BrukerIdType.AKTOERID);
         var ident = personTjeneste.hentPersonIdentForAktørId(avsenderAktørId).orElseThrow(() -> new IllegalStateException("Aktør uten personident"));
-        var avsender = new AvsenderMottaker(ident, AvsenderMottakerIdType.FNR, personTjeneste.hentNavn(avsenderAktørId));
+        var avsender = new AvsenderMottaker(ident, AvsenderMottaker.AvsenderMottakerIdType.FNR, personTjeneste.hentNavn(avsenderAktørId));
 
-        var request = OpprettJournalpostRequest.nyInngående();
-        request.setTittel(tittel);
-        request.setKanal(MottakKanal.SELVBETJENING.getKode());
-        request.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode());
-        request.setBehandlingstema(behandlingstema.getOffisiellKode());
-        request.setDatoMottatt(metadata.getForsendelseMottatt().toLocalDate());
-        request.setEksternReferanseId(eksternReferanse.toString());
-        request.setBruker(bruker);
-        request.setAvsenderMottaker(avsender);
-        request.setDokumenter(opprettDokumenter);
-        request.setTilleggsopplysninger(
+        var request = OpprettJournalpostRequest.nyInngående()
+            .medTittel(tittel)
+            .medKanal(MottakKanal.SELVBETJENING.getKode())
+            .medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode())
+            .medBehandlingstema(behandlingstema.getOffisiellKode())
+            .medDatoMottatt(metadata.getForsendelseMottatt().toLocalDate())
+            .medEksternReferanseId(eksternReferanse.toString())
+            .medBruker(bruker)
+            .medAvsenderMottaker(avsender)
+            .medDokumenter(opprettDokumenter)
+            .medTilleggsopplysninger(
                 DokumentTypeId.UDEFINERT.equals(hovedtype) ? List.of() : List.of(new Tilleggsopplysning(FP_DOK_TYPE, hovedtype.getOffisiellKode())));
 
         return request;
@@ -358,9 +353,7 @@ public class ArkivTjeneste {
         if (!hoveddokument.isEmpty()) {
             var strukturert = hoveddokument.stream()
                     .filter(dok -> ArkivFilType.XML.equals(dok.getArkivFilType()))
-                    .findFirst()
-                    .map(dok -> new Dokumentvariant(Variantformat.ORIGINAL, dok.getArkivFilType().name(), dok.getBase64EncodetDokument()))
-                    .orElse(null);
+                    .findFirst().orElse(null);
             var arkivvariant = hoveddokument.stream()
                     .filter(dok -> !ArkivFilType.XML.equals(dok.getArkivFilType()))
                     .findFirst().orElseThrow(() -> new IllegalStateException("Utviklerfeil mangler arkivversjon"));
@@ -373,14 +366,13 @@ public class ArkivTjeneste {
         return dokumenterRequest;
     }
 
-    private static DokumentInfoOpprett lagDokumentForOpprett(Dokument dokument, Dokumentvariant struktuert) {
-        List<Dokumentvariant> varianter = new ArrayList<>();
-        if (struktuert != null) {
-            varianter.add(struktuert);
-        }
-        varianter.add(new Dokumentvariant(Variantformat.ARKIV, dokument.getArkivFilType().name(), dokument.getBase64EncodetDokument()));
-        var type = DokumentTypeId.UDEFINERT.equals(dokument.getDokumentTypeId()) ? DokumentTypeId.ANNET : dokument.getDokumentTypeId();
-        var tittel = DokumentTypeId.ANNET.equals(type) && (dokument.getBeskrivelse() != null) ? dokument.getBeskrivelse() : type.getTermNavn();
+    private static DokumentInfoOpprett lagDokumentForOpprett(Dokument arkivdokument, Dokument struktuert) {
+        var arkiv = Dokumentvariant.builder().medVariantformat(Dokumentvariant.Variantformat.ARKIV)
+            .medFiltype(Dokumentvariant.Filtype.valueOf(arkivdokument.getArkivFilType().name()))
+            .medDokument(arkivdokument.getByteArrayDokument())
+            .build();
+        var type = DokumentTypeId.UDEFINERT.equals(arkivdokument.getDokumentTypeId()) ? DokumentTypeId.ANNET : arkivdokument.getDokumentTypeId();
+        var tittel = DokumentTypeId.ANNET.equals(type) && (arkivdokument.getBeskrivelse() != null) ? arkivdokument.getBeskrivelse() : type.getTermNavn();
         var brevkode = MapNAVSkjemaDokumentTypeId.mapDokumentTypeId(type);
         final DokumentKategori kategori;
         if (DokumentTypeId.erSøknadType(type)) {
@@ -388,7 +380,19 @@ public class ArkivTjeneste {
         } else {
             kategori = DokumentTypeId.erKlageType(type) ? DokumentKategori.KLAGE_ELLER_ANKE : DokumentKategori.IKKE_TOLKBART_SKJEMA;
         }
-        return new DokumentInfoOpprett(tittel, brevkode.getOffisiellKode(), kategori.getOffisiellKode(), varianter);
+        var builder = DokumentInfoOpprett.builder()
+            .medTittel(tittel)
+            .medBrevkode(brevkode.getOffisiellKode())
+            .medDokumentkategori(kategori.getOffisiellKode())
+            .leggTilDokumentvariant(arkiv);
+        if (struktuert != null) {
+            var original = Dokumentvariant.builder()
+                .medVariantformat(Dokumentvariant.Variantformat.ORIGINAL)
+                .medFiltype(Dokumentvariant.Filtype.valueOf(struktuert.getArkivFilType().name()))
+                .medDokument(struktuert.getByteArrayDokument());
+            builder.leggTilDokumentvariant(original);
+        }
+        return builder.build();
     }
 
 }

@@ -9,20 +9,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import no.nav.foreldrepenger.mottak.journal.dokarkiv.model.Tilleggsopplysning;
-import no.nav.foreldrepenger.mottak.journal.saf.model.AvsenderMottaker;
-import no.nav.foreldrepenger.mottak.journal.saf.model.Bruker;
-import no.nav.foreldrepenger.mottak.journal.saf.model.BrukerIdType;
-import no.nav.foreldrepenger.mottak.journal.saf.model.DokumentInfo;
-import no.nav.foreldrepenger.mottak.journal.saf.model.Dokumentvariant;
-import no.nav.foreldrepenger.mottak.journal.saf.model.Journalpost;
-import no.nav.foreldrepenger.mottak.journal.saf.model.LogiskVedlegg;
-import no.nav.foreldrepenger.mottak.journal.saf.model.Sak;
-import no.nav.foreldrepenger.mottak.journal.saf.model.VariantFormat;
 import no.nav.saf.Journalposttype;
 import no.nav.saf.Journalstatus;
 import no.nav.saf.Kanal;
 import no.nav.saf.Tema;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.AvsenderMottaker;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Bruker;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Dokumentvariant;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Sak;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Tilleggsopplysning;
 
 class SafMapper {
 
@@ -106,37 +101,37 @@ class SafMapper {
 
     private static Dokumentvariant map(no.nav.saf.Dokumentvariant dv) {
         return Optional.ofNullable(dv)
-                .map(d -> new Dokumentvariant(map(d.getVariantformat())))
+                .map(d -> new Dokumentvariant(map(d.getVariantformat()), null, new byte[]{}))
                 .orElse(null);
     }
 
-    private static VariantFormat map(no.nav.saf.Variantformat vf) {
+    private static Dokumentvariant.Variantformat map(no.nav.saf.Variantformat vf) {
         try {
             return Optional.ofNullable(vf)
                     .map(v -> v.name())
-                    .map(VariantFormat::valueOf)
+                    .map(Dokumentvariant.Variantformat::valueOf)
                     .orElse(null);
         } catch (Exception e) {
             return null;
         }
     }
 
-    private static List<LogiskVedlegg> mapLV(List<no.nav.saf.LogiskVedlegg> v) {
+    private static List<DokumentInfo.LogiskVedlegg> mapLV(List<no.nav.saf.LogiskVedlegg> v) {
         return safeStream(v)
                 .map(SafMapper::map)
                 .toList();
     }
 
-    private static LogiskVedlegg map(no.nav.saf.LogiskVedlegg vedlegg) {
+    private static DokumentInfo.LogiskVedlegg map(no.nav.saf.LogiskVedlegg vedlegg) {
         return Optional.ofNullable(vedlegg)
                 .map(v -> v.getTittel())
-                .map(LogiskVedlegg::new)
+                .map(DokumentInfo.LogiskVedlegg::new)
                 .orElse(null);
     }
 
     private static Sak map(no.nav.saf.Sak sak) {
         return Optional.ofNullable(sak)
-                .map(s -> new Sak(s.getFagsakId(), s.getFagsaksystem()))
+                .map(s -> new Sak(s.getFagsakId(), s.getFagsaksystem(), Sak.Sakstype.FAGSAK))
                 .orElse(null);
     }
 
@@ -152,10 +147,15 @@ class SafMapper {
                 .orElse(null);
     }
 
-    private static String map(no.nav.saf.AvsenderMottakerIdType type) {
-        return Optional.ofNullable(type)
+    private static AvsenderMottaker.AvsenderMottakerIdType map(no.nav.saf.AvsenderMottakerIdType type) {
+        try {
+            return Optional.ofNullable(type)
                 .map(no.nav.saf.AvsenderMottakerIdType::name)
+                .map(AvsenderMottaker.AvsenderMottakerIdType::valueOf)
                 .orElse(null);
+        } catch (Exception e) {
+            return AvsenderMottaker.AvsenderMottakerIdType.UKJENT;
+        }
     }
 
     private static LocalDateTime map(Date date) {
@@ -164,15 +164,15 @@ class SafMapper {
                 .orElse(null);
     }
 
-    private static BrukerIdType map(no.nav.saf.BrukerIdType type) {
+    private static Bruker.BrukerIdType map(no.nav.saf.BrukerIdType type) {
 
         try {
             return Optional.ofNullable(type)
                     .map(t -> t.name())
-                    .map(BrukerIdType::valueOf)
+                    .map(Bruker.BrukerIdType::valueOf)
                     .orElse(null);
         } catch (Exception e) {
-            return BrukerIdType.UKJENT;
+            return Bruker.BrukerIdType.UKJENT;
         }
     }
 
