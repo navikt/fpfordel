@@ -367,10 +367,8 @@ public class ArkivTjeneste {
     }
 
     private static DokumentInfoOpprett lagDokumentForOpprett(Dokument arkivdokument, Dokument struktuert) {
-        var arkiv = Dokumentvariant.builder().medVariantformat(Dokumentvariant.Variantformat.ARKIV)
-            .medFiltype(Dokumentvariant.Filtype.valueOf(arkivdokument.getArkivFilType().name()))
-            .medDokument(arkivdokument.getByteArrayDokument())
-            .build();
+        var arkiv = new Dokumentvariant(Dokumentvariant.Variantformat.ARKIV,
+            Dokumentvariant.Filtype.valueOf(arkivdokument.getArkivFilType().name()), arkivdokument.getByteArrayDokument());
         var type = DokumentTypeId.UDEFINERT.equals(arkivdokument.getDokumentTypeId()) ? DokumentTypeId.ANNET : arkivdokument.getDokumentTypeId();
         var tittel = DokumentTypeId.ANNET.equals(type) && (arkivdokument.getBeskrivelse() != null) ? arkivdokument.getBeskrivelse() : type.getTermNavn();
         var brevkode = MapNAVSkjemaDokumentTypeId.mapDokumentTypeId(type);
@@ -385,13 +383,10 @@ public class ArkivTjeneste {
             .medBrevkode(brevkode.getOffisiellKode())
             .medDokumentkategori(kategori.getOffisiellKode())
             .leggTilDokumentvariant(arkiv);
-        if (struktuert != null) {
-            var original = Dokumentvariant.builder()
-                .medVariantformat(Dokumentvariant.Variantformat.ORIGINAL)
-                .medFiltype(Dokumentvariant.Filtype.valueOf(struktuert.getArkivFilType().name()))
-                .medDokument(struktuert.getByteArrayDokument());
-            builder.leggTilDokumentvariant(original);
-        }
+        Optional.ofNullable(struktuert)
+            .map(s -> new Dokumentvariant(Dokumentvariant.Variantformat.ORIGINAL,
+                Dokumentvariant.Filtype.valueOf(s.getArkivFilType().name()), s.getByteArrayDokument()))
+            .ifPresent(builder::leggTilDokumentvariant);
         return builder.build();
     }
 
