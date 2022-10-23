@@ -35,8 +35,8 @@
 
         <tjenestespesifikasjon.version>1.2021.02.22-10.45-4201aaea72fb</tjenestespesifikasjon.version>
 
-        <felles.version>4.2.3</felles.version>
-        <prosesstask.version>3.1.11</prosesstask.version>
+        <felles.version>4.2.7</felles.version>
+        <prosesstask.version>3.1.13</prosesstask.version>
         <fp-kontrakter.version>6.1.27</fp-kontrakter.version>
 
         <confluent.version>7.2.1</confluent.version>
@@ -138,11 +138,6 @@
                 <version>96ec5ebb</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.apache.kafka</groupId>
-                <artifactId>kafka-clients</artifactId>
-                <version>${kafka.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-streams</artifactId>

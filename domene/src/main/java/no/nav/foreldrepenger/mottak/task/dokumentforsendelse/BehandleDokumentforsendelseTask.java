@@ -51,8 +51,6 @@ import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
-import no.nav.foreldrepenger.mottak.felles.kafka.HendelseProdusent;
-import no.nav.foreldrepenger.mottak.felles.kafka.SøknadFordeltOgJournalførtHendelse;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.OpprettetJournalpost;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
@@ -95,7 +93,6 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     private DestinasjonsRuter ruter;
     private ArkivTjeneste arkiv;
     private DokumentRepository dokumentRepository;
-    private HendelseProdusent hendelseProdusent;
 
     public BehandleDokumentforsendelseTask() {
 
@@ -107,16 +104,13 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
                                            PersonInformasjon pdl,
                                            Fagsak fagsak,
                                            ArkivTjeneste arkiv,
-                                           DokumentRepository dokumentRepository,
-                                           HendelseProdusent hendelseProdusent) {
+                                           DokumentRepository dokumentRepository) {
         super(taskTjeneste);
         this.ruter = ruter;
         this.pdl = pdl;
         this.fagsak = fagsak;
         this.arkiv = arkiv;
         this.dokumentRepository = dokumentRepository;
-        this.hendelseProdusent = hendelseProdusent;
-        LOG.trace("Created");
     }
 
     @Override
@@ -252,9 +246,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         }
         if (FPSAK.equals(destinasjon.system()) && (destinasjon.saksnummer() != null)) {
             w.setSaksnummer(destinasjon.saksnummer());
-            dokumentRepository.oppdaterForsendelseMetadata(forsendelseId, w.getArkivId(), destinasjon.saksnummer(),
-                    FPSAK);
-            sendFordeltHendelse(forsendelseId, w);
+            dokumentRepository.oppdaterForsendelseMetadata(forsendelseId, w.getArkivId(), destinasjon.saksnummer(), FPSAK);
             return w.nesteSteg(TASK_FPSAK);
         }
         throw new IllegalStateException("Ukjent system eller saksnummer mangler");
@@ -362,20 +354,10 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         unmarshallXml(dokument.getKlartekstDokument()).kopierTilMottakWrapper(nesteSteg, pdl::hentAktørIdForPersonIdent);
     }
 
-    private void sendFordeltHendelse(UUID forsendelseId, MottakMeldingDataWrapper w) {
-        var fnr = w.getAktørId().flatMap(pdl::hentPersonIdentForAktørId);
-        if (fnr.isEmpty()) {
-            throw new TekniskException("FP-254631", format("Fant ikke personident for aktørId i task %s.  TaskId: %s", TASKNAME, w.getId()));
-        }
-        var hendelse = new SøknadFordeltOgJournalførtHendelse(w.getArkivId(), forsendelseId, fnr.orElse(null),
-                w.getSaksnummer().orElse(null));
-        hendelseProdusent.send(hendelse, forsendelseId.toString());
-    }
-
     @Override
     public String toString() {
         return getClass().getSimpleName() + " [pdl=" + pdl + ", fagsak=" + fagsak + ", ruter=" + ruter + ", arkiv=" + arkiv
-                + ", dokumentRepository=" + dokumentRepository + ", hendelseProdusent=" + hendelseProdusent + "]";
+                + ", dokumentRepository=" + dokumentRepository + "]";
     }
 
 }

@@ -23,10 +23,11 @@ import no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
+import no.nav.foreldrepenger.mottak.task.RekjørFeiledeTasksBatchTask;
 import no.nav.foreldrepenger.mottak.task.SlettForsendelseTask;
+import no.nav.foreldrepenger.mottak.task.SlettGamleTasksBatchTask;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.VLKlargjørerTask;
-import no.nav.foreldrepenger.mottak.task.VedlikeholdSchedulerTask;
 import no.nav.foreldrepenger.mottak.task.dokumentforsendelse.BehandleDokumentforsendelseTask;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseIdDto;
 import no.nav.security.token.support.core.api.Unprotected;
@@ -134,15 +135,8 @@ public class ForvaltningRestTjeneste {
     })
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response autoRunBatch() {
-        var vedlikeholdTask = TaskType.forProsessTask(VedlikeholdSchedulerTask.class);
-        boolean eksisterende = taskTjeneste.finnAlle(ProsessTaskStatus.KLAR)
-                .stream()
-                .filter(t -> t.getSistKjørt() == null)
-                .map(ProsessTaskData::taskType)
-                .anyMatch(vedlikeholdTask::equals);
-        if (!eksisterende) {
-            taskTjeneste.lagre(ProsessTaskData.forTaskType(vedlikeholdTask));
-        }
+        taskTjeneste.lagre(ProsessTaskData.forProsessTask(RekjørFeiledeTasksBatchTask.class));
+        taskTjeneste.lagre(ProsessTaskData.forProsessTask(SlettGamleTasksBatchTask.class));
         return Response.ok().build();
     }
 
