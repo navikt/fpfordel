@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.mottak.person;
 
 import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -12,8 +12,6 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.nimbusds.jwt.SignedJWT;
 
 import no.nav.foreldrepenger.fordel.StringUtil;
 import no.nav.pdl.Adressebeskyttelse;
@@ -28,6 +26,7 @@ import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.felles.integrasjon.person.PdlException;
 import no.nav.vedtak.felles.integrasjon.person.Persondata;
+import no.nav.vedtak.sikkerhet.oidc.JwtUtil;
 import no.nav.vedtak.util.LRUCache;
 
 @ApplicationScoped
@@ -106,9 +105,9 @@ public class PersonTjeneste implements PersonInformasjon {
                 .anyMatch(STRENG::contains);
     }
 
-    private static Date expiresAt() {
+    private static Instant expiresAt() {
         try {
-            return SignedJWT.parse(getSubjectHandler().getInternSsoToken()).getJWTClaimsSet().getExpirationTime();
+            return JwtUtil.getExpirationTime(JwtUtil.getClaims(getSubjectHandler().getInternSsoToken()));
         } catch (Exception e) {
             LOG.trace("Kunne ikke hente expiration dato fra token", e);
             return null;
