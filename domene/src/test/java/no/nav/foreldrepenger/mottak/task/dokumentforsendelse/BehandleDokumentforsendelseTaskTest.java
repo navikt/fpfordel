@@ -93,7 +93,7 @@ class BehandleDokumentforsendelseTaskTest {
     void setup() {
         when(aktørConsumer.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(PERSON_IDENT));
         fordelDokTask = new BehandleDokumentforsendelseTask(taskTjeneste, vurderVLSaker, aktørConsumer,
-                fagsakRestKlient, arkivTjeneste, dokumentRepository, new LoggingHendelseProdusent());
+                fagsakRestKlient, arkivTjeneste, dokumentRepository);
         ptd = ProsessTaskData.forProsessTask(BehandleDokumentforsendelseTask.class);
     }
 
