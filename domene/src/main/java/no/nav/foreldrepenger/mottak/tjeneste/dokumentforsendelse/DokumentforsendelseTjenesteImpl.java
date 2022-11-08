@@ -122,7 +122,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
             return false;
         }
 
-        return PÅKREVDE_HOVEDDOKUMENT_ARKIV_FIL_TYPER.stream().filter((Predicate<ArkivFilType>) aft -> dokumentArkivFilTyper.stream().anyMatch(aft::equals)).count() == 2;
+        return PÅKREVDE_HOVEDDOKUMENT_ARKIV_FIL_TYPER.stream().filter(aft -> dokumentArkivFilTyper.stream().anyMatch(aft::equals)).count() == 2;
     }
 
 }

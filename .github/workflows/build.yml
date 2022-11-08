@@ -1,141 +1,49 @@
-name: Build, push, and deploy
-
+name: Bygg og deploy
 on:
   push:
     branches:
-      - master
+      - '**'
     paths-ignore:
       - '**.md'
       - '**.MD'
       - '.gitignore'
+      - '.editorconfig'
+      - '.java-version'
       - 'LICENCE'
       - 'CODEOWNERS'
 
-env:
-  IMAGE_BASE: ghcr.io/${{ github.repository }}
-  TZ: "Europe/Oslo"
-
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build-app:
+    name: Build
+    uses: navikt/fp-gha-workflows/.github/workflows/build-app.yml@main
+    with:
+      build-image: ${{ github.ref_name == 'master' }} # default: true
+      push-image: ${{ github.ref_name == 'master' }} # default: false
+    secrets: inherit
 
-    services:
-      oracle:
-        image: gvenzl/oracle-xe:18.4.0-slim
-        env:
-          ORACLE_RANDOM_PASSWORD: true
-          APP_USER: fpfordel_unit
-          APP_USER_PASSWORD: fpfordel_unit
-        ports:
-          - 1521:1521
-        options: --health-cmd healthcheck.sh --health-interval 10s --health-timeout 5s --health-retries 5
+  create-issue:
+    name: Issues
+    if: github.ref_name == 'master'
+    needs: build-app
+    uses: navikt/fp-gha-workflows/.github/workflows/issues.yml@main
+    with:
+      build-version: ${{ needs.build-app.outputs.build-version }}
+    secrets: inherit
 
-    steps:
+  trigger-autotest:
+    name: Autotest
+    if: github.ref_name == 'master'
+    needs: [ build-app, create-issue ]
+    uses: navikt/fp-gha-workflows/.github/workflows/autotest.yml@main
+    with:
+      build-version: ${{ needs.build-app.outputs.build-version }}
+      issue-number: ${{ needs.create-issue.outputs.issue-number }}
+    secrets: inherit
 
-      - name: Sjekk ut kode
-        uses: actions/checkout@v3.1.0
-      - run:  git fetch --prune --unshallow
-
-      - name: Setup maven
-        uses: whelk-io/maven-settings-xml-action@v21
-        with:
-          repositories: '[
-            { "id": "github", "name": "github", "url": "https://maven.pkg.github.com/${{ github.repository }}", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } },
-            { "id": "legacy", "name": "legacy", "url": "https://maven.pkg.github.com/navikt/legacy-avhengigheter", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } },
-            { "id": "dok-github", "name": "dok-github", "url": "https://maven.pkg.github.com/navikt/teamdokumenthandtering-avro-schemas", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }
-          ]'
-          servers: '[
-            { "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.READER_TOKEN }}" },
-            { "id": "legacy", "username": "${{ github.actor }}", "password": "${{ secrets.READER_TOKEN }}" },
-            { "id": "dok-github", "username": "${{ github.actor }}", "password": "${{ secrets.READER_TOKEN }}" }]'
-          output_file: settings.xml
-
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: 17
-          cache: 'maven'
-
-      - name: Set build version
-        run: |
-          echo "BUILD_VERSION=2.0-$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
-
-      - name: Kompiler
-        run: |
-          mvn jacoco:prepare-agent verify jacoco:report sonar:sonar -q -e -B -s settings.xml -Drevision=${BUILD_VERSION}
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR }}
-          GITHUB_TOKEN: ${{ secrets.READER_TOKEN }} # Må ha denne pga avhengighet til intern repo "legacy-avhengigheter".
-          DATABASE_HOST: localhost
-          DATABASE_PORT: ${{ job.services.oracle.ports[1521] }}
-          DATABASE_SERVICE: XEPDB1
-
-      - name: Login to GitHub Packages Docker Registry
-        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # Use commit-sha1 instead of tag for security concerns
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Bygg, tag og push Docker image
-        run: |
-          docker build --pull --tag ${IMAGE_BASE}:${BUILD_VERSION} --tag ${IMAGE_BASE}:latest .
-          docker push ${IMAGE_BASE} --all-tags
-
-      - name: Lukk gamle bygg-issues
-        if: success()
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              labels: ['deployment']
-            }).then(response => {
-              response.data.forEach(issue => {
-                github.rest.issues.update({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issue.number,
-                  state: 'closed'
-                });
-              });
-            });
-
-      -  name: Opprett deployment issue
-         id: createdeployissue
-         if: success()
-         uses: actions/github-script@v6
-         with:
-           github-token: ${{secrets.GITHUB_TOKEN}}
-           script: |
-             github.rest.issues.create( {
-               owner: context.issue.owner,
-               repo: context.issue.repo,
-               labels: ['deployment'],
-               title: 'Deploy av ${{ env.BUILD_VERSION }}',
-               body: '${{ github.sha }}'})
-             .then(response => {
-                     core.setOutput('number', response.data.number);
-              });
-
-      - uses: navikt/github-app-token-generator@v1.1
-        id: get-token
-        with:
-          private-key: ${{ secrets.FP_PRIVATE_KEY }}
-          app-id: ${{ secrets.FP_APP_ID }}
-
-      - name: Trigger tester for FP
-        run: |
-          curl -XPOST -u "x-access-token:${{ steps.get-token.outputs.token }}" \
-          -H "Accept: application/vnd.github.v3+json" \
-          https://api.github.com/repos/navikt/fpsak-autotest/actions/workflows/trigger.yml/dispatches \
-          -d '{"ref":"master",
-                  "inputs":{
-                      "trigger": "${{ github.repository }}",
-                      "version": "${{ env.BUILD_VERSION }}",
-                      "issue_number": "${{ steps.createdeployissue.outputs.number }}"
-                  }}'
-
+  snyk:
+    name: Snyk
+    needs: build-app
+    uses: navikt/fp-gha-workflows/.github/workflows/snyk.yml@main
+    with:
+      build-version: ${{ needs.build-app.outputs.build-version }}
+    secrets: inherit
