@@ -176,11 +176,6 @@ class BehandleDokumentServiceTest {
                 eq(ENGANGSSTØNAD_FØDSEL), any(), any(), any(), any());
     }
 
-    public void skalGiUnntakNårDetFinnesManglerSomIkkeKanRettes() {
-        assertThrows(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class,
-                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
-    }
-
     @Test
     void skalTillateJournalførinAvInntektsmeldingForeldrepender() throws Exception {
         when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.INNTEKTSMELDING);
