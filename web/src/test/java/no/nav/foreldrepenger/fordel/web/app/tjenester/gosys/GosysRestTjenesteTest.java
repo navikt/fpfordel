@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.fordel.web.app.tjenester.gosys;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
-import no.nav.foreldrepenger.fordel.web.app.tjenester.gosys.behandleDokument.BehandleDokumentRequest;
+import no.nav.foreldrepenger.fordel.web.app.tjenester.gosys.behandledokument.BehandleDokumentRequest;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
@@ -81,24 +81,27 @@ class GosysRestTjenesteTest {
 
     @Test
     void skalValiderePåkrevdInput_enhetId() {
+        BehandleDokumentRequest req = req(null, JOURNALPOST_ID, SAKSNUMMER);
         Exception ex = assertThrows(TekniskException.class,
-                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req(null, JOURNALPOST_ID, SAKSNUMMER)));
+                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
 
         assertThat(ex.getMessage()).contains("Ugyldig input: EnhetId");
     }
 
     @Test
     void skalValiderePåkrevdInput_journalpostId() {
+        BehandleDokumentRequest req = req(ENHETID, null, SAKSNUMMER);
         Exception ex = assertThrows(TekniskException.class,
-                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req(ENHETID, null, SAKSNUMMER)));
+                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
         assertThat(ex.getMessage())
                 .contains("Ugyldig input: ArkivId");
     }
 
     @Test
     void skalValiderePåkrevdInput_saksnummer() {
+        BehandleDokumentRequest req = req(ENHETID, JOURNALPOST_ID, null);
         Exception ex = assertThrows(TekniskException.class,
-                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req(ENHETID, JOURNALPOST_ID, null)));
+                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
         assertThat(ex.getMessage())
                 .contains("Ugyldig input: Saksnummer");
     }
@@ -108,8 +111,9 @@ class GosysRestTjenesteTest {
         when(fagsak.finnFagsakInfomasjon(any()))
                 .thenReturn(Optional.empty());
 
+        BehandleDokumentRequest req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         Exception ex = assertThrows(FunksjonellException.class,
-                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
+                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
 
         assertThat(ex.getMessage())
                 .contains("Kan ikke journalføre på saksnummer");
@@ -123,8 +127,9 @@ class GosysRestTjenesteTest {
                 .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, BehandlingTema.UDEFINERT.getOffisiellKode())));
 
         when(journalpost.getHovedtype()).thenReturn(KLAGE_DOKUMENT);
+        BehandleDokumentRequest req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         assertThrows(FunksjonellException.class,
-                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
+                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
     }
 
     @Test
@@ -143,8 +148,9 @@ class GosysRestTjenesteTest {
                 .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, FORELDREPENGER_FØDSEL.getOffisiellKode())));
 
         when(journalpost.getHovedtype()).thenReturn(SØKNAD_SVANGERSKAPSPENGER);
+        BehandleDokumentRequest req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         assertThrows(FunksjonellException.class,
-                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
+                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
     }
 
     @Test
@@ -196,8 +202,9 @@ class GosysRestTjenesteTest {
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
         when(journalpost.getStrukturertPayload()).thenReturn(readFile("testdata/inntektsmelding-svangerskapspenger.xml"));
 
+        BehandleDokumentRequest req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         assertThrows(FunksjonellException.class,
-                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
+                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
     }
 
     @Test
@@ -208,8 +215,10 @@ class GosysRestTjenesteTest {
 
         when(journalpost.getStrukturertPayload()).thenReturn(readFile("testdata/selvb-soeknad-forp-uttak-før-konfigverdi.xml"));
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
-        assertThat(assertThrows(FunksjonellException.class,
-                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req(ENHETID, JOURNALPOST_ID, SAKSNUMMER))).getMessage())
+        BehandleDokumentRequest req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        FunksjonellException ex = assertThrows(FunksjonellException.class,
+                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
+        assertThat(ex.getMessage())
                 .contains("For tidlig");
     }
 
@@ -221,8 +230,9 @@ class GosysRestTjenesteTest {
 
         when(journalpost.getStrukturertPayload()).thenReturn(readFile("testdata/fp-adopsjon-far.xml"));
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
+        BehandleDokumentRequest req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         var e = assertThrows(FunksjonellException.class,
-                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
+                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
         assertThat(e.getMessage()).contains("For tidlig");
     }
 
