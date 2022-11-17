@@ -168,11 +168,6 @@ class GosysRestTjenesteTest {
                 eq(ENGANGSSTØNAD_FØDSEL), any(), any(), any(), any());
     }
 
-    public void skalGiUnntakNårDetFinnesManglerSomIkkeKanRettes() {
-        assertThrows(TekniskException.class,
-                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
-    }
-
     @Test
     void skalTillateJournalførinAvInntektsmeldingForeldrepender() throws Exception {
         when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.INNTEKTSMELDING);
