@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.fordel.web.app.exceptions.JsonParseExceptionMapper;
 import no.nav.foreldrepenger.fordel.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.fordel.web.app.tjenester.gosys.GosysRestTjeneste;
 import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.vedtak.exception.TekniskException;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ServerProperties;
 
@@ -55,7 +56,7 @@ public class EksternApiConfig extends Application {
                     .buildContext(true)
                     .read();
         } catch (OpenApiConfigurationException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new TekniskException("OPEN-API", e.getMessage(), e);
         }
     }
 

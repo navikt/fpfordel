@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.fordel.kodeverdi.*;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
-import no.nav.foreldrepenger.fordel.web.app.tjenester.gosys.behandleDokument.BehandleDokumentRequest;
+import no.nav.foreldrepenger.fordel.web.app.tjenester.gosys.behandledokument.BehandleDokumentRequest;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
@@ -210,7 +210,7 @@ public class GosysRestTjeneste {
             return arkivTjeneste.hentArkivJournalpost(arkivId);
         } catch (Exception e) {
             LOG.warn("FORDEL WS fikk feil fra hentjournalpost: ", e);
-            throw new TekniskException("FP-15679", lagUgyldigInputMelding("Journalpost", "Finner ikke journalpost med id " + arkivId));
+            throw new TekniskException("FP-15676", lagUgyldigInputMelding("Journalpost", "Finner ikke journalpost med id " + arkivId));
         }
     }
 
@@ -259,7 +259,7 @@ public class GosysRestTjeneste {
 
     private static void validerSaksnummer(String saksnummer) {
         if (erNullEllerTom(saksnummer)) {
-            throw new TekniskException("FP-15678", lagUgyldigInputMelding("Saksnummer", saksnummer));
+            throw new TekniskException("FP-15677", lagUgyldigInputMelding("Saksnummer", saksnummer));
         }
     }
 
@@ -278,13 +278,13 @@ public class GosysRestTjeneste {
 
     private static void validerEnhetId(String enhetId) {
         if (enhetId == null) {
-            throw new TekniskException("FP-15678", lagUgyldigInputMelding("EnhetId", enhetId));
+            throw new TekniskException("FP-15679", lagUgyldigInputMelding("EnhetId", enhetId));
         }
     }
 
     private static void validerJournalposttype(Journalposttype type) {
         if (!Journalposttype.INNGÅENDE.equals(type)) {
-            throw new TekniskException("FP-15678", lagUgyldigInputMelding("JournalpostType", JOURNALPOST_IKKE_INNGÅENDE));
+            throw new TekniskException("FP-15680", lagUgyldigInputMelding("JournalpostType", JOURNALPOST_IKKE_INNGÅENDE));
         }
     }
 
@@ -311,7 +311,7 @@ public class GosysRestTjeneste {
             // Her er det "greit" - da har man bestemt seg, men kan lage rot i saken.
             if ("FP-401245".equals(e.getKode())) {
                 String logMessage = e.getMessage();
-                LOG.info("FPFORDEL GOSYS" + logMessage);
+                LOG.info("FPFORDEL GOSYS {}", logMessage);
             } else {
                 throw e;
             }

@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.fordel.web.app.tjenester.gosys.behandleDokument;
+package no.nav.foreldrepenger.fordel.web.app.tjenester.gosys.behandledokument;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
