@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.security.token.support.jaxrs.JwtTokenContainerRequestFilter;
 
+// TODO: Denne kan egentlig fjernes etter vi er ute med Azure i prod.
 public class WhitelistingJwtTokenContainerRequestFilter extends JwtTokenContainerRequestFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(WhitelistingJwtTokenContainerRequestFilter.class);

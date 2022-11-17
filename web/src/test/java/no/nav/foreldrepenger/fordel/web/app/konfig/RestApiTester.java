@@ -40,7 +40,7 @@ class RestApiTester {
     }
 
     static Collection<Class<?>> finnAlleRestTjenester() {
-        ApplicationConfig config = new ApplicationConfig();
+        ApiConfig config = new ApiConfig();
         return config.getClasses().stream()
                 .filter(c -> c.getAnnotation(Path.class) != null)
                 .filter(c -> !UNNTATT.contains(c))

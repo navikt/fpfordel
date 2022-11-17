@@ -1,19 +1,7 @@
 package no.nav.foreldrepenger.fordel.web.app.konfig;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
-
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import org.glassfish.jersey.server.ServerProperties;
-
+import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
-import io.swagger.v3.oas.integration.GenericOpenApiContextBuilder;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -27,34 +15,52 @@ import no.nav.foreldrepenger.fordel.web.app.forvaltning.ForvaltningRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.tjenester.WhitelistingJwtTokenContainerRequestFilter;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.server.ServerProperties;
 
-@ApplicationPath(ApplicationConfig.API_URI)
-public class ApplicationConfig extends Application {
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+@ApplicationPath(ApiConfig.API_URI)
+public class ApiConfig extends Application {
+
+    private static final Environment ENV = Environment.current();
 
     public static final String API_URI = "/api";
 
-    public ApplicationConfig() {
+    private static final String ID_PREFIX = "openapi.context.id.servlet.";
+
+    public ApiConfig() {
+        var oas = new OpenAPI();
+        var info = new Info()
+                .title("Vedtaksløsningen - Fordeling.")
+                .version("1.0")
+                .description("REST grensesnitt for fordeling");
+
+        oas.info(info).addServersItem(new Server().url(ENV.getProperty("context.path", "/fpfordel")));
+        var oasConfig = new SwaggerConfiguration()
+                .id(ID_PREFIX + ApiConfig.class.getName())
+                .openAPI(oas)
+                .prettyPrint(true)
+                .resourceClasses(getClasses().stream().map(Class::getName).collect(Collectors.toSet()))
+                .ignoredRoutes(Set.of("/api/sak/behandleDokument/v1"));
 
         try {
-            new GenericOpenApiContextBuilder<>()
-                    .openApiConfiguration(new SwaggerConfiguration()
-                            .openAPI(new OpenAPI().info(new Info()
-                                    .title("Vedtaksløsningen - Fordeling")
-                                    .version("1.0")
-                                    .description("REST grensesnitt for fordeling"))
-                                    .addServersItem(new Server()
-                                            .url("/fpfordel")))
-                            .prettyPrint(true)
-                            .scannerClass("io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner")
-                            .resourcePackages(Stream.of("no.nav")
-                                    .collect(Collectors.toSet())))
+            new JaxrsOpenApiContextBuilder<>()
+                    .ctxId(ID_PREFIX + ApiConfig.class.getName())
+                    .application(this)
+                    .openApiConfiguration(oasConfig)
                     .buildContext(true)
                     .read();
         } catch (OpenApiConfigurationException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
-
     }
 
     @Override
