@@ -65,7 +65,6 @@ public class EksternApiConfig extends Application {
         return Set.of(
                 GosysRestTjeneste.class,
                 OpenApiResource.class,
-                MultiPartFeature.class,
                 ConstraintViolationMapper.class,
                 JsonMappingExceptionMapper.class,
                 JsonParseExceptionMapper.class,
