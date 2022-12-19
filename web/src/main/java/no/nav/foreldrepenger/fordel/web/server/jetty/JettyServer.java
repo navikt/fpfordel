@@ -1,14 +1,23 @@
 package no.nav.foreldrepenger.fordel.web.server.jetty;
 
-import no.nav.foreldrepenger.fordel.web.app.konfig.ApiConfig;
-import no.nav.foreldrepenger.fordel.web.app.konfig.EksternApiConfig;
-import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.security.token.support.core.configuration.IssuerProperties;
-import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration;
-import no.nav.security.token.support.jaxrs.servlet.JaxrsJwtTokenValidationFilter;
-import no.nav.vedtak.isso.IssoApplication;
-import no.nav.vedtak.sikkerhet.ContextPathHolder;
-import no.nav.vedtak.sikkerhet.jaspic.OidcAuthModule;
+import static javax.servlet.DispatcherType.REQUEST;
+import static no.nav.foreldrepenger.konfig.Cluster.NAIS_CLUSTER_NAME;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.LogManager;
+
+import javax.naming.NamingException;
+import javax.security.auth.message.config.AuthConfigFactory;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
+
 import org.eclipse.jetty.jaas.JAASLoginService;
 import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
@@ -17,7 +26,13 @@ import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.security.jaspi.DefaultAuthConfigFactory;
 import org.eclipse.jetty.security.jaspi.JaspiAuthenticatorFactory;
 import org.eclipse.jetty.security.jaspi.provider.JaspiAuthConfigProvider;
-import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.ForwardedRequestCustomizer;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -32,22 +47,13 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import javax.naming.NamingException;
-import javax.security.auth.message.config.AuthConfigFactory;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.sql.DataSource;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.LogManager;
-
-import static javax.servlet.DispatcherType.REQUEST;
-import static no.nav.foreldrepenger.konfig.Cluster.NAIS_CLUSTER_NAME;
+import no.nav.foreldrepenger.fordel.web.app.konfig.ApiConfig;
+import no.nav.foreldrepenger.fordel.web.app.konfig.EksternApiConfig;
+import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.security.token.support.core.configuration.IssuerProperties;
+import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration;
+import no.nav.security.token.support.jaxrs.servlet.JaxrsJwtTokenValidationFilter;
+import no.nav.vedtak.sikkerhet.jaspic.OidcAuthModule;
 
 public class JettyServer {
 
@@ -90,7 +96,6 @@ public class JettyServer {
 
     protected JettyServer(int serverPort) {
         this.serverPort = serverPort;
-        ContextPathHolder.instance(CONTEXT_PATH);
     }
 
     protected void bootStrap() throws Exception {
@@ -240,7 +245,7 @@ public class JettyServer {
     }
 
     private static List<Class<?>> getWebInfClasses() {
-        return List.of(ApiConfig.class, EksternApiConfig.class, IssoApplication.class);
+        return List.of(ApiConfig.class, EksternApiConfig.class);
     }
 
     private Integer getServerPort() {

@@ -1,4 +1,3 @@
 <included>
    <logger name="no.nav.vedtak.sikkerhet" level="INFO" />
-   <logger name="no.nav.vedtak.isso" level="INFO" />
 </included>
