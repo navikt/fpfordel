@@ -9,11 +9,7 @@ import java.util.function.Function;
 import javax.validation.Valid;
 import javax.ws.rs.core.Context;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
-import no.nav.vedtak.isso.config.ServerInfo;
 
 public class RestApiInputValideringAnnoteringTest extends RestApiTester {
     private static String PREV_LB_URL;
@@ -52,15 +48,4 @@ public class RestApiInputValideringAnnoteringTest extends RestApiTester {
         return true;
     }
 
-    @BeforeAll
-    public static void setup() {
-        PREV_LB_URL = System.setProperty(ServerInfo.PROPERTY_KEY_LOADBALANCER_URL, "http://localhost:8090");
-    }
-
-    @AfterAll
-    public static void teardown() {
-        if (PREV_LB_URL != null) {
-            System.setProperty(ServerInfo.PROPERTY_KEY_LOADBALANCER_URL, PREV_LB_URL);
-        }
-    }
 }
