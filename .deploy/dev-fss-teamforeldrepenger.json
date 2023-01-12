@@ -8,8 +8,7 @@
 	"kafkaPool": "nav-dev",
 	"ingresses": [
 		"https://fpfordel.dev.intern.nav.no",
-		"https://fpfordel.dev-fss-pub.nais.io",
-		"https://fpfordel.nais.preprod.local"
+		"https://fpfordel.dev-fss-pub.nais.io"
 	],
 	"env": {
 		"APPD_ENABLED": "false"
