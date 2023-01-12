@@ -3,22 +3,12 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
                  http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" version="3.1">
 
-    <listener>
-        <listener-class>org.jboss.weld.environment.servlet.BeanManagerResourceBindingListener</listener-class>
-    </listener>
-    <listener>
-        <listener-class>org.jboss.weld.environment.servlet.Listener</listener-class>
-    </listener>
-
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Ubeskyttet</web-resource-name>
-            <url-pattern>/cb</url-pattern>
             <url-pattern>/internal/*</url-pattern>
             <url-pattern>/api/swagger.json</url-pattern>
-            <url-pattern>/api/swagger.yaml</url-pattern>
             <url-pattern>/ekstern/api/swagger.json</url-pattern>
-            <url-pattern>/ekstern/api/swagger.yaml</url-pattern>
             <url-pattern>/tjenester/sak/*</url-pattern>
         </web-resource-collection>
     </security-constraint>

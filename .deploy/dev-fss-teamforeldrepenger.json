@@ -12,7 +12,6 @@
 		"https://fpfordel.nais.preprod.local"
 	],
 	"env": {
-		"APPDYNAMICS_AGENT_ACCOUNT_NAME": "NON-PROD",
 		"APPD_ENABLED": "false"
 	},
 	"AZURE_IAC_RULES": [

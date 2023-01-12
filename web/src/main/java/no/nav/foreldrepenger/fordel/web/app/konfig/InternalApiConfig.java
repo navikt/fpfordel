@@ -10,12 +10,12 @@ import no.nav.foreldrepenger.fordel.web.app.metrics.PrometheusRestService;
 import no.nav.foreldrepenger.fordel.web.app.selftest.HealthCheckRestService;
 
 @ApplicationScoped
-@ApplicationPath(InternalApplication.API_URL)
-public class InternalApplication extends Application {
+@ApplicationPath(InternalApiConfig.API_URL)
+public class InternalApiConfig extends Application {
 
     public static final String API_URL = "/internal";
 
-    public InternalApplication() {
+    public InternalApiConfig() {
         // CDI
     }
 
