@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.fordel.web.app.exceptions.JsonParseExceptionMapper;
 import no.nav.foreldrepenger.fordel.web.app.forvaltning.ForvaltningRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste;
+import no.nav.foreldrepenger.fordel.web.app.rest.ManuellJournalføringRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.tjenester.WhitelistingJwtTokenContainerRequestFilter;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
@@ -70,6 +71,7 @@ public class ApiConfig extends Application {
                 WhitelistingJwtTokenContainerRequestFilter.class,
                 ProsessTaskRestTjeneste.class,
                 DokumentforsendelseRestTjeneste.class,
+                ManuellJournalføringRestTjeneste.class,
                 ForvaltningRestTjeneste.class,
                 OpenApiResource.class,
                 MultiPartFeature.class,
