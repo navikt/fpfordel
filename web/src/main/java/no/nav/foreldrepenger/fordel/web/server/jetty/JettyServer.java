@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.fordel.web.server.jetty;
 
 import no.nav.foreldrepenger.fordel.web.app.konfig.ApiConfig;
-import no.nav.foreldrepenger.fordel.web.app.konfig.EksternApiConfig;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.security.token.support.core.configuration.IssuerProperties;
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration;
@@ -235,7 +234,7 @@ public class JettyServer {
     }
 
     private static List<Class<?>> getWebInfClasses() {
-        return List.of(ApiConfig.class, EksternApiConfig.class);
+        return List.of(ApiConfig.class);
     }
 
     private Integer getServerPort() {
