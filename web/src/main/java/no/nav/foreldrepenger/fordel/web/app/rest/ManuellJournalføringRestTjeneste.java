@@ -19,10 +19,9 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
 
 @RequestScoped
 public class ManuellJournalføringRestTjeneste {
@@ -47,39 +46,38 @@ public class ManuellJournalføringRestTjeneste {
     })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public List<OppgaveDto> hentÅpneOppgaver() throws Exception {
-        var oppgaver = manuellJournalføringTjeneste.hentJournalføringsOppgaver();
-        List<OppgaveDto> journalføringOppgaver = new ArrayList<>();
-
-        if(oppgaver.isEmpty()) {
-            return Collections.emptyList();
-        }
-        oppgaver.forEach(oppgave -> journalføringOppgaver.add(lagOppgaveDto(oppgave)));
-        return journalføringOppgaver;
+        return manuellJournalføringTjeneste.hentJournalføringsOppgaver().stream()
+                .map(this::lagOppgaveDto)
+                .toList();
     }
 
     private OppgaveDto lagOppgaveDto(Oppgave oppgave) {
-        return new OppgaveDto(oppgave.id(), oppgave.journalpostId(), hentPersonIdent(oppgave.aktoerId()).orElse(null),
+        return new OppgaveDto(oppgave.id(), oppgave.journalpostId(), oppgave.aktoerId(), hentPersonIdent(oppgave.aktoerId()).orElse(null),
                 mapTema(oppgave.behandlingstema()), oppgave.fristFerdigstillelse(), mapPrioritet(oppgave.prioritet()), oppgave.beskrivelse(),
-                oppgave.opprettetTidspunkt(), harJournalpostMangler(oppgave));
+                oppgave.aktivDato(), harJournalpostMangler(oppgave));
     }
 
     private OppgavePrioritet mapPrioritet(Prioritet prioritet) {
         return switch (prioritet) {
-            case HOY -> OppgavePrioritet.HOY;
+            case HOY -> OppgavePrioritet.HØY;
             case LAV -> OppgavePrioritet.LAV;
             case NORM -> OppgavePrioritet.NORM;
         };
     }
 
     private Optional<String> hentPersonIdent(String aktørId) {
-        if (!aktørId.isEmpty()) {
+        if (aktørId != null) {
             return pdl.hentPersonIdentForAktørId(aktørId);
         }
         return Optional.empty();
     }
 
     private boolean harJournalpostMangler(Oppgave oppgave) {
-        return oppgave.aktoerId().isEmpty();
+        return oppgave.aktoerId() == null || mapTema(oppgave.behandlingstema()).equals("Ukjent") || ukjentBeskrivelse(oppgave.beskrivelse());
+    }
+
+    private boolean ukjentBeskrivelse(String beskrivelse) {
+        return beskrivelse == null || beskrivelse.startsWith("Journalføring");
     }
 
     private String mapTema(String behandlingstema) {
@@ -88,7 +86,7 @@ public class ManuellJournalføringRestTjeneste {
             case FORELDREPENGER, FORELDREPENGER_ADOPSJON, FORELDREPENGER_FØDSEL -> "Foreldrepenger";
             case SVANGERSKAPSPENGER -> "Svangerskapspenger";
             case ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON, ENGANGSSTØNAD_FØDSEL -> "Engangsstønad";
-            case UDEFINERT, OMS, OMS_OMSORG, OMS_OPP, OMS_PLEIE_BARN, OMS_PLEIE_BARN_NY, OMS_PLEIE_INSTU -> "Ukjent"; //skal vi da sette jornalpostHarMangler == true?
+            case UDEFINERT, OMS, OMS_OMSORG, OMS_OPP, OMS_PLEIE_BARN, OMS_PLEIE_BARN_NY, OMS_PLEIE_INSTU -> "Ukjent";
         };
     }
 }

@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.JournalføringsOppgave;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
@@ -35,9 +34,6 @@ class OpprettGSakOppgaveTjenesteTaskTest {
 
     @Mock
     private ProsessTaskTjeneste prosessTaskTjeneste;
-    @Mock
-    private Oppgaver oppgaver;
-
     private String fordelingsOppgaveEnhetsId = "4825";
 
     private OpprettGSakOppgaveTask task;
@@ -78,7 +74,7 @@ class OpprettGSakOppgaveTjenesteTaskTest {
         taskData.setProperty(BEHANDLINGSTEMA_KEY, BehandlingTema.ENGANGSSTØNAD_FØDSEL.getKode());
         taskData.setProperty(DOKUMENTTYPE_ID_KEY, DokumentTypeId.UDEFINERT.getKode());
         taskData.setProperty(JOURNAL_ENHET, enhet);
-        String beskrivelse = BehandlingTema.ENGANGSSTØNAD_FØDSEL.getTermNavn();
+        String beskrivelse = "Journalføring " + BehandlingTema.ENGANGSSTØNAD_FØDSEL.getTermNavn();
 
         when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), eq(Optional.of(enhet)), any())).thenReturn(enhet);
 
