@@ -33,9 +33,12 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 @RequestScoped
 @Unprotected // midlertidig, fram til vi skrur over
 public class ManuellJournalføringRestTjeneste {
-    private final ManuellJournalføringTjeneste manuellJournalføringTjeneste;
-    private final PersonInformasjon pdl;
+    private ManuellJournalføringTjeneste manuellJournalføringTjeneste;
+    private PersonInformasjon pdl;
 
+    public ManuellJournalføringRestTjeneste() {
+        // For inject
+    }
 
     @Inject
     public ManuellJournalføringRestTjeneste(ManuellJournalføringTjeneste manuellJournalføringTjeneste,
