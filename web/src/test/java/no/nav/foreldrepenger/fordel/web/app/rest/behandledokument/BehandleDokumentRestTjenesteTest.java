@@ -1,9 +1,10 @@
-package no.nav.foreldrepenger.fordel.web.app.tjenester.gosys;
+package no.nav.foreldrepenger.fordel.web.app.rest.behandledokument;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
-import no.nav.foreldrepenger.fordel.web.app.tjenester.gosys.behandledokument.BehandleDokumentRequest;
+import no.nav.foreldrepenger.fordel.web.app.rest.behandledokument.BehandleDokumentRequest;
+import no.nav.foreldrepenger.fordel.web.app.rest.behandledokument.BehandleDokumentRestTjeneste;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
@@ -41,13 +42,13 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class GosysRestTjenesteTest {
+class BehandleDokumentRestTjenesteTest {
 
     static {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
     }
 
-    private GosysRestTjeneste behandleDokument;
+    private BehandleDokumentRestTjeneste behandleDokument;
 
     private static final String JOURNALPOST_ID = "123";
     private static final String ENHETID = "4567";
@@ -75,7 +76,7 @@ class GosysRestTjenesteTest {
         lenient().when(journalpost.getJournalposttype()).thenReturn(INNGÅENDE);
         lenient().when(arkiv.hentArkivJournalpost(JOURNALPOST_ID)).thenReturn(journalpost);
 
-        behandleDokument = new GosysRestTjeneste(klargjør,
+        behandleDokument = new BehandleDokumentRestTjeneste(klargjør,
                 fagsak, sak, aktør, arkiv, mock(DokumentRepository.class));
     }
 

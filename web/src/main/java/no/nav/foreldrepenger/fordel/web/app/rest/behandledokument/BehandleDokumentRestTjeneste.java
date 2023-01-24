@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.fordel.web.app.tjenester.gosys;
+package no.nav.foreldrepenger.fordel.web.app.rest.behandledokument;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.fordel.kodeverdi.*;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
-import no.nav.foreldrepenger.fordel.web.app.tjenester.gosys.behandledokument.BehandleDokumentRequest;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
@@ -60,15 +59,14 @@ import java.util.function.Predicate;
  * og sende over saken til videre behandling i VL.
  * WS dokumentasjon finnes her https://confluence.adeo.no/pages/viewpage.action?pageId=220529141
  */
-@Path("/sak")
+@Path("/journalfoering")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @ApplicationScoped
 @Transactional
 @Unprotected // midlertidig, fram til vi skrur over
-public class GosysRestTjeneste {
-    private static final Logger LOG = LoggerFactory.getLogger(GosysRestTjeneste.class);
-
+public class BehandleDokumentRestTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(BehandleDokumentRestTjeneste.class);
     static final String JOURNALPOST_IKKE_INNGÅENDE = "Journalpost ikke Inngående";
     static final String BRUKER_MANGLER = "Journalpost mangler knyting til bruker - prøv igjen om et halv minutt";
 
@@ -79,17 +77,17 @@ public class GosysRestTjeneste {
     private DokumentRepository dokumentRepository;
     private SakClient sakClient;
 
-    protected GosysRestTjeneste() {
+    protected BehandleDokumentRestTjeneste() {
         // CDI proxy
     }
 
     @Inject
-    public GosysRestTjeneste(VLKlargjører klargjører,
-                             Fagsak fagsak,
-                             SakClient sakClient,
-                             PersonInformasjon pdl,
-                             ArkivTjeneste arkivTjeneste,
-                             DokumentRepository dokumentRepository) {
+    public BehandleDokumentRestTjeneste(VLKlargjører klargjører,
+                                        Fagsak fagsak,
+                                        SakClient sakClient,
+                                        PersonInformasjon pdl,
+                                        ArkivTjeneste arkivTjeneste,
+                                        DokumentRepository dokumentRepository) {
         this.klargjører = klargjører;
         this.fagsak = fagsak;
         this.pdl = pdl;
@@ -99,7 +97,7 @@ public class GosysRestTjeneste {
     }
 
     @POST
-    @Path("/behandleDokument/v1")
+    @Path("/ferdigstill")
     @Operation(description = "For å ferdigstille journalføring.", tags = "GOSYS", responses = {
         @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
         @ApiResponse(responseCode = "401", description = "Mangler token", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
@@ -107,11 +105,11 @@ public class GosysRestTjeneste {
     })
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
     public void oppdaterOgFerdigstillJournalfoering(
-        @Parameter(description = "Trenger journalpostId, sakId og enhet til ferdigstille en journalføring.")
+        @Parameter(description = "Trenger journalpostId, saksnummer og enhet til ferdigstille en journalføring.")
         @NotNull @Valid @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) BehandleDokumentRequest request) {
 
         // Vi vet ikke om dette er vårt saksnummer eller et arkivsaksnummer ...
-        final var saksnummerFraRequest = request.sakId();
+        final var saksnummerFraRequest = request.saksnummer();
         validerSaksnummer(saksnummerFraRequest);
         validerArkivId(request.journalpostId());
         validerEnhetId(request.enhetId());
@@ -186,7 +184,6 @@ public class GosysRestTjeneste {
 
         // For å unngå klonede journalposter fra Gosys - de kan komme via Kafka
         dokumentRepository.lagreJournalpostLokal(request.journalpostId(), journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
-
     }
 
     private Optional<FagsakInfomasjonDto> hentFagsakInfo(String saksnummerFraArkiv) {

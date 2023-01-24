@@ -41,8 +41,6 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(OpprettGSakOppgaveTask.class);
 
-    static final String OPPGAVETYPER_JFR = "JFR"; // Fra offisielt kodeverk
-
     private final JournalføringsOppgave enhetsidTjeneste;
     private final ProsessTaskTjeneste taskTjeneste;
 
@@ -104,7 +102,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
     private static String lagBeskrivelse(BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId, ProsessTaskData data) {
         if (DokumentTypeId.UDEFINERT.equals(dokumentTypeId)) {
-            return BehandlingTema.UDEFINERT.equals(behandlingTema) ? "Journalføring" : behandlingTema.getTermNavn();
+            return BehandlingTema.UDEFINERT.equals(behandlingTema) ? "Journalføring" : "Journalføring " + behandlingTema.getTermNavn();
         }
         String beskrivelse = dokumentTypeId.getTermNavn();
         if (DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.equals(dokumentTypeId)

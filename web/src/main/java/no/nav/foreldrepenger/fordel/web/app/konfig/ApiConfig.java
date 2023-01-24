@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.fordel.web.app.konfig;
 
-import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
+import io.swagger.v3.oas.integration.GenericOpenApiContextBuilder;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -14,6 +14,8 @@ import no.nav.foreldrepenger.fordel.web.app.exceptions.JsonParseExceptionMapper;
 import no.nav.foreldrepenger.fordel.web.app.forvaltning.ForvaltningRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste;
+import no.nav.foreldrepenger.fordel.web.app.rest.ManuellJournalføringRestTjeneste;
+import no.nav.foreldrepenger.fordel.web.app.rest.behandledokument.BehandleDokumentRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.tjenester.WhitelistingJwtTokenContainerRequestFilter;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
@@ -46,16 +48,11 @@ public class ApiConfig extends Application {
 
         oas.info(info).addServersItem(new Server().url(ENV.getProperty("context.path", "/fpfordel")));
         var oasConfig = new SwaggerConfiguration()
-                .id(ID_PREFIX + ApiConfig.class.getName())
                 .openAPI(oas)
                 .prettyPrint(true)
-                .resourceClasses(getClasses().stream().map(Class::getName).collect(Collectors.toSet()))
-                .ignoredRoutes(Set.of("/api/sak/behandleDokument/v1"));
-
+                .resourceClasses(getClasses().stream().map(Class::getName).collect(Collectors.toSet()));
         try {
-            new JaxrsOpenApiContextBuilder<>()
-                    .ctxId(ID_PREFIX + ApiConfig.class.getName())
-                    .application(this)
+            new GenericOpenApiContextBuilder<>()
                     .openApiConfiguration(oasConfig)
                     .buildContext(true)
                     .read();
@@ -69,7 +66,9 @@ public class ApiConfig extends Application {
         return Set.of(
                 WhitelistingJwtTokenContainerRequestFilter.class,
                 ProsessTaskRestTjeneste.class,
+                BehandleDokumentRestTjeneste.class,
                 DokumentforsendelseRestTjeneste.class,
+                ManuellJournalføringRestTjeneste.class,
                 ForvaltningRestTjeneste.class,
                 OpenApiResource.class,
                 MultiPartFeature.class,
