@@ -6,6 +6,8 @@ import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import java.util.List;
 
 @ApplicationScoped
@@ -16,6 +18,7 @@ public class ManuellJournalføringTjeneste {
         //CDI
     }
 
+    @Inject
     public ManuellJournalføringTjeneste(Oppgaver oppgaver) {
         this.oppgaver = oppgaver;
     }
