@@ -15,6 +15,11 @@
 	},
 	"AZURE_IAC_RULES": [
 		{
+			"app": "fp-frontend",
+			"namespace": "teamforeldrepenger",
+			"cluster": "dev-gcp"
+		},
+		{
 			"app": "fp-swagger",
 			"namespace": "teamforeldrepenger",
 			"cluster": "dev-gcp",
