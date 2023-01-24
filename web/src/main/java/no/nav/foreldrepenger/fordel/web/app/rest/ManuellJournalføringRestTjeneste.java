@@ -8,6 +8,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.manuellJournalføring.ManuellJournalføringTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
+import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -16,14 +17,21 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Optional;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
+@Path("")
+@Produces(APPLICATION_JSON)
+@Consumes(APPLICATION_JSON)
 @RequestScoped
+@Unprotected // midlertidig, fram til vi skrur over
 public class ManuellJournalføringRestTjeneste {
     private final ManuellJournalføringTjeneste manuellJournalføringTjeneste;
     private final PersonInformasjon pdl;
@@ -35,7 +43,6 @@ public class ManuellJournalføringRestTjeneste {
         this.manuellJournalføringTjeneste = manuellJournalføringTjeneste;
         this.pdl = pdl;
     }
-
 
     @GET
     @Path("/oppgaver")
