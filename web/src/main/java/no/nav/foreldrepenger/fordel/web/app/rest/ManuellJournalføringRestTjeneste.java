@@ -83,11 +83,7 @@ public class ManuellJournalføringRestTjeneste {
     }
 
     private boolean harJournalpostMangler(Oppgave oppgave) {
-        return oppgave.aktoerId() == null || mapTema(oppgave.behandlingstema()).equals("Ukjent") || ukjentBeskrivelse(oppgave.beskrivelse());
-    }
-
-    private boolean ukjentBeskrivelse(String beskrivelse) {
-        return beskrivelse == null || beskrivelse.startsWith("Journalføring");
+        return oppgave.aktoerId() == null;
     }
 
     private String mapTema(String behandlingstema) {
