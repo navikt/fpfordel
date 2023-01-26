@@ -9,10 +9,12 @@ import no.nav.foreldrepenger.fordel.kodeverdi.*;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
+import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
+import no.nav.foreldrepenger.mottak.journal.ArkivDokument;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
@@ -23,6 +25,8 @@ import no.nav.foreldrepenger.mottak.task.VLKlargjørerTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.VLKlargjører;
+import no.nav.foreldrepenger.typer.AktørId;
+import no.nav.foreldrepenger.typer.JournalpostId;
 import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
@@ -30,6 +34,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
@@ -55,11 +60,11 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
- * Erstattning for Webservice for å oppdatere og ferdigstille journalføring. For så å klargjøre
- * og sende over saken til videre behandling i VL.
- * WS dokumentasjon finnes her https://confluence.adeo.no/pages/viewpage.action?pageId=220529141
+ * Enkelt REST tjeneste for å oppdatere og ferdigstille journalføring på dokumenter som kunne ikke
+ * journalføres automatisk på fpsak saker. Brukes for å klargjøre og sende over saken til videre behandling i VL.
+ * Gir mulighet å opprette saken i fpsak og så journalføre dokumentet på den nye saken.
  */
-@Path("/journalfoering")
+@Path("/sak")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @ApplicationScoped
@@ -97,8 +102,99 @@ public class BehandleDokumentRestTjeneste {
     }
 
     @POST
-    @Path("/ferdigstill")
-    @Operation(description = "For å ferdigstille journalføring.", tags = "GOSYS", responses = {
+    @Path("/opprett")
+    @Operation(description = "Brukes for å opprette en ny fagsak i FPSAK.", tags = "Manuell journalføring", responses = {
+            @ApiResponse(responseCode = "200", description = "Sak opprettet", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = OpprettSakResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
+            @ApiResponse(responseCode = "403", description = "Mangler tilgang", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
+            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil")
+    })
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
+    public OpprettSakResponse opprettSak(
+            @Parameter(description = "Trenger journalpostId, behandlingstema og aktørId til brukeren for å kunne opprette en ny sak i FPSAK.")
+            @NotNull @Valid @TilpassetAbacAttributt(supplierClass = OpprettSakAbacDataSupplier.class) OpprettSakRequest opprettSakRequest) {
+
+        if (opprettSakRequest.aktørId() == null) {
+            throw new TekniskException("FP-34235", lagUgyldigInputMelding("AktørId", null));
+        }
+        var aktørId = new AktørId(opprettSakRequest.aktørId());
+
+        JournalpostId journalpostId = new JournalpostId(opprettSakRequest.journalpostId());
+        validerJournalpost(journalpostId, hentBehandlingstema(opprettSakRequest.behandlingsTema()), aktørId);
+
+        var saksnummer = fagsak.opprettSak(new OpprettSakDto(journalpostId.getVerdi(), opprettSakRequest.behandlingsTema(), aktørId.getId()));
+
+        return lagOpprettSakResponse(saksnummer);
+    }
+
+    private OpprettSakResponse lagOpprettSakResponse(SaksnummerDto saksnummer) {
+        return new OpprettSakResponse(saksnummer.getSaksnummer());
+    }
+
+    private void validerJournalpost(JournalpostId journalpostId, BehandlingTema behandlingTema, AktørId aktørId) {
+        var journalpost = arkivTjeneste.hentJournalpostForSak(journalpostId.getVerdi());
+        var hoveddokument = journalpost.map(ArkivJournalpost::getHovedDokument);
+
+        var journalpostYtelseType = YtelseType.UDEFINERT;
+        if (hoveddokument.map(ArkivDokument::getDokumentType).filter(DokumentTypeId::erSøknadType).isPresent()) {
+            journalpostYtelseType = getFagsakYtelseType(behandlingTema, hoveddokument);
+            if (journalpostYtelseType == null) {
+                return;
+            }
+        } else if (hoveddokument.map(ArkivDokument::getDokumentType).filter(DokumentTypeId.INNTEKTSMELDING::equals).isPresent()) {
+            var original = arkivTjeneste.hentStrukturertDokument(journalpostId.getVerdi(), hoveddokument.map(ArkivDokument::getDokumentId).orElseThrow()).toLowerCase();
+            if (original.contains("ytelse>foreldrepenger<")) {
+                if (true /*fagsak.harAktivSak(aktørId, behandlingTema)*/) { //TODO Humle: må lages en enkelt integrasjon mot fpsak
+                    throw new TekniskException("FP-34235", "Kan ikke journalføre FP inntektsmelding på en ny sak om det finnes en aktiv foreldrepenger sak allerede.");
+                }
+                journalpostYtelseType = YtelseType.FORELDREPENGER;
+            } else if (original.contains("ytelse>svangerskapspenger<")) {
+                journalpostYtelseType = YtelseType.SVANGERSKAPSPENGER;
+            }
+        }
+        LOG.info("FPSAK vurdering ytelsedok {} vs ytelseoppgitt {}", journalpostYtelseType, behandlingTema.getFagsakYtelseType());
+        if (!behandlingTema.getFagsakYtelseType().equals(journalpostYtelseType)) {
+            throw new FunksjonellException("FP-785356", "Dokument og valgt ytelsetype i uoverenstemmelse",
+                    "Velg ytelsetype som samstemmer med dokument");
+        }
+        if (YtelseType.UDEFINERT.equals(journalpostYtelseType)) {
+            throw new FunksjonellException("FP-785354", "Kan ikke opprette sak basert på oppgitt dokument",
+                    "Journalføre dokument på annen sak");
+        }
+    }
+
+    private BehandlingTema hentBehandlingstema(String behandlingstemaOffisiellKode) {
+        var behandlingTema = BehandlingTema.fraOffisiellKode(behandlingstemaOffisiellKode);
+        if (BehandlingTema.UDEFINERT.equals(behandlingTema)) {
+            var feilMelding = lagUgyldigInputMelding("Behandlingstema", behandlingstemaOffisiellKode);
+            throw new TekniskException("FP-34235", feilMelding);
+        }
+        if (BehandlingTema.UDEFINERT.equals(BehandlingTema.forYtelseUtenFamilieHendelse(behandlingTema))) {
+            var feilMelding = lagUgyldigInputMelding("Behandlingstema", behandlingstemaOffisiellKode);
+            throw new TekniskException("FP-34235", feilMelding);
+        }
+        return behandlingTema;
+    }
+
+    private static YtelseType getFagsakYtelseType(BehandlingTema behandlingTema, Optional<ArkivDokument> hoveddokument) {
+        YtelseType journalpostYtelseType;
+        var hovedtype = hoveddokument.map(ArkivDokument::getDokumentType).orElseThrow();
+        journalpostYtelseType = switch (hovedtype) {
+            case SØKNAD_ENGANGSSTØNAD_ADOPSJON -> YtelseType.ENGANGSTØNAD;
+            case SØKNAD_ENGANGSSTØNAD_FØDSEL -> YtelseType.ENGANGSTØNAD;
+            case SØKNAD_FORELDREPENGER_ADOPSJON -> YtelseType.FORELDREPENGER;
+            case SØKNAD_FORELDREPENGER_FØDSEL -> YtelseType.FORELDREPENGER;
+            case SØKNAD_SVANGERSKAPSPENGER ->  YtelseType.SVANGERSKAPSPENGER;
+            default -> YtelseType.UDEFINERT;
+        };
+        if (behandlingTema.getFagsakYtelseType().equals(journalpostYtelseType))
+            return null;
+        return journalpostYtelseType;
+    }
+
+    @POST
+    @Path("/ferdigstillJournalfoering")
+    @Operation(description = "For å ferdigstille journalføring.", tags = "Manuell journalføring", responses = {
         @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
         @ApiResponse(responseCode = "401", description = "Mangler token", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
         @ApiResponse(responseCode = "403", description = "Mangler tilgang", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class)))
@@ -394,6 +490,19 @@ public class BehandleDokumentRestTjeneste {
         static FunksjonellException forTidligUttak() {
             return new FunksjonellException("FP-963077", "For tidlig uttak",
                     "Søknad om uttak med oppstart i 2018 skal journalføres mot sak i Infotrygd");
+        }
+    }
+
+    public static class OpprettSakAbacDataSupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (OpprettSakRequest) obj;
+            var dataAttributter = AbacDataAttributter.opprett();
+            if (req.aktørId() != null) {
+                dataAttributter = dataAttributter.leggTil(StandardAbacAttributtType.AKTØR_ID, req.aktørId());
+            }
+            return dataAttributter;
         }
     }
 

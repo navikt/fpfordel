@@ -39,6 +39,9 @@ public class ArkivJournalpost {
     private Set<DokumentTypeId> alleTyper = new HashSet<>();
     private String dokumentInfoId;
     private String strukturertPayload;
+    private ArkivDokument hovedDokument;
+    private List<ArkivDokument> andreDokument = new ArrayList<>();
+    private String beskrivelse;
 
     public ArkivJournalpost() {
     }
@@ -130,6 +133,18 @@ public class ArkivJournalpost {
 
     public boolean getInnholderStrukturertInformasjon() {
         return (strukturertPayload != null) && !strukturertPayload.isEmpty();
+    }
+
+    public ArkivDokument getHovedDokument() {
+        return hovedDokument;
+    }
+
+    public List<ArkivDokument> getAndreDokument() {
+        return andreDokument;
+    }
+
+    public String getBeskrivelse() {
+        return beskrivelse;
     }
 
     public boolean harBrevkodeCrm() {
@@ -247,6 +262,26 @@ public class ArkivJournalpost {
 
         public Builder medStrukturertPayload(String strukturertPayload) {
             ajp.strukturertPayload = strukturertPayload;
+            return this;
+        }
+
+        public Builder medBeskrivelse(String beskrivelse) {
+            ajp.beskrivelse = beskrivelse;
+            return this;
+        }
+
+        public Builder medHoveddokument(ArkivDokument hoveddokument) {
+            ajp.hovedDokument = hoveddokument;
+            return this;
+        }
+
+        public Builder medAndreDokument(List<ArkivDokument> vedlegg){
+            ajp.getAndreDokument().addAll(vedlegg);
+            return this;
+        }
+
+        public Builder leggTillVedlegg(ArkivDokument vedlegg){
+            ajp.getAndreDokument().add(vedlegg);
             return this;
         }
 
