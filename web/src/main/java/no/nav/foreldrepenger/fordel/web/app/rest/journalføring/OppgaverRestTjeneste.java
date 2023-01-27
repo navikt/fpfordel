@@ -26,6 +26,7 @@ import javax.ws.rs.core.MediaType;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
@@ -50,7 +51,7 @@ public class OppgaverRestTjeneste {
     }
 
     @GET
-    @Operation(description = "Henter alle åpne journalføringsoppgaver for tema FOR og for saksbehandlers tilhørende enhet.", tags = "GOSYS", responses = {
+    @Operation(description = "Henter alle åpne journalføringsoppgaver for tema FOR og for saksbehandlers tilhørende enhet.", tags = "Journalføring", responses = {
             @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
             @ApiResponse(responseCode = "401", description = "Mangler token", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
             @ApiResponse(responseCode = "403", description = "Mangler tilgang", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class)))
@@ -60,6 +61,37 @@ public class OppgaverRestTjeneste {
         return oppgaverTjeneste.hentJournalføringsOppgaver().stream()
                 .map(this::lagOppgaveDto)
                 .toList();
+    }
+
+    @GET
+    @Path("/detaljer")
+    @Operation(description = "Henter detaljer for en gitt jornalpostId som er relevante for å kunne ferdigstille journalføring på en fagsak.", tags = "Journlanføring", responses = {
+            @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
+            @ApiResponse(responseCode = "401", description = "Mangler token", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
+            @ApiResponse(responseCode = "403", description = "Mangler tilgang", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class)))
+    })
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    public JournalpostDto hentJournalpost(String journalpostId) {
+
+        //var jp = tjeneste.hentJournalpost(journalpostId);
+
+        return new JournalpostDto("test",
+                "Tittel",
+                JournalpostDto.Kanal.EIA,
+                new JournalpostDto.BrukerDto("Michal", "2342232423", "324324234"),
+                new JournalpostDto.AvsenderDto("Michal", "noeId"),
+                JournalpostDto.YtelseType.FP,
+                Set.of(new JournalpostDto.DokumentDto(
+                        "324232",
+                        "Tittel",
+                        Set.of(JournalpostDto.Variant.ARKIV),
+                        "/fordel/dokument/get/3233244")),
+                Set.of(new JournalpostDto.FagsakDto(
+                        "232242342",
+                        JournalpostDto.YtelseType.FP,
+                        LocalDate.now(),
+                        LocalDate.now(),
+                        JournalpostDto.FagsakStatus.UNDER_BEHANDLING)));
     }
 
     private OppgaveDto lagOppgaveDto(Oppgave oppgave) {
