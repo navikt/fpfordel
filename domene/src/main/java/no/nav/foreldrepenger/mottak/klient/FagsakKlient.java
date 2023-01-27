@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.klient;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -27,7 +28,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
-@RestClientConfig(tokenConfig = TokenFlow.STS_CC, application = FpApplication.FPSAK)
+@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPSAK)
 @ApplicationScoped
 public class FagsakKlient implements Fagsak {
 
@@ -36,6 +37,8 @@ public class FagsakKlient implements Fagsak {
     private static final String FAGSAK_OPPRETT_PATH = "/api/fordel/fagsak/opprett";
     private static final String VURDER_FAGSYSTEM_PATH = "/api/fordel/vurderFagsystem";
     private static final String KLAGEINSTANS_FAGSYSTEM_PATH = "/api/fordel/klageinstans";
+
+    private static final String FINN_FAGSAKER_PATH = "/api/fordel/finnFagsaker";
     private static final Logger LOG = LoggerFactory.getLogger(FagsakKlient.class);
 
     private final URI knytningEndpoint;
@@ -43,6 +46,8 @@ public class FagsakKlient implements Fagsak {
     private final URI opprettsakEndpoint;
     private final URI fagsystemEndpoint;
     private final URI klageinstansEndpoint;
+
+    private final URI finnFagsakerEndpoint;
     private final RestClient klient;
     private final RestConfig restConfig;
 
@@ -56,6 +61,7 @@ public class FagsakKlient implements Fagsak {
         this.opprettsakEndpoint = lagURI(endpoint, FAGSAK_OPPRETT_PATH);
         this.fagsystemEndpoint = lagURI(endpoint, VURDER_FAGSYSTEM_PATH);
         this.klageinstansEndpoint = lagURI(endpoint, KLAGEINSTANS_FAGSYSTEM_PATH);
+        this.finnFagsakerEndpoint = lagURI(endpoint, FINN_FAGSAKER_PATH);
     }
 
     @Override
@@ -131,6 +137,16 @@ public class FagsakKlient implements Fagsak {
 
         LOG.info("Vurderert resultat OK");
         return vurdering;
+    }
+
+    @Override
+    public List<FagsakJournalFøringDto> hentBrukersSaker(String aktørId) {
+        LOG.info("Henter alle saker for en bruker");
+        var target = UriBuilder.fromUri(finnFagsakerEndpoint).queryParam("aktørId", aktørId).build();
+        var request = RestRequest.newGET(target, restConfig);
+        var respons = klient.send(request, FagsakJournalføringDtoRespons.class);
+
+        return respons.fagsakJournalFøringDtoListe();
     }
 
     @Override

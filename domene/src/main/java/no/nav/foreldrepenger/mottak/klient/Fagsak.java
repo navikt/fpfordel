@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.mottak.klient;
 
+import java.util.List;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
@@ -17,5 +18,5 @@ public interface Fagsak {
     void knyttSakOgJournalpost(JournalpostKnyttningDto journalpostKnyttningDto);
 
     VurderFagsystemResultat vurderFagsystem(MottakMeldingDataWrapper w);
-
+    List<FagsakJournalFøringDto> hentBrukersSaker(String aktørId);
 }
