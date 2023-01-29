@@ -73,7 +73,9 @@ public class OppgaverRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public JournalpostDto hentJournalpost(String journalpostId) {
 
-        //var jp = tjeneste.hentJournalpost(journalpostId);
+        var journalpost = manuellJournalføringTjeneste.hentJournalpostDetaljer(journalpostId);
+
+        //return mapToDto(journalpost);
 
         return new JournalpostDto("test",
                 "Tittel",
