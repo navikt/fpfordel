@@ -18,5 +18,5 @@ public interface Fagsak {
     void knyttSakOgJournalpost(JournalpostKnyttningDto journalpostKnyttningDto);
 
     VurderFagsystemResultat vurderFagsystem(MottakMeldingDataWrapper w);
-    List<FagsakJournalFøringDto> hentBrukersSaker(String aktørId);
+    List<FagSakInfoDto> hentBrukersSaker(String aktørId);
 }

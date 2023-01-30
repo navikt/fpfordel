@@ -140,13 +140,13 @@ public class FagsakKlient implements Fagsak {
     }
 
     @Override
-    public List<FagsakJournalFøringDto> hentBrukersSaker(String aktørId) {
+    public List<FagSakInfoDto> hentBrukersSaker(String aktørId) {
         LOG.info("Henter alle saker for en bruker");
         var target = UriBuilder.fromUri(finnFagsakerEndpoint).queryParam("aktørId", aktørId).build();
         var request = RestRequest.newGET(target, restConfig);
-        var respons = klient.send(request, FagsakJournalføringDtoRespons.class);
+        var respons = klient.send(request, FagsakerInfoDtoRespons.class);
 
-        return respons.fagsakJournalFøringDtoListe();
+        return respons.fagSakInfoDtoListe();
     }
 
     @Override
