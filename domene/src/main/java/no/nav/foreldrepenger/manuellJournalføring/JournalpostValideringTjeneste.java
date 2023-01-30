@@ -4,6 +4,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.YtelseType;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
+import no.nav.foreldrepenger.mottak.klient.FagSakInfoDto;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.typer.AktørId;
 import no.nav.foreldrepenger.typer.JournalpostId;
@@ -63,8 +64,8 @@ public class JournalpostValideringTjeneste {
 
     private boolean harAktivSak(AktørId aktørId, YtelseType oppgittYtelseType) {
         return fagsak.hentBrukersSaker(aktørId.getId()).stream()
-                .filter(it -> !it.status().equals("AVSLU")) //TODO Sladek: her bør vi få en YtelseStatus enum
-                .anyMatch(it -> it.ytelseNavn().equals(oppgittYtelseType.getKode())); //TODO Sladek: her bør vi få en YtelseType enum
+                .filter(it -> !it.status().equals(FagSakInfoDto.FagsakStatus.AVSLUTTET))
+                .anyMatch(it -> it.ytelseType().name().equals(oppgittYtelseType.name()));
     }
 
     private BehandlingTema utledOgValiderOppgittBehandlingTema(String behandlingstemaOffisiellKode) {

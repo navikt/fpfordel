@@ -5,8 +5,8 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
+import no.nav.foreldrepenger.mottak.klient.FagSakInfoDto;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
-import no.nav.foreldrepenger.mottak.klient.FagsakJournalFøringDto;
 import no.nav.foreldrepenger.typer.AktørId;
 import no.nav.foreldrepenger.typer.JournalpostId;
 import no.nav.vedtak.exception.FunksjonellException;
@@ -141,10 +141,10 @@ class JournalpostValideringTjenesteTest {
         when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.INNTEKTSMELDING);
         when(journalpost.getStrukturertPayload()).thenReturn("YTELSE>FORELDREPENGER<");
 
-        List<FagsakJournalFøringDto> brukersFagsaker = List.of(
-                opprettFagsakInfo("FP", "LOP"),
-                opprettFagsakInfo("FP", "AVSLU"),
-                opprettFagsakInfo("SVP", "LOP"));
+        var brukersFagsaker = List.of(
+                opprettFagsakInfo(FagSakInfoDto.FagsakYtelseType.FORELDREPENGER, FagSakInfoDto.FagsakStatus.LOEPENDE),
+                opprettFagsakInfo(FagSakInfoDto.FagsakYtelseType.FORELDREPENGER, FagSakInfoDto.FagsakStatus.AVSLUTTET),
+                opprettFagsakInfo(FagSakInfoDto.FagsakYtelseType.SVANGERSKAPSPENGER, FagSakInfoDto.FagsakStatus.LOEPENDE));
         when(fagsak.hentBrukersSaker(AKTØR_ID.getId())).thenReturn(brukersFagsaker);
 
         var offisiellKode = BehandlingTema.FORELDREPENGER.getOffisiellKode();
@@ -182,7 +182,7 @@ class JournalpostValideringTjenesteTest {
         assertTrue(løsningsforslag.contains(expectedLøsningsforslag));
     }
 
-    private FagsakJournalFøringDto opprettFagsakInfo(String ytelseType, String ytelseStatus) {
-        return new FagsakJournalFøringDto(new SaksnummerDto("12345"), ytelseType, LocalDate.now(), LocalDate.now(), ytelseStatus);
+    private FagSakInfoDto opprettFagsakInfo(FagSakInfoDto.FagsakYtelseType ytelseType, FagSakInfoDto.FagsakStatus ytelseStatus) {
+        return new FagSakInfoDto(new SaksnummerDto("12345"), ytelseType, LocalDate.now(), LocalDate.now(), ytelseStatus);
     }
 }
