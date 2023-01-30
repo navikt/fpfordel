@@ -168,8 +168,9 @@ class JournalpostValideringTjenesteTest {
 
         when(journalpost.getStrukturertPayload()).thenReturn("ytelse>SVANGERSKAPSPENGER<");
 
+        var offisiellKode = BehandlingTema.FORELDREPENGER.getOffisiellKode();
         var exception = assertThrows(FunksjonellException.class, () -> {
-            tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, BehandlingTema.FORELDREPENGER.getOffisiellKode(), AKTØR_ID);
+            tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID);
         });
 
         var expectedMessage = "FP-785359:Dokument og valgt ytelsetype i uoverenstemmelse";
