@@ -6,7 +6,6 @@ import javax.persistence.Column;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 
 /**
@@ -74,7 +73,6 @@ public class AktørId implements Serializable, Comparable<AktørId> {
 
     @Override
     public int compareTo(AktørId o) {
-        // TODO: Burde ikke finnes
         return aktørId.compareTo(o.aktørId);
     }
 
@@ -91,12 +89,5 @@ public class AktørId implements Serializable, Comparable<AktørId> {
             return "*".repeat(length);
         }
         return "*".repeat(length - 4) + aktørId.substring(length - 4);
-    }
-
-    private static AtomicLong DUMMY_AKTØRID = new AtomicLong(1000000000000L);
-
-    /** Genererer dummy aktørid unikt for test. */
-    public static AktørId dummy( ) {
-        return new AktørId(DUMMY_AKTØRID.getAndIncrement());
     }
 }

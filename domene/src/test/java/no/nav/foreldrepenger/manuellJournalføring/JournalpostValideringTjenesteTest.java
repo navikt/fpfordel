@@ -24,8 +24,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @ExtendWith(MockitoExtension.class)
 class JournalpostValideringTjenesteTest {
@@ -53,8 +54,8 @@ class JournalpostValideringTjenesteTest {
             tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, "ikke_finnes", AKTØR_ID);
         });
 
-        String expectedMessage = "FP-34236:Ugyldig input: Behandlingstema med verdi: ikke_finnes er ugyldig input.";
-        String actualMessage = exception.getMessage();
+        var expectedMessage = "FP-34236:Ugyldig input: Behandlingstema med verdi: ikke_finnes er ugyldig input.";
+        var actualMessage = exception.getMessage();
 
         assertTrue(actualMessage.contains(expectedMessage));
     }
@@ -62,14 +63,14 @@ class JournalpostValideringTjenesteTest {
     @Test
     @DisplayName("Exception om oppgitt BehandlingTema gjelder ikke en FP ytelse.")
     void kast_exception_om_behandlingsteam_finnes_men_er_ikke_relatert_til_fpsak_tjeneste() {
-        String omsOffisiellKode = BehandlingTema.OMS.getOffisiellKode();
+        var omsOffisiellKode = BehandlingTema.OMS.getOffisiellKode();
 
         var exception = assertThrows(TekniskException.class, () -> {
             tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, omsOffisiellKode, AKTØR_ID);
         });
 
-        String expectedMessage = "FP-34237:Ugyldig input: Behandlingstema med verdi: "+omsOffisiellKode+" er ugyldig input.";
-        String actualMessage = exception.getMessage();
+        var expectedMessage = "FP-34237:Ugyldig input: Behandlingstema med verdi: "+omsOffisiellKode+" er ugyldig input.";
+        var actualMessage = exception.getMessage();
 
         assertTrue(actualMessage.contains(expectedMessage));
     }
@@ -82,6 +83,8 @@ class JournalpostValideringTjenesteTest {
         when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
 
         tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, BehandlingTema.FORELDREPENGER.getOffisiellKode(), AKTØR_ID);
+
+        verify(arkivTjeneste, times(1)).hentArkivJournalpost(anyString());
     }
 
     @Test
@@ -91,15 +94,17 @@ class JournalpostValideringTjenesteTest {
         when(arkivTjeneste.hentArkivJournalpost(anyString())).thenReturn(journalpost);
         when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
 
+        var offisiellKode = BehandlingTema.SVANGERSKAPSPENGER.getOffisiellKode();
+
         var exception = assertThrows(FunksjonellException.class, () -> {
-            tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, BehandlingTema.SVANGERSKAPSPENGER.getOffisiellKode(), AKTØR_ID);
+            tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID);
         });
 
-        String expectedMessage = "FP-785359:Dokument og valgt ytelsetype i uoverenstemmelse";
-        String actualMessage = exception.getMessage();
+        var expectedMessage = "FP-785359:Dokument og valgt ytelsetype i uoverenstemmelse";
+        var actualMessage = exception.getMessage();
 
-        String expectedLøsningsforslag = "Velg ytelsetype som samstemmer med dokument";
-        String løsningsforslag = exception.getLøsningsforslag();
+        var expectedLøsningsforslag = "Velg ytelsetype som samstemmer med dokument";
+        var løsningsforslag = exception.getLøsningsforslag();
 
         assertTrue(actualMessage.contains(expectedMessage));
         assertTrue(løsningsforslag.contains(expectedLøsningsforslag));
@@ -113,15 +118,16 @@ class JournalpostValideringTjenesteTest {
         when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.INNTEKTSMELDING);
         when(journalpost.getStrukturertPayload()).thenReturn("ytelse>FORELDREPENGER<");
 
+        var offisiellKode = BehandlingTema.SVANGERSKAPSPENGER.getOffisiellKode();
         var exception = assertThrows(FunksjonellException.class, () -> {
-            tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, BehandlingTema.SVANGERSKAPSPENGER.getOffisiellKode(), AKTØR_ID);
+            tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID);
         });
 
-        String expectedMessage = "FP-785359:Dokument og valgt ytelsetype i uoverenstemmelse";
-        String actualMessage = exception.getMessage();
+        var expectedMessage = "FP-785359:Dokument og valgt ytelsetype i uoverenstemmelse";
+        var actualMessage = exception.getMessage();
 
-        String expectedLøsningsforslag = "Velg ytelsetype som samstemmer med dokument";
-        String løsningsforslag = exception.getLøsningsforslag();
+        var expectedLøsningsforslag = "Velg ytelsetype som samstemmer med dokument";
+        var løsningsforslag = exception.getLøsningsforslag();
 
         assertTrue(actualMessage.contains(expectedMessage));
         assertTrue(løsningsforslag.contains(expectedLøsningsforslag));
@@ -139,14 +145,15 @@ class JournalpostValideringTjenesteTest {
                 opprettFagsakInfo("FP", "LOP"),
                 opprettFagsakInfo("FP", "AVSLU"),
                 opprettFagsakInfo("SVP", "LOP"));
-        when(fagsak.hentBrukersSaker(eq(AKTØR_ID.getId()))).thenReturn(brukersFagsaker);
+        when(fagsak.hentBrukersSaker(AKTØR_ID.getId())).thenReturn(brukersFagsaker);
 
+        var offisiellKode = BehandlingTema.FORELDREPENGER.getOffisiellKode();
         var exception = assertThrows(TekniskException.class, () -> {
-            tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, BehandlingTema.FORELDREPENGER.getOffisiellKode(), AKTØR_ID);
+            tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID);
         });
 
-        String expectedMessage = "FP-34238:Kan ikke journalføre FP inntektsmelding på en ny sak fordi det finnes en aktiv foreldrepenger sak allerede.";
-        String actualMessage = exception.getMessage();
+        var expectedMessage = "FP-34238:Kan ikke journalføre FP inntektsmelding på en ny sak fordi det finnes en aktiv foreldrepenger sak allerede.";
+        var actualMessage = exception.getMessage();
 
 
         assertTrue(actualMessage.contains(expectedMessage));
@@ -165,11 +172,11 @@ class JournalpostValideringTjenesteTest {
             tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, BehandlingTema.FORELDREPENGER.getOffisiellKode(), AKTØR_ID);
         });
 
-        String expectedMessage = "FP-785359:Dokument og valgt ytelsetype i uoverenstemmelse";
-        String actualMessage = exception.getMessage();
+        var expectedMessage = "FP-785359:Dokument og valgt ytelsetype i uoverenstemmelse";
+        var actualMessage = exception.getMessage();
 
-        String expectedLøsningsforslag = "Velg ytelsetype som samstemmer med dokument";
-        String løsningsforslag = exception.getLøsningsforslag();
+        var expectedLøsningsforslag = "Velg ytelsetype som samstemmer med dokument";
+        var løsningsforslag = exception.getLøsningsforslag();
 
         assertTrue(actualMessage.contains(expectedMessage));
         assertTrue(løsningsforslag.contains(expectedLøsningsforslag));

@@ -432,11 +432,7 @@ public class BehandleDokumentRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (OpprettSakRequest) obj;
-            var dataAttributter = AbacDataAttributter.opprett();
-            if (req.aktørId() != null) {
-                dataAttributter = dataAttributter.leggTil(StandardAbacAttributtType.AKTØR_ID, req.aktørId());
-            }
-            return dataAttributter;
+            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.AKTØR_ID, req.aktørId());
         }
     }
 
