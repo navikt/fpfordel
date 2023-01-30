@@ -1,21 +1,12 @@
 package no.nav.foreldrepenger.mottak.journal;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
-import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
-import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
-import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.fordel.kodeverdi.*;
 import no.nav.foreldrepenger.mottak.journal.saf.DokumentInfo;
 import no.nav.foreldrepenger.mottak.journal.saf.Journalpost;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Tilleggsopplysning;
+
+import java.time.LocalDateTime;
+import java.util.*;
 
 public class ArkivJournalpost {
 
@@ -39,8 +30,6 @@ public class ArkivJournalpost {
     private Set<DokumentTypeId> alleTyper = new HashSet<>();
     private String dokumentInfoId;
     private String strukturertPayload;
-    private ArkivDokument hovedDokument;
-    private List<ArkivDokument> andreDokument = new ArrayList<>();
     private String beskrivelse;
 
     public ArkivJournalpost() {
@@ -133,14 +122,6 @@ public class ArkivJournalpost {
 
     public boolean getInnholderStrukturertInformasjon() {
         return (strukturertPayload != null) && !strukturertPayload.isEmpty();
-    }
-
-    public ArkivDokument getHovedDokument() {
-        return hovedDokument;
-    }
-
-    public List<ArkivDokument> getAndreDokument() {
-        return andreDokument;
     }
 
     public String getBeskrivelse() {
@@ -267,21 +248,6 @@ public class ArkivJournalpost {
 
         public Builder medBeskrivelse(String beskrivelse) {
             ajp.beskrivelse = beskrivelse;
-            return this;
-        }
-
-        public Builder medHoveddokument(ArkivDokument hoveddokument) {
-            ajp.hovedDokument = hoveddokument;
-            return this;
-        }
-
-        public Builder medAndreDokument(List<ArkivDokument> vedlegg){
-            ajp.getAndreDokument().addAll(vedlegg);
-            return this;
-        }
-
-        public Builder leggTillVedlegg(ArkivDokument vedlegg){
-            ajp.getAndreDokument().add(vedlegg);
             return this;
         }
 

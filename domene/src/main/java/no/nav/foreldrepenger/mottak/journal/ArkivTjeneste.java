@@ -50,105 +50,6 @@ public class ArkivTjeneste {
         this.personTjeneste = personTjeneste;
     }
 
-    public Optional<ArkivJournalpost> hentJournalpostForSak(String journalpostId) {
-        var resultat = saf.hentJournalpostInfo(journalpostId);
-        return Optional.ofNullable(resultat).map(this::mapTilArkivJournalPost);
-    }
-
-    private ArkivJournalpost mapTilArkivJournalPost(Journalpost journalpost) {
-
-        var dokumenter = journalpost.dokumenter().stream().map(this::mapTilArkivDokument).toList();
-
-        var doktypeFraTilleggsopplysning = Optional.ofNullable(journalpost.tilleggsopplysninger()).orElse(List.of()).stream()
-                .filter(to -> FP_DOK_TYPE.equals(to.nokkel()))
-                .map(to -> DokumentTypeId.fraOffisiellKode(to.verdi()))
-                .collect(Collectors.toSet());
-        var doktypeFraDokumenter = dokumenter.stream().map(ArkivDokument::getDokumentType).collect(Collectors.toSet());
-        var alleTyper = new HashSet<>(doktypeFraDokumenter);
-        alleTyper.addAll(doktypeFraTilleggsopplysning);
-        if (!doktypeFraTilleggsopplysning.isEmpty() && !doktypeFraDokumenter.containsAll(doktypeFraTilleggsopplysning)) {
-            LOG.info("DokArkivTjenest ulike dokumenttyper fra dokument {} fra tilleggsopplysning {}", doktypeFraDokumenter, doktypeFraTilleggsopplysning);
-        } else if (doktypeFraTilleggsopplysning.isEmpty()) {
-            LOG.info("DokArkivTjenest journalpost {} uten tilleggsopplysninger", journalpost.journalpostId());
-        }
-        var hoveddokumentType = ArkivUtil.utledHovedDokumentType(alleTyper);
-        var hoveddokument = dokumenter.stream().filter(d -> hoveddokumentType.equals(d.getDokumentType())).findFirst();
-
-        var builder = ArkivJournalpost.getBuilder()
-                .medJournalpostId(journalpost.journalpostId())
-                .medBeskrivelse(journalpost.tittel())
-                .medDatoOpprettet(journalpost.datoOpprettet())
-                .medJournalposttype(Journalposttype.fraKodeDefaultUdefinert(journalpost.journalposttype()));
-        hoveddokument.ifPresent(builder::medHoveddokument);
-        dokumenter.stream()
-                .filter(d -> hoveddokument.map(hd -> !hd.getDokumentId().equals(d.getDokumentId())).orElse(true))
-                .forEach(builder::leggTillVedlegg);
-        return builder.build();
-    }
-
-    private ArkivDokument mapTilArkivDokument(DokumentInfo dokumentInfo) {
-        var alleDokumenttyper = utledDokumentType(dokumentInfo);
-        var varianter = dokumentInfo.dokumentvarianter().stream()
-                .filter(Objects::nonNull)
-                .map(Dokumentvariant::variantformat)
-                .map(Dokumentvariant.Variantformat::name)
-                .map(VariantFormat::finnForKodeverkEiersKode)
-                .collect(Collectors.toSet());
-
-        return ArkivDokument.Builder.ny()
-                .medDokumentId(dokumentInfo.dokumentInfoId())
-                .medTittel(dokumentInfo.tittel())
-                .medVariantFormater(varianter)
-                .medAlleDokumenttyper(alleDokumenttyper)
-                .medDokumentTypeId(ArkivUtil.utledHovedDokumentType(alleDokumenttyper))
-                .build();
-    }
-
-    private Set<DokumentTypeId> utledDokumentType(DokumentInfo dokumentInfo) {
-        Set<NAVSkjema> allebrevkoder = new HashSet<>();
-        allebrevkoder.add(NAVSkjema.fraTermNavn(dokumentInfo.tittel()));
-        dokumentInfo.logiskeVedlegg().forEach(v -> allebrevkoder.add(NAVSkjema.fraTermNavn(v.tittel())));
-        Optional.ofNullable(dokumentInfo.brevkode()).map(NAVSkjema::fraOffisiellKode).ifPresent(allebrevkoder::add);
-
-        Set<DokumentTypeId> alletyper = new HashSet<>();
-        alletyper.add(DokumentTypeId.fraTermNavn(dokumentInfo.tittel()));
-        dokumentInfo.logiskeVedlegg().forEach(v -> alletyper.add(DokumentTypeId.fraTermNavn(v.tittel())));
-        allebrevkoder.stream().filter(b -> !NAVSkjema.UDEFINERT.equals(b)).forEach(b -> alletyper.add(MapNAVSkjemaDokumentTypeId.mapBrevkode(b)));
-        return alletyper;
-    }
-
-    private static Set<DokumentTypeId> utledDokumentTyper(Journalpost journalpost) {
-        Set<NAVSkjema> allebrevkoder = new HashSet<>();
-        allebrevkoder.add(NAVSkjema.fraTermNavn(journalpost.tittel()));
-
-        Set<DokumentTypeId> alletyper = new HashSet<>();
-        alletyper.add(DokumentTypeId.fraTermNavn(journalpost.tittel()));
-
-        dokumentTypeFraKjenteTitler(journalpost.tittel()).ifPresent(alletyper::add);
-
-        journalpost.dokumenter().forEach(d -> {
-            alletyper.add(DokumentTypeId.fraTermNavn(d.tittel()));
-            d.logiskeVedlegg().forEach(v -> alletyper.add(DokumentTypeId.fraTermNavn(v.tittel())));
-            dokumentTypeFraKjenteTitler(d.tittel()).ifPresent(alletyper::add);
-            d.logiskeVedlegg().forEach(v -> dokumentTypeFraKjenteTitler(v.tittel()).ifPresent(alletyper::add));
-            allebrevkoder.add(NAVSkjema.fraOffisiellKode(d.brevkode()));
-            allebrevkoder.add(NAVSkjema.fraTermNavn(d.tittel()));
-            d.logiskeVedlegg().forEach(v -> allebrevkoder.add(NAVSkjema.fraTermNavn(v.tittel())));
-        });
-
-        allebrevkoder.forEach(b -> alletyper.add(MapNAVSkjemaDokumentTypeId.mapBrevkode(b)));
-        Optional.ofNullable(journalpost.tilleggsopplysninger()).orElse(List.of()).stream()
-                .filter(to -> FP_DOK_TYPE.equals(to.nokkel()))
-                .map(to -> DokumentTypeId.fraOffisiellKode(to.verdi()))
-                .filter(dt -> !DokumentTypeId.UDEFINERT.equals(dt))
-                .forEach(alletyper::add);
-        return alletyper;
-    }
-
-    public String hentStrukturertDokument(String journalpostId, String dokumentId) {
-        return saf.hentDokument(journalpostId, dokumentId, Dokumentvariant.Variantformat.ORIGINAL);
-    }
-
     public ArkivJournalpost hentArkivJournalpost(String journalpostId) {
         var journalpost = saf.hentJournalpostInfo(journalpostId);
 
@@ -243,6 +144,34 @@ public class ArkivTjeneste {
         } else {
             LOG.info("FPFORDEL tilleggsopplysninger allerede satt for {} med {}", journalpost.journalpostId(), tilleggDokumentType);
         }
+    }
+
+    private static Set<DokumentTypeId> utledDokumentTyper(Journalpost journalpost) {
+        Set<NAVSkjema> allebrevkoder = new HashSet<>();
+        allebrevkoder.add(NAVSkjema.fraTermNavn(journalpost.tittel()));
+
+        Set<DokumentTypeId> alletyper = new HashSet<>();
+        alletyper.add(DokumentTypeId.fraTermNavn(journalpost.tittel()));
+
+        dokumentTypeFraKjenteTitler(journalpost.tittel()).ifPresent(alletyper::add);
+
+        journalpost.dokumenter().forEach(d -> {
+            alletyper.add(DokumentTypeId.fraTermNavn(d.tittel()));
+            d.logiskeVedlegg().forEach(v -> alletyper.add(DokumentTypeId.fraTermNavn(v.tittel())));
+            dokumentTypeFraKjenteTitler(d.tittel()).ifPresent(alletyper::add);
+            d.logiskeVedlegg().forEach(v -> dokumentTypeFraKjenteTitler(v.tittel()).ifPresent(alletyper::add));
+            allebrevkoder.add(NAVSkjema.fraOffisiellKode(d.brevkode()));
+            allebrevkoder.add(NAVSkjema.fraTermNavn(d.tittel()));
+            d.logiskeVedlegg().forEach(v -> allebrevkoder.add(NAVSkjema.fraTermNavn(v.tittel())));
+        });
+
+        allebrevkoder.forEach(b -> alletyper.add(MapNAVSkjemaDokumentTypeId.mapBrevkode(b)));
+        Optional.ofNullable(journalpost.tilleggsopplysninger()).orElse(List.of()).stream()
+                .filter(to -> FP_DOK_TYPE.equals(to.nokkel()))
+                .map(to -> DokumentTypeId.fraOffisiellKode(to.verdi()))
+                .filter(dt -> !DokumentTypeId.UDEFINERT.equals(dt))
+                .forEach(alletyper::add);
+        return alletyper;
     }
 
     public boolean oppdaterRettMangler(ArkivJournalpost arkivJournalpost, String aktørId, BehandlingTema behandlingTema,

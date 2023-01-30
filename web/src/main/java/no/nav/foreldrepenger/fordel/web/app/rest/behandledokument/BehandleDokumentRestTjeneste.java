@@ -126,7 +126,6 @@ public class BehandleDokumentRestTjeneste {
         return new OpprettSakResponse(saksnummer.getSaksnummer());
     }
 
-
     @POST
     @Path("/ferdigstillJournalfoering")
     @Operation(description = "For å ferdigstille journalføring.", tags = "Manuell journalføring", responses = {

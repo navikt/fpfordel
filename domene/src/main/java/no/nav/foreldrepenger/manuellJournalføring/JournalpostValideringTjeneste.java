@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.manuellJournalføring;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.YtelseType;
-import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.typer.AktørId;
@@ -17,8 +16,8 @@ public class JournalpostValideringTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(JournalpostValideringTjeneste.class);
 
-    private ArkivTjeneste arkivTjeneste;
-    private Fagsak fagsak;
+    private final ArkivTjeneste arkivTjeneste;
+    private final Fagsak fagsak;
 
     public JournalpostValideringTjeneste(ArkivTjeneste arkivTjeneste, Fagsak fagsak) {
         this.arkivTjeneste = arkivTjeneste;
@@ -27,21 +26,22 @@ public class JournalpostValideringTjeneste {
 
     public void validerKonsistensMedSak(JournalpostId journalpostId, String behandlingTema, AktørId aktørId) {
         var oppgittBehandlingTema = utledOgValiderOppgittBehandlingTema(behandlingTema);
-        var journalpost = arkivTjeneste.hentJournalpostForSak(journalpostId.getVerdi());
-        var hoveddokument = journalpost.map(ArkivJournalpost::getHovedDokument).orElseThrow();
+        var arkivJournalpost = arkivTjeneste.hentArkivJournalpost(journalpostId.getVerdi());
 
         var journalpostYtelseType = YtelseType.UDEFINERT;
         var oppgittYtelseType = oppgittBehandlingTema.utledYtelseType();
 
-        if (DokumentTypeId.erSøknadType(hoveddokument.getDokumentType())) {
-            journalpostYtelseType = utledYtelseTypeFor(hoveddokument.getDokumentType());
+        var hovedDokumentType = arkivJournalpost.getHovedtype();
+
+        if (DokumentTypeId.erSøknadType(hovedDokumentType)) {
+            journalpostYtelseType = utledYtelseTypeFor(hovedDokumentType);
             if (oppgittYtelseType.equals(journalpostYtelseType)) {
                 return;
             }
-        } else if (DokumentTypeId.INNTEKTSMELDING.equals(hoveddokument.getDokumentType())) {
-            var original = arkivTjeneste.hentStrukturertDokument(journalpostId.getVerdi(), hoveddokument.getDokumentId()).toLowerCase();
+        } else if (DokumentTypeId.INNTEKTSMELDING.equals(hovedDokumentType)) {
+            var original = arkivJournalpost.getStrukturertPayload().toLowerCase();
             if (original.contains("ytelse>foreldrepenger<")) {
-                if (fagsak.harAktivSak(aktørId, oppgittYtelseType)) {
+                if (harAktivSak(aktørId, oppgittYtelseType)) {
                     throw new TekniskException("FP-34238", "Kan ikke journalføre FP inntektsmelding på en ny sak fordi det finnes en aktiv foreldrepenger sak allerede.");
                 }
                 journalpostYtelseType = YtelseType.FORELDREPENGER;
@@ -59,6 +59,12 @@ public class JournalpostValideringTjeneste {
             throw new FunksjonellException("FP-785360", "Kan ikke opprette sak basert på oppgitt dokument",
                     "Journalføre dokument på annen sak");
         }
+    }
+
+    private boolean harAktivSak(AktørId aktørId, YtelseType oppgittYtelseType) {
+        return fagsak.hentBrukersSaker(aktørId.getId()).stream()
+                .filter(it -> !it.status().equals("AVSLU")) //TODO Sladek: her bør vi få en YtelseStatus enum
+                .anyMatch(it -> it.ytelseNavn().equals(oppgittYtelseType.getKode())); //TODO Sladek: her bør vi få en YtelseType enum
     }
 
     private BehandlingTema utledOgValiderOppgittBehandlingTema(String behandlingstemaOffisiellKode) {
