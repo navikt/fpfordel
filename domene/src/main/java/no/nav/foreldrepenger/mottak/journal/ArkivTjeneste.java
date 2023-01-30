@@ -1,36 +1,6 @@
 package no.nav.foreldrepenger.mottak.journal;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import no.nav.saf.JournalpostQueryRequest;
-import no.nav.saf.Variantformat;
-import no.nav.vedtak.felles.integrasjon.saf.HentDokumentQuery;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
-import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
-import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
-import no.nav.foreldrepenger.fordel.kodeverdi.MapNAVSkjemaDokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
-import no.nav.foreldrepenger.fordel.kodeverdi.NAVSkjema;
-import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.fordel.kodeverdi.*;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.journal.saf.DokumentInfo;
@@ -39,14 +9,14 @@ import no.nav.foreldrepenger.mottak.journal.saf.SafTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.DokArkiv;
-import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.AvsenderMottaker;
-import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Bruker;
-import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.DokumentInfoOpprett;
-import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Dokumentvariant;
-import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OppdaterJournalpostRequest;
-import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OpprettJournalpostRequest;
-import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Sak;
-import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Tilleggsopplysning;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ArkivTjeneste {

@@ -136,7 +136,7 @@ public enum BehandlingTema implements Kodeverdi {
 
     }
 
-    public YtelseType getFagsakYtelseType() {
+    public YtelseType utledYtelseType() {
         if (BehandlingTema.gjelderForeldrepenger(this)) {
             return YtelseType.FORELDREPENGER;
         }

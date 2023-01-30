@@ -11,10 +11,10 @@ import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
+import no.nav.foreldrepenger.manuellJournalføring.JournalpostValideringTjeneste;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.journal.ArkivDokument;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
@@ -114,83 +114,18 @@ public class BehandleDokumentRestTjeneste {
             @Parameter(description = "Trenger journalpostId, behandlingstema og aktørId til brukeren for å kunne opprette en ny sak i FPSAK.")
             @NotNull @Valid @TilpassetAbacAttributt(supplierClass = OpprettSakAbacDataSupplier.class) OpprettSakRequest opprettSakRequest) {
 
-        if (opprettSakRequest.aktørId() == null) {
-            throw new TekniskException("FP-34235", lagUgyldigInputMelding("AktørId", null));
-        }
+        var journalpostId = new JournalpostId(opprettSakRequest.journalpostId());
+        var behandlingsTema = opprettSakRequest.behandlingsTema();
         var aktørId = new AktørId(opprettSakRequest.aktørId());
 
-        JournalpostId journalpostId = new JournalpostId(opprettSakRequest.journalpostId());
-        validerJournalpost(journalpostId, hentBehandlingstema(opprettSakRequest.behandlingsTema()), aktørId);
+        JournalpostValideringTjeneste validering = new JournalpostValideringTjeneste(arkivTjeneste, fagsak);
+        validering.validerKonsistensMedSak(journalpostId, behandlingsTema, aktørId);
 
         var saksnummer = fagsak.opprettSak(new OpprettSakDto(journalpostId.getVerdi(), opprettSakRequest.behandlingsTema(), aktørId.getId()));
 
-        return lagOpprettSakResponse(saksnummer);
-    }
-
-    private OpprettSakResponse lagOpprettSakResponse(SaksnummerDto saksnummer) {
         return new OpprettSakResponse(saksnummer.getSaksnummer());
     }
 
-    private void validerJournalpost(JournalpostId journalpostId, BehandlingTema behandlingTema, AktørId aktørId) {
-        var journalpost = arkivTjeneste.hentJournalpostForSak(journalpostId.getVerdi());
-        var hoveddokument = journalpost.map(ArkivJournalpost::getHovedDokument);
-
-        var journalpostYtelseType = YtelseType.UDEFINERT;
-        if (hoveddokument.map(ArkivDokument::getDokumentType).filter(DokumentTypeId::erSøknadType).isPresent()) {
-            journalpostYtelseType = getFagsakYtelseType(behandlingTema, hoveddokument);
-            if (journalpostYtelseType == null) {
-                return;
-            }
-        } else if (hoveddokument.map(ArkivDokument::getDokumentType).filter(DokumentTypeId.INNTEKTSMELDING::equals).isPresent()) {
-            var original = arkivTjeneste.hentStrukturertDokument(journalpostId.getVerdi(), hoveddokument.map(ArkivDokument::getDokumentId).orElseThrow()).toLowerCase();
-            if (original.contains("ytelse>foreldrepenger<")) {
-                if (true /*fagsak.harAktivSak(aktørId, behandlingTema)*/) { //TODO Humle: må lages en enkelt integrasjon mot fpsak
-                    throw new TekniskException("FP-34235", "Kan ikke journalføre FP inntektsmelding på en ny sak om det finnes en aktiv foreldrepenger sak allerede.");
-                }
-                journalpostYtelseType = YtelseType.FORELDREPENGER;
-            } else if (original.contains("ytelse>svangerskapspenger<")) {
-                journalpostYtelseType = YtelseType.SVANGERSKAPSPENGER;
-            }
-        }
-        LOG.info("FPSAK vurdering ytelsedok {} vs ytelseoppgitt {}", journalpostYtelseType, behandlingTema.getFagsakYtelseType());
-        if (!behandlingTema.getFagsakYtelseType().equals(journalpostYtelseType)) {
-            throw new FunksjonellException("FP-785356", "Dokument og valgt ytelsetype i uoverenstemmelse",
-                    "Velg ytelsetype som samstemmer med dokument");
-        }
-        if (YtelseType.UDEFINERT.equals(journalpostYtelseType)) {
-            throw new FunksjonellException("FP-785354", "Kan ikke opprette sak basert på oppgitt dokument",
-                    "Journalføre dokument på annen sak");
-        }
-    }
-
-    private BehandlingTema hentBehandlingstema(String behandlingstemaOffisiellKode) {
-        var behandlingTema = BehandlingTema.fraOffisiellKode(behandlingstemaOffisiellKode);
-        if (BehandlingTema.UDEFINERT.equals(behandlingTema)) {
-            var feilMelding = lagUgyldigInputMelding("Behandlingstema", behandlingstemaOffisiellKode);
-            throw new TekniskException("FP-34235", feilMelding);
-        }
-        if (BehandlingTema.UDEFINERT.equals(BehandlingTema.forYtelseUtenFamilieHendelse(behandlingTema))) {
-            var feilMelding = lagUgyldigInputMelding("Behandlingstema", behandlingstemaOffisiellKode);
-            throw new TekniskException("FP-34235", feilMelding);
-        }
-        return behandlingTema;
-    }
-
-    private static YtelseType getFagsakYtelseType(BehandlingTema behandlingTema, Optional<ArkivDokument> hoveddokument) {
-        YtelseType journalpostYtelseType;
-        var hovedtype = hoveddokument.map(ArkivDokument::getDokumentType).orElseThrow();
-        journalpostYtelseType = switch (hovedtype) {
-            case SØKNAD_ENGANGSSTØNAD_ADOPSJON -> YtelseType.ENGANGSTØNAD;
-            case SØKNAD_ENGANGSSTØNAD_FØDSEL -> YtelseType.ENGANGSTØNAD;
-            case SØKNAD_FORELDREPENGER_ADOPSJON -> YtelseType.FORELDREPENGER;
-            case SØKNAD_FORELDREPENGER_FØDSEL -> YtelseType.FORELDREPENGER;
-            case SØKNAD_SVANGERSKAPSPENGER ->  YtelseType.SVANGERSKAPSPENGER;
-            default -> YtelseType.UDEFINERT;
-        };
-        if (behandlingTema.getFagsakYtelseType().equals(journalpostYtelseType))
-            return null;
-        return journalpostYtelseType;
-    }
 
     @POST
     @Path("/ferdigstillJournalfoering")

@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.fordel.web.app.rest.behandledokument;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
-import no.nav.foreldrepenger.fordel.web.app.rest.behandledokument.BehandleDokumentRequest;
-import no.nav.foreldrepenger.fordel.web.app.rest.behandledokument.BehandleDokumentRestTjeneste;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
