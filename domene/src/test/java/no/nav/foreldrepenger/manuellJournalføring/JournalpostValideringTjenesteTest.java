@@ -7,6 +7,8 @@ import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.FagSakInfoDto;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
+import no.nav.foreldrepenger.mottak.klient.FagsakStatus;
+import no.nav.foreldrepenger.mottak.klient.FagsakYtelseType;
 import no.nav.foreldrepenger.typer.AktørId;
 import no.nav.foreldrepenger.typer.JournalpostId;
 import no.nav.vedtak.exception.FunksjonellException;
@@ -142,9 +144,9 @@ class JournalpostValideringTjenesteTest {
         when(journalpost.getStrukturertPayload()).thenReturn("YTELSE>FORELDREPENGER<");
 
         var brukersFagsaker = List.of(
-                opprettFagsakInfo(FagSakInfoDto.FagsakYtelseType.FORELDREPENGER, FagSakInfoDto.FagsakStatus.LOEPENDE),
-                opprettFagsakInfo(FagSakInfoDto.FagsakYtelseType.FORELDREPENGER, FagSakInfoDto.FagsakStatus.AVSLUTTET),
-                opprettFagsakInfo(FagSakInfoDto.FagsakYtelseType.SVANGERSKAPSPENGER, FagSakInfoDto.FagsakStatus.LOEPENDE));
+                opprettFagsakInfo(FagsakYtelseType.FORELDREPENGER, FagsakStatus.LØPENDE),
+                opprettFagsakInfo(FagsakYtelseType.FORELDREPENGER, FagsakStatus.AVSLUTTET),
+                opprettFagsakInfo(FagsakYtelseType.SVANGERSKAPSPENGER, FagsakStatus.LØPENDE));
         when(fagsak.hentBrukersSaker(AKTØR_ID.getId())).thenReturn(brukersFagsaker);
 
         var offisiellKode = BehandlingTema.FORELDREPENGER.getOffisiellKode();
@@ -183,7 +185,7 @@ class JournalpostValideringTjenesteTest {
         assertTrue(løsningsforslag.contains(expectedLøsningsforslag));
     }
 
-    private FagSakInfoDto opprettFagsakInfo(FagSakInfoDto.FagsakYtelseType ytelseType, FagSakInfoDto.FagsakStatus ytelseStatus) {
+    private FagSakInfoDto opprettFagsakInfo(FagsakYtelseType ytelseType, FagsakStatus ytelseStatus) {
         return new FagSakInfoDto(new SaksnummerDto("12345"), ytelseType, LocalDate.now(), LocalDate.now(), ytelseStatus);
     }
 }

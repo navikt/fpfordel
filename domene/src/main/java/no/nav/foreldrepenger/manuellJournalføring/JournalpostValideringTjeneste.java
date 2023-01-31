@@ -6,6 +6,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.YtelseType;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.FagSakInfoDto;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
+import no.nav.foreldrepenger.mottak.klient.FagsakStatus;
 import no.nav.foreldrepenger.typer.AktørId;
 import no.nav.foreldrepenger.typer.JournalpostId;
 import no.nav.vedtak.exception.FunksjonellException;
@@ -64,8 +65,8 @@ public class JournalpostValideringTjeneste {
 
     private boolean harAktivSak(AktørId aktørId, YtelseType oppgittYtelseType) {
         return fagsak.hentBrukersSaker(aktørId.getId()).stream()
-                .filter(it -> !it.status().equals(FagSakInfoDto.FagsakStatus.AVSLUTTET))
-                .anyMatch(it -> it.ytelseType().name().equals(oppgittYtelseType.name()));
+                .filter(it -> !it.status().equals(FagsakStatus.AVSLUTTET))
+                .anyMatch(it -> it.ytelseType().getKode().equals(oppgittYtelseType.getKode()));
     }
 
     private BehandlingTema utledOgValiderOppgittBehandlingTema(String behandlingstemaOffisiellKode) {
