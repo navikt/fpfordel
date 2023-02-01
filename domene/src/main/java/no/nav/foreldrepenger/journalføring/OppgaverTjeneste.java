@@ -15,23 +15,16 @@ import java.util.List;
 public class OppgaverTjeneste {
     private Oppgaver oppgaver;
 
-    private ArkivTjeneste arkiv;
-
     public OppgaverTjeneste() {
         // CDI
     }
 
     @Inject
-    public OppgaverTjeneste(Oppgaver oppgaver, ArkivTjeneste arkiv) {
+    public OppgaverTjeneste(Oppgaver oppgaver) {
         this.oppgaver = oppgaver;
-        this.arkiv = arkiv;
     }
 
     public List<Oppgave> hentJournalføringsOppgaver() throws Exception {
         return oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null);
-    }
-
-    public ArkivJournalpost hentJournalpostDetaljer(String journalpostId) {
-        return arkiv.hentArkivJournalpost(journalpostId);
     }
 }
