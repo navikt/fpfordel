@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.fordel.web.app.rest.behandledokument;
+package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -46,6 +46,7 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -125,7 +126,7 @@ public class BehandleDokumentRestTjeneste {
     }
 
     @POST
-    @Path("/ferdigstillJournalfoering")
+    @Path("/ferdigstill")
     @Operation(description = "For å ferdigstille journalføring.", tags = "Manuell journalføring", responses = {
         @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
         @ApiResponse(responseCode = "401", description = "Mangler token", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
@@ -434,4 +435,13 @@ public class BehandleDokumentRestTjeneste {
         }
     }
 
+    record OpprettSakRequest(@NotNull @Pattern(regexp = "^(-?[1-9]|[a-z0])[a-z0-9_:-]*$", message = "journalpostId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String journalpostId,
+                                           @NotNull String behandlingsTema,
+                                           @NotNull @Pattern(regexp = "^\\d{13}$", message = "aktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String aktørId) {
+    }
+
+    record BehandleDokumentRequest(@NotNull @Pattern(regexp = "^(-?[1-9]|[a-z0])[a-z0-9_:-]*$", message = "journalpostId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String journalpostId,
+                                                 @NotNull String saksnummer,
+                                                 @NotNull String enhetId) {
+    }
 }

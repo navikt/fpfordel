@@ -11,15 +11,15 @@ import javax.inject.Inject;
 import java.util.List;
 
 @ApplicationScoped
-public class ManuellJournalføringTjeneste {
+public class OppgaverTjeneste {
     private Oppgaver oppgaver;
 
-    public ManuellJournalføringTjeneste() {
-        //CDI
+    public OppgaverTjeneste() {
+        // CDI
     }
 
     @Inject
-    public ManuellJournalføringTjeneste(Oppgaver oppgaver) {
+    public OppgaverTjeneste(Oppgaver oppgaver) {
         this.oppgaver = oppgaver;
     }
 
