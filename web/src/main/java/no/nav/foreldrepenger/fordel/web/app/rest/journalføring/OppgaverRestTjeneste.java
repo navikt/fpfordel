@@ -29,7 +29,7 @@ import java.util.Optional;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
-@Path("")
+@Path("/oppgaver")
 @Produces(APPLICATION_JSON)
 @Consumes(APPLICATION_JSON)
 @RequestScoped
@@ -50,7 +50,6 @@ public class OppgaverRestTjeneste {
     }
 
     @GET
-    @Path("/oppgaver")
     @Operation(description = "Henter alle åpne journalføringsoppgaver for tema FOR og for saksbehandlers tilhørende enhet.", tags = "GOSYS", responses = {
             @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
             @ApiResponse(responseCode = "401", description = "Mangler token", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
