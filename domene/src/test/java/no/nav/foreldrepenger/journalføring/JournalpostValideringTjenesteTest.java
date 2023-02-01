@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.manuellJournalføring;
+package no.nav.foreldrepenger.journalføring;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;

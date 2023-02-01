@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.manuellJournalføring;
+package no.nav.foreldrepenger.journalføring;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -14,6 +14,13 @@ import no.nav.vedtak.exception.TekniskException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Denne validatoren sjekker om gitt journalpost er faglig konform med de valgene SBH har gjort i GUI, f.eks:
+ * - At ytelseType fra dokument og valgt sak stemmer
+ * - At ytelseType fra inntektsmelding og valgt sak
+ * - At dokumentet ikke er en endringssøknad.
+ * - At brukeren ikke har en aktiv sak allerede opprettet i FPSAK.
+ */
 public class ManuellOpprettSakValidator {
 
     private static final Logger LOG = LoggerFactory.getLogger(ManuellOpprettSakValidator.class);
