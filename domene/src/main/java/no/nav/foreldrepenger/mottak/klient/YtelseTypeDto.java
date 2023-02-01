@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.mottak.klient;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum FagsakYtelseType {
+public enum YtelseTypeDto {
 
     ENGANGSTØNAD("ES"),
     FORELDREPENGER("FP"),
@@ -12,7 +12,7 @@ public enum FagsakYtelseType {
     @JsonValue
     private String kode;
 
-    FagsakYtelseType(String kode) {
+    YtelseTypeDto(String kode) {
         this.kode = kode;
     }
 

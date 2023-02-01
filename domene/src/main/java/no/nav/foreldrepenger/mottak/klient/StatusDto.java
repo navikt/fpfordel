@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.mottak.klient;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum FagsakStatus {
+public enum StatusDto {
 
     OPPRETTET("OPPR"),
     UNDER_BEHANDLING("UBEH"),
@@ -13,7 +13,7 @@ public enum FagsakStatus {
     @JsonValue
     private String kode;
 
-    FagsakStatus(String kode) {
+    StatusDto(String kode) {
         this.kode = kode;
     }
 

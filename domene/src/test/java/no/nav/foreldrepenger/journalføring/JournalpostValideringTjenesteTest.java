@@ -141,9 +141,9 @@ class JournalpostValideringTjenesteTest {
         when(journalpost.getStrukturertPayload()).thenReturn("YTELSE>FORELDREPENGER<");
 
         var brukersFagsaker = List.of(
-                opprettFagsakInfo(FagsakYtelseType.FORELDREPENGER, FagsakStatus.LØPENDE),
-                opprettFagsakInfo(FagsakYtelseType.FORELDREPENGER, FagsakStatus.AVSLUTTET),
-                opprettFagsakInfo(FagsakYtelseType.SVANGERSKAPSPENGER, FagsakStatus.LØPENDE));
+                opprettFagsakInfo(YtelseTypeDto.FORELDREPENGER, StatusDto.LØPENDE),
+                opprettFagsakInfo(YtelseTypeDto.FORELDREPENGER, StatusDto.AVSLUTTET),
+                opprettFagsakInfo(YtelseTypeDto.SVANGERSKAPSPENGER, StatusDto.LØPENDE));
         when(fagsak.hentBrukersSaker(new AktørIdDto(AKTØR_ID.getId()))).thenReturn(brukersFagsaker);
 
         var offisiellKode = BehandlingTema.FORELDREPENGER.getOffisiellKode();
@@ -205,7 +205,7 @@ class JournalpostValideringTjenesteTest {
         assertTrue(løsningsforslag.contains(expectedLøsningsforslag));
     }
 
-    private FagSakInfoDto opprettFagsakInfo(FagsakYtelseType ytelseType, FagsakStatus ytelseStatus) {
+    private FagSakInfoDto opprettFagsakInfo(YtelseTypeDto ytelseType, StatusDto ytelseStatus) {
         return new FagSakInfoDto(new SaksnummerDto("12345"), ytelseType, LocalDate.now(), LocalDate.now(), ytelseStatus);
     }
 }

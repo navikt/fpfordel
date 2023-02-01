@@ -6,7 +6,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.YtelseType;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.AktørIdDto;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
-import no.nav.foreldrepenger.mottak.klient.FagsakStatus;
+import no.nav.foreldrepenger.mottak.klient.StatusDto;
 import no.nav.foreldrepenger.typer.AktørId;
 import no.nav.foreldrepenger.typer.JournalpostId;
 import no.nav.vedtak.exception.FunksjonellException;
@@ -73,7 +73,7 @@ public class ManuellOpprettSakValidator {
 
     private boolean harAktivSak(AktørId aktørId, YtelseType oppgittYtelseType) {
         return fagsak.hentBrukersSaker(new AktørIdDto(aktørId.getId())).stream()
-                .filter(it -> !it.status().equals(FagsakStatus.AVSLUTTET))
+                .filter(it -> !it.status().equals(StatusDto.AVSLUTTET))
                 .anyMatch(it -> it.ytelseType().getKode().equals(oppgittYtelseType.getKode()));
     }
 
