@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
+import no.nav.foreldrepenger.fordel.web.app.rest.JournalpostDto;
 import no.nav.foreldrepenger.journalføring.OppgaverTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.security.token.support.core.api.Unprotected;
