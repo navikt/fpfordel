@@ -4,6 +4,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.YtelseType;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
+import no.nav.foreldrepenger.mottak.klient.AktørIdDto;
 import no.nav.foreldrepenger.mottak.klient.FagSakInfoDto;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.FagsakStatus;
@@ -64,7 +65,7 @@ public class JournalpostValideringTjeneste {
     }
 
     private boolean harAktivSak(AktørId aktørId, YtelseType oppgittYtelseType) {
-        return fagsak.hentBrukersSaker(aktørId.getId()).stream()
+        return fagsak.hentBrukersSaker(new AktørIdDto(aktørId.getId())).stream()
                 .filter(it -> !it.status().equals(FagsakStatus.AVSLUTTET))
                 .anyMatch(it -> it.ytelseType().getKode().equals(oppgittYtelseType.getKode()));
     }

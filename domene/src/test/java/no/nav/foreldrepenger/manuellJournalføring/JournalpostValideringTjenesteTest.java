@@ -5,10 +5,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
-import no.nav.foreldrepenger.mottak.klient.FagSakInfoDto;
-import no.nav.foreldrepenger.mottak.klient.Fagsak;
-import no.nav.foreldrepenger.mottak.klient.FagsakStatus;
-import no.nav.foreldrepenger.mottak.klient.FagsakYtelseType;
+import no.nav.foreldrepenger.mottak.klient.*;
 import no.nav.foreldrepenger.typer.AktørId;
 import no.nav.foreldrepenger.typer.JournalpostId;
 import no.nav.vedtak.exception.FunksjonellException;
@@ -90,13 +87,13 @@ class JournalpostValideringTjenesteTest {
     }
 
     @Test
-    @DisplayName("Ny sak kan kun opprettes for inntektsmeldinger uten sak eller førstegangssøknader.")
+    @DisplayName("Ny sak kan kun opprettes for inntektsmeldinger uten sak eller for førstegangssøknader.")
     void funksjonell_exception_hvis_søknad_fra_selvbetjening_og_behandldingtema_ulik_dokument_tema() {
 
         when(arkivTjeneste.hentArkivJournalpost(anyString())).thenReturn(journalpost);
-        when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
+        when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER);
 
-        var offisiellKode = BehandlingTema.SVANGERSKAPSPENGER.getOffisiellKode();
+        var offisiellKode = BehandlingTema.ENGANGSSTØNAD.getOffisiellKode();
 
         var exception = assertThrows(FunksjonellException.class, () -> {
             tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID);
@@ -147,7 +144,7 @@ class JournalpostValideringTjenesteTest {
                 opprettFagsakInfo(FagsakYtelseType.FORELDREPENGER, FagsakStatus.LØPENDE),
                 opprettFagsakInfo(FagsakYtelseType.FORELDREPENGER, FagsakStatus.AVSLUTTET),
                 opprettFagsakInfo(FagsakYtelseType.SVANGERSKAPSPENGER, FagsakStatus.LØPENDE));
-        when(fagsak.hentBrukersSaker(AKTØR_ID.getId())).thenReturn(brukersFagsaker);
+        when(fagsak.hentBrukersSaker(new AktørIdDto(AKTØR_ID.getId()))).thenReturn(brukersFagsaker);
 
         var offisiellKode = BehandlingTema.FORELDREPENGER.getOffisiellKode();
         var exception = assertThrows(TekniskException.class, () -> {
@@ -171,6 +168,29 @@ class JournalpostValideringTjenesteTest {
         when(journalpost.getStrukturertPayload()).thenReturn("ytelse>SVANGERSKAPSPENGER<");
 
         var offisiellKode = BehandlingTema.FORELDREPENGER.getOffisiellKode();
+        var exception = assertThrows(FunksjonellException.class, () -> {
+            tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID);
+        });
+
+        var expectedMessage = "FP-785359:Dokument og valgt ytelsetype i uoverenstemmelse";
+        var actualMessage = exception.getMessage();
+
+        var expectedLøsningsforslag = "Velg ytelsetype som samstemmer med dokument";
+        var løsningsforslag = exception.getLøsningsforslag();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+        assertTrue(løsningsforslag.contains(expectedLøsningsforslag));
+    }
+
+    @Test
+    @DisplayName("Ny sak kan kun opprettes for førstegangssøknader.")
+    void funksjonell_exception_hvis_endring_søknad() {
+
+        when(arkivTjeneste.hentArkivJournalpost(anyString())).thenReturn(journalpost);
+        when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD);
+
+        var offisiellKode = BehandlingTema.FORELDREPENGER.getOffisiellKode();
+
         var exception = assertThrows(FunksjonellException.class, () -> {
             tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID);
         });

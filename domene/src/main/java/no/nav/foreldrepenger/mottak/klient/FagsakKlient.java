@@ -1,32 +1,20 @@
 package no.nav.foreldrepenger.mottak.klient;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.core.UriBuilder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.kontrakter.fordel.BehandlendeFagsystemDto;
-import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
-import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
-import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
-import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
-import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
+import no.nav.foreldrepenger.kontrakter.fordel.*;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.JournalføringsOppgave;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
-import no.nav.vedtak.felles.integrasjon.rest.RestClient;
-import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
+import no.nav.vedtak.felles.integrasjon.rest.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
+import java.util.List;
+import java.util.Optional;
 
 @RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPSAK)
 @ApplicationScoped
@@ -140,13 +128,11 @@ public class FagsakKlient implements Fagsak {
     }
 
     @Override
-    public List<FagSakInfoDto> hentBrukersSaker(String aktørId) {
+    public List<FagSakInfoDto> hentBrukersSaker(AktørIdDto dto) {
         LOG.info("Henter alle saker for en bruker");
-        var target = UriBuilder.fromUri(finnFagsakerEndpoint).queryParam("aktørId", aktørId).build();
-        var request = RestRequest.newGET(target, restConfig);
-        var respons = klient.send(request, FagsakerInfoDtoRespons.class);
-
-        return respons.fagSakInfoDtoListe();
+        var target = UriBuilder.fromUri(finnFagsakerEndpoint).build();
+        var request = RestRequest.newPOSTJson(dto, target, restConfig);
+        return klient.sendReturnList(request, FagSakInfoDto.class);
     }
 
     @Override
