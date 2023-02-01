@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
-import no.nav.foreldrepenger.manuellJournalføring.JournalpostValideringTjeneste;
+import no.nav.foreldrepenger.manuellJournalføring.ManuellOpprettSakValidator;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -104,13 +104,13 @@ public class BehandleDokumentRestTjeneste {
     @POST
     @Path("/opprett")
     @Operation(description = "Brukes for å opprette en ny fagsak i FPSAK.", tags = "Manuell journalføring", responses = {
-            @ApiResponse(responseCode = "200", description = "Sak opprettet", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = OpprettSakResponse.class))),
+            @ApiResponse(responseCode = "200", description = "Sak opprettet", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SaksnummerDto.class))),
             @ApiResponse(responseCode = "400", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
             @ApiResponse(responseCode = "403", description = "Mangler tilgang", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil")
     })
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public OpprettSakResponse opprettSak(
+    public SaksnummerDto opprettSak(
             @Parameter(description = "Trenger journalpostId, behandlingstema og aktørId til brukeren for å kunne opprette en ny sak i FPSAK.")
             @NotNull @Valid @TilpassetAbacAttributt(supplierClass = OpprettSakAbacDataSupplier.class) OpprettSakRequest opprettSakRequest) {
 
@@ -118,12 +118,10 @@ public class BehandleDokumentRestTjeneste {
         var behandlingsTema = opprettSakRequest.behandlingsTema();
         var aktørId = new AktørId(opprettSakRequest.aktørId());
 
-        JournalpostValideringTjeneste validering = new JournalpostValideringTjeneste(arkivTjeneste, fagsak);
-        validering.validerKonsistensMedSak(journalpostId, behandlingsTema, aktørId);
+        var validator = new ManuellOpprettSakValidator(arkivTjeneste, fagsak);
+        validator.validerKonsistensMedSak(journalpostId, behandlingsTema, aktørId);
 
-        var saksnummer = fagsak.opprettSak(new OpprettSakDto(journalpostId.getVerdi(), opprettSakRequest.behandlingsTema(), aktørId.getId()));
-
-        return new OpprettSakResponse(saksnummer.getSaksnummer());
+        return fagsak.opprettSak(new OpprettSakDto(journalpostId.getVerdi(), opprettSakRequest.behandlingsTema(), aktørId.getId()));
     }
 
     @POST

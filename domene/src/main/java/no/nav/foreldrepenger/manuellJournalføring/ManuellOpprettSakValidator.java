@@ -5,7 +5,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.YtelseType;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.AktørIdDto;
-import no.nav.foreldrepenger.mottak.klient.FagSakInfoDto;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.FagsakStatus;
 import no.nav.foreldrepenger.typer.AktørId;
@@ -15,14 +14,14 @@ import no.nav.vedtak.exception.TekniskException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JournalpostValideringTjeneste {
+public class ManuellOpprettSakValidator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JournalpostValideringTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ManuellOpprettSakValidator.class);
 
     private final ArkivTjeneste arkivTjeneste;
     private final Fagsak fagsak;
 
-    public JournalpostValideringTjeneste(ArkivTjeneste arkivTjeneste, Fagsak fagsak) {
+    public ManuellOpprettSakValidator(ArkivTjeneste arkivTjeneste, Fagsak fagsak) {
         this.arkivTjeneste = arkivTjeneste;
         this.fagsak = fagsak;
     }
@@ -57,7 +56,8 @@ public class JournalpostValideringTjeneste {
             throw new FunksjonellException("FP-785359", "Dokument og valgt ytelsetype i uoverenstemmelse",
                     "Velg ytelsetype som samstemmer med dokument");
         }
-        // TODO: Vil aldri komme hit siden oppgittYtelseType valideres for UNDEFINED
+        // Vil aldri komme hit siden oppgittYtelseType valideres for UNDEFINED men lar den ligge her
+        // om behandlingstema validering flyttes en dag.
         if (YtelseType.UDEFINERT.equals(journalpostYtelseType)) {
             throw new FunksjonellException("FP-785360", "Kan ikke opprette sak basert på oppgitt dokument",
                     "Journalføre dokument på annen sak");

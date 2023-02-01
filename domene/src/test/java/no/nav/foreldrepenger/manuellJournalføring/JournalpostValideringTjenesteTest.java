@@ -39,11 +39,11 @@ class JournalpostValideringTjenesteTest {
 
     private static final JournalpostId JOURNALPOST_ID = new JournalpostId(987654L);
     private static final AktørId AKTØR_ID = new AktørId(1234567890123L);
-    private JournalpostValideringTjeneste tjeneste;
+    private ManuellOpprettSakValidator tjeneste;
 
     @BeforeEach
     void setup() {
-        tjeneste = new JournalpostValideringTjeneste(arkivTjeneste, fagsak);
+        tjeneste = new ManuellOpprettSakValidator(arkivTjeneste, fagsak);
     }
 
     @Test
