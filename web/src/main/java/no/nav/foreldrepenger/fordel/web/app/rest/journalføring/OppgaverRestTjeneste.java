@@ -64,9 +64,17 @@ public class OppgaverRestTjeneste {
     }
 
     private OppgaveDto lagOppgaveDto(Oppgave oppgave) {
-        return new OppgaveDto(oppgave.id(), oppgave.journalpostId(), oppgave.aktoerId(), hentPersonIdent(oppgave.aktoerId()).orElse(null),
-                mapTema(oppgave.behandlingstema()), oppgave.fristFerdigstillelse(), mapPrioritet(oppgave.prioritet()), oppgave.beskrivelse(),
-                oppgave.aktivDato(), harJournalpostMangler(oppgave));
+        return new OppgaveDto(
+                oppgave.id(),
+                oppgave.journalpostId(),
+                oppgave.aktoerId(),
+                hentPersonIdent(oppgave.aktoerId()).orElse(null),
+                mapTema(oppgave.behandlingstema()),
+                oppgave.fristFerdigstillelse(),
+                mapPrioritet(oppgave.prioritet()),
+                oppgave.beskrivelse(),
+                oppgave.aktivDato(),
+                harJournalpostMangler(oppgave));
     }
 
     private OppgavePrioritet mapPrioritet(Prioritet prioritet) {
