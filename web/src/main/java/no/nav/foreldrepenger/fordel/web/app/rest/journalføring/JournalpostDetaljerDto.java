@@ -13,8 +13,8 @@ import java.util.Set;
 public record JournalpostDetaljerDto(@NotNull String journalpostId,
                                      @NotNull String tittel,
                                      String kanal,
-                                     @NotNull @Valid BrukerDto bruker,
-                                     @NotNull @Valid AvsenderDto avsender,
+                                     @Valid BrukerDto bruker,
+                                     @Valid AvsenderDto avsender,
                                      @Valid YtelseTypeDto ytelseType,
                                      @NotNull @Valid @Size(min = 1) Set<DokumentDto> dokumenter,
                                      @Valid Set<FagsakDto> fagsaker) {

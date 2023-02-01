@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.YtelseType;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.journalføring.OppgaverTjeneste;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
-import no.nav.foreldrepenger.mottak.domene.dokument.Journalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.saf.DokumentInfo;
@@ -32,7 +31,10 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.time.LocalDate;
 import java.util.List;
@@ -130,7 +132,7 @@ public class OppgaverRestTjeneste {
                     ))
                     .collect(Collectors.toSet());
         }
-        return null;
+        return Set.of();
     }
 
     private static Set<JournalpostDetaljerDto.DokumentDto> mapDokumenter(List<DokumentInfo> dokumenter) {
