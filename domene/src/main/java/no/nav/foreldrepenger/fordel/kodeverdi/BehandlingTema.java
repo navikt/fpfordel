@@ -135,4 +135,17 @@ public enum BehandlingTema implements Kodeverdi {
         return SVANGERSKAPSPENGER.equals(behandlingTema) ? behandlingTema : UDEFINERT;
 
     }
+
+    public YtelseType utledYtelseType() {
+        if (BehandlingTema.gjelderForeldrepenger(this)) {
+            return YtelseType.FORELDREPENGER;
+        }
+        if (BehandlingTema.gjelderEngangsstønad(this)) {
+            return YtelseType.ENGANGSTØNAD;
+        }
+        if (BehandlingTema.gjelderSvangerskapspenger(this)) {
+            return YtelseType.SVANGERSKAPSPENGER;
+        }
+        return YtelseType.UDEFINERT;
+    }
 }

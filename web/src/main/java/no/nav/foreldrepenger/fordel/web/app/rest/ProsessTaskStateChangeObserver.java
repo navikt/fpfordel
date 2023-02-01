@@ -15,7 +15,7 @@ public class ProsessTaskStateChangeObserver {
 
     public void observerProssestask(@Observes ProsessTaskEvent event) {
         var nyStatus = event.getNyStatus();
-        if (FEILET.equals(nyStatus) || KJOERT.equals(nyStatus) || FERDIG.equals(FERDIG)) {
+        if (FEILET.equals(nyStatus) || KJOERT.equals(nyStatus) || FERDIG.equals(nyStatus)) {
             counter("task_transitions", "type", event.getTaskType(), "status", nyStatus.getDbKode()).increment();
         }
     }

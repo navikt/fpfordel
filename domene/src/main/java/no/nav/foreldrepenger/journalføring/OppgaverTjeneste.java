@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.manuellJournalføring;
+package no.nav.foreldrepenger.journalføring;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
@@ -11,15 +11,15 @@ import javax.inject.Inject;
 import java.util.List;
 
 @ApplicationScoped
-public class ManuellJournalføringTjeneste {
+public class OppgaverTjeneste {
     private Oppgaver oppgaver;
 
-    public ManuellJournalføringTjeneste() {
-        //CDI
+    public OppgaverTjeneste() {
+        // CDI
     }
 
     @Inject
-    public ManuellJournalføringTjeneste(Oppgaver oppgaver) {
+    public OppgaverTjeneste(Oppgaver oppgaver) {
         this.oppgaver = oppgaver;
     }
 

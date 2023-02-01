@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.fordel.web.app.rest.behandledokument;
+package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -9,7 +9,9 @@ import no.nav.foreldrepenger.fordel.kodeverdi.*;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
+import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
+import no.nav.foreldrepenger.journalføring.ManuellOpprettSakValidator;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -23,6 +25,8 @@ import no.nav.foreldrepenger.mottak.task.VLKlargjørerTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.VLKlargjører;
+import no.nav.foreldrepenger.typer.AktørId;
+import no.nav.foreldrepenger.typer.JournalpostId;
 import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
@@ -30,6 +34,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
@@ -41,6 +46,7 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -55,11 +61,11 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
- * Erstattning for Webservice for å oppdatere og ferdigstille journalføring. For så å klargjøre
- * og sende over saken til videre behandling i VL.
- * WS dokumentasjon finnes her https://confluence.adeo.no/pages/viewpage.action?pageId=220529141
+ * Enkelt REST tjeneste for å oppdatere og ferdigstille journalføring på dokumenter som kunne ikke
+ * journalføres automatisk på fpsak saker. Brukes for å klargjøre og sende over saken til videre behandling i VL.
+ * Gir mulighet å opprette saken i fpsak og så journalføre dokumentet på den nye saken.
  */
-@Path("/journalfoering")
+@Path("/sak")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @ApplicationScoped
@@ -97,8 +103,31 @@ public class BehandleDokumentRestTjeneste {
     }
 
     @POST
+    @Path("/opprett")
+    @Operation(description = "Brukes for å opprette en ny fagsak i FPSAK.", tags = "Manuell journalføring", responses = {
+            @ApiResponse(responseCode = "200", description = "Sak opprettet", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SaksnummerDto.class))),
+            @ApiResponse(responseCode = "400", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
+            @ApiResponse(responseCode = "403", description = "Mangler tilgang", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
+            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil")
+    })
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
+    public SaksnummerDto opprettSak(
+            @Parameter(description = "Trenger journalpostId, behandlingstema og aktørId til brukeren for å kunne opprette en ny sak i FPSAK.")
+            @NotNull @Valid @TilpassetAbacAttributt(supplierClass = OpprettSakAbacDataSupplier.class) OpprettSakRequest opprettSakRequest) {
+
+        var journalpostId = new JournalpostId(opprettSakRequest.journalpostId());
+        var behandlingsTema = opprettSakRequest.behandlingsTema();
+        var aktørId = new AktørId(opprettSakRequest.aktørId());
+
+        var validator = new ManuellOpprettSakValidator(arkivTjeneste, fagsak);
+        validator.validerKonsistensMedSak(journalpostId, behandlingsTema, aktørId);
+
+        return fagsak.opprettSak(new OpprettSakDto(journalpostId.getVerdi(), opprettSakRequest.behandlingsTema(), aktørId.getId()));
+    }
+
+    @POST
     @Path("/ferdigstill")
-    @Operation(description = "For å ferdigstille journalføring.", tags = "GOSYS", responses = {
+    @Operation(description = "For å ferdigstille journalføring.", tags = "Manuell journalføring", responses = {
         @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
         @ApiResponse(responseCode = "401", description = "Mangler token", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
         @ApiResponse(responseCode = "403", description = "Mangler tilgang", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class)))
@@ -397,4 +426,22 @@ public class BehandleDokumentRestTjeneste {
         }
     }
 
+    public static class OpprettSakAbacDataSupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (OpprettSakRequest) obj;
+            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.AKTØR_ID, req.aktørId());
+        }
+    }
+
+    record OpprettSakRequest(@NotNull @Pattern(regexp = "^(-?[1-9]|[a-z0])[a-z0-9_:-]*$", message = "journalpostId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String journalpostId,
+                                           @NotNull String behandlingsTema,
+                                           @NotNull @Pattern(regexp = "^\\d{13}$", message = "aktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String aktørId) {
+    }
+
+    record BehandleDokumentRequest(@NotNull @Pattern(regexp = "^(-?[1-9]|[a-z0])[a-z0-9_:-]*$", message = "journalpostId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String journalpostId,
+                                                 @NotNull String saksnummer,
+                                                 @NotNull String enhetId) {
+    }
 }

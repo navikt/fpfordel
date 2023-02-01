@@ -1,31 +1,6 @@
 package no.nav.foreldrepenger.mottak.journal;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
-import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
-import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
-import no.nav.foreldrepenger.fordel.kodeverdi.MapNAVSkjemaDokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
-import no.nav.foreldrepenger.fordel.kodeverdi.NAVSkjema;
-import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.fordel.kodeverdi.*;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.journal.saf.DokumentInfo;
@@ -34,14 +9,14 @@ import no.nav.foreldrepenger.mottak.journal.saf.SafTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.DokArkiv;
-import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.AvsenderMottaker;
-import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Bruker;
-import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.DokumentInfoOpprett;
-import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Dokumentvariant;
-import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OppdaterJournalpostRequest;
-import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OpprettJournalpostRequest;
-import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Sak;
-import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Tilleggsopplysning;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ArkivTjeneste {
@@ -171,6 +146,34 @@ public class ArkivTjeneste {
         }
     }
 
+    private static Set<DokumentTypeId> utledDokumentTyper(Journalpost journalpost) {
+        Set<NAVSkjema> allebrevkoder = new HashSet<>();
+        allebrevkoder.add(NAVSkjema.fraTermNavn(journalpost.tittel()));
+
+        Set<DokumentTypeId> alletyper = new HashSet<>();
+        alletyper.add(DokumentTypeId.fraTermNavn(journalpost.tittel()));
+
+        dokumentTypeFraKjenteTitler(journalpost.tittel()).ifPresent(alletyper::add);
+
+        journalpost.dokumenter().forEach(d -> {
+            alletyper.add(DokumentTypeId.fraTermNavn(d.tittel()));
+            d.logiskeVedlegg().forEach(v -> alletyper.add(DokumentTypeId.fraTermNavn(v.tittel())));
+            dokumentTypeFraKjenteTitler(d.tittel()).ifPresent(alletyper::add);
+            d.logiskeVedlegg().forEach(v -> dokumentTypeFraKjenteTitler(v.tittel()).ifPresent(alletyper::add));
+            allebrevkoder.add(NAVSkjema.fraOffisiellKode(d.brevkode()));
+            allebrevkoder.add(NAVSkjema.fraTermNavn(d.tittel()));
+            d.logiskeVedlegg().forEach(v -> allebrevkoder.add(NAVSkjema.fraTermNavn(v.tittel())));
+        });
+
+        allebrevkoder.forEach(b -> alletyper.add(MapNAVSkjemaDokumentTypeId.mapBrevkode(b)));
+        Optional.ofNullable(journalpost.tilleggsopplysninger()).orElse(List.of()).stream()
+                .filter(to -> FP_DOK_TYPE.equals(to.nokkel()))
+                .map(to -> DokumentTypeId.fraOffisiellKode(to.verdi()))
+                .filter(dt -> !DokumentTypeId.UDEFINERT.equals(dt))
+                .forEach(alletyper::add);
+        return alletyper;
+    }
+
     public boolean oppdaterRettMangler(ArkivJournalpost arkivJournalpost, String aktørId, BehandlingTema behandlingTema,
             DokumentTypeId defaultDokumentTypeId) {
         var journalpost = arkivJournalpost.getOriginalJournalpost();
@@ -266,30 +269,6 @@ public class ArkivTjeneste {
 
     private Sak lagSakForSaksnummer(String saksnummer) {
         return new Sak(saksnummer, "FS36", Sak.Sakstype.FAGSAK);
-    }
-
-    private static Set<DokumentTypeId> utledDokumentTyper(Journalpost journalpost) {
-        Set<DokumentTypeId> alletyper = new HashSet<>();
-        Set<NAVSkjema> allebrevkoder = new HashSet<>();
-        alletyper.add(DokumentTypeId.fraTermNavn(journalpost.tittel()));
-        allebrevkoder.add(NAVSkjema.fraTermNavn(journalpost.tittel()));
-        dokumentTypeFraKjenteTitler(journalpost.tittel()).ifPresent(alletyper::add);
-        journalpost.dokumenter().forEach(d -> {
-            alletyper.add(DokumentTypeId.fraTermNavn(d.tittel()));
-            d.logiskeVedlegg().forEach(v -> alletyper.add(DokumentTypeId.fraTermNavn(v.tittel())));
-            dokumentTypeFraKjenteTitler(d.tittel()).ifPresent(alletyper::add);
-            d.logiskeVedlegg().forEach(v -> dokumentTypeFraKjenteTitler(v.tittel()).ifPresent(alletyper::add));
-            allebrevkoder.add(NAVSkjema.fraOffisiellKode(d.brevkode()));
-            allebrevkoder.add(NAVSkjema.fraTermNavn(d.tittel()));
-            d.logiskeVedlegg().forEach(v -> allebrevkoder.add(NAVSkjema.fraTermNavn(v.tittel())));
-        });
-        allebrevkoder.forEach(b -> alletyper.add(MapNAVSkjemaDokumentTypeId.mapBrevkode(b)));
-        Optional.ofNullable(journalpost.tilleggsopplysninger()).orElse(List.of()).stream()
-                .filter(to -> FP_DOK_TYPE.equals(to.nokkel()))
-                .map(to -> DokumentTypeId.fraOffisiellKode(to.verdi()))
-                .filter(dt -> !DokumentTypeId.UDEFINERT.equals(dt))
-                .forEach(alletyper::add);
-        return alletyper;
     }
 
     public static boolean harBrevKode(Journalpost journalpost, NAVSkjema brevkode) {

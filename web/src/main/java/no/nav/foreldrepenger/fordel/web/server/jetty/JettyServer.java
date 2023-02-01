@@ -43,7 +43,6 @@ import java.util.Map;
 import java.util.logging.LogManager;
 
 import static javax.servlet.DispatcherType.REQUEST;
-import static no.nav.foreldrepenger.konfig.Cluster.NAIS_CLUSTER_NAME;
 
 public class JettyServer {
 
@@ -55,7 +54,6 @@ public class JettyServer {
     private static final String CONTEXT_PATH = ENV.getProperty("context.path","/fpfordel");
 
     static {
-        System.setProperty(NAIS_CLUSTER_NAME, ENV.clusterName());
         LogManager.getLogManager().reset();
         SLF4JBridgeHandler.install();
     }

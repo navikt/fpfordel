@@ -1,10 +1,8 @@
-package no.nav.foreldrepenger.fordel.web.app.rest.behandledokument;
+package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
-import no.nav.foreldrepenger.fordel.web.app.rest.behandledokument.BehandleDokumentRequest;
-import no.nav.foreldrepenger.fordel.web.app.rest.behandledokument.BehandleDokumentRestTjeneste;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
@@ -82,7 +80,7 @@ class BehandleDokumentRestTjenesteTest {
 
     @Test
     void skalValiderePåkrevdInput_enhetId() {
-        BehandleDokumentRequest req = req(null, JOURNALPOST_ID, SAKSNUMMER);
+        var req = req(null, JOURNALPOST_ID, SAKSNUMMER);
         Exception ex = assertThrows(TekniskException.class,
                 () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
 
@@ -91,7 +89,7 @@ class BehandleDokumentRestTjenesteTest {
 
     @Test
     void skalValiderePåkrevdInput_journalpostId() {
-        BehandleDokumentRequest req = req(ENHETID, null, SAKSNUMMER);
+        var req = req(ENHETID, null, SAKSNUMMER);
         Exception ex = assertThrows(TekniskException.class,
                 () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
         assertThat(ex.getMessage())
@@ -100,7 +98,7 @@ class BehandleDokumentRestTjenesteTest {
 
     @Test
     void skalValiderePåkrevdInput_saksnummer() {
-        BehandleDokumentRequest req = req(ENHETID, JOURNALPOST_ID, null);
+        var req = req(ENHETID, JOURNALPOST_ID, null);
         Exception ex = assertThrows(TekniskException.class,
                 () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
         assertThat(ex.getMessage())
@@ -112,7 +110,7 @@ class BehandleDokumentRestTjenesteTest {
         when(fagsak.finnFagsakInfomasjon(any()))
                 .thenReturn(Optional.empty());
 
-        BehandleDokumentRequest req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        var req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         Exception ex = assertThrows(FunksjonellException.class,
                 () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
 
@@ -128,7 +126,7 @@ class BehandleDokumentRestTjenesteTest {
                 .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, BehandlingTema.UDEFINERT.getOffisiellKode())));
 
         when(journalpost.getHovedtype()).thenReturn(KLAGE_DOKUMENT);
-        BehandleDokumentRequest req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        var req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         assertThrows(FunksjonellException.class,
                 () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
     }
@@ -149,7 +147,7 @@ class BehandleDokumentRestTjenesteTest {
                 .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, FORELDREPENGER_FØDSEL.getOffisiellKode())));
 
         when(journalpost.getHovedtype()).thenReturn(SØKNAD_SVANGERSKAPSPENGER);
-        BehandleDokumentRequest req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        var req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         assertThrows(FunksjonellException.class,
                 () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
     }
@@ -198,7 +196,7 @@ class BehandleDokumentRestTjenesteTest {
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
         when(journalpost.getStrukturertPayload()).thenReturn(readFile("testdata/inntektsmelding-svangerskapspenger.xml"));
 
-        BehandleDokumentRequest req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        var req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         assertThrows(FunksjonellException.class,
                 () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
     }
@@ -211,7 +209,7 @@ class BehandleDokumentRestTjenesteTest {
 
         when(journalpost.getStrukturertPayload()).thenReturn(readFile("testdata/selvb-soeknad-forp-uttak-før-konfigverdi.xml"));
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
-        BehandleDokumentRequest req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        var req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         FunksjonellException ex = assertThrows(FunksjonellException.class,
                 () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
         assertThat(ex.getMessage())
@@ -226,7 +224,7 @@ class BehandleDokumentRestTjenesteTest {
 
         when(journalpost.getStrukturertPayload()).thenReturn(readFile("testdata/fp-adopsjon-far.xml"));
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
-        BehandleDokumentRequest req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        var req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         var e = assertThrows(FunksjonellException.class,
                 () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
         assertThat(e.getMessage()).contains("For tidlig");
@@ -322,8 +320,8 @@ class BehandleDokumentRestTjenesteTest {
                 eq(ENGANGSSTØNAD_FØDSEL), any(), any(), any(), any());
     }
 
-    private static BehandleDokumentRequest req(String enhetid, String journalpostId, String sakId) {
-        return new BehandleDokumentRequest(
+    private static BehandleDokumentRestTjeneste.BehandleDokumentRequest req(String enhetid, String journalpostId, String sakId) {
+        return new BehandleDokumentRestTjeneste.BehandleDokumentRequest(
                 journalpostId,
                 sakId,
                 enhetid);

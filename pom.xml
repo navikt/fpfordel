@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>0.4.0</version>
+        <version>0.4.1</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger.fordel</groupId>
@@ -35,9 +35,9 @@
 
         <tjenestespesifikasjon.version>1.2021.02.22-10.45-4201aaea72fb</tjenestespesifikasjon.version>
 
-        <felles.version>4.2.21</felles.version>
+        <felles.version>4.2.22</felles.version>
         <prosesstask.version>3.1.16</prosesstask.version>
-        <fp-kontrakter.version>6.2.6</fp-kontrakter.version>
+        <fp-kontrakter.version>6.2.8</fp-kontrakter.version>
 
         <confluent.version>7.3.1</confluent.version>
     </properties>
@@ -47,7 +47,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>0.4.0</version>
+                <version>0.4.1</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -164,7 +164,7 @@
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>konfig</artifactId>
-            <version>1.1.5</version>
+            <version>1.1.6</version>
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
