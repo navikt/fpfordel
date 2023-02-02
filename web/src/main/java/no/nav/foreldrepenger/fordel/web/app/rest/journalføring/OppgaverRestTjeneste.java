@@ -1,15 +1,14 @@
 package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.kodeverdi.YtelseType;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilType;
-import no.nav.foreldrepenger.journalføring.OppgaverTjeneste;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
@@ -20,8 +19,9 @@ import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Dokumentvariant;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -33,12 +33,8 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
-import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
@@ -51,12 +47,12 @@ import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
-@Path("")
+@Path("/journalfoering")
 @RequestScoped
 @Transactional
 @Unprotected
 public class OppgaverRestTjeneste {
-    private OppgaverTjeneste oppgaverTjeneste;
+    private Oppgaver oppgaver;
     private PersonInformasjon pdl;
     private ArkivTjeneste arkiv;
     private Fagsak fagsak;
@@ -66,9 +62,11 @@ public class OppgaverRestTjeneste {
     }
 
     @Inject
-    public OppgaverRestTjeneste(OppgaverTjeneste oppgaverTjeneste,
-                                PersonInformasjon pdl, ArkivTjeneste arkiv, Fagsak fagsak) {
-        this.oppgaverTjeneste = oppgaverTjeneste;
+    public OppgaverRestTjeneste(Oppgaver oppgaver,
+                                PersonInformasjon pdl,
+                                ArkivTjeneste arkiv,
+                                Fagsak fagsak) {
+        this.oppgaver = oppgaver;
         this.pdl = pdl;
         this.arkiv = arkiv;
         this.fagsak = fagsak;
@@ -78,58 +76,56 @@ public class OppgaverRestTjeneste {
     @Path("/oppgaver")
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    @Operation(description = "Henter alle åpne journalføringsoppgaver for tema FOR og for saksbehandlers tilhørende enhet.", tags = "Journalføring", responses = {
+    @Operation(description = "Henter alle åpne journalføringsoppgaver for tema FOR og for saksbehandlers tilhørende enhet.", tags = "Manuell journalføring", responses = {
             @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
             @ApiResponse(responseCode = "401", description = "Mangler token", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
             @ApiResponse(responseCode = "403", description = "Mangler tilgang", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class)))
     })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public List<OppgaveDto> hentÅpneOppgaver() throws Exception {
-        return oppgaverTjeneste.hentJournalføringsOppgaver().stream()
+        return oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null)
+                .stream()
                 .map(this::lagOppgaveDto)
                 .toList();
     }
 
     @GET
-    @Path("/detaljer")
+    @Path("/oppgave/detaljer")
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    @Operation(description = "Henter detaljer for en gitt jornalpostId som er relevante for å kunne ferdigstille journalføring på en fagsak.", tags = "Journlanføring", responses = {
+    @Operation(description = "Henter detaljer for en gitt jornalpostId som er relevante for å kunne ferdigstille journalføring på en fagsak.", tags = "Manuell journalføring", responses = {
             @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
             @ApiResponse(responseCode = "401", description = "Mangler token", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
             @ApiResponse(responseCode = "403", description = "Mangler tilgang", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class)))
     })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public JournalpostDetaljerDto hentJournalpost(
-            @Parameter(description = "Trenger journalpostId for å innhente detaljer.")
             @TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class)
-            @NotNull @Valid JournalpostIdDto journalpost) {
-        return Optional.of(arkiv.hentArkivJournalpost(journalpost.getJournalpostId())).map(this::mapTilJournalpostDetaljerDto).orElseThrow();
+            @QueryParam("journalpostId") @NotNull @Valid JournalpostIdDto journalpostId) {
+        return Optional.of(arkiv.hentArkivJournalpost(journalpostId.getJournalpostId())).map(this::mapTilJournalpostDetaljerDto).orElseThrow();
     }
 
     @GET
     @Path("/dokument/hent")
     @Consumes(APPLICATION_JSON)
-    @Operation(description = "Søk etter dokument på JOARK-identifikatorene journalpostId og dokumentId", summary = ("Retunerer dokument som er tilknyttet journalpostId og dokumentId."), tags = "Journlanføring")
+    @Produces(APPLICATION_JSON)
+    @Operation(description = "Søk etter dokument på JOARK-identifikatorene journalpostId og dokumentId", summary = ("Retunerer dokument som er tilknyttet journalpost og dokId."), tags = "Manuell journalføring")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response hentDokument(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @NotNull @Valid HentDokumentDto hentDokumentDto) {
+    public Response hentDokument(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("journalpostId") @Valid JournalpostIdDto journalpostId,
+                                 @TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("dokumentId") @Valid DokumentIdDto dokumentId) {
         try {
-            var responseBuilder = Response.ok(new ByteArrayInputStream(arkiv.hentDokumet(hentDokumentDto.journalpostId(), hentDokumentDto.dokumentId())));
+            var responseBuilder = Response.ok(new ByteArrayInputStream(arkiv.hentDokumet(journalpostId.getJournalpostId(), dokumentId.getDokumentId())));
             responseBuilder.type("application/pdf");
             responseBuilder.header("Content-Disposition", "filename=dokument.pdf");
             return responseBuilder.build();
         } catch (TekniskException e) {
-            var feilmelding = String.format("Dokument ikke funnet for journalpostId= %s dokumentId= %s",
-                    hentDokumentDto.journalpostId(), hentDokumentDto.dokumentId());
+            var feilmelding = String.format("Dokument ikke funnet for journalpost= %s dokId= %s",
+                    journalpostId.getJournalpostId(), dokumentId.getDokumentId());
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(new FeilDto(feilmelding, FeilType.TOMT_RESULTAT_FEIL))
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         }
-    }
-
-    private record HentDokumentDto(@NotNull @Digits(integer = 18, fraction = 0) String journalpostId,
-                                   @NotNull @Digits(integer = 18, fraction = 0) String dokumentId) {
     }
 
     private JournalpostDetaljerDto mapTilJournalpostDetaljerDto(ArkivJournalpost journalpost) {
@@ -175,17 +171,8 @@ public class OppgaverRestTjeneste {
                 .map(dok -> new JournalpostDetaljerDto.DokumentDto(
                         dok.dokumentInfoId(),
                         dok.tittel(),
-                        dok.dokumentvarianter().stream().map(it -> mapVariant(it.variantformat())).collect(Collectors.toSet()),
-                        String.format("/fpfordel/api/dokument/hent?journalpostId=%s&dokumentId=%s", journalpostId, dok.dokumentInfoId())))
+                        String.format("/fpfordel/api/journalfoering/dokument/hent?journalpostId=%s&dokumentId=%s", journalpostId, dok.dokumentInfoId())))
                 .collect(Collectors.toSet());
-    }
-
-    private static JournalpostDetaljerDto.Variant mapVariant(Dokumentvariant.Variantformat format) {
-        return switch (format) {
-            case ARKIV -> JournalpostDetaljerDto.Variant.ARKIV;
-            case ORIGINAL -> JournalpostDetaljerDto.Variant.ORIGINAL;
-            default -> null;
-        };
     }
 
     private JournalpostDetaljerDto.BrukerDto mapBruker(String aktørId) {
@@ -197,19 +184,19 @@ public class OppgaverRestTjeneste {
         return null;
     }
 
-
     private OppgaveDto lagOppgaveDto(Oppgave oppgave) {
         return new OppgaveDto(
                 oppgave.id(),
                 oppgave.journalpostId(),
                 oppgave.aktoerId(),
                 hentPersonIdent(oppgave.aktoerId()).orElse(null),
-                mapTema(oppgave.behandlingstema()),
+                mapTilYtelseType(oppgave.behandlingstema()),
                 oppgave.fristFerdigstillelse(),
                 mapPrioritet(oppgave.prioritet()),
                 oppgave.beskrivelse(),
                 oppgave.aktivDato(),
-                harJournalpostMangler(oppgave));
+                harJournalpostMangler(oppgave),
+                oppgave.tildeltEnhetsnr());
     }
 
     private OppgavePrioritet mapPrioritet(Prioritet prioritet) {
@@ -231,25 +218,27 @@ public class OppgaverRestTjeneste {
         return oppgave.aktoerId() == null;
     }
 
-    private String mapTema(String behandlingstema) {
+    private String mapTilYtelseType(String behandlingstema) {
         var behandlingTemaMappet = BehandlingTema.fraOffisiellKode(behandlingstema);
-        return switch(behandlingTemaMappet) {
-            case FORELDREPENGER, FORELDREPENGER_ADOPSJON, FORELDREPENGER_FØDSEL -> "Foreldrepenger";
-            case SVANGERSKAPSPENGER -> "Svangerskapspenger";
-            case ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON, ENGANGSSTØNAD_FØDSEL -> "Engangsstønad";
-            case UDEFINERT, OMS, OMS_OMSORG, OMS_OPP, OMS_PLEIE_BARN, OMS_PLEIE_BARN_NY, OMS_PLEIE_INSTU -> "Ukjent";
+        return switch (behandlingTemaMappet) {
+            case FORELDREPENGER, FORELDREPENGER_ADOPSJON, FORELDREPENGER_FØDSEL -> BehandlingTema.FORELDREPENGER.getTermNavn();
+            case SVANGERSKAPSPENGER -> BehandlingTema.SVANGERSKAPSPENGER.getTermNavn();
+            case ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON, ENGANGSSTØNAD_FØDSEL -> BehandlingTema.ENGANGSSTØNAD.getTermNavn();
+            default -> "Ukjent";
         };
     }
 
     public record OppgaveDto(@NotNull Long id,
                              @NotNull String journalpostId,
-                             String aktørId, String fødselsnummer,
+                             String aktørId,
+                             String fødselsnummer,
                              @NotNull String ytelseType,
                              @NotNull LocalDate frist,
                              OppgavePrioritet prioritet,
                              String beskrivelse,
                              @NotNull LocalDate opprettetDato,
-                             @NotNull boolean journalpostHarMangler) {
+                             @NotNull boolean journalpostHarMangler,
+                             String enhetId) {
 
     }
 
