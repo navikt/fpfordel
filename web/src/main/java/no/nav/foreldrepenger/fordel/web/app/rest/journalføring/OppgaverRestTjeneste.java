@@ -29,12 +29,16 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
-import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
@@ -48,9 +52,8 @@ import java.util.stream.Collectors;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 @Path("")
-@Produces(APPLICATION_JSON)
-@Consumes(APPLICATION_JSON)
-@RequestScoped
+@ApplicationScoped
+@Transactional
 @Unprotected
 public class OppgaverRestTjeneste {
     private OppgaverTjeneste oppgaverTjeneste;
@@ -73,6 +76,8 @@ public class OppgaverRestTjeneste {
 
     @GET
     @Path("/oppgaver")
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
     @Operation(description = "Henter alle åpne journalføringsoppgaver for tema FOR og for saksbehandlers tilhørende enhet.", tags = "Journalføring", responses = {
             @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
             @ApiResponse(responseCode = "401", description = "Mangler token", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
@@ -87,6 +92,8 @@ public class OppgaverRestTjeneste {
 
     @GET
     @Path("/detaljer")
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
     @Operation(description = "Henter detaljer for en gitt jornalpostId som er relevante for å kunne ferdigstille journalføring på en fagsak.", tags = "Journlanføring", responses = {
             @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
             @ApiResponse(responseCode = "401", description = "Mangler token", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
@@ -104,18 +111,15 @@ public class OppgaverRestTjeneste {
     @Path("/dokument/hent")
     @Operation(description = "Søk etter dokument på JOARK-identifikatorene journalpostId og dokumentId", summary = ("Retunerer dokument som er tilknyttet journalpostId og dokumentId."), tags = "Journlanføring")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response hentDokument(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @NotNull @QueryParam("journalpostId") @Parameter(description = "Unik identifikator av journalposten (forsendelsenivå)") @Valid JournalpostIdDto journalpostId,
-                                 @TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @NotNull @QueryParam("dokumentId") @Parameter(description = "Unik identifikator av DokumentInfo/Dokumentbeskrivelse (dokumentnivå)") @Valid DokumentIdDto dokumentId) {
+    public Response hentDokument(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @NotNull @Valid HentDokumentDto hentDokumentDto) {
         try {
-            var responseBuilder = Response.ok(
-                    new ByteArrayInputStream(
-                            arkiv.hentDokumet(journalpostId.getJournalpostId(), dokumentId.getDokumentId())));
+            var responseBuilder = Response.ok(new ByteArrayInputStream(arkiv.hentDokumet(hentDokumentDto.journalpostId(), hentDokumentDto.dokumentId())));
             responseBuilder.type("application/pdf");
             responseBuilder.header("Content-Disposition", "filename=dokument.pdf");
             return responseBuilder.build();
         } catch (TekniskException e) {
             var feilmelding = String.format("Dokument ikke funnet for journalpostId= %s dokumentId= %s",
-                    journalpostId.getJournalpostId(), dokumentId.getDokumentId());
+                    hentDokumentDto.journalpostId(), hentDokumentDto.dokumentId());
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(new FeilDto(feilmelding, FeilType.TOMT_RESULTAT_FEIL))
                     .type(MediaType.APPLICATION_JSON)
@@ -123,19 +127,8 @@ public class OppgaverRestTjeneste {
         }
     }
 
-    public class DokumentIdDto {
-        @Digits(integer = 18, fraction = 0)
-        private String dokumentId;
-
-        public DokumentIdDto(String dokumentId) {
-            this.dokumentId = dokumentId;
-        }
-
-        public String getDokumentId() {
-            return dokumentId;
-        }
-
-
+    private record HentDokumentDto(@NotNull @Digits(integer = 18, fraction = 0) String journalpostId,
+                                   @NotNull @Digits(integer = 18, fraction = 0) String dokumentId) {
     }
 
     private JournalpostDetaljerDto mapTilJournalpostDetaljerDto(ArkivJournalpost journalpost) {
