@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.YtelseType;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
+import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilType;
 import no.nav.foreldrepenger.journalføring.OppgaverTjeneste;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
@@ -18,6 +19,7 @@ import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.security.token.support.core.api.Unprotected;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Dokumentvariant;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
@@ -30,12 +32,12 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
+import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -98,15 +100,54 @@ public class OppgaverRestTjeneste {
         return Optional.of(arkiv.hentArkivJournalpost(journalpost.getJournalpostId())).map(this::mapTilJournalpostDetaljerDto).orElseThrow();
     }
 
+    @GET
+    @Path("/dokument/hent")
+    @Operation(description = "Søk etter dokument på JOARK-identifikatorene journalpostId og dokumentId", summary = ("Retunerer dokument som er tilknyttet journalpostId og dokumentId."), tags = "dokument")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    public Response hentDokument(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @NotNull @QueryParam("journalpostId") @Parameter(description = "Unik identifikator av journalposten (forsendelsenivå)") @Valid JournalpostIdDto journalpostId,
+                                 @TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @NotNull @QueryParam("dokumentId") @Parameter(description = "Unik identifikator av DokumentInfo/Dokumentbeskrivelse (dokumentnivå)") @Valid DokumentIdDto dokumentId) {
+        try {
+            var responseBuilder = Response.ok(
+                    new ByteArrayInputStream(
+                            arkiv.hentDokumet(journalpostId.getJournalpostId(), dokumentId.getDokumentId())));
+            responseBuilder.type("application/pdf");
+            responseBuilder.header("Content-Disposition", "filename=dokument.pdf");
+            return responseBuilder.build();
+        } catch (TekniskException e) {
+            var feilmelding = String.format("Dokument ikke funnet for journalpostId= %s dokumentId= %s",
+                    journalpostId.getJournalpostId(), dokumentId.getDokumentId());
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(new FeilDto(feilmelding, FeilType.TOMT_RESULTAT_FEIL))
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
+    }
+
+    public class DokumentIdDto {
+        @Digits(integer = 18, fraction = 0)
+        private String dokumentId;
+
+        public DokumentIdDto(String dokumentId) {
+            this.dokumentId = dokumentId;
+        }
+
+        public String getDokumentId() {
+            return dokumentId;
+        }
+
+
+    }
+
     private JournalpostDetaljerDto mapTilJournalpostDetaljerDto(ArkivJournalpost journalpost) {
         return new JournalpostDetaljerDto(
                 journalpost.getJournalpostId(),
                 journalpost.getTittel().orElse(""),
+                journalpost.getBehandlingstema().getOffisiellKode(),
                 journalpost.getKanal(),
                 journalpost.getBrukerAktørId().map(this::mapBruker).orElse(null),
                 new JournalpostDetaljerDto.AvsenderDto(journalpost.getAvsenderNavn(), journalpost.getAvsenderIdent()),
                 mapYtelseType(journalpost.getBehandlingstema().utledYtelseType()),
-                mapDokumenter(journalpost.getOriginalJournalpost().dokumenter()),
+                mapDokumenter(journalpost.getJournalpostId(), journalpost.getOriginalJournalpost().dokumenter()),
                 mapBrukersFagsaker(journalpost.getBrukerAktørId().orElse(null))
         );
     }
@@ -135,13 +176,13 @@ public class OppgaverRestTjeneste {
         return Set.of();
     }
 
-    private static Set<JournalpostDetaljerDto.DokumentDto> mapDokumenter(List<DokumentInfo> dokumenter) {
+    private static Set<JournalpostDetaljerDto.DokumentDto> mapDokumenter(String journalpostId, List<DokumentInfo> dokumenter) {
         return dokumenter.stream()
                 .map(dok -> new JournalpostDetaljerDto.DokumentDto(
                         dok.dokumentInfoId(),
                         dok.tittel(),
                         dok.dokumentvarianter().stream().map(it -> mapVariant(it.variantformat())).collect(Collectors.toSet()),
-                        "/fordel/dokument/hent/1231212"))
+                        String.format("/fpfordel/api/dokument/hent?journalpostId=%s&dokumentId=%s", journalpostId, dok.dokumentInfoId())))
                 .collect(Collectors.toSet());
     }
 

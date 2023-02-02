@@ -369,4 +369,8 @@ public class ArkivTjeneste {
         return builder.build();
     }
 
+    public byte[] hentDokumet(String journalpostId, String dokumentId) {
+        return saf.hentDokumentByteArray(journalpostId, dokumentId, Dokumentvariant.Variantformat.ARKIV);
+    }
+
 }

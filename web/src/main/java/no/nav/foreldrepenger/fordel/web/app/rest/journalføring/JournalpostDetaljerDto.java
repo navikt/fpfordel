@@ -12,6 +12,7 @@ import java.util.Set;
 
 public record JournalpostDetaljerDto(@NotNull String journalpostId,
                                      @NotNull String tittel,
+                                     @NotNull String behandlingTema,
                                      String kanal,
                                      @Valid BrukerDto bruker,
                                      @Valid AvsenderDto avsender,
