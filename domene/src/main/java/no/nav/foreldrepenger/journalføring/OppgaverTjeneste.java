@@ -7,7 +7,6 @@ import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
 import java.util.List;
 
 @ApplicationScoped

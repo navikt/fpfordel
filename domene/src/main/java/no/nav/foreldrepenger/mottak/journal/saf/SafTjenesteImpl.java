@@ -89,6 +89,14 @@ class SafTjenesteImpl implements SafTjeneste {
     }
 
     @Override
+    public byte[] hentDokumentByteArray(String journalpostId, String dokumentInfoId, Dokumentvariant.Variantformat variantFormat) {
+        LOG.info("Henter dokument");
+        var res = saf.hentDokument(new HentDokumentQuery(journalpostId, dokumentInfoId, variantFormat.name()));
+        LOG.info("Hentet dokument OK");
+        return res;
+    }
+
+    @Override
     public List<Journalpost> hentEksternReferanseId(String dokumentInfoId) {
         var q = new TilknyttedeJournalposterQueryRequest();
         q.setDokumentInfoId(dokumentInfoId);
