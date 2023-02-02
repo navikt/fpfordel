@@ -24,9 +24,7 @@ public record JournalpostDetaljerDto(@NotNull String journalpostId,
     public record AvsenderDto(@NotNull String navn, @NotNull String id) {}
     public record DokumentDto(@NotNull String dokumentId,
                               @NotNull String tittel,
-                              @NotNull @Size(min = 1) Set<Variant> varianter,
                               @NotNull String lenke) {}
-    public enum Variant { ARKIV, ORIGINAL }
     public record FagsakDto(@NotNull String saksnummer,
                             @NotNull @Valid YtelseTypeDto ytelseType,
                             @NotNull LocalDate datoOpprettet,
