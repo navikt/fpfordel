@@ -101,7 +101,6 @@ public class OppgaverRestTjeneste {
     })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public JournalpostDetaljerDto hentJournalpost(
-            @Parameter(description = "Trenger journalpostId for å innhente detaljer.")
             @TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class)
             @QueryParam("journalpostId") @NotNull @Valid JournalpostIdDto journalpostId) {
         return Optional.of(arkiv.hentArkivJournalpost(journalpostId.getJournalpostId())).map(this::mapTilJournalpostDetaljerDto).orElseThrow();
@@ -113,8 +112,8 @@ public class OppgaverRestTjeneste {
     @Produces(APPLICATION_JSON)
     @Operation(description = "Søk etter dokument på JOARK-identifikatorene journalpostId og dokumentId", summary = ("Retunerer dokument som er tilknyttet journalpost og dokId."), tags = "Manuell journalføring")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response hentDokument(@QueryParam("journalpostId") @Valid JournalpostIdDto journalpostId,
-                                 @QueryParam("dokumentId") @Valid DokumentIdDto dokumentId) {
+    public Response hentDokument(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("journalpostId") @Valid JournalpostIdDto journalpostId,
+                                 @TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("dokumentId") @Valid DokumentIdDto dokumentId) {
         try {
             var responseBuilder = Response.ok(new ByteArrayInputStream(arkiv.hentDokumet(journalpostId.getJournalpostId(), dokumentId.getDokumentId())));
             responseBuilder.type("application/pdf");
