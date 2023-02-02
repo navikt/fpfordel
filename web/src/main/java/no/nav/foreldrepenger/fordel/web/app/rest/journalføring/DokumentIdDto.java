@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
 import javax.validation.constraints.Digits;
-import javax.validation.constraints.NotNull;
 
 public class DokumentIdDto {
 

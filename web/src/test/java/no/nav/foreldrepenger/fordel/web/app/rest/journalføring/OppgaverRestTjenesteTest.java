@@ -37,7 +37,7 @@ class OppgaverRestTjenesteTest {
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull();
-        assertThat(oppgaveDtos.size()).isEqualTo(0);
+        assertThat(oppgaveDtos).isEmpty();
     }
 
     @Test
@@ -56,19 +56,19 @@ class OppgaverRestTjenesteTest {
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull();
-        assertThat(oppgaveDtos.size()).isEqualTo(1);
+        assertThat(oppgaveDtos).hasSize(1);
         var oppgave = oppgaveDtos.get(0);
         assertThat(oppgave.journalpostId()).isEqualTo(expectedJournalpostId);
         assertThat(oppgave.id()).isEqualTo(expectedId);
         assertThat(oppgave.frist()).isEqualTo(now);
         assertThat(oppgave.aktørId()).isEqualTo(aktørId);
-        assertThat(oppgave.fødselsnummer()).isEqualTo(null);
+        assertThat(oppgave.fødselsnummer()).isNull();
         assertThat(oppgave.beskrivelse()).isEqualTo(beskrivelse);
         assertThat(oppgave.opprettetDato()).isEqualTo(now);
         assertThat(oppgave.prioritet()).isEqualTo(OppgaverRestTjeneste.OppgavePrioritet.NORM);
         assertThat(oppgave.ytelseType()).isEqualTo(BehandlingTema.FORELDREPENGER.getTermNavn());
         assertThat(oppgave.enhetId()).isEqualTo("enhet");
-        assertThat(oppgave.journalpostHarMangler()).isEqualTo(false);
+        assertThat(oppgave.journalpostHarMangler()).isFalse();
     }
 
     @Test
@@ -88,12 +88,12 @@ class OppgaverRestTjenesteTest {
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull();
-        assertThat(oppgaveDtos.size()).isEqualTo(1);
+        assertThat(oppgaveDtos).hasSize(1);
         var oppgave = oppgaveDtos.get(0);
         assertThat(oppgave.aktørId()).isEqualTo(aktørId);
         assertThat(oppgave.fødselsnummer()).isEqualTo(fnr);
         assertThat(oppgave.ytelseType()).isEqualTo(BehandlingTema.FORELDREPENGER.getTermNavn());
-        assertThat(oppgave.journalpostHarMangler()).isEqualTo(false);
+        assertThat(oppgave.journalpostHarMangler()).isFalse();
     }
 
     @Test
@@ -110,11 +110,11 @@ class OppgaverRestTjenesteTest {
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull();
-        assertThat(oppgaveDtos.size()).isEqualTo(1);
+        assertThat(oppgaveDtos).hasSize(1);
         var oppgave = oppgaveDtos.get(0);
-        assertThat(oppgave.aktørId()).isEqualTo(null);
-        assertThat(oppgave.fødselsnummer()).isEqualTo(null);
-        assertThat(oppgave.journalpostHarMangler()).isEqualTo(true);
+        assertThat(oppgave.aktørId()).isNull();
+        assertThat(oppgave.fødselsnummer()).isNull();
+        assertThat(oppgave.journalpostHarMangler()).isTrue();
     }
 
     @Test
@@ -131,7 +131,7 @@ class OppgaverRestTjenesteTest {
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull();
-        assertThat(oppgaveDtos.size()).isEqualTo(1);
+        assertThat(oppgaveDtos).hasSize(1);
         var oppgave = oppgaveDtos.get(0);
         assertThat(oppgave.ytelseType()).isEqualTo("Ukjent");
     }
