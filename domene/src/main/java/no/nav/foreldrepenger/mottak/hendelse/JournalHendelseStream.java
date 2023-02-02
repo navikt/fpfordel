@@ -13,8 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
 import no.nav.vedtak.apptjeneste.AppServiceHandler;
+import no.nav.vedtak.felles.integrasjon.kafka.KafkaProperties;
 import no.nav.vedtak.log.metrics.LivenessAware;
 import no.nav.vedtak.log.metrics.ReadinessAware;
 
@@ -25,6 +27,9 @@ import no.nav.vedtak.log.metrics.ReadinessAware;
 public class JournalHendelseStream implements LivenessAware, ReadinessAware, AppServiceHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(JournalHendelseStream.class);
+
+    private static final String APPLICATION_ID = "fpfordel"; // Hold konstant pga offset commit !!
+
     private static final String HENDELSE_MIDL = "JournalpostMottatt";
     private static final String HENDELSE_MIDL_LEGACY = "MidlertidigJournalført";
     private static final String HENDELSE_ENDRET = "TemaEndret";
@@ -37,16 +42,15 @@ public class JournalHendelseStream implements LivenessAware, ReadinessAware, App
     }
 
     @Inject
-    public JournalHendelseStream(JournalføringHendelseHåndterer journalføringHendelseHåndterer,
-                                 JournalHendelseProperties streamKafkaProperties) {
-        this.topic = streamKafkaProperties.getTopic();
-        this.stream = createKafkaStreams(topic, journalføringHendelseHåndterer, streamKafkaProperties);
+    public JournalHendelseStream(@KonfigVerdi("kafka.topic.journal.hendelse") String topicName,
+                                 JournalføringHendelseHåndterer journalføringHendelseHåndterer) {
+        this.topic = Topic.createConfiguredTopic(topicName);
+        this.stream = createKafkaStreams(topic, journalføringHendelseHåndterer);
     }
 
     @SuppressWarnings("resource")
     private static KafkaStreams createKafkaStreams(Topic<String, JournalfoeringHendelseRecord> topic,
-                                                   JournalføringHendelseHåndterer journalføringHendelseHåndterer,
-                                                   JournalHendelseProperties properties) {
+                                                   JournalføringHendelseHåndterer journalføringHendelseHåndterer) {
         final Consumed<String, JournalfoeringHendelseRecord> consumed = Consumed
             .<String, JournalfoeringHendelseRecord>with(Topology.AutoOffsetReset.LATEST)
             .withKeySerde(topic.serdeKey())
@@ -58,7 +62,7 @@ public class JournalHendelseStream implements LivenessAware, ReadinessAware, App
             .filter((key, value) -> hendelseSkalHåndteres(value))
             .foreach((key, value) -> journalføringHendelseHåndterer.handleMessage(value));
 
-        return new KafkaStreams(builder.build(), properties.getProperties());
+        return new KafkaStreams(builder.build(), KafkaProperties.forStreamsGenericValue(APPLICATION_ID, topic.serdeValue()));
     }
 
     private static boolean hendelseSkalHåndteres(JournalfoeringHendelseRecord payload) {

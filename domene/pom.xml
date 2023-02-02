@@ -39,6 +39,10 @@
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-db</artifactId>
         </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+            <artifactId>kafka-properties</artifactId>
+        </dependency>
 
 
 
