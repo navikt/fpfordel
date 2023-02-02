@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.kodeverdi.YtelseType;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilType;
+import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.saf.DokumentInfo;
@@ -33,7 +34,6 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
-import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -103,27 +103,26 @@ public class OppgaverRestTjeneste {
     public JournalpostDetaljerDto hentJournalpost(
             @Parameter(description = "Trenger journalpostId for å innhente detaljer.")
             @TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class)
-            @QueryParam("journalpostId") @NotNull @Valid String journalpostId) {
-        return Optional.of(arkiv.hentArkivJournalpost(journalpostId)).map(this::mapTilJournalpostDetaljerDto).orElseThrow();
+            @QueryParam("journalpostId") @NotNull @Valid JournalpostIdDto journalpostId) {
+        return Optional.of(arkiv.hentArkivJournalpost(journalpostId.getJournalpostId())).map(this::mapTilJournalpostDetaljerDto).orElseThrow();
     }
 
     @GET
     @Path("/dokument/hent")
     @Consumes(APPLICATION_JSON)
-    @Operation(description = "Søk etter dokument på JOARK-identifikatorene journalpostId og dokumentId", summary = ("Retunerer dokument som er tilknyttet journalpostId og dokumentId."), tags = "Manuell journalføring")
+    @Produces(APPLICATION_JSON)
+    @Operation(description = "Søk etter dokument på JOARK-identifikatorene journalpostId og dokumentId", summary = ("Retunerer dokument som er tilknyttet journalpost og dokId."), tags = "Manuell journalføring")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response hentDokument(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class)
-                                     @QueryParam("journalpostId") @NotNull @Digits(integer = 18, fraction = 0) String journalpostId,
-                                 @TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class)
-                                     @QueryParam("dokumentId") @NotNull @Digits(integer = 18, fraction = 0) String dokumentId) {
+    public Response hentDokument(@QueryParam("journalpostId") @Valid JournalpostIdDto journalpostId,
+                                 @QueryParam("dokumentId") @Valid DokumentIdDto dokumentId) {
         try {
-            var responseBuilder = Response.ok(new ByteArrayInputStream(arkiv.hentDokumet(journalpostId, dokumentId)));
+            var responseBuilder = Response.ok(new ByteArrayInputStream(arkiv.hentDokumet(journalpostId.getJournalpostId(), dokumentId.getDokumentId())));
             responseBuilder.type("application/pdf");
             responseBuilder.header("Content-Disposition", "filename=dokument.pdf");
             return responseBuilder.build();
         } catch (TekniskException e) {
-            var feilmelding = String.format("Dokument ikke funnet for journalpostId= %s dokumentId= %s",
-                    journalpostId, dokumentId);
+            var feilmelding = String.format("Dokument ikke funnet for journalpost= %s dokId= %s",
+                    journalpostId.getJournalpostId(), dokumentId.getDokumentId());
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(new FeilDto(feilmelding, FeilType.TOMT_RESULTAT_FEIL))
                     .type(MediaType.APPLICATION_JSON)
