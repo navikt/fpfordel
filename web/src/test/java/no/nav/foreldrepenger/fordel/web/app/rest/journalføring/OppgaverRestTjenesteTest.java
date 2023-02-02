@@ -36,8 +36,7 @@ class OppgaverRestTjenesteTest {
 
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
-        assertThat(oppgaveDtos).isNotNull();
-        assertThat(oppgaveDtos).isEmpty();
+        assertThat(oppgaveDtos).isNotNull().isEmpty();
     }
 
     @Test
@@ -55,8 +54,7 @@ class OppgaverRestTjenesteTest {
 
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
-        assertThat(oppgaveDtos).isNotNull();
-        assertThat(oppgaveDtos).hasSize(1);
+        assertThat(oppgaveDtos).isNotNull().hasSize(1);
         var oppgave = oppgaveDtos.get(0);
         assertThat(oppgave.journalpostId()).isEqualTo(expectedJournalpostId);
         assertThat(oppgave.id()).isEqualTo(expectedId);
@@ -87,8 +85,7 @@ class OppgaverRestTjenesteTest {
         when(pdl.hentPersonIdentForAktørId(aktørId)).thenReturn(Optional.of(fnr));
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
-        assertThat(oppgaveDtos).isNotNull();
-        assertThat(oppgaveDtos).hasSize(1);
+        assertThat(oppgaveDtos).isNotNull().hasSize(1);
         var oppgave = oppgaveDtos.get(0);
         assertThat(oppgave.aktørId()).isEqualTo(aktørId);
         assertThat(oppgave.fødselsnummer()).isEqualTo(fnr);
@@ -109,8 +106,7 @@ class OppgaverRestTjenesteTest {
         when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null)).thenReturn(journalføringOppgaver);
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
-        assertThat(oppgaveDtos).isNotNull();
-        assertThat(oppgaveDtos).hasSize(1);
+        assertThat(oppgaveDtos).isNotNull().hasSize(1);
         var oppgave = oppgaveDtos.get(0);
         assertThat(oppgave.aktørId()).isNull();
         assertThat(oppgave.fødselsnummer()).isNull();
@@ -130,8 +126,7 @@ class OppgaverRestTjenesteTest {
         when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null)).thenReturn(journalføringOppgaver);
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
-        assertThat(oppgaveDtos).isNotNull();
-        assertThat(oppgaveDtos).hasSize(1);
+        assertThat(oppgaveDtos).isNotNull().hasSize(1);
         var oppgave = oppgaveDtos.get(0);
         assertThat(oppgave.ytelseType()).isEqualTo("Ukjent");
     }
