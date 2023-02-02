@@ -109,6 +109,7 @@ public class OppgaverRestTjeneste {
 
     @GET
     @Path("/dokument/hent")
+    @Consumes(APPLICATION_JSON)
     @Operation(description = "Søk etter dokument på JOARK-identifikatorene journalpostId og dokumentId", summary = ("Retunerer dokument som er tilknyttet journalpostId og dokumentId."), tags = "Journlanføring")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response hentDokument(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @NotNull @Valid HentDokumentDto hentDokumentDto) {
