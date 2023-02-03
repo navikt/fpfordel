@@ -40,6 +40,7 @@ import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -51,21 +52,21 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 @RequestScoped
 @Transactional
 @Unprotected
-public class OppgaverRestTjeneste {
+public class ManuellJournalføringRestTjeneste {
     private Oppgaver oppgaver;
     private PersonInformasjon pdl;
     private ArkivTjeneste arkiv;
     private Fagsak fagsak;
 
-    public OppgaverRestTjeneste() {
+    public ManuellJournalføringRestTjeneste() {
         // For inject
     }
 
     @Inject
-    public OppgaverRestTjeneste(Oppgaver oppgaver,
-                                PersonInformasjon pdl,
-                                ArkivTjeneste arkiv,
-                                Fagsak fagsak) {
+    public ManuellJournalføringRestTjeneste(Oppgaver oppgaver,
+                                            PersonInformasjon pdl,
+                                            ArkivTjeneste arkiv,
+                                            Fagsak fagsak) {
         this.oppgaver = oppgaver;
         this.pdl = pdl;
         this.arkiv = arkiv;
@@ -99,17 +100,21 @@ public class OppgaverRestTjeneste {
             @ApiResponse(responseCode = "403", description = "Mangler tilgang", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class)))
     })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public JournalpostDetaljerDto hentJournalpost(
+    public JournalpostDetaljerDto hentJournalpostDetaljer(
             @TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class)
             @QueryParam("journalpostId") @NotNull @Valid JournalpostIdDto journalpostId) {
-        return Optional.of(arkiv.hentArkivJournalpost(journalpostId.getJournalpostId())).map(this::mapTilJournalpostDetaljerDto).orElseThrow();
+        try {
+            return Optional.ofNullable(arkiv.hentArkivJournalpost(journalpostId.getJournalpostId())).map(this::mapTilJournalpostDetaljerDto).orElseThrow();
+        } catch (NoSuchElementException ex) {
+            throw new TekniskException("FORDEL-123", "Journapost "+  journalpostId.getJournalpostId() +" finnes ikke i arkivet.", ex);
+        }
     }
 
     @GET
     @Path("/dokument/hent")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    @Operation(description = "Søk etter dokument på JOARK-identifikatorene journalpostId og dokumentId", summary = ("Retunerer dokument som er tilknyttet journalpost og dokId."), tags = "Manuell journalføring")
+    @Operation(description = "Søk etter dokument på JOARK-identifikatorene journalpostId og dokumentId", summary = ("Retunerer dokument som er tilknyttet journalpost og dokumentId."), tags = "Manuell journalføring")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response hentDokument(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("journalpostId") @Valid JournalpostIdDto journalpostId,
                                  @TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("dokumentId") @Valid DokumentIdDto dokumentId) {
@@ -118,7 +123,7 @@ public class OppgaverRestTjeneste {
             responseBuilder.type("application/pdf");
             responseBuilder.header("Content-Disposition", "filename=dokument.pdf");
             return responseBuilder.build();
-        } catch (TekniskException e) {
+        } catch (Exception e) {
             var feilmelding = String.format("Dokument ikke funnet for journalpost= %s dokId= %s",
                     journalpostId.getJournalpostId(), dokumentId.getDokumentId());
             return Response.status(Response.Status.NOT_FOUND)
