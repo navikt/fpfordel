@@ -1,36 +1,40 @@
- {
-	 "environment": "prod",
-	"serviceuserkv": "/serviceuser/data/prod/srvfpfordel",
-	"oracleconfigkv": "/oracle/data/prod/config/fpfordel_p",
-	"oraclecredskv": "/oracle/data/prod/creds/fpfordel_p-fpfordel_p",
-	"minReplicas": "2",
-	"maxReplicas": "3",
-	"kafkaPool": "nav-prod",
-	"ingresses": [
-		"https://fpfordel.intern.nav.no",
-		"https://fpfordel.prod-fss-pub.nais.io"
-	],
-	"env": {
-		"APPD_ENABLED": "true"
-	},
-	 "AZURE_IAC_RULES": [
-		 {
-			 "app": "fp-frontend",
-			 "namespace": "teamforeldrepenger",
-			 "cluster": "prod-gcp"
-		 },
-		 {
-			 "app": "fp-swagger",
-			 "namespace": "teamforeldrepenger",
-			 "cluster": "prod-gcp",
-			 "scopes": [
-				 "swagger"
-			 ]
-		 },
-		 {
-			 "app": "fpsoknad-mottak",
-			 "namespace": "teamforeldrepenger",
-			 "cluster": "prod-fss"
-		 }
-	 ]
+{
+  "environment": "prod",
+  "serviceuserkv": "/serviceuser/data/prod/srvfpfordel",
+  "oracleconfigkv": "/oracle/data/prod/config/fpfordel_p",
+  "oraclecredskv": "/oracle/data/prod/creds/fpfordel_p-fpfordel_p",
+  "minReplicas": "2",
+  "maxReplicas": "3",
+  "kafkaPool": "nav-prod",
+  "ingresses": [
+    "https://fpfordel.intern.nav.no",
+    "https://fpfordel.prod-fss-pub.nais.io"
+  ],
+  "env": {
+    "APPD_ENABLED": "true"
+  },
+  "groups": [
+    "73107205-17ec-4a07-a56e-e0a8542f90c9",
+    "77f05833-ebfd-45fb-8be7-88eca8e7418f"
+  ],
+  "AZURE_IAC_RULES": [
+    {
+      "app": "fp-frontend",
+      "namespace": "teamforeldrepenger",
+      "cluster": "prod-gcp"
+    },
+    {
+      "app": "fp-swagger",
+      "namespace": "teamforeldrepenger",
+      "cluster": "prod-gcp",
+      "scopes": [
+        "swagger"
+      ]
+    },
+    {
+      "app": "fpsoknad-mottak",
+      "namespace": "teamforeldrepenger",
+      "cluster": "prod-fss"
+    }
+  ]
 }

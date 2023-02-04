@@ -69,6 +69,10 @@ spec:
         extra:
           - "NAVident"
           - "azp_name"
+        groups:
+          {{#each groups as |group|}}
+          - id: "{{group}}"
+          {{/each}}
   {{#if AZURE_IAC_RULES}}
   accessPolicy:
       inbound:
