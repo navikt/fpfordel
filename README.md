@@ -22,9 +22,9 @@ Dette er løsning for fordeling av søknader (og inntektsmeldinger).
 Det er mulig å kalle tjenesten med bruk av følgende tokens
 - Azure CC
 - Azure OBO med følgende rettigheter:
-  - fpsak-saksbehandler
-  - fpsak-veileder
+  - fpsak-saksbehandler - manuell journalføring
   - fpsak-drift
+- TokenX
 - STS (fases ut)
 - SAML (fases ut)
 
