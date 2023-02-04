@@ -75,18 +75,18 @@ spec:
           {{/each}}
   {{#if AZURE_IAC_RULES}}
   accessPolicy:
-      inbound:
-        rules:
-        {{#each AZURE_IAC_RULES}}
-           - application: {{app}}
-             namespace: {{namespace}}
-             cluster: {{cluster}}
-             {{#if scopes}}
-             permissions:
-                scopes:
-                {{#each scopes}}
-                - "{{this}}"
-                {{/each}}
-             {{/if}}
-        {{/each}}
+    inbound:
+      rules:
+      {{#each AZURE_IAC_RULES}}
+      - application: {{app}}
+        namespace: {{namespace}}
+        cluster: {{cluster}}
+        {{#if scopes}}
+        permissions:
+          scopes:
+          {{#each scopes}}
+            - "{{this}}"
+          {{/each}}
+        {{/if}}
+      {{/each}}
   {{/if}}

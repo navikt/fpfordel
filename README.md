@@ -23,6 +23,7 @@ Det er mulig å kalle tjenesten med bruk av følgende tokens
 - Azure CC
 - Azure OBO med følgende rettigheter:
   - fpsak-saksbehandler - manuell journalføring
+  - fpsak-veileder
   - fpsak-drift
 - TokenX
 - STS (fases ut)
