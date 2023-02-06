@@ -39,10 +39,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -201,7 +198,8 @@ public class ManuellJournalføringRestTjeneste {
                 oppgave.beskrivelse(),
                 oppgave.aktivDato(),
                 harJournalpostMangler(oppgave),
-                oppgave.tildeltEnhetsnr());
+                oppgave.tildeltEnhetsnr(),
+                mapJournalpostMangel(oppgave));
     }
 
     private OppgavePrioritet mapPrioritet(Prioritet prioritet) {
@@ -220,9 +218,24 @@ public class ManuellJournalføringRestTjeneste {
     }
 
     private boolean harJournalpostMangler(Oppgave oppgave) {
-        return oppgave.aktoerId() == null;
+        return oppgave.aktoerId() == null || oppgave.beskrivelse().startsWith("Journalføring");
     }
 
+    private List<JournalpostMangel> mapJournalpostMangel(Oppgave oppgave) {
+        List<JournalpostMangel> mangler = new ArrayList<>();
+        if (oppgave.aktoerId() == null) {
+            mangler.add(JournalpostMangel.MANGLER_BRUKER);
+        }
+        if (oppgave.beskrivelse().startsWith("Journalføring")) {
+            mangler.add(JournalpostMangel.MANGLER_TITTEL);
+        }
+        return mangler;
+    }
+
+    public enum JournalpostMangel {
+        MANGLER_BRUKER,
+        MANGLER_TITTEL
+    }
     private String mapTilYtelseType(String behandlingstema) {
         var behandlingTemaMappet = BehandlingTema.fraOffisiellKode(behandlingstema);
         return switch (behandlingTemaMappet) {
@@ -243,7 +256,8 @@ public class ManuellJournalføringRestTjeneste {
                              String beskrivelse,
                              @NotNull LocalDate opprettetDato,
                              @NotNull boolean journalpostHarMangler,
-                             String enhetId) {
+                             String enhetId,
+                             @NotNull List<JournalpostMangel> mangler) {
 
     }
 

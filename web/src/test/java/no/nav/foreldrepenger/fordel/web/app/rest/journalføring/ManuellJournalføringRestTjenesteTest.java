@@ -148,6 +148,45 @@ class ManuellJournalføringRestTjenesteTest {
     }
 
     @Test
+    @DisplayName("/oppgaver - ytelseType = Ukjent - om ikke FP behandlingTema")
+    void skal_ha_mangler_om_tittel_er_ukjent_og_bruker_er_null() throws Exception {
+        var restTjeneste = new ManuellJournalføringRestTjeneste(oppgaver, pdl, arkiv, fagsak);
+
+        var expectedId = 123L;
+        var expectedJournalpostId = "12334";
+        var now = LocalDate.now();
+        var beskrivelse = "Journalføring";
+        var journalføringOppgaver = List.of(opprettOppgave(expectedId, null, now, expectedJournalpostId, beskrivelse, BehandlingTema.OMS));
+
+        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null)).thenReturn(journalføringOppgaver);
+        var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
+
+        assertThat(oppgaveDtos).isNotNull().hasSize(1);
+        var oppgave = oppgaveDtos.get(0);
+        assertThat(oppgave.mangler()).isEqualTo(List.of(ManuellJournalføringRestTjeneste.JournalpostMangel.MANGLER_BRUKER, ManuellJournalføringRestTjeneste.JournalpostMangel.MANGLER_TITTEL));
+    }
+
+    @Test
+    @DisplayName("/oppgaver - ytelseType = Ukjent - om ikke FP behandlingTema")
+    void skal_ikke_ha_mangler_om_tittel_er_kjent_og_bruker_ikke_er_null() throws Exception {
+        var restTjeneste = new ManuellJournalføringRestTjeneste(oppgaver, pdl, arkiv, fagsak);
+
+        var expectedId = 123L;
+        var expectedJournalpostId = "12334";
+        var now = LocalDate.now();
+        var aktørId = "aktørId";
+        var beskrivelse = "Foreldrepengesøknad";
+        var journalføringOppgaver = List.of(opprettOppgave(expectedId, aktørId, now, expectedJournalpostId, beskrivelse, BehandlingTema.OMS));
+
+        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null)).thenReturn(journalføringOppgaver);
+        var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
+
+        assertThat(oppgaveDtos).isNotNull().hasSize(1);
+        var oppgave = oppgaveDtos.get(0);
+        assertThat(oppgave.mangler()).isEmpty();
+    }
+
+    @Test
     @DisplayName("/hent/dokument - dokument finnes.")
     void skal_levere_dokumentet() throws Exception {
         var restTjeneste = new ManuellJournalføringRestTjeneste(oppgaver, pdl, arkiv, fagsak);
