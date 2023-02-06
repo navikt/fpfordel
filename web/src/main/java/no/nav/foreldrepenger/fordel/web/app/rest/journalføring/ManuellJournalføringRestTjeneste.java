@@ -34,12 +34,20 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -103,7 +111,7 @@ public class ManuellJournalføringRestTjeneste {
         try {
             return Optional.ofNullable(arkiv.hentArkivJournalpost(journalpostId.getJournalpostId())).map(this::mapTilJournalpostDetaljerDto).orElseThrow();
         } catch (NoSuchElementException ex) {
-            throw new TekniskException("FORDEL-123", "Journapost "+  journalpostId.getJournalpostId() +" finnes ikke i arkivet.", ex);
+            throw new TekniskException("FORDEL-123", "Journapost " + journalpostId.getJournalpostId() + " finnes ikke i arkivet.", ex);
         }
     }
 
@@ -236,12 +244,15 @@ public class ManuellJournalføringRestTjeneste {
         MANGLER_BRUKER,
         MANGLER_TITTEL
     }
+
     private String mapTilYtelseType(String behandlingstema) {
         var behandlingTemaMappet = BehandlingTema.fraOffisiellKode(behandlingstema);
         return switch (behandlingTemaMappet) {
-            case FORELDREPENGER, FORELDREPENGER_ADOPSJON, FORELDREPENGER_FØDSEL -> BehandlingTema.FORELDREPENGER.getTermNavn();
+            case FORELDREPENGER, FORELDREPENGER_ADOPSJON, FORELDREPENGER_FØDSEL ->
+                    BehandlingTema.FORELDREPENGER.getTermNavn();
             case SVANGERSKAPSPENGER -> BehandlingTema.SVANGERSKAPSPENGER.getTermNavn();
-            case ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON, ENGANGSSTØNAD_FØDSEL -> BehandlingTema.ENGANGSSTØNAD.getTermNavn();
+            case ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON, ENGANGSSTØNAD_FØDSEL ->
+                    BehandlingTema.ENGANGSSTØNAD.getTermNavn();
             default -> "Ukjent";
         };
     }
