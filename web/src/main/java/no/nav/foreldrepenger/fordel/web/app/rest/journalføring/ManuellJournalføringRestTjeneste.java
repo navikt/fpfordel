@@ -195,6 +195,7 @@ public class ManuellJournalføringRestTjeneste {
     }
 
     private OppgaveDto lagOppgaveDto(Oppgave oppgave) {
+        var trimmetBeskrivelse = tekstFraBeskrivelse(oppgave.beskrivelse());
         return new OppgaveDto(
                 oppgave.id(),
                 oppgave.journalpostId(),
@@ -203,11 +204,18 @@ public class ManuellJournalføringRestTjeneste {
                 mapTilYtelseType(oppgave.behandlingstema()),
                 oppgave.fristFerdigstillelse(),
                 mapPrioritet(oppgave.prioritet()),
-                oppgave.beskrivelse(),
+                trimmetBeskrivelse,
                 oppgave.aktivDato(),
                 harJournalpostMangler(oppgave),
                 oppgave.tildeltEnhetsnr(),
-                mapJournalpostMangel(oppgave));
+                mapJournalpostMangel(oppgave.aktoerId(), trimmetBeskrivelse));
+    }
+
+    private String tekstFraBeskrivelse(String beskrivelse) {
+        int i = beskrivelse.length();
+        while (i > 0 && !(Character.isDigit(beskrivelse.charAt(i-1)) || beskrivelse.charAt(i-1) == ',')) i--;
+        if (beskrivelse.charAt(i) == ' ') i++;
+        return beskrivelse.substring(i);
     }
 
     private OppgavePrioritet mapPrioritet(Prioritet prioritet) {
@@ -229,12 +237,12 @@ public class ManuellJournalføringRestTjeneste {
         return oppgave.aktoerId() == null || oppgave.beskrivelse().startsWith("Journalføring");
     }
 
-    private List<JournalpostMangel> mapJournalpostMangel(Oppgave oppgave) {
+    private List<JournalpostMangel> mapJournalpostMangel(String aktørId, String beskrivelse) {
         List<JournalpostMangel> mangler = new ArrayList<>();
-        if (oppgave.aktoerId() == null) {
+        if (aktørId == null) {
             mangler.add(JournalpostMangel.MANGLER_BRUKER);
         }
-        if (oppgave.beskrivelse().startsWith("Journalføring")) {
+        if (beskrivelse.startsWith("Journalføring")) {
             mangler.add(JournalpostMangel.MANGLER_TITTEL);
         }
         return mangler;

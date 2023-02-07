@@ -187,6 +187,29 @@ class ManuellJournalføringRestTjenesteTest {
     }
 
     @Test
+    @DisplayName("/oppgaver - ytelseType = Ukjent - om ikke FP behandlingTema")
+    void skal_kutte_beskrivelse_iht_regler() throws Exception {
+        var restTjeneste = new ManuellJournalføringRestTjeneste(oppgaver, pdl, arkiv, fagsak);
+
+        var expectedId = 123L;
+        var expectedJournalpostId = "12334";
+        var now = LocalDate.now();
+        var aktørId = "aktørId";
+        var beskrivelse = "--- 17.01.2023 09:44 Duck, Skrue (L568956, 4860) --- printet ut og scannes i bisys --- 17.01.2023 09:37 Duck, Skrue (L568956, 4860) --- Oppgaven er flyttet fra enhet " +
+                "4812 til 4860, fra saksbehandler <ingen> til L568956 --- 13.01.2023 08:00 Duck, Donald (B568956, 4812) --- Gjelder farskap --- 12.01.2023 12:30 Dusck, Dolly (R857447, 4806)" +
+                " --- Overført rett enhet Oppgaven er flyttet fra enhet 4860 til 4812 Journalføring";
+        var journalføringOppgaver = List.of(opprettOppgave(expectedId, aktørId, now, expectedJournalpostId, beskrivelse, BehandlingTema.OMS));
+
+        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null)).thenReturn(journalføringOppgaver);
+        var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
+
+        assertThat(oppgaveDtos).isNotNull().hasSize(1);
+        var oppgave = oppgaveDtos.get(0);
+        assertThat(oppgave.beskrivelse()).isEqualTo( "Journalføring");
+        assertThat(oppgave.mangler()).isEqualTo( List.of(ManuellJournalføringRestTjeneste.JournalpostMangel.MANGLER_TITTEL));
+    }
+
+    @Test
     @DisplayName("/hent/dokument - dokument finnes.")
     void skal_levere_dokumentet() throws Exception {
         var restTjeneste = new ManuellJournalføringRestTjeneste(oppgaver, pdl, arkiv, fagsak);
