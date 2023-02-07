@@ -211,10 +211,15 @@ public class ManuellJournalføringRestTjeneste {
                 mapJournalpostMangel(oppgave.aktoerId(), trimmetBeskrivelse));
     }
 
-    private String tekstFraBeskrivelse(String beskrivelse) {
+    private String  tekstFraBeskrivelse(String beskrivelse) {
         int i = beskrivelse.length();
         while (i > 0 && !(Character.isDigit(beskrivelse.charAt(i-1)) || beskrivelse.charAt(i-1) == ',')) i--;
         if (beskrivelse.charAt(i) == ' ') i++;
+        if(beskrivelse.substring(i).length() < 10 ) {
+            var i2 = beskrivelse.length();
+            while (i2 > 0 && ( beskrivelse.charAt(i2-1) != ',')) i2--;
+            return beskrivelse.substring(i2);
+        }
         return beskrivelse.substring(i);
     }
 
