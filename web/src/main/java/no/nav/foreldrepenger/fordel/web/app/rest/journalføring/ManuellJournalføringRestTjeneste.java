@@ -34,11 +34,16 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -106,7 +111,7 @@ public class ManuellJournalføringRestTjeneste {
         try {
             return Optional.ofNullable(arkiv.hentArkivJournalpost(journalpostId.getJournalpostId())).map(this::mapTilJournalpostDetaljerDto).orElseThrow();
         } catch (NoSuchElementException ex) {
-            throw new TekniskException("FORDEL-123", "Journapost "+  journalpostId.getJournalpostId() +" finnes ikke i arkivet.", ex);
+            throw new TekniskException("FORDEL-123", "Journapost " + journalpostId.getJournalpostId() + " finnes ikke i arkivet.", ex);
         }
     }
 
@@ -190,6 +195,7 @@ public class ManuellJournalføringRestTjeneste {
     }
 
     private OppgaveDto lagOppgaveDto(Oppgave oppgave) {
+        var trimmetBeskrivelse = tekstFraBeskrivelse(oppgave.beskrivelse());
         return new OppgaveDto(
                 oppgave.id(),
                 oppgave.journalpostId(),
@@ -198,10 +204,23 @@ public class ManuellJournalføringRestTjeneste {
                 mapTilYtelseType(oppgave.behandlingstema()),
                 oppgave.fristFerdigstillelse(),
                 mapPrioritet(oppgave.prioritet()),
-                oppgave.beskrivelse(),
+                trimmetBeskrivelse,
                 oppgave.aktivDato(),
                 harJournalpostMangler(oppgave),
-                oppgave.tildeltEnhetsnr());
+                oppgave.tildeltEnhetsnr(),
+                mapJournalpostMangel(oppgave.aktoerId(), trimmetBeskrivelse));
+    }
+
+    private String  tekstFraBeskrivelse(String beskrivelse) {
+        int i = beskrivelse.length();
+        while (i > 0 && !(Character.isDigit(beskrivelse.charAt(i-1)) || beskrivelse.charAt(i-1) == ',')) i--;
+        if (beskrivelse.charAt(i) == ' ') i++;
+        if(beskrivelse.substring(i).length() < 10 ) {
+            var i2 = beskrivelse.length();
+            while (i2 > 0 && ( beskrivelse.charAt(i2-1) != ',')) i2--;
+            return beskrivelse.substring(i2);
+        }
+        return beskrivelse.substring(i);
     }
 
     private OppgavePrioritet mapPrioritet(Prioritet prioritet) {
@@ -220,15 +239,33 @@ public class ManuellJournalføringRestTjeneste {
     }
 
     private boolean harJournalpostMangler(Oppgave oppgave) {
-        return oppgave.aktoerId() == null;
+        return oppgave.aktoerId() == null || oppgave.beskrivelse().startsWith("Journalføring");
+    }
+
+    private List<JournalpostMangel> mapJournalpostMangel(String aktørId, String beskrivelse) {
+        List<JournalpostMangel> mangler = new ArrayList<>();
+        if (aktørId == null) {
+            mangler.add(JournalpostMangel.MANGLER_BRUKER);
+        }
+        if (beskrivelse.startsWith("Journalføring")) {
+            mangler.add(JournalpostMangel.MANGLER_TITTEL);
+        }
+        return mangler;
+    }
+
+    public enum JournalpostMangel {
+        MANGLER_BRUKER,
+        MANGLER_TITTEL
     }
 
     private String mapTilYtelseType(String behandlingstema) {
         var behandlingTemaMappet = BehandlingTema.fraOffisiellKode(behandlingstema);
         return switch (behandlingTemaMappet) {
-            case FORELDREPENGER, FORELDREPENGER_ADOPSJON, FORELDREPENGER_FØDSEL -> BehandlingTema.FORELDREPENGER.getTermNavn();
+            case FORELDREPENGER, FORELDREPENGER_ADOPSJON, FORELDREPENGER_FØDSEL ->
+                    BehandlingTema.FORELDREPENGER.getTermNavn();
             case SVANGERSKAPSPENGER -> BehandlingTema.SVANGERSKAPSPENGER.getTermNavn();
-            case ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON, ENGANGSSTØNAD_FØDSEL -> BehandlingTema.ENGANGSSTØNAD.getTermNavn();
+            case ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON, ENGANGSSTØNAD_FØDSEL ->
+                    BehandlingTema.ENGANGSSTØNAD.getTermNavn();
             default -> "Ukjent";
         };
     }
@@ -243,7 +280,8 @@ public class ManuellJournalføringRestTjeneste {
                              String beskrivelse,
                              @NotNull LocalDate opprettetDato,
                              @NotNull boolean journalpostHarMangler,
-                             String enhetId) {
+                             String enhetId,
+                             @NotNull List<JournalpostMangel> mangler) {
 
     }
 
