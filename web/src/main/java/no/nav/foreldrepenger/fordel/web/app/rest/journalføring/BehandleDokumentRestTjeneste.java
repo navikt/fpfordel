@@ -147,6 +147,7 @@ public class BehandleDokumentRestTjeneste {
         final var journalpost = hentJournalpost(request.journalpostId());
 
         // Dersom vi finner en av våre saker med saksnummerFraRequest og den har "rett aktør" så antar vi at det er vårt saksnummer
+        //trenger vi den egentlig?
         final var fagsakFraRequestSomTrefferRettAktør =
                 hentFagsakInfo(saksnummerFraRequest)
                         .filter(rettAktør(journalpost.getBrukerAktørId()));
