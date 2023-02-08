@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.fordel.kodeverdi.*;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
+import no.nav.foreldrepenger.fordel.web.server.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.journalføring.ManuellOpprettSakValidator;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
@@ -32,6 +33,7 @@ import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.konfig.Tid;
+import no.nav.vedtak.sikkerhet.abac.AbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -372,7 +374,12 @@ public class BehandleDokumentRestTjeneste {
 
         @Override
         public AbacDataAttributter apply(Object obj) {
-            return AbacDataAttributter.opprett();
+            var req = (FerdigstillRequest) obj;
+            var opprett = AbacDataAttributter.opprett();
+            if (req.opprettSak() != null) {
+                opprett.leggTil(AppAbacAttributtType.AKTØR_ID, req.opprettSak().aktørId());
+            }
+            return opprett;
         }
     }
 
