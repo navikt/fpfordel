@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Denne validatoren sjekker om gitt journalpost er faglig konform med de valgene SBH har gjort i GUI, f.eks:
  * - At ytelseType fra dokument og valgt sak stemmer
@@ -36,9 +38,9 @@ public class ManuellOpprettSakValidator {
     }
 
     public void validerKonsistensMedSak(JournalpostId journalpostId, YtelseType oppgittYtelseType, AktørId aktørId) {
-        Objects.requireNonNull(journalpostId, "Ugyldig input: JournalpostId kan ikke være null ved opprettelse av en sak.");
-        Objects.requireNonNull(oppgittYtelseType, "Ugyldig input: YtelseType kan ikke være null ved opprettelse av en sak.");
-        Objects.requireNonNull(aktørId, "Ugyldig input: AktørId kan ikke være null ved opprettelse av en sak.");
+        requireNonNull(journalpostId, "Ugyldig input: JournalpostId kan ikke være null ved opprettelse av en sak.");
+        requireNonNull(oppgittYtelseType, "Ugyldig input: YtelseType kan ikke være null ved opprettelse av en sak.");
+        requireNonNull(aktørId, "Ugyldig input: AktørId kan ikke være null ved opprettelse av en sak.");
 
         var arkivJournalpost = arkivTjeneste.hentArkivJournalpost(journalpostId.getVerdi());
         var hovedDokumentType = arkivJournalpost.getHovedtype();

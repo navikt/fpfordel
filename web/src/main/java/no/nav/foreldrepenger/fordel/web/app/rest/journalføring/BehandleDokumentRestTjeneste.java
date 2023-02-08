@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.mottak.klient.OpprettSakV2Dto;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.sak.SakClient;
-import no.nav.foreldrepenger.mottak.sak.SakJson;
 import no.nav.foreldrepenger.mottak.task.VLKlargjørerTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
@@ -35,7 +34,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
@@ -48,6 +46,7 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -107,65 +106,57 @@ public class BehandleDokumentRestTjeneste {
     }
 
     @POST
-    @Path("/opprett")
-    @Operation(description = "Brukes for å opprette en ny fagsak i FPSAK.", tags = "Manuell journalføring", responses = {
-            @ApiResponse(responseCode = "200", description = "Sak opprettet", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SaksnummerDto.class))),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil")
-    })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public SaksnummerDto opprettSak(
-            @Parameter(description = "Trenger journalpostId, behandlingstema og aktørId til brukeren for å kunne opprette en ny sak i FPSAK.")
-            @NotNull @Valid @TilpassetAbacAttributt(supplierClass = OpprettSakAbacDataSupplier.class) OpprettSakRequest opprettSakRequest) {
-
-        var journalpostId = new JournalpostId(opprettSakRequest.journalpostId());
-        var ytelseType = mapFraDto(opprettSakRequest.ytelseType());
-        var aktørId = new AktørId(opprettSakRequest.aktørId());
-
-        var validator = new ManuellOpprettSakValidator(arkivTjeneste, fagsak);
-        validator.validerKonsistensMedSak(journalpostId, ytelseType, aktørId);
-
-        return fagsak.opprettSak(new OpprettSakV2Dto(journalpostId.getVerdi(), mapTilDto(ytelseType), aktørId.getId()));
-    }
-
-    @POST
     @Path("/ferdigstill")
-    @Operation(description = "For å ferdigstille journalføring.", tags = "Manuell journalføring", responses = {
-            @ApiResponse(responseCode = "200", description = "Sak opprettet"),
+    @Operation(description = "For å ferdigstille journalføring. Det opprettes en ny fagsak om saksnummer ikke sendes.", tags = "Manuell journalføring", responses = {
+            @ApiResponse(responseCode = "200", description = "Journalføring ferdigstillt"),
             @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
     })
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
     public void oppdaterOgFerdigstillJournalfoering(
-        @Parameter(description = "Trenger journalpostId, saksnummer og enhet til ferdigstille en journalføring.")
-        @NotNull @Valid @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) BehandleDokumentRequest request) {
+        @Parameter(description = "Trenger journalpostId, saksnummer og enhet til ferdigstille en journalføring. " +
+                "Om saksnummer ikke foreligger må ytelse type og aktørId oppgis for å opprette en ny sak.")
+        @NotNull @Valid @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) BehandleDokumentRestTjeneste.FerdigstillRequest request) {
 
-        // Vi vet ikke om dette er vårt saksnummer eller et arkivsaksnummer ...
-        final var saksnummerFraRequest = request.saksnummer();
-        validerSaksnummer(saksnummerFraRequest);
-        validerArkivId(request.journalpostId());
+        String saksnummer;
+
+        var saksnummerFraRequest = Optional.ofNullable(request.saksnummer());
+
+        validerJournalpostId(request.journalpostId());
         validerEnhetId(request.enhetId());
+
+        var journalpostId = new JournalpostId(request.journalpostId());
+        if (saksnummerFraRequest.isEmpty()) {
+            var opprettSak = Optional.ofNullable(request.opprettSak())
+                    .orElseThrow(() -> new TekniskException("FP-32354", "OpprettSakDto kan ikke være null ved opprettelse av en sak."));
+
+            var ytelseType = mapFraDto(opprettSak.ytelseType());
+            var aktørId = new AktørId(opprettSak.aktørId());
+
+            new ManuellOpprettSakValidator(arkivTjeneste, fagsak)
+                    .validerKonsistensMedSak(journalpostId, ytelseType, aktørId);
+
+            saksnummer = fagsak.opprettSak(new OpprettSakV2Dto(journalpostId.getVerdi(), mapTilDto(ytelseType), aktørId.getId())).getSaksnummer();
+        } else {
+            saksnummer = saksnummerFraRequest.get();
+        }
+
+        // ikke nyttig lenger
+        validerSaksnummer(saksnummer);
 
         final var journalpost = hentJournalpost(request.journalpostId());
 
-        // Dersom vi finner en av våre saker med saksnummerFraRequest og den har "rett aktør" så antar vi at det er vårt saksnummer
-        //trenger vi den egentlig?
+        // Finn sak i fpsak med samme aktør
         final var fagsakFraRequestSomTrefferRettAktør =
-                hentFagsakInfo(saksnummerFraRequest)
+                hentFagsakInfo(saksnummer)
                         .filter(rettAktør(journalpost.getBrukerAktørId()));
 
-        String saksnummer;
         FagsakInfomasjonDto fagsakInfomasjonDto;
         if (fagsakFraRequestSomTrefferRettAktør.isPresent()) {
-            saksnummer = saksnummerFraRequest;
-            LOG.info("FPFORDEL GOSYS Fant en FP-sak med saksnummer {} som har rett aktør", saksnummerFraRequest);
+            LOG.info("FPFORDEL JOURNALFØRING Fant en FP-sak med saksnummer {} som har rett aktør", saksnummerFraRequest);
             fagsakInfomasjonDto = fagsakFraRequestSomTrefferRettAktør.get();
         } else {
-            // Gosys sender alltid arkivsaksnummer- dvs sak.id
-            final var saksnummerFraArkiv = saksnummerOppslagMotArkiv(saksnummerFraRequest)
-                    .orElseThrow(() -> BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummerFraRequest));
-            LOG.info("FPFORDEL GOSYS slår opp fagsak {} finner {}", saksnummerFraRequest, saksnummerFraArkiv);
-            fagsakInfomasjonDto = hentFagsakInfo(saksnummerFraArkiv)
-                    .orElseThrow(() -> BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummerFraArkiv));
-            saksnummer = saksnummerFraArkiv;
+            throw new FunksjonellException("FP-963070", "Kan ikke journalføre på saksnummer: " + saksnummer,
+                    "Journalføre dokument på annen sak i VL");
         }
 
         final BehandlingTema behandlingTemaFagsak = BehandlingTema.fraOffisiellKode(fagsakInfomasjonDto.getBehandlingstemaOffisiellKode());
@@ -190,9 +181,9 @@ public class BehandleDokumentRestTjeneste {
             try {
                 arkivTjeneste.settTilleggsOpplysninger(journalpost, brukDokumentTypeId);
             } catch (Exception e) {
-                LOG.info("FPFORDEL GOSYS Feil ved setting av tilleggsopplysninger for journalpostId {}", journalpost.getJournalpostId());
+                LOG.info("FPFORDEL JOURNALFØRING Feil ved setting av tilleggsopplysninger for journalpostId {}", journalpost.getJournalpostId());
             }
-            LOG.info("FPFORDEL GOSYS Kaller tilJournalføring"); // NOSONAR
+            LOG.info("FPFORDEL JOURNALFØRING Kaller tilJournalføring"); // NOSONAR
             try {
                 arkivTjeneste.oppdaterMedSak(journalpost.getJournalpostId(), saksnummer, fagsakInfoAktørId);
                 arkivTjeneste.ferdigstillJournalføring(journalpost.getJournalpostId(), request.enhetId());
@@ -213,7 +204,7 @@ public class BehandleDokumentRestTjeneste {
         klargjører.klargjør(xml, saksnummer, request.journalpostId(), dokumentTypeId, mottattTidspunkt,
                 behandlingTema, forsendelseId.orElse(null), dokumentKategori, request.enhetId(), eksternReferanseId);
 
-        // For å unngå klonede journalposter fra Gosys - de kan komme via Kafka
+        // For å unngå klonede journalposter fra GOSYS - de kan komme via Kafka
         dokumentRepository.lagreJournalpostLokal(request.journalpostId(), journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
     }
 
@@ -265,7 +256,8 @@ public class BehandleDokumentRestTjeneste {
                                                DokumentKategori dokumentKategori) {
         if (BehandlingTema.UDEFINERT.equals(behandlingTema) && (DokumentTypeId.KLAGE_DOKUMENT.equals(dokumentTypeId)
                 || DokumentKategori.KLAGE_ELLER_ANKE.equals(dokumentKategori))) {
-            throw BehandleDokumentServiceFeil.sakUtenAvsluttetBehandling();
+            throw new FunksjonellException("FP-963074", "Klager må journalføres på sak med tidligere behandling",
+                    "Journalføre klagen på sak med avsluttet behandling");
         }
     }
 
@@ -291,15 +283,15 @@ public class BehandleDokumentRestTjeneste {
         }
     }
 
-    private static void validerArkivId(String arkivId) {
-        if (erNullEllerTom(arkivId)) {
-            throw new TekniskException("FP-15678", lagUgyldigInputMelding("ArkivId", arkivId));
+    private static void validerJournalpostId(String journalpostId) {
+        if (erNullEllerTom(journalpostId)) {
+            throw new TekniskException("FP-15678", lagUgyldigInputMelding("ArkivId", journalpostId));
         }
     }
 
     private static void ugyldigBrukerPrøvIgjen(String arkivId, Exception e) {
         if (e != null) {
-            LOG.warn("FPFORDEL GOSYS oppdaterOgFerdigstillJournalfoering feiler for {}", arkivId, e);
+            LOG.warn("FPFORDEL JOURNALFØRING oppdaterOgFerdigstillJournalfoering feiler for {}", arkivId, e);
         }
         throw new TekniskException("FP-15678", lagUgyldigInputMelding("Bruker", BRUKER_MANGLER));
     }
@@ -326,7 +318,7 @@ public class BehandleDokumentRestTjeneste {
         try {
             mottattDokument = MeldingXmlParser.unmarshallXml(xml);
         } catch (Exception e) {
-            LOG.info("FPFORDEL GOSYS Journalpost med type {} er strukturert men er ikke gyldig XML", dokumentTypeId);
+            LOG.info("FPFORDEL JOURNALFØRING Journalpost med type {} er strukturert men er ikke gyldig XML", dokumentTypeId);
             return null;
         }
         if (DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD.equals(dokumentTypeId)
@@ -339,7 +331,7 @@ public class BehandleDokumentRestTjeneste {
             // Her er det "greit" - da har man bestemt seg, men kan lage rot i saken.
             if ("FP-401245".equals(e.getKode())) {
                 String logMessage = e.getMessage();
-                LOG.info("FPFORDEL GOSYS {}", logMessage);
+                LOG.info("FPFORDEL JOURNALFØRING {}", logMessage);
             } else {
                 throw e;
             }
@@ -372,15 +364,6 @@ public class BehandleDokumentRestTjeneste {
         }
     }
 
-    // Midlertidig håndtering mens Gosys fikser koden som identifiserer saksnummer.
-    private Optional<String> saksnummerOppslagMotArkiv(String saksnrFraRequest) {
-        try {
-            return Optional.ofNullable(sakClient.hentSakId(saksnrFraRequest)).map(SakJson::fagsakNr);
-        } catch (Exception e) {
-            return Optional.empty();
-        }
-    }
-
     private static String lagUgyldigInputMelding(String feltnavn, String verdi) {
         return String.format("Ugyldig input: %s med verdi: %s er ugyldig input.", feltnavn, verdi);
     }
@@ -396,16 +379,6 @@ public class BehandleDokumentRestTjeneste {
     private static class BehandleDokumentServiceFeil {
 
         private BehandleDokumentServiceFeil() {}
-
-        static FunksjonellException finnerIkkeFagsak(String saksnummer) {
-            return new FunksjonellException("FP-963070", String.format("Kan ikke journalføre på saksnummer: %s", saksnummer),
-                    "Journalføre dokument på annen sak i VL");
-        }
-
-        static FunksjonellException sakUtenAvsluttetBehandling() {
-            return new FunksjonellException("FP-963074", "Klager må journalføres på sak med tidligere behandling",
-                    "Journalføre klagen på sak med avsluttet behandling");
-        }
 
         static FunksjonellException imFeilType() {
             return new FunksjonellException("FP-963075", "Inntektsmelding årsak samsvarer ikke med sakens type - kan ikke journalføre",
@@ -428,24 +401,15 @@ public class BehandleDokumentRestTjeneste {
         }
     }
 
-    public static class OpprettSakAbacDataSupplier implements Function<Object, AbacDataAttributter> {
-
-        @Override
-        public AbacDataAttributter apply(Object obj) {
-            var req = (OpprettSakRequest) obj;
-            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.AKTØR_ID, req.aktørId());
-        }
-    }
-
-    record OpprettSakRequest(
-            @NotNull @Pattern(regexp = "^(-?[1-9]|[a-z0])[a-z0-9_:-]*$", message = "journalpostId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String journalpostId,
+    record OpprettSakDto(
             @NotNull YtelseTypeDto ytelseType,
             @NotNull @Pattern(regexp = "^\\d{13}$", message = "aktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String aktørId) {
     }
 
-    record BehandleDokumentRequest(
+    record FerdigstillRequest(
             @NotNull @Pattern(regexp = "^(-?[1-9]|[a-z0])[a-z0-9_:-]*$", message = "journalpostId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String journalpostId,
-            @NotNull String saksnummer,
-            @NotNull String enhetId) {
+            @NotNull String enhetId,
+            @Size(max = 11) @Pattern(regexp = "^[0-9_\\-]*$") String saksnummer,
+            @Valid OpprettSakDto opprettSak) {
     }
 }
