@@ -5,6 +5,9 @@ import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 
 public class YtelseTypeMapper {
 
+    private YtelseTypeMapper() {
+    }
+
     public static YtelseTypeDto mapTilDto(YtelseType ytelseType) {
         if (null == ytelseType) {
             return null;
