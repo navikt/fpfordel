@@ -8,16 +8,17 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.fordel.kodeverdi.*;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
-import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
-import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
-import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.journalføring.ManuellOpprettSakValidator;
+import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
+import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
+import no.nav.foreldrepenger.mottak.klient.OpprettSakV2Dto;
+import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.sak.SakClient;
 import no.nav.foreldrepenger.mottak.sak.SakJson;
@@ -59,6 +60,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import static no.nav.foreldrepenger.mapper.YtelseTypeMapper.mapFraDto;
+import static no.nav.foreldrepenger.mapper.YtelseTypeMapper.mapTilDto;
 
 /**
  * Enkelt REST tjeneste for å oppdatere og ferdigstille journalføring på dokumenter som kunne ikke
@@ -106,8 +110,6 @@ public class BehandleDokumentRestTjeneste {
     @Path("/opprett")
     @Operation(description = "Brukes for å opprette en ny fagsak i FPSAK.", tags = "Manuell journalføring", responses = {
             @ApiResponse(responseCode = "200", description = "Sak opprettet", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SaksnummerDto.class))),
-            @ApiResponse(responseCode = "400", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
-            @ApiResponse(responseCode = "403", description = "Mangler tilgang", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil")
     })
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
@@ -116,21 +118,20 @@ public class BehandleDokumentRestTjeneste {
             @NotNull @Valid @TilpassetAbacAttributt(supplierClass = OpprettSakAbacDataSupplier.class) OpprettSakRequest opprettSakRequest) {
 
         var journalpostId = new JournalpostId(opprettSakRequest.journalpostId());
-        var behandlingsTema = opprettSakRequest.behandlingsTema();
+        var ytelseType = mapFraDto(opprettSakRequest.ytelseType());
         var aktørId = new AktørId(opprettSakRequest.aktørId());
 
         var validator = new ManuellOpprettSakValidator(arkivTjeneste, fagsak);
-        validator.validerKonsistensMedSak(journalpostId, behandlingsTema, aktørId);
+        validator.validerKonsistensMedSak(journalpostId, ytelseType, aktørId);
 
-        return fagsak.opprettSak(new OpprettSakDto(journalpostId.getVerdi(), opprettSakRequest.behandlingsTema(), aktørId.getId()));
+        return fagsak.opprettSak(new OpprettSakV2Dto(journalpostId.getVerdi(), mapTilDto(ytelseType), aktørId.getId()));
     }
 
     @POST
     @Path("/ferdigstill")
     @Operation(description = "For å ferdigstille journalføring.", tags = "Manuell journalføring", responses = {
-        @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
-        @ApiResponse(responseCode = "401", description = "Mangler token", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
-        @ApiResponse(responseCode = "403", description = "Mangler tilgang", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class)))
+            @ApiResponse(responseCode = "200", description = "Sak opprettet"),
+            @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
     })
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
     public void oppdaterOgFerdigstillJournalfoering(
@@ -146,6 +147,7 @@ public class BehandleDokumentRestTjeneste {
         final var journalpost = hentJournalpost(request.journalpostId());
 
         // Dersom vi finner en av våre saker med saksnummerFraRequest og den har "rett aktør" så antar vi at det er vårt saksnummer
+        //trenger vi den egentlig?
         final var fagsakFraRequestSomTrefferRettAktør =
                 hentFagsakInfo(saksnummerFraRequest)
                         .filter(rettAktør(journalpost.getBrukerAktørId()));
@@ -435,13 +437,15 @@ public class BehandleDokumentRestTjeneste {
         }
     }
 
-    record OpprettSakRequest(@NotNull @Pattern(regexp = "^(-?[1-9]|[a-z0])[a-z0-9_:-]*$", message = "journalpostId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String journalpostId,
-                                           @NotNull String behandlingsTema,
-                                           @NotNull @Pattern(regexp = "^\\d{13}$", message = "aktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String aktørId) {
+    record OpprettSakRequest(
+            @NotNull @Pattern(regexp = "^(-?[1-9]|[a-z0])[a-z0-9_:-]*$", message = "journalpostId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String journalpostId,
+            @NotNull YtelseTypeDto ytelseType,
+            @NotNull @Pattern(regexp = "^\\d{13}$", message = "aktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String aktørId) {
     }
 
-    record BehandleDokumentRequest(@NotNull @Pattern(regexp = "^(-?[1-9]|[a-z0])[a-z0-9_:-]*$", message = "journalpostId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String journalpostId,
-                                                 @NotNull String saksnummer,
-                                                 @NotNull String enhetId) {
+    record BehandleDokumentRequest(
+            @NotNull @Pattern(regexp = "^(-?[1-9]|[a-z0])[a-z0-9_:-]*$", message = "journalpostId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String journalpostId,
+            @NotNull String saksnummer,
+            @NotNull String enhetId) {
     }
 }

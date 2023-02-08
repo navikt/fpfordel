@@ -71,6 +71,15 @@ public class FagsakKlient implements Fagsak {
     }
 
     @Override
+    public SaksnummerDto opprettSak(OpprettSakV2Dto opprettSakDto) {
+        LOG.info("Oppretter sak");
+        var request = RestRequest.newPOSTJson(opprettSakDto, lagURI(opprettsakEndpoint, "/v2"), restConfig);
+        var sak = klient.send(request, SaksnummerDto.class);
+        LOG.info("Opprettet sak OK");
+        return sak;
+    }
+
+    @Override
     public void knyttSakOgJournalpost(JournalpostKnyttningDto dto) {
         LOG.info("Knytter sak og journalpost");
         var request = RestRequest.newPOSTJson(dto, knytningEndpoint, restConfig);
