@@ -97,12 +97,12 @@ class BehandleDokumentRestTjenesteTest {
     }
 
     @Test
-    void skalValiderePåkrevdInput_saksnummer() {
+    void skalValiderePåkrevdInput_opprettSakDto() {
         var req = req(ENHETID, JOURNALPOST_ID, null);
         Exception ex = assertThrows(TekniskException.class,
                 () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
         assertThat(ex.getMessage())
-                .contains("Ugyldig input: Saksnummer");
+                .contains("OpprettSakDto kan ikke være null ved opprettelse av en sak.");
     }
 
     @Test
@@ -320,11 +320,12 @@ class BehandleDokumentRestTjenesteTest {
                 eq(ENGANGSSTØNAD_FØDSEL), any(), any(), any(), any());
     }
 
-    private static BehandleDokumentRestTjeneste.BehandleDokumentRequest req(String enhetid, String journalpostId, String sakId) {
-        return new BehandleDokumentRestTjeneste.BehandleDokumentRequest(
+    private static BehandleDokumentRestTjeneste.FerdigstillRequest req(String enhetid, String journalpostId, String sakId) {
+        return new BehandleDokumentRestTjeneste.FerdigstillRequest(
                 journalpostId,
+                enhetid,
                 sakId,
-                enhetid);
+                null);
     }
 
     String readFile(String filename) throws URISyntaxException, IOException {
