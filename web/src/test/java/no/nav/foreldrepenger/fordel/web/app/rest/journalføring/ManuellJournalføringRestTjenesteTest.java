@@ -40,6 +40,7 @@ class ManuellJournalføringRestTjenesteTest {
     private Fagsak fagsak;
     @Mock
     private ArkivTjeneste arkiv;
+    private final String LIMIT = "50";
 
     @Test
     @DisplayName("/oppgaver - ingen oppgaver = tom liste")
@@ -63,7 +64,7 @@ class ManuellJournalføringRestTjenesteTest {
         var beskrivelse = "beskrivelse";
         var journalføringOppgaver = List.of(opprettOppgave(expectedId, aktørId, now, expectedJournalpostId, beskrivelse, BehandlingTema.FORELDREPENGER_ADOPSJON));
 
-        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null)).thenReturn(journalføringOppgaver);
+        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null, LIMIT)).thenReturn(journalføringOppgaver);
 
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
@@ -94,7 +95,7 @@ class ManuellJournalføringRestTjenesteTest {
         var beskrivelse = "beskrivelse";
         var journalføringOppgaver = List.of(opprettOppgave(expectedId, aktørId, now, expectedJournalpostId, beskrivelse, BehandlingTema.FORELDREPENGER_FØDSEL));
 
-        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null)).thenReturn(journalføringOppgaver);
+        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null, LIMIT)).thenReturn(journalføringOppgaver);
         var fnr = "12344345678";
         when(pdl.hentPersonIdentForAktørId(aktørId)).thenReturn(Optional.of(fnr));
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
@@ -118,7 +119,7 @@ class ManuellJournalføringRestTjenesteTest {
         var beskrivelse = "beskrivelse";
         var journalføringOppgaver = List.of(opprettOppgave(expectedId, null, now, expectedJournalpostId, beskrivelse, BehandlingTema.ENGANGSSTØNAD_FØDSEL));
 
-        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null)).thenReturn(journalføringOppgaver);
+        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null, LIMIT)).thenReturn(journalføringOppgaver);
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
@@ -139,7 +140,7 @@ class ManuellJournalføringRestTjenesteTest {
         var beskrivelse = "beskrivelse";
         var journalføringOppgaver = List.of(opprettOppgave(expectedId, null, now, expectedJournalpostId, beskrivelse, BehandlingTema.OMS));
 
-        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null)).thenReturn(journalføringOppgaver);
+        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null, LIMIT)).thenReturn(journalføringOppgaver);
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
@@ -158,7 +159,7 @@ class ManuellJournalføringRestTjenesteTest {
         var beskrivelse = "Journalføring";
         var journalføringOppgaver = List.of(opprettOppgave(expectedId, null, now, expectedJournalpostId, beskrivelse, BehandlingTema.OMS));
 
-        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null)).thenReturn(journalføringOppgaver);
+        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null, LIMIT)).thenReturn(journalføringOppgaver);
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
@@ -178,7 +179,7 @@ class ManuellJournalføringRestTjenesteTest {
         var beskrivelse = "Foreldrepengesøknad";
         var journalføringOppgaver = List.of(opprettOppgave(expectedId, aktørId, now, expectedJournalpostId, beskrivelse, BehandlingTema.OMS));
 
-        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null)).thenReturn(journalføringOppgaver);
+        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null, LIMIT)).thenReturn(journalføringOppgaver);
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
@@ -200,7 +201,7 @@ class ManuellJournalføringRestTjenesteTest {
                 " --- Overført rett enhet Oppgaven er flyttet fra enhet 4860 til 4812 Journalføring";
         var journalføringOppgaver = List.of(opprettOppgave(expectedId, aktørId, now, expectedJournalpostId, beskrivelse, BehandlingTema.OMS));
 
-        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null)).thenReturn(journalføringOppgaver);
+        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null, LIMIT)).thenReturn(journalføringOppgaver);
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);

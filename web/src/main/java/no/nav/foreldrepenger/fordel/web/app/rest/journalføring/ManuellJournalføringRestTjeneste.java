@@ -28,6 +28,8 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -62,6 +64,8 @@ public class ManuellJournalføringRestTjeneste {
     private PersonInformasjon pdl;
     private ArkivTjeneste arkiv;
     private Fagsak fagsak;
+    private final String LIMIT = "50";
+    private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringRestTjeneste.class);
 
     public ManuellJournalføringRestTjeneste() {
         // For inject
@@ -89,10 +93,10 @@ public class ManuellJournalføringRestTjeneste {
     })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public List<OppgaveDto> hentÅpneOppgaver() throws Exception {
-        return oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null)
-                .stream()
-                .map(this::lagOppgaveDto)
-                .toList();
+        var liste = oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null, LIMIT);
+        LOG.info("Hentet totalt {} journalføringsoppgaver fra Gosys", liste.size() );
+
+        return liste.stream().map(this::lagOppgaveDto).toList();
     }
 
     @GET
@@ -238,8 +242,9 @@ public class ManuellJournalføringRestTjeneste {
         return Optional.empty();
     }
 
+    //Denne skal fjernes
     private boolean harJournalpostMangler(Oppgave oppgave) {
-        return oppgave.aktoerId() == null || oppgave.beskrivelse().startsWith("Journalføring");
+        return oppgave.aktoerId() == null || tekstFraBeskrivelse(oppgave.beskrivelse()).startsWith("Journalføring");
     }
 
     private List<JournalpostMangel> mapJournalpostMangel(String aktørId, String beskrivelse) {
