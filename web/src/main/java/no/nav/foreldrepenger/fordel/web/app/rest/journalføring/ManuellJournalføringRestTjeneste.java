@@ -170,7 +170,7 @@ public class ManuellJournalføringRestTjeneste {
 
 
     private Set<JournalpostDetaljerDto.FagsakDto> mapBrukersFagsaker(String aktørId) {
-        if (aktørId != null) {
+        if (aktørId == null) {
             return Set.of();
         }
         return fagsak.hentBrukersSaker(new AktørIdDto(aktørId)).stream()
