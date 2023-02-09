@@ -13,8 +13,6 @@ import java.util.List;
 @ApplicationScoped
 public class LosKlient implements Los {
 
-    private static final String ENHETER_PATH = "/api/saksbehandler/enhet";
-
     private static final Logger LOG = LoggerFactory.getLogger(LosKlient.class);
 
     private final URI enheterEndepunkt;
@@ -43,7 +41,7 @@ public class LosKlient implements Los {
     }
 
     private URI lagURI(URI context) {
-        return UriBuilder.fromUri(context).path(LosKlient.ENHETER_PATH).build();
+        return UriBuilder.fromUri(context).path("/api/saksbehandler/enhet").build();
     }
 
 }

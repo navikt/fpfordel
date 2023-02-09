@@ -9,9 +9,12 @@ import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.saf.Journalpost;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
+import no.nav.foreldrepenger.mottak.klient.Los;
+import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +29,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,13 +45,21 @@ class ManuellJournalføringRestTjenesteTest {
     private Fagsak fagsak;
     @Mock
     private ArkivTjeneste arkiv;
+    @Mock
+    private Los los;
+
+    private ManuellJournalføringRestTjeneste restTjeneste;
+
     private final String LIMIT = "50";
+
+    @BeforeEach
+    void setUp() {
+        restTjeneste = new ManuellJournalføringRestTjeneste(oppgaver, pdl, arkiv, fagsak, los);
+    }
 
     @Test
     @DisplayName("/oppgaver - ingen oppgaver = tom liste")
     void skal_levere_en_tom_liste_om_ingen_oppgaver_funnet() throws Exception {
-        var restTjeneste = new ManuellJournalføringRestTjeneste(oppgaver, pdl, arkiv, fagsak);
-
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull().isEmpty();
@@ -55,8 +68,6 @@ class ManuellJournalføringRestTjenesteTest {
     @Test
     @DisplayName("/oppgaver - 1 oppgave = liste med 1 oppgave.")
     void skal_levere_en_liste_med_oppgaver() throws Exception {
-        var restTjeneste = new ManuellJournalføringRestTjeneste(oppgaver, pdl, arkiv, fagsak);
-
         var expectedId = 123L;
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
@@ -86,8 +97,6 @@ class ManuellJournalføringRestTjenesteTest {
     @Test
     @DisplayName("/oppgaver - fnr på plass om aktør finnes.")
     void skal_levere_fnr_om_finnes() throws Exception {
-        var restTjeneste = new ManuellJournalføringRestTjeneste(oppgaver, pdl, arkiv, fagsak);
-
         var expectedId = 123L;
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
@@ -111,8 +120,6 @@ class ManuellJournalføringRestTjenesteTest {
     @Test
     @DisplayName("/oppgaver - fnr og aktørId null om aktørId mangler")
     void skal_ha_mangel_om_aktørId_mangler() throws Exception {
-        var restTjeneste = new ManuellJournalføringRestTjeneste(oppgaver, pdl, arkiv, fagsak);
-
         var expectedId = 123L;
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
@@ -132,8 +139,6 @@ class ManuellJournalføringRestTjenesteTest {
     @Test
     @DisplayName("/oppgaver - ytelseType = Ukjent - om ikke FP behandlingTema")
     void skal_ha_ytelse_type_ukjent_om_det_ikke_lar_seg_utlede_fra_behandlingstema() throws Exception {
-        var restTjeneste = new ManuellJournalføringRestTjeneste(oppgaver, pdl, arkiv, fagsak);
-
         var expectedId = 123L;
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
@@ -151,8 +156,6 @@ class ManuellJournalføringRestTjenesteTest {
     @Test
     @DisplayName("/oppgaver - ytelseType = Ukjent - om ikke FP behandlingTema")
     void skal_ha_mangler_om_tittel_er_ukjent_og_bruker_er_null() throws Exception {
-        var restTjeneste = new ManuellJournalføringRestTjeneste(oppgaver, pdl, arkiv, fagsak);
-
         var expectedId = 123L;
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
@@ -170,8 +173,6 @@ class ManuellJournalføringRestTjenesteTest {
     @Test
     @DisplayName("/oppgaver - ytelseType = Ukjent - om ikke FP behandlingTema")
     void skal_ikke_ha_mangler_om_tittel_er_kjent_og_bruker_ikke_er_null() throws Exception {
-        var restTjeneste = new ManuellJournalføringRestTjeneste(oppgaver, pdl, arkiv, fagsak);
-
         var expectedId = 123L;
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
@@ -190,8 +191,6 @@ class ManuellJournalføringRestTjenesteTest {
     @Test
     @DisplayName("/oppgaver - ytelseType = Ukjent - om ikke FP behandlingTema")
     void skal_kutte_beskrivelse_iht_regler() throws Exception {
-        var restTjeneste = new ManuellJournalføringRestTjeneste(oppgaver, pdl, arkiv, fagsak);
-
         var expectedId = 123L;
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
@@ -212,9 +211,7 @@ class ManuellJournalføringRestTjenesteTest {
 
     @Test
     @DisplayName("/hent/dokument - dokument finnes.")
-    void skal_levere_dokumentet() throws Exception {
-        var restTjeneste = new ManuellJournalføringRestTjeneste(oppgaver, pdl, arkiv, fagsak);
-
+    void skal_levere_dokumentet() {
         var expectedJournalpostId = "12334";
         var expectedDokumentId = "12334";
 
@@ -230,8 +227,6 @@ class ManuellJournalføringRestTjenesteTest {
     @Test
     @DisplayName("/hent/dokument - 404 feil response med FeilDto - om dokumenter ikke finnes.")
     void skal_kaste_feil_ved_dokument_mangel() {
-        var restTjeneste = new ManuellJournalføringRestTjeneste(oppgaver, pdl, arkiv, fagsak);
-
         var expectedJournalpostId = "12334";
         var expectedDokumentId = "12334";
 
@@ -251,8 +246,6 @@ class ManuellJournalføringRestTjenesteTest {
     @Test
     @DisplayName("/oppgave/detaljer - exception om journalpost mangler")
     void skal_kaste_exception_om_journalpost_mangler() {
-        var restTjeneste = new ManuellJournalføringRestTjeneste(oppgaver, pdl, arkiv, fagsak);
-
         var expectedJournalpostId = "12334";
 
         when(arkiv.hentArkivJournalpost(expectedJournalpostId)).thenReturn(null);
@@ -266,8 +259,6 @@ class ManuellJournalføringRestTjenesteTest {
     @Test
     @DisplayName("/oppgave/detaljer - returner detaljer.")
     void skal_returnere_detaljer() {
-        var restTjeneste = new ManuellJournalføringRestTjeneste(oppgaver, pdl, arkiv, fagsak);
-
         var expectedJournalpostId = "12334";
 
         when(arkiv.hentArkivJournalpost(expectedJournalpostId)).thenReturn(
@@ -282,6 +273,37 @@ class ManuellJournalføringRestTjenesteTest {
 
         assertThat(ex).isNotNull();
         assertThat(ex.journalpostId()).isEqualTo(expectedJournalpostId);
+    }
+
+    @Test
+    @DisplayName("/ehnet - returner detaljer.")
+    void skal_returnere_ehneter() {
+        var expectedIdent = "x452323";
+
+        var enheter = List.of(
+                new TilhørendeEnhetDto("9999", "Ni enhet"),
+                new TilhørendeEnhetDto("0000", "Null enhet"));
+
+        when(los.hentTilhørendeEnheter(eq(expectedIdent))).thenReturn(enheter);
+
+        var resp = restTjeneste.hentTilhørendeEnhet(new SaksbehandlerIdentDto(expectedIdent));
+
+        assertThat(resp).isNotNull().hasSize(2);
+        assertThat(resp).isEqualTo(enheter);
+    }
+
+    @Test
+    @DisplayName("/ehnet - returner exception om empty list.")
+    void skal_returnere_exception_om_ingen_enheter_funnet() {
+        var expectedIdent = "x452323";
+
+        when(los.hentTilhørendeEnheter(eq(expectedIdent))).thenReturn(List.of());
+
+        var saksbehandlerIdentDto = new SaksbehandlerIdentDto(expectedIdent);
+
+        var ex = assertThrows(IllegalStateException.class, () -> restTjeneste.hentTilhørendeEnhet(saksbehandlerIdentDto));
+
+        assertThat(ex.getMessage()).contains("Det forventes at saksbehandler "+expectedIdent+" har minst en tilførende enhet. Fant ingen.");
     }
 
     private static Oppgave opprettOppgave(long expectedId, String aktørId, LocalDate now, String expectedJournalpostId, String beskrivelse, BehandlingTema behandlingTema) {
