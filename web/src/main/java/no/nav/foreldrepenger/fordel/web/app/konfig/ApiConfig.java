@@ -27,6 +27,7 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,13 +38,11 @@ public class ApiConfig extends Application {
 
     public static final String API_URI = "/api";
 
-    private static final String ID_PREFIX = "openapi.context.id.servlet.";
-
     public ApiConfig() {
         var oas = new OpenAPI();
         var info = new Info()
                 .title("Vedtaksløsningen - Fordeling.")
-                .version("1.0")
+                .version(Optional.ofNullable(ENV.imageName()).orElse("1.0"))
                 .description("REST grensesnitt for fordeling");
 
         oas.info(info).addServersItem(new Server().url(ENV.getProperty("context.path", "/fpfordel")));

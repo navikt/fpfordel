@@ -15,6 +15,8 @@ public interface Fagsak {
 
     SaksnummerDto opprettSak(OpprettSakDto opprettSakDto);
 
+    SaksnummerDto opprettSak(OpprettSakV2Dto opprettSakDto);
+
     void knyttSakOgJournalpost(JournalpostKnyttningDto journalpostKnyttningDto);
 
     VurderFagsystemResultat vurderFagsystem(MottakMeldingDataWrapper w);

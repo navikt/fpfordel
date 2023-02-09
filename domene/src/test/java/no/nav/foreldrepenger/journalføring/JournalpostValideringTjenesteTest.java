@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.journalføring;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.YtelseType;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
@@ -47,28 +47,39 @@ class JournalpostValideringTjenesteTest {
     }
 
     @Test
-    @DisplayName("Exception om oppgitt BehandlingTema er ugyldig.")
-    void kast_exception_om_behandlingsteam_ikke_finnes() {
-        var exception = assertThrows(TekniskException.class, () -> {
-            tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, "ikke_finnes", AKTØR_ID);
+    @DisplayName("Exception om oppgitt YtelseType er null.")
+    void kast_exception_om_ytelseType_ikke_finnes() {
+        var exception = assertThrows(NullPointerException.class, () -> {
+            tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, null, AKTØR_ID);
         });
 
-        var expectedMessage = "FP-34236:Ugyldig input: Behandlingstema med verdi: ikke_finnes er ugyldig input.";
+        var expectedMessage = "Ugyldig input: YtelseType kan ikke være null ved opprettelse av en sak";
         var actualMessage = exception.getMessage();
 
         assertTrue(actualMessage.contains(expectedMessage));
     }
 
     @Test
-    @DisplayName("Exception om oppgitt BehandlingTema gjelder ikke en FP ytelse.")
-    void kast_exception_om_behandlingsteam_finnes_men_er_ikke_relatert_til_fpsak_tjeneste() {
-        var omsOffisiellKode = BehandlingTema.OMS.getOffisiellKode();
-
-        var exception = assertThrows(TekniskException.class, () -> {
-            tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, omsOffisiellKode, AKTØR_ID);
+    @DisplayName("Exception om oppgitt JournalpostId er null.")
+    void kast_exception_om_journalpostId_ikke_finnes() {
+        var exception = assertThrows(NullPointerException.class, () -> {
+            tjeneste.validerKonsistensMedSak(null, YtelseType.SVANGERSKAPSPENGER, AKTØR_ID);
         });
 
-        var expectedMessage = "FP-34237:Ugyldig input: Behandlingstema med verdi: "+omsOffisiellKode+" er ugyldig input.";
+        var expectedMessage = "Ugyldig input: JournalpostId kan ikke være null ved opprettelse av en sak";
+        var actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+    }
+
+    @Test
+    @DisplayName("Exception om oppgitt AktørId er null.")
+    void kast_exception_om_aktørId_ikke_finnes() {
+        var exception = assertThrows(NullPointerException.class, () -> {
+            tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, YtelseType.ENGANGSTØNAD, null);
+        });
+
+        var expectedMessage = "Ugyldig input: AktørId kan ikke være null ved opprettelse av en sak";
         var actualMessage = exception.getMessage();
 
         assertTrue(actualMessage.contains(expectedMessage));
@@ -81,7 +92,7 @@ class JournalpostValideringTjenesteTest {
         when(arkivTjeneste.hentArkivJournalpost(anyString())).thenReturn(journalpost);
         when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
 
-        tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, BehandlingTema.FORELDREPENGER.getOffisiellKode(), AKTØR_ID);
+        tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, YtelseType.FORELDREPENGER, AKTØR_ID);
 
         verify(arkivTjeneste, times(1)).hentArkivJournalpost(anyString());
     }
@@ -93,7 +104,7 @@ class JournalpostValideringTjenesteTest {
         when(arkivTjeneste.hentArkivJournalpost(anyString())).thenReturn(journalpost);
         when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER);
 
-        var offisiellKode = BehandlingTema.ENGANGSSTØNAD.getOffisiellKode();
+        var offisiellKode = YtelseType.ENGANGSTØNAD;
 
         var exception = assertThrows(FunksjonellException.class, () -> {
             tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID);
@@ -117,7 +128,7 @@ class JournalpostValideringTjenesteTest {
         when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.INNTEKTSMELDING);
         when(journalpost.getStrukturertPayload()).thenReturn("ytelse>FORELDREPENGER<");
 
-        var offisiellKode = BehandlingTema.SVANGERSKAPSPENGER.getOffisiellKode();
+        var offisiellKode = YtelseType.SVANGERSKAPSPENGER;
         var exception = assertThrows(FunksjonellException.class, () -> {
             tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID);
         });
@@ -146,7 +157,7 @@ class JournalpostValideringTjenesteTest {
                 opprettFagsakInfo(YtelseTypeDto.SVANGERSKAPSPENGER, StatusDto.LØPENDE));
         when(fagsak.hentBrukersSaker(new AktørIdDto(AKTØR_ID.getId()))).thenReturn(brukersFagsaker);
 
-        var offisiellKode = BehandlingTema.FORELDREPENGER.getOffisiellKode();
+        var offisiellKode = YtelseType.FORELDREPENGER;
         var exception = assertThrows(TekniskException.class, () -> {
             tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID);
         });
@@ -167,7 +178,7 @@ class JournalpostValideringTjenesteTest {
 
         when(journalpost.getStrukturertPayload()).thenReturn("ytelse>SVANGERSKAPSPENGER<");
 
-        var offisiellKode = BehandlingTema.FORELDREPENGER.getOffisiellKode();
+        var offisiellKode = YtelseType.FORELDREPENGER;
         var exception = assertThrows(FunksjonellException.class, () -> {
             tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID);
         });
@@ -189,7 +200,7 @@ class JournalpostValideringTjenesteTest {
         when(arkivTjeneste.hentArkivJournalpost(anyString())).thenReturn(journalpost);
         when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD);
 
-        var offisiellKode = BehandlingTema.FORELDREPENGER.getOffisiellKode();
+        var offisiellKode = YtelseType.FORELDREPENGER;
 
         var exception = assertThrows(FunksjonellException.class, () -> {
             tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID);

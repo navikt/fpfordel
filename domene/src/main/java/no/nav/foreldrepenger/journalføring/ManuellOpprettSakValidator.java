@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.journalføring;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.YtelseType;
+import no.nav.foreldrepenger.mapper.YtelseTypeMapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.AktørIdDto;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
@@ -13,6 +13,10 @@ import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Denne validatoren sjekker om gitt journalpost er faglig konform med de valgene SBH har gjort i GUI, f.eks:
@@ -33,14 +37,15 @@ public class ManuellOpprettSakValidator {
         this.fagsak = fagsak;
     }
 
-    public void validerKonsistensMedSak(JournalpostId journalpostId, String behandlingTema, AktørId aktørId) {
-        var oppgittBehandlingTema = utledOgValiderOppgittBehandlingTema(behandlingTema);
+    public void validerKonsistensMedSak(JournalpostId journalpostId, YtelseType oppgittYtelseType, AktørId aktørId) {
+        requireNonNull(journalpostId, "Ugyldig input: JournalpostId kan ikke være null ved opprettelse av en sak.");
+        requireNonNull(oppgittYtelseType, "Ugyldig input: YtelseType kan ikke være null ved opprettelse av en sak.");
+        requireNonNull(aktørId, "Ugyldig input: AktørId kan ikke være null ved opprettelse av en sak.");
+
         var arkivJournalpost = arkivTjeneste.hentArkivJournalpost(journalpostId.getVerdi());
-
-        var journalpostYtelseType = YtelseType.UDEFINERT;
-        var oppgittYtelseType = oppgittBehandlingTema.utledYtelseType();
-
         var hovedDokumentType = arkivJournalpost.getHovedtype();
+
+        YtelseType journalpostYtelseType = null;
 
         if (DokumentTypeId.erSøknadType(hovedDokumentType)) {
             journalpostYtelseType = utledYtelseTypeFor(hovedDokumentType);
@@ -63,35 +68,12 @@ public class ManuellOpprettSakValidator {
             throw new FunksjonellException("FP-785359", "Dokument og valgt ytelsetype i uoverenstemmelse",
                     "Velg ytelsetype som samstemmer med dokument");
         }
-        // Vil aldri komme hit siden oppgittYtelseType valideres for UNDEFINED men lar den ligge her
-        // om behandlingstema validering flyttes en dag.
-        if (YtelseType.UDEFINERT.equals(journalpostYtelseType)) {
-            throw new FunksjonellException("FP-785360", "Kan ikke opprette sak basert på oppgitt dokument",
-                    "Journalføre dokument på annen sak");
-        }
     }
 
     private boolean harAktivSak(AktørId aktørId, YtelseType oppgittYtelseType) {
         return fagsak.hentBrukersSaker(new AktørIdDto(aktørId.getId())).stream()
                 .filter(it -> !it.status().equals(StatusDto.AVSLUTTET))
-                .anyMatch(it -> it.ytelseType().getKode().equals(oppgittYtelseType.getKode()));
-    }
-
-    private BehandlingTema utledOgValiderOppgittBehandlingTema(String behandlingstemaOffisiellKode) {
-        var behandlingTema = BehandlingTema.fraOffisiellKode(behandlingstemaOffisiellKode);
-        if (BehandlingTema.UDEFINERT.equals(behandlingTema)) {
-            var feilMelding = lagUgyldigInputMelding(behandlingstemaOffisiellKode);
-            throw new TekniskException("FP-34236", feilMelding);
-        }
-        if (BehandlingTema.UDEFINERT.equals(BehandlingTema.forYtelseUtenFamilieHendelse(behandlingTema))) {
-            var feilMelding = lagUgyldigInputMelding(behandlingstemaOffisiellKode);
-            throw new TekniskException("FP-34237", feilMelding);
-        }
-        return behandlingTema;
-    }
-
-    private static String lagUgyldigInputMelding(String verdi) {
-        return String.format("Ugyldig input: Behandlingstema med verdi: %s er ugyldig input.", verdi);
+                .anyMatch(it -> YtelseTypeMapper.mapFraDto(it.ytelseType()).equals(oppgittYtelseType));
     }
 
     private static YtelseType utledYtelseTypeFor(DokumentTypeId dokumentTypeId) {
@@ -101,7 +83,7 @@ public class ManuellOpprettSakValidator {
             case SØKNAD_FORELDREPENGER_ADOPSJON -> YtelseType.FORELDREPENGER;
             case SØKNAD_FORELDREPENGER_FØDSEL -> YtelseType.FORELDREPENGER;
             case SØKNAD_SVANGERSKAPSPENGER ->  YtelseType.SVANGERSKAPSPENGER;
-            default -> YtelseType.UDEFINERT;
+            default -> null;
         };
     }
 

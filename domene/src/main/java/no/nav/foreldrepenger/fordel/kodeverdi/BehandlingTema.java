@@ -146,6 +146,6 @@ public enum BehandlingTema implements Kodeverdi {
         if (BehandlingTema.gjelderSvangerskapspenger(this)) {
             return YtelseType.SVANGERSKAPSPENGER;
         }
-        return YtelseType.UDEFINERT;
+        return null;
     }
 }
