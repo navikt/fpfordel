@@ -220,6 +220,9 @@ public class ManuellJournalføringRestTjeneste {
     }
 
     private String  tekstFraBeskrivelse(String beskrivelse) {
+        if (beskrivelse == null) {
+            return "Mangler";
+        }
         return beskrivelse.replaceAll("--- .*? ---", "\n * ");
 //        int i = beskrivelse.length();
 //        while (i > 0 && !(Character.isDigit(beskrivelse.charAt(i-1)) || beskrivelse.charAt(i-1) == ',')) i--;
