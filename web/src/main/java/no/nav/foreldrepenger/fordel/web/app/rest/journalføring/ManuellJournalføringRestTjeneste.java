@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
+import com.google.common.collect.Sets;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -169,17 +170,17 @@ public class ManuellJournalføringRestTjeneste {
 
     private Set<JournalpostDetaljerDto.FagsakDto> mapBrukersFagsaker(String aktørId) {
         if (aktørId != null) {
-            return fagsak.hentBrukersSaker(new AktørIdDto(aktørId)).stream()
-                    .map(sak -> new JournalpostDetaljerDto.FagsakDto(
-                            sak.saksnummer().getSaksnummer(),
-                            sak.ytelseType(),
-                            sak.opprettetDato(),
-                            sak.endretDato(),
-                            sak.status()
-                    ))
-                    .collect(Collectors.toSet());
+            return Set.of();
         }
-        return Set.of();
+        return fagsak.hentBrukersSaker(new AktørIdDto(aktørId)).stream()
+                .map(sak -> new JournalpostDetaljerDto.FagsakDto(
+                        sak.saksnummer().getSaksnummer(),
+                        sak.ytelseType(),
+                        sak.opprettetDato(),
+                        sak.endretDato(),
+                        sak.status()
+                ))
+                .collect(Collectors.toSet());
     }
 
     private static Set<JournalpostDetaljerDto.DokumentDto> mapDokumenter(String journalpostId, List<DokumentInfo> dokumenter) {
@@ -218,6 +219,9 @@ public class ManuellJournalføringRestTjeneste {
     }
 
     private String  tekstFraBeskrivelse(String beskrivelse) {
+        if (beskrivelse == null) {
+            return "";
+        }
         int i = beskrivelse.length();
         while (i > 0 && !(Character.isDigit(beskrivelse.charAt(i-1)) || beskrivelse.charAt(i-1) == ',')) i--;
         if (i < beskrivelse.length() && beskrivelse.charAt(i) == ' ') i++;
