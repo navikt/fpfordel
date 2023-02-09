@@ -205,8 +205,12 @@ class ManuellJournalføringRestTjenesteTest {
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
         var oppgave = oppgaveDtos.get(0);
-        assertThat(oppgave.beskrivelse()).isEqualTo( "Journalføring");
-        assertThat(oppgave.mangler()).isEqualTo( List.of(ManuellJournalføringRestTjeneste.JournalpostMangel.MANGLER_TITTEL));
+        assertThat(oppgave.beskrivelse()).isEqualTo( "\n" +
+                " *  printet ut og scannes i bisys \n" +
+                " *  Oppgaven er flyttet fra enhet 4812 til 4860, fra saksbehandler <ingen> til L568956 \n" +
+                " *  Gjelder farskap \n" +
+                " *  Overført rett enhet Oppgaven er flyttet fra enhet 4860 til 4812 Journalføring");
+        assertThat(oppgave.mangler()).isEmpty();
     }
 
     @Test

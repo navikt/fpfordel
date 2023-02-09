@@ -44,6 +44,7 @@ import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -213,27 +214,25 @@ public class ManuellJournalføringRestTjeneste {
                 mapPrioritet(oppgave.prioritet()),
                 trimmetBeskrivelse,
                 oppgave.aktivDato(),
-                harJournalpostMangler(oppgave),
+                harJournalpostMangler(oppgave.aktoerId(), trimmetBeskrivelse),
                 oppgave.tildeltEnhetsnr(),
                 mapJournalpostMangel(oppgave.aktoerId(), trimmetBeskrivelse));
     }
 
     private String  tekstFraBeskrivelse(String beskrivelse) {
-        if (beskrivelse == null) {
-            return "";
-        }
-        int i = beskrivelse.length();
-        while (i > 0 && !(Character.isDigit(beskrivelse.charAt(i-1)) || beskrivelse.charAt(i-1) == ',')) i--;
-        if (i < beskrivelse.length() && beskrivelse.charAt(i) == ' ') i++;
-        if (i == beskrivelse.length() ) {
-            return beskrivelse;
-        }
-        if (beskrivelse.substring(i).length() < 10) {
-            var i2 = beskrivelse.length();
-            while (i2 > 0 && (beskrivelse.charAt(i2-1) != ',')) i2--;
-            return beskrivelse.substring(i2);
-        }
-        return beskrivelse.substring(i);
+        return beskrivelse.replaceAll("--- .*? ---", "\n * ");
+//        int i = beskrivelse.length();
+//        while (i > 0 && !(Character.isDigit(beskrivelse.charAt(i-1)) || beskrivelse.charAt(i-1) == ',')) i--;
+//        if (i < beskrivelse.length() && beskrivelse.charAt(i) == ' ') i++;
+//        if (i == beskrivelse.length() ) {
+//            return beskrivelse;
+//        }
+//        if (beskrivelse.substring(i).length() < 10) {
+//            var i2 = beskrivelse.length();
+//            while (i2 > 0 && (beskrivelse.charAt(i2-1) != ',')) i2--;
+//            return beskrivelse.substring(i2);
+//        }
+//        return beskrivelse.substring(i);
     }
 
     private OppgavePrioritet mapPrioritet(Prioritet prioritet) {
@@ -252,8 +251,8 @@ public class ManuellJournalføringRestTjeneste {
     }
 
     //Denne skal fjernes
-    private boolean harJournalpostMangler(Oppgave oppgave) {
-        return oppgave.aktoerId() == null || tekstFraBeskrivelse(oppgave.beskrivelse()).startsWith("Journalføring");
+    private boolean harJournalpostMangler(String aktørId, String beskrivelse) {
+        return aktørId == null || beskrivelse.startsWith("Journalføring");
     }
 
     private List<JournalpostMangel> mapJournalpostMangel(String aktørId, String beskrivelse) {
