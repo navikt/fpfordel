@@ -14,6 +14,8 @@ import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.saf.DokumentInfo;
 import no.nav.foreldrepenger.mottak.klient.AktørIdDto;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
+import no.nav.foreldrepenger.mottak.klient.Los;
+import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.vedtak.exception.TekniskException;
@@ -55,6 +57,7 @@ public class ManuellJournalføringRestTjeneste {
     private PersonInformasjon pdl;
     private ArkivTjeneste arkiv;
     private Fagsak fagsak;
+    private Los los;
     private final String LIMIT = "50";
     private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringRestTjeneste.class);
 
@@ -66,11 +69,31 @@ public class ManuellJournalføringRestTjeneste {
     public ManuellJournalføringRestTjeneste(Oppgaver oppgaver,
                                             PersonInformasjon pdl,
                                             ArkivTjeneste arkiv,
-                                            Fagsak fagsak) {
+                                            Fagsak fagsak,
+                                            Los los) {
         this.oppgaver = oppgaver;
         this.pdl = pdl;
         this.arkiv = arkiv;
         this.fagsak = fagsak;
+        this.los = los;
+    }
+
+    @GET
+    @Path("/enhet")
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    @Operation(description = "Henter alle åpne journalføringsoppgaver for tema FOR og for saksbehandlers tilhørende enhet.", tags = "Manuell journalføring", responses = {
+            @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
+    })
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    public List<TilhørendeEnhetDto> hentTilhørendeEnhet(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class)
+                                                            @NotNull @Valid SaksbehandlerIdentDto saksbehandlerIdentDto) {
+        var enhetDtos = los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident());
+
+        if (enhetDtos.isEmpty()) {
+            throw new IllegalStateException(String.format("Det forventes at saksbehandler %s har minst en tilførende enhet. Fant ingen.", saksbehandlerIdentDto.ident()));
+        }
+        return enhetDtos;
     }
 
     @GET
