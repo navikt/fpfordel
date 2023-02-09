@@ -19,7 +19,6 @@ public class LosKlient implements Los {
     private final RestClient klient;
     private final RestConfig restConfig;
 
-
     public LosKlient() {
         this.klient = RestClient.client();
         this.restConfig = RestConfig.forClient(this.getClass());

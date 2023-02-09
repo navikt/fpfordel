@@ -284,12 +284,11 @@ class ManuellJournalføringRestTjenesteTest {
                 new TilhørendeEnhetDto("9999", "Ni enhet"),
                 new TilhørendeEnhetDto("0000", "Null enhet"));
 
-        when(los.hentTilhørendeEnheter(eq(expectedIdent))).thenReturn(enheter);
+        when(los.hentTilhørendeEnheter(expectedIdent)).thenReturn(enheter);
 
         var resp = restTjeneste.hentTilhørendeEnhet(new SaksbehandlerIdentDto(expectedIdent));
 
-        assertThat(resp).isNotNull().hasSize(2);
-        assertThat(resp).isEqualTo(enheter);
+        assertThat(resp).isNotNull().hasSize(2).isEqualTo(enheter);
     }
 
     @Test
@@ -297,7 +296,7 @@ class ManuellJournalføringRestTjenesteTest {
     void skal_returnere_exception_om_ingen_enheter_funnet() {
         var expectedIdent = "x452323";
 
-        when(los.hentTilhørendeEnheter(eq(expectedIdent))).thenReturn(List.of());
+        when(los.hentTilhørendeEnheter(expectedIdent)).thenReturn(List.of());
 
         var saksbehandlerIdentDto = new SaksbehandlerIdentDto(expectedIdent);
 
