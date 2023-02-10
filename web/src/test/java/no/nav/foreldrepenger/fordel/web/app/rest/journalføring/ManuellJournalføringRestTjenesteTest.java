@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.*;
+import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,13 +24,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -205,10 +210,10 @@ class ManuellJournalføringRestTjenesteTest {
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
         var oppgave = oppgaveDtos.get(0);
-        assertThat(oppgave.beskrivelse()).isEqualTo( "\n" +
-                " *  printet ut og scannes i bisys \n" +
-                " *  Oppgaven er flyttet fra enhet 4812 til 4860, fra saksbehandler <ingen> til L568956 \n" +
-                " *  Gjelder farskap \n" +
+        assertThat(oppgave.beskrivelse()).isEqualTo( "</br>" +
+                " *  printet ut og scannes i bisys </br>" +
+                " *  Oppgaven er flyttet fra enhet 4812 til 4860, fra saksbehandler <ingen> til L568956 </br>" +
+                " *  Gjelder farskap </br>" +
                 " *  Overført rett enhet Oppgaven er flyttet fra enhet 4860 til 4812 Journalføring");
         assertThat(oppgave.mangler()).isEmpty();
     }

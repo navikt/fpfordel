@@ -223,7 +223,7 @@ public class ManuellJournalføringRestTjeneste {
         if (beskrivelse == null) {
             return "Mangler";
         }
-        return beskrivelse.replaceAll("--- .*? ---", "\n * ");
+        return beskrivelse.replaceAll("--- .*? ---", "</br> * ");
 //        int i = beskrivelse.length();
 //        while (i > 0 && !(Character.isDigit(beskrivelse.charAt(i-1)) || beskrivelse.charAt(i-1) == ',')) i--;
 //        if (i < beskrivelse.length() && beskrivelse.charAt(i) == ' ') i++;
@@ -275,7 +275,10 @@ public class ManuellJournalføringRestTjeneste {
     }
 
     private String mapTilYtelseType(String behandlingstema) {
+        LOG.info("FPFORDEL JOURNALFØRING Oppgave med behandlingstema {}", behandlingstema);
         var behandlingTemaMappet = BehandlingTema.fraOffisiellKode(behandlingstema);
+        LOG.info("FPFORDEL JOURNALFØRING Fant oppgave med behandlingTemaMappet {}", behandlingTemaMappet);
+
         return switch (behandlingTemaMappet) {
             case FORELDREPENGER, FORELDREPENGER_ADOPSJON, FORELDREPENGER_FØDSEL ->
                     BehandlingTema.FORELDREPENGER.getTermNavn();
