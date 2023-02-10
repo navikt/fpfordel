@@ -165,7 +165,6 @@ public class ManuellJournalføringRestTjeneste {
         );
     }
 
-
     private Set<JournalpostDetaljerDto.FagsakDto> mapBrukersFagsaker(String aktørId) {
         if (aktørId == null) {
             return Set.of();
@@ -218,21 +217,21 @@ public class ManuellJournalføringRestTjeneste {
 
     private String  tekstFraBeskrivelse(String beskrivelse) {
         if (beskrivelse == null) {
-            return "Mangler";
+            return "Journalføring";
         }
-        return beskrivelse.replaceAll("--- .*? ---", "</br> * ");
-//        int i = beskrivelse.length();
-//        while (i > 0 && !(Character.isDigit(beskrivelse.charAt(i-1)) || beskrivelse.charAt(i-1) == ',')) i--;
-//        if (i < beskrivelse.length() && beskrivelse.charAt(i) == ' ') i++;
-//        if (i == beskrivelse.length() ) {
-//            return beskrivelse;
-//        }
-//        if (beskrivelse.substring(i).length() < 10) {
-//            var i2 = beskrivelse.length();
-//            while (i2 > 0 && (beskrivelse.charAt(i2-1) != ',')) i2--;
-//            return beskrivelse.substring(i2);
-//        }
-//        return beskrivelse.substring(i);
+        //return beskrivelse.replaceAll("--- .*? ---", "</br> * ");
+        int i = beskrivelse.length();
+        while (i > 0 && !(Character.isDigit(beskrivelse.charAt(i-1)) || beskrivelse.charAt(i-1) == ',')) i--;
+        if (i < beskrivelse.length() && beskrivelse.charAt(i) == ' ') i++;
+        if (i == beskrivelse.length() ) {
+            return beskrivelse;
+        }
+        if (beskrivelse.substring(i).length() < 10) {
+            var i2 = beskrivelse.length();
+            while (i2 > 0 && (beskrivelse.charAt(i2-1) != ',')) i2--;
+            return beskrivelse.substring(i2);
+        }
+        return beskrivelse.substring(i);
     }
 
     private OppgavePrioritet mapPrioritet(Prioritet prioritet) {
