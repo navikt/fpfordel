@@ -107,7 +107,7 @@ public class ManuellJournalføringRestTjeneste {
         var liste = oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null, LIMIT);
         LOG.info("Hentet totalt {} journalføringsoppgaver fra Gosys", liste.size() );
 
-        return liste.stream().map(this::lagOppgaveDto).sorted(Comparator.nullsLast(Comparator.comparing(OppgaveDto::frist).reversed())).toList();
+        return liste.stream().map(this::lagOppgaveDto).toList();
     }
 
     @GET
