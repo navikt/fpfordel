@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
-import com.google.common.collect.Sets;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -41,7 +40,6 @@ import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -107,7 +105,7 @@ public class ManuellJournalføringRestTjeneste {
         var liste = oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null, LIMIT);
         LOG.info("Hentet totalt {} journalføringsoppgaver fra Gosys", liste.size() );
 
-        return liste.stream().map(this::lagOppgaveDto).toList();
+        return liste.stream().filter(oppgave -> oppgave.aktoerId() != null).map(this::lagOppgaveDto).toList();
     }
 
     @GET
@@ -208,25 +206,32 @@ public class ManuellJournalføringRestTjeneste {
                 mapTilYtelseType(oppgave.behandlingstema()),
                 oppgave.fristFerdigstillelse(),
                 mapPrioritet(oppgave.prioritet()),
+                oppgave.beskrivelse(),
                 trimmetBeskrivelse,
                 oppgave.aktivDato(),
-                harJournalpostMangler(oppgave.aktoerId(), trimmetBeskrivelse),
-                oppgave.tildeltEnhetsnr(),
-                mapJournalpostMangel(oppgave.aktoerId(), trimmetBeskrivelse));
+                harJournalpostMangler(trimmetBeskrivelse),
+                oppgave.tildeltEnhetsnr());
     }
 
     private String  tekstFraBeskrivelse(String beskrivelse) {
         if (beskrivelse == null) {
             return "Journalføring";
         }
-        //return beskrivelse.replaceAll("--- .*? ---", "</br> * ");
+        //Når vi oppretter gosys oppgave avsluttes teksten med (dd.mm.yyyy)
         int i = beskrivelse.length();
-        while (i > 0 && !(Character.isDigit(beskrivelse.charAt(i-1)) || beskrivelse.charAt(i-1) == ',')) i--;
+        if (beskrivelse.charAt(i-1) == ')') {
+            i = i-12;
+        }
+
+        while (i > 0 && !(Character.isDigit(beskrivelse.charAt(i-1)) || beskrivelse.charAt(i-1) == ',' || beskrivelse.charAt(i-1) == '*'|| beskrivelse.charAt(i-1) == '>')) i--;
+
         if (i < beskrivelse.length() && beskrivelse.charAt(i) == ' ') i++;
+
         if (i == beskrivelse.length() ) {
             return beskrivelse;
         }
-        if (beskrivelse.substring(i).length() < 10) {
+        //I tilfelle vi tar bort for mye
+        if (beskrivelse.substring(i).length() < 2) {
             var i2 = beskrivelse.length();
             while (i2 > 0 && (beskrivelse.charAt(i2-1) != ',')) i2--;
             return beskrivelse.substring(i2);
@@ -250,24 +255,8 @@ public class ManuellJournalføringRestTjeneste {
     }
 
     //Denne skal fjernes
-    private boolean harJournalpostMangler(String aktørId, String beskrivelse) {
-        return aktørId == null || beskrivelse.startsWith("Journalføring");
-    }
-
-    private List<JournalpostMangel> mapJournalpostMangel(String aktørId, String beskrivelse) {
-        List<JournalpostMangel> mangler = new ArrayList<>();
-        if (aktørId == null) {
-            mangler.add(JournalpostMangel.MANGLER_BRUKER);
-        }
-        if (beskrivelse.startsWith("Journalføring")) {
-            mangler.add(JournalpostMangel.MANGLER_TITTEL);
-        }
-        return mangler;
-    }
-
-    public enum JournalpostMangel {
-        MANGLER_BRUKER,
-        MANGLER_TITTEL
+    private boolean harJournalpostMangler(String beskrivelse) {
+        return beskrivelse.startsWith("Journalføring");
     }
 
     private YtelseTypeDto mapTilYtelseType(String behandlingstema) {
@@ -293,10 +282,10 @@ public class ManuellJournalføringRestTjeneste {
                              @NotNull LocalDate frist,
                              OppgavePrioritet prioritet,
                              String beskrivelse,
+                             String trimmetBeskrivelse,
                              @NotNull LocalDate opprettetDato,
                              @NotNull boolean journalpostHarMangler,
-                             String enhetId,
-                             @NotNull List<JournalpostMangel> mangler) {
+                             String enhetId) {
 
     }
 
