@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.mottak.journal.saf.Journalpost;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.Los;
 import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
+import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.*;
@@ -94,7 +95,7 @@ class ManuellJournalføringRestTjenesteTest {
         assertThat(oppgave.beskrivelse()).isEqualTo(beskrivelse);
         assertThat(oppgave.opprettetDato()).isEqualTo(now);
         assertThat(oppgave.prioritet()).isEqualTo(ManuellJournalføringRestTjeneste.OppgavePrioritet.NORM);
-        assertThat(oppgave.ytelseType()).isEqualTo(BehandlingTema.FORELDREPENGER.getTermNavn());
+        assertThat(oppgave.ytelseType()).isEqualTo(YtelseTypeDto.FORELDREPENGER);
         assertThat(oppgave.enhetId()).isEqualTo("enhet");
         assertThat(oppgave.journalpostHarMangler()).isFalse();
     }
@@ -118,7 +119,7 @@ class ManuellJournalføringRestTjenesteTest {
         var oppgave = oppgaveDtos.get(0);
         assertThat(oppgave.aktørId()).isEqualTo(aktørId);
         assertThat(oppgave.fødselsnummer()).isEqualTo(fnr);
-        assertThat(oppgave.ytelseType()).isEqualTo(BehandlingTema.FORELDREPENGER.getTermNavn());
+        assertThat(oppgave.ytelseType()).isEqualTo(YtelseTypeDto.FORELDREPENGER);
         assertThat(oppgave.journalpostHarMangler()).isFalse();
     }
 
@@ -154,8 +155,7 @@ class ManuellJournalføringRestTjenesteTest {
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
-        var oppgave = oppgaveDtos.get(0);
-        assertThat(oppgave.ytelseType()).isEqualTo("Ukjent");
+        assertThat(oppgaveDtos.get(0).ytelseType()).isNull();
     }
 
     @Test

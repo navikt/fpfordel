@@ -13,10 +13,7 @@ import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.saf.DokumentInfo;
-import no.nav.foreldrepenger.mottak.klient.AktørIdDto;
-import no.nav.foreldrepenger.mottak.klient.Fagsak;
-import no.nav.foreldrepenger.mottak.klient.Los;
-import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
+import no.nav.foreldrepenger.mottak.klient.*;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.vedtak.exception.TekniskException;
@@ -274,18 +271,18 @@ public class ManuellJournalføringRestTjeneste {
         MANGLER_TITTEL
     }
 
-    private String mapTilYtelseType(String behandlingstema) {
+    private YtelseTypeDto mapTilYtelseType(String behandlingstema) {
         LOG.info("FPFORDEL JOURNALFØRING Oppgave med behandlingstema {}", behandlingstema);
         var behandlingTemaMappet = BehandlingTema.fraOffisiellKode(behandlingstema);
         LOG.info("FPFORDEL JOURNALFØRING Fant oppgave med behandlingTemaMappet {}", behandlingTemaMappet);
 
         return switch (behandlingTemaMappet) {
             case FORELDREPENGER, FORELDREPENGER_ADOPSJON, FORELDREPENGER_FØDSEL ->
-                    BehandlingTema.FORELDREPENGER.getTermNavn();
-            case SVANGERSKAPSPENGER -> BehandlingTema.SVANGERSKAPSPENGER.getTermNavn();
+                    YtelseTypeDto.FORELDREPENGER;
+            case SVANGERSKAPSPENGER -> YtelseTypeDto.SVANGERSKAPSPENGER;
             case ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON, ENGANGSSTØNAD_FØDSEL ->
-                    BehandlingTema.ENGANGSSTØNAD.getTermNavn();
-            default -> "Ukjent";
+                    YtelseTypeDto.ENGANGSTØNAD;
+            default -> null;
         };
     }
 
@@ -293,7 +290,7 @@ public class ManuellJournalføringRestTjeneste {
                              @NotNull String journalpostId,
                              String aktørId,
                              String fødselsnummer,
-                             @NotNull String ytelseType,
+                             @Valid YtelseTypeDto ytelseType,
                              @NotNull LocalDate frist,
                              OppgavePrioritet prioritet,
                              String beskrivelse,
