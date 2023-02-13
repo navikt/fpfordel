@@ -56,9 +56,9 @@ import static no.nav.foreldrepenger.mapper.YtelseTypeMapper.mapTilDto;
 @Unprotected
 public class ManuellJournalføringRestTjeneste {
     private final static Environment ENV = Environment.current();
-    public static final String JOURNALFOERING_PATH = "/journalfoering";
-    private static final String DOKUMENT_HENT_PATH = "/dokument/hent";
-    private static final String FULL_HENT_DOKUMENT_PATH = ENV.getProperty("context.path", "/fpfordel") + ApiConfig.API_URI + JOURNALFOERING_PATH + DOKUMENT_HENT_PATH;
+    public final static String JOURNALFOERING_PATH = "/journalfoering";
+    private final static String DOKUMENT_HENT_PATH = "/dokument/hent";
+    private final static String FULL_HENT_DOKUMENT_PATH = ENV.getProperty("context.path", "/fpfordel") + ApiConfig.API_URI + JOURNALFOERING_PATH + DOKUMENT_HENT_PATH;
     private Oppgaver oppgaver;
     private PersonInformasjon pdl;
     private ArkivTjeneste arkiv;
@@ -92,6 +92,9 @@ public class ManuellJournalføringRestTjeneste {
     })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     @Deprecated(forRemoval = true) // Skal ikke brukes direkte av frontend.
+    /**
+     * @deprecated denne tjenesten skal ikke kalles fra frontend.
+     */
     public List<TilhørendeEnhetDto> hentTilhørendeEnhet(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class)
                                                         @NotNull @Valid SaksbehandlerIdentDto saksbehandlerIdentDto) {
         var enhetDtos = los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident());
