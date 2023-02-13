@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.*;
-import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,19 +24,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -77,9 +70,8 @@ class ManuellJournalføringRestTjenesteTest {
         var expectedId = 123L;
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
-        var aktørId = "aktørId";
         var beskrivelse = "beskrivelse";
-        var journalføringOppgaver = List.of(opprettOppgave(expectedId, aktørId, now, expectedJournalpostId, beskrivelse, BehandlingTema.FORELDREPENGER_ADOPSJON));
+        var journalføringOppgaver = List.of(opprettOppgave(expectedId, now, expectedJournalpostId, beskrivelse, BehandlingTema.FORELDREPENGER_ADOPSJON));
 
         when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null, LIMIT)).thenReturn(journalføringOppgaver);
 
@@ -90,7 +82,7 @@ class ManuellJournalføringRestTjenesteTest {
         assertThat(oppgave.journalpostId()).isEqualTo(expectedJournalpostId);
         assertThat(oppgave.id()).isEqualTo(expectedId);
         assertThat(oppgave.frist()).isEqualTo(now);
-        assertThat(oppgave.aktørId()).isEqualTo(aktørId);
+        assertThat(oppgave.aktørId()).isEqualTo("aktørId");
         assertThat(oppgave.fødselsnummer()).isNull();
         assertThat(oppgave.beskrivelse()).isEqualTo(beskrivelse);
         assertThat(oppgave.opprettetDato()).isEqualTo(now);
@@ -106,9 +98,9 @@ class ManuellJournalføringRestTjenesteTest {
         var expectedId = 123L;
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
-        var aktørId = "aktørId";
         var beskrivelse = "beskrivelse";
-        var journalføringOppgaver = List.of(opprettOppgave(expectedId, aktørId, now, expectedJournalpostId, beskrivelse, BehandlingTema.FORELDREPENGER_FØDSEL));
+        var aktørId = "aktørId";
+        var journalføringOppgaver = List.of(opprettOppgave(expectedId, now, expectedJournalpostId, beskrivelse, BehandlingTema.FORELDREPENGER_FØDSEL));
 
         when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null, LIMIT)).thenReturn(journalføringOppgaver);
         var fnr = "12344345678";
@@ -124,32 +116,13 @@ class ManuellJournalføringRestTjenesteTest {
     }
 
     @Test
-    @DisplayName("/oppgaver - fnr og aktørId null om aktørId mangler")
-    void skal_ha_mangel_om_aktørId_mangler() throws Exception {
-        var expectedId = 123L;
-        var expectedJournalpostId = "12334";
-        var now = LocalDate.now();
-        var beskrivelse = "beskrivelse";
-        var journalføringOppgaver = List.of(opprettOppgave(expectedId, null, now, expectedJournalpostId, beskrivelse, BehandlingTema.ENGANGSSTØNAD_FØDSEL));
-
-        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null, LIMIT)).thenReturn(journalføringOppgaver);
-        var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
-
-        assertThat(oppgaveDtos).isNotNull().hasSize(1);
-        var oppgave = oppgaveDtos.get(0);
-        assertThat(oppgave.aktørId()).isNull();
-        assertThat(oppgave.fødselsnummer()).isNull();
-        assertThat(oppgave.journalpostHarMangler()).isTrue();
-    }
-
-    @Test
     @DisplayName("/oppgaver - ytelseType = Ukjent - om ikke FP behandlingTema")
     void skal_ha_ytelse_type_ukjent_om_det_ikke_lar_seg_utlede_fra_behandlingstema() throws Exception {
         var expectedId = 123L;
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
         var beskrivelse = "beskrivelse";
-        var journalføringOppgaver = List.of(opprettOppgave(expectedId, null, now, expectedJournalpostId, beskrivelse, BehandlingTema.OMS));
+        var journalføringOppgaver = List.of(opprettOppgave(expectedId, now, expectedJournalpostId, beskrivelse, BehandlingTema.OMS));
 
         when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null, LIMIT)).thenReturn(journalføringOppgaver);
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
@@ -165,14 +138,14 @@ class ManuellJournalføringRestTjenesteTest {
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
         var beskrivelse = "Journalføring";
-        var journalføringOppgaver = List.of(opprettOppgave(expectedId, null, now, expectedJournalpostId, beskrivelse, BehandlingTema.OMS));
+        var journalføringOppgaver = List.of(opprettOppgave(expectedId, now, expectedJournalpostId, beskrivelse, BehandlingTema.OMS));
 
         when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null, LIMIT)).thenReturn(journalføringOppgaver);
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
         var oppgave = oppgaveDtos.get(0);
-        assertThat(oppgave.mangler()).isEqualTo(List.of(ManuellJournalføringRestTjeneste.JournalpostMangel.MANGLER_BRUKER, ManuellJournalføringRestTjeneste.JournalpostMangel.MANGLER_TITTEL));
+        assertThat(oppgave.journalpostHarMangler()).isTrue();
     }
 
     @Test
@@ -181,16 +154,15 @@ class ManuellJournalføringRestTjenesteTest {
         var expectedId = 123L;
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
-        var aktørId = "aktørId";
         var beskrivelse = "Foreldrepengesøknad";
-        var journalføringOppgaver = List.of(opprettOppgave(expectedId, aktørId, now, expectedJournalpostId, beskrivelse, BehandlingTema.OMS));
+        var journalføringOppgaver = List.of(opprettOppgave(expectedId, now, expectedJournalpostId, beskrivelse, BehandlingTema.OMS));
 
         when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null, LIMIT)).thenReturn(journalføringOppgaver);
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
         var oppgave = oppgaveDtos.get(0);
-        assertThat(oppgave.mangler()).isEmpty();
+        assertThat(oppgave.journalpostHarMangler()).isFalse();
     }
 
     @Test
@@ -199,19 +171,18 @@ class ManuellJournalføringRestTjenesteTest {
         var expectedId = 123L;
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
-        var aktørId = "aktørId";
         var beskrivelse = "--- 17.01.2023 09:44 Duck, Skrue (L568956, 4860) --- printet ut og scannes i bisys --- 17.01.2023 09:37 Duck, Skrue (L568956, 4860) --- Oppgaven er flyttet fra enhet " +
                 "4812 til 4860, fra saksbehandler <ingen> til L568956 --- 13.01.2023 08:00 Duck, Donald (B568956, 4812) --- Gjelder farskap --- 12.01.2023 12:30 Dusck, Dolly (R857447, 4806)" +
                 " --- Overført rett enhet Oppgaven er flyttet fra enhet 4860 til 4812 Journalføring";
-        var journalføringOppgaver = List.of(opprettOppgave(expectedId, aktørId, now, expectedJournalpostId, beskrivelse, BehandlingTema.OMS));
+        var journalføringOppgaver = List.of(opprettOppgave(expectedId, now, expectedJournalpostId, beskrivelse, BehandlingTema.OMS));
 
         when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null, LIMIT)).thenReturn(journalføringOppgaver);
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
         var oppgave = oppgaveDtos.get(0);
-        assertThat(oppgave.beskrivelse()).isEqualTo( "Journalføring");
-        assertThat(oppgave.mangler()).contains(ManuellJournalføringRestTjeneste.JournalpostMangel.MANGLER_TITTEL);
+
+        assertThat(oppgave.trimmetBeskrivelse()).isEqualTo( "Journalføring");
     }
 
     @Test
@@ -310,13 +281,13 @@ class ManuellJournalføringRestTjenesteTest {
         assertThat(ex.getMessage()).contains("Det forventes at saksbehandler "+expectedIdent+" har minst en tilførende enhet. Fant ingen.");
     }
 
-    private static Oppgave opprettOppgave(long expectedId, String aktørId, LocalDate now, String expectedJournalpostId, String beskrivelse, BehandlingTema behandlingTema) {
+    private static Oppgave opprettOppgave(long expectedId, LocalDate now, String expectedJournalpostId, String beskrivelse, BehandlingTema behandlingTema) {
         return new Oppgave(
                 expectedId,
                 expectedJournalpostId,
                 "FPSAK",
                 null,
-                aktørId,
+                "aktørId",
                 "tema",
                 behandlingTema.getOffisiellKode(),
                 Oppgavetype.JOURNALFØRING.getKode(),
