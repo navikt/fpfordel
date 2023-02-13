@@ -33,7 +33,6 @@ import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.konfig.Tid;
-import no.nav.vedtak.sikkerhet.abac.AbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -76,8 +75,8 @@ import static no.nav.foreldrepenger.mapper.YtelseTypeMapper.mapTilDto;
 @ApplicationScoped
 @Transactional
 @Unprotected // midlertidig, fram til vi skrur over
-public class BehandleDokumentRestTjeneste {
-    private static final Logger LOG = LoggerFactory.getLogger(BehandleDokumentRestTjeneste.class);
+public class FerdigstillJournalføringRestTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(FerdigstillJournalføringRestTjeneste.class);
     static final String JOURNALPOST_IKKE_INNGÅENDE = "Journalpost ikke Inngående";
     static final String BRUKER_MANGLER = "Journalpost mangler knyting til bruker - prøv igjen om et halv minutt";
 
@@ -88,17 +87,17 @@ public class BehandleDokumentRestTjeneste {
     private DokumentRepository dokumentRepository;
     private SakClient sakClient;
 
-    protected BehandleDokumentRestTjeneste() {
+    protected FerdigstillJournalføringRestTjeneste() {
         // CDI proxy
     }
 
     @Inject
-    public BehandleDokumentRestTjeneste(VLKlargjører klargjører,
-                                        Fagsak fagsak,
-                                        SakClient sakClient,
-                                        PersonInformasjon pdl,
-                                        ArkivTjeneste arkivTjeneste,
-                                        DokumentRepository dokumentRepository) {
+    public FerdigstillJournalføringRestTjeneste(VLKlargjører klargjører,
+                                                Fagsak fagsak,
+                                                SakClient sakClient,
+                                                PersonInformasjon pdl,
+                                                ArkivTjeneste arkivTjeneste,
+                                                DokumentRepository dokumentRepository) {
         this.klargjører = klargjører;
         this.fagsak = fagsak;
         this.pdl = pdl;
@@ -117,7 +116,7 @@ public class BehandleDokumentRestTjeneste {
     public void oppdaterOgFerdigstillJournalfoering(
         @Parameter(description = "Trenger journalpostId, saksnummer og enhet til ferdigstille en journalføring. " +
                 "Om saksnummer ikke foreligger må ytelse type og aktørId oppgis for å opprette en ny sak.")
-        @NotNull @Valid @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) BehandleDokumentRestTjeneste.FerdigstillRequest request) {
+        @NotNull @Valid @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FerdigstillJournalføringRestTjeneste.FerdigstillRequest request) {
 
         String saksnummer;
 

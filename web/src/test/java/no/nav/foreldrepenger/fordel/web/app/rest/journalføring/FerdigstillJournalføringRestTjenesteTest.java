@@ -40,13 +40,13 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class BehandleDokumentRestTjenesteTest {
+class FerdigstillJournalføringRestTjenesteTest {
 
     static {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
     }
 
-    private BehandleDokumentRestTjeneste behandleDokument;
+    private FerdigstillJournalføringRestTjeneste behandleDokument;
 
     private static final String JOURNALPOST_ID = "123";
     private static final String ENHETID = "4567";
@@ -74,7 +74,7 @@ class BehandleDokumentRestTjenesteTest {
         lenient().when(journalpost.getJournalposttype()).thenReturn(INNGÅENDE);
         lenient().when(arkiv.hentArkivJournalpost(JOURNALPOST_ID)).thenReturn(journalpost);
 
-        behandleDokument = new BehandleDokumentRestTjeneste(klargjør,
+        behandleDokument = new FerdigstillJournalføringRestTjeneste(klargjør,
                 fagsak, sak, aktør, arkiv, mock(DokumentRepository.class));
     }
 
@@ -320,8 +320,8 @@ class BehandleDokumentRestTjenesteTest {
                 eq(ENGANGSSTØNAD_FØDSEL), any(), any(), any(), any());
     }
 
-    private static BehandleDokumentRestTjeneste.FerdigstillRequest req(String enhetid, String journalpostId, String sakId) {
-        return new BehandleDokumentRestTjeneste.FerdigstillRequest(
+    private static FerdigstillJournalføringRestTjeneste.FerdigstillRequest req(String enhetid, String journalpostId, String sakId) {
+        return new FerdigstillJournalføringRestTjeneste.FerdigstillRequest(
                 journalpostId,
                 enhetid,
                 sakId,
