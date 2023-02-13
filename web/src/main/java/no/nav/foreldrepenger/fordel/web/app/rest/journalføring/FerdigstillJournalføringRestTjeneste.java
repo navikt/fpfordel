@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.OpprettSakV2Dto;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.foreldrepenger.mottak.sak.SakClient;
 import no.nav.foreldrepenger.mottak.task.VLKlargjørerTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
@@ -85,7 +84,6 @@ public class FerdigstillJournalføringRestTjeneste {
     private PersonInformasjon pdl;
     private ArkivTjeneste arkivTjeneste;
     private DokumentRepository dokumentRepository;
-    private SakClient sakClient;
 
     protected FerdigstillJournalføringRestTjeneste() {
         // CDI proxy
@@ -94,7 +92,6 @@ public class FerdigstillJournalføringRestTjeneste {
     @Inject
     public FerdigstillJournalføringRestTjeneste(VLKlargjører klargjører,
                                                 Fagsak fagsak,
-                                                SakClient sakClient,
                                                 PersonInformasjon pdl,
                                                 ArkivTjeneste arkivTjeneste,
                                                 DokumentRepository dokumentRepository) {
@@ -103,7 +100,6 @@ public class FerdigstillJournalføringRestTjeneste {
         this.pdl = pdl;
         this.arkivTjeneste = arkivTjeneste;
         this.dokumentRepository = dokumentRepository;
-        this.sakClient = sakClient;
     }
 
     @POST

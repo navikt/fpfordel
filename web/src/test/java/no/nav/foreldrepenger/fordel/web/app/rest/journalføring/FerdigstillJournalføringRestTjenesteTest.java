@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.foreldrepenger.mottak.sak.SakClient;
 import no.nav.foreldrepenger.mottak.tjeneste.VLKlargjører;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
@@ -62,8 +61,6 @@ class FerdigstillJournalføringRestTjenesteTest {
     @Mock
     private PersonInformasjon aktør;
     @Mock
-    private SakClient sak;
-    @Mock
     private ArkivJournalpost journalpost;
 
     @BeforeEach
@@ -75,7 +72,7 @@ class FerdigstillJournalføringRestTjenesteTest {
         lenient().when(arkiv.hentArkivJournalpost(JOURNALPOST_ID)).thenReturn(journalpost);
 
         behandleDokument = new FerdigstillJournalføringRestTjeneste(klargjør,
-                fagsak, sak, aktør, arkiv, mock(DokumentRepository.class));
+                fagsak, aktør, arkiv, mock(DokumentRepository.class));
     }
 
     @Test
