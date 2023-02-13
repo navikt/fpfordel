@@ -10,10 +10,6 @@
         <version>${revision}</version>
     </parent>
 
-    <properties>
-        <sonar.skip>true</sonar.skip>
-    </properties>
-
     <artifactId>migreringer</artifactId>
     <packaging>jar</packaging>
     <name>Fordel :: Database migreringer</name>

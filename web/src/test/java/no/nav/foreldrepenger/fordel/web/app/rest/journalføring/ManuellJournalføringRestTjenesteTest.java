@@ -108,8 +108,7 @@ class ManuellJournalføringRestTjenesteTest {
         when(pdl.hentPersonIdentForAktørId(aktørId)).thenReturn(Optional.of(fnr));
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
-        assertThat(oppgaveDtos).isNotNull();
-        assertThat(oppgaveDtos).hasSize(1);
+        assertThat(oppgaveDtos).isNotNull().hasSize(1);
         var oppgave = oppgaveDtos.get(0);
         assertThat(oppgave.aktørId()).isEqualTo(aktørId);
         assertThat(oppgave.fødselsnummer()).isEqualTo(fnr);
