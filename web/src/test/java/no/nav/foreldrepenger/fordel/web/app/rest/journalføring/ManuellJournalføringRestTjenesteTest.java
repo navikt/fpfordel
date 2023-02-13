@@ -215,7 +215,7 @@ class ManuellJournalføringRestTjenesteTest {
         assertThat(response.getMediaType()).isEqualTo(MediaType.APPLICATION_JSON_TYPE);
         var entity = response.getEntity();
         assertThat(entity).isExactlyInstanceOf(FeilDto.class);
-        assertThat(((FeilDto) entity).feilmelding()).contains(String.format("Dokument ikke funnet for journalpost= %s dokId= %s",
+        assertThat(((FeilDto) entity).feilmelding()).contains(String.format("Dokument ikke funnet for journalpost= %s dokument= %s",
                 expectedJournalpostId, expectedDokumentId));
     }
 
