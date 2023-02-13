@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.*;
+import org.assertj.core.api.ListAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -107,7 +108,8 @@ class ManuellJournalføringRestTjenesteTest {
         when(pdl.hentPersonIdentForAktørId(aktørId)).thenReturn(Optional.of(fnr));
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
-        assertThat(oppgaveDtos).isNotNull().hasSize(1);
+        assertThat(oppgaveDtos).isNotNull();
+        assertThat(oppgaveDtos).hasSize(1);
         var oppgave = oppgaveDtos.get(0);
         assertThat(oppgave.aktørId()).isEqualTo(aktørId);
         assertThat(oppgave.fødselsnummer()).isEqualTo(fnr);
