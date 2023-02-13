@@ -15,5 +15,4 @@ public class SoapServlet extends AbstractSoapServlet {
     public void publishBehandleDokumentService(BehandleDokumentforsendelseV1 behandleDokumentService) {
         publish(behandleDokumentService);
     }
-
 }
