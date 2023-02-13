@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.foreldrepenger.mottak.sak.SakClient;
 import no.nav.foreldrepenger.mottak.tjeneste.VLKlargjører;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
@@ -40,13 +39,13 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class BehandleDokumentRestTjenesteTest {
+class FerdigstillJournalføringRestTjenesteTest {
 
     static {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
     }
 
-    private BehandleDokumentRestTjeneste behandleDokument;
+    private FerdigstillJournalføringRestTjeneste behandleDokument;
 
     private static final String JOURNALPOST_ID = "123";
     private static final String ENHETID = "4567";
@@ -62,8 +61,6 @@ class BehandleDokumentRestTjenesteTest {
     @Mock
     private PersonInformasjon aktør;
     @Mock
-    private SakClient sak;
-    @Mock
     private ArkivJournalpost journalpost;
 
     @BeforeEach
@@ -74,8 +71,8 @@ class BehandleDokumentRestTjenesteTest {
         lenient().when(journalpost.getJournalposttype()).thenReturn(INNGÅENDE);
         lenient().when(arkiv.hentArkivJournalpost(JOURNALPOST_ID)).thenReturn(journalpost);
 
-        behandleDokument = new BehandleDokumentRestTjeneste(klargjør,
-                fagsak, sak, aktør, arkiv, mock(DokumentRepository.class));
+        behandleDokument = new FerdigstillJournalføringRestTjeneste(klargjør,
+                fagsak, aktør, arkiv, mock(DokumentRepository.class));
     }
 
     @Test
@@ -320,8 +317,8 @@ class BehandleDokumentRestTjenesteTest {
                 eq(ENGANGSSTØNAD_FØDSEL), any(), any(), any(), any());
     }
 
-    private static BehandleDokumentRestTjeneste.FerdigstillRequest req(String enhetid, String journalpostId, String sakId) {
-        return new BehandleDokumentRestTjeneste.FerdigstillRequest(
+    private static FerdigstillJournalføringRestTjeneste.FerdigstillRequest req(String enhetid, String journalpostId, String sakId) {
+        return new FerdigstillJournalføringRestTjeneste.FerdigstillRequest(
                 journalpostId,
                 enhetid,
                 sakId,

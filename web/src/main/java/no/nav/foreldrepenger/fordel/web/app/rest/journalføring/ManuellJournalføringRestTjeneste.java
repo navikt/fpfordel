@@ -8,6 +8,8 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilType;
+import no.nav.foreldrepenger.fordel.web.app.konfig.ApiConfig;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
@@ -38,24 +40,30 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.foreldrepenger.mapper.YtelseTypeMapper.mapTilDto;
 
-@Path("/journalfoering")
+@Path(ManuellJournalføringRestTjeneste.JOURNALFOERING_PATH)
 @RequestScoped
 @Transactional
 @Unprotected
 public class ManuellJournalføringRestTjeneste {
+    private static final Environment ENV = Environment.current();
+    public static final String JOURNALFOERING_PATH = "/journalfoering";
+    private static final String DOKUMENT_HENT_PATH = "/dokument/hent";
+    private static final String FULL_HENT_DOKUMENT_PATH = ENV.getProperty("context.path", "/fpfordel") + ApiConfig.API_URI + JOURNALFOERING_PATH + DOKUMENT_HENT_PATH;
     private Oppgaver oppgaver;
     private PersonInformasjon pdl;
     private ArkivTjeneste arkiv;
     private Fagsak fagsak;
     private Los los;
-    private final String LIMIT = "50";
     private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringRestTjeneste.class);
 
     public ManuellJournalføringRestTjeneste() {
@@ -83,8 +91,12 @@ public class ManuellJournalføringRestTjeneste {
             @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
     })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @Deprecated(forRemoval = true) // Skal ikke brukes direkte av frontend.
+    /**
+     * @deprecated denne tjenesten skal ikke kalles fra frontend.
+     */
     public List<TilhørendeEnhetDto> hentTilhørendeEnhet(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class)
-                                                            @NotNull @Valid SaksbehandlerIdentDto saksbehandlerIdentDto) {
+                                                        @NotNull @Valid SaksbehandlerIdentDto saksbehandlerIdentDto) {
         var enhetDtos = los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident());
 
         if (enhetDtos.isEmpty()) {
@@ -102,8 +114,8 @@ public class ManuellJournalføringRestTjeneste {
     })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public List<OppgaveDto> hentÅpneOppgaver() throws Exception {
-        var liste = oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null, LIMIT);
-        LOG.info("Hentet totalt {} journalføringsoppgaver fra Gosys", liste.size() );
+        var liste = oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null, "50");
+        LOG.info("Hentet totalt {} journalføringsoppgaver fra Gosys", liste.size());
 
         return liste.stream().filter(oppgave -> oppgave.aktoerId() != null).map(this::lagOppgaveDto).toList();
     }
@@ -127,21 +139,22 @@ public class ManuellJournalføringRestTjeneste {
     }
 
     @GET
-    @Path("/dokument/hent")
+    @Path(DOKUMENT_HENT_PATH)
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @Operation(description = "Søk etter dokument på JOARK-identifikatorene journalpostId og dokumentId", summary = ("Retunerer dokument som er tilknyttet journalpost og dokumentId."), tags = "Manuell journalføring")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response hentDokument(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("journalpostId") @Valid JournalpostIdDto journalpostId,
                                  @TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("dokumentId") @Valid DokumentIdDto dokumentId) {
+        var journalpost = journalpostId.getJournalpostId();
+        var dokument = dokumentId.dokumentId();
         try {
-            var responseBuilder = Response.ok(new ByteArrayInputStream(arkiv.hentDokumet(journalpostId.getJournalpostId(), dokumentId.getDokumentId())));
+            var responseBuilder = Response.ok(new ByteArrayInputStream(arkiv.hentDokumet(journalpost, dokument)));
             responseBuilder.type("application/pdf");
             responseBuilder.header("Content-Disposition", "filename=dokument.pdf");
             return responseBuilder.build();
         } catch (Exception e) {
-            var feilmelding = String.format("Dokument ikke funnet for journalpost= %s dokId= %s",
-                    journalpostId.getJournalpostId(), dokumentId.getDokumentId());
+            var feilmelding = String.format("Dokument ikke funnet for journalpost= %s dokument= %s", journalpost, dokument);
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(new FeilDto(feilmelding, FeilType.TOMT_RESULTAT_FEIL))
                     .type(MediaType.APPLICATION_JSON)
@@ -183,7 +196,10 @@ public class ManuellJournalføringRestTjeneste {
                 .map(dok -> new JournalpostDetaljerDto.DokumentDto(
                         dok.dokumentInfoId(),
                         dok.tittel(),
-                        String.format("/fpfordel/api/journalfoering/dokument/hent?journalpostId=%s&dokumentId=%s", journalpostId, dok.dokumentInfoId())))
+                        String.format("%s?journalpostId=%s&dokumentId=%s",
+                                FULL_HENT_DOKUMENT_PATH,
+                                journalpostId,
+                                dok.dokumentInfoId())))
                 .collect(Collectors.toSet());
     }
 
@@ -213,27 +229,28 @@ public class ManuellJournalføringRestTjeneste {
                 oppgave.tildeltEnhetsnr());
     }
 
-    private String  tekstFraBeskrivelse(String beskrivelse) {
+    private String tekstFraBeskrivelse(String beskrivelse) {
         if (beskrivelse == null) {
             return "Journalføring";
         }
         //Når vi oppretter gosys oppgave avsluttes teksten med (dd.mm.yyyy)
         int i = beskrivelse.length();
-        if (beskrivelse.charAt(i-1) == ')') {
-            i = i-12;
+        if (beskrivelse.charAt(i - 1) == ')') {
+            i = i - 12;
         }
 
-        while (i > 0 && !(Character.isDigit(beskrivelse.charAt(i-1)) || beskrivelse.charAt(i-1) == ',' || beskrivelse.charAt(i-1) == '*'|| beskrivelse.charAt(i-1) == '>')) i--;
+        while (i > 0 && !(Character.isDigit(beskrivelse.charAt(i - 1)) || beskrivelse.charAt(i - 1) == ',' || beskrivelse.charAt(i - 1) == '*' || beskrivelse.charAt(i - 1) == '>'))
+            i--;
 
         if (i < beskrivelse.length() && beskrivelse.charAt(i) == ' ') i++;
 
-        if (i == beskrivelse.length() ) {
+        if (i == beskrivelse.length()) {
             return beskrivelse;
         }
         //I tilfelle vi tar bort for mye
         if (beskrivelse.substring(i).length() < 2) {
             var i2 = beskrivelse.length();
-            while (i2 > 0 && (beskrivelse.charAt(i2-1) != ',')) i2--;
+            while (i2 > 0 && (beskrivelse.charAt(i2 - 1) != ',')) i2--;
             return beskrivelse.substring(i2);
         }
         return beskrivelse.substring(i);
@@ -265,11 +282,9 @@ public class ManuellJournalføringRestTjeneste {
         LOG.info("FPFORDEL JOURNALFØRING Fant oppgave med behandlingTemaMappet {}", behandlingTemaMappet);
 
         return switch (behandlingTemaMappet) {
-            case FORELDREPENGER, FORELDREPENGER_ADOPSJON, FORELDREPENGER_FØDSEL ->
-                    YtelseTypeDto.FORELDREPENGER;
+            case FORELDREPENGER, FORELDREPENGER_ADOPSJON, FORELDREPENGER_FØDSEL -> YtelseTypeDto.FORELDREPENGER;
             case SVANGERSKAPSPENGER -> YtelseTypeDto.SVANGERSKAPSPENGER;
-            case ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON, ENGANGSSTØNAD_FØDSEL ->
-                    YtelseTypeDto.ENGANGSTØNAD;
+            case ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON, ENGANGSSTØNAD_FØDSEL -> YtelseTypeDto.ENGANGSTØNAD;
             default -> null;
         };
     }
