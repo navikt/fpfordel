@@ -55,10 +55,10 @@ import static no.nav.foreldrepenger.mapper.YtelseTypeMapper.mapTilDto;
 @Transactional
 @Unprotected
 public class ManuellJournalføringRestTjeneste {
-    private final static Environment ENV = Environment.current();
-    public final static String JOURNALFOERING_PATH = "/journalfoering";
-    private final static String DOKUMENT_HENT_PATH = "/dokument/hent";
-    private final static String FULL_HENT_DOKUMENT_PATH = ENV.getProperty("context.path", "/fpfordel") + ApiConfig.API_URI + JOURNALFOERING_PATH + DOKUMENT_HENT_PATH;
+    private static final Environment ENV = Environment.current();
+    public static final String JOURNALFOERING_PATH = "/journalfoering";
+    private static final String DOKUMENT_HENT_PATH = "/dokument/hent";
+    private static final String FULL_HENT_DOKUMENT_PATH = ENV.getProperty("context.path", "/fpfordel") + ApiConfig.API_URI + JOURNALFOERING_PATH + DOKUMENT_HENT_PATH;
     private Oppgaver oppgaver;
     private PersonInformasjon pdl;
     private ArkivTjeneste arkiv;
