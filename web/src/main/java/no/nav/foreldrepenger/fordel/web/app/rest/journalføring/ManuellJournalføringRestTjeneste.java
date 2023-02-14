@@ -1,30 +1,5 @@
 package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static no.nav.foreldrepenger.mapper.YtelseTypeMapper.mapTilDto;
-
-import java.io.ByteArrayInputStream;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -39,7 +14,10 @@ import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.saf.DokumentInfo;
-import no.nav.foreldrepenger.mottak.klient.*;
+import no.nav.foreldrepenger.mottak.klient.AktørIdDto;
+import no.nav.foreldrepenger.mottak.klient.Fagsak;
+import no.nav.foreldrepenger.mottak.klient.Los;
+import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.vedtak.exception.TekniskException;
@@ -52,7 +30,6 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,13 +41,9 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -82,13 +55,15 @@ import static no.nav.foreldrepenger.mapper.YtelseTypeMapper.mapTilDto;
 @Transactional
 @Unprotected
 public class ManuellJournalføringRestTjeneste {
-    public static final String JOURNALFOERING_PATH = "/journalfoering";
+    private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringRestTjeneste.class);
     private static final Environment ENV = Environment.current();
+
+    public static final String JOURNALFOERING_PATH = "/journalfoering";
     private static final String DOKUMENT_HENT_PATH = "/dokument/hent";
     private static final String FULL_HENT_DOKUMENT_PATH =
         ENV.getProperty("context.path", "/fpfordel") + ApiConfig.API_URI + JOURNALFOERING_PATH + DOKUMENT_HENT_PATH;
-    private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringRestTjeneste.class);
     private static final String LIMIT = "50";
+
     private Oppgaver oppgaver;
     private PersonInformasjon pdl;
     private ArkivTjeneste arkiv;
@@ -106,33 +81,6 @@ public class ManuellJournalføringRestTjeneste {
         this.arkiv = arkiv;
         this.fagsak = fagsak;
         this.los = los;
-    }
-
-    private static Set<JournalpostDetaljerDto.DokumentDto> mapDokumenter(String journalpostId, List<DokumentInfo> dokumenter) {
-        return dokumenter.stream()
-            .map(dok -> new JournalpostDetaljerDto.DokumentDto(dok.dokumentInfoId(), dok.tittel(),
-                String.format("%s?journalpostId=%s&dokumentId=%s", FULL_HENT_DOKUMENT_PATH, journalpostId, dok.dokumentInfoId())))
-            .collect(Collectors.toSet());
-    }
-
-    /**
-     * @deprecated denne tjenesten skal ikke kalles fra frontend.
-     */
-    @GET
-    @Path("/enhet")
-    @Produces(APPLICATION_JSON)
-    @Consumes(APPLICATION_JSON)
-    @Operation(description = "Henter alle åpne journalføringsoppgaver for tema FOR og for saksbehandlers tilhørende enhet.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    @Deprecated(forRemoval = true) // Skal ikke brukes direkte av frontend.
-    public List<TilhørendeEnhetDto> hentTilhørendeEnhet(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @NotNull @Valid SaksbehandlerIdentDto saksbehandlerIdentDto) {
-        var enhetDtos = los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident());
-
-        if (enhetDtos.isEmpty()) {
-            throw new IllegalStateException(
-                String.format("Det forventes at saksbehandler %s har minst en tilførende enhet. Fant ingen.", saksbehandlerIdentDto.ident()));
-        }
-        return enhetDtos;
     }
 
     @GET
@@ -201,6 +149,13 @@ public class ManuellJournalføringRestTjeneste {
                 .type(MediaType.APPLICATION_JSON)
                 .build();
         }
+    }
+
+    private static Set<JournalpostDetaljerDto.DokumentDto> mapDokumenter(String journalpostId, List<DokumentInfo> dokumenter) {
+        return dokumenter.stream()
+                .map(dok -> new JournalpostDetaljerDto.DokumentDto(dok.dokumentInfoId(), dok.tittel(),
+                        String.format("%s?journalpostId=%s&dokumentId=%s", FULL_HENT_DOKUMENT_PATH, journalpostId, dok.dokumentInfoId())))
+                .collect(Collectors.toSet());
     }
 
     private JournalpostDetaljerDto mapTilJournalpostDetaljerDto(ArkivJournalpost journalpost) {

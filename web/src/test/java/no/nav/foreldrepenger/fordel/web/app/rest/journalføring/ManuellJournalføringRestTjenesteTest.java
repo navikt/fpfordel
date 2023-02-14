@@ -1,24 +1,5 @@
 package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
-
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-import javax.ws.rs.core.MediaType;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
@@ -33,11 +14,24 @@ import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import javax.ws.rs.core.MediaType;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ManuellJournalføringRestTjenesteTest {
@@ -53,21 +47,10 @@ class ManuellJournalføringRestTjenesteTest {
     private ArkivTjeneste arkiv;
     @Mock
     private Los los;
-    private ManuellJournalføringRestTjeneste restTjeneste;
-
-    private final String LIMIT = "50";
     private final SaksbehandlerIdentDto saksbehandlerIdentDto = new SaksbehandlerIdentDto("123456");
     private final TilhørendeEnhetDto tilhørendeEnhetDto = new TilhørendeEnhetDto("9999", "Navn på enhet");
 
-
-    private static Oppgave opprettOppgave(long expectedId,
-                                          LocalDate now,
-                                          String expectedJournalpostId,
-                                          String beskrivelse,
-                                          BehandlingTema behandlingTema) {
-        return new Oppgave(expectedId, expectedJournalpostId, "FPSAK", null, "aktørId", "tema", behandlingTema.getOffisiellKode(),
-            Oppgavetype.JOURNALFØRING.getKode(), "behType", 1, "enhet", now, now, Prioritet.NORM, Oppgavestatus.AAPNET, beskrivelse);
-    }
+    private ManuellJournalføringRestTjeneste restTjeneste;
 
     @BeforeEach
     void setUp() {
@@ -304,34 +287,6 @@ class ManuellJournalføringRestTjenesteTest {
 
         assertThat(ex).isNotNull();
         assertThat(ex.journalpostId()).isEqualTo(expectedJournalpostId);
-    }
-
-    @Test
-    @DisplayName("/ehnet - returner detaljer.")
-    void skal_returnere_ehneter() {
-        var expectedIdent = "x452323";
-
-        var enheter = List.of(new TilhørendeEnhetDto("9999", "Ni enhet"), new TilhørendeEnhetDto("0000", "Null enhet"));
-
-        when(los.hentTilhørendeEnheter(expectedIdent)).thenReturn(enheter);
-
-        var resp = restTjeneste.hentTilhørendeEnhet(new SaksbehandlerIdentDto(expectedIdent));
-
-        assertThat(resp).isNotNull().hasSize(2).isEqualTo(enheter);
-    }
-
-    @Test
-    @DisplayName("/ehnet - returner exception om empty list.")
-    void skal_returnere_exception_om_ingen_enheter_funnet() {
-        var expectedIdent = "x452323";
-
-        when(los.hentTilhørendeEnheter(expectedIdent)).thenReturn(List.of());
-
-        var saksbehandlerIdentDto = new SaksbehandlerIdentDto(expectedIdent);
-
-        var ex = assertThrows(IllegalStateException.class, () -> restTjeneste.hentTilhørendeEnhet(saksbehandlerIdentDto));
-
-        assertThat(ex.getMessage()).contains("Det forventes at saksbehandler " + expectedIdent + " har minst en tilførende enhet. Fant ingen.");
     }
 
     private static Oppgave opprettOppgave(long expectedId, LocalDate now, String expectedJournalpostId, String beskrivelse, BehandlingTema behandlingTema, String enhetsNr) {
