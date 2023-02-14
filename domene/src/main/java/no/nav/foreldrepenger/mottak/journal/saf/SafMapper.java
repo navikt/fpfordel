@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 import no.nav.saf.Journalposttype;
 import no.nav.saf.Journalstatus;
 import no.nav.saf.Kanal;
+import no.nav.saf.LogiskVedlegg;
 import no.nav.saf.Tema;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.AvsenderMottaker;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Bruker;
@@ -77,7 +78,7 @@ class SafMapper {
 
     private static Dokumentvariant.Variantformat map(no.nav.saf.Variantformat vf) {
         try {
-            return Optional.ofNullable(vf).map(v -> v.name()).map(Dokumentvariant.Variantformat::valueOf).orElse(null);
+            return Optional.ofNullable(vf).map(Enum::name).map(Dokumentvariant.Variantformat::valueOf).orElse(null);
         } catch (Exception e) {
             return null;
         }
@@ -88,7 +89,7 @@ class SafMapper {
     }
 
     private static DokumentInfo.LogiskVedlegg map(no.nav.saf.LogiskVedlegg vedlegg) {
-        return Optional.ofNullable(vedlegg).map(v -> v.getTittel()).map(DokumentInfo.LogiskVedlegg::new).orElse(null);
+        return Optional.ofNullable(vedlegg).map(LogiskVedlegg::getTittel).map(DokumentInfo.LogiskVedlegg::new).orElse(null);
     }
 
     private static Sak map(no.nav.saf.Sak sak) {
@@ -121,7 +122,7 @@ class SafMapper {
     private static Bruker.BrukerIdType map(no.nav.saf.BrukerIdType type) {
 
         try {
-            return Optional.ofNullable(type).map(t -> t.name()).map(Bruker.BrukerIdType::valueOf).orElse(null);
+            return Optional.ofNullable(type).map(Enum::name).map(Bruker.BrukerIdType::valueOf).orElse(null);
         } catch (Exception e) {
             return Bruker.BrukerIdType.UKJENT;
         }

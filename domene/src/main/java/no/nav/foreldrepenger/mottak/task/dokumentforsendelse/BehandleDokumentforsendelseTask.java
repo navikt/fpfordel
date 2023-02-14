@@ -209,8 +209,10 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
             .flatMap(pdl::hentAktørIdForPersonIdent)
             .filter(kontekstAktørId -> !kontekstAktørId.equals(brukerAktørId));
         if (avvik.isPresent()) {
-            LOG.warn("Avvik mellom Subject.uid {} og bruker fra forsendelse {}", StringUtil.mask(metadata.getOpprettetAv()),
-                StringUtil.mask(brukerAktørId));
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Avvik mellom Subject.uid {} og bruker fra forsendelse {}", StringUtil.mask(metadata.getOpprettetAv()),
+                    StringUtil.mask(brukerAktørId));
+            }
             throw new TekniskException("FP-638069", "Avvik mellom oppgitt bruker og innlogget bruker fra forsendelse");
         }
     }

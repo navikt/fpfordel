@@ -154,7 +154,7 @@ public class FerdigstillJournalføringRestTjeneste {
 
     private static void validerJournalpostId(String journalpostId) {
         if (erNullEllerTom(journalpostId)) {
-            throw new TekniskException("FP-15678", lagUgyldigInputMelding("JournalpostId", journalpostId));
+            throw new TekniskException("FP-15688", lagUgyldigInputMelding("JournalpostId", journalpostId));
         }
     }
 
@@ -256,7 +256,7 @@ public class FerdigstillJournalføringRestTjeneste {
                 arkivTjeneste.ferdigstillJournalføring(journalpost.getJournalpostId(), request.enhetId());
             } catch (Exception e) {
                 LOG.warn("FPFORDEL JOURNALFØRING oppdaterOgFerdigstillJournalfoering feiler for {}", journalpost.getJournalpostId(), e);
-                throw new TekniskException("FP-15678", lagUgyldigInputMelding("Bruker", BRUKER_MANGLER), e);
+                throw new TekniskException("FP-15689", lagUgyldigInputMelding("Bruker", BRUKER_MANGLER), e);
             }
         }
 

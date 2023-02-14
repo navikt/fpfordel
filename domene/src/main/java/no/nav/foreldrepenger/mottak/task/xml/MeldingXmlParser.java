@@ -20,14 +20,14 @@ public final class MeldingXmlParser {
         //        TODO: Legge inn og erstatt eksisterende innslag
         //              slik at søknadsXML blir validert ved parsing.
         no.nav.foreldrepenger.søknad.v3.SøknadConstants.NAMESPACE,
-        (xml) -> unmarshalXMLWithStAX(no.nav.foreldrepenger.søknad.v3.SøknadConstants.JAXB_CLASS, xml,
+        xml -> unmarshalXMLWithStAX(no.nav.foreldrepenger.søknad.v3.SøknadConstants.JAXB_CLASS, xml,
             no.nav.foreldrepenger.søknad.v3.SøknadConstants.ADDITIONAL_CLASSES),
 
         InntektsmeldingConstants.NAMESPACE,
-        (xml) -> unmarshalAndValidateXMLWithStAX(InntektsmeldingConstants.JAXB_CLASS, xml, InntektsmeldingConstants.XSD_LOCATION),
+        xml -> unmarshalAndValidateXMLWithStAX(InntektsmeldingConstants.JAXB_CLASS, xml, InntektsmeldingConstants.XSD_LOCATION),
 
         no.seres.xsd.nav.inntektsmelding_m._201812.InntektsmeldingConstants.NAMESPACE,
-        (xml) -> unmarshalAndValidateXMLWithStAX(no.seres.xsd.nav.inntektsmelding_m._201812.InntektsmeldingConstants.JAXB_CLASS, xml,
+        xml -> unmarshalAndValidateXMLWithStAX(no.seres.xsd.nav.inntektsmelding_m._201812.InntektsmeldingConstants.JAXB_CLASS, xml,
             no.seres.xsd.nav.inntektsmelding_m._201812.InntektsmeldingConstants.XSD_LOCATION));
 
     private MeldingXmlParser() {

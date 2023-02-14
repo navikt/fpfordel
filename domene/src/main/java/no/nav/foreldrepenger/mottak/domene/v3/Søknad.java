@@ -106,7 +106,7 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
         final Ytelse ytelse = getSkjema().getOmYtelse()
             .getAny()
             .stream()
-            .filter(it -> it instanceof JAXBElement)
+            .filter(JAXBElement.class::isInstance)
             .map(jb -> ((JAXBElement<?>) jb).getValue())
             .map(o -> (Ytelse) o)
             .findFirst()
@@ -115,7 +115,7 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
         if (ytelse != null) {
             return ytelse;
         }
-        return getSkjema().getOmYtelse().getAny().stream().filter(it -> it instanceof Ytelse).map(o -> (Ytelse) o).findFirst().orElse(null);
+        return getSkjema().getOmYtelse().getAny().stream().filter(Ytelse.class::isInstance).map(o -> (Ytelse) o).findFirst().orElse(null);
     }
 
     public void sjekkNødvendigeFeltEksisterer(UUID forsendelseId) {

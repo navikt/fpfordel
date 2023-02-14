@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -211,7 +210,7 @@ class HentDataFraJoarkTaskTest {
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         dataWrapper.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
         var dokument = joarkTestsupport.lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING, "testsoknader/inntektsmelding-svp.xml");
-        doReturn(Optional.of(JoarkTestsupport.BRUKER_FNR)).when(aktørConsumer).hentPersonIdentForAktørId(eq(JoarkTestsupport.AKTØR_ID));
+        doReturn(Optional.of(JoarkTestsupport.BRUKER_FNR)).when(aktørConsumer).hentPersonIdentForAktørId(JoarkTestsupport.AKTØR_ID);
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
         when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(Destinasjon.FPSAK_UTEN_SAK);
         when(vurderVLSaker.opprettSak(any())).thenReturn("123");
@@ -228,7 +227,7 @@ class HentDataFraJoarkTaskTest {
         dataWrapper.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
         var dokument = joarkTestsupport.lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING, "testsoknader/inntektsmelding-far-svp.xml");
         String fnrPåInntektsmelding = "99999999999";
-        doReturn(Optional.of(fnrPåInntektsmelding)).when(aktørConsumer).hentPersonIdentForAktørId(eq(JoarkTestsupport.AKTØR_ID));
+        doReturn(Optional.of(fnrPåInntektsmelding)).when(aktørConsumer).hentPersonIdentForAktørId(JoarkTestsupport.AKTØR_ID);
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
