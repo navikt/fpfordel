@@ -40,6 +40,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -64,6 +65,7 @@ public class ManuellJournalføringRestTjeneste {
     private ArkivTjeneste arkiv;
     private Fagsak fagsak;
     private Los los;
+    private final String LIMIT = "50";
     private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringRestTjeneste.class);
 
     public ManuellJournalføringRestTjeneste() {
@@ -113,11 +115,26 @@ public class ManuellJournalføringRestTjeneste {
             @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
     })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public List<OppgaveDto> hentÅpneOppgaver() throws Exception {
-        var liste = oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), null, "50");
-        LOG.info("Hentet totalt {} journalføringsoppgaver fra Gosys", liste.size());
+    public List<OppgaveDto> hentÅpneOppgaverForSaksbehandler(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @NotNull @Valid SaksbehandlerIdentDto saksbehandlerIdentDto) {
+        var tilhørendeEnheter = los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident());
 
-        return liste.stream().filter(oppgave -> oppgave.aktoerId() != null).map(this::lagOppgaveDto).toList();
+        if (tilhørendeEnheter.isEmpty()) {
+            throw new IllegalStateException(String.format("Det forventes at saksbehandler %s har minst en tilførende enhet. Fant ingen.", saksbehandlerIdentDto.ident()));
+        }
+
+        List<OppgaveDto> oppgaverPåSaksbehandlersEnheter = new ArrayList<>();
+        tilhørendeEnheter.forEach(enhet -> {
+            try {
+                oppgaverPåSaksbehandlersEnheter.addAll(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), enhet.enhetsnummer(), LIMIT)
+                        .stream()
+                        .filter(oppgave -> oppgave.aktoerId() != null)
+                        .map(this::lagOppgaveDto)
+                        .toList());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return oppgaverPåSaksbehandlersEnheter;
     }
 
     @GET
