@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.fordel.web.app.tjenester;
 
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.turbo.MarkerFilter;
 import ch.qos.logback.core.spi.FilterReply;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
 
 public class CustomConfidentialMarkerFilter extends MarkerFilter {
         public static final Marker CONFIDENTIAL = MarkerFactory.getMarker("CONFIDENTIAL");

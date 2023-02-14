@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.hendelse.test;
 
 import org.apache.avro.Schema;
 
-import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.avro.AvroSchema;
 import io.confluent.kafka.schemaregistry.client.MockSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;

@@ -1,12 +1,21 @@
 package no.nav.foreldrepenger.mottak.journal;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
+import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.journal.saf.DokumentInfo;
 import no.nav.foreldrepenger.mottak.journal.saf.Journalpost;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Tilleggsopplysning;
-
-import java.time.LocalDateTime;
-import java.util.*;
 
 public class ArkivJournalpost {
 

@@ -1,14 +1,15 @@
 package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
 
-import no.nav.foreldrepenger.mottak.klient.StatusDto;
-import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
+import java.time.LocalDate;
+import java.util.Set;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.LocalDate;
-import java.util.Set;
+
+import no.nav.foreldrepenger.mottak.klient.StatusDto;
+import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 
 public record JournalpostDetaljerDto(@NotNull String journalpostId,
                                      @NotNull String tittel,

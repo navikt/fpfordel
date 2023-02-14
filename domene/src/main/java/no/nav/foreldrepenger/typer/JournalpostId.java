@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.typer;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.regex.Pattern;
+
+import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
  * Journalpostid refererer til journalpost registret i Joark.

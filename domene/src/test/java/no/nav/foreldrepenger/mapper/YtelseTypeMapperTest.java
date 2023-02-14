@@ -1,10 +1,11 @@
 package no.nav.foreldrepenger.mapper;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.YtelseType;
-import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.fordel.kodeverdi.YtelseType;
+import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 
 class YtelseTypeMapperTest {
 
