@@ -84,10 +84,10 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
         // Annet dokument fra dokumentmottak (scanning, altinn). Kan skippe
         // unntakshåndtering. Bør feile.
         try {
-            if (w.getInnkommendeSaksnummer().isEmpty()) {
-                arkivTjeneste.oppdaterMedSak(w.getArkivId(), saksnummer, w.getAktørId().orElseThrow());
-            } else {
+            if (w.getInnkommendeSaksnummer().isPresent()) {
                 LOG.info("FORDEL OPPRETT/FERDIG presatt saksnummer {} for journalpost {}", w.getInnkommendeSaksnummer().get(), w.getArkivId());
+            } else {
+                arkivTjeneste.oppdaterMedSak(w.getArkivId(), saksnummer, w.getAktørId().orElseThrow());
             }
             arkivTjeneste.ferdigstillJournalføring(w.getArkivId(), w.getJournalførendeEnhet().orElse(AUTOMATISK_ENHET));
         } catch (Exception e) {
