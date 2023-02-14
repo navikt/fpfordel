@@ -115,6 +115,9 @@ public class ManuellJournalføringRestTjeneste {
             .collect(Collectors.toSet());
     }
 
+    /**
+     * @deprecated denne tjenesten skal ikke kalles fra frontend.
+     */
     @GET
     @Path("/enhet")
     @Produces(APPLICATION_JSON)
@@ -122,9 +125,6 @@ public class ManuellJournalføringRestTjeneste {
     @Operation(description = "Henter alle åpne journalføringsoppgaver for tema FOR og for saksbehandlers tilhørende enhet.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     @Deprecated(forRemoval = true) // Skal ikke brukes direkte av frontend.
-    /*
-     * @deprecated denne tjenesten skal ikke kalles fra frontend.
-     */
     public List<TilhørendeEnhetDto> hentTilhørendeEnhet(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @NotNull @Valid SaksbehandlerIdentDto saksbehandlerIdentDto) {
         var enhetDtos = los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident());
 

@@ -39,9 +39,7 @@ public class ApplicationServiceStarter {
 
     public void startServices() {
         LOGGER.info("Starter {} services", handlers.size());
-        CompletableFuture.allOf(handlers.stream().map(h -> {
-            return runAsync(h::start);
-        }).toArray(CompletableFuture[]::new)).join();
+        CompletableFuture.allOf(handlers.stream().map(h -> runAsync(h::start)).toArray(CompletableFuture[]::new)).join();
         LOGGER.info("Startet  {} services", handlers.size());
     }
 
