@@ -60,12 +60,12 @@ public class ManuellJournalføringRestTjeneste {
     public static final String JOURNALFOERING_PATH = "/journalfoering";
     private static final String DOKUMENT_HENT_PATH = "/dokument/hent";
     private static final String FULL_HENT_DOKUMENT_PATH = ENV.getProperty("context.path", "/fpfordel") + ApiConfig.API_URI + JOURNALFOERING_PATH + DOKUMENT_HENT_PATH;
+    private static final String LIMIT = "50";
     private Oppgaver oppgaver;
     private PersonInformasjon pdl;
     private ArkivTjeneste arkiv;
     private Fagsak fagsak;
     private Los los;
-    private final String LIMIT = "50";
     private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringRestTjeneste.class);
 
     public ManuellJournalføringRestTjeneste() {
