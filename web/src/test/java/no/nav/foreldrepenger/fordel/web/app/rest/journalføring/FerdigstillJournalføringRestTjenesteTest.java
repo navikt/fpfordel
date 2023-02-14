@@ -90,7 +90,7 @@ class FerdigstillJournalføringRestTjenesteTest {
         Exception ex = assertThrows(TekniskException.class,
                 () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
         assertThat(ex.getMessage())
-                .contains("Ugyldig input: ArkivId");
+                .contains("Ugyldig input: JournalpostId");
     }
 
     @Test
