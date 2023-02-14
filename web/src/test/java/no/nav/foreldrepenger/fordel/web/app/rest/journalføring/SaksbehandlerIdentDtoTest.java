@@ -1,10 +1,11 @@
 package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class SaksbehandlerIdentDtoTest {
 

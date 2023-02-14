@@ -11,18 +11,14 @@ public final class StringUtil {
     }
 
     public static String mask(String value) {
-        return Optional.ofNullable(value)
-                .map(String::stripLeading)
-                .filter(not(String::isBlank))
-                .map(StringUtil::keepFirstMaskRest)
-                .orElse("<null>");
+        return Optional.ofNullable(value).map(String::stripLeading).filter(not(String::isBlank)).map(StringUtil::keepFirstMaskRest).orElse("<null>");
     }
 
     private static String keepFirstMaskRest(String value) {
         return Optional.ofNullable(value)
-                .filter(v -> v.length() > KEEP_FIRST)
-                .map(v -> v.substring(0, KEEP_FIRST) + "*".repeat(v.length() - KEEP_FIRST))
-                .orElse(value);
+            .filter(v -> v.length() > KEEP_FIRST)
+            .map(v -> v.substring(0, KEEP_FIRST) + "*".repeat(v.length() - KEEP_FIRST))
+            .orElse(value);
     }
 
 }

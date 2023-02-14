@@ -6,7 +6,8 @@ import static no.nav.vedtak.log.mdc.MDCOperations.putCallId;
 
 public class MDCUtils {
 
-    private MDCUtils() {}
+    private MDCUtils() {
+    }
 
     public static void ensureCallId() {
         var callId = getCallId();

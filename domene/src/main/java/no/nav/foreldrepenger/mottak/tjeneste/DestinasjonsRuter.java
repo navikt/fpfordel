@@ -26,15 +26,15 @@ import no.nav.vedtak.konfig.Tid;
 /**
  * Tjeneste som henter ut informasjon fra søknadsskjema og vurderer denne i
  * henhold til følgende kriterier.
- *
+ * <p>
  * - HVIS aktørID og behandlingstema er likt - Fødselsdato innen intervall -16 -
  * +4 uker fra termin - Fødselsdato matcher innen et visst slingringsmonn -
  * Omsorgsovertagelsesdato matcher innen et slingringsmonn OG fødselsdato for
  * barn matcher eksakt
- *
+ * <p>
  * For ustrukturerte forsendelser gjelder andre regler; en sak er "passende"
  * HVIS aktørID er lik, OG saken er åpen.
- *
+ * <p>
  * Hvis det ikke finnes noen åpen sak så kan "passende sak" være en avsluttet
  * sak som er nyere enn 3 måneder.
  */
@@ -47,6 +47,22 @@ public class DestinasjonsRuter {
     @Inject
     public DestinasjonsRuter(Fagsak fagsakRestKlient) {
         this.fagsakRestKlient = fagsakRestKlient;
+    }
+
+    private static boolean skalBehandlesEtterTidligereRegler(MottakMeldingDataWrapper dataWrapper) {
+        return tidligsteRelevanteDato(dataWrapper).isBefore(KonfigVerdier.ENDRING_BEREGNING_DATO);
+    }
+
+    private static LocalDate tidligsteRelevanteDato(MottakMeldingDataWrapper w) {
+        return Stream.of(w.getOmsorgsovertakelsedato(), w.getFørsteUttaksdag(), w.getBarnFodselsdato(), w.getBarnTermindato())
+            .flatMap(Optional::stream)
+            .min(Comparator.naturalOrder())
+            .orElse(Tid.TIDENES_ENDE);
+    }
+
+    private static boolean erKlageEllerAnke(MottakMeldingDataWrapper data) {
+        return (KLAGE_DOKUMENT.equals(data.getDokumentTypeId().orElse(UDEFINERT)) || KLAGE_ELLER_ANKE.equals(
+            data.getDokumentKategori().orElse(DokumentKategori.UDEFINERT)));
     }
 
     public Destinasjon bestemDestinasjon(MottakMeldingDataWrapper w) {
@@ -70,34 +86,18 @@ public class DestinasjonsRuter {
 
     }
 
-    private static boolean skalBehandlesEtterTidligereRegler(MottakMeldingDataWrapper dataWrapper) {
-        return tidligsteRelevanteDato(dataWrapper).isBefore(KonfigVerdier.ENDRING_BEREGNING_DATO);
-    }
-
-    private static LocalDate tidligsteRelevanteDato(MottakMeldingDataWrapper w) {
-        return Stream.of(w.getOmsorgsovertakelsedato(), w.getFørsteUttaksdag(),
-                w.getBarnFodselsdato(), w.getBarnTermindato())
-                .flatMap(Optional::stream)
-                .min(Comparator.naturalOrder()).orElse(Tid.TIDENES_ENDE);
-    }
-
     public String opprettSak(MottakMeldingDataWrapper w) {
         var dokumenttype = w.getDokumentTypeId().orElseThrow();
         if (!erFørsteSøknadType(dokumenttype) && !INNTEKTSMELDING.equals(dokumenttype)) {
             throw new IllegalArgumentException("Kan ikke opprette sak for dokument");
         }
-        var saksnummerDto = fagsakRestKlient.opprettSak(new OpprettSakDto(w.getArkivId(),
-                w.getBehandlingTema().getOffisiellKode(), w.getAktørId().orElseThrow()));
+        var saksnummerDto = fagsakRestKlient.opprettSak(
+            new OpprettSakDto(w.getArkivId(), w.getBehandlingTema().getOffisiellKode(), w.getAktørId().orElseThrow()));
         w.setSaksnummer(saksnummerDto.getSaksnummer());
         return saksnummerDto.getSaksnummer();
     }
 
     public boolean kanOppretteSak(MottakMeldingDataWrapper w) {
         return !erKlageEllerAnke(w);
-    }
-
-    private static boolean erKlageEllerAnke(MottakMeldingDataWrapper data) {
-        return (KLAGE_DOKUMENT.equals(data.getDokumentTypeId().orElse(UDEFINERT))
-                || KLAGE_ELLER_ANKE.equals(data.getDokumentKategori().orElse(DokumentKategori.UDEFINERT)));
     }
 }

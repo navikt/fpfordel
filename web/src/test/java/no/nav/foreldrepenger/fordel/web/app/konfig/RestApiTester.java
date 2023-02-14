@@ -34,16 +34,16 @@ class RestApiTester {
 
     private static boolean erRestMetodeSomErUnntatt(Method method) {
         boolean unntatt = // Et unntak pr linje
-                ((method.getParameterCount() == 1)
-                        && MultiPart.class.isAssignableFrom(method.getParameterTypes()[0]));
+            ((method.getParameterCount() == 1) && MultiPart.class.isAssignableFrom(method.getParameterTypes()[0]));
         return unntatt;
     }
 
     static Collection<Class<?>> finnAlleRestTjenester() {
         ApiConfig config = new ApiConfig();
-        return config.getClasses().stream()
-                .filter(c -> c.getAnnotation(Path.class) != null)
-                .filter(c -> !UNNTATT.contains(c))
-                .collect(Collectors.toList());
+        return config.getClasses()
+            .stream()
+            .filter(c -> c.getAnnotation(Path.class) != null)
+            .filter(c -> !UNNTATT.contains(c))
+            .collect(Collectors.toList());
     }
 }

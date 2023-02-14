@@ -1,25 +1,5 @@
 package no.nav.foreldrepenger.journalføring;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverdi.YtelseType;
-import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
-import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
-import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
-import no.nav.foreldrepenger.mottak.klient.*;
-import no.nav.foreldrepenger.typer.AktørId;
-import no.nav.foreldrepenger.typer.JournalpostId;
-import no.nav.vedtak.exception.FunksjonellException;
-import no.nav.vedtak.exception.TekniskException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDate;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -27,18 +7,42 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.YtelseType;
+import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
+import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
+import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
+import no.nav.foreldrepenger.mottak.klient.AktørIdDto;
+import no.nav.foreldrepenger.mottak.klient.FagSakInfoDto;
+import no.nav.foreldrepenger.mottak.klient.Fagsak;
+import no.nav.foreldrepenger.mottak.klient.StatusDto;
+import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
+import no.nav.foreldrepenger.typer.AktørId;
+import no.nav.foreldrepenger.typer.JournalpostId;
+import no.nav.vedtak.exception.FunksjonellException;
+import no.nav.vedtak.exception.TekniskException;
+
 @ExtendWith(MockitoExtension.class)
 class JournalpostValideringTjenesteTest {
 
+    private static final JournalpostId JOURNALPOST_ID = new JournalpostId(987654L);
+    private static final AktørId AKTØR_ID = new AktørId(1234567890123L);
     @Mock
     private ArkivTjeneste arkivTjeneste;
     @Mock
     private Fagsak fagsak;
     @Mock
     private ArkivJournalpost journalpost;
-
-    private static final JournalpostId JOURNALPOST_ID = new JournalpostId(987654L);
-    private static final AktørId AKTØR_ID = new AktørId(1234567890123L);
     private ManuellOpprettSakValidator tjeneste;
 
     @BeforeEach
@@ -151,10 +155,9 @@ class JournalpostValideringTjenesteTest {
         when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.INNTEKTSMELDING);
         when(journalpost.getStrukturertPayload()).thenReturn("YTELSE>FORELDREPENGER<");
 
-        var brukersFagsaker = List.of(
-                opprettFagsakInfo(YtelseTypeDto.FORELDREPENGER, StatusDto.LØPENDE),
-                opprettFagsakInfo(YtelseTypeDto.FORELDREPENGER, StatusDto.AVSLUTTET),
-                opprettFagsakInfo(YtelseTypeDto.SVANGERSKAPSPENGER, StatusDto.LØPENDE));
+        var brukersFagsaker = List.of(opprettFagsakInfo(YtelseTypeDto.FORELDREPENGER, StatusDto.LØPENDE),
+            opprettFagsakInfo(YtelseTypeDto.FORELDREPENGER, StatusDto.AVSLUTTET),
+            opprettFagsakInfo(YtelseTypeDto.SVANGERSKAPSPENGER, StatusDto.LØPENDE));
         when(fagsak.hentBrukersSaker(new AktørIdDto(AKTØR_ID.getId()))).thenReturn(brukersFagsaker);
 
         var offisiellKode = YtelseType.FORELDREPENGER;

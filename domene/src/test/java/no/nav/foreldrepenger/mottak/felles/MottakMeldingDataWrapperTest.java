@@ -79,8 +79,8 @@ class MottakMeldingDataWrapperTest {
     @Test
     void test_skal_kunne_sette_dokumenttypeid_og_hente_ut_igjen() {
         wrapper.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
-        assertThat(wrapper.getDokumentTypeId())
-                .hasValueSatisfying(s -> assertThat(s.getKode()).isEqualTo(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getKode()));
+        assertThat(wrapper.getDokumentTypeId()).hasValueSatisfying(
+            s -> assertThat(s.getKode()).isEqualTo(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getKode()));
     }
 
     @Test

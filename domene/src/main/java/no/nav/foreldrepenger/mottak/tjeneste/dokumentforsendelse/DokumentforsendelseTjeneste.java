@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse;
 
+import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
+import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
+import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatusDto;
+
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
-import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
-import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatusDto;
 
 public interface DokumentforsendelseTjeneste {
     Duration POLL_INTERVALL = Duration.ofSeconds(1);

@@ -17,11 +17,9 @@ import no.nav.vedtak.log.metrics.ReadinessAware;
 public class DatabaseHealthCheck implements ReadinessAware, LivenessAware {
 
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseHealthCheck.class);
-
-    private final DataSource dataSource;
     private static final String JDBC_DEFAULT_DS = "jdbc/defaultDS";
-
     private static final String SQL_QUERY = "select 1 from DUAL";
+    private final DataSource dataSource;
     // må være rask, og bruke et stabilt tabell-navn
 
     public DatabaseHealthCheck() throws NamingException {

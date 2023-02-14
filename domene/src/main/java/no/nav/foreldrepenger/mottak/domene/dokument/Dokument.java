@@ -1,25 +1,16 @@
 package no.nav.foreldrepenger.mottak.domene.dokument;
 
+import no.nav.foreldrepenger.fordel.BaseEntitet;
+import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+
+import javax.persistence.*;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Objects;
 import java.util.UUID;
-
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
-
-import no.nav.foreldrepenger.fordel.BaseEntitet;
-import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 
 @Entity(name = "Dokument")
 @Table(name = "DOKUMENT")
@@ -53,6 +44,10 @@ public class Dokument extends BaseEntitet {
     private Dokument() {
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public Long getId() {
         return id;
     }
@@ -63,6 +58,10 @@ public class Dokument extends BaseEntitet {
 
     public DokumentTypeId getDokumentTypeId() {
         return dokumentTypeId;
+    }
+
+    public void setDokumentTypeId(DokumentTypeId dokumentTypeId) {
+        this.dokumentTypeId = dokumentTypeId;
     }
 
     public String getKlartekstDokument() {
@@ -90,14 +89,6 @@ public class Dokument extends BaseEntitet {
 
     public String getBeskrivelse() {
         return beskrivelse;
-    }
-
-    public void setDokumentTypeId(DokumentTypeId dokumentTypeId) {
-        this.dokumentTypeId = dokumentTypeId;
-    }
-
-    public static Builder builder() {
-        return new Builder();
     }
 
     public static class Builder {

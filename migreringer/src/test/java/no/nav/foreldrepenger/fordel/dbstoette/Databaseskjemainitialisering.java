@@ -1,33 +1,26 @@
 package no.nav.foreldrepenger.fordel.dbstoette;
 
-import static java.lang.Runtime.getRuntime;
-
-import java.io.File;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.naming.NamingException;
-import javax.sql.DataSource;
-
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import no.nav.foreldrepenger.konfig.Environment;
 import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import no.nav.foreldrepenger.konfig.Environment;
+import static java.lang.Runtime.getRuntime;
 
 /**
  * Initielt skjemaoppsett + migrering av unittest-skjemaer
  */
 public final class Databaseskjemainitialisering {
 
+    public static final String USER = "fpfordel_unit";
     private static final AtomicBoolean GUARD_UNIT_TEST_SKJEMAER = new AtomicBoolean();
     private static final Environment ENV = Environment.current();
-    public static final String USER = "fpfordel_unit";
     private static final String DB_SCRIPT_LOCATION = "/db/migration/";
 
     private static final DataSource DS = settJdniOppslag();

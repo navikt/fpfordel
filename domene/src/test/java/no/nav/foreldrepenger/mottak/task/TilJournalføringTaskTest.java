@@ -86,9 +86,8 @@ class TilJournalføringTaskTest {
         var wrapper = doTaskWithPrecondition(data);
 
         assertThat(wrapper).isNotNull();
-        assertThat(wrapper.getProsessTaskData().taskType())
-                .as("Forventer at sak uten mangler går videre til neste steg")
-                .isNotEqualTo(TaskType.forProsessTask(TilJournalføringTask.class));
+        assertThat(wrapper.getProsessTaskData().taskType()).as("Forventer at sak uten mangler går videre til neste steg")
+            .isNotEqualTo(TaskType.forProsessTask(TilJournalføringTask.class));
     }
 
     @Test
@@ -112,9 +111,8 @@ class TilJournalføringTaskTest {
         assertThat(sak).isEqualTo(SAKSNUMMER);
 
         assertThat(wrapper).isNotNull();
-        assertThat(wrapper.getProsessTaskData().taskType())
-                .as("Forventer at sak uten mangler går videre til neste steg")
-                .isNotEqualTo(TaskType.forProsessTask(TilJournalføringTask.class));
+        assertThat(wrapper.getProsessTaskData().taskType()).as("Forventer at sak uten mangler går videre til neste steg")
+            .isNotEqualTo(TaskType.forProsessTask(TilJournalføringTask.class));
     }
 
     @Test
@@ -134,7 +132,7 @@ class TilJournalføringTaskTest {
 
         assertThat(wrapper).isNotNull();
         assertThat(wrapper.getProsessTaskData().taskType()).as("Forventer at sak med mangler går til Gosys")
-                .isEqualTo(TaskType.forProsessTask(OpprettGSakOppgaveTask.class));
+            .isEqualTo(TaskType.forProsessTask(OpprettGSakOppgaveTask.class));
     }
 
     private MottakMeldingDataWrapper doTaskWithPrecondition(MottakMeldingDataWrapper data) {
@@ -157,7 +155,7 @@ class TilJournalføringTaskTest {
 
         assertThat(wrapper).isNotNull();
         assertThat(wrapper.getProsessTaskData().taskType()).as("Forventer at sak med dokumentmangler går til Gosys")
-                .isEqualTo(TaskType.forProsessTask(OpprettGSakOppgaveTask.class));
+            .isEqualTo(TaskType.forProsessTask(OpprettGSakOppgaveTask.class));
     }
 
     @Test

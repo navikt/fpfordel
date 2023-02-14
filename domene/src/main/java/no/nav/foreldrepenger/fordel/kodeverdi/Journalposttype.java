@@ -20,6 +20,14 @@ public enum Journalposttype implements Kodeverdi {
 
     private static final Map<String, Journalposttype> KODER = new LinkedHashMap<>();
 
+    static {
+        for (var v : values()) {
+            if (KODER.putIfAbsent(v.kode, v) != null) {
+                throw new IllegalArgumentException("Duplikat : " + v.kode);
+            }
+        }
+    }
+
     @JsonValue
     private String kode;
 
@@ -41,13 +49,5 @@ public enum Journalposttype implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    static {
-        for (var v : values()) {
-            if (KODER.putIfAbsent(v.kode, v) != null) {
-                throw new IllegalArgumentException("Duplikat : " + v.kode);
-            }
-        }
     }
 }

@@ -20,6 +20,11 @@ public interface JournalføringsOppgave {
 
     String hentFordelingEnhetId(Tema tema, BehandlingTema behandlingTema, Optional<String> enhetInput, String aktørId);
 
-    String opprettJournalføringsOppgave(String journalpostId, String enhetId, String aktørId, String saksref, String behandlingTema, String beskrivelse);
+    String opprettJournalføringsOppgave(String journalpostId,
+                                        String enhetId,
+                                        String aktørId,
+                                        String saksref,
+                                        String behandlingTema,
+                                        String beskrivelse);
 
 }

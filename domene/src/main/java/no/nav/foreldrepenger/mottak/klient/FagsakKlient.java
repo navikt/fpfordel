@@ -1,20 +1,32 @@
 package no.nav.foreldrepenger.mottak.klient;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.kontrakter.fordel.*;
-import no.nav.foreldrepenger.mottak.behandlendeenhet.JournalføringsOppgave;
-import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.vedtak.felles.integrasjon.rest.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.ws.rs.core.UriBuilder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.kontrakter.fordel.BehandlendeFagsystemDto;
+import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
+import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
+import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
+import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
+import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.JournalføringsOppgave;
+import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
+import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPSAK)
 @ApplicationScoped
@@ -55,7 +67,7 @@ public class FagsakKlient implements Fagsak {
     @Override
     public Optional<FagsakInfomasjonDto> finnFagsakInfomasjon(SaksnummerDto saksnummerDto) {
         LOG.info("Finner fagsakinformasjon");
-        var request= RestRequest.newPOSTJson(saksnummerDto, fagsakinfoEndpoint, restConfig);
+        var request = RestRequest.newPOSTJson(saksnummerDto, fagsakinfoEndpoint, restConfig);
         var info = klient.send(request, FagsakInfomasjonDto.class);
         LOG.info("Fant fagsakinformasjon OK");
         return Optional.ofNullable(info);
@@ -92,12 +104,10 @@ public class FagsakKlient implements Fagsak {
         boolean strukturertSøknad = w.erStrukturertDokument().orElse(Boolean.FALSE);
         var dokumentTypeId = w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT);
         var dokumentKategori = w.getDokumentKategori().orElse(DokumentKategori.UDEFINERT);
-        String behandlingTemaString = BehandlingTema.UDEFINERT.equals(w.getBehandlingTema())
-                ? w.getBehandlingTema().getKode()
-                : w.getBehandlingTema().getOffisiellKode();
+        String behandlingTemaString = BehandlingTema.UDEFINERT.equals(w.getBehandlingTema()) ? w.getBehandlingTema().getKode() : w.getBehandlingTema()
+            .getOffisiellKode();
 
-        var dto = new VurderFagsystemDto(w.getArkivId(), strukturertSøknad, aktørId,
-                behandlingTemaString);
+        var dto = new VurderFagsystemDto(w.getArkivId(), strukturertSøknad, aktørId, behandlingTemaString);
         dto.setAdopsjonsBarnFodselsdatoer(w.getAdopsjonsbarnFodselsdatoer());
         w.getBarnTermindato().ifPresent(dto::setBarnTermindato);
         w.getBarnFodselsdato().ifPresent(dto::setBarnFodselsdato);
@@ -124,8 +134,9 @@ public class FagsakKlient implements Fagsak {
         }
         LOG.info("Vurderer resultat");
 
-        var brukPath = w.getJournalførendeEnhet().filter(JournalføringsOppgave.NK_ENHET_ID::equals).isPresent() ?
-                klageinstansEndpoint : fagsystemEndpoint;
+        var brukPath = w.getJournalførendeEnhet()
+            .filter(JournalføringsOppgave.NK_ENHET_ID::equals)
+            .isPresent() ? klageinstansEndpoint : fagsystemEndpoint;
 
         var request = RestRequest.newPOSTJson(dto, brukPath, restConfig);
         var respons = klient.send(request, BehandlendeFagsystemDto.class);

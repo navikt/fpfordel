@@ -51,10 +51,8 @@ public class JournalHendelseStream implements LivenessAware, ReadinessAware, App
     @SuppressWarnings("resource")
     private static KafkaStreams createKafkaStreams(Topic<String, JournalfoeringHendelseRecord> topic,
                                                    JournalføringHendelseHåndterer journalføringHendelseHåndterer) {
-        final Consumed<String, JournalfoeringHendelseRecord> consumed = Consumed
-            .<String, JournalfoeringHendelseRecord>with(Topology.AutoOffsetReset.LATEST)
-            .withKeySerde(topic.serdeKey())
-            .withValueSerde(topic.serdeValue());
+        final Consumed<String, JournalfoeringHendelseRecord> consumed = Consumed.<String, JournalfoeringHendelseRecord>with(
+            Topology.AutoOffsetReset.LATEST).withKeySerde(topic.serdeKey()).withValueSerde(topic.serdeValue());
 
         final StreamsBuilder builder = new StreamsBuilder();
         builder.stream(topic.topic(), consumed)
@@ -67,7 +65,8 @@ public class JournalHendelseStream implements LivenessAware, ReadinessAware, App
 
     private static boolean hendelseSkalHåndteres(JournalfoeringHendelseRecord payload) {
         var hendelse = payload.getHendelsesType();
-        return HENDELSE_MIDL.equalsIgnoreCase(hendelse) || HENDELSE_ENDRET.equalsIgnoreCase(hendelse) || HENDELSE_MIDL_LEGACY.equalsIgnoreCase(hendelse);
+        return HENDELSE_MIDL.equalsIgnoreCase(hendelse) || HENDELSE_ENDRET.equalsIgnoreCase(hendelse) || HENDELSE_MIDL_LEGACY.equalsIgnoreCase(
+            hendelse);
     }
 
     private void addShutdownHooks() {

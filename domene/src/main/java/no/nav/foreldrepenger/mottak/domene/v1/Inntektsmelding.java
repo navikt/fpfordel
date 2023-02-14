@@ -24,8 +24,7 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
     }
 
     @Override
-    protected void kopierVerdier(MottakMeldingDataWrapper dataWrapper,
-            Function<String, Optional<String>> aktørIdFinder) {
+    protected void kopierVerdier(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {
         kopierAktørTilMottakWrapper(dataWrapper, aktørIdFinder);
         dataWrapper.setÅrsakTilInnsending(getÅrsakTilInnsending());
         dataWrapper.setVirksomhetsnummer(getVirksomhetsnummer());
@@ -35,11 +34,11 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
         dataWrapper.setInntektsmeldingYtelse(getYtelse());
     }
 
-    public void kopierAktørTilMottakWrapper(MottakMeldingDataWrapper dataWrapper,
-            Function<String, Optional<String>> aktørIdFinder) {
+    public void kopierAktørTilMottakWrapper(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {
         Optional<String> aktørId = aktørIdFinder.apply(getArbeidstakerFnr());
         if (aktørId.isEmpty()) {
-            log.warn(new TekniskException("FP-513732", String.format("Finner ikke aktørID for bruker på %s", this.getClass().getSimpleName())).getMessage());
+            log.warn(new TekniskException("FP-513732",
+                String.format("Finner ikke aktørID for bruker på %s", this.getClass().getSimpleName())).getMessage());
         }
         aktørId.ifPresent(dataWrapper::setAktørId);
     }
@@ -81,10 +80,9 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
     }
 
     private Optional<String> getArbeidsforholdsid() {
-        if ((getSkjema().getSkjemainnhold().getArbeidsforhold() != null)
-                && (getSkjema().getSkjemainnhold().getArbeidsforhold().getValue().getArbeidsforholdId() != null)) {
-            return Optional.ofNullable(
-                    getSkjema().getSkjemainnhold().getArbeidsforhold().getValue().getArbeidsforholdId().getValue());
+        if ((getSkjema().getSkjemainnhold().getArbeidsforhold() != null) && (
+            getSkjema().getSkjemainnhold().getArbeidsforhold().getValue().getArbeidsforholdId() != null)) {
+            return Optional.ofNullable(getSkjema().getSkjemainnhold().getArbeidsforhold().getValue().getArbeidsforholdId().getValue());
         }
         return Optional.empty();
     }

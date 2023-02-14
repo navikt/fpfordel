@@ -20,17 +20,14 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 /*
  * Sender dokument til fpsak og evt til fptilbake
-*/
+ */
 @ApplicationScoped
 @ProsessTask(value = VLKlargjørerTask.TASKNAME, maxFailedRuns = 4, firstDelay = 10, thenDelay = 30)
 public class VLKlargjørerTask extends WrappedProsessTaskHandler {
 
-    static final String TASKNAME = "fordeling.klargjoering";
-
-    private static final Logger LOG = LoggerFactory.getLogger(VLKlargjørerTask.class);
-
     public static final String REINNSEND = "REINNSEND";
-
+    static final String TASKNAME = "fordeling.klargjoering";
+    private static final Logger LOG = LoggerFactory.getLogger(VLKlargjørerTask.class);
     private VLKlargjører klargjører;
 
     public VLKlargjørerTask() {
@@ -47,21 +44,20 @@ public class VLKlargjørerTask extends WrappedProsessTaskHandler {
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getSaksnummer().isEmpty()) {
             throw new TekniskException("FP-941984",
-                    String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.SAKSNUMMER_KEY,
-                            dataWrapper.getId()));
+                String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.SAKSNUMMER_KEY,
+                    dataWrapper.getId()));
         }
         if (dataWrapper.getArkivId() == null) {
             throw new TekniskException("FP-941984",
-                    String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.ARKIV_ID_KEY,
-                            dataWrapper.getId()));
+                String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.ARKIV_ID_KEY,
+                    dataWrapper.getId()));
         }
     }
 
     @Override
     public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper w) {
         String xml = w.getPayloadAsString().orElse(null);
-        String saksnummer = w.getSaksnummer()
-                .orElseThrow(() -> new IllegalStateException("Skulle allerede vært sjekket i precondition(...)"));
+        String saksnummer = w.getSaksnummer().orElseThrow(() -> new IllegalStateException("Skulle allerede vært sjekket i precondition(...)"));
         String arkivId = w.getArkivId();
         var dokumenttypeId = w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT);
         var dokumentKategori = w.getDokumentKategori().orElse(DokumentKategori.UDEFINERT);
@@ -71,9 +67,8 @@ public class VLKlargjørerTask extends WrappedProsessTaskHandler {
         var forsendelseId = w.getForsendelseId();
         boolean erReinnsend = w.getRetryingTask().map(REINNSEND::equals).orElse(Boolean.FALSE);
 
-        klargjører.klargjør(xml, saksnummer, arkivId, dokumenttypeId,
-                w.getForsendelseMottattTidspunkt().orElseGet(LocalDateTime::now), behandlingsTema,
-                w.getForsendelseId().orElse(null), dokumentKategori, journalEnhet, eksternReferanseId);
+        klargjører.klargjør(xml, saksnummer, arkivId, dokumenttypeId, w.getForsendelseMottattTidspunkt().orElseGet(LocalDateTime::now),
+            behandlingsTema, w.getForsendelseId().orElse(null), dokumentKategori, journalEnhet, eksternReferanseId);
 
         if (forsendelseId.isPresent() && !erReinnsend) {
             // Gi selvbetjening tid til å polle ferdig + Kafka-hendelse tid til å nå fram

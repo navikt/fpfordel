@@ -1,15 +1,15 @@
 package no.nav.foreldrepenger.fordel.web.app.exceptions;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
+import no.nav.vedtak.exception.TekniskException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
-
-import no.nav.vedtak.exception.TekniskException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
 
 public class JsonMappingExceptionMapper implements ExceptionMapper<JsonMappingException> {
 
@@ -19,11 +19,7 @@ public class JsonMappingExceptionMapper implements ExceptionMapper<JsonMappingEx
     public Response toResponse(JsonMappingException exception) {
         var feil = new TekniskException("FP-252294", "JSON-mapping feil", exception);
         log.warn(feil.getMessage());
-        return Response
-                .status(Response.Status.BAD_REQUEST)
-                .entity(new FeilDto(feil.getMessage()))
-                .type(MediaType.APPLICATION_JSON)
-                .build();
+        return Response.status(Response.Status.BAD_REQUEST).entity(new FeilDto(feil.getMessage())).type(MediaType.APPLICATION_JSON).build();
     }
 
 }

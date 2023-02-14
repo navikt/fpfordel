@@ -7,8 +7,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @Dependent
-@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "oppgave.rs.uri", endpointDefault = "http://oppgave.default/api/v1/oppgaver",
-    scopesProperty = "oppgave.scopes", scopesDefault = "api://prod-fss.oppgavehandtering.oppgave/.default")
+@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "oppgave.rs.uri", endpointDefault = "http://oppgave.default/api/v1/oppgaver", scopesProperty = "oppgave.scopes", scopesDefault = "api://prod-fss.oppgavehandtering.oppgave/.default")
 public class OppgaveKlient extends AbstractOppgaveKlient {
 
     public OppgaveKlient() {

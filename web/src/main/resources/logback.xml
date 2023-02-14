@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <turboFilter class="no.nav.foreldrepenger.fordel.web.app.tjenester.CustomConfidentialMarkerFilter"/>
-	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
-		<encoder class="net.logstash.logback.encoder.LogstashEncoder">
-			<throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
-				<maxLength>15000</maxLength>
-				<maxDepthPerThrowable>80</maxDepthPerThrowable>
-				<shortenedClassNameLength>70</shortenedClassNameLength>
-				<exclude>\$\$_Weld</exclude>
-				<exclude>java\.lang\.reflect\.Method\.invoke</exclude>
-				<exclude>java\.lang\.reflect\.Constructor\.newInstance</exclude>
-				<exclude>jdk\.internal\.reflect\.DelegatingMethodAccessorImpl\.invoke</exclude>
-				<exclude>jdk\.internal\.reflect\.DelegatingConstructorAccessorImpl\.newInstance</exclude>
-				<exclude>jdk\.internal\.reflect\.NativeMethodAccessorImpl\.invoke</exclude>
-				<exclude>jdk\.internal\.reflect\.NativeConstructorAccessorImpl\.newInstance</exclude>
-				<exclude>org\.jboss\.weld\.bean\.proxy\.CombinedInterceptorAndDecoratorStackMethodHandler</exclude>
-				<exclude>org\.jboss\.weld\.interceptor\.proxy\.AroundInvokeInvocationContext</exclude>
-				<exclude>org\.jboss\.weld\.interceptor\.proxy\.InterceptorMethodHandler</exclude>
-				<exclude>org\.jboss\.weld\.interceptor\.proxy\.NonTerminalAroundInvokeInvocationContext</exclude>
-				<exclude>org\.jboss\.weld\.interceptor\.proxy\.TerminalAroundInvokeInvocationContext</exclude>
-				<exclude>org\.jboss\.weld\.interceptor\.reader\.SimpleInterceptorInvocation</exclude>
-				<rootCauseFirst>false</rootCauseFirst>
-			</throwableConverter>
-		</encoder>
-	</appender>
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+                <maxLength>15000</maxLength>
+                <maxDepthPerThrowable>80</maxDepthPerThrowable>
+                <shortenedClassNameLength>70</shortenedClassNameLength>
+                <exclude>\$\$_Weld</exclude>
+                <exclude>java\.lang\.reflect\.Method\.invoke</exclude>
+                <exclude>java\.lang\.reflect\.Constructor\.newInstance</exclude>
+                <exclude>jdk\.internal\.reflect\.DelegatingMethodAccessorImpl\.invoke</exclude>
+                <exclude>jdk\.internal\.reflect\.DelegatingConstructorAccessorImpl\.newInstance</exclude>
+                <exclude>jdk\.internal\.reflect\.NativeMethodAccessorImpl\.invoke</exclude>
+                <exclude>jdk\.internal\.reflect\.NativeConstructorAccessorImpl\.newInstance</exclude>
+                <exclude>org\.jboss\.weld\.bean\.proxy\.CombinedInterceptorAndDecoratorStackMethodHandler</exclude>
+                <exclude>org\.jboss\.weld\.interceptor\.proxy\.AroundInvokeInvocationContext</exclude>
+                <exclude>org\.jboss\.weld\.interceptor\.proxy\.InterceptorMethodHandler</exclude>
+                <exclude>org\.jboss\.weld\.interceptor\.proxy\.NonTerminalAroundInvokeInvocationContext</exclude>
+                <exclude>org\.jboss\.weld\.interceptor\.proxy\.TerminalAroundInvokeInvocationContext</exclude>
+                <exclude>org\.jboss\.weld\.interceptor\.reader\.SimpleInterceptorInvocation</exclude>
+                <rootCauseFirst>false</rootCauseFirst>
+            </throwableConverter>
+        </encoder>
+    </appender>
 
     <appender name="auditLogger" class="com.papertrailapp.logback.Syslog4jAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
@@ -40,17 +40,17 @@
             <maxMessageLength>128000</maxMessageLength>
         </syslogConfig>
     </appender>
-	<logger name="no.nav" level="${log.level.no.nav:-INFO}" />
+    <logger name="no.nav" level="${log.level.no.nav:-INFO}"/>
     <logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="WARN"/>
-	<logger name="auditLogger" level="INFO" additivity="false">
-		<appender-ref ref="auditLogger" />
-	</logger>
+    <logger name="auditLogger" level="INFO" additivity="false">
+        <appender-ref ref="auditLogger"/>
+    </logger>
 
-	<logger name="sporing" level="OFF" additivity="false" />
+    <logger name="sporing" level="OFF" additivity="false"/>
 
-	<root level="${log.level.root:-INFO}">
-		<appender-ref ref="stdout"/>
-	</root>
+    <root level="${log.level.root:-INFO}">
+        <appender-ref ref="stdout"/>
+    </root>
 
-	<include optional="true" resource="logback-${NAIS_CLUSTER_NAME}.xml"/>
+    <include optional="true" resource="logback-${NAIS_CLUSTER_NAME}.xml"/>
 </configuration>

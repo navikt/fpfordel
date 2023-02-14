@@ -83,112 +83,17 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
     @Inject
     public BehandleDokumentService(VLKlargjører klargjører,
-            Fagsak fagsak,
-            SakClient sakClient,
-            PersonInformasjon pdl,
-            ArkivTjeneste arkivTjeneste,
-            DokumentRepository dokumentRepository) {
+                                   Fagsak fagsak,
+                                   SakClient sakClient,
+                                   PersonInformasjon pdl,
+                                   ArkivTjeneste arkivTjeneste,
+                                   DokumentRepository dokumentRepository) {
         this.klargjører = klargjører;
         this.fagsak = fagsak;
         this.pdl = pdl;
         this.arkivTjeneste = arkivTjeneste;
         this.dokumentRepository = dokumentRepository;
         this.sakClient = sakClient;
-    }
-
-    @Override
-    public void ping() {
-        LOG.debug(removeLineBreaks("ping"));
-    }
-
-    @Override
-    @Transactional
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, serviceType = ServiceType.WEBSERVICE)
-    public void oppdaterOgFerdigstillJournalfoering(
-            @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) OppdaterOgFerdigstillJournalfoeringRequest request)
-            throws OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet,
-            OppdaterOgFerdigstillJournalfoeringUgyldigInput {
-
-        // Vi vet ikke om dette er vårt saksnummer eller et arkivsaksnummer ...
-        final var saksnummerFraRequest = request.getSakId();
-        validerSaksnummer(saksnummerFraRequest);
-        validerArkivId(request.getJournalpostId());
-        validerEnhetId(request.getEnhetId());
-
-        final var journalpost = hentJournalpost(request.getJournalpostId());
-
-        // Dersom vi finner en av våre saker med saksnummerFraRequest og den har "rett aktør" så antar vi at det er vårt saksnummer
-        final var fagsakFraRequestSomTrefferRettAktør =
-            hentFagsakInfo(saksnummerFraRequest)
-                .filter(rettAktør(journalpost.getBrukerAktørId()));
-
-        String saksnummer;
-        FagsakInfomasjonDto fagsakInfomasjonDto;
-        if (fagsakFraRequestSomTrefferRettAktør.isPresent()) {
-            saksnummer = saksnummerFraRequest;
-            LOG.info("FPFORDEL GOSYS Fant en FP-sak med saksnummer {} som har rett aktør", saksnummerFraRequest);
-            fagsakInfomasjonDto = fagsakFraRequestSomTrefferRettAktør.get();
-        } else {
-            // Gosys sender alltid arkivsaksnummer- dvs sak.id
-            final var saksnummerFraArkiv = saksnummerOppslagMotArkiv(saksnummerFraRequest)
-                .orElseThrow(() -> BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummerFraRequest));
-            LOG.info("FPFORDEL GOSYS slår opp fagsak {} finner {}", saksnummerFraRequest, saksnummerFraArkiv);
-            fagsakInfomasjonDto = hentFagsakInfo(saksnummerFraArkiv)
-                .orElseThrow(() -> BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummerFraArkiv));
-            saksnummer = saksnummerFraArkiv;
-        }
-
-        final BehandlingTema behandlingTemaFagsak = BehandlingTema.fraOffisiellKode(fagsakInfomasjonDto.getBehandlingstemaOffisiellKode());
-        final String fagsakInfoAktørId = fagsakInfomasjonDto.getAktørId();
-
-        validerJournalposttype(journalpost.getJournalposttype());
-        final DokumentTypeId dokumentTypeId = journalpost.getHovedtype();
-        final DokumentKategori dokumentKategori = ArkivUtil.utledKategoriFraDokumentType(dokumentTypeId);
-        final BehandlingTema behandlingTemaDok = ArkivUtil.behandlingTemaFraDokumentType(BehandlingTema.UDEFINERT, dokumentTypeId);
-
-        final BehandlingTema behandlingTema = validerOgVelgBehandlingTema(behandlingTemaFagsak, behandlingTemaDok, dokumentTypeId);
-
-        validerKanJournalføres(behandlingTemaFagsak, dokumentTypeId, dokumentKategori);
-
-        final String xml = hentDokumentSettMetadata(saksnummer, behandlingTema, fagsakInfoAktørId, journalpost);
-
-        if (Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
-            var brukDokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokumentTypeId) ? DokumentTypeId.ANNET : dokumentTypeId;
-            if (!arkivTjeneste.oppdaterRettMangler(journalpost, fagsakInfoAktørId, behandlingTema, brukDokumentTypeId)) {
-                ugyldigBrukerPrøvIgjen(request.getJournalpostId(), null);
-            }
-            try {
-                arkivTjeneste.settTilleggsOpplysninger(journalpost, brukDokumentTypeId);
-            } catch (Exception e) {
-                LOG.info("FPFORDEL GOSYS Feil ved setting av tilleggsopplysninger for journalpostId {}", journalpost.getJournalpostId());
-            }
-            LOG.info("FPFORDEL GOSYS Kaller tilJournalføring"); // NOSONAR
-            try {
-                arkivTjeneste.oppdaterMedSak(journalpost.getJournalpostId(), saksnummer, fagsakInfoAktørId);
-                arkivTjeneste.ferdigstillJournalføring(journalpost.getJournalpostId(), request.getEnhetId());
-            } catch (Exception e) {
-                ugyldigBrukerPrøvIgjen(request.getJournalpostId(), e);
-            }
-        }
-
-        final Optional<UUID> forsendelseId = asUUID(journalpost.getEksternReferanseId());
-
-        String eksternReferanseId = null;
-        if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
-            eksternReferanseId = journalpost.getEksternReferanseId() != null ? journalpost.getEksternReferanseId()
-                    : arkivTjeneste.hentEksternReferanseId(journalpost.getOriginalJournalpost()).orElse(null);
-        }
-
-        var mottattTidspunkt = Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now);
-        klargjører.klargjør(xml, saksnummer, request.getJournalpostId(), dokumentTypeId, mottattTidspunkt,
-                behandlingTema, forsendelseId.orElse(null), dokumentKategori, request.getEnhetId(), eksternReferanseId);
-
-        // For å unngå klonede journalposter fra Gosys - de kan komme via Kafka
-        dokumentRepository.lagreJournalpostLokal(request.getJournalpostId(), journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
-    }
-
-    private Optional<FagsakInfomasjonDto> hentFagsakInfo(String saksnummerFraArkiv) {
-        return fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnummerFraArkiv));
     }
 
     private static Predicate<FagsakInfomasjonDto> rettAktør(Optional<String> brukerAktørId) {
@@ -203,21 +108,9 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         }
     }
 
-    private ArkivJournalpost hentJournalpost(String arkivId) throws OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet {
-        try {
-            return arkivTjeneste.hentArkivJournalpost(arkivId);
-        } catch (Exception e) {
-            LOG.warn("FORDEL WS fikk feil fra hentjournalpost: ", e);
-            JournalpostIkkeFunnet journalpostIkkeFunnet = new JournalpostIkkeFunnet();
-            journalpostIkkeFunnet.setFeilmelding("Finner ikke journalpost med id " + arkivId);
-            journalpostIkkeFunnet.setFeilaarsak("Finner ikke journalpost");
-            throw new OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet(journalpostIkkeFunnet.getFeilmelding(),
-                    journalpostIkkeFunnet);
-        }
-    }
-
-    private static BehandlingTema validerOgVelgBehandlingTema(BehandlingTema behandlingTemaFagsak, BehandlingTema behandlingTemaDok,
-            DokumentTypeId dokumentTypeId) {
+    private static BehandlingTema validerOgVelgBehandlingTema(BehandlingTema behandlingTemaFagsak,
+                                                              BehandlingTema behandlingTemaDok,
+                                                              DokumentTypeId dokumentTypeId) {
         if (BehandlingTema.UDEFINERT.equals(behandlingTemaDok)) {
             return behandlingTemaFagsak;
         }
@@ -227,36 +120,19 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         if (!DokumentTypeId.erSøknadType(dokumentTypeId)) {
             return behandlingTemaFagsak;
         }
-        if ((BehandlingTema.gjelderForeldrepenger(behandlingTemaFagsak) && !BehandlingTema.gjelderForeldrepenger(behandlingTemaDok)) ||
-                (BehandlingTema.gjelderEngangsstønad(behandlingTemaFagsak) && !BehandlingTema.gjelderEngangsstønad(behandlingTemaDok)) ||
-                (BehandlingTema.gjelderSvangerskapspenger(behandlingTemaFagsak) && !BehandlingTema.gjelderSvangerskapspenger(behandlingTemaDok))) {
+        if ((BehandlingTema.gjelderForeldrepenger(behandlingTemaFagsak) && !BehandlingTema.gjelderForeldrepenger(behandlingTemaDok)) || (
+            BehandlingTema.gjelderEngangsstønad(behandlingTemaFagsak) && !BehandlingTema.gjelderEngangsstønad(behandlingTemaDok)) || (
+            BehandlingTema.gjelderSvangerskapspenger(behandlingTemaFagsak) && !BehandlingTema.gjelderSvangerskapspenger(behandlingTemaDok))) {
             throw BehandleDokumentServiceFeil.søknadFeilType();
         }
         return BehandlingTema.ikkeSpesifikkHendelse(behandlingTemaDok) ? behandlingTemaFagsak : behandlingTemaDok;
     }
 
-    private static void validerKanJournalføres(BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId,
-            DokumentKategori dokumentKategori) {
+    private static void validerKanJournalføres(BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId, DokumentKategori dokumentKategori) {
         if (BehandlingTema.UDEFINERT.equals(behandlingTema) && (DokumentTypeId.KLAGE_DOKUMENT.equals(dokumentTypeId)
-                || DokumentKategori.KLAGE_ELLER_ANKE.equals(dokumentKategori))) {
+            || DokumentKategori.KLAGE_ELLER_ANKE.equals(dokumentKategori))) {
             throw BehandleDokumentServiceFeil.sakUtenAvsluttetBehandling();
         }
-    }
-
-    private String hentDokumentSettMetadata(String saksnummer, BehandlingTema behandlingTema, String aktørId,
-            ArkivJournalpost journalpost) {
-        final String xml = journalpost.getStrukturertPayload();
-        if (journalpost.getInnholderStrukturertInformasjon()) {
-            // Bruker eksisterende infrastruktur for å hente ut og validere XML-data.
-            // Tasktype tilfeldig valgt
-            ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTask(VLKlargjørerTask.class);
-            MottakMeldingDataWrapper dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
-            dataWrapper.setBehandlingTema(behandlingTema);
-            dataWrapper.setSaksnummer(saksnummer);
-            dataWrapper.setAktørId(aktørId);
-            return validerXml(dataWrapper, behandlingTema, journalpost.getHovedtype(), xml);
-        }
-        return xml;
     }
 
     private static void validerSaksnummer(String saksnummer) throws OppdaterOgFerdigstillJournalfoeringUgyldigInput {
@@ -299,8 +175,155 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         return ((s == null) || s.isEmpty());
     }
 
-    private String validerXml(MottakMeldingDataWrapper dataWrapper, BehandlingTema behandlingTema,
-            DokumentTypeId dokumentTypeId, String xml) {
+    private static void validerDokumentData(MottakMeldingDataWrapper dataWrapper,
+                                            BehandlingTema behandlingTema,
+                                            DokumentTypeId dokumentTypeId,
+                                            String imType,
+                                            LocalDate startDato) {
+        if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
+            BehandlingTema behandlingTemaFraIM = BehandlingTema.fraTermNavn(imType);
+            if (BehandlingTema.gjelderForeldrepenger(behandlingTemaFraIM)) {
+                if (dataWrapper.getInntektsmeldingStartDato().isEmpty()) { // Kommer ingen vei uten startdato
+                    throw BehandleDokumentServiceFeil.imUtenStartdato();
+                } else if (!BehandlingTema.gjelderForeldrepenger(behandlingTema)) { // Prøver journalføre på annen
+                    // fagsak - ytelsetype
+                    throw BehandleDokumentServiceFeil.imFeilType();
+                }
+            } else if (!behandlingTemaFraIM.equals(behandlingTema)) {
+                throw BehandleDokumentServiceFeil.imFeilType();
+            }
+        }
+        if (BehandlingTema.gjelderForeldrepenger(behandlingTema) && startDato.isBefore(KonfigVerdier.ENDRING_BEREGNING_DATO)) {
+            throw BehandleDokumentServiceFeil.forTidligUttak();
+        }
+    }
+
+    private static UgyldigInput lagUgyldigInput(String melding) {
+        UgyldigInput faultInfo = new UgyldigInput();
+        faultInfo.setFeilmelding(melding);
+        faultInfo.setFeilaarsak("Ugyldig input");
+        return faultInfo;
+    }
+
+    @Override
+    public void ping() {
+        LOG.debug(removeLineBreaks("ping"));
+    }
+
+    @Override
+    @Transactional
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, serviceType = ServiceType.WEBSERVICE)
+    public void oppdaterOgFerdigstillJournalfoering(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) OppdaterOgFerdigstillJournalfoeringRequest request) throws OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet, OppdaterOgFerdigstillJournalfoeringUgyldigInput {
+
+        // Vi vet ikke om dette er vårt saksnummer eller et arkivsaksnummer ...
+        final var saksnummerFraRequest = request.getSakId();
+        validerSaksnummer(saksnummerFraRequest);
+        validerArkivId(request.getJournalpostId());
+        validerEnhetId(request.getEnhetId());
+
+        final var journalpost = hentJournalpost(request.getJournalpostId());
+
+        // Dersom vi finner en av våre saker med saksnummerFraRequest og den har "rett aktør" så antar vi at det er vårt saksnummer
+        final var fagsakFraRequestSomTrefferRettAktør = hentFagsakInfo(saksnummerFraRequest).filter(rettAktør(journalpost.getBrukerAktørId()));
+
+        String saksnummer;
+        FagsakInfomasjonDto fagsakInfomasjonDto;
+        if (fagsakFraRequestSomTrefferRettAktør.isPresent()) {
+            saksnummer = saksnummerFraRequest;
+            LOG.info("FPFORDEL GOSYS Fant en FP-sak med saksnummer {} som har rett aktør", saksnummerFraRequest);
+            fagsakInfomasjonDto = fagsakFraRequestSomTrefferRettAktør.get();
+        } else {
+            // Gosys sender alltid arkivsaksnummer- dvs sak.id
+            final var saksnummerFraArkiv = saksnummerOppslagMotArkiv(saksnummerFraRequest).orElseThrow(
+                () -> BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummerFraRequest));
+            LOG.info("FPFORDEL GOSYS slår opp fagsak {} finner {}", saksnummerFraRequest, saksnummerFraArkiv);
+            fagsakInfomasjonDto = hentFagsakInfo(saksnummerFraArkiv).orElseThrow(
+                () -> BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummerFraArkiv));
+            saksnummer = saksnummerFraArkiv;
+        }
+
+        final BehandlingTema behandlingTemaFagsak = BehandlingTema.fraOffisiellKode(fagsakInfomasjonDto.getBehandlingstemaOffisiellKode());
+        final String fagsakInfoAktørId = fagsakInfomasjonDto.getAktørId();
+
+        validerJournalposttype(journalpost.getJournalposttype());
+        final DokumentTypeId dokumentTypeId = journalpost.getHovedtype();
+        final DokumentKategori dokumentKategori = ArkivUtil.utledKategoriFraDokumentType(dokumentTypeId);
+        final BehandlingTema behandlingTemaDok = ArkivUtil.behandlingTemaFraDokumentType(BehandlingTema.UDEFINERT, dokumentTypeId);
+
+        final BehandlingTema behandlingTema = validerOgVelgBehandlingTema(behandlingTemaFagsak, behandlingTemaDok, dokumentTypeId);
+
+        validerKanJournalføres(behandlingTemaFagsak, dokumentTypeId, dokumentKategori);
+
+        final String xml = hentDokumentSettMetadata(saksnummer, behandlingTema, fagsakInfoAktørId, journalpost);
+
+        if (Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
+            var brukDokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokumentTypeId) ? DokumentTypeId.ANNET : dokumentTypeId;
+            if (!arkivTjeneste.oppdaterRettMangler(journalpost, fagsakInfoAktørId, behandlingTema, brukDokumentTypeId)) {
+                ugyldigBrukerPrøvIgjen(request.getJournalpostId(), null);
+            }
+            try {
+                arkivTjeneste.settTilleggsOpplysninger(journalpost, brukDokumentTypeId);
+            } catch (Exception e) {
+                LOG.info("FPFORDEL GOSYS Feil ved setting av tilleggsopplysninger for journalpostId {}", journalpost.getJournalpostId());
+            }
+            LOG.info("FPFORDEL GOSYS Kaller tilJournalføring"); // NOSONAR
+            try {
+                arkivTjeneste.oppdaterMedSak(journalpost.getJournalpostId(), saksnummer, fagsakInfoAktørId);
+                arkivTjeneste.ferdigstillJournalføring(journalpost.getJournalpostId(), request.getEnhetId());
+            } catch (Exception e) {
+                ugyldigBrukerPrøvIgjen(request.getJournalpostId(), e);
+            }
+        }
+
+        final Optional<UUID> forsendelseId = asUUID(journalpost.getEksternReferanseId());
+
+        String eksternReferanseId = null;
+        if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
+            eksternReferanseId =
+                journalpost.getEksternReferanseId() != null ? journalpost.getEksternReferanseId() : arkivTjeneste.hentEksternReferanseId(
+                    journalpost.getOriginalJournalpost()).orElse(null);
+        }
+
+        var mottattTidspunkt = Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now);
+        klargjører.klargjør(xml, saksnummer, request.getJournalpostId(), dokumentTypeId, mottattTidspunkt, behandlingTema, forsendelseId.orElse(null),
+            dokumentKategori, request.getEnhetId(), eksternReferanseId);
+
+        // For å unngå klonede journalposter fra Gosys - de kan komme via Kafka
+        dokumentRepository.lagreJournalpostLokal(request.getJournalpostId(), journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
+    }
+
+    private Optional<FagsakInfomasjonDto> hentFagsakInfo(String saksnummerFraArkiv) {
+        return fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnummerFraArkiv));
+    }
+
+    private ArkivJournalpost hentJournalpost(String arkivId) throws OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet {
+        try {
+            return arkivTjeneste.hentArkivJournalpost(arkivId);
+        } catch (Exception e) {
+            LOG.warn("FORDEL WS fikk feil fra hentjournalpost: ", e);
+            JournalpostIkkeFunnet journalpostIkkeFunnet = new JournalpostIkkeFunnet();
+            journalpostIkkeFunnet.setFeilmelding("Finner ikke journalpost med id " + arkivId);
+            journalpostIkkeFunnet.setFeilaarsak("Finner ikke journalpost");
+            throw new OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet(journalpostIkkeFunnet.getFeilmelding(), journalpostIkkeFunnet);
+        }
+    }
+
+    private String hentDokumentSettMetadata(String saksnummer, BehandlingTema behandlingTema, String aktørId, ArkivJournalpost journalpost) {
+        final String xml = journalpost.getStrukturertPayload();
+        if (journalpost.getInnholderStrukturertInformasjon()) {
+            // Bruker eksisterende infrastruktur for å hente ut og validere XML-data.
+            // Tasktype tilfeldig valgt
+            ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTask(VLKlargjørerTask.class);
+            MottakMeldingDataWrapper dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
+            dataWrapper.setBehandlingTema(behandlingTema);
+            dataWrapper.setSaksnummer(saksnummer);
+            dataWrapper.setAktørId(aktørId);
+            return validerXml(dataWrapper, behandlingTema, journalpost.getHovedtype(), xml);
+        }
+        return xml;
+    }
+
+    private String validerXml(MottakMeldingDataWrapper dataWrapper, BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId, String xml) {
         MottattStrukturertDokument<?> mottattDokument;
         try {
             mottattDokument = MeldingXmlParser.unmarshallXml(xml);
@@ -308,8 +331,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             LOG.info("FPFORDEL GOSYS Journalpost med type {} er strukturert men er ikke gyldig XML", dokumentTypeId);
             return null;
         }
-        if (DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD.equals(dokumentTypeId)
-                && !BehandlingTema.ikkeSpesifikkHendelse(behandlingTema)) {
+        if (DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD.equals(dokumentTypeId) && !BehandlingTema.ikkeSpesifikkHendelse(behandlingTema)) {
             dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);
         }
         try {
@@ -324,31 +346,9 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             }
         }
         String imType = dataWrapper.getInntektsmeldingYtelse().orElse(null);
-        LocalDate startDato = dataWrapper.getOmsorgsovertakelsedato()
-                .orElse(dataWrapper.getFørsteUttaksdag().orElse(Tid.TIDENES_ENDE));
+        LocalDate startDato = dataWrapper.getOmsorgsovertakelsedato().orElse(dataWrapper.getFørsteUttaksdag().orElse(Tid.TIDENES_ENDE));
         validerDokumentData(dataWrapper, behandlingTema, dokumentTypeId, imType, startDato);
         return xml;
-    }
-
-    private static void validerDokumentData(MottakMeldingDataWrapper dataWrapper, BehandlingTema behandlingTema,
-            DokumentTypeId dokumentTypeId, String imType, LocalDate startDato) {
-        if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
-            BehandlingTema behandlingTemaFraIM = BehandlingTema.fraTermNavn(imType);
-            if (BehandlingTema.gjelderForeldrepenger(behandlingTemaFraIM)) {
-                if (dataWrapper.getInntektsmeldingStartDato().isEmpty()) { // Kommer ingen vei uten startdato
-                    throw BehandleDokumentServiceFeil.imUtenStartdato();
-                } else if (!BehandlingTema.gjelderForeldrepenger(behandlingTema)) { // Prøver journalføre på annen
-                    // fagsak - ytelsetype
-                    throw BehandleDokumentServiceFeil.imFeilType();
-                }
-            } else if (!behandlingTemaFraIM.equals(behandlingTema)) {
-                throw BehandleDokumentServiceFeil.imFeilType();
-            }
-        }
-        if (BehandlingTema.gjelderForeldrepenger(behandlingTema)
-                && startDato.isBefore(KonfigVerdier.ENDRING_BEREGNING_DATO)) {
-            throw BehandleDokumentServiceFeil.forTidligUttak();
-        }
     }
 
     // Midlertidig håndtering mens Gosys fikser koden som identifiserer saksnummer.
@@ -358,13 +358,6 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         } catch (Exception e) {
             return Optional.empty();
         }
-    }
-
-    private static UgyldigInput lagUgyldigInput(String melding) {
-        UgyldigInput faultInfo = new UgyldigInput();
-        faultInfo.setFeilmelding(melding);
-        faultInfo.setFeilaarsak("Ugyldig input");
-        return faultInfo;
     }
 
     public static class AbacDataSupplier implements Function<Object, AbacDataAttributter> {
@@ -383,32 +376,32 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
         static FunksjonellException finnerIkkeFagsak(String saksnummer) {
             return new FunksjonellException("FP-963070", String.format("Kan ikke journalføre på saksnummer: %s", saksnummer),
-                    "Journalføre dokument på annen sak i VL");
+                "Journalføre dokument på annen sak i VL");
         }
 
         static FunksjonellException sakUtenAvsluttetBehandling() {
             return new FunksjonellException("FP-963074", "Klager må journalføres på sak med tidligere behandling",
-                    "Journalføre klagen på sak med avsluttet behandling");
+                "Journalføre klagen på sak med avsluttet behandling");
         }
 
         static FunksjonellException imFeilType() {
             return new FunksjonellException("FP-963075", "Inntektsmelding årsak samsvarer ikke med sakens type - kan ikke journalføre",
-                    "Be om ny Inntektsmelding for Foreldrepenger");
+                "Be om ny Inntektsmelding for Foreldrepenger");
         }
 
         static FunksjonellException søknadFeilType() {
             return new FunksjonellException("FP-963079", "Dokumentet samsvarer ikke med sakens type - kan ikke journalføre",
-                    "Journalfør på annen sak eller opprett ny sak");
+                "Journalfør på annen sak eller opprett ny sak");
         }
 
         static FunksjonellException imUtenStartdato() {
             return new FunksjonellException("FP-963076", "Inntektsmelding mangler startdato - kan ikke journalføre",
-                    "Be om ny Inntektsmelding med startdato");
+                "Be om ny Inntektsmelding med startdato");
         }
 
         static FunksjonellException forTidligUttak() {
             return new FunksjonellException("FP-963077", "For tidlig uttak",
-                    "Søknad om uttak med oppstart i 2018 skal journalføres mot sak i Infotrygd");
+                "Søknad om uttak med oppstart i 2018 skal journalføres mot sak i Infotrygd");
         }
     }
 

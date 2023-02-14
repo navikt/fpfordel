@@ -32,21 +32,24 @@ public class VLKlargjører {
     }
 
     @Inject
-    public VLKlargjører(DokumentmottakKlient dokumentJournalpostSender,
-                        Fagsak fagsak,
-                        TilbakekrevingKlient tilbakeJournalpostSender) {
+    public VLKlargjører(DokumentmottakKlient dokumentJournalpostSender, Fagsak fagsak, TilbakekrevingKlient tilbakeJournalpostSender) {
         this.dokumentJournalpostSender = dokumentJournalpostSender;
         this.fagsak = fagsak;
         this.tilbakeJournalpostSender = tilbakeJournalpostSender;
     }
 
-    public void klargjør(String xml, String saksnummer, String arkivId, DokumentTypeId dokumenttypeId,
-            LocalDateTime forsendelseMottatt,
-            BehandlingTema behandlingsTema, UUID forsendelseId, DokumentKategori dokumentKategori,
-            String journalFørendeEnhet, String eksternReferanseId) {
-        String behandlingTemaString = (behandlingsTema == null) || BehandlingTema.UDEFINERT.equals(behandlingsTema)
-                ? BehandlingTema.UDEFINERT.getKode()
-                : behandlingsTema.getOffisiellKode();
+    public void klargjør(String xml,
+                         String saksnummer,
+                         String arkivId,
+                         DokumentTypeId dokumenttypeId,
+                         LocalDateTime forsendelseMottatt,
+                         BehandlingTema behandlingsTema,
+                         UUID forsendelseId,
+                         DokumentKategori dokumentKategori,
+                         String journalFørendeEnhet,
+                         String eksternReferanseId) {
+        String behandlingTemaString = (behandlingsTema == null) || BehandlingTema.UDEFINERT.equals(
+            behandlingsTema) ? BehandlingTema.UDEFINERT.getKode() : behandlingsTema.getOffisiellKode();
         String dokumentTypeIdOffisiellKode = null;
         String dokumentKategoriOffisiellKode = null;
         if (dokumenttypeId != null) {
@@ -57,8 +60,7 @@ public class VLKlargjører {
         }
         fagsak.knyttSakOgJournalpost(new JournalpostKnyttningDto(saksnummer, arkivId));
 
-        var journalpost = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString,
-                dokumentTypeIdOffisiellKode, forsendelseMottatt, xml);
+        var journalpost = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString, dokumentTypeIdOffisiellKode, forsendelseMottatt, xml);
         journalpost.setForsendelseId(forsendelseId);
         journalpost.setDokumentKategoriOffisiellKode(dokumentKategoriOffisiellKode);
         journalpost.setJournalForendeEnhet(journalFørendeEnhet);
@@ -66,8 +68,8 @@ public class VLKlargjører {
         dokumentJournalpostSender.send(journalpost);
 
         try {
-            var tilbakeMottakDto = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString,
-                    dokumentTypeIdOffisiellKode, forsendelseMottatt, null);
+            var tilbakeMottakDto = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString, dokumentTypeIdOffisiellKode,
+                forsendelseMottatt, null);
             tilbakeMottakDto.setForsendelseId(forsendelseId);
             tilbakeMottakDto.setDokumentKategoriOffisiellKode(dokumentKategoriOffisiellKode);
             tilbakeMottakDto.setJournalForendeEnhet(journalFørendeEnhet);
@@ -80,7 +82,6 @@ public class VLKlargjører {
     @Override
     public String toString() {
         return getClass().getSimpleName() + " [dokumentJournalpostSender=" + dokumentJournalpostSender + ", fagsak=" + fagsak
-                + ", tilbakeJournalpostSender="
-                + tilbakeJournalpostSender + "]";
+            + ", tilbakeJournalpostSender=" + tilbakeJournalpostSender + "]";
     }
 }

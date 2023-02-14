@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.*;
-import org.assertj.core.api.ListAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,12 +31,12 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ManuellJournalføringRestTjenesteTest {
 
+    private final String LIMIT = "50";
     @Mock
     private PersonInformasjon pdl;
     @Mock
@@ -48,16 +47,13 @@ class ManuellJournalføringRestTjenesteTest {
     private ArkivTjeneste arkiv;
     @Mock
     private Los los;
-
-    private ManuellJournalføringRestTjeneste restTjeneste;
-
-    private final String LIMIT = "50";
     private final SaksbehandlerIdentDto saksbehandlerIdentDto = new SaksbehandlerIdentDto("123456");
     private final TilhørendeEnhetDto tilhørendeEnhetDto = new TilhørendeEnhetDto("9999", "Navn på enhet");
 
+    private ManuellJournalføringRestTjeneste restTjeneste;
+
     @BeforeEach
     void setUp() {
-        lenient().when(los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident())).thenReturn(List.of(tilhørendeEnhetDto));
         restTjeneste = new ManuellJournalføringRestTjeneste(oppgaver, pdl, arkiv, fagsak, los);
     }
 
@@ -65,6 +61,7 @@ class ManuellJournalføringRestTjenesteTest {
     @DisplayName("/oppgaver - ingen oppgaver = tom liste")
     void skal_levere_en_tom_liste_om_ingen_oppgaver_funnet() {
 
+        when(los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident())).thenReturn(List.of(tilhørendeEnhetDto));
         var oppgaveDtos = restTjeneste.hentÅpneOppgaverForSaksbehandler(saksbehandlerIdentDto);
 
         assertThat(oppgaveDtos).isNotNull().isEmpty();
@@ -77,9 +74,11 @@ class ManuellJournalføringRestTjenesteTest {
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
         var beskrivelse = "beskrivelse";
-        var journalføringOppgaver = List.of(opprettOppgave(expectedId, now, expectedJournalpostId, beskrivelse, BehandlingTema.FORELDREPENGER_ADOPSJON, tilhørendeEnhetDto.enhetsnummer()));
+        var journalføringOppgaver = List.of(
+            opprettOppgave(expectedId, now, expectedJournalpostId, beskrivelse, BehandlingTema.FORELDREPENGER_ADOPSJON, tilhørendeEnhetDto.enhetsnummer()));
 
-        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), tilhørendeEnhetDto.enhetsnummer(), LIMIT)).thenReturn(journalføringOppgaver);
+        when(los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident())).thenReturn(List.of(tilhørendeEnhetDto));when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()),
+            tilhørendeEnhetDto.enhetsnummer(), LIMIT)).thenReturn(journalføringOppgaver);
 
         var oppgaveDtos = restTjeneste.hentÅpneOppgaverForSaksbehandler(saksbehandlerIdentDto);
 
@@ -132,9 +131,11 @@ class ManuellJournalføringRestTjenesteTest {
         var now = LocalDate.now();
         var beskrivelse = "beskrivelse";
         var aktørId = "aktørId";
-        var journalføringOppgaver = List.of(opprettOppgave(expectedId, now, expectedJournalpostId, beskrivelse, BehandlingTema.FORELDREPENGER_FØDSEL, tilhørendeEnhetDto.enhetsnummer()));
+        var journalføringOppgaver = List.of(
+            opprettOppgave(expectedId, now, expectedJournalpostId, beskrivelse, BehandlingTema.FORELDREPENGER_FØDSEL, tilhørendeEnhetDto.enhetsnummer()));
 
-        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), tilhørendeEnhetDto.enhetsnummer(), LIMIT)).thenReturn(journalføringOppgaver);
+        when(los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident())).thenReturn(List.of(tilhørendeEnhetDto));when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()),
+            tilhørendeEnhetDto.enhetsnummer(), LIMIT)).thenReturn(journalføringOppgaver);
         var fnr = "12344345678";
         when(pdl.hentPersonIdentForAktørId(aktørId)).thenReturn(Optional.of(fnr));
         var oppgaveDtos = restTjeneste.hentÅpneOppgaverForSaksbehandler(saksbehandlerIdentDto);
@@ -156,7 +157,8 @@ class ManuellJournalføringRestTjenesteTest {
         var beskrivelse = "beskrivelse";
         var journalføringOppgaver = List.of(opprettOppgave(expectedId, now, expectedJournalpostId, beskrivelse, BehandlingTema.OMS, tilhørendeEnhetDto.enhetsnummer()));
 
-        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), tilhørendeEnhetDto.enhetsnummer(), LIMIT)).thenReturn(journalføringOppgaver);
+        when(los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident())).thenReturn(List.of(tilhørendeEnhetDto));when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()),
+            tilhørendeEnhetDto.enhetsnummer(), LIMIT)).thenReturn(journalføringOppgaver);
         var oppgaveDtos = restTjeneste.hentÅpneOppgaverForSaksbehandler(saksbehandlerIdentDto);
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
@@ -172,7 +174,8 @@ class ManuellJournalføringRestTjenesteTest {
         var beskrivelse = "Journalføring";
         var journalføringOppgaver = List.of(opprettOppgave(expectedId, now, expectedJournalpostId, beskrivelse, BehandlingTema.OMS, tilhørendeEnhetDto.enhetsnummer()));
 
-        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), tilhørendeEnhetDto.enhetsnummer(), LIMIT)).thenReturn(journalføringOppgaver);
+        when(los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident())).thenReturn(List.of(tilhørendeEnhetDto));when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()),
+            tilhørendeEnhetDto.enhetsnummer(), LIMIT)).thenReturn(journalføringOppgaver);
         var oppgaveDtos = restTjeneste.hentÅpneOppgaverForSaksbehandler(saksbehandlerIdentDto);
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
@@ -189,7 +192,8 @@ class ManuellJournalføringRestTjenesteTest {
         var beskrivelse = "Foreldrepengesøknad";
         var journalføringOppgaver = List.of(opprettOppgave(expectedId, now, expectedJournalpostId, beskrivelse, BehandlingTema.OMS, tilhørendeEnhetDto.enhetsnummer()));
 
-        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), tilhørendeEnhetDto.enhetsnummer(), LIMIT)).thenReturn(journalføringOppgaver);
+        when(los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident())).thenReturn(List.of(tilhørendeEnhetDto));when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()),
+            tilhørendeEnhetDto.enhetsnummer(), LIMIT)).thenReturn(journalføringOppgaver);
         var oppgaveDtos = restTjeneste.hentÅpneOppgaverForSaksbehandler(saksbehandlerIdentDto);
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
@@ -203,18 +207,20 @@ class ManuellJournalføringRestTjenesteTest {
         var expectedId = 123L;
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
-        var beskrivelse = "--- 17.01.2023 09:44 Duck, Skrue (L568956, 4860) --- printet ut og scannes i bisys --- 17.01.2023 09:37 Duck, Skrue (L568956, 4860) --- Oppgaven er flyttet fra enhet " +
-                "4812 til 4860, fra saksbehandler <ingen> til L568956 --- 13.01.2023 08:00 Duck, Donald (B568956, 4812) --- Gjelder farskap --- 12.01.2023 12:30 Dusck, Dolly (R857447, 4806)" +
-                " --- Overført rett enhet Oppgaven er flyttet fra enhet 4860 til 4812 Journalføring";
+        var beskrivelse =
+            "--- 17.01.2023 09:44 Duck, Skrue (L568956, 4860) --- printet ut og scannes i bisys --- 17.01.2023 09:37 Duck, Skrue (L568956, 4860) --- Oppgaven er flyttet fra enhet "
+                + "4812 til 4860, fra saksbehandler <ingen> til L568956 --- 13.01.2023 08:00 Duck, Donald (B568956, 4812) --- Gjelder farskap --- 12.01.2023 12:30 Dusck, Dolly (R857447, 4806)"
+                + " --- Overført rett enhet Oppgaven er flyttet fra enhet 4860 til 4812 Journalføring";
         var journalføringOppgaver = List.of(opprettOppgave(expectedId, now, expectedJournalpostId, beskrivelse, BehandlingTema.OMS, tilhørendeEnhetDto.enhetsnummer()));
 
-        when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), tilhørendeEnhetDto.enhetsnummer(), LIMIT)).thenReturn(journalføringOppgaver);
+        when(los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident())).thenReturn(List.of(tilhørendeEnhetDto));when(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()),
+            tilhørendeEnhetDto.enhetsnummer(), LIMIT)).thenReturn(journalføringOppgaver);
         var oppgaveDtos = restTjeneste.hentÅpneOppgaverForSaksbehandler(saksbehandlerIdentDto);
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
         var oppgave = oppgaveDtos.get(0);
 
-        assertThat(oppgave.trimmetBeskrivelse()).isEqualTo( "Journalføring");
+        assertThat(oppgave.trimmetBeskrivelse()).isEqualTo("Journalføring");
     }
 
     @Test
@@ -247,8 +253,8 @@ class ManuellJournalføringRestTjenesteTest {
         assertThat(response.getMediaType()).isEqualTo(MediaType.APPLICATION_JSON_TYPE);
         var entity = response.getEntity();
         assertThat(entity).isExactlyInstanceOf(FeilDto.class);
-        assertThat(((FeilDto) entity).feilmelding()).contains(String.format("Dokument ikke funnet for journalpost= %s dokument= %s",
-                expectedJournalpostId, expectedDokumentId));
+        assertThat(((FeilDto) entity).feilmelding()).contains(
+            String.format("Dokument ikke funnet for journalpost= %s dokument= %s", expectedJournalpostId, expectedDokumentId));
     }
 
     @Test
@@ -261,7 +267,7 @@ class ManuellJournalføringRestTjenesteTest {
         var ex = assertThrows(TekniskException.class, () -> restTjeneste.hentJournalpostDetaljer(new JournalpostIdDto(expectedJournalpostId)));
 
         assertThat(ex).isNotNull();
-        assertThat(ex.getMessage()).isEqualTo("FORDEL-123:Journapost "+ expectedJournalpostId +" finnes ikke i arkivet.");
+        assertThat(ex.getMessage()).isEqualTo("FORDEL-123:Journapost " + expectedJournalpostId + " finnes ikke i arkivet.");
     }
 
     @Test
@@ -269,48 +275,18 @@ class ManuellJournalføringRestTjenesteTest {
     void skal_returnere_detaljer() {
         var expectedJournalpostId = "12334";
 
-        when(arkiv.hentArkivJournalpost(expectedJournalpostId)).thenReturn(
-                ArkivJournalpost.getBuilder()
-                        .medJournalpostId(expectedJournalpostId)
-                        .medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER)
-                        .medTilstand(Journalstatus.MOTTATT)
-                        .medJournalpost(new Journalpost(expectedJournalpostId, null, null, null, null, null, null, null, null, null, null, null, null, List.of(), List.of()))
-                        .build());
+        when(arkiv.hentArkivJournalpost(expectedJournalpostId)).thenReturn(ArkivJournalpost.getBuilder()
+            .medJournalpostId(expectedJournalpostId)
+            .medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER)
+            .medTilstand(Journalstatus.MOTTATT)
+            .medJournalpost(
+                new Journalpost(expectedJournalpostId, null, null, null, null, null, null, null, null, null, null, null, null, List.of(), List.of()))
+            .build());
 
         var ex = restTjeneste.hentJournalpostDetaljer(new JournalpostIdDto(expectedJournalpostId));
 
         assertThat(ex).isNotNull();
         assertThat(ex.journalpostId()).isEqualTo(expectedJournalpostId);
-    }
-
-    @Test
-    @DisplayName("/ehnet - returner detaljer.")
-    void skal_returnere_ehneter() {
-        var expectedIdent = "x452323";
-
-        var enheter = List.of(
-                new TilhørendeEnhetDto("9999", "Ni enhet"),
-                new TilhørendeEnhetDto("0000", "Null enhet"));
-
-        when(los.hentTilhørendeEnheter(expectedIdent)).thenReturn(enheter);
-
-        var resp = restTjeneste.hentTilhørendeEnhet(new SaksbehandlerIdentDto(expectedIdent));
-
-        assertThat(resp).isNotNull().hasSize(2).isEqualTo(enheter);
-    }
-
-    @Test
-    @DisplayName("/ehnet - returner exception om empty list.")
-    void skal_returnere_exception_om_ingen_enheter_funnet() {
-        var expectedIdent = "x452323";
-
-        when(los.hentTilhørendeEnheter(expectedIdent)).thenReturn(List.of());
-
-        var saksbehandlerIdentDto = new SaksbehandlerIdentDto(expectedIdent);
-
-        var ex = assertThrows(IllegalStateException.class, () -> restTjeneste.hentTilhørendeEnhet(saksbehandlerIdentDto));
-
-        assertThat(ex.getMessage()).contains("Det forventes at saksbehandler "+expectedIdent+" har minst en tilførende enhet. Fant ingen.");
     }
 
     private static Oppgave opprettOppgave(long expectedId, LocalDate now, String expectedJournalpostId, String beskrivelse, BehandlingTema behandlingTema, String enhetsNr) {

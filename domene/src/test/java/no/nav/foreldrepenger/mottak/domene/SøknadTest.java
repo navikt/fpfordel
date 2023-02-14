@@ -49,6 +49,12 @@ class SøknadTest {
     MottakMeldingDataWrapper test;
     Søknad søknadXmlWrapper;
 
+    private static OmYtelse mapOmYtelse(Ytelse ytelse) {
+        OmYtelse omYtelse = new OmYtelse();
+        omYtelse.getAny().add(ytelse);
+        return omYtelse;
+    }
+
     @BeforeEach
     void init() {
         søknad = new Soeknad();
@@ -59,12 +65,6 @@ class SøknadTest {
         test = new MottakMeldingDataWrapper(ProsessTaskData.forTaskType(new TaskType("TEST")));
         test.setAktørId(AKTØR_ID);
         søknadXmlWrapper = (Søknad) MottattStrukturertDokument.toXmlWrapper(søknad);
-    }
-
-    private static OmYtelse mapOmYtelse(Ytelse ytelse) {
-        OmYtelse omYtelse = new OmYtelse();
-        omYtelse.getAny().add(ytelse);
-        return omYtelse;
     }
 
     @Test
@@ -183,9 +183,8 @@ class SøknadTest {
         foreldrepenger.setRelasjonTilBarnet(søkersRelasjonTilBarnet);
         søknad.setOmYtelse(mapOmYtelse(foreldrepenger));
         test.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_ADOPSJON);
-        assertThatThrownBy(() -> søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent))
-                .isInstanceOf(TekniskException.class)
-                .hasMessageContaining("FP-404782");
+        assertThatThrownBy(() -> søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent)).isInstanceOf(
+            TekniskException.class).hasMessageContaining("FP-404782");
     }
 
     @Test
@@ -212,8 +211,8 @@ class SøknadTest {
         søknad.setOmYtelse(mapOmYtelse(foreldrepenger));
         test.setAktørId("95873742"); // simuler annen aktørId fra metadata
         test.setBehandlingTema(BehandlingTema.FORELDREPENGER_FØDSEL);
-        assertTrue(assertThrows(TekniskException.class, () -> søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent))
-                .getMessage().contains("FP-502574"));
+        assertTrue(assertThrows(TekniskException.class,
+            () -> søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent)).getMessage().contains("FP-502574"));
     }
 
     @Test
@@ -230,7 +229,7 @@ class SøknadTest {
         test.setBehandlingTema(BehandlingTema.FORELDREPENGER);
 
         assertTrue(assertThrows(FunksjonellException.class,
-                () -> søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent)).getMessage().contains("FP-401245"));
+            () -> søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent)).getMessage().contains("FP-401245"));
     }
 
     @Test

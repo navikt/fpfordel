@@ -37,11 +37,6 @@ public class Journalpost {
     @Column(name = "opprettet_tid", nullable = false)
     private LocalDateTime opprettetTidspunkt;
 
-    @PrePersist
-    protected void onCreate() {
-        this.opprettetTidspunkt = LocalDateTime.now();
-    }
-
     public Journalpost(String journalpostId, String tilstand, String kanal, String referanse, String opprettetAv) {
         Objects.requireNonNull(journalpostId);
         Objects.requireNonNull(opprettetAv);
@@ -54,6 +49,11 @@ public class Journalpost {
 
     public Journalpost() {
         // Hibernate
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.opprettetTidspunkt = LocalDateTime.now();
     }
 
     public Long getId() {

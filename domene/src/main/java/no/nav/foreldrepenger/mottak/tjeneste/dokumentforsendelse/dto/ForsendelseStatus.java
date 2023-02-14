@@ -18,8 +18,8 @@ public enum ForsendelseStatus {
      */
     public static ForsendelseStatus asEnumValue(String s) {
         return Arrays.stream(values())
-                .filter(v -> v.value.equalsIgnoreCase(s))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("ugyldig verdi: " + s));
+            .filter(v -> v.value.equalsIgnoreCase(s))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("ugyldig verdi: " + s));
     }
 }

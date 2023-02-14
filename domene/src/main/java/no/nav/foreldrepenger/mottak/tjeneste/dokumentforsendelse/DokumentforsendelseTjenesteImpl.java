@@ -1,23 +1,5 @@
 package no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse;
 
-import static java.util.stream.Collectors.toSet;
-import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Predicate;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import javax.ws.rs.core.MediaType;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.mottak.domene.dokument.Dokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
@@ -30,13 +12,28 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import javax.ws.rs.core.MediaType;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import static java.util.stream.Collectors.toSet;
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+
 @ApplicationScoped
 @Transactional
 public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjeneste {
     public static final MediaType APPLICATION_PDF_TYPE = MediaType.valueOf("application/pdf");
-    private static final Set<ArkivFilType> PÅKREVDE_HOVEDDOKUMENT_ARKIV_FIL_TYPER = Set.of(
-            ArkivFilType.XML,
-            ArkivFilType.PDFA);
+    private static final Set<ArkivFilType> PÅKREVDE_HOVEDDOKUMENT_ARKIV_FIL_TYPER = Set.of(ArkivFilType.XML, ArkivFilType.PDFA);
 
     private static final Logger LOG = LoggerFactory.getLogger(DokumentforsendelseTjenesteImpl.class);
     private DokumentRepository repository;
@@ -46,8 +43,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
     }
 
     @Inject
-    public DokumentforsendelseTjenesteImpl(DokumentRepository repository,
-                                           ProsessTaskTjeneste prosessTaskTjeneste) {
+    public DokumentforsendelseTjenesteImpl(DokumentRepository repository, ProsessTaskTjeneste prosessTaskTjeneste) {
         this.repository = repository;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
@@ -58,8 +54,9 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
         if (hoveddokumenter.isEmpty() && metadata.getSaksnummer().isEmpty()) {
             throw new TekniskException("FP-728553", "Saksnummer er påkrevd ved ettersendelser");
         } else if (!hoveddokumenter.isEmpty() && !korrektAntallOgTyper(hoveddokumenter)) {
-            throw new TekniskException("FP-728555", String.format("Hoveddokumentet skal alltid sendes som to dokumenter med %s: %s og %s",
-                    CONTENT_TYPE, APPLICATION_XML, APPLICATION_PDF_TYPE));
+            throw new TekniskException("FP-728555",
+                String.format("Hoveddokumentet skal alltid sendes som to dokumenter med %s: %s og %s", CONTENT_TYPE, APPLICATION_XML,
+                    APPLICATION_PDF_TYPE));
         }
 
         repository.lagre(metadata);
@@ -77,8 +74,8 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
 
     @Override
     public ForsendelseStatusDto finnStatusinformasjon(UUID forsendelseId) {
-        return finnStatusinformasjonHvisEksisterer(forsendelseId)
-                .orElseThrow(() -> new TekniskException("FP-295614", String.format("Ukjent forsendelseId %s", forsendelseId)));
+        return finnStatusinformasjonHvisEksisterer(forsendelseId).orElseThrow(
+            () -> new TekniskException("FP-295614", String.format("Ukjent forsendelseId %s", forsendelseId)));
     }
 
     @Override
@@ -116,8 +113,7 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
             return false;
         }
 
-        var dokumentArkivFilTyper = hoveddokumentene.stream().map(Dokument::getArkivFilType)
-                .collect(toSet());
+        var dokumentArkivFilTyper = hoveddokumentene.stream().map(Dokument::getArkivFilType).collect(toSet());
         if (dokumentArkivFilTyper.size() != 2) {
             return false;
         }

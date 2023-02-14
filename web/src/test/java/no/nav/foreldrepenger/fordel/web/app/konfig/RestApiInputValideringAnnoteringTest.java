@@ -16,6 +16,15 @@ public class RestApiInputValideringAnnoteringTest extends RestApiTester {
 
     private Function<Method, String> printKlasseOgMetodeNavn = (method -> String.format("%s.%s", method.getDeclaringClass(), method.getName()));
 
+    private static boolean isRequiredAnnotationPresent(Parameter parameter) {
+        final Valid validAnnotation = parameter.getAnnotation(Valid.class);
+        if (validAnnotation == null) {
+            final Context contextAnnotation = parameter.getAnnotation(Context.class);
+            return contextAnnotation != null;
+        }
+        return true;
+    }
+
     /**
      * IKKE ignorer eller fjern denne testen, den sørger for at inputvalidering er i
      * orden for REST-grensesnittene
@@ -28,24 +37,14 @@ public class RestApiInputValideringAnnoteringTest extends RestApiTester {
         for (Method method : finnAlleRestMetoder()) {
             for (int i = 0; i < method.getParameterCount(); i++) {
                 assertThat(method.getParameterTypes()[i].isAssignableFrom(String.class)).as(
-                        "REST-metoder skal ikke har parameter som er String eller mer generelt. Bruk DTO-er og valider. "
-                                + printKlasseOgMetodeNavn.apply(method))
-                        .isFalse();
-                assertThat(isRequiredAnnotationPresent(method.getParameters()[i]))
-                        .as("Alle parameter for REST-metoder skal være annotert med @Valid. Var ikke det for "
-                                + printKlasseOgMetodeNavn.apply(method))
-                        .withFailMessage("Fant parametere som mangler @Valid annotation '" + method.getParameters()[i].toString() + "'").isTrue();
+                    "REST-metoder skal ikke har parameter som er String eller mer generelt. Bruk DTO-er og valider. " + printKlasseOgMetodeNavn.apply(
+                        method)).isFalse();
+                assertThat(isRequiredAnnotationPresent(method.getParameters()[i])).as(
+                        "Alle parameter for REST-metoder skal være annotert med @Valid. Var ikke det for " + printKlasseOgMetodeNavn.apply(method))
+                    .withFailMessage("Fant parametere som mangler @Valid annotation '" + method.getParameters()[i].toString() + "'")
+                    .isTrue();
             }
         }
-    }
-
-    private static boolean isRequiredAnnotationPresent(Parameter parameter) {
-        final Valid validAnnotation = parameter.getAnnotation(Valid.class);
-        if (validAnnotation == null) {
-            final Context contextAnnotation = parameter.getAnnotation(Context.class);
-            return contextAnnotation != null;
-        }
-        return true;
     }
 
 }

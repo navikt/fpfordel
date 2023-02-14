@@ -2,11 +2,7 @@ package no.nav.foreldrepenger.mottak.sak;
 
 import java.util.Objects;
 
-public record SakJson(Long id,
-                      String tema,
-                      String applikasjon,
-                      String aktoerId,
-                      String fagsakNr) {
+public record SakJson(Long id, String tema, String applikasjon, String aktoerId, String fagsakNr) {
 
     @Override
     public int hashCode() {
@@ -15,16 +11,15 @@ public record SakJson(Long id,
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         var that = (SakJson) o;
-        return id == that.id &&
-                tema.equals(that.tema)
-                && applikasjon.equals(that.applikasjon)
-                && aktoerId.equals(that.aktoerId)
-                && fagsakNr.equals(that.fagsakNr);
+        return id == that.id && tema.equals(that.tema) && applikasjon.equals(that.applikasjon) && aktoerId.equals(that.aktoerId) && fagsakNr.equals(
+            that.fagsakNr);
 
     }
 

@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.fordel.kodeverdi;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum Journalstatus implements Kodeverdi {
 
@@ -22,6 +22,14 @@ public enum Journalstatus implements Kodeverdi {
 
     private static final Map<String, Journalstatus> KODER = new LinkedHashMap<>();
 
+    static {
+        for (var v : values()) {
+            if (KODER.putIfAbsent(v.kode, v) != null) {
+                throw new IllegalArgumentException("Duplikat : " + v.kode);
+            }
+        }
+    }
+
     @JsonValue
     private String kode;
 
@@ -29,10 +37,10 @@ public enum Journalstatus implements Kodeverdi {
         // Hibernate trenger den
     }
 
+
     private Journalstatus(String kode) {
         this.kode = kode;
     }
-
 
     public static Journalstatus fraKodeDefaultUdefinert(String kode) {
         if (kode == null) {
@@ -44,13 +52,5 @@ public enum Journalstatus implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    static {
-        for (var v : values()) {
-            if (KODER.putIfAbsent(v.kode, v) != null) {
-                throw new IllegalArgumentException("Duplikat : " + v.kode);
-            }
-        }
     }
 }

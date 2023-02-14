@@ -34,8 +34,8 @@ public class PersonTjeneste implements PersonInformasjon {
 
     private static final Logger LOG = LoggerFactory.getLogger(PersonTjeneste.class);
 
-    private static final Set<AdressebeskyttelseGradering> STRENG =
-            Set.of(AdressebeskyttelseGradering.STRENGT_FORTROLIG, AdressebeskyttelseGradering.STRENGT_FORTROLIG_UTLAND);
+    private static final Set<AdressebeskyttelseGradering> STRENG = Set.of(AdressebeskyttelseGradering.STRENGT_FORTROLIG,
+        AdressebeskyttelseGradering.STRENGT_FORTROLIG_UTLAND);
 
     private static final int DEFAULT_CACHE_SIZE = 1000;
     private static final long DEFAULT_CACHE_TIMEOUT = TimeUnit.MILLISECONDS.convert(10, TimeUnit.MINUTES);
@@ -56,11 +56,30 @@ public class PersonTjeneste implements PersonInformasjon {
         this.cacheIdentTilAktørId = new LRUCache<>(DEFAULT_CACHE_SIZE, timeoutMs);
     }
 
+    private static Instant expiresAt() {
+        try {
+            return JwtUtil.getExpirationTime(JwtUtil.getClaims(getSubjectHandler().getInternSsoToken()));
+        } catch (Exception e) {
+            LOG.trace("Kunne ikke hente expiration dato fra token", e);
+            return null;
+        }
+    }
+
+    private static HentPersonQueryRequest personQuery(String aktørId) {
+        var q = new HentPersonQueryRequest();
+        q.setIdent(aktørId);
+        return q;
+    }
+
+    private static String mapNavn(Navn navn) {
+        return Optional.ofNullable(navn.getForkortetNavn())
+            .orElseGet(() -> navn.getEtternavn() + " " + navn.getFornavn() + Optional.ofNullable(navn.getMellomnavn()).map(n -> " " + n).orElse(""));
+    }
+
     @Override
     public Optional<String> hentAktørIdForPersonIdent(String fnr) {
         try {
-            return Optional.ofNullable(cacheIdentTilAktørId.get(fnr))
-                    .or(() -> tilAktørId(fnr));
+            return Optional.ofNullable(cacheIdentTilAktørId.get(fnr)).or(() -> tilAktørId(fnr));
         } catch (PdlException e) {
             LOG.warn("Kunne ikke hente aktørid fra fnr {} ({} {})", StringUtil.mask(fnr), e, expiresAt(), e);
             return Optional.empty();
@@ -70,8 +89,7 @@ public class PersonTjeneste implements PersonInformasjon {
     @Override
     public Optional<String> hentPersonIdentForAktørId(String aktørId) {
         try {
-            return Optional.ofNullable(cacheAktørIdTilIdent.get(aktørId))
-                    .or(() -> tilFnr(aktørId));
+            return Optional.ofNullable(cacheAktørIdTilIdent.get(aktørId)).or(() -> tilFnr(aktørId));
         } catch (PdlException e) {
             LOG.warn("Kunne ikke hente fnr fra aktørid {} ({} {})", aktørId, e, expiresAt(), e);
             return Optional.empty();
@@ -81,11 +99,12 @@ public class PersonTjeneste implements PersonInformasjon {
     @Override
     public String hentNavn(String id) {
         return pdl.hentPerson(personQuery(id),
-                new PersonResponseProjection().navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())).getNavn()
-                .stream()
-                .map(PersonTjeneste::mapNavn)
-                .findFirst()
-                .orElseThrow();
+                new PersonResponseProjection().navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn()))
+            .getNavn()
+            .stream()
+            .map(PersonTjeneste::mapNavn)
+            .findFirst()
+            .orElseThrow();
     }
 
     @Override
@@ -98,20 +117,8 @@ public class PersonTjeneste implements PersonInformasjon {
 
     @Override
     public boolean harStrengDiskresjonskode(String id) {
-        var pp = new PersonResponseProjection()
-                .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
-        return pdl.hentPerson(personQuery(id), pp).getAdressebeskyttelse().stream()
-                .map(Adressebeskyttelse::getGradering)
-                .anyMatch(STRENG::contains);
-    }
-
-    private static Instant expiresAt() {
-        try {
-            return JwtUtil.getExpirationTime(JwtUtil.getClaims(getSubjectHandler().getInternSsoToken()));
-        } catch (Exception e) {
-            LOG.trace("Kunne ikke hente expiration dato fra token", e);
-            return null;
-        }
+        var pp = new PersonResponseProjection().adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
+        return pdl.hentPerson(personQuery(id), pp).getAdressebeskyttelse().stream().map(Adressebeskyttelse::getGradering).anyMatch(STRENG::contains);
     }
 
     private Optional<String> tilAktørId(String fnr) {
@@ -130,21 +137,10 @@ public class PersonTjeneste implements PersonInformasjon {
 
     }
 
-    private static HentPersonQueryRequest personQuery(String aktørId) {
-        var q = new HentPersonQueryRequest();
-        q.setIdent(aktørId);
-        return q;
-    }
-
-    private static String mapNavn(Navn navn) {
-        return Optional.ofNullable(navn.getForkortetNavn())
-                .orElseGet(() -> navn.getEtternavn() + " " + navn.getFornavn() +
-                        Optional.ofNullable(navn.getMellomnavn()).map(n -> " " + n).orElse(""));
-    }
-
     private String tilknytning(GeografiskTilknytning res) {
-        if (res == null || res.getGtType() == null)
+        if (res == null || res.getGtType() == null) {
             return null;
+        }
         return switch (res.getGtType()) {
             case BYDEL -> res.getGtBydel();
             case KOMMUNE -> res.getGtKommune();

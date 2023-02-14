@@ -52,6 +52,15 @@ public class EnhetsTjeneste implements JournalføringsOppgave {
         this.oppgaver = oppgaver;
     }
 
+    private static String validerOgVelgBehandlendeEnhet(List<ArbeidsfordelingResponse> response, String gt) {
+        // Vi forventer å få én behandlende enhet.
+        if (response == null || response.size() != 1) {
+            throw new TekniskException("FP-669566", String.format("Finner ikke behandlende enhet for geografisk tilknytning %s", gt));
+        }
+
+        return response.get(0).enhetNr();
+    }
+
     @Override
     public String hentFordelingEnhetId(Tema tema, BehandlingTema behandlingTema, Optional<String> enhetInput, String aktørId) {
         LOG.info("Henter enhet id for {},{}", tema, behandlingTema);
@@ -60,15 +69,18 @@ public class EnhetsTjeneste implements JournalføringsOppgave {
             return enhetInput.get();
         }
 
-        var id = Optional.ofNullable(aktørId)
-                .map(a -> hentEnhetId(a, behandlingTema, tema))
-                .orElseGet(this::tilfeldigNfpEnhet);
+        var id = Optional.ofNullable(aktørId).map(a -> hentEnhetId(a, behandlingTema, tema)).orElseGet(this::tilfeldigNfpEnhet);
         LOG.info("returnerer enhet id  {}", id);
         return id;
     }
 
     @Override
-    public String opprettJournalføringsOppgave(String journalpostId, String enhetId, String aktørId, String saksref, String behandlingTema, String beskrivelse) {
+    public String opprettJournalføringsOppgave(String journalpostId,
+                                               String enhetId,
+                                               String aktørId,
+                                               String saksref,
+                                               String behandlingTema,
+                                               String beskrivelse) {
         var request = OpprettOppgave.getBuilderTemaFOR(Oppgavetype.JOURNALFØRING, Prioritet.NORM, 1)
             .medAktoerId(aktørId)
             .medSaksreferanse(saksref)
@@ -98,23 +110,14 @@ public class EnhetsTjeneste implements JournalføringsOppgave {
         }
 
         var request = ArbeidsfordelingRequest.ny()
-                .medTemagruppe(TEMAGRUPPE)
-                .medTema(tema.getOffisiellKode())
-                .medBehandlingstema(behandlingTema.getOffisiellKode())
-                .medBehandlingstype(BEHANDLINGTYPE)
-                .medOppgavetype(OPPGAVETYPE_JFR)
-                .medGeografiskOmraade(gt)
-                .build();
+            .medTemagruppe(TEMAGRUPPE)
+            .medTema(tema.getOffisiellKode())
+            .medBehandlingstema(behandlingTema.getOffisiellKode())
+            .medBehandlingstype(BEHANDLINGTYPE)
+            .medOppgavetype(OPPGAVETYPE_JFR)
+            .medGeografiskOmraade(gt)
+            .build();
         return validerOgVelgBehandlendeEnhet(norgKlient.finnEnhet(request), gt);
-    }
-
-    private static String validerOgVelgBehandlendeEnhet(List<ArbeidsfordelingResponse> response, String gt) {
-        // Vi forventer å få én behandlende enhet.
-        if (response == null || response.size() != 1) {
-            throw new TekniskException("FP-669566", String.format("Finner ikke behandlende enhet for geografisk tilknytning %s", gt));
-        }
-
-        return response.get(0).enhetNr();
     }
 
     private String tilfeldigNfpEnhet() {
@@ -124,20 +127,20 @@ public class EnhetsTjeneste implements JournalføringsOppgave {
     private void oppdaterEnhetCache() {
         if (sisteInnhenting.isBefore(LocalDate.now())) {
             var request = ArbeidsfordelingRequest.ny()
-                    .medTemagruppe(TEMAGRUPPE)
-                    .medTema(TEMA)
-                    .medBehandlingstype(BEHANDLINGTYPE)
-                    .medBehandlingstema(BehandlingTema.FORELDREPENGER.getOffisiellKode())
-                    .medOppgavetype(OPPGAVETYPE_JFR)
-                    .build();
+                .medTemagruppe(TEMAGRUPPE)
+                .medTema(TEMA)
+                .medBehandlingstype(BEHANDLINGTYPE)
+                .medBehandlingstema(BehandlingTema.FORELDREPENGER.getOffisiellKode())
+                .medOppgavetype(OPPGAVETYPE_JFR)
+                .build();
             var respons = norgKlient.hentAlleAktiveEnheter(request);
             alleJournalførendeEnheter.clear();
             nfpJournalførendeEnheter.clear();
             respons.stream()
-                    .filter(e -> ENHET_TYPE_NFP.equalsIgnoreCase(e.enhetType()))
-                    .map(ArbeidsfordelingResponse::enhetNr)
-                    .filter(e -> !SPESIALENHETER.contains(e))
-                    .forEach(nfpJournalførendeEnheter::add);
+                .filter(e -> ENHET_TYPE_NFP.equalsIgnoreCase(e.enhetType()))
+                .map(ArbeidsfordelingResponse::enhetNr)
+                .filter(e -> !SPESIALENHETER.contains(e))
+                .forEach(nfpJournalførendeEnheter::add);
             alleJournalførendeEnheter.addAll(respons.stream().map(ArbeidsfordelingResponse::enhetNr).toList());
             alleJournalførendeEnheter.addAll(SPESIALENHETER);
             sisteInnhenting = LocalDate.now();

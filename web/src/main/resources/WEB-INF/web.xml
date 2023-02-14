@@ -31,7 +31,7 @@
             <http-method>OPTIONS</http-method>
             <http-method>DELETE</http-method>
         </web-resource-collection>
-        <auth-constraint />
+        <auth-constraint/>
     </security-constraint>
 </web-app>
 

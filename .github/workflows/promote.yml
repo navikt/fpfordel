@@ -1,7 +1,7 @@
 name: Promote
 on:
   repository_dispatch:
-    types: [promote-command]
+    types: [ promote-command ]
 
 jobs:
   promote:

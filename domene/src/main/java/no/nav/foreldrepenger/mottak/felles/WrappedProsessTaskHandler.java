@@ -8,8 +8,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler, Conditions {
 
-    protected abstract MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper w);
-
     protected ProsessTaskTjeneste prosessTaskTjeneste;
 
     public WrappedProsessTaskHandler() {
@@ -19,6 +17,8 @@ public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler, C
     public WrappedProsessTaskHandler(ProsessTaskTjeneste prosessTaskTjeneste) {
         this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
+
+    protected abstract MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper w);
 
     @Override
     public void doTask(ProsessTaskData data) {

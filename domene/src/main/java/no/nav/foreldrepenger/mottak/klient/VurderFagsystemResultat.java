@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.mottak.klient;
 
-import java.util.Optional;
-
 import no.nav.foreldrepenger.kontrakter.fordel.BehandlendeFagsystemDto;
+
+import java.util.Optional;
 
 public record VurderFagsystemResultat(SendTil destinasjon, String saksnummer) {
 
@@ -18,6 +18,9 @@ public record VurderFagsystemResultat(SendTil destinasjon, String saksnummer) {
         return Optional.ofNullable(saksnummer);
     }
 
-    public enum SendTil { FPSAK, GOSYS }
+    public enum SendTil {
+        FPSAK,
+        GOSYS
+    }
 
 }

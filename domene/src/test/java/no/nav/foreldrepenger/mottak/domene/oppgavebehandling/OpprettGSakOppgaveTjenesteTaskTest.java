@@ -63,7 +63,8 @@ class OpprettGSakOppgaveTjenesteTaskTest {
 
         task.doTask(taskData);
 
-        verify(enhetsidTjeneste).opprettJournalføringsOppgave(null, fordelingsOppgaveEnhetsId, aktørId, null, BehandlingTema.ENGANGSSTØNAD.getOffisiellKode(), beskrivelse);
+        verify(enhetsidTjeneste).opprettJournalføringsOppgave(null, fordelingsOppgaveEnhetsId, aktørId, null,
+            BehandlingTema.ENGANGSSTØNAD.getOffisiellKode(), beskrivelse);
     }
 
     @Test
@@ -101,6 +102,7 @@ class OpprettGSakOppgaveTjenesteTaskTest {
 
         task.doTask(taskData);
 
-        verify(enhetsidTjeneste).opprettJournalføringsOppgave(arkivId, fordelingsOppgaveEnhetsId, null, null, BehandlingTema.FORELDREPENGER.getOffisiellKode(), beskrivelse);
+        verify(enhetsidTjeneste).opprettJournalføringsOppgave(arkivId, fordelingsOppgaveEnhetsId, null, null,
+            BehandlingTema.FORELDREPENGER.getOffisiellKode(), beskrivelse);
     }
 }

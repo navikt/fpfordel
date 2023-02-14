@@ -1,5 +1,10 @@
 package no.nav.foreldrepenger.journalføring;
 
+import static java.util.Objects.requireNonNull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.YtelseType;
 import no.nav.foreldrepenger.mapper.YtelseTypeMapper;
@@ -11,12 +16,6 @@ import no.nav.foreldrepenger.typer.AktørId;
 import no.nav.foreldrepenger.typer.JournalpostId;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Objects;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Denne validatoren sjekker om gitt journalpost er faglig konform med de valgene SBH har gjort i GUI, f.eks:
@@ -35,6 +34,17 @@ public class ManuellOpprettSakValidator {
     public ManuellOpprettSakValidator(ArkivTjeneste arkivTjeneste, Fagsak fagsak) {
         this.arkivTjeneste = arkivTjeneste;
         this.fagsak = fagsak;
+    }
+
+    private static YtelseType utledYtelseTypeFor(DokumentTypeId dokumentTypeId) {
+        return switch (dokumentTypeId) {
+            case SØKNAD_ENGANGSSTØNAD_ADOPSJON -> YtelseType.ENGANGSTØNAD;
+            case SØKNAD_ENGANGSSTØNAD_FØDSEL -> YtelseType.ENGANGSTØNAD;
+            case SØKNAD_FORELDREPENGER_ADOPSJON -> YtelseType.FORELDREPENGER;
+            case SØKNAD_FORELDREPENGER_FØDSEL -> YtelseType.FORELDREPENGER;
+            case SØKNAD_SVANGERSKAPSPENGER -> YtelseType.SVANGERSKAPSPENGER;
+            default -> null;
+        };
     }
 
     public void validerKonsistensMedSak(JournalpostId journalpostId, YtelseType oppgittYtelseType, AktørId aktørId) {
@@ -56,7 +66,8 @@ public class ManuellOpprettSakValidator {
             var original = arkivJournalpost.getStrukturertPayload().toLowerCase();
             if (original.contains("ytelse>foreldrepenger<")) {
                 if (harAktivSak(aktørId, oppgittYtelseType)) {
-                    throw new TekniskException("FP-34238", "Kan ikke journalføre FP inntektsmelding på en ny sak fordi det finnes en aktiv foreldrepenger sak allerede.");
+                    throw new TekniskException("FP-34238",
+                        "Kan ikke journalføre FP inntektsmelding på en ny sak fordi det finnes en aktiv foreldrepenger sak allerede.");
                 }
                 journalpostYtelseType = YtelseType.FORELDREPENGER;
             } else if (original.contains("ytelse>svangerskapspenger<")) {
@@ -66,25 +77,15 @@ public class ManuellOpprettSakValidator {
         LOG.info("FPSAK vurdering ytelsedok {} vs ytelseoppgitt {}", journalpostYtelseType, oppgittYtelseType);
         if (!oppgittYtelseType.equals(journalpostYtelseType)) {
             throw new FunksjonellException("FP-785359", "Dokument og valgt ytelsetype i uoverenstemmelse",
-                    "Velg ytelsetype som samstemmer med dokument");
+                "Velg ytelsetype som samstemmer med dokument");
         }
     }
 
     private boolean harAktivSak(AktørId aktørId, YtelseType oppgittYtelseType) {
-        return fagsak.hentBrukersSaker(new AktørIdDto(aktørId.getId())).stream()
-                .filter(it -> !it.status().equals(StatusDto.AVSLUTTET))
-                .anyMatch(it -> YtelseTypeMapper.mapFraDto(it.ytelseType()).equals(oppgittYtelseType));
-    }
-
-    private static YtelseType utledYtelseTypeFor(DokumentTypeId dokumentTypeId) {
-        return switch (dokumentTypeId) {
-            case SØKNAD_ENGANGSSTØNAD_ADOPSJON -> YtelseType.ENGANGSTØNAD;
-            case SØKNAD_ENGANGSSTØNAD_FØDSEL -> YtelseType.ENGANGSTØNAD;
-            case SØKNAD_FORELDREPENGER_ADOPSJON -> YtelseType.FORELDREPENGER;
-            case SØKNAD_FORELDREPENGER_FØDSEL -> YtelseType.FORELDREPENGER;
-            case SØKNAD_SVANGERSKAPSPENGER ->  YtelseType.SVANGERSKAPSPENGER;
-            default -> null;
-        };
+        return fagsak.hentBrukersSaker(new AktørIdDto(aktørId.getId()))
+            .stream()
+            .filter(it -> !it.status().equals(StatusDto.AVSLUTTET))
+            .anyMatch(it -> YtelseTypeMapper.mapFraDto(it.ytelseType()).equals(oppgittYtelseType));
     }
 
 }

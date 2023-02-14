@@ -12,7 +12,7 @@
     </ns6:paakrevdeVedlegg>
     <ns6:omYtelse>
         <ns4:foreldrepenger>
-            <ns4:annenForelder xsi:type="ns5:AnnenForelderMedNorskIdent" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <ns4:annenForelder xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns5:AnnenForelderMedNorskIdent">
                 <ns5:aktoerId>9000000000008</ns5:aktoerId>
             </ns4:annenForelder>
             <ns4:rettigheter>
@@ -20,7 +20,7 @@
                 <ns5:harOmsorgForBarnetIPeriodene>true</ns5:harOmsorgForBarnetIPeriodene>
                 <ns5:harAleneomsorgForBarnet>false</ns5:harAleneomsorgForBarnet>
             </ns4:rettigheter>
-            <ns4:relasjonTilBarnet xsi:type="ns5:Adopsjon" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <ns4:relasjonTilBarnet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns5:Adopsjon">
                 <ns5:antallBarn>1</ns5:antallBarn>
                 <ns5:vedlegg>V00470913872202833923213882035459928</ns5:vedlegg>
                 <ns5:omsorgsovertakelsesdato>2017-11-22</ns5:omsorgsovertakelsesdato>
@@ -47,7 +47,7 @@
             <ns4:opptjening/>
             <ns4:fordeling>
                 <ns2:annenForelderErInformert>false</ns2:annenForelderErInformert>
-                <ns2:perioder xsi:type="ns2:Uttaksperiode" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <ns2:perioder xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:Uttaksperiode">
                     <ns2:fom>2019-11-12</ns2:fom>
                     <ns2:tom>2019-12-13</ns2:tom>
                     <ns2:type kode="FORELDREPENGER" kodeverk="UTTAK_PERIODE_TYPE"/>

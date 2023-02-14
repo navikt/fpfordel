@@ -20,31 +20,34 @@ public class DokumentArkivTestUtil {
 
     public static DokumentMetadata lagMetadata(UUID forsendelseId, String saksnummer) {
         return DokumentMetadata.builder()
-                .setForsendelseMottatt(FORSENDELSE_MOTTATT)
-                .setBrukerId(BRUKER_ID)
-                .setForsendelseId(forsendelseId)
-                .setSaksnummer(saksnummer)
-                .build();
+            .setForsendelseMottatt(FORSENDELSE_MOTTATT)
+            .setBrukerId(BRUKER_ID)
+            .setForsendelseId(forsendelseId)
+            .setSaksnummer(saksnummer)
+            .build();
     }
 
     public static Dokument lagDokument(UUID forsendelseId, DokumentTypeId dokumentTypeId, ArkivFilType arkivFilType, boolean erHoveddokument) {
         return Dokument.builder()
-                .setForsendelseId(forsendelseId)
-                .setDokumentInnhold(BLOB, arkivFilType)
-                .setHovedDokument(erHoveddokument)
-                .setDokumentTypeId(dokumentTypeId)
-                .build();
+            .setForsendelseId(forsendelseId)
+            .setDokumentInnhold(BLOB, arkivFilType)
+            .setHovedDokument(erHoveddokument)
+            .setDokumentTypeId(dokumentTypeId)
+            .build();
     }
 
-    public static Dokument lagDokumentBeskrivelse(UUID forsendelseId, DokumentTypeId dokumentTypeId, ArkivFilType arkivFilType,
-            boolean erHoveddokument, String beskrivelse) {
+    public static Dokument lagDokumentBeskrivelse(UUID forsendelseId,
+                                                  DokumentTypeId dokumentTypeId,
+                                                  ArkivFilType arkivFilType,
+                                                  boolean erHoveddokument,
+                                                  String beskrivelse) {
         return Dokument.builder()
-                .setForsendelseId(forsendelseId)
-                .setDokumentInnhold(BLOB, arkivFilType)
-                .setHovedDokument(erHoveddokument)
-                .setDokumentTypeId(dokumentTypeId)
-                .setBeskrivelse(beskrivelse)
-                .build();
+            .setForsendelseId(forsendelseId)
+            .setDokumentInnhold(BLOB, arkivFilType)
+            .setHovedDokument(erHoveddokument)
+            .setDokumentTypeId(dokumentTypeId)
+            .setBeskrivelse(beskrivelse)
+            .build();
     }
 
     public static List<Dokument> lagHoveddokumentMedXmlOgPdf(UUID forsendelseId, DokumentTypeId dokumentTypeId) {

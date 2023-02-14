@@ -29,8 +29,7 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
     }
 
     @Override
-    protected void kopierVerdier(MottakMeldingDataWrapper dataWrapper,
-            Function<String, Optional<String>> aktørIdFinder) {
+    protected void kopierVerdier(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {
         kopierAktørTilMottakWrapper(dataWrapper, aktørIdFinder);
         dataWrapper.setÅrsakTilInnsending(getÅrsakTilInnsending());
         getVirksomhetsnummer().ifPresent(dataWrapper::setVirksomhetsnummer);
@@ -50,11 +49,11 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
         return Optional.empty();
     }
 
-    public void kopierAktørTilMottakWrapper(MottakMeldingDataWrapper dataWrapper,
-            Function<String, Optional<String>> aktørIdFinder) {
+    public void kopierAktørTilMottakWrapper(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {
         Optional<String> aktørId = aktørIdFinder.apply(getArbeidstakerFnr());
         if (aktørId.isEmpty()) {
-            LOG.warn(new TekniskException("FP-513732", String.format("Finner ikke aktørID for bruker på %s", this.getClass().getSimpleName())).getMessage());
+            LOG.warn(new TekniskException("FP-513732",
+                String.format("Finner ikke aktørID for bruker på %s", this.getClass().getSimpleName())).getMessage());
         }
         aktørId.ifPresent(dataWrapper::setAktørId);
     }
@@ -66,7 +65,8 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
     private LocalDate getStartdatoForeldrepengeperiode() {
         return Optional.ofNullable(getSkjema().getSkjemainnhold())
             .map(Skjemainnhold::getStartdatoForeldrepengeperiode)
-            .map(JAXBElement::getValue).orElse(null);
+            .map(JAXBElement::getValue)
+            .orElse(null);
     }
 
     // FIXME (GS) Disse to verdiene må bli kodeverk her og i fpsak, men hardkodes nå

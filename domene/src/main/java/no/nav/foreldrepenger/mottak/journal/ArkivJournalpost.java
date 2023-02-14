@@ -1,12 +1,21 @@
 package no.nav.foreldrepenger.mottak.journal;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
+import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.mottak.journal.saf.DokumentInfo;
 import no.nav.foreldrepenger.mottak.journal.saf.Journalpost;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Tilleggsopplysning;
-
-import java.time.LocalDateTime;
-import java.util.*;
 
 public class ArkivJournalpost {
 
@@ -35,6 +44,10 @@ public class ArkivJournalpost {
     public ArkivJournalpost() {
     }
 
+    public static Builder getBuilder() {
+        return new Builder();
+    }
+
     public Journalpost getOriginalJournalpost() {
         return original;
     }
@@ -44,8 +57,7 @@ public class ArkivJournalpost {
     }
 
     public Optional<String> getTittel() {
-        return Optional.ofNullable(original)
-                .map(Journalpost::tittel);
+        return Optional.ofNullable(original).map(Journalpost::tittel);
     }
 
     public Optional<String> getSaksnummer() {
@@ -130,14 +142,19 @@ public class ArkivJournalpost {
 
     public boolean harBrevkodeCrm() {
         return Optional.ofNullable(original)
-            .map(Journalpost::dokumenter).orElse(List.of()).stream()
+            .map(Journalpost::dokumenter)
+            .orElse(List.of())
+            .stream()
             .map(DokumentInfo::brevkode)
             .filter(Objects::nonNull)
             .anyMatch(bk -> bk.startsWith("CRM"));
     }
 
-    public static Builder getBuilder() {
-        return new Builder();
+    @Override
+    public String toString() {
+        return "ArkivJournalpost{" + "journalpostId='" + journalpostId + '\'' + ", kanal='" + kanal + '\'' + ", tilstand=" + tilstand
+            + ", journalposttype=" + journalposttype + ", tema=" + tema + ", behandlingstema=" + behandlingstema + ", datoOpprettet=" + datoOpprettet
+            + ", eksternReferanseId='" + eksternReferanseId + '\'' + ", hovedtype=" + hovedtype + '}';
     }
 
     public static class Builder {
@@ -231,8 +248,9 @@ public class ArkivJournalpost {
         }
 
         public Builder medTilleggsopplysninger(List<Tilleggsopplysning> tilleggsopplysninger) {
-            if (tilleggsopplysninger != null)
+            if (tilleggsopplysninger != null) {
                 ajp.tilleggsopplysninger.addAll(tilleggsopplysninger);
+            }
             return this;
         }
 
@@ -258,20 +276,5 @@ public class ArkivJournalpost {
             Objects.requireNonNull(ajp.tilstand, "tilstand");
             return ajp;
         }
-    }
-
-    @Override
-    public String toString() {
-        return "ArkivJournalpost{" +
-                "journalpostId='" + journalpostId + '\'' +
-                ", kanal='" + kanal + '\'' +
-                ", tilstand=" + tilstand +
-                ", journalposttype=" + journalposttype +
-                ", tema=" + tema +
-                ", behandlingstema=" + behandlingstema +
-                ", datoOpprettet=" + datoOpprettet +
-                ", eksternReferanseId='" + eksternReferanseId + '\'' +
-                ", hovedtype=" + hovedtype +
-                '}';
     }
 }

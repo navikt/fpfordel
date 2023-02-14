@@ -1,12 +1,8 @@
 package no.nav.foreldrepenger.fordel.web.app.selftest;
 
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static javax.ws.rs.core.Response.Status.OK;
-import static javax.ws.rs.core.Response.Status.SERVICE_UNAVAILABLE;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-
-import java.util.List;
+import no.nav.foreldrepenger.fordel.web.app.tjenester.ApplicationServiceStarter;
+import no.nav.vedtak.log.metrics.LivenessAware;
+import no.nav.vedtak.log.metrics.ReadinessAware;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,9 +10,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.fordel.web.app.tjenester.ApplicationServiceStarter;
-import no.nav.vedtak.log.metrics.LivenessAware;
-import no.nav.vedtak.log.metrics.ReadinessAware;
+import java.util.List;
+
+import static javax.ws.rs.core.Response.Status.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class HealthCheckRestServiceTest {

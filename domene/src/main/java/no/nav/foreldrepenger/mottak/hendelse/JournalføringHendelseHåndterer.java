@@ -43,10 +43,18 @@ public class JournalføringHendelseHåndterer {
     }
 
     @Inject
-    public JournalføringHendelseHåndterer(ProsessTaskTjeneste taskTjeneste,
-            DokumentRepository dokumentRepository) {
+    public JournalføringHendelseHåndterer(ProsessTaskTjeneste taskTjeneste, DokumentRepository dokumentRepository) {
         this.taskTjeneste = taskTjeneste;
         this.dokumentRepository = dokumentRepository;
+    }
+
+    private static void setCallIdForHendelse(JournalfoeringHendelseRecord payload) {
+        var hendelsesId = payload.getHendelsesId();
+        if (hendelsesId == null || hendelsesId.isEmpty() || hendelsesId.isBlank()) {
+            MDCOperations.putCallId();
+        } else {
+            MDCOperations.putCallId(hendelsesId);
+        }
     }
 
     void handleMessage(JournalfoeringHendelseRecord payload) {
@@ -55,8 +63,8 @@ public class JournalføringHendelseHåndterer {
         var arkivId = String.valueOf(payload.getJournalpostId());
         var hendelseType = payload.getHendelsesType();
         var mottaksKanal = payload.getMottaksKanal();
-        var eksternReferanseId = (payload.getKanalReferanseId() == null) || payload.getKanalReferanseId().isEmpty()
-                ? null : payload.getKanalReferanseId();
+        var eksternReferanseId =
+            (payload.getKanalReferanseId() == null) || payload.getKanalReferanseId().isEmpty() ? null : payload.getKanalReferanseId();
 
         // De uten kanalreferanse er "klonet" av SBH og journalført fra Gosys.
         // Normalt blir de journalført, men det feiler av og til pga tilgang.
@@ -105,14 +113,5 @@ public class JournalføringHendelseHåndterer {
         var oppdatertTaskdata = melding.getProsessTaskData();
         oppdatertTaskdata.setNesteKjøringEtter(LocalDateTime.now().plus(delay));
         taskTjeneste.lagre(oppdatertTaskdata);
-    }
-
-    private static void setCallIdForHendelse(JournalfoeringHendelseRecord payload) {
-        var hendelsesId = payload.getHendelsesId();
-        if (hendelsesId == null || hendelsesId.isEmpty() || hendelsesId.isBlank()) {
-            MDCOperations.putCallId();
-        } else {
-            MDCOperations.putCallId(hendelsesId);
-        }
     }
 }
