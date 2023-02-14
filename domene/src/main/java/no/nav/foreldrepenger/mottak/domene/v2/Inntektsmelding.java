@@ -56,7 +56,7 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
         if (aktørId.isEmpty()) {
             LOG.warn(new TekniskException("FP-513732", String.format("Finner ikke aktørID for bruker på %s", this.getClass().getSimpleName())).getMessage());
         }
-        dataWrapper.setAktørId(aktørId.get());
+        aktørId.ifPresent(dataWrapper::setAktørId);
     }
 
     @Override
