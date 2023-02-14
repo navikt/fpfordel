@@ -31,10 +31,11 @@ public class DatabaseHealthCheck implements ReadinessAware, LivenessAware {
 
     private boolean isOK() {
         try (var connection = dataSource.getConnection()) {
-            var statement = connection.createStatement();
-            if (!statement.execute(SQL_QUERY)) {
-                LOG.warn("Feil ved SQL-spørring {} mot databasen", SQL_QUERY);
-                return false;
+            try (var statement = connection.createStatement()) {
+                if (!statement.execute(SQL_QUERY)) {
+                    LOG.warn("Feil ved SQL-spørring {} mot databasen", SQL_QUERY);
+                    return false;
+                }
             }
         } catch (SQLException e) {
             LOG.warn("Feil ved SQL-spørring {} mot databasen", SQL_QUERY);
