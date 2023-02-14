@@ -190,7 +190,6 @@
             <artifactId>saaj-impl</artifactId>
         </dependency>
 
-
         <dependency>
             <groupId>no.nav.foreldrepenger.fordel</groupId>
             <artifactId>migreringer</artifactId>
