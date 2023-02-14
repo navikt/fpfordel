@@ -89,7 +89,7 @@ public class ManuellJournalføringRestTjeneste {
     @Consumes(APPLICATION_JSON)
     @Operation(description = "Henter alle åpne journalføringsoppgaver for tema FOR og for saksbehandlers tilhørende enhet.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public List<OppgaveDto> hentÅpneOppgaverForSaksbehandler(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @NotNull @Valid SaksbehandlerIdentDto saksbehandlerIdentDto) {
+    public List<OppgaveDto> hentÅpneOppgaverForSaksbehandler(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("ident") @NotNull @Valid SaksbehandlerIdentDto saksbehandlerIdentDto) {
         var tilhørendeEnheter = los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident());
 
         if (tilhørendeEnheter.isEmpty()) {
