@@ -9,6 +9,7 @@ public interface SafTjeneste {
     List<Journalpost> hentEksternReferanseId(String dokumentInfoId);
 
     String hentDokument(String journalpostId, String dokumentInfoId, Dokumentvariant.Variantformat variantFormat);
+
     byte[] hentDokumentByteArray(String journalpostId, String dokumentInfoId, Dokumentvariant.Variantformat variantFormat);
 
     Journalpost hentJournalpostInfo(String journalpostId);

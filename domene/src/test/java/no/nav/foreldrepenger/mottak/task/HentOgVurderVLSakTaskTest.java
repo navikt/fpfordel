@@ -31,6 +31,10 @@ class HentOgVurderVLSakTaskTest {
 
     private LocalDate termindato = LocalDate.now();
 
+    private static VurderFagsystemResultat lagFagsystemSvar(String saksnummer, boolean behandlesIVL) {
+        return new VurderFagsystemResultat(behandlesIVL ? VurderFagsystemResultat.SendTil.FPSAK : VurderFagsystemResultat.SendTil.GOSYS, saksnummer);
+    }
+
     @Test
     void neste_steg_skal_være_til_journalføring_når_vurderFagsystem_returnerer_VL_og_saksnummer() {
         when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(saksnummer, true));
@@ -141,9 +145,5 @@ class HentOgVurderVLSakTaskTest {
         dataWrapper.setBarnTermindato(termindato);
         dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);
         return dataWrapper;
-    }
-
-    private static VurderFagsystemResultat lagFagsystemSvar(String saksnummer, boolean behandlesIVL) {
-        return new VurderFagsystemResultat(behandlesIVL ? VurderFagsystemResultat.SendTil.FPSAK : VurderFagsystemResultat.SendTil.GOSYS, saksnummer);
     }
 }

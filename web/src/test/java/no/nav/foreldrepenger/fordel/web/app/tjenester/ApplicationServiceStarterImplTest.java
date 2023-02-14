@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.fordel.web.app.tjenester;
 
-import static org.mockito.Mockito.verify;
+import no.nav.vedtak.apptjeneste.AppServiceHandler;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,7 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.vedtak.apptjeneste.AppServiceHandler;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class ApplicationServiceStarterImplTest {

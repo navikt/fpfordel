@@ -39,17 +39,15 @@ public class ApplicationServiceStarter {
 
     public void startServices() {
         LOGGER.info("Starter {} services", handlers.size());
-        CompletableFuture.allOf(handlers.stream()
-                .map(h -> {
-                    return runAsync(() -> h.start());
-                }).toArray(size -> new CompletableFuture[size])).join();
+        CompletableFuture.allOf(handlers.stream().map(h -> {
+            return runAsync(() -> h.start());
+        }).toArray(size -> new CompletableFuture[size])).join();
         LOGGER.info("Startet  {} services", handlers.size());
     }
 
     public void stopServices() {
         LOGGER.info("Stopper {} services", handlers.size());
-        CompletableFuture.allOf(handlers.stream()
-                .map(h -> runAsync(() -> h.stop())).toArray(size -> new CompletableFuture[size])).join();
+        CompletableFuture.allOf(handlers.stream().map(h -> runAsync(() -> h.stop())).toArray(size -> new CompletableFuture[size])).join();
         LOGGER.info("Stoppet {} services", handlers.size());
     }
 

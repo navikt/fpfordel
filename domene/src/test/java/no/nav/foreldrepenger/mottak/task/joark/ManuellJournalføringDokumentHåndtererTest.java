@@ -69,7 +69,7 @@ class ManuellJournalføringDokumentHåndtererTest {
     void skalHåndtereManuellJournalføringAvInntektsmelding() {
 
         ArkivJournalpost journalMetadata = joarkTestsupport.lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING,
-                "testsoknader/inntektsmelding-manual-sample.xml");
+            "testsoknader/inntektsmelding-manual-sample.xml");
 
         doReturn(journalMetadata).when(arkivTjeneste).hentArkivJournalpost(ARKIV_ID);
 

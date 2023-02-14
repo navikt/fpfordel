@@ -38,8 +38,7 @@ public class ForsendelseStatusDto {
     }
 
     public Optional<String> getPollInterval() {
-        return Optional.ofNullable(pollInterval)
-                .map(Duration::toString);
+        return Optional.ofNullable(pollInterval).map(Duration::toString);
     }
 
     public void setPollInterval(Duration pollInterval) {
@@ -49,6 +48,6 @@ public class ForsendelseStatusDto {
     @Override
     public String toString() {
         return getClass().getSimpleName() + " [forsendelseStatus=" + forsendelseStatus + ", pollInterval=" + pollInterval + ", journalpostId="
-                + journalpostId + ", saksnummer=" + saksnummer + "]";
+            + journalpostId + ", saksnummer=" + saksnummer + "]";
     }
 }

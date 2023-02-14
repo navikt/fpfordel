@@ -43,13 +43,11 @@ class HentDataFraJoarkTaskTest {
     private static final String ARKIV_ID = JoarkTestsupport.ARKIV_ID;
     private static final TaskType TASK_TIL_JOURNAL = TaskType.forProsessTask(TilJournalføringTask.class);
     private static final TaskType TASK_GOSYS = TaskType.forProsessTask(OpprettGSakOppgaveTask.class);
-
+    @Mock
+    ProsessTaskTjeneste ptr;
     private ProsessTaskData taskData;
     private HentDataFraJoarkTask joarkTaskTestobjekt;
     private MottakMeldingDataWrapper dataWrapper;
-
-    @Mock
-    ProsessTaskTjeneste ptr;
     @Mock
     private PersonInformasjon aktørConsumer;
     @Mock
@@ -84,8 +82,7 @@ class HentDataFraJoarkTaskTest {
 
     @Test
     void skal_sende_til_manuell_behandling_ved_manglende_bruker() {
-        var dokument = joarkTestsupport
-                .lagArkivJournalpostUstrukturert(Collections.emptyList());
+        var dokument = joarkTestsupport.lagArkivJournalpostUstrukturert(Collections.emptyList());
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
 
         BehandlingTema actualBehandlingTema = BehandlingTema.ENGANGSSTØNAD;
@@ -102,8 +99,7 @@ class HentDataFraJoarkTaskTest {
     void skal_sende_til_vl_es_fødsel() {
         dataWrapper.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
-        var dokument = joarkTestsupport
-                .lagJArkivJournalpostUstrukturert();
+        var dokument = joarkTestsupport.lagJArkivJournalpostUstrukturert();
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
         when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
         when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(Destinasjon.FPSAK_UTEN_SAK);
@@ -119,8 +115,7 @@ class HentDataFraJoarkTaskTest {
     void skal_sende_til_vl_es_adopsjon() {
         dataWrapper.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_ADOPSJON);
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
-        var dokument = joarkTestsupport
-                .lagJArkivJournalpostUstrukturert();
+        var dokument = joarkTestsupport.lagJArkivJournalpostUstrukturert();
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
         when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
         when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(Destinasjon.FPSAK_UTEN_SAK);
@@ -136,9 +131,8 @@ class HentDataFraJoarkTaskTest {
     void skal_sende_til_vl_fp_im_2019() {
         dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
-        var dokument = joarkTestsupport
-                .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING,
-                        "testsoknader/inntektsmelding-elektronisk-sample.xml");
+        var dokument = joarkTestsupport.lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING,
+            "testsoknader/inntektsmelding-elektronisk-sample.xml");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
         when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.FPSAK, "123"));
 
@@ -151,9 +145,8 @@ class HentDataFraJoarkTaskTest {
     void skal_sende_til_manuell_fp_im_2018() {
         dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
-        var dokument = joarkTestsupport
-                .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING,
-                        "testsoknader/inntektsmelding-manual-sample.xml");
+        var dokument = joarkTestsupport.lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING,
+            "testsoknader/inntektsmelding-manual-sample.xml");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
@@ -163,8 +156,7 @@ class HentDataFraJoarkTaskTest {
 
     @Test
     void skal_sende_til_manuell_behandling_hvis_behandlingstema_er_undefinert() {
-        var dokument = joarkTestsupport
-                .lagJArkivJournalpostUstrukturert(DokumentTypeId.UDEFINERT);
+        var dokument = joarkTestsupport.lagJArkivJournalpostUstrukturert(DokumentTypeId.UDEFINERT);
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
 
         dataWrapper.setBehandlingTema(BehandlingTema.UDEFINERT);
@@ -205,8 +197,7 @@ class HentDataFraJoarkTaskTest {
     void skal_sende_inntektsmelding_for_far_til_sjekk_vl() {
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);
-        var dokument = joarkTestsupport
-                .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING, "testsoknader/inntektsmelding-far.xml");
+        var dokument = joarkTestsupport.lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING, "testsoknader/inntektsmelding-far.xml");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
         when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(Destinasjon.GOSYS);
 
@@ -219,10 +210,8 @@ class HentDataFraJoarkTaskTest {
     public void skal_sende_inntektsmelding_til_vl_hvis_gjelder_svangerskapspenger() {
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         dataWrapper.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
-        var dokument = joarkTestsupport
-                .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING, "testsoknader/inntektsmelding-svp.xml");
-        doReturn(Optional.of(JoarkTestsupport.BRUKER_FNR)).when(aktørConsumer)
-                .hentPersonIdentForAktørId(eq(JoarkTestsupport.AKTØR_ID));
+        var dokument = joarkTestsupport.lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING, "testsoknader/inntektsmelding-svp.xml");
+        doReturn(Optional.of(JoarkTestsupport.BRUKER_FNR)).when(aktørConsumer).hentPersonIdentForAktørId(eq(JoarkTestsupport.AKTØR_ID));
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
         when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(Destinasjon.FPSAK_UTEN_SAK);
         when(vurderVLSaker.opprettSak(any())).thenReturn("123");
@@ -237,11 +226,9 @@ class HentDataFraJoarkTaskTest {
     void skal_sende_inntektsmelding_for_far_om_svangerskapspenger_til_manuell_behandling() {
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         dataWrapper.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
-        var dokument = joarkTestsupport
-                .lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING, "testsoknader/inntektsmelding-far-svp.xml");
+        var dokument = joarkTestsupport.lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING, "testsoknader/inntektsmelding-far-svp.xml");
         String fnrPåInntektsmelding = "99999999999";
-        doReturn(Optional.of(fnrPåInntektsmelding)).when(aktørConsumer)
-                .hentPersonIdentForAktørId(eq(JoarkTestsupport.AKTØR_ID));
+        doReturn(Optional.of(fnrPåInntektsmelding)).when(aktørConsumer).hentPersonIdentForAktørId(eq(JoarkTestsupport.AKTØR_ID));
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
@@ -271,7 +258,7 @@ class HentDataFraJoarkTaskTest {
     void skal_sende_til_manuell_behandling_ved_presatt_saksnummer_vl() {
         var dokument = joarkTestsupport.lagJArkivJournalpostKlageMedSaksnummer("VL");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
-        when(arkivTjeneste.oppdaterRettMangler(any(),any(),any(),any())).thenReturn(true);
+        when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
         when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.FPSAK, "VL"));
 
         BehandlingTema actualBehandlingTema = BehandlingTema.UDEFINERT;

@@ -43,8 +43,7 @@ class AppPdpRequestBuilderImplTest {
     void skal_hente_aktør_id_gitt_forsendelse_id_som_input() {
         var attributter = AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FORSENDELSE_UUID, DOKUMENTFORSENDELSE);
 
-        when(pipRepository.hentAktørIdForForsendelser(Collections.singleton(DOKUMENTFORSENDELSE)))
-                .thenReturn(Collections.singleton(AKTØR));
+        when(pipRepository.hentAktørIdForForsendelser(Collections.singleton(DOKUMENTFORSENDELSE))).thenReturn(Collections.singleton(AKTØR));
 
         var request = requestBuilder.lagAppRessursData(attributter);
         assertThat(request.getAktørIdSet()).containsOnly(AKTØR);
@@ -55,8 +54,7 @@ class AppPdpRequestBuilderImplTest {
         var attributter = AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, AKTØR + "_A");
         attributter.leggTil(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FORSENDELSE_UUID, DOKUMENTFORSENDELSE));
 
-        when(pipRepository.hentAktørIdForForsendelser(Collections.singleton(DOKUMENTFORSENDELSE)))
-                .thenReturn(Collections.singleton(AKTØR));
+        when(pipRepository.hentAktørIdForForsendelser(Collections.singleton(DOKUMENTFORSENDELSE))).thenReturn(Collections.singleton(AKTØR));
 
         var request = requestBuilder.lagAppRessursData(attributter);
         assertThat(request.getAktørIdSet()).contains(AKTØR);

@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.typer;
 
-import java.io.Serializable;
-import java.util.Objects;
-import java.util.regex.Pattern;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import javax.persistence.Column;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import java.io.Serializable;
+import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * Id som genereres fra NAV Aktør Register. Denne iden benyttes til interne forhold i Nav og vil ikke endres f.eks. dersom bruker går fra
@@ -37,11 +37,15 @@ public class AktørId implements Serializable, Comparable<AktørId> {
         this.aktørId = validateAktørId(aktørId);
     }
 
+    public static boolean erGyldigAktørId(String aktørId) {
+        return aktørId != null && VALID.matcher(aktørId).matches();
+    }
+
     private String validateAktørId(String aktørId) {
         Objects.requireNonNull(aktørId, "aktørId");
         if (!VALID.matcher(aktørId).matches()) {
             // skal ikke skje, funksjonelle feilmeldinger håndteres ikke her.
-            throw new IllegalArgumentException("Ugyldig aktørId '" + aktørId +"', tillatt pattern: "+ VALID_REGEXP);
+            throw new IllegalArgumentException("Ugyldig aktørId '" + aktørId + "', tillatt pattern: " + VALID_REGEXP);
         }
         return aktørId;
     }
@@ -75,10 +79,6 @@ public class AktørId implements Serializable, Comparable<AktørId> {
     @Override
     public int compareTo(AktørId o) {
         return aktørId.compareTo(o.aktørId);
-    }
-
-    public static boolean erGyldigAktørId(String aktørId) {
-        return aktørId != null && VALID.matcher(aktørId).matches();
     }
 
     private String maskerAktørId() {

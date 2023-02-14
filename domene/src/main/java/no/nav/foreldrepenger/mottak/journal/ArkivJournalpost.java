@@ -44,6 +44,10 @@ public class ArkivJournalpost {
     public ArkivJournalpost() {
     }
 
+    public static Builder getBuilder() {
+        return new Builder();
+    }
+
     public Journalpost getOriginalJournalpost() {
         return original;
     }
@@ -53,8 +57,7 @@ public class ArkivJournalpost {
     }
 
     public Optional<String> getTittel() {
-        return Optional.ofNullable(original)
-                .map(Journalpost::tittel);
+        return Optional.ofNullable(original).map(Journalpost::tittel);
     }
 
     public Optional<String> getSaksnummer() {
@@ -139,14 +142,19 @@ public class ArkivJournalpost {
 
     public boolean harBrevkodeCrm() {
         return Optional.ofNullable(original)
-            .map(Journalpost::dokumenter).orElse(List.of()).stream()
+            .map(Journalpost::dokumenter)
+            .orElse(List.of())
+            .stream()
             .map(DokumentInfo::brevkode)
             .filter(Objects::nonNull)
             .anyMatch(bk -> bk.startsWith("CRM"));
     }
 
-    public static Builder getBuilder() {
-        return new Builder();
+    @Override
+    public String toString() {
+        return "ArkivJournalpost{" + "journalpostId='" + journalpostId + '\'' + ", kanal='" + kanal + '\'' + ", tilstand=" + tilstand
+            + ", journalposttype=" + journalposttype + ", tema=" + tema + ", behandlingstema=" + behandlingstema + ", datoOpprettet=" + datoOpprettet
+            + ", eksternReferanseId='" + eksternReferanseId + '\'' + ", hovedtype=" + hovedtype + '}';
     }
 
     public static class Builder {
@@ -240,8 +248,9 @@ public class ArkivJournalpost {
         }
 
         public Builder medTilleggsopplysninger(List<Tilleggsopplysning> tilleggsopplysninger) {
-            if (tilleggsopplysninger != null)
+            if (tilleggsopplysninger != null) {
                 ajp.tilleggsopplysninger.addAll(tilleggsopplysninger);
+            }
             return this;
         }
 
@@ -267,20 +276,5 @@ public class ArkivJournalpost {
             Objects.requireNonNull(ajp.tilstand, "tilstand");
             return ajp;
         }
-    }
-
-    @Override
-    public String toString() {
-        return "ArkivJournalpost{" +
-                "journalpostId='" + journalpostId + '\'' +
-                ", kanal='" + kanal + '\'' +
-                ", tilstand=" + tilstand +
-                ", journalposttype=" + journalposttype +
-                ", tema=" + tema +
-                ", behandlingstema=" + behandlingstema +
-                ", datoOpprettet=" + datoOpprettet +
-                ", eksternReferanseId='" + eksternReferanseId + '\'' +
-                ", hovedtype=" + hovedtype +
-                '}';
     }
 }

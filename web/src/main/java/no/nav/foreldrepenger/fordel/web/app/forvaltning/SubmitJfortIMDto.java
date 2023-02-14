@@ -1,14 +1,14 @@
 package no.nav.foreldrepenger.fordel.web.app.forvaltning;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskIdDto;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 //@ApiModel(value = "Input til prosesstask før submit VL")
 public class SubmitJfortIMDto implements AbacDto {
@@ -32,8 +32,7 @@ public class SubmitJfortIMDto implements AbacDto {
         // for Jackson
     }
 
-    public SubmitJfortIMDto(ProsessTaskIdDto prosessTaskIdDto, SaksnummerDto saksnummerDto,
-            JournalpostIdDto journalpostIdDto) {
+    public SubmitJfortIMDto(ProsessTaskIdDto prosessTaskIdDto, SaksnummerDto saksnummerDto, JournalpostIdDto journalpostIdDto) {
         this.prosessTaskIdDto = prosessTaskIdDto;
         this.saksnummerDto = saksnummerDto;
         this.journalpostIdDto = journalpostIdDto;

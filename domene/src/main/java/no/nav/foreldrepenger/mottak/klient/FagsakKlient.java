@@ -67,7 +67,7 @@ public class FagsakKlient implements Fagsak {
     @Override
     public Optional<FagsakInfomasjonDto> finnFagsakInfomasjon(SaksnummerDto saksnummerDto) {
         LOG.info("Finner fagsakinformasjon");
-        var request= RestRequest.newPOSTJson(saksnummerDto, fagsakinfoEndpoint, restConfig);
+        var request = RestRequest.newPOSTJson(saksnummerDto, fagsakinfoEndpoint, restConfig);
         var info = klient.send(request, FagsakInfomasjonDto.class);
         LOG.info("Fant fagsakinformasjon OK");
         return Optional.ofNullable(info);
@@ -104,12 +104,10 @@ public class FagsakKlient implements Fagsak {
         boolean strukturertSøknad = w.erStrukturertDokument().orElse(Boolean.FALSE);
         var dokumentTypeId = w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT);
         var dokumentKategori = w.getDokumentKategori().orElse(DokumentKategori.UDEFINERT);
-        String behandlingTemaString = BehandlingTema.UDEFINERT.equals(w.getBehandlingTema())
-                ? w.getBehandlingTema().getKode()
-                : w.getBehandlingTema().getOffisiellKode();
+        String behandlingTemaString = BehandlingTema.UDEFINERT.equals(w.getBehandlingTema()) ? w.getBehandlingTema().getKode() : w.getBehandlingTema()
+            .getOffisiellKode();
 
-        var dto = new VurderFagsystemDto(w.getArkivId(), strukturertSøknad, aktørId,
-                behandlingTemaString);
+        var dto = new VurderFagsystemDto(w.getArkivId(), strukturertSøknad, aktørId, behandlingTemaString);
         dto.setAdopsjonsBarnFodselsdatoer(w.getAdopsjonsbarnFodselsdatoer());
         w.getBarnTermindato().ifPresent(dto::setBarnTermindato);
         w.getBarnFodselsdato().ifPresent(dto::setBarnFodselsdato);
@@ -136,8 +134,9 @@ public class FagsakKlient implements Fagsak {
         }
         LOG.info("Vurderer resultat");
 
-        var brukPath = w.getJournalførendeEnhet().filter(JournalføringsOppgave.NK_ENHET_ID::equals).isPresent() ?
-                klageinstansEndpoint : fagsystemEndpoint;
+        var brukPath = w.getJournalførendeEnhet()
+            .filter(JournalføringsOppgave.NK_ENHET_ID::equals)
+            .isPresent() ? klageinstansEndpoint : fagsystemEndpoint;
 
         var request = RestRequest.newPOSTJson(dto, brukPath, restConfig);
         var respons = klient.send(request, BehandlendeFagsystemDto.class);

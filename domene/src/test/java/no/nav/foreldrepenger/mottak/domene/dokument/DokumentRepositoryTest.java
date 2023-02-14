@@ -27,6 +27,22 @@ class DokumentRepositoryTest {
 
     private DokumentRepository repo;
 
+    private static DokumentMetadata dokumentMetadata(UUID forsendelseId) {
+        return DokumentMetadata.builder()
+            .setBrukerId("01234567890")
+            .setForsendelseId(forsendelseId)
+            .setForsendelseMottatt(LocalDateTime.now())
+            .build();
+    }
+
+    private static Dokument dokument(UUID forsendelseId, ArkivFilType arkivFilType) {
+        return DokumentArkivTestUtil.lagDokument(forsendelseId, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL, arkivFilType, true);
+    }
+
+    private static Dokument dokumentAnnet(UUID forsendelseId, ArkivFilType arkivFilType) {
+        return DokumentArkivTestUtil.lagDokumentBeskrivelse(forsendelseId, DokumentTypeId.ANNET, arkivFilType, true, "Farskap");
+    }
+
     @BeforeEach
     void beforeAll(EntityManager em) {
         repo = new DokumentRepository(em);
@@ -36,9 +52,7 @@ class DokumentRepositoryTest {
     void lagre_og_hente_dokumentMetadata() {
         var dokumentMetadata = dokumentMetadata(FORSENDELSE_ID);
         repo.lagre(dokumentMetadata);
-        assertThat(repo.hentUnikDokumentMetadata(FORSENDELSE_ID))
-                .isPresent()
-                .hasValue(dokumentMetadata);
+        assertThat(repo.hentUnikDokumentMetadata(FORSENDELSE_ID)).isPresent().hasValue(dokumentMetadata);
     }
 
     @Test
@@ -51,8 +65,7 @@ class DokumentRepositoryTest {
         repo.lagre(vedlegg);
 
         var dokuments = repo.hentDokumenter(FORSENDELSE_ID);
-        assertThat(dokuments)
-                .containsExactlyInAnyOrder(xmlSøknad, pdfSøknad, vedlegg);
+        assertThat(dokuments).containsExactlyInAnyOrder(xmlSøknad, pdfSøknad, vedlegg);
         assertThat(dokuments.get(2).getBeskrivelse()).isNotNull();
     }
 
@@ -72,9 +85,7 @@ class DokumentRepositoryTest {
     void hent_eksakt_dokument_metadata() {
         var metadata = dokumentMetadata(FORSENDELSE_ID);
         repo.lagre(metadata);
-        assertThat(repo.hentEksaktDokumentMetadata(FORSENDELSE_ID))
-                .isNotNull()
-                .isEqualTo(metadata);
+        assertThat(repo.hentEksaktDokumentMetadata(FORSENDELSE_ID)).isNotNull().isEqualTo(metadata);
     }
 
     @Test
@@ -100,36 +111,18 @@ class DokumentRepositoryTest {
 
     @Test
     void oppdatere_dokument_type() {
-        var pdfSøknad = DokumentArkivTestUtil.lagDokument(FORSENDELSE_ID, DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER,
-                ArkivFilType.PDFA, false);
+        var pdfSøknad = DokumentArkivTestUtil.lagDokument(FORSENDELSE_ID, DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER, ArkivFilType.PDFA, false);
         repo.lagre(pdfSøknad);
-        repo.hentDokumenter(FORSENDELSE_ID).stream()
-                .filter(d ->DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER.equals(d.getDokumentTypeId()))
-                .forEach(d -> {
-                    d.setDokumentTypeId(DokumentTypeId.ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG);
-                    repo.lagre(d);
-                });
+        repo.hentDokumenter(FORSENDELSE_ID)
+            .stream()
+            .filter(d -> DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER.equals(d.getDokumentTypeId()))
+            .forEach(d -> {
+                d.setDokumentTypeId(DokumentTypeId.ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG);
+                repo.lagre(d);
+            });
         var dokumenter = repo.hentDokumenter(FORSENDELSE_ID);
         assertThat(dokumenter).hasSize(1);
         assertFalse(dokumenter.get(0).erHovedDokument());
         assertThat(dokumenter.get(0).getDokumentTypeId()).isEqualByComparingTo(DokumentTypeId.ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG);
-    }
-
-    private static DokumentMetadata dokumentMetadata(UUID forsendelseId) {
-        return DokumentMetadata.builder()
-                .setBrukerId("01234567890")
-                .setForsendelseId(forsendelseId)
-                .setForsendelseMottatt(LocalDateTime.now())
-                .build();
-    }
-
-    private static Dokument dokument(UUID forsendelseId, ArkivFilType arkivFilType) {
-        return DokumentArkivTestUtil.lagDokument(forsendelseId, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL,
-                arkivFilType, true);
-    }
-
-    private static Dokument dokumentAnnet(UUID forsendelseId, ArkivFilType arkivFilType) {
-        return DokumentArkivTestUtil.lagDokumentBeskrivelse(forsendelseId, DokumentTypeId.ANNET, arkivFilType,
-                true, "Farskap");
     }
 }

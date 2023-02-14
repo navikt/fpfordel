@@ -19,6 +19,15 @@ class DokumentTest {
     private static final String TEST_STRING = "Test";
     private static final byte[] TEST_BYTES = TEST_STRING.getBytes(Charset.forName("UTF-8"));
 
+    private static Dokument lagDokument(ArkivFilType arkivFilType) {
+        return Dokument.builder()
+            .setForsendelseId(FORSENDELSE_ID)
+            .setDokumentTypeId(SØKNAD_FORELDREPENGER_FØDSEL)
+            .setHovedDokument(true)
+            .setDokumentInnhold(TEST_BYTES, arkivFilType)
+            .build();
+    }
+
     @Test
     void test_skalBase64EncodeDokumentInnhold() {
         assertThat(lagDokument(ArkivFilType.PDFA).getBase64EncodetDokument()).isEqualTo(Base64.getEncoder().encodeToString(TEST_BYTES));
@@ -31,15 +40,7 @@ class DokumentTest {
 
     @Test
     void test_skalKasteFeilVedHentingAvKlartekstPåBinærDokument() {
-        assertTrue(assertThrows(IllegalStateException.class, () -> lagDokument(ArkivFilType.PDFA).getKlartekstDokument()).getMessage().contains("Utviklerfeil"));
-    }
-
-    private static Dokument lagDokument(ArkivFilType arkivFilType) {
-        return Dokument.builder()
-                .setForsendelseId(FORSENDELSE_ID)
-                .setDokumentTypeId(SØKNAD_FORELDREPENGER_FØDSEL)
-                .setHovedDokument(true)
-                .setDokumentInnhold(TEST_BYTES, arkivFilType)
-                .build();
+        assertTrue(assertThrows(IllegalStateException.class, () -> lagDokument(ArkivFilType.PDFA).getKlartekstDokument()).getMessage()
+            .contains("Utviklerfeil"));
     }
 }

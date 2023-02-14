@@ -41,14 +41,16 @@ class JournalføringHendelseHåndtererTest {
     @Test
     void testSoknadEngangstonadOppretterKorrektTask() {
         var builder = JournalfoeringHendelseRecord.newBuilder()
-                .setHendelsesId("12345").setVersjon(1)
-                .setHendelsesType("JournalpostMottatt")
-                .setTemaNytt(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode()).setTemaGammelt("")
-                .setBehandlingstema(BehandlingTema.ENGANGSSTØNAD_FØDSEL.getOffisiellKode())
-                .setMottaksKanal(MottakKanal.SELVBETJENING.getKode())
-                .setKanalReferanseId("minfil.pdf")
-                .setJournalpostId(12345L)
-                .setJournalpostStatus("M");
+            .setHendelsesId("12345")
+            .setVersjon(1)
+            .setHendelsesType("JournalpostMottatt")
+            .setTemaNytt(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode())
+            .setTemaGammelt("")
+            .setBehandlingstema(BehandlingTema.ENGANGSSTØNAD_FØDSEL.getOffisiellKode())
+            .setMottaksKanal(MottakKanal.SELVBETJENING.getKode())
+            .setKanalReferanseId("minfil.pdf")
+            .setJournalpostId(12345L)
+            .setJournalpostStatus("M");
 
         hendelseHåndterer.handleMessage(builder.build());
 
@@ -59,20 +61,22 @@ class JournalføringHendelseHåndtererTest {
 
         ProsessTaskInfo prosessTaskData = result.get(0);
         assertThat(prosessTaskData.getTaskType()).as("Forventer at prosesstask av korrekt type blir opprettet. ")
-                .isEqualToIgnoringCase("fordeling.hentFraJoark");
+            .isEqualToIgnoringCase("fordeling.hentFraJoark");
 
     }
 
     @Test
     void testSoknadUkjentTypeSendesLikevelTilNesteSteg() {
         var builder = JournalfoeringHendelseRecord.newBuilder()
-                .setHendelsesId("12345").setVersjon(1)
-                .setHendelsesType("JournalpostMottatt")
-                .setTemaNytt(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode()).setTemaGammelt("")
-                .setMottaksKanal(MottakKanal.ALTINN.getKode())
-                .setKanalReferanseId("AR325657")
-                .setJournalpostId(12345L)
-                .setJournalpostStatus("M");
+            .setHendelsesId("12345")
+            .setVersjon(1)
+            .setHendelsesType("JournalpostMottatt")
+            .setTemaNytt(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode())
+            .setTemaGammelt("")
+            .setMottaksKanal(MottakKanal.ALTINN.getKode())
+            .setKanalReferanseId("AR325657")
+            .setJournalpostId(12345L)
+            .setJournalpostStatus("M");
 
         hendelseHåndterer.handleMessage(builder.build());
 
@@ -82,20 +86,22 @@ class JournalføringHendelseHåndtererTest {
         assertThat(result).as("Forventer at en prosesstask er lagt til").hasSize(1);
         ProsessTaskInfo prosessTaskData = result.get(0);
         assertThat(prosessTaskData.getTaskType()).as("Forventer at prosesstask av korrekt type blir opprettet. ")
-                .isEqualToIgnoringCase("fordeling.hentFraJoark");
+            .isEqualToIgnoringCase("fordeling.hentFraJoark");
 
     }
 
     @Test
     void testDokumentFraKloningUtsettes() {
         var builder = JournalfoeringHendelseRecord.newBuilder()
-                .setHendelsesId("12345").setVersjon(1)
-                .setHendelsesType("JournalpostMottatt")
-                .setTemaNytt(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode()).setTemaGammelt("")
-                .setMottaksKanal(MottakKanal.HELSENETTET.getKode())
-                .setKanalReferanseId("")
-                .setJournalpostId(12345L)
-                .setJournalpostStatus("M");
+            .setHendelsesId("12345")
+            .setVersjon(1)
+            .setHendelsesType("JournalpostMottatt")
+            .setTemaNytt(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode())
+            .setTemaGammelt("")
+            .setMottaksKanal(MottakKanal.HELSENETTET.getKode())
+            .setKanalReferanseId("")
+            .setJournalpostId(12345L)
+            .setJournalpostStatus("M");
 
         hendelseHåndterer.handleMessage(builder.build());
 
@@ -110,13 +116,15 @@ class JournalføringHendelseHåndtererTest {
     @Test
     void testDokumentFraEESSIIgnoreres() {
         var builder = JournalfoeringHendelseRecord.newBuilder()
-                .setHendelsesId("12345").setVersjon(1)
-                .setHendelsesType("JournalpostMottatt")
-                .setTemaNytt(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode()).setTemaGammelt("")
-                .setMottaksKanal(MottakKanal.EESSI.getKode())
-                .setKanalReferanseId("minfil.pdf")
-                .setJournalpostId(12345L)
-                .setJournalpostStatus("M");
+            .setHendelsesId("12345")
+            .setVersjon(1)
+            .setHendelsesType("JournalpostMottatt")
+            .setTemaNytt(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode())
+            .setTemaGammelt("")
+            .setMottaksKanal(MottakKanal.EESSI.getKode())
+            .setKanalReferanseId("minfil.pdf")
+            .setJournalpostId(12345L)
+            .setJournalpostStatus("M");
 
         hendelseHåndterer.handleMessage(builder.build());
 

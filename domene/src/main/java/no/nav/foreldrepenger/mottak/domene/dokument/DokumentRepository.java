@@ -40,11 +40,11 @@ public class DokumentRepository {
 
     public Optional<Dokument> hentUnikDokument(UUID forsendelseId, boolean hovedDokument, ArkivFilType arkivFilType) {
         var resultatListe = em.createQuery(
-                "from Dokument where forsendelseId = :forsendelseId and hovedDokument = :hovedDokument and arkivFilType = :arkivFilType",
-                Dokument.class)
-                .setParameter(FORSENDELSE_ID, forsendelseId)
-                .setParameter(HOVED_DOKUMENT, hovedDokument)
-                .setParameter(ARKIV_FILTYPE, arkivFilType).getResultList();
+                "from Dokument where forsendelseId = :forsendelseId and hovedDokument = :hovedDokument and arkivFilType = :arkivFilType", Dokument.class)
+            .setParameter(FORSENDELSE_ID, forsendelseId)
+            .setParameter(HOVED_DOKUMENT, hovedDokument)
+            .setParameter(ARKIV_FILTYPE, arkivFilType)
+            .getResultList();
         if (resultatListe.size() > 1) {
             throw new TekniskException("FP-302156", "Spørringen returnerte mer enn eksakt ett resultat");
         }
@@ -56,31 +56,29 @@ public class DokumentRepository {
     }
 
     public List<Dokument> hentDokumenter(UUID forsendelseId) {
-        return em.createQuery(
-                "from Dokument where forsendelseId = :forsendelseId", Dokument.class)
-                .setParameter(FORSENDELSE_ID, forsendelseId).getResultList();
+        return em.createQuery("from Dokument where forsendelseId = :forsendelseId", Dokument.class)
+            .setParameter(FORSENDELSE_ID, forsendelseId)
+            .getResultList();
     }
 
     public DokumentMetadata hentEksaktDokumentMetadata(UUID forsendelseId) {
-        return hentEksaktResultat(em.createQuery(
-                "from DokumentMetadata where forsendelseId = :forsendelseId", DokumentMetadata.class)
-                .setParameter(FORSENDELSE_ID, forsendelseId));
+        return hentEksaktResultat(em.createQuery("from DokumentMetadata where forsendelseId = :forsendelseId", DokumentMetadata.class)
+            .setParameter(FORSENDELSE_ID, forsendelseId));
     }
 
     public Optional<DokumentMetadata> hentUnikDokumentMetadata(UUID forsendelseId) {
-        return hentUniktResultat(em.createQuery(
-                "from DokumentMetadata where forsendelseId = :forsendelseId", DokumentMetadata.class)
-                .setParameter(FORSENDELSE_ID, forsendelseId));
+        return hentUniktResultat(em.createQuery("from DokumentMetadata where forsendelseId = :forsendelseId", DokumentMetadata.class)
+            .setParameter(FORSENDELSE_ID, forsendelseId));
     }
 
     public void slettForsendelse(UUID forsendelseId) {
         em.createNativeQuery("delete from DOKUMENT where FORSENDELSE_ID  = :forsendelseId")
-                .setParameter(FORSENDELSE_ID, forsendelseId)
-                .executeUpdate();
+            .setParameter(FORSENDELSE_ID, forsendelseId)
+            .executeUpdate();
 
         em.createNativeQuery("delete from DOKUMENT_METADATA where FORSENDELSE_ID  = :forsendelseId")
-                .setParameter(FORSENDELSE_ID, forsendelseId)
-                .executeUpdate();
+            .setParameter(FORSENDELSE_ID, forsendelseId)
+            .executeUpdate();
 
         em.flush();
     }
@@ -89,8 +87,7 @@ public class DokumentRepository {
         oppdaterForsendelseMetadata(forsendelseId, arkivId, null, status);
     }
 
-    public void oppdaterForsendelseMetadata(UUID forsendelseId, String arkivId, String saksnummer,
-            ForsendelseStatus status) {
+    public void oppdaterForsendelseMetadata(UUID forsendelseId, String arkivId, String saksnummer, ForsendelseStatus status) {
         var metadata = hentEksaktDokumentMetadata(forsendelseId);
         metadata.setArkivId(arkivId);
         metadata.setSaksnummer(saksnummer);
@@ -114,8 +111,8 @@ public class DokumentRepository {
     }
 
     public List<Journalpost> hentJournalposter(String journalpostId) {
-        return em.createQuery(
-                "from Journalpost where journalpostId = :journalpostId", Journalpost.class)
-                .setParameter("journalpostId", journalpostId).getResultList();
+        return em.createQuery("from Journalpost where journalpostId = :journalpostId", Journalpost.class)
+            .setParameter("journalpostId", journalpostId)
+            .getResultList();
     }
 }

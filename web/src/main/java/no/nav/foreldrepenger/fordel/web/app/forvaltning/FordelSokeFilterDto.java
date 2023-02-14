@@ -1,12 +1,5 @@
 package no.nav.foreldrepenger.fordel.web.app.forvaltning;
 
-import java.time.LocalDate;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -17,6 +10,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+
+import java.time.LocalDate;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
@@ -26,14 +26,14 @@ public class FordelSokeFilterDto implements AbacDto {
     @JsonProperty(value = "tekst")
     @NotNull
     @Valid
-    @Size(min = 5, max=200)
+    @Size(min = 5, max = 200)
     @Pattern(regexp = "^[\\p{Alnum}_.=\\-]*$")
     private String tekst;
-    
+
     @JsonProperty(value = "sisteKjoeretidspunktFraOgMed")
     @Valid
     private LocalDate opprettetFraOgMed = LocalDate.now().minusMonths(12);
-    
+
     @JsonProperty(value = "sisteKjoeretidspunktTilOgMed")
     @Valid
     private LocalDate opprettetTilOgMed = LocalDate.now();

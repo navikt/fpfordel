@@ -62,8 +62,8 @@ class ArkivTjenesteTest {
 
         when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(metadata);
         when(dokumentRepository.hentDokumenter(any(UUID.class))).thenReturn(dokumenter);
-        when(dokArkivTjeneste.opprettJournalpost(any(), anyBoolean()))
-                .thenReturn(new OpprettJournalpostResponse(DokumentArkivTestUtil.JOURNALPOST_ID, true, List.of()));
+        when(dokArkivTjeneste.opprettJournalpost(any(), anyBoolean())).thenReturn(
+            new OpprettJournalpostResponse(DokumentArkivTestUtil.JOURNALPOST_ID, true, List.of()));
         var captor = ArgumentCaptor.forClass(OpprettJournalpostRequest.class);
         var resultat = arkivTjeneste.opprettJournalpost(forsendelseId, AVSENDER_ID, SAK_ID);
         verify(dokArkivTjeneste).opprettJournalpost(captor.capture(), eq(Boolean.TRUE));
@@ -86,8 +86,8 @@ class ArkivTjenesteTest {
 
         when(dokumentRepository.hentEksaktDokumentMetadata(any(UUID.class))).thenReturn(metadata);
         when(dokumentRepository.hentDokumenter(any(UUID.class))).thenReturn(dokumenter);
-        when(dokArkivTjeneste.opprettJournalpost(any(), anyBoolean()))
-                .thenReturn(new OpprettJournalpostResponse(DokumentArkivTestUtil.JOURNALPOST_ID, true, Collections.emptyList()));
+        when(dokArkivTjeneste.opprettJournalpost(any(), anyBoolean())).thenReturn(
+            new OpprettJournalpostResponse(DokumentArkivTestUtil.JOURNALPOST_ID, true, Collections.emptyList()));
         var captor = ArgumentCaptor.forClass(OpprettJournalpostRequest.class);
 
         var resultat = arkivTjeneste.opprettJournalpost(forsendelseId, AVSENDER_ID, SAK_ID);

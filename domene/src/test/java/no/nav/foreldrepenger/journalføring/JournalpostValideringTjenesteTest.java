@@ -35,15 +35,14 @@ import no.nav.vedtak.exception.TekniskException;
 @ExtendWith(MockitoExtension.class)
 class JournalpostValideringTjenesteTest {
 
+    private static final JournalpostId JOURNALPOST_ID = new JournalpostId(987654L);
+    private static final AktørId AKTØR_ID = new AktørId(1234567890123L);
     @Mock
     private ArkivTjeneste arkivTjeneste;
     @Mock
     private Fagsak fagsak;
     @Mock
     private ArkivJournalpost journalpost;
-
-    private static final JournalpostId JOURNALPOST_ID = new JournalpostId(987654L);
-    private static final AktørId AKTØR_ID = new AktørId(1234567890123L);
     private ManuellOpprettSakValidator tjeneste;
 
     @BeforeEach
@@ -156,10 +155,9 @@ class JournalpostValideringTjenesteTest {
         when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.INNTEKTSMELDING);
         when(journalpost.getStrukturertPayload()).thenReturn("YTELSE>FORELDREPENGER<");
 
-        var brukersFagsaker = List.of(
-                opprettFagsakInfo(YtelseTypeDto.FORELDREPENGER, StatusDto.LØPENDE),
-                opprettFagsakInfo(YtelseTypeDto.FORELDREPENGER, StatusDto.AVSLUTTET),
-                opprettFagsakInfo(YtelseTypeDto.SVANGERSKAPSPENGER, StatusDto.LØPENDE));
+        var brukersFagsaker = List.of(opprettFagsakInfo(YtelseTypeDto.FORELDREPENGER, StatusDto.LØPENDE),
+            opprettFagsakInfo(YtelseTypeDto.FORELDREPENGER, StatusDto.AVSLUTTET),
+            opprettFagsakInfo(YtelseTypeDto.SVANGERSKAPSPENGER, StatusDto.LØPENDE));
         when(fagsak.hentBrukersSaker(new AktørIdDto(AKTØR_ID.getId()))).thenReturn(brukersFagsaker);
 
         var offisiellKode = YtelseType.FORELDREPENGER;

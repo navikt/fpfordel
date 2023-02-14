@@ -1,14 +1,14 @@
 package no.nav.foreldrepenger.fordel.web.app.rest;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 public class DokumentforsendelseDto {
     @NotNull
@@ -29,7 +29,7 @@ public class DokumentforsendelseDto {
     }
 
     DokumentforsendelseDto() { // NOSONAR ... is marked "javax.validation.constraints.NotNull" but is not
-                               // initialized in this constructor.
+        // initialized in this constructor.
         // For Jackson
     }
 
@@ -84,7 +84,7 @@ class FilMetadataDto {
     }
 
     FilMetadataDto() { // NOSONAR ... is marked "javax.validation.constraints.NotNull" but is not
-                       // initialized in this constructor.
+        // initialized in this constructor.
         // For Jackson
     }
 

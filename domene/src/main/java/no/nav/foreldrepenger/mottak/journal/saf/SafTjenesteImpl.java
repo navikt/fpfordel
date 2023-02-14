@@ -44,36 +44,25 @@ class SafTjenesteImpl implements SafTjeneste {
     public Journalpost hentJournalpostInfo(String id) {
         var q = new JournalpostQueryRequest();
         q.setJournalpostId(id);
-        var p = new JournalpostResponseProjection()
-                .journalpostId()
-                .journalposttype()
-                .journalstatus()
-                .datoOpprettet()
+        var p = new JournalpostResponseProjection().journalpostId()
+            .journalposttype()
+            .journalstatus()
+            .datoOpprettet()
+            .tittel()
+            .kanal()
+            .tema()
+            .behandlingstema()
+            .journalfoerendeEnhet()
+            .eksternReferanseId()
+            .bruker(new BrukerResponseProjection().id().type())
+            .avsenderMottaker(new AvsenderMottakerResponseProjection().id().type().navn())
+            .sak(new SakResponseProjection().fagsakId().fagsaksystem())
+            .tilleggsopplysninger(new TilleggsopplysningResponseProjection().nokkel().verdi())
+            .dokumenter(new DokumentInfoResponseProjection().dokumentInfoId()
                 .tittel()
-                .kanal()
-                .tema()
-                .behandlingstema()
-                .journalfoerendeEnhet()
-                .eksternReferanseId()
-                .bruker(new BrukerResponseProjection()
-                        .id()
-                        .type())
-                .avsenderMottaker(new AvsenderMottakerResponseProjection()
-                        .id()
-                        .type()
-                        .navn())
-                .sak(new SakResponseProjection()
-                        .fagsakId()
-                        .fagsaksystem())
-                .tilleggsopplysninger(new TilleggsopplysningResponseProjection().nokkel().verdi())
-                .dokumenter(new DokumentInfoResponseProjection()
-                        .dokumentInfoId()
-                        .tittel()
-                        .brevkode()
-                        .logiskeVedlegg(new LogiskVedleggResponseProjection()
-                                .tittel())
-                        .dokumentvarianter(new DokumentvariantResponseProjection()
-                                .variantformat()));
+                .brevkode()
+                .logiskeVedlegg(new LogiskVedleggResponseProjection().tittel())
+                .dokumentvarianter(new DokumentvariantResponseProjection().variantformat()));
         LOG.info("Henter journalpost info");
         var res = SafMapper.map(saf.query(q, p, JournalpostQueryResponse.class).journalpost());
         LOG.info("Hentet journalpost info OK");
@@ -98,9 +87,7 @@ class SafTjenesteImpl implements SafTjeneste {
         var q = new TilknyttedeJournalposterQueryRequest();
         q.setDokumentInfoId(dokumentInfoId);
         q.setTilknytning(Tilknytning.GJENBRUK);
-        var p = new JournalpostResponseProjection()
-                .journalpostId()
-                .eksternReferanseId();
+        var p = new JournalpostResponseProjection().journalpostId().eksternReferanseId();
         LOG.info("Henter ekstern id");
         var res = SafMapper.mapJP(saf.query(q, p, TilknyttedeJournalposterQueryResponse.class).tilknyttedeJournalposter());
         LOG.info("Hentet ekstern id OK");

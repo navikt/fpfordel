@@ -22,9 +22,19 @@ class RestApiAbacTest {
 
     private static String PREV_LB_URL;
 
+    private static void assertAtIngenBrukerDummyVerdierPåBeskyttetRessurs(Method metode) {
+        Class<?> klasse = metode.getDeclaringClass();
+        BeskyttetRessurs annotation = metode.getAnnotation(BeskyttetRessurs.class);
+        if ((annotation != null) && (annotation.actionType() == ActionType.DUMMY)) {
+            fail(klasse.getSimpleName() + "." + metode.getName() + " Ikke bruk DUMMY-verdi for " + ActionType.class.getSimpleName());
+        } else if (annotation != null && annotation.resource().isEmpty() && annotation.resourceType() == ResourceType.DUMMY && annotation.property()
+            .isEmpty()) {
+            fail(klasse.getSimpleName() + "." + metode.getName() + " En verdi for resource må være satt!");
+        }
+    }
+
     /**
      * IKKE ignorer denne testen, sikrer at REST-endepunkter får tilgangskontroll
-     *
      */
     @Test
     void test_at_alle_restmetoder_er_annotert_med_BeskyttetRessurs() throws Exception {
@@ -58,37 +68,23 @@ class RestApiAbacTest {
             for (Parameter parameter : restMethode.getParameters()) {
                 if (Collection.class.isAssignableFrom(parameter.getType())) {
                     ParameterizedType type = (ParameterizedType) parameter.getParameterizedType();
-                    @SuppressWarnings("rawtypes")
-                    Class<?> aClass = (Class) (type.getActualTypeArguments()[0]);
-                    if (!AbacDto.class.isAssignableFrom(aClass)
-                            && !parameter.isAnnotationPresent(TilpassetAbacAttributt.class)
-                            && !IgnorerteInputTyper.ignore(aClass)) {
+                    @SuppressWarnings("rawtypes") Class<?> aClass = (Class) (type.getActualTypeArguments()[0]);
+                    if (!AbacDto.class.isAssignableFrom(aClass) && !parameter.isAnnotationPresent(TilpassetAbacAttributt.class)
+                        && !IgnorerteInputTyper.ignore(aClass)) {
                         feilmeldinger.append(String.format(feilmelding, restMethode.getDeclaringClass().getSimpleName(), restMethode.getName(),
-                                aClass.getSimpleName()));
+                            aClass.getSimpleName()));
                     }
                 } else {
-                    if (!AbacDto.class.isAssignableFrom(parameter.getType())
-                            && !parameter.isAnnotationPresent(TilpassetAbacAttributt.class)
-                            && !IgnorerteInputTyper.ignore(parameter.getType())) {
+                    if (!AbacDto.class.isAssignableFrom(parameter.getType()) && !parameter.isAnnotationPresent(TilpassetAbacAttributt.class)
+                        && !IgnorerteInputTyper.ignore(parameter.getType())) {
                         feilmeldinger.append(String.format(feilmelding, restMethode.getDeclaringClass().getSimpleName(), restMethode.getName(),
-                                parameter.getType().getSimpleName()));
+                            parameter.getType().getSimpleName()));
                     }
                 }
             }
         }
         if (feilmeldinger.length() > 0) {
             throw new AssertionError("Følgende inputparametre til REST-tjenester mangler AbacDto-impl\n" + feilmeldinger);
-        }
-    }
-
-    private static void assertAtIngenBrukerDummyVerdierPåBeskyttetRessurs(Method metode) {
-        Class<?> klasse = metode.getDeclaringClass();
-        BeskyttetRessurs annotation = metode.getAnnotation(BeskyttetRessurs.class);
-        if ((annotation != null) && (annotation.actionType() == ActionType.DUMMY)) {
-            fail(klasse.getSimpleName() + "." + metode.getName() + " Ikke bruk DUMMY-verdi for "
-                    + ActionType.class.getSimpleName());
-        } else if (annotation != null && annotation.resource().isEmpty() && annotation.resourceType() == ResourceType.DUMMY && annotation.property().isEmpty()) {
-            fail(klasse.getSimpleName() + "." + metode.getName() + " En verdi for resource må være satt!");
         }
     }
 

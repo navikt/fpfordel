@@ -27,6 +27,10 @@ public class PipRepositoryTest {
     private UUID forsendelseId = UUID.randomUUID();
     private UUID forsendelseId2 = UUID.randomUUID();
 
+    private static DokumentMetadata dokumentMetadata(String brukerId, UUID forsendelseId) {
+        return DokumentMetadata.builder().setBrukerId(brukerId).setForsendelseId(forsendelseId).setForsendelseMottatt(LocalDateTime.now()).build();
+    }
+
     @BeforeEach
     public void before(EntityManager em) {
         pipRepository = new PipRepository(em);
@@ -36,8 +40,7 @@ public class PipRepositoryTest {
     @Test
     public void en_aktørId_for_en_forsendelse() {
         dokumentRepository.lagre(dokumentMetadata(brukerId, forsendelseId));
-        assertThat(pipRepository.hentAktørIdForForsendelser(Set.of(forsendelseId)))
-                .containsOnly(brukerId);
+        assertThat(pipRepository.hentAktørIdForForsendelser(Set.of(forsendelseId))).containsOnly(brukerId);
     }
 
     @Test
@@ -46,8 +49,7 @@ public class PipRepositoryTest {
         dokumentRepository.lagre(dokumentMetadata(brukerId, forsendelseId2));
 
         Set<UUID> dokumentforsendelseIder = Set.of(forsendelseId, forsendelseId2);
-        assertThat(pipRepository.hentAktørIdForForsendelser(dokumentforsendelseIder))
-                .containsOnly(brukerId);
+        assertThat(pipRepository.hentAktørIdForForsendelser(dokumentforsendelseIder)).containsOnly(brukerId);
     }
 
     @Test
@@ -56,15 +58,6 @@ public class PipRepositoryTest {
         dokumentRepository.lagre(dokumentMetadata(brukerId2, forsendelseId2));
 
         Set<UUID> dokumentforsendelseIder = Set.of(forsendelseId, forsendelseId2);
-        assertThat(pipRepository.hentAktørIdForForsendelser(dokumentforsendelseIder))
-                .containsOnly(brukerId, brukerId2);
-    }
-
-    private static DokumentMetadata dokumentMetadata(String brukerId, UUID forsendelseId) {
-        return DokumentMetadata.builder()
-                .setBrukerId(brukerId)
-                .setForsendelseId(forsendelseId)
-                .setForsendelseMottatt(LocalDateTime.now())
-                .build();
+        assertThat(pipRepository.hentAktørIdForForsendelser(dokumentforsendelseIder)).containsOnly(brukerId, brukerId2);
     }
 }

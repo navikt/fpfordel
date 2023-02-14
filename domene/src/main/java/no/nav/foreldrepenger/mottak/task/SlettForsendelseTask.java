@@ -25,11 +25,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 @ProsessTask(SlettForsendelseTask.TASKNAME)
 public class SlettForsendelseTask extends WrappedProsessTaskHandler {
 
-    static final String TASKNAME = "fordeling.slettForsendelse";
-
     public static final String FORCE_SLETT_KEY = "force.slett";
-
-
+    static final String TASKNAME = "fordeling.slettForsendelse";
     private DokumentRepository dokumentRepository;
 
     public SlettForsendelseTask() {
@@ -37,8 +34,7 @@ public class SlettForsendelseTask extends WrappedProsessTaskHandler {
     }
 
     @Inject
-    public SlettForsendelseTask(ProsessTaskTjeneste taskTjeneste,
-                                DokumentRepository dokumentRepository) {
+    public SlettForsendelseTask(ProsessTaskTjeneste taskTjeneste, DokumentRepository dokumentRepository) {
         super(taskTjeneste);
         this.dokumentRepository = dokumentRepository;
     }
@@ -47,8 +43,8 @@ public class SlettForsendelseTask extends WrappedProsessTaskHandler {
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getForsendelseId().isEmpty()) {
             throw new TekniskException("FP-941984",
-                    String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME,
-                            MottakMeldingDataWrapper.FORSENDELSE_ID_KEY, dataWrapper.getId()));
+                String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.FORSENDELSE_ID_KEY,
+                    dataWrapper.getId()));
         }
     }
 
@@ -58,9 +54,9 @@ public class SlettForsendelseTask extends WrappedProsessTaskHandler {
         Optional<UUID> forsendelseId = dataWrapper.getForsendelseId();
         if (forsendelseId.isPresent()) {
             var metadata = dokumentRepository.hentUnikDokumentMetadata(forsendelseId.get());
-            if (dataWrapper.getProsessTaskData().getPropertyValue(FORCE_SLETT_KEY) != null ||
-                    (metadata.flatMap(DokumentMetadata::getArkivId).isPresent() &&
-                            metadata.filter(m -> !ForsendelseStatus.PENDING.equals(m.getStatus())).isPresent())) {
+            if (dataWrapper.getProsessTaskData().getPropertyValue(FORCE_SLETT_KEY) != null || (
+                metadata.flatMap(DokumentMetadata::getArkivId).isPresent() && metadata.filter(m -> !ForsendelseStatus.PENDING.equals(m.getStatus()))
+                    .isPresent())) {
                 dokumentRepository.slettForsendelse(forsendelseId.get());
             }
         }

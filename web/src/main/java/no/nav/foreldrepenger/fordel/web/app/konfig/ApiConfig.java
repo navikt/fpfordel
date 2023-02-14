@@ -36,27 +36,21 @@ import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
 @ApplicationPath(ApiConfig.API_URI)
 public class ApiConfig extends Application {
 
-    private static final Environment ENV = Environment.current();
-
     public static final String API_URI = "/api";
+    private static final Environment ENV = Environment.current();
 
     public ApiConfig() {
         var oas = new OpenAPI();
-        var info = new Info()
-                .title("Vedtaksløsningen - Fordeling.")
-                .version(Optional.ofNullable(ENV.imageName()).orElse("1.0"))
-                .description("REST grensesnitt for fordeling");
+        var info = new Info().title("Vedtaksløsningen - Fordeling.")
+            .version(Optional.ofNullable(ENV.imageName()).orElse("1.0"))
+            .description("REST grensesnitt for fordeling");
 
         oas.info(info).addServersItem(new Server().url(ENV.getProperty("context.path", "/fpfordel")));
-        var oasConfig = new SwaggerConfiguration()
-                .openAPI(oas)
-                .prettyPrint(true)
-                .resourceClasses(getClasses().stream().map(Class::getName).collect(Collectors.toSet()));
+        var oasConfig = new SwaggerConfiguration().openAPI(oas)
+            .prettyPrint(true)
+            .resourceClasses(getClasses().stream().map(Class::getName).collect(Collectors.toSet()));
         try {
-            new GenericOpenApiContextBuilder<>()
-                    .openApiConfiguration(oasConfig)
-                    .buildContext(true)
-                    .read();
+            new GenericOpenApiContextBuilder<>().openApiConfiguration(oasConfig).buildContext(true).read();
         } catch (OpenApiConfigurationException e) {
             throw new TekniskException("OPEN-API", e.getMessage(), e);
         }
@@ -64,20 +58,10 @@ public class ApiConfig extends Application {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return Set.of(
-                WhitelistingJwtTokenContainerRequestFilter.class,
-                ProsessTaskRestTjeneste.class,
-                FerdigstillJournalføringRestTjeneste.class,
-                DokumentforsendelseRestTjeneste.class,
-                ManuellJournalføringRestTjeneste.class,
-                ForvaltningRestTjeneste.class,
-                OpenApiResource.class,
-                MultiPartFeature.class,
-                ConstraintViolationMapper.class,
-                JsonMappingExceptionMapper.class,
-                JsonParseExceptionMapper.class,
-                GeneralRestExceptionMapper.class,
-                JacksonJsonConfig.class);
+        return Set.of(WhitelistingJwtTokenContainerRequestFilter.class, ProsessTaskRestTjeneste.class, FerdigstillJournalføringRestTjeneste.class,
+            DokumentforsendelseRestTjeneste.class, ManuellJournalføringRestTjeneste.class, ForvaltningRestTjeneste.class, OpenApiResource.class,
+            MultiPartFeature.class, ConstraintViolationMapper.class, JsonMappingExceptionMapper.class, JsonParseExceptionMapper.class,
+            GeneralRestExceptionMapper.class, JacksonJsonConfig.class);
     }
 
     @Override

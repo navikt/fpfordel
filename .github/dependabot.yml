@@ -15,7 +15,7 @@ registries:
     url: https://maven.pkg.github.com/navikt/teamdokumenthandtering-avro-schemas
     username: x-access-token
     password: ${{ secrets.PAT }}
-    
+
 updates:
   - package-ecosystem: github-actions
     directory: "/"
@@ -33,8 +33,8 @@ updates:
     open-pull-requests-limit: 20
     ignore:
       - dependency-name: "no.nav.vedtak.prosesstask:*"
-        versions: ["x", "x.x"]
+        versions: [ "x", "x.x" ]
       - dependency-name: "no.nav.foreldrepenger.felles:*"
-        versions: ["x", "x.x"]
+        versions: [ "x", "x.x" ]
       - dependency-name: "no.nav.foreldrepenger.kontrakter:*"
-        versions: ["x", "x.x"]
+        versions: [ "x", "x.x" ]

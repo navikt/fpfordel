@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns8:soeknad
-        xmlns:ns8="urn:no:nav:vedtak:felles:xml:soeknad:v3"
-        xmlns:ns7="urn:no:nav:vedtak:felles:xml:soeknad:endringssoeknad:v3"
-        xmlns:ns2="urn:no:nav:vedtak:felles:xml:soeknad:uttak:v3"
-        xmlns:ns4="urn:no:nav:vedtak:felles:xml:soeknad:felles:v3"
+    xmlns:ns8="urn:no:nav:vedtak:felles:xml:soeknad:v3"
+    xmlns:ns7="urn:no:nav:vedtak:felles:xml:soeknad:endringssoeknad:v3"
+    xmlns:ns2="urn:no:nav:vedtak:felles:xml:soeknad:uttak:v3"
+    xmlns:ns4="urn:no:nav:vedtak:felles:xml:soeknad:felles:v3"
 >
     <ns8:mottattDato>2019-04-01</ns8:mottattDato>
     <ns8:sprakvalg kode="NB"/>
@@ -12,7 +12,7 @@
             <ns7:saksnummer>123</ns7:saksnummer>
             <ns7:fordeling>
                 <ns2:annenForelderErInformert>true</ns2:annenForelderErInformert>
-                <ns2:perioder xsi:type="ns2:Uttaksperiode" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <ns2:perioder xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:Uttaksperiode">
                     <ns2:fom>2019-04-23</ns2:fom>
                     <ns2:tom>2019-04-29</ns2:tom>
                     <ns2:type kodeverk="UTTAK_PERIODE_TYPE" kode="FEDREKVOTE"/>

@@ -1,5 +1,11 @@
 package no.nav.foreldrepenger.mottak.task.joark;
 
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -9,12 +15,6 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
-import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 class JoarkTestsupport {
 
@@ -31,17 +31,16 @@ class JoarkTestsupport {
         taskData = ProsessTaskData.forProsessTask(HentDataFraJoarkTask.class);
     }
 
-    ArkivJournalpost.Builder lagArkivJournalpost(List<String> brukerListe,
-            DokumentTypeId dokumentTypeId) {
+    ArkivJournalpost.Builder lagArkivJournalpost(List<String> brukerListe, DokumentTypeId dokumentTypeId) {
         return ArkivJournalpost.getBuilder()
-                .medEksternReferanseId(RANDOM_REF)
-                .medJournalpostId(ARKIV_ID)
-                .medTilstand(Journalstatus.MOTTATT)
-                .medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER)
-                .medHovedtype(dokumentTypeId)
-                .medDokumentInfoId(DOKUMENT_ID)
-                .medDatoOpprettet(LocalDateTime.now())
-                .medBrukerAktørId(brukerListe.isEmpty() ? null : brukerListe.get(0));
+            .medEksternReferanseId(RANDOM_REF)
+            .medJournalpostId(ARKIV_ID)
+            .medTilstand(Journalstatus.MOTTATT)
+            .medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER)
+            .medHovedtype(dokumentTypeId)
+            .medDokumentInfoId(DOKUMENT_ID)
+            .medDatoOpprettet(LocalDateTime.now())
+            .medBrukerAktørId(brukerListe.isEmpty() ? null : brukerListe.get(0));
     }
 
     ArkivJournalpost lagArkivJournalpostUstrukturert(List<String> brukerListe) {

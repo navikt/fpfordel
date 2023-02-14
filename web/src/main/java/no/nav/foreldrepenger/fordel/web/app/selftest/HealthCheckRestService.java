@@ -38,8 +38,9 @@ public class HealthCheckRestService {
     }
 
     @Inject
-    public HealthCheckRestService(ApplicationServiceStarter starter, @Any Instance<LivenessAware> livenessAware,
-            @Any Instance<ReadinessAware> readinessAware) {
+    public HealthCheckRestService(ApplicationServiceStarter starter,
+                                  @Any Instance<LivenessAware> livenessAware,
+                                  @Any Instance<ReadinessAware> readinessAware) {
         this(starter, livenessAware.stream().toList(), readinessAware.stream().toList());
     }
 
@@ -49,20 +50,22 @@ public class HealthCheckRestService {
         this.ready = ready;
     }
 
+    private static CacheControl cacheControl() {
+        CacheControl cc = new CacheControl();
+        cc.setNoCache(true);
+        cc.setNoStore(true);
+        cc.setMustRevalidate(true);
+        return cc;
+    }
+
     @GET
     @Path("isAlive")
     @Operation(description = "sjekker om poden lever", tags = "nais", hidden = true)
     public Response isAlive() {
         if (live.stream().allMatch(LivenessAware::isAlive)) {
-            return Response
-                    .ok(RESPONSE_OK)
-                    .cacheControl(CC)
-                    .build();
+            return Response.ok(RESPONSE_OK).cacheControl(CC).build();
         }
-        return Response
-                .serverError()
-                .cacheControl(CC)
-                .build();
+        return Response.serverError().cacheControl(CC).build();
     }
 
     @GET
@@ -71,15 +74,9 @@ public class HealthCheckRestService {
     public Response isReady() {
         cacheControl();
         if (ready.stream().allMatch(ReadinessAware::isReady)) {
-            return Response
-                    .ok(RESPONSE_OK)
-                    .cacheControl(CC)
-                    .build();
+            return Response.ok(RESPONSE_OK).cacheControl(CC).build();
         }
-        return Response
-                .status(SERVICE_UNAVAILABLE)
-                .cacheControl(CC)
-                .build();
+        return Response.status(SERVICE_UNAVAILABLE).cacheControl(CC).build();
     }
 
     @GET
@@ -89,13 +86,5 @@ public class HealthCheckRestService {
         LOG.info("preStop endepunkt kalt");
         starter.stopServices();
         return Response.ok(RESPONSE_OK).build();
-    }
-
-    private static CacheControl cacheControl() {
-        CacheControl cc = new CacheControl();
-        cc.setNoCache(true);
-        cc.setNoStore(true);
-        cc.setMustRevalidate(true);
-        return cc;
     }
 }

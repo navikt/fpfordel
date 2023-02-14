@@ -45,6 +45,10 @@ public class DokumentMetadata extends BaseEntitet {
     private DokumentMetadata() {
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public Long getId() {
         return id;
     }
@@ -61,32 +65,28 @@ public class DokumentMetadata extends BaseEntitet {
         return Optional.ofNullable(saksnummer);
     }
 
-    public Optional<String> getArkivId() {
-        return Optional.ofNullable(arkivId);
-    }
-
-    public ForsendelseStatus getStatus() {
-        return ForsendelseStatus.asEnumValue(status);
-    }
-
-    public LocalDateTime getForsendelseMottatt() {
-        return forsendelseMottatt;
-    }
-
     public void setSaksnummer(String saksnummer) {
         this.saksnummer = saksnummer;
+    }
+
+    public Optional<String> getArkivId() {
+        return Optional.ofNullable(arkivId);
     }
 
     public void setArkivId(String arkivId) {
         this.arkivId = arkivId;
     }
 
+    public ForsendelseStatus getStatus() {
+        return ForsendelseStatus.asEnumValue(status);
+    }
+
     public void setStatus(ForsendelseStatus status) {
         this.status = status.name();
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public LocalDateTime getForsendelseMottatt() {
+        return forsendelseMottatt;
     }
 
     public static class Builder {

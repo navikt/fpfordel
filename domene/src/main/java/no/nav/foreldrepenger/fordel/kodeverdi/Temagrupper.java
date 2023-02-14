@@ -2,8 +2,7 @@ package no.nav.foreldrepenger.fordel.kodeverdi;
 
 public enum Temagrupper implements Kodeverdi {
 
-    FAMILIEYTELSER("FMLI")
-    ;
+    FAMILIEYTELSER("FMLI");
 
     private String kode;
 

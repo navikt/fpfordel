@@ -23,7 +23,7 @@ public abstract class MottattStrukturertDokument<S> {
             return new no.nav.foreldrepenger.mottak.domene.v2.Inntektsmelding(s);
         }
         if (skjema instanceof no.nav.vedtak.felles.xml.soeknad.v3.Soeknad s) { // NOSONAR Dto plukker ut info for foreldrepenger, engangsstønad og
-                                                                               // endringssøknad
+            // endringssøknad
             return new no.nav.foreldrepenger.mottak.domene.v3.Søknad(s);
         }
 

@@ -23,11 +23,11 @@ public enum ArkivFilType {
     TIFF,
     ;
 
+    private static final Set<ArkivFilType> KLARTEKST = Set.of(XML, JSON);
+
     ArkivFilType() {
         // Hibernate trenger den
     }
-
-    private static final Set<ArkivFilType> KLARTEKST = Set.of(XML, JSON);
 
     public static boolean erKlartekstType(ArkivFilType arkivFilType) {
         return KLARTEKST.contains(arkivFilType);

@@ -18,9 +18,9 @@ import static java.lang.Runtime.getRuntime;
  */
 public final class Databaseskjemainitialisering {
 
+    public static final String USER = "fpfordel_unit";
     private static final AtomicBoolean GUARD_UNIT_TEST_SKJEMAER = new AtomicBoolean();
     private static final Environment ENV = Environment.current();
-    public static final String USER = "fpfordel_unit";
     private static final String DB_SCRIPT_LOCATION = "/db/migration/";
 
     private static final DataSource DS = settJdniOppslag();

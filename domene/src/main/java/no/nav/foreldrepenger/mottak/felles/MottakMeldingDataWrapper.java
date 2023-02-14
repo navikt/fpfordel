@@ -123,12 +123,12 @@ public class MottakMeldingDataWrapper {
         return Tema.fraKode(prosessTaskData.getPropertyValue(TEMA_KEY));
     }
 
-    public boolean getHarTema() {
-        return prosessTaskData.getPropertyValue(TEMA_KEY) != null;
-    }
-
     public void setTema(Tema tema) {
         prosessTaskData.setProperty(TEMA_KEY, tema.getKode());
+    }
+
+    public boolean getHarTema() {
+        return prosessTaskData.getPropertyValue(TEMA_KEY) != null;
     }
 
     public String getArkivId() {
@@ -156,8 +156,7 @@ public class MottakMeldingDataWrapper {
     }
 
     public Optional<DokumentTypeId> getDokumentTypeId() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(DOKUMENTTYPE_ID_KEY))
-                .map(DokumentTypeId::fraKodeDefaultUdefinert);
+        return Optional.ofNullable(prosessTaskData.getPropertyValue(DOKUMENTTYPE_ID_KEY)).map(DokumentTypeId::fraKodeDefaultUdefinert);
     }
 
     public void setDokumentTypeId(DokumentTypeId dokumentTypeId) {
@@ -165,8 +164,7 @@ public class MottakMeldingDataWrapper {
     }
 
     public Optional<DokumentKategori> getDokumentKategori() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(DOKUMENTKATEGORI_ID_KEY))
-                .map(DokumentKategori::fraKodeDefaultUdefinert);
+        return Optional.ofNullable(prosessTaskData.getPropertyValue(DOKUMENTKATEGORI_ID_KEY)).map(DokumentKategori::fraKodeDefaultUdefinert);
     }
 
     public void setDokumentKategori(DokumentKategori dokumentKategori) {
@@ -174,14 +172,12 @@ public class MottakMeldingDataWrapper {
     }
 
     public final LocalDate getForsendelseMottatt() {
-        return getForsendelseMottattTidspunkt()
-                .map(LocalDateTime::toLocalDate)
-                .orElse(null);
+        return getForsendelseMottattTidspunkt().map(LocalDateTime::toLocalDate).orElse(null);
     }
 
     public Optional<LocalDateTime> getForsendelseMottattTidspunkt() {
         return Optional.ofNullable(prosessTaskData.getPropertyValue(FORSENDELSE_MOTTATT_TIDSPUNKT_KEY))
-                .map(p -> LocalDateTime.parse(p, DateTimeFormatter.ISO_DATE_TIME));
+            .map(p -> LocalDateTime.parse(p, DateTimeFormatter.ISO_DATE_TIME));
     }
 
     public void setForsendelseMottattTidspunkt(LocalDateTime forsendelseMottattTidspunkt) {
@@ -229,8 +225,7 @@ public class MottakMeldingDataWrapper {
     }
 
     public Optional<LocalDate> getBarnTermindato() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(BARN_TERMINDATO_KEY))
-                .map(LocalDate::parse);
+        return Optional.ofNullable(prosessTaskData.getPropertyValue(BARN_TERMINDATO_KEY)).map(LocalDate::parse);
     }
 
     public void setBarnTermindato(LocalDate dato) {
@@ -238,8 +233,7 @@ public class MottakMeldingDataWrapper {
     }
 
     public Optional<LocalDate> getBarnTerminbekreftelsedato() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(BARN_TERMINBEKREFTELSEDATO_KEY))
-                .map(LocalDate::parse);
+        return Optional.ofNullable(prosessTaskData.getPropertyValue(BARN_TERMINBEKREFTELSEDATO_KEY)).map(LocalDate::parse);
     }
 
     public void setBarnTerminbekreftelsedato(LocalDate dato) {
@@ -252,18 +246,15 @@ public class MottakMeldingDataWrapper {
      * @return Liste over fødselsdatoer for adopsjonsbarn
      */
     public List<LocalDate> getAdopsjonsbarnFodselsdatoer() {
-        return Arrays
-                .stream(Optional.ofNullable(prosessTaskData.getPropertyValue(ADOPSJONSBARN_FODSELSDATOER_KEY)).map(p -> p.split(";"))
-                        .orElse(new String[0]))
-                .map(LocalDate::parse)
-                .toList();
+        return Arrays.stream(
+                Optional.ofNullable(prosessTaskData.getPropertyValue(ADOPSJONSBARN_FODSELSDATOER_KEY)).map(p -> p.split(";")).orElse(new String[0]))
+            .map(LocalDate::parse)
+            .toList();
     }
 
     public void setAdopsjonsbarnFodselsdatoer(List<LocalDate> datoer) {
         if ((datoer != null) && !datoer.isEmpty()) {
-            String datoList = datoer.stream()
-                    .map(LocalDate::toString)
-                    .collect(joining(";"));
+            String datoList = datoer.stream().map(LocalDate::toString).collect(joining(";"));
             prosessTaskData.setProperty(ADOPSJONSBARN_FODSELSDATOER_KEY, datoList.isEmpty() ? null : datoList);
         }
     }
@@ -289,8 +280,7 @@ public class MottakMeldingDataWrapper {
     }
 
     public Optional<LocalDate> getOmsorgsovertakelsedato() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(BARN_OMSORGSOVERTAKELSEDATO_KEY))
-                .map(LocalDate::parse);
+        return Optional.ofNullable(prosessTaskData.getPropertyValue(BARN_OMSORGSOVERTAKELSEDATO_KEY)).map(LocalDate::parse);
     }
 
     public void setOmsorgsovertakelsedato(LocalDate dato) {
@@ -298,8 +288,7 @@ public class MottakMeldingDataWrapper {
     }
 
     public Optional<Integer> getAntallBarn() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(BARN_ANTALL_KEY))
-                .map(Integer::parseInt);
+        return Optional.ofNullable(prosessTaskData.getPropertyValue(BARN_ANTALL_KEY)).map(Integer::parseInt);
     }
 
     public void setAntallBarn(int antallBarn) {
@@ -307,8 +296,7 @@ public class MottakMeldingDataWrapper {
     }
 
     public Optional<Boolean> erStrukturertDokument() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(STRUKTURERT_DOKUMENT))
-                .map(Boolean::parseBoolean);
+        return Optional.ofNullable(prosessTaskData.getPropertyValue(STRUKTURERT_DOKUMENT)).map(Boolean::parseBoolean);
     }
 
     public void setStrukturertDokument(Boolean erStrukturertDokument) {
@@ -331,8 +319,7 @@ public class MottakMeldingDataWrapper {
     }
 
     public Optional<UUID> getForsendelseId() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(FORSENDELSE_ID_KEY))
-                .map(UUID::fromString);
+        return Optional.ofNullable(prosessTaskData.getPropertyValue(FORSENDELSE_ID_KEY)).map(UUID::fromString);
     }
 
     public void setForsendelseId(UUID forsendelseId) {
@@ -348,8 +335,7 @@ public class MottakMeldingDataWrapper {
     }
 
     public Optional<Boolean> getAnnenPartHarRett() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(ANNEN_PART_HAR_RETT_KEY))
-                .map(Boolean::parseBoolean);
+        return Optional.ofNullable(prosessTaskData.getPropertyValue(ANNEN_PART_HAR_RETT_KEY)).map(Boolean::parseBoolean);
     }
 
     public void setAnnenPartHarRett(Boolean annenPartHarRett) {
@@ -357,14 +343,11 @@ public class MottakMeldingDataWrapper {
     }
 
     public Optional<LocalDate> getFørsteUttaksdag() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(FØRSTE_UTTAKSDAG_KEY))
-                .map(LocalDate::parse);
+        return Optional.ofNullable(prosessTaskData.getPropertyValue(FØRSTE_UTTAKSDAG_KEY)).map(LocalDate::parse);
     }
 
     public void setFørsteUttakssdag(LocalDate dato) {
-        Optional.ofNullable(dato)
-                .map(LocalDate::toString)
-                .ifPresent(d -> prosessTaskData.setProperty(FØRSTE_UTTAKSDAG_KEY, d));
+        Optional.ofNullable(dato).map(LocalDate::toString).ifPresent(d -> prosessTaskData.setProperty(FØRSTE_UTTAKSDAG_KEY, d));
     }
 
     public Optional<String> getVirksomhetsnummer() {

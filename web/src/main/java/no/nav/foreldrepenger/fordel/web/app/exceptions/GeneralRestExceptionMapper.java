@@ -21,33 +21,16 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeneralRestExceptionMapper.class);
 
-    @Override
-    public Response toResponse(Throwable cause) {
-        loggTilApplikasjonslogg(cause);
-        if (cause instanceof WebApplicationException wae && wae.getResponse() != null) {
-            return wae.getResponse();
-        }
-        // TODO re-enable og slett den over etter validering loggTilApplikasjonslogg(cause);
-        if (cause instanceof ManglerTilgangException mte) {
-            return ikkeTilgang(mte);
-        } else {
-            return serverError(cause);
-        }
-    }
-
     private static Response serverError(Throwable feil) {
         String feilmelding = getVLExceptionFeilmelding(feil);
-        return Response.serverError()
-                .entity(new FeilDto(feilmelding, FeilType.GENERELL_FEIL))
-                .type(MediaType.APPLICATION_JSON)
-                .build();
+        return Response.serverError().entity(new FeilDto(feilmelding, FeilType.GENERELL_FEIL)).type(MediaType.APPLICATION_JSON).build();
     }
 
     private static Response ikkeTilgang(ManglerTilgangException feil) {
         return Response.status(Response.Status.FORBIDDEN)
-                .entity(new FeilDto(feil.getMessage(), FeilType.MANGLER_TILGANG_FEIL))
-                .type(MediaType.APPLICATION_JSON)
-                .build();
+            .entity(new FeilDto(feil.getMessage(), FeilType.MANGLER_TILGANG_FEIL))
+            .type(MediaType.APPLICATION_JSON)
+            .build();
     }
 
     private static String getVLExceptionFeilmelding(Throwable feil) {
@@ -55,14 +38,9 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
         String feilbeskrivelse = getExceptionMelding(feil);
         if (feil instanceof FunksjonellException f) {
             String løsningsforslag = f.getLøsningsforslag();
-            return "Det oppstod en feil: "
-                    + avsluttMedPunktum(feilbeskrivelse)
-                    + avsluttMedPunktum(løsningsforslag)
-                    + ". Referanse-id: " + callId;
+            return "Det oppstod en feil: " + avsluttMedPunktum(feilbeskrivelse) + avsluttMedPunktum(løsningsforslag) + ". Referanse-id: " + callId;
         }
-        return "Det oppstod en serverfeil: "
-                + avsluttMedPunktum(feilbeskrivelse)
-                + ". Meld til support med referanse-id: " + callId;
+        return "Det oppstod en serverfeil: " + avsluttMedPunktum(feilbeskrivelse) + ". Meld til support med referanse-id: " + callId;
 
     }
 
@@ -88,6 +66,20 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
 
     private static String getTextForField(String input) {
         return input != null ? LoggerUtils.removeLineBreaks(input) : "";
+    }
+
+    @Override
+    public Response toResponse(Throwable cause) {
+        loggTilApplikasjonslogg(cause);
+        if (cause instanceof WebApplicationException wae && wae.getResponse() != null) {
+            return wae.getResponse();
+        }
+        // TODO re-enable og slett den over etter validering loggTilApplikasjonslogg(cause);
+        if (cause instanceof ManglerTilgangException mte) {
+            return ikkeTilgang(mte);
+        } else {
+            return serverError(cause);
+        }
     }
 
 }

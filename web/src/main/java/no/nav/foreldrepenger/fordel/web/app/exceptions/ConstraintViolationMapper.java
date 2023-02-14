@@ -20,6 +20,10 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
 
     private static final Logger LOG = LoggerFactory.getLogger(ConstraintViolationMapper.class);
 
+    private static String getFeltNavn(Path propertyPath) {
+        return propertyPath instanceof PathImpl ? ((PathImpl) propertyPath).getLeafNode().toString() : null;
+    }
+
     @Override
     public Response toResponse(ConstraintViolationException exception) {
         Collection<FeltFeilDto> feilene = new ArrayList<>();
@@ -30,17 +34,9 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
         }
         var feltNavn = feilene.stream().map(felt -> felt.navn()).collect(Collectors.toList());
         var feil = new FunksjonellException("FP-328673", String.format("Det oppstod en valideringsfeil på felt %s", feltNavn),
-        "Kontroller at alle feltverdier er korrekte");
+            "Kontroller at alle feltverdier er korrekte");
         LOG.warn(feil.getMessage());
-        return Response
-                .status(Response.Status.BAD_REQUEST)
-                .entity(new FeilDto(feil.getMessage(), feilene))
-                .type(MediaType.APPLICATION_JSON)
-                .build();
-    }
-
-    private static String getFeltNavn(Path propertyPath) {
-        return propertyPath instanceof PathImpl ? ((PathImpl) propertyPath).getLeafNode().toString() : null;
+        return Response.status(Response.Status.BAD_REQUEST).entity(new FeilDto(feil.getMessage(), feilene)).type(MediaType.APPLICATION_JSON).build();
     }
 
 }

@@ -11,7 +11,7 @@
     </ns8:paakrevdeVedlegg>
     <ns8:omYtelse>
         <ns3:engangsstønad>
-            <ns3:soekersRelasjonTilBarnet xsi:type="ns2:Termin" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <ns3:soekersRelasjonTilBarnet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:Termin">
                 <ns2:antallBarn>1</ns2:antallBarn>
                 <ns2:vedlegg>V445929087268620290861920395151071245</ns2:vedlegg>
                 <ns2:termindato>2019-12-09</ns2:termindato>
@@ -22,7 +22,7 @@
                 <ns2:boddINorgeSiste12Mnd>true</ns2:boddINorgeSiste12Mnd>
                 <ns2:borINorgeNeste12Mnd>true</ns2:borINorgeNeste12Mnd>
             </ns3:medlemskap>
-            <ns3:annenForelder xsi:type="ns2:AnnenForelderMedNorskIdent" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <ns3:annenForelder xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:AnnenForelderMedNorskIdent">
                 <ns2:aktoerId>1000010377874</ns2:aktoerId>
             </ns3:annenForelder>
         </ns3:engangsstønad>

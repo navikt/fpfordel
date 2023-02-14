@@ -7,24 +7,28 @@
 FPFORDEL
 ===============
 
- 
+
 
 Dette er kildkode som dekker applikasjonen for fordeling av søknader fra Selvbetjening mellom Gosys, Infotrygd og FPSAK
 
 ### Struktur
+
 Dette er løsning for fordeling av søknader (og inntektsmeldinger).
 
 ### Utviklingshåndbok
+
 [Utviklingoppsett](https://confluence.adeo.no/display/LVF/60+Utviklingsoppsett)
 [Utviklerhåndbok, Kodestandard, osv](https://confluence.adeo.no/pages/viewpage.action?pageId=190254327)
 
 ### Sikkerhet
+
 Det er mulig å kalle tjenesten med bruk av følgende tokens
+
 - Azure CC
 - Azure OBO med følgende rettigheter:
-  - fpsak-saksbehandler - manuell journalføring
-  - fpsak-veileder
-  - fpsak-drift
+    - fpsak-saksbehandler - manuell journalføring
+    - fpsak-veileder
+    - fpsak-drift
 - TokenX
 - STS (fases ut)
 - SAML (fases ut)

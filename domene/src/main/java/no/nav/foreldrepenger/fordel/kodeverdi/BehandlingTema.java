@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.fordel.kodeverdi;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
-import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum BehandlingTema implements Kodeverdi {
 
@@ -32,6 +32,9 @@ public enum BehandlingTema implements Kodeverdi {
     private static final Map<String, BehandlingTema> KODER = new LinkedHashMap<>();
     private static final Map<String, BehandlingTema> OFFISIELLE_KODER = new LinkedHashMap<>();
     private static final Map<String, BehandlingTema> ALLE_TERMNAVN = new LinkedHashMap<>();
+    private static final Set<BehandlingTema> ES_BT = Set.of(ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON, ENGANGSSTØNAD_FØDSEL);
+    private static final Set<BehandlingTema> FP_BT = Set.of(FORELDREPENGER, FORELDREPENGER_ADOPSJON, FORELDREPENGER_FØDSEL);
+    private static final Set<BehandlingTema> UDEF_BT = Set.of(ENGANGSSTØNAD, FORELDREPENGER, UDEFINERT);
 
     static {
         for (var v : values()) {
@@ -49,9 +52,7 @@ public enum BehandlingTema implements Kodeverdi {
 
     @JsonValue
     private String kode;
-
     private String offisiellKode;
-
     private String termnavn;
 
     BehandlingTema(String kode, String offisiellKode, String termnavn) {
@@ -64,8 +65,7 @@ public enum BehandlingTema implements Kodeverdi {
         if (kode == null) {
             return null;
         }
-        return Optional.ofNullable(KODER.get(kode))
-            .orElseThrow(() -> new IllegalArgumentException("Ukjent Tema: " + kode));
+        return Optional.ofNullable(KODER.get(kode)).orElseThrow(() -> new IllegalArgumentException("Ukjent Tema: " + kode));
     }
 
     public static BehandlingTema fraKodeDefaultUdefinert(String kode) {
@@ -88,25 +88,6 @@ public enum BehandlingTema implements Kodeverdi {
         }
         return ALLE_TERMNAVN.getOrDefault(termnavn, UDEFINERT);
     }
-
-    @Override
-    public String getKode() {
-        return kode;
-    }
-
-    public String getOffisiellKode() {
-        return offisiellKode;
-    }
-
-    public String getTermNavn() {
-        return termnavn;
-    }
-
-    private static final Set<BehandlingTema> ES_BT = Set.of(ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON,
-            ENGANGSSTØNAD_FØDSEL);
-    private static final Set<BehandlingTema> FP_BT = Set.of(FORELDREPENGER, FORELDREPENGER_ADOPSJON,
-            FORELDREPENGER_FØDSEL);
-    private static final Set<BehandlingTema> UDEF_BT = Set.of(ENGANGSSTØNAD, FORELDREPENGER, UDEFINERT);
 
     public static boolean gjelderEngangsstønad(BehandlingTema bt) {
         return ES_BT.contains(bt);
@@ -134,6 +115,19 @@ public enum BehandlingTema implements Kodeverdi {
         }
         return SVANGERSKAPSPENGER.equals(behandlingTema) ? behandlingTema : UDEFINERT;
 
+    }
+
+    @Override
+    public String getKode() {
+        return kode;
+    }
+
+    public String getOffisiellKode() {
+        return offisiellKode;
+    }
+
+    public String getTermNavn() {
+        return termnavn;
     }
 
     public YtelseType utledYtelseType() {

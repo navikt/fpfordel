@@ -27,6 +27,11 @@ public class BaseEntitet implements Serializable {
     @Column(name = "endret_tid")
     private LocalDateTime endretTidspunkt;
 
+    private static String finnBrukernavn() {
+        String brukerident = SubjectHandler.getSubjectHandler().getUid();
+        return brukerident != null ? brukerident : BRUKERNAVN_NÅR_SIKKERHETSKONTEKST_IKKE_FINNES;
+    }
+
     @PrePersist
     protected void onCreate() {
         this.opprettetAv = finnBrukernavn();
@@ -43,6 +48,11 @@ public class BaseEntitet implements Serializable {
         return opprettetAv;
     }
 
+    // Test only
+    public void setOpprettetAv(String opprettetAv) {
+        this.opprettetAv = opprettetAv;
+    }
+
     public LocalDateTime getOpprettetTidspunkt() {
         return opprettetTidspunkt;
     }
@@ -53,15 +63,5 @@ public class BaseEntitet implements Serializable {
 
     public LocalDateTime getEndretTidspunkt() {
         return endretTidspunkt;
-    }
-
-    // Test only
-    public void setOpprettetAv(String opprettetAv) {
-        this.opprettetAv = opprettetAv;
-    }
-
-    private static String finnBrukernavn() {
-        String brukerident = SubjectHandler.getSubjectHandler().getUid();
-        return brukerident != null ? brukerident : BRUKERNAVN_NÅR_SIKKERHETSKONTEKST_IKKE_FINNES;
     }
 }

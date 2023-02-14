@@ -29,11 +29,9 @@ record Topic<K, V>(String topic, Serde<K> serdeKey, Serde<V> serdeValue) {
         var configuredTopic = new Topic<>(topicName, Serdes.String(), getSerde());
         var schemaRegistryUrl = KafkaProperties.getAvroSchemaRegistryURL();
         if (schemaRegistryUrl != null && !schemaRegistryUrl.isEmpty()) {
-            var schemaMap =
-                Map.of(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl,
-                    AbstractKafkaSchemaSerDeConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO",
-                    AbstractKafkaSchemaSerDeConfig.USER_INFO_CONFIG, KafkaProperties.getAvroSchemaRegistryBasicAuth(),
-                    SPECIFIC_AVRO_READER_CONFIG, true);
+            var schemaMap = Map.of(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl,
+                AbstractKafkaSchemaSerDeConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO", AbstractKafkaSchemaSerDeConfig.USER_INFO_CONFIG,
+                KafkaProperties.getAvroSchemaRegistryBasicAuth(), SPECIFIC_AVRO_READER_CONFIG, true);
             configuredTopic.serdeKey().configure(schemaMap, true);
             configuredTopic.serdeValue().configure(schemaMap, false);
         }

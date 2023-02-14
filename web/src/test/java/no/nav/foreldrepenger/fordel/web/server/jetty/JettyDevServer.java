@@ -6,6 +6,10 @@ public class JettyDevServer extends JettyServer {
 
     private static final Environment ENV = Environment.current();
 
+    private JettyDevServer(int serverPort) {
+        super(serverPort);
+    }
+
     public static void main(String[] args) throws Exception {
         jettyServer(args).bootStrap();
     }
@@ -15,9 +19,5 @@ public class JettyDevServer extends JettyServer {
             return new JettyDevServer(Integer.parseUnsignedInt(args[0]));
         }
         return new JettyDevServer(ENV.getProperty("server.port", Integer.class, 8080));
-    }
-
-    private JettyDevServer(int serverPort) {
-        super(serverPort);
     }
 }

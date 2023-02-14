@@ -34,10 +34,6 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
         objectMapper.registerModule(SER_DESER);
     }
 
-    public ObjectMapper getObjectMapper() {
-        return objectMapper;
-    }
-
     public static Module defaultModule() {
         return SER_DESER;
     }
@@ -46,6 +42,10 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
         SimpleModule module = new SimpleModule("VL-REST", new Version(1, 0, 0, null, null, null));
 
         return module;
+    }
+
+    public ObjectMapper getObjectMapper() {
+        return objectMapper;
     }
 
     @Override

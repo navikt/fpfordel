@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.fordel.kodeverdi;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum Tema implements Kodeverdi {
 
@@ -41,8 +41,7 @@ public enum Tema implements Kodeverdi {
         if (kode == null) {
             return null;
         }
-        return Optional.ofNullable(KODER.get(kode))
-            .orElseThrow(() -> new IllegalArgumentException("Ukjent Tema: " + kode));
+        return Optional.ofNullable(KODER.get(kode)).orElseThrow(() -> new IllegalArgumentException("Ukjent Tema: " + kode));
     }
 
     public static Tema fraOffisiellKode(String kode) {
