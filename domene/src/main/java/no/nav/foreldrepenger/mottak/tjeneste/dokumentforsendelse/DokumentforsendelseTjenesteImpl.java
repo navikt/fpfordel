@@ -62,7 +62,6 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
         repository.lagre(metadata);
         dokumenter.forEach(repository::lagre);
 
-
         if (hoveddokumenter.isEmpty() && metadata.getSaksnummer().isPresent()) {
             opprettProsessTask(metadata);
         } else if (!hoveddokumenter.isEmpty() && korrektAntallOgTyper(hoveddokumenter)) {

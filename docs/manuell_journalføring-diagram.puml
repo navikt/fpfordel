@@ -1,0 +1,54 @@
+@startuml
+
+title Manuell journalføring
+
+interface "/ferdigstill" as ferdigstill
+interface "/oppgaver" as oppgaver
+interface "/detaljer" as detaljer
+actor "Saksbehandler"
+
+node "FP-Fordel" {
+    [Fordel]
+}
+
+node "FP-Sak" {
+    [Fpsak]
+}
+
+node "FP-Los" {
+    [Fplos]
+}
+
+node "FP-Frontend" {
+    [Fpfrontend]
+}
+
+node "Eksterne systemer" #yellow {
+    node "GOSYS-Oppgave" #white {
+        [Oppgave]
+    }
+    node "Joark" #white{
+        [Arkiv]
+    }
+}
+
+
+"Saksbehandler" -> [Fpfrontend]: hentOppgaver
+
+[Fpfrontend] --( oppgaver
+[Fpfrontend] --( detaljer
+[Fpfrontend] --( ferdigstill
+
+[Fordel] -up- oppgaver: REST
+[Fordel] -up- detaljer: REST
+[Fordel] -up- ferdigstill: REST
+
+[Fpsak] <--> [Fordel]: hentBrukersSaker (REST)
+[Fordel] <--> [Oppgave]: hentSaksbehandlersOppgaver (REST)
+[Fordel] <--> [Arkiv]: hentJournalpostDetaljer (REST)
+[Fordel] <--> [Arkiv]: hentDokument (REST)
+[Fordel] <-> [Fplos]: hentTilhørendeEnheter(REST)
+
+
+
+@enduml

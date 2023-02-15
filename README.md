@@ -7,13 +7,19 @@
 FPFORDEL
 ===============
 
-
-
-Dette er kildkode som dekker applikasjonen for fordeling av søknader fra Selvbetjening mellom Gosys, Infotrygd og FPSAK
+Dette er kildkode som dekker applikasjonen for fordeling av søknader fra Selvbetjening mellom Gosys, Infotrygd og FPSAK/FPTIBAKE.
+Løsningen prøver å journalføre andre dokumenter også - om det ikke er mulig blir de sendt til manuell journalføring.
 
 ### Struktur
 
 Dette er løsning for fordeling av søknader (og inntektsmeldinger).
+
+### Kontekst
+#### Automatisk dokument behandling
+<!-- PlantUml generated from docs/journalføring-diagram.puml. Regenerate Encoded form on https://planttext.com -->
+![journalføring-diagram](docs/journalføring-diagram-Automatisk_journalføring.png)
+#### Manuell dokument behandling
+![manuell_journalføring-diagram-Manuell_journalføring.png](docs%2Fmanuell_journalf%C3%B8ring-diagram-Manuell_journalføring.png)
 
 ### Utviklingshåndbok
 

@@ -1,0 +1,81 @@
+@startuml
+
+title Automatisk journalføring
+
+interface "/vurderFagsystem" as vurderFagsystem
+interface "/journalpost" as journalpost_fpsak
+interface "/journalpost" as journalpost_fptilbake
+interface "/oppgave" as oppgave_post
+interface "/dokumentforsendelse" as dokforsendelseRest
+
+queue "Journalføring" as journalføringKafka
+
+node "FP-Fordel" {
+    node "Core" {
+        [OpprettGSakOppgaveTask] as GosysTask
+        [VLKlargjørerTask] as KlargjørTask
+        [SlettForsendelseTask] as SlettTask
+    }
+    node "Selvbetjening dokument" {
+        [Fordel]
+        [BehandleDokumentTask] as BehandleTask
+    }
+
+    node "SAF hendelse" {
+        [JournalføringHendelseHåndterer] as StreamHandler
+        [HentDataFraJoarkTask] as HentDataTask
+        [TilJournalføringTask] as JournalførTask
+    }
+
+    node "Database" {
+        database Oracle
+    }
+}
+
+node "FP-Sak" {
+    [Fpsak]
+}
+
+node "FP-Tilbake" {
+    [Fptilbake]
+}
+
+node "GOSYS-Oppgave" {
+    [Oppgave]
+}
+
+journalføringKafka --> StreamHandler : Kafka
+StreamHandler --> HentDataTask
+HentDataTask -> JournalførTask
+HentDataTask -> GosysTask
+
+JournalførTask --> KlargjørTask
+JournalførTask -> GosysTask
+
+dokforsendelseRest -- [Fordel]
+[<Selvbetjening>] -( dokforsendelseRest: REST
+
+Fordel ----> Oracle
+Fordel --> BehandleTask
+
+BehandleTask --> GosysTask : GOSYS
+BehandleTask --> KlargjørTask : FPSAK
+
+BehandleTask ----( vurderFagsystem : REST
+vurderFagsystem -- [Fpsak]
+
+KlargjørTask --> SlettTask : etter 2 timer
+GosysTask --> SlettTask
+
+SlettTask -> Oracle
+
+GosysTask ---( oppgave_post : REST
+oppgave_post -- [Oppgave]
+
+KlargjørTask ---( journalpost_fpsak : REST
+journalpost_fpsak -- [Fpsak]
+
+KlargjørTask ---( journalpost_fptilbake : REST
+journalpost_fptilbake -- [Fptilbake]
+
+@enduml
