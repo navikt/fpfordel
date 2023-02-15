@@ -64,19 +64,17 @@ public class MottakMeldingDataWrapper {
     }
 
     public MottakMeldingDataWrapper nesteSteg(TaskType stegnavn) {
-        return nesteSteg(stegnavn, true, LocalDateTime.now());
+        return nesteSteg(stegnavn, LocalDateTime.now());
     }
 
-    public MottakMeldingDataWrapper nesteSteg(TaskType stegnavn, boolean økSekvens, LocalDateTime nesteKjøringEtter) {
+    public MottakMeldingDataWrapper nesteSteg(TaskType stegnavn, LocalDateTime nesteKjøringEtter) {
         var nesteStegProsessTaskData = ProsessTaskData.forTaskType(stegnavn);
         nesteStegProsessTaskData.setNesteKjøringEtter(nesteKjøringEtter);
 
         String sekvensnummer = getProsessTaskData().getSekvens();
         if (sekvensnummer != null) {
-            if (økSekvens) {
-                long sekvens = Long.parseLong(sekvensnummer);
-                sekvensnummer = Long.toString(sekvens + 1);
-            }
+            long sekvens = Long.parseLong(sekvensnummer);
+            sekvensnummer = Long.toString(sekvens + 1);
             nesteStegProsessTaskData.setSekvens(sekvensnummer);
         }
 
