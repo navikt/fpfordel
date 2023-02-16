@@ -195,6 +195,21 @@
         </plugins>
     </build>
 
+    <!-- Kan slettes etter bom 0.4.3 -->
+    <profiles>
+        <profile>
+            <id>sonar</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
     <scm>
         <connection>scm:git:ssh://git@github.com:navikt/fpfordel.git</connection>
         <developerConnection>scm:git:ssh://git@github.com:navikt/fpfordel.git</developerConnection>
