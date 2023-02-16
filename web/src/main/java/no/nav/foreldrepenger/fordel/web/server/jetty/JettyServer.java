@@ -148,10 +148,6 @@ public class JettyServer {
         ctx.setResourceBase(".");
         ctx.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
 
-        // This patter has no effect because no WEB-INF/lib or WEB-INF/classes
-        // is used in out environment
-        //ctx.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", "^.*jersey-.*.jar$|^.*felles-.*.jar$");
-
         // Scanns the CLASSPATH for classes and jars.
         ctx.setAttribute(CONTAINER_JAR_PATTERN, String.format("%s%s", ENV.isLocal() ? JETTY_LOCAL_CLASSES : "", JETTY_SCAN_LOCATIONS));
 
@@ -160,13 +156,9 @@ public class JettyServer {
         ctx.addEventListener(new org.jboss.weld.environment.servlet.BeanManagerResourceBindingListener());
 
         ctx.setSecurityHandler(createSecurityHandler());
+        ctx.setThrowUnavailableOnStartupException(true);
 
         addTokenValidationFilter(ctx);
-
-        // Trenges ikke lenger siden container_scan finner alle relevante annoteringer nå.
-        //updateMetaData(ctx.getMetaData());
-
-        ctx.setThrowUnavailableOnStartupException(true);
         return ctx;
     }
 
