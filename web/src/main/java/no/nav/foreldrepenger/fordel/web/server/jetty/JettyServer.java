@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.fordel.web.server.jetty;
 
 import static javax.servlet.DispatcherType.REQUEST;
+import static org.eclipse.jetty.webapp.MetaInfConfiguration.CONTAINER_JAR_PATTERN;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,10 +34,11 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.webapp.MetaData;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
@@ -45,7 +47,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import no.nav.foreldrepenger.fordel.web.app.konfig.ApiConfig;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.security.token.support.core.configuration.IssuerProperties;
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration;
@@ -60,6 +61,8 @@ public class JettyServer {
     private static final Logger LOG = LoggerFactory.getLogger(JettyServer.class);
 
     private static final String CONTEXT_PATH = ENV.getProperty("context.path", "/fpfordel");
+    private static final String JETTY_SCAN_LOCATIONS = "^.*jersey-.*\\.jar$|^.*felles-.*\\.jar$|^.*/app\\.jar$";
+    private static final String JETTY_LOCAL_CLASSES = "^.*/target/classes/|";
 
     static {
         LogManager.getLogManager().reset();
@@ -96,8 +99,8 @@ public class JettyServer {
     }
 
     private static void initTrustStore() {
-        final String trustStorePathProp = "javax.net.ssl.trustStore";
-        final String trustStorePasswordProp = "javax.net.ssl.trustStorePassword";
+        final var trustStorePathProp = "javax.net.ssl.trustStore";
+        final var trustStorePasswordProp = "javax.net.ssl.trustStorePassword";
 
         var defaultLocation = ENV.getProperty("user.home", ".") + "/.modig/truststore.jks";
         var storePath = ENV.getProperty(trustStorePathProp, defaultLocation);
@@ -123,28 +126,46 @@ public class JettyServer {
         return httpConfig;
     }
 
-    private static WebAppContext createContext() throws IOException {
+    private static ContextHandler createContext() throws IOException {
         var ctx = new WebAppContext();
+
+        // Tell the classloader to use the "server" classpath over the
+        // webapp classpath. (this is so that jars and libs in your
+        // server classpath are used, requiring no WEB-INF/lib
+        // directory to exist)
         ctx.setParentLoaderPriority(true);
 
+        // A WEB-INF/web.xml is required for Servlet 3.0
         // må hoppe litt bukk for å hente web.xml fra classpath i stedet for fra filsystem.
         String descriptor;
         try (var resource = Resource.newClassPathResource("/WEB-INF/web.xml")) {
             descriptor = resource.getURI().toURL().toExternalForm();
         }
         ctx.setDescriptor(descriptor);
+
+        // Specify the context path that you want this webapp to show up as
         ctx.setContextPath(CONTEXT_PATH);
         ctx.setResourceBase(".");
         ctx.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
-        ctx.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", "^.*jersey-.*.jar$|^.*felles-.*.jar$");
 
-        ctx.addEventListener(new org.jboss.weld.environment.servlet.BeanManagerResourceBindingListener());
+        // This patter has no effect because no WEB-INF/lib or WEB-INF/classes
+        // is used in out environment
+        //ctx.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", "^.*jersey-.*.jar$|^.*felles-.*.jar$");
+
+        // Scanns the CLASSPATH for classes and jars.
+        ctx.setAttribute(CONTAINER_JAR_PATTERN, String.format("%s%s", ENV.isLocal() ? JETTY_LOCAL_CLASSES : "", JETTY_SCAN_LOCATIONS));
+
+        // WELD init
         ctx.addEventListener(new org.jboss.weld.environment.servlet.Listener());
+        ctx.addEventListener(new org.jboss.weld.environment.servlet.BeanManagerResourceBindingListener());
 
         ctx.setSecurityHandler(createSecurityHandler());
 
         addTokenValidationFilter(ctx);
-        updateMetaData(ctx.getMetaData());
+
+        // Trenges ikke lenger siden container_scan finner alle relevante annoteringer nå.
+        //updateMetaData(ctx.getMetaData());
+
         ctx.setThrowUnavailableOnStartupException(true);
         return ctx;
     }
@@ -160,7 +181,7 @@ public class JettyServer {
         return securityHandler;
     }
 
-    private static void addTokenValidationFilter(WebAppContext ctx) {
+    private static void addTokenValidationFilter(ServletContextHandler ctx) {
         ctx.addFilter(new FilterHolder(new JaxrsJwtTokenValidationFilter(config())), "/api/*", EnumSet.of(REQUEST));
     }
 
@@ -171,20 +192,6 @@ public class JettyServer {
     private static IssuerProperties issuerProperties() {
         return new IssuerProperties(ENV.getRequiredProperty("token.x.well.known.url", URL.class),
             List.of(ENV.getRequiredProperty("token.x.client.id")));
-    }
-
-    private static void updateMetaData(MetaData metaData) {
-        // Find path to class-files while starting jetty from development environment.
-        var resources = getWebInfClasses().stream()
-            .map(c -> Resource.newResource(c.getProtectionDomain().getCodeSource().getLocation()))
-            .distinct()
-            .toList();
-
-        metaData.setWebInfClassesResources(resources);
-    }
-
-    private static List<Class<?>> getWebInfClasses() {
-        return List.of(ApiConfig.class);
     }
 
     protected void bootStrap() throws Exception {
@@ -238,6 +245,7 @@ public class JettyServer {
     static final class ResetLogContextHandler extends AbstractHandler {
         @Override
         public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) {
+            LOG.info("Kjører {}", ResetLogContextHandler.class.getName());
             MDC.clear();
         }
     }

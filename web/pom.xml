@@ -21,6 +21,7 @@
         <dependency>
             <groupId>no.nav.security</groupId>
             <artifactId>token-validation-jaxrs</artifactId>
+            <version>2.1.9</version>
         </dependency>
         <dependency>
             <groupId>net.shibboleth.utilities</groupId>
@@ -257,22 +258,6 @@
                             <mainClass>no.nav.foreldrepenger.fordel.web.server.jetty.JettyServer</mainClass>
                         </manifest>
                     </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>buildnumber-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>create-metadata</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <addOutputDirectoryToResources>true</addOutputDirectoryToResources>
-                    <timestampFormat>dd.MM.yyyy HH.mm.ss</timestampFormat>
                 </configuration>
             </plugin>
             <plugin>
