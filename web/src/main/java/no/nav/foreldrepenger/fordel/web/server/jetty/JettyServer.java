@@ -245,7 +245,6 @@ public class JettyServer {
     static final class ResetLogContextHandler extends AbstractHandler {
         @Override
         public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) {
-            LOG.info("Kjører {}", ResetLogContextHandler.class.getName());
             MDC.clear();
         }
     }
