@@ -45,6 +45,7 @@ import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
+import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.FerdigstillOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
@@ -62,6 +63,7 @@ import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -89,6 +91,7 @@ public class FerdigstillJournalføringRestTjeneste {
     private PersonInformasjon pdl;
     private ArkivTjeneste arkivTjeneste;
     private DokumentRepository dokumentRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     protected FerdigstillJournalføringRestTjeneste() {
         // CDI proxy
@@ -99,11 +102,13 @@ public class FerdigstillJournalføringRestTjeneste {
                                                 Fagsak fagsak,
                                                 PersonInformasjon pdl,
                                                 ArkivTjeneste arkivTjeneste,
+                                                ProsessTaskTjeneste taskTjeneste,
                                                 DokumentRepository dokumentRepository) {
         this.klargjører = klargjører;
         this.fagsak = fagsak;
         this.pdl = pdl;
         this.arkivTjeneste = arkivTjeneste;
+        this.taskTjeneste = taskTjeneste;
         this.dokumentRepository = dokumentRepository;
     }
 
@@ -210,9 +215,9 @@ public class FerdigstillJournalføringRestTjeneste {
     @Path("/ferdigstill")
     @Operation(description = "For å ferdigstille journalføring. Det opprettes en ny fagsak om saksnummer ikke sendes.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "200", description = "Journalføring ferdigstillt"), @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public void oppdaterOgFerdigstillJournalfoering(@Parameter(description =
-        "Trenger journalpostId, saksnummer og enhet til ferdigstille en journalføring. "
-            + "Om saksnummer ikke foreligger må ytelse type og aktørId oppgis for å opprette en ny sak.") @NotNull @Valid @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FerdigstillJournalføringRestTjeneste.FerdigstillRequest request) {
+    public void oppdaterOgFerdigstillJournalfoering(@Parameter(description = "Trenger journalpostId, saksnummer og enhet til ferdigstille en journalføring. "
+            + "Om saksnummer ikke foreligger må ytelse type og aktørId oppgis for å opprette en ny sak.") @NotNull @Valid
+            @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FerdigstillJournalføringRestTjeneste.FerdigstillRequest request) {
 
         validerJournalpostId(request.journalpostId());
         validerEnhetId(request.enhetId());
@@ -276,6 +281,13 @@ public class FerdigstillJournalføringRestTjeneste {
 
         // For å unngå klonede journalposter fra GOSYS - de kan komme via Kafka
         dokumentRepository.lagreJournalpostLokal(request.journalpostId(), journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
+
+        if (request.oppgaveId() != null) {
+            var ferdigstillOppgaveTask = ProsessTaskData.forProsessTask(FerdigstillOppgaveTask.class);
+            ferdigstillOppgaveTask.setProperty(FerdigstillOppgaveTask.OPPGAVEID_KEY, String.valueOf(request.oppgaveId()));
+            ferdigstillOppgaveTask.setCallIdFraEksisterende();
+            taskTjeneste.lagre(ferdigstillOppgaveTask);
+        }
     }
 
     private FagsakInfomasjonDto hentOgValiderFagsak(String saksnummer, ArkivJournalpost journalpost) {
@@ -384,6 +396,9 @@ public class FerdigstillJournalføringRestTjeneste {
 
     record FerdigstillRequest(
         @NotNull @Pattern(regexp = "^(-?[1-9]|[a-z0])[a-z0-9_:-]*$", message = "journalpostId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String journalpostId,
-        @NotNull String enhetId, @Size(max = 11) @Pattern(regexp = "^[0-9_\\-]*$") String saksnummer, @Valid OpprettSakDto opprettSak) {
+        @NotNull String enhetId,
+        @Size(max = 11) @Pattern(regexp = "^[0-9_\\-]*$") String saksnummer,
+        Long oppgaveId,
+        @Valid OpprettSakDto opprettSak) {
     }
 }
