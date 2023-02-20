@@ -29,6 +29,10 @@
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-kontekst</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-xmlutils</artifactId>
         </dependency>
         <dependency>
@@ -96,7 +100,7 @@
         <!-- FP-Prosesstask -->
         <dependency>
             <groupId>no.nav.vedtak.prosesstask</groupId>
-            <artifactId>prosesstask-legacy</artifactId>
+            <artifactId>prosesstask-kontekst</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.vedtak.prosesstask</groupId>
