@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.mottak.person;
 
-import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
-
-import java.time.Instant;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -26,7 +23,6 @@ import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.felles.integrasjon.person.PdlException;
 import no.nav.vedtak.felles.integrasjon.person.Persondata;
-import no.nav.vedtak.sikkerhet.oidc.JwtUtil;
 import no.nav.vedtak.util.LRUCache;
 
 @ApplicationScoped
@@ -56,15 +52,6 @@ public class PersonTjeneste implements PersonInformasjon {
         this.cacheIdentTilAktørId = new LRUCache<>(DEFAULT_CACHE_SIZE, timeoutMs);
     }
 
-    private static Instant expiresAt() {
-        try {
-            return JwtUtil.getExpirationTime(JwtUtil.getClaims(getSubjectHandler().getInternSsoToken()));
-        } catch (Exception e) {
-            LOG.trace("Kunne ikke hente expiration dato fra token", e);
-            return null;
-        }
-    }
-
     private static HentPersonQueryRequest personQuery(String aktørId) {
         var q = new HentPersonQueryRequest();
         q.setIdent(aktørId);
@@ -81,7 +68,7 @@ public class PersonTjeneste implements PersonInformasjon {
         try {
             return Optional.ofNullable(cacheIdentTilAktørId.get(fnr)).or(() -> tilAktørId(fnr));
         } catch (PdlException e) {
-            LOG.warn("Kunne ikke hente aktørid fra fnr {} ({} {})", StringUtil.mask(fnr), e, expiresAt(), e);
+            LOG.warn("Kunne ikke hente aktørid fra fnr {}", StringUtil.mask(fnr), e);
             return Optional.empty();
         }
     }
@@ -91,7 +78,7 @@ public class PersonTjeneste implements PersonInformasjon {
         try {
             return Optional.ofNullable(cacheAktørIdTilIdent.get(aktørId)).or(() -> tilFnr(aktørId));
         } catch (PdlException e) {
-            LOG.warn("Kunne ikke hente fnr fra aktørid {} ({} {})", aktørId, e, expiresAt(), e);
+            LOG.warn("Kunne ikke hente fnr fra aktørid {}", aktørId, e);
             return Optional.empty();
         }
     }

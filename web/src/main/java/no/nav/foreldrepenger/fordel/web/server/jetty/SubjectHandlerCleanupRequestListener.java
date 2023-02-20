@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @WebListener
 public class SubjectHandlerCleanupRequestListener implements ServletRequestListener {
@@ -18,6 +19,10 @@ public class SubjectHandlerCleanupRequestListener implements ServletRequestListe
     @Override
     public void requestDestroyed(ServletRequestEvent sre) {
         try {
+            if (KontekstHolder.harKontekst()) {
+                KontekstHolder.fjernKontekst();
+                LOG.trace("KONTEKST fjernet fra KontekstHolder OK");
+            }
             var subjectHandler = SubjectHandler.getSubjectHandler();
             var subject = subjectHandler.getSubject();
             if (subject != null) {
