@@ -62,6 +62,7 @@ import no.nav.foreldrepenger.typer.JournalpostId;
 import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.konfig.Tid;
@@ -91,6 +92,7 @@ public class FerdigstillJournalføringRestTjeneste {
     private PersonInformasjon pdl;
     private ArkivTjeneste arkivTjeneste;
     private DokumentRepository dokumentRepository;
+    private Oppgaver oppgaver;
     private ProsessTaskTjeneste taskTjeneste;
 
     protected FerdigstillJournalføringRestTjeneste() {
@@ -102,12 +104,14 @@ public class FerdigstillJournalføringRestTjeneste {
                                                 Fagsak fagsak,
                                                 PersonInformasjon pdl,
                                                 ArkivTjeneste arkivTjeneste,
+                                                Oppgaver oppgaver,
                                                 ProsessTaskTjeneste taskTjeneste,
                                                 DokumentRepository dokumentRepository) {
         this.klargjører = klargjører;
         this.fagsak = fagsak;
         this.pdl = pdl;
         this.arkivTjeneste = arkivTjeneste;
+        this.oppgaver = oppgaver;
         this.taskTjeneste = taskTjeneste;
         this.dokumentRepository = dokumentRepository;
     }
@@ -283,10 +287,16 @@ public class FerdigstillJournalføringRestTjeneste {
         dokumentRepository.lagreJournalpostLokal(request.journalpostId(), journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
 
         if (request.oppgaveId() != null) {
-            var ferdigstillOppgaveTask = ProsessTaskData.forProsessTask(FerdigstillOppgaveTask.class);
-            ferdigstillOppgaveTask.setProperty(FerdigstillOppgaveTask.OPPGAVEID_KEY, String.valueOf(request.oppgaveId()));
-            ferdigstillOppgaveTask.setCallIdFraEksisterende();
-            taskTjeneste.lagre(ferdigstillOppgaveTask);
+            var oppgaveId = String.valueOf(request.oppgaveId());
+            try {
+                oppgaver.ferdigstillOppgave(oppgaveId);
+            } catch (Exception e) {
+                LOG.warn("Ferdigstilt oppgave med id {} feiler ", oppgaveId, e);
+                var ferdigstillOppgaveTask = ProsessTaskData.forProsessTask(FerdigstillOppgaveTask.class);
+                ferdigstillOppgaveTask.setProperty(FerdigstillOppgaveTask.OPPGAVEID_KEY, oppgaveId);
+                ferdigstillOppgaveTask.setCallIdFraEksisterende();
+                taskTjeneste.lagre(ferdigstillOppgaveTask);
+            }
         }
     }
 
