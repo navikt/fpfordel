@@ -35,6 +35,7 @@ import java.util.TimeZone;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -45,6 +46,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
+import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.FerdigstillOppgaveTask;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
@@ -52,6 +54,9 @@ import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.VLKlargjører;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 class FerdigstillJournalføringRestTjenesteTest {
@@ -59,6 +64,7 @@ class FerdigstillJournalføringRestTjenesteTest {
     private static final String JOURNALPOST_ID = "123";
     private static final String ENHETID = "4567";
     private static final String SAKSNUMMER = "789";
+    private static final Long OPPGAVE_ID = 123456L;
     private static final String AKTØR_ID = "9000000000009";
 
     static {
@@ -76,9 +82,11 @@ class FerdigstillJournalføringRestTjenesteTest {
     private PersonInformasjon aktør;
     @Mock
     private ArkivJournalpost journalpost;
+    @Mock
+    private ProsessTaskTjeneste taskTjeneste;
 
     private static FerdigstillJournalføringRestTjeneste.FerdigstillRequest req(String enhetid, String journalpostId, String sakId) {
-        return new FerdigstillJournalføringRestTjeneste.FerdigstillRequest(journalpostId, enhetid, sakId, null);
+        return new FerdigstillJournalføringRestTjeneste.FerdigstillRequest(journalpostId, enhetid, sakId, OPPGAVE_ID,null);
     }
 
     @BeforeEach
@@ -89,7 +97,7 @@ class FerdigstillJournalføringRestTjenesteTest {
         lenient().when(journalpost.getJournalposttype()).thenReturn(INNGÅENDE);
         lenient().when(arkiv.hentArkivJournalpost(JOURNALPOST_ID)).thenReturn(journalpost);
 
-        behandleDokument = new FerdigstillJournalføringRestTjeneste(klargjør, fagsak, aktør, arkiv, mock(DokumentRepository.class));
+        behandleDokument = new FerdigstillJournalføringRestTjeneste(klargjør, fagsak, aktør, arkiv, taskTjeneste, mock(DokumentRepository.class));
     }
 
     @Test
@@ -143,6 +151,11 @@ class FerdigstillJournalføringRestTjenesteTest {
         lenient().when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
         behandleDokument.oppdaterOgFerdigstillJournalfoering(req(ENHETID, JOURNALPOST_ID, SAKSNUMMER));
+        var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verify(taskTjeneste).lagre(taskCaptor.capture());
+        var taskdata = taskCaptor.getValue();
+        assertThat(taskdata.getTaskType()).isEqualTo(TaskType.forProsessTask(FerdigstillOppgaveTask.class).value());
+        assertThat(taskdata.getPropertyValue(FerdigstillOppgaveTask.OPPGAVEID_KEY)).isEqualTo(String.valueOf(OPPGAVE_ID));
     }
 
     @Test
