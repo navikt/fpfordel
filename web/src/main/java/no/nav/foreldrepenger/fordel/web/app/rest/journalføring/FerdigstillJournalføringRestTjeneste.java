@@ -59,7 +59,6 @@ import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.VLKlargjører;
 import no.nav.foreldrepenger.typer.AktørId;
 import no.nav.foreldrepenger.typer.JournalpostId;
-import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
@@ -82,7 +81,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Consumes(MediaType.APPLICATION_JSON)
 @ApplicationScoped
 @Transactional
-@Unprotected // midlertidig, fram til vi skrur over
 public class FerdigstillJournalføringRestTjeneste {
     static final String JOURNALPOST_IKKE_INNGÅENDE = "Journalpost ikke Inngående";
     static final String BRUKER_MANGLER = "Journalpost mangler knyting til bruker - prøv igjen om et halv minutt";
