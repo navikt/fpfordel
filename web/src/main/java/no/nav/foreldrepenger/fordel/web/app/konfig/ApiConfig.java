@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.fordel.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.rest.journalføring.FerdigstillJournalføringRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringRestTjeneste;
-import no.nav.foreldrepenger.fordel.web.app.tjenester.WhitelistingJwtTokenContainerRequestFilter;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
@@ -58,7 +57,7 @@ public class ApiConfig extends Application {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return Set.of(WhitelistingJwtTokenContainerRequestFilter.class, ProsessTaskRestTjeneste.class, FerdigstillJournalføringRestTjeneste.class,
+        return Set.of(ProsessTaskRestTjeneste.class, FerdigstillJournalføringRestTjeneste.class,
             DokumentforsendelseRestTjeneste.class, ManuellJournalføringRestTjeneste.class, ForvaltningRestTjeneste.class, OpenApiResource.class,
             MultiPartFeature.class, ConstraintViolationMapper.class, JsonMappingExceptionMapper.class, JsonParseExceptionMapper.class,
             GeneralRestExceptionMapper.class, JacksonJsonConfig.class);

@@ -19,6 +19,7 @@ import java.util.function.Function;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
@@ -63,7 +64,6 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.Dokumentforsend
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.FilMetadata;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseIdDto;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatusDto;
-import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -75,7 +75,7 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Path(DokumentforsendelseRestTjeneste.SERVICE_PATH)
 @Produces(APPLICATION_JSON)
 @RequestScoped
-@Unprotected // midlertidig, fram til vi skrur over
+@Transactional
 public class DokumentforsendelseRestTjeneste {
     public static final MediaType APPLICATION_PDF_TYPE = MediaType.valueOf("application/pdf");
     static final String SERVICE_PATH = "/dokumentforsendelse";

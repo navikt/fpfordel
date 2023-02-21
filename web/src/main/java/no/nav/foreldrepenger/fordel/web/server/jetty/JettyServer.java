@@ -1,15 +1,11 @@
 package no.nav.foreldrepenger.fordel.web.server.jetty;
 
-import static javax.servlet.DispatcherType.REQUEST;
 import static org.eclipse.jetty.webapp.MetaInfConfiguration.CONTAINER_JAR_PATTERN;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.LogManager;
 
 import javax.naming.NamingException;
@@ -36,8 +32,6 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.flywaydb.core.Flyway;
@@ -48,9 +42,6 @@ import org.slf4j.MDC;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.security.token.support.core.configuration.IssuerProperties;
-import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration;
-import no.nav.security.token.support.jaxrs.servlet.JaxrsJwtTokenValidationFilter;
 import no.nav.vedtak.sikkerhet.jaspic.OidcAuthModule;
 
 public class JettyServer {
@@ -158,7 +149,6 @@ public class JettyServer {
         ctx.setSecurityHandler(createSecurityHandler());
         ctx.setThrowUnavailableOnStartupException(true);
 
-        addTokenValidationFilter(ctx);
         return ctx;
     }
 
@@ -171,19 +161,6 @@ public class JettyServer {
         loginService.setIdentityService(new DefaultIdentityService());
         securityHandler.setLoginService(loginService);
         return securityHandler;
-    }
-
-    private static void addTokenValidationFilter(ServletContextHandler ctx) {
-        ctx.addFilter(new FilterHolder(new JaxrsJwtTokenValidationFilter(config())), "/api/*", EnumSet.of(REQUEST));
-    }
-
-    private static MultiIssuerConfiguration config() {
-        return new MultiIssuerConfiguration(Map.of(TOKENX, issuerProperties()));
-    }
-
-    private static IssuerProperties issuerProperties() {
-        return new IssuerProperties(ENV.getRequiredProperty("token.x.well.known.url", URL.class),
-            List.of(ENV.getRequiredProperty("token.x.client.id")));
     }
 
     protected void bootStrap() throws Exception {
