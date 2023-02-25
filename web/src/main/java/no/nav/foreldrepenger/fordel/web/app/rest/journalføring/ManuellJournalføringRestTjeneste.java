@@ -34,7 +34,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilType;
 import no.nav.foreldrepenger.fordel.web.app.konfig.ApiConfig;
@@ -107,7 +106,7 @@ public class ManuellJournalføringRestTjeneste {
         List<OppgaveDto> oppgaverPåSaksbehandlersEnheter = new ArrayList<>();
         tilhørendeEnheter.forEach(enhet -> {
             try {
-                oppgaverPåSaksbehandlersEnheter.addAll(oppgaver.finnÅpneOppgaverForEnhet(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), List.of(Oppgavetype.JOURNALFØRING.getKode()), enhet.enhetsnummer(), LIMIT)
+                oppgaverPåSaksbehandlersEnheter.addAll(oppgaver.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, enhet.enhetsnummer(), LIMIT)
                         .stream()
                         .filter(oppgave -> oppgave.aktoerId() != null)
                         .map(this::lagOppgaveDto)

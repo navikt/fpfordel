@@ -35,7 +35,7 @@
 
         <tjenestespesifikasjon.version>1.2021.02.22-10.45-4201aaea72fb</tjenestespesifikasjon.version>
 
-        <felles.version>4.2.28</felles.version>
+        <felles.version>4.2.30</felles.version>
         <prosesstask.version>3.1.21</prosesstask.version>
         <fp-kontrakter.version>6.2.10</fp-kontrakter.version>
 
