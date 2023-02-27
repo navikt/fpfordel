@@ -26,6 +26,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,7 +106,7 @@ public class ManuellJournalføringRestTjeneste {
         }
 
         List<OppgaveDto> oppgaverPåSaksbehandlersEnheter = new ArrayList<>();
-        tilhørendeEnheter.forEach(enhet -> {
+        for (TilhørendeEnhetDto enhet : tilhørendeEnheter) {
             try {
                 oppgaverPåSaksbehandlersEnheter.addAll(oppgaver.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, enhet.enhetsnummer(), LIMIT)
                         .stream()
@@ -112,9 +114,9 @@ public class ManuellJournalføringRestTjeneste {
                         .map(this::lagOppgaveDto)
                         .toList());
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException("FPFORDEL feilet å hente åpne oppgaver for enhet " + enhet + " med melding {} ", e);
             }
-        });
+        }
         return oppgaverPåSaksbehandlersEnheter;
     }
 
@@ -175,15 +177,15 @@ public class ManuellJournalføringRestTjeneste {
             mapBrukersFagsaker(journalpost.getBrukerAktørId().orElse(null)));
     }
 
-    private Set<JournalpostDetaljerDto.FagsakDto> mapBrukersFagsaker(String aktørId) {
+    private Set<JournalpostDetaljerDto.SakDto> mapBrukersFagsaker(String aktørId) {
         if (aktørId == null) {
             return Set.of();
         }
         return fagsak.hentBrukersSaker(new AktørIdDto(aktørId))
             .stream()
-            .map(
-                sak -> new JournalpostDetaljerDto.FagsakDto(sak.saksnummer().getSaksnummer(), sak.ytelseType(), sak.opprettetDato(), sak.endretDato(),
-                    sak.status()))
+            .map(sak -> new JournalpostDetaljerDto.SakDto(sak.saksnummer().getSaksnummer(), sak.ytelseType(), sak.opprettetDato(),
+                sak.endretDato() != null ? sak.endretDato() : null, sak.status(), sak.gjeldendeFamiliehendelseDato() != null ?
+                sak.gjeldendeFamiliehendelseDato() : null))
             .collect(Collectors.toSet());
     }
 

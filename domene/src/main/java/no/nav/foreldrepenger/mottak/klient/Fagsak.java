@@ -21,5 +21,5 @@ public interface Fagsak {
 
     VurderFagsystemResultat vurderFagsystem(MottakMeldingDataWrapper w);
 
-    List<FagSakInfoDto> hentBrukersSaker(AktørIdDto aktørId);
+    List<SakInfoDto> hentBrukersSaker(AktørIdDto aktørId);
 }

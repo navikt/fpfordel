@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.AktørIdDto;
-import no.nav.foreldrepenger.mottak.klient.FagSakInfoDto;
+import no.nav.foreldrepenger.mottak.klient.SakInfoDto;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.StatusDto;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
@@ -53,9 +53,7 @@ class JournalpostValideringTjenesteTest {
     @Test
     @DisplayName("Exception om oppgitt YtelseType er null.")
     void kast_exception_om_ytelseType_ikke_finnes() {
-        var exception = assertThrows(NullPointerException.class, () -> {
-            tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, null, AKTØR_ID);
-        });
+        var exception = assertThrows(NullPointerException.class, () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, null, AKTØR_ID));
 
         var expectedMessage = "Ugyldig input: YtelseType kan ikke være null ved opprettelse av en sak";
         var actualMessage = exception.getMessage();
@@ -63,12 +61,11 @@ class JournalpostValideringTjenesteTest {
         assertTrue(actualMessage.contains(expectedMessage));
     }
 
+
     @Test
     @DisplayName("Exception om oppgitt JournalpostId er null.")
     void kast_exception_om_journalpostId_ikke_finnes() {
-        var exception = assertThrows(NullPointerException.class, () -> {
-            tjeneste.validerKonsistensMedSak(null, YtelseType.SVANGERSKAPSPENGER, AKTØR_ID);
-        });
+        var exception = assertThrows(NullPointerException.class, () -> tjeneste.validerKonsistensMedSak(null, YtelseType.SVANGERSKAPSPENGER, AKTØR_ID));
 
         var expectedMessage = "Ugyldig input: JournalpostId kan ikke være null ved opprettelse av en sak";
         var actualMessage = exception.getMessage();
@@ -79,9 +76,7 @@ class JournalpostValideringTjenesteTest {
     @Test
     @DisplayName("Exception om oppgitt AktørId er null.")
     void kast_exception_om_aktørId_ikke_finnes() {
-        var exception = assertThrows(NullPointerException.class, () -> {
-            tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, YtelseType.ENGANGSTØNAD, null);
-        });
+        var exception = assertThrows(NullPointerException.class, () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, YtelseType.ENGANGSTØNAD, null));
 
         var expectedMessage = "Ugyldig input: AktørId kan ikke være null ved opprettelse av en sak";
         var actualMessage = exception.getMessage();
@@ -110,9 +105,7 @@ class JournalpostValideringTjenesteTest {
 
         var offisiellKode = YtelseType.ENGANGSTØNAD;
 
-        var exception = assertThrows(FunksjonellException.class, () -> {
-            tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID);
-        });
+        var exception = assertThrows(FunksjonellException.class, () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID));
 
         var expectedMessage = "FP-785359:Dokument og valgt ytelsetype i uoverenstemmelse";
         var actualMessage = exception.getMessage();
@@ -133,9 +126,7 @@ class JournalpostValideringTjenesteTest {
         when(journalpost.getStrukturertPayload()).thenReturn("ytelse>FORELDREPENGER<");
 
         var offisiellKode = YtelseType.SVANGERSKAPSPENGER;
-        var exception = assertThrows(FunksjonellException.class, () -> {
-            tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID);
-        });
+        var exception = assertThrows(FunksjonellException.class, () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID));
 
         var expectedMessage = "FP-785359:Dokument og valgt ytelsetype i uoverenstemmelse";
         var actualMessage = exception.getMessage();
@@ -155,15 +146,13 @@ class JournalpostValideringTjenesteTest {
         when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.INNTEKTSMELDING);
         when(journalpost.getStrukturertPayload()).thenReturn("YTELSE>FORELDREPENGER<");
 
-        var brukersFagsaker = List.of(opprettFagsakInfo(YtelseTypeDto.FORELDREPENGER, StatusDto.LØPENDE),
-            opprettFagsakInfo(YtelseTypeDto.FORELDREPENGER, StatusDto.AVSLUTTET),
-            opprettFagsakInfo(YtelseTypeDto.SVANGERSKAPSPENGER, StatusDto.LØPENDE));
+        var brukersFagsaker = List.of(opprettSakInfo(YtelseTypeDto.FORELDREPENGER, StatusDto.LØPENDE),
+            opprettSakInfo(YtelseTypeDto.FORELDREPENGER, StatusDto.AVSLUTTET),
+            opprettSakInfo(YtelseTypeDto.SVANGERSKAPSPENGER, StatusDto.LØPENDE));
         when(fagsak.hentBrukersSaker(new AktørIdDto(AKTØR_ID.getId()))).thenReturn(brukersFagsaker);
 
         var offisiellKode = YtelseType.FORELDREPENGER;
-        var exception = assertThrows(TekniskException.class, () -> {
-            tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID);
-        });
+        var exception = assertThrows(TekniskException.class, () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID));
 
         var expectedMessage = "FP-34238:Kan ikke journalføre FP inntektsmelding på en ny sak fordi det finnes en aktiv foreldrepenger sak allerede.";
         var actualMessage = exception.getMessage();
@@ -182,9 +171,7 @@ class JournalpostValideringTjenesteTest {
         when(journalpost.getStrukturertPayload()).thenReturn("ytelse>SVANGERSKAPSPENGER<");
 
         var offisiellKode = YtelseType.FORELDREPENGER;
-        var exception = assertThrows(FunksjonellException.class, () -> {
-            tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID);
-        });
+        var exception = assertThrows(FunksjonellException.class, () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID));
 
         var expectedMessage = "FP-785359:Dokument og valgt ytelsetype i uoverenstemmelse";
         var actualMessage = exception.getMessage();
@@ -205,9 +192,7 @@ class JournalpostValideringTjenesteTest {
 
         var offisiellKode = YtelseType.FORELDREPENGER;
 
-        var exception = assertThrows(FunksjonellException.class, () -> {
-            tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID);
-        });
+        var exception = assertThrows(FunksjonellException.class, () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID));
 
         var expectedMessage = "FP-785359:Dokument og valgt ytelsetype i uoverenstemmelse";
         var actualMessage = exception.getMessage();
@@ -219,7 +204,7 @@ class JournalpostValideringTjenesteTest {
         assertTrue(løsningsforslag.contains(expectedLøsningsforslag));
     }
 
-    private FagSakInfoDto opprettFagsakInfo(YtelseTypeDto ytelseType, StatusDto ytelseStatus) {
-        return new FagSakInfoDto(new SaksnummerDto("12345"), ytelseType, LocalDate.now(), LocalDate.now(), ytelseStatus);
+    private SakInfoDto opprettSakInfo(YtelseTypeDto ytelseType, StatusDto ytelseStatus) {
+        return new SakInfoDto(new SaksnummerDto("12345"), ytelseType, LocalDate.now(), LocalDate.now(), ytelseStatus, LocalDate.now());
     }
 }
