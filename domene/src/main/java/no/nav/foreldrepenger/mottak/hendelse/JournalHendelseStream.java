@@ -17,14 +17,13 @@ import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
 import no.nav.vedtak.felles.integrasjon.kafka.KafkaProperties;
 import no.nav.vedtak.log.metrics.Controllable;
-import no.nav.vedtak.log.metrics.LivenessAware;
-import no.nav.vedtak.log.metrics.ReadinessAware;
+import no.nav.vedtak.log.metrics.LiveAndReadinessAware;
 
 /*
  * Dokumentasjon https://confluence.adeo.no/pages/viewpage.action?pageId=432217859
  */
 @ApplicationScoped
-public class JournalHendelseStream implements LivenessAware, ReadinessAware, Controllable {
+public class JournalHendelseStream implements LiveAndReadinessAware, Controllable {
 
     private static final Logger LOG = LoggerFactory.getLogger(JournalHendelseStream.class);
 

@@ -10,11 +10,10 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.vedtak.log.metrics.LivenessAware;
-import no.nav.vedtak.log.metrics.ReadinessAware;
+import no.nav.vedtak.log.metrics.LiveAndReadinessAware;
 
 @ApplicationScoped
-public class DatabaseHealthCheck implements ReadinessAware, LivenessAware {
+public class DatabaseHealthCheck implements LiveAndReadinessAware {
 
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseHealthCheck.class);
     private static final String JDBC_DEFAULT_DS = "jdbc/defaultDS";

@@ -43,7 +43,7 @@ public class ApplicationServiceStarter {
             .map(h -> runAsync(h::start))
             .toArray(CompletableFuture[]::new))
             .join();
-        LOGGER.info("Startet  {} services", handlers.size());
+        LOGGER.info("Startet {} services", handlers.size());
     }
 
     public void stopServices() {
