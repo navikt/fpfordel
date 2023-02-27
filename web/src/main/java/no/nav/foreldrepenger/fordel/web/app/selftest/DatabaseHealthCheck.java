@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.fordel.dbstoette;
+package no.nav.foreldrepenger.fordel.web.app.selftest;
 
 import java.sql.SQLException;
 

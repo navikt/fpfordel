@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.fordel.web.app.tjenester;
 
-import no.nav.vedtak.apptjeneste.AppServiceHandler;
+import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,15 +8,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.mockito.Mockito.verify;
+import no.nav.vedtak.log.metrics.Controllable;
 
 @ExtendWith(MockitoExtension.class)
-public class ApplicationServiceStarterImplTest {
+class ApplicationServiceStarterImplTest {
 
     private ApplicationServiceStarter serviceStarter;
 
     @Mock
-    private AppServiceHandler service;
+    private Controllable service;
 
     @BeforeEach
     public void setup() {
@@ -24,7 +24,7 @@ public class ApplicationServiceStarterImplTest {
     }
 
     @Test
-    public void test_skal_kalle_AppServiceHandler_start_og_stop() {
+    void test_skal_kalle_AppServiceHandler_start_og_stop() {
         serviceStarter.startServices();
         serviceStarter.stopServices();
         verify(service).start();
