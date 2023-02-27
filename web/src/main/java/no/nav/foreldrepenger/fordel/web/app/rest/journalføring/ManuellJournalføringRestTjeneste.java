@@ -28,6 +28,8 @@ import javax.ws.rs.core.Response;
 
 import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
 
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,6 +101,15 @@ public class ManuellJournalføringRestTjeneste {
     @Operation(description = "Henter alle åpne journalføringsoppgaver for tema FOR og for saksbehandlers tilhørende enhet.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public List<OppgaveDto> hentÅpneOppgaverForSaksbehandler(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("ident") @NotNull @Valid SaksbehandlerIdentDto saksbehandlerIdentDto) {
+        //Midlertidig for å kunne verifisere i produksjon - fjernes når verifisert ok
+        if (ENV.isProd() && ("J116396".equals(KontekstHolder.getKontekst().getUid()) || "W119202".equals(KontekstHolder.getKontekst().getUid()))) {
+            return oppgaver.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null , LIMIT)
+                .stream()
+                .filter(oppgave -> oppgave.aktoerId() != null)
+                .map(this::lagOppgaveDto)
+                .toList();
+        }
+
         var tilhørendeEnheter = los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident());
 
         if (tilhørendeEnheter.isEmpty()) {
