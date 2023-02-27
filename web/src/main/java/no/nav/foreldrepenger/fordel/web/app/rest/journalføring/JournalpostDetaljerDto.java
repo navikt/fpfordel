@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 
 public record JournalpostDetaljerDto(@NotNull String journalpostId, @NotNull String tittel, @NotNull String behandlingTema, String kanal,
                                      @Valid BrukerDto bruker, @Valid AvsenderDto avsender, @Valid YtelseTypeDto ytelseType,
-                                     @NotNull @Valid @Size(min = 1) Set<DokumentDto> dokumenter, @Valid Set<FagsakDto> fagsaker) {
+                                     @NotNull @Valid @Size(min = 1) Set<DokumentDto> dokumenter, @Valid Set<SakDto> fagsaker) {
 
     public record BrukerDto(@NotNull String navn, @NotNull String fnr, @NotNull String aktørId) {
     }
@@ -24,8 +24,7 @@ public record JournalpostDetaljerDto(@NotNull String journalpostId, @NotNull Str
     public record DokumentDto(@NotNull String dokumentId, @NotNull String tittel, @NotNull String lenke) {
     }
 
-    public record FagsakDto(@NotNull String saksnummer, @NotNull @Valid YtelseTypeDto ytelseType, @NotNull LocalDate datoOpprettet,
-                            @NotNull LocalDate sistEndret, @NotNull @Valid StatusDto status) {
+    public record SakDto(@NotNull String saksnummer, @NotNull @Valid YtelseTypeDto ytelseType, @NotNull LocalDate datoOpprettet, LocalDate sistEndret, @NotNull @Valid StatusDto status, LocalDate gjeldendeFamiliehendelseDato) {
     }
 
 }
