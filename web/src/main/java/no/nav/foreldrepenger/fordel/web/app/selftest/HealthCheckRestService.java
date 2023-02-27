@@ -33,7 +33,7 @@ public class HealthCheckRestService {
     private List<ReadinessAware> ready;
     private ApplicationServiceStarter starter;
 
-    public HealthCheckRestService() {
+    HealthCheckRestService() {
         // CDI
     }
 
@@ -51,7 +51,7 @@ public class HealthCheckRestService {
     }
 
     private static CacheControl cacheControl() {
-        CacheControl cc = new CacheControl();
+        var cc = new CacheControl();
         cc.setNoCache(true);
         cc.setNoStore(true);
         cc.setMustRevalidate(true);
@@ -60,30 +60,31 @@ public class HealthCheckRestService {
 
     @GET
     @Path("isAlive")
-    @Operation(description = "sjekker om poden lever", tags = "nais", hidden = true)
+    @Operation(description = "Sjekker om poden lever", tags = "nais", hidden = true)
     public Response isAlive() {
         if (live.stream().allMatch(LivenessAware::isAlive)) {
             return Response.ok(RESPONSE_OK).cacheControl(CC).build();
         }
+        LOG.info("/isAlive NOK.");
         return Response.serverError().cacheControl(CC).build();
     }
 
     @GET
     @Path("isReady")
-    @Operation(description = "sjekker om poden er klar", tags = "nais", hidden = true)
+    @Operation(description = "Sjekker om poden er klar", tags = "nais", hidden = true)
     public Response isReady() {
-        cacheControl();
         if (ready.stream().allMatch(ReadinessAware::isReady)) {
             return Response.ok(RESPONSE_OK).cacheControl(CC).build();
         }
+        LOG.info("/isReady NOK.");
         return Response.status(SERVICE_UNAVAILABLE).cacheControl(CC).build();
     }
 
     @GET
     @Path("preStop")
-    @Operation(description = "kalles på før stopp", tags = "nais", hidden = true)
+    @Operation(description = "Kalles på før stopp", tags = "nais", hidden = true)
     public Response preStop() {
-        LOG.info("preStop endepunkt kalt");
+        LOG.info("preStop endepunkt kalt.");
         starter.stopServices();
         return Response.ok(RESPONSE_OK).build();
     }
