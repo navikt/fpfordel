@@ -13,39 +13,45 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.vedtak.apptjeneste.AppServiceHandler;
+import no.nav.vedtak.log.metrics.Controllable;
 
 @ApplicationScoped
 public class ApplicationServiceStarter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationServiceStarter.class);
-    private List<AppServiceHandler> handlers;
+    private List<Controllable> handlers;
 
     ApplicationServiceStarter() {
     }
 
     @Inject
-    public ApplicationServiceStarter(@Any Instance<AppServiceHandler> handlers) {
+    public ApplicationServiceStarter(@Any Instance<Controllable> handlers) {
         this(handlers.stream().toList());
     }
 
-    ApplicationServiceStarter(AppServiceHandler handler) {
+    ApplicationServiceStarter(Controllable handler) {
         this(List.of(handler));
     }
 
-    ApplicationServiceStarter(List<AppServiceHandler> handlers) {
+    ApplicationServiceStarter(List<Controllable> handlers) {
         this.handlers = handlers;
     }
 
     public void startServices() {
         LOGGER.info("Starter {} services", handlers.size());
-        CompletableFuture.allOf(handlers.stream().map(h -> runAsync(h::start)).toArray(CompletableFuture[]::new)).join();
+        CompletableFuture.allOf(handlers.stream()
+            .map(h -> runAsync(h::start))
+            .toArray(CompletableFuture[]::new))
+            .join();
         LOGGER.info("Startet  {} services", handlers.size());
     }
 
     public void stopServices() {
         LOGGER.info("Stopper {} services", handlers.size());
-        CompletableFuture.allOf(handlers.stream().map(h -> runAsync(h::stop)).toArray(CompletableFuture[]::new)).join();
+        CompletableFuture.allOf(handlers.stream()
+            .map(h -> runAsync(h::stop))
+            .toArray(CompletableFuture[]::new))
+            .join();
         LOGGER.info("Stoppet {} services", handlers.size());
     }
 
