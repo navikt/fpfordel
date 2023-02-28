@@ -24,11 +24,10 @@ class ApplicationServiceStarterListenerImplTest {
     }
 
     @Test
-    void test_skal_kalle_AppServiceHandler_start_og_stop() {
+    void test_skal_kalle_Controllable_start_og_stop() {
         serviceStarter.startServices();
         serviceStarter.stopServices();
         verify(service).start();
         verify(service).stop();
     }
-
 }
