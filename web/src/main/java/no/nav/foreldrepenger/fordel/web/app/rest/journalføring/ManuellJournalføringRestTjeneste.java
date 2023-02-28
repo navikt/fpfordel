@@ -28,6 +28,7 @@ import javax.ws.rs.core.Response;
 
 import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
 
+import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 import org.slf4j.Logger;
@@ -110,10 +111,11 @@ public class ManuellJournalføringRestTjeneste {
                 .toList();
         }
 
-        var tilhørendeEnheter = los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident());
-
-        if (tilhørendeEnheter.isEmpty()) {
-            throw new IllegalStateException(String.format("Det forventes at saksbehandler %s har minst en tilførende enhet. Fant ingen.", saksbehandlerIdentDto.ident()));
+        List<TilhørendeEnhetDto> tilhørendeEnheter;
+        try {
+            tilhørendeEnheter = los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident());
+        } catch (IntegrasjonException e) {
+            throw new IllegalStateException(String.format("Saksbehandler med ident %s er ikke lagt til i noen behandlingskøer.", saksbehandlerIdentDto.ident()));
         }
 
         List<OppgaveDto> oppgaverPåSaksbehandlersEnheter = new ArrayList<>();

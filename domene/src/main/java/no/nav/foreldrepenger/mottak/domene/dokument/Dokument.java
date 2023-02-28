@@ -143,7 +143,6 @@ public class Dokument extends BaseEntitet {
         }
 
         private void verifyStateForBuild() {
-            // TODO humle vurder denne når vi har full oversikt over hva som er påkrevd
             Objects.requireNonNull(blob);
             Objects.requireNonNull(dokumentTypeId);
             Objects.requireNonNull(hovedDokument);

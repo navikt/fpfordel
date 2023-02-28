@@ -69,7 +69,7 @@ class ManuellJournalføringRestTjenesteTest {
 
     @Test
     @DisplayName("/oppgaver - 1 oppgave = liste med 1 oppgave.")
-    void skal_levere_en_liste_med_oppgaver() throws Exception {
+    void skal_levere_en_liste_med_oppgaver() {
         var expectedId = 123L;
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
@@ -125,7 +125,7 @@ class ManuellJournalføringRestTjenesteTest {
 
     @Test
     @DisplayName("/oppgaver - fnr på plass om aktør finnes.")
-    void skal_levere_fnr_om_finnes() throws Exception {
+    void skal_levere_fnr_om_finnes() {
         var expectedId = 123L;
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
@@ -151,7 +151,7 @@ class ManuellJournalføringRestTjenesteTest {
 
     @Test
     @DisplayName("/oppgaver - ytelseType = Ukjent - om ikke FP behandlingTema")
-    void skal_ha_ytelse_type_ukjent_om_det_ikke_lar_seg_utlede_fra_behandlingstema() throws Exception {
+    void skal_ha_ytelse_type_ukjent_om_det_ikke_lar_seg_utlede_fra_behandlingstema() {
         var expectedId = 123L;
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
@@ -169,7 +169,7 @@ class ManuellJournalføringRestTjenesteTest {
 
     @Test
     @DisplayName("/oppgaver - ytelseType = Ukjent - om ikke FP behandlingTema")
-    void skal_ha_mangler_om_tittel_er_ukjent() throws Exception {
+    void skal_ha_mangler_om_tittel_er_ukjent() {
         var expectedId = 123L;
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
@@ -188,7 +188,7 @@ class ManuellJournalføringRestTjenesteTest {
 
     @Test
     @DisplayName("/oppgaver - ytelseType = Ukjent - om ikke FP behandlingTema")
-    void skal_ikke_ha_mangler_om_tittel_er_kjent_og_bruker_ikke_er_null() throws Exception {
+    void skal_ikke_ha_mangler_om_tittel_er_kjent_og_bruker_ikke_er_null() {
         var expectedId = 123L;
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
@@ -207,7 +207,7 @@ class ManuellJournalføringRestTjenesteTest {
 
     @Test
     @DisplayName("/oppgaver - ytelseType = Ukjent - om ikke FP behandlingTema")
-    void skal_kutte_beskrivelse_iht_regler() throws Exception {
+    void skal_kutte_beskrivelse_iht_regler() {
         var expectedId = 123L;
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
