@@ -5,9 +5,8 @@ metadata:
   namespace: teamforeldrepenger
   labels:
     team: teamforeldrepenger
-
 spec:
-  image:  {{image}}
+  image: {{image}}
   port: 8080
   ingresses:
 {{#each ingresses as |url|}}
@@ -15,22 +14,22 @@ spec:
 {{/each}}
   liveness:
     path: /fpfordel/internal/health/isAlive
-    port: 8080
-    initialDelay: 45
+    initialDelay: 10
     periodSeconds: 10
-    failureThreshold: 27
+    failureThreshold: 20
     timeout: 3
-  preStopHookPath: /fpfordel/internal/health/preStop
+  readiness:
+    path: /fpfordel/internal/health/isReady
+    initialDelay: 10
+    periodSeconds: 10
+    failureThreshold: 20
+    timeout: 3
+  preStopHook:
+    http:
+      path: /fpfordel/internal/health/preStop
   prometheus:
     enabled: true
     path: /fpfordel/internal/metrics/prometheus
-  readiness:
-    path: /fpfordel/internal/health/isReady
-    port: 8080
-    initialDelay: 45
-    periodSeconds: 10
-    failureThreshold: 27
-    timeout: 3
   replicas:
     min: {{minReplicas}}
     max: {{maxReplicas}}

@@ -1,14 +1,12 @@
 package no.nav.foreldrepenger.fordel.web.app.tjenester;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 @WebListener
-@ApplicationScoped
-public class ServiceStarter implements ServletContextListener {
+public class ServiceStarterListener implements ServletContextListener {
 
     @Inject
     private ApplicationServiceStarter applicationServiceStarter; // NOSONAR - vil ikke fungere med constructor innjection
