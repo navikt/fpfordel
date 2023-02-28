@@ -2,8 +2,10 @@ package no.nav.foreldrepenger.fordel.web.app.tjenester;
 
 import static java.util.concurrent.CompletableFuture.runAsync;
 
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
@@ -13,51 +15,56 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.prometheus.client.hotspot.DefaultExports;
 import no.nav.vedtak.log.metrics.Controllable;
 
 @ApplicationScoped
 public class ApplicationServiceStarter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationServiceStarter.class);
-    private List<Controllable> handlers;
+    private Set<Controllable> services;
 
     ApplicationServiceStarter() {
+        // CDI
     }
 
     @Inject
-    public ApplicationServiceStarter(@Any Instance<Controllable> handlers) {
-        this(handlers.stream().toList());
+    public ApplicationServiceStarter(@Any Instance<Controllable> services) {
+        this(services.stream().collect(Collectors.toSet()));
     }
 
-    ApplicationServiceStarter(Controllable handler) {
-        this(List.of(handler));
+    ApplicationServiceStarter(Controllable service) {
+        this(Set.of(service));
     }
 
-    ApplicationServiceStarter(List<Controllable> handlers) {
-        this.handlers = handlers;
+    ApplicationServiceStarter(Set<Controllable> services) {
+        this.services = services;
     }
 
     public void startServices() {
-        LOGGER.info("Starter {} services", handlers.size());
-        CompletableFuture.allOf(handlers.stream()
-            .map(h -> runAsync(h::start))
-            .toArray(CompletableFuture[]::new))
-            .join();
-        LOGGER.info("Startet {} services", handlers.size());
+        // Prometheus
+        DefaultExports.initialize();
+
+        // Services
+        LOGGER.info("Starter {} services", services.size());
+        CompletableFuture.allOf(services.stream().map(service -> runAsync(service::start)).toArray(CompletableFuture[]::new)).join();
+        LOGGER.info("Startet {} services", services.size());
     }
 
     public void stopServices() {
-        LOGGER.info("Stopper {} services", handlers.size());
-        CompletableFuture.allOf(handlers.stream()
-            .map(h -> runAsync(h::stop))
-            .toArray(CompletableFuture[]::new))
+        LOGGER.info("Stopper {} services", services.size());
+        CompletableFuture.allOf(services.stream().map(service -> runAsync(service::stop)).toArray(CompletableFuture[]::new))
+            .orTimeout(31, TimeUnit.SECONDS)
             .join();
-        LOGGER.info("Stoppet {} services", handlers.size());
+        LOGGER.info("Stoppet {} services", services.size());
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [handlers=" + handlers + "]";
+        return getClass().getSimpleName() + " [services=" + services
+            .stream()
+            .map(Object::getClass)
+            .map(Class::getSimpleName)
+            .collect(Collectors.joining(", ")) + "]";
     }
-
 }

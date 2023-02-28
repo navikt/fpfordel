@@ -59,7 +59,7 @@ public class HealthCheckRestService {
     }
 
     @GET
-    @Path("isAlive")
+    @Path("/isAlive")
     @Operation(description = "Sjekker om poden lever", tags = "nais", hidden = true)
     public Response isAlive() {
         if (live.stream().allMatch(LivenessAware::isAlive)) {
@@ -70,7 +70,7 @@ public class HealthCheckRestService {
     }
 
     @GET
-    @Path("isReady")
+    @Path("/isReady")
     @Operation(description = "Sjekker om poden er klar", tags = "nais", hidden = true)
     public Response isReady() {
         if (ready.stream().allMatch(ReadinessAware::isReady)) {
@@ -81,10 +81,11 @@ public class HealthCheckRestService {
     }
 
     @GET
-    @Path("preStop")
+    @Path("/preStop")
     @Operation(description = "Kalles på før stopp", tags = "nais", hidden = true)
     public Response preStop() {
-        LOG.info("preStop endepunkt kalt.");
+        LOG.info("/preStop endepunkt kalt.");
+        LOG.info("/preStop endepunkt kalt.");
         starter.stopServices();
         return Response.ok(RESPONSE_OK).build();
     }
