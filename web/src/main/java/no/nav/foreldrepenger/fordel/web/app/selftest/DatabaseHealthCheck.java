@@ -2,9 +2,8 @@ package no.nav.foreldrepenger.fordel.web.app.selftest;
 
 import java.sql.SQLException;
 
+import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
@@ -18,12 +17,12 @@ public class DatabaseHealthCheck implements LiveAndReadinessAware {
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseHealthCheck.class);
     private static final String JDBC_DEFAULT_DS = "jdbc/defaultDS";
     private static final String SQL_QUERY = "select 1 from DUAL";
-    private final DataSource dataSource;
-    // må være rask, og bruke et stabilt tabell-navn
 
-    public DatabaseHealthCheck() throws NamingException {
-        dataSource = (DataSource) new InitialContext().lookup(JDBC_DEFAULT_DS);
-        LOG.trace("Datasource er {}", dataSource);
+    @Resource(mappedName = JDBC_DEFAULT_DS)
+    private DataSource dataSource;
+
+    DatabaseHealthCheck() {
+        // CDI
     }
 
     private boolean isOK() {
