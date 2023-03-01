@@ -1,7 +1,8 @@
 package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static no.nav.foreldrepenger.mapper.YtelseTypeMapper.mapTilDto;
+import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.mapFagsakStatusTilStatusDto;
+import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.mapYtelseTypeTilDto;
 
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
@@ -26,18 +27,10 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
-
-import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilType;
 import no.nav.foreldrepenger.fordel.web.app.konfig.ApiConfig;
@@ -49,24 +42,24 @@ import no.nav.foreldrepenger.mottak.journal.saf.DokumentInfo;
 import no.nav.foreldrepenger.mottak.klient.AktørIdDto;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.Los;
+import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @Path(ManuellJournalføringRestTjeneste.JOURNALFOERING_PATH)
 @RequestScoped
 @Transactional
 public class ManuellJournalføringRestTjeneste {
-    private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringRestTjeneste.class);
     private static final Environment ENV = Environment.current();
 
     public static final String JOURNALFOERING_PATH = "/journalfoering";
@@ -111,7 +104,6 @@ public class ManuellJournalføringRestTjeneste {
         }
 
         var tilhørendeEnheter = los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident());
-
         if (tilhørendeEnheter.isEmpty()) {
             throw new IllegalStateException(String.format("Det forventes at saksbehandler %s har minst en tilførende enhet. Fant ingen.", saksbehandlerIdentDto.ident()));
         }
@@ -173,33 +165,30 @@ public class ManuellJournalføringRestTjeneste {
 
     private static Set<JournalpostDetaljerDto.DokumentDto> mapDokumenter(String journalpostId, List<DokumentInfo> dokumenter) {
         return dokumenter.stream()
-                .map(dok -> new JournalpostDetaljerDto.DokumentDto(dok.dokumentInfoId(), dok.tittel(),
-                        String.format("%s?journalpostId=%s&dokumentId=%s", FULL_HENT_DOKUMENT_PATH, journalpostId, dok.dokumentInfoId())))
-                .collect(Collectors.toSet());
+            .map(dok -> new JournalpostDetaljerDto.DokumentDto(dok.dokumentInfoId(), dok.tittel(),
+                String.format("%s?journalpostId=%s&dokumentId=%s", FULL_HENT_DOKUMENT_PATH, journalpostId, dok.dokumentInfoId())))
+            .collect(Collectors.toSet());
     }
 
-    private JournalpostDetaljerDto mapTilJournalpostDetaljerDto(ArkivJournalpost journalpost) {
+    JournalpostDetaljerDto mapTilJournalpostDetaljerDto(ArkivJournalpost journalpost) {
         return new JournalpostDetaljerDto(journalpost.getJournalpostId(), journalpost.getTittel().orElse(""),
             journalpost.getBehandlingstema().getOffisiellKode(), journalpost.getKanal(),
             journalpost.getBrukerAktørId().map(this::mapBruker).orElse(null),
             new JournalpostDetaljerDto.AvsenderDto(journalpost.getAvsenderNavn(), journalpost.getAvsenderIdent()),
-            mapTilDto(journalpost.getBehandlingstema().utledYtelseType()),
+            mapYtelseTypeTilDto(journalpost.getBehandlingstema().utledYtelseType()),
             mapDokumenter(journalpost.getJournalpostId(), journalpost.getOriginalJournalpost().dokumenter()),
             mapBrukersFagsaker(journalpost.getBrukerAktørId().orElse(null)));
     }
 
-    private Set<JournalpostDetaljerDto.SakDto> mapBrukersFagsaker(String aktørId) {
+    private List<JournalpostDetaljerDto.SakJournalføringDto> mapBrukersFagsaker(String aktørId) {
         if (aktørId == null) {
-            return Set.of();
+            return List.of();
         }
-        return fagsak.hentBrukersSaker(new AktørIdDto(aktørId))
-            .stream()
-            .map(sak -> new JournalpostDetaljerDto.SakDto(sak.saksnummer().getSaksnummer(), sak.ytelseType(), sak.opprettetDato(),
-                sak.endretDato() != null ? sak.endretDato() : null, sak.status(), sak.gjeldendeFamiliehendelseDato() != null ?
-                sak.gjeldendeFamiliehendelseDato() : null))
-            .collect(Collectors.toSet());
+        return fagsak.hentBrukersSaker(new AktørIdDto(aktørId)).stream()
+            .map(sak -> new JournalpostDetaljerDto.SakJournalføringDto(sak.saksnummer(), mapYtelseTypeTilDto(sak.fagSakYtelseTypeDto()), sak.opprettetDato(), mapFagsakStatusTilStatusDto(sak.status()),
+                new JournalpostDetaljerDto.SakJournalføringDto.FamilieHendelseJournalføringDto(sak.familiehendelseInfoDto().familiehendelseDato(), ManuellJournalføringMapper.mapHendelseTypeJF(sak.familiehendelseInfoDto().familihendelseType())),
+                sak.førsteUttaksdato())).toList();
     }
-
     private JournalpostDetaljerDto.BrukerDto mapBruker(String aktørId) {
         if (aktørId != null) {
             var fnr = pdl.hentPersonIdentForAktørId(aktørId).orElseThrow(() -> new IllegalStateException("Mangler fnr for aktørid"));
@@ -210,51 +199,10 @@ public class ManuellJournalføringRestTjeneste {
     }
 
     private OppgaveDto lagOppgaveDto(Oppgave oppgave) {
-        var trimmetBeskrivelse = tekstFraBeskrivelse(oppgave.beskrivelse());
+        var trimmetBeskrivelse = ManuellJournalføringMapper.tekstFraBeskrivelse(oppgave.beskrivelse());
         return new OppgaveDto(oppgave.id(), oppgave.journalpostId(), oppgave.aktoerId(), hentPersonIdent(oppgave.aktoerId()).orElse(null),
-            mapTilYtelseType(oppgave.behandlingstema()), oppgave.fristFerdigstillelse(), mapPrioritet(oppgave.prioritet()), oppgave.beskrivelse(),
-            trimmetBeskrivelse, oppgave.aktivDato(), harJournalpostMangler(trimmetBeskrivelse), oppgave.tildeltEnhetsnr());
-    }
-
-    private String tekstFraBeskrivelse(String beskrivelse) {
-        if (beskrivelse == null) {
-            return "Journalføring";
-        }
-        //Når vi oppretter gosys oppgave avsluttes teksten med (dd.mm.yyyy)
-        int i = beskrivelse.length();
-        if (beskrivelse.charAt(i - 1) == ')') {
-            i = i - 12;
-        }
-
-        while (i > 0 && !(Character.isDigit(beskrivelse.charAt(i - 1)) || beskrivelse.charAt(i - 1) == ',' || beskrivelse.charAt(i - 1) == '*'
-            || beskrivelse.charAt(i - 1) == '>')) {
-            i--;
-        }
-
-        if (i < beskrivelse.length() && beskrivelse.charAt(i) == ' ') {
-            i++;
-        }
-
-        if (i == beskrivelse.length()) {
-            return beskrivelse;
-        }
-        //I tilfelle vi tar bort for mye
-        if (beskrivelse.substring(i).length() < 2) {
-            var i2 = beskrivelse.length();
-            while (i2 > 0 && (beskrivelse.charAt(i2 - 1) != ',')) {
-                i2--;
-            }
-            return beskrivelse.substring(i2);
-        }
-        return beskrivelse.substring(i);
-    }
-
-    private OppgavePrioritet mapPrioritet(Prioritet prioritet) {
-        return switch (prioritet) {
-            case HOY -> OppgavePrioritet.HØY;
-            case LAV -> OppgavePrioritet.LAV;
-            case NORM -> OppgavePrioritet.NORM;
-        };
+            ManuellJournalføringMapper.mapTilYtelseType(oppgave.behandlingstema()), oppgave.fristFerdigstillelse(), ManuellJournalføringMapper.mapPrioritet(oppgave.prioritet()), oppgave.beskrivelse(),
+            trimmetBeskrivelse, oppgave.aktivDato(), ManuellJournalføringMapper.harJournalpostMangler(trimmetBeskrivelse), oppgave.tildeltEnhetsnr());
     }
 
     private Optional<String> hentPersonIdent(String aktørId) {
@@ -262,24 +210,6 @@ public class ManuellJournalføringRestTjeneste {
             return pdl.hentPersonIdentForAktørId(aktørId);
         }
         return Optional.empty();
-    }
-
-    //Denne skal fjernes
-    private boolean harJournalpostMangler(String beskrivelse) {
-        return beskrivelse.startsWith("Journalføring");
-    }
-
-    private YtelseTypeDto mapTilYtelseType(String behandlingstema) {
-        LOG.info("FPFORDEL JOURNALFØRING Oppgave med behandlingstema {}", behandlingstema);
-        var behandlingTemaMappet = BehandlingTema.fraOffisiellKode(behandlingstema);
-        LOG.info("FPFORDEL JOURNALFØRING Fant oppgave med behandlingTemaMappet {}", behandlingTemaMappet);
-
-        return switch (behandlingTemaMappet) {
-            case FORELDREPENGER, FORELDREPENGER_ADOPSJON, FORELDREPENGER_FØDSEL -> YtelseTypeDto.FORELDREPENGER;
-            case SVANGERSKAPSPENGER -> YtelseTypeDto.SVANGERSKAPSPENGER;
-            case ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON, ENGANGSSTØNAD_FØDSEL -> YtelseTypeDto.ENGANGSTØNAD;
-            default -> null;
-        };
     }
 
     public enum OppgavePrioritet {
@@ -295,7 +225,6 @@ public class ManuellJournalføringRestTjeneste {
     }
 
     public static class EmptyAbacDataSupplier implements Function<Object, AbacDataAttributter> {
-
         @Override
         public AbacDataAttributter apply(Object obj) {
             return AbacDataAttributter.opprett();

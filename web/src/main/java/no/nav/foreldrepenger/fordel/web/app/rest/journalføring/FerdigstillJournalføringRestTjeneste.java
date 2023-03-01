@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
 import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.gjelderForeldrepenger;
-import static no.nav.foreldrepenger.mapper.YtelseTypeMapper.mapFraDto;
-import static no.nav.foreldrepenger.mapper.YtelseTypeMapper.mapTilDto;
+import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.mapYtelseTypeFraDto;
+import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.mapYtelseTypeTilDto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -320,12 +320,12 @@ public class FerdigstillJournalføringRestTjeneste {
             .orElseThrow(() -> new TekniskException("FP-32354", "OpprettSakDto kan ikke være null ved opprettelse av en sak."));
 
         var journalpostId = new JournalpostId(journalpost);
-        var ytelseType = mapFraDto(opprettSak.ytelseType());
+        var ytelseType = mapYtelseTypeFraDto(opprettSak.ytelseType());
         var aktørId = new AktørId(opprettSak.aktørId());
 
         new ManuellOpprettSakValidator(arkivTjeneste, fagsak).validerKonsistensMedSak(journalpostId, ytelseType, aktørId);
 
-        saksnummer = fagsak.opprettSak(new OpprettSakV2Dto(journalpostId.getVerdi(), mapTilDto(ytelseType), aktørId.getId())).getSaksnummer();
+        saksnummer = fagsak.opprettSak(new OpprettSakV2Dto(journalpostId.getVerdi(), mapYtelseTypeTilDto(ytelseType), aktørId.getId())).getSaksnummer();
         return saksnummer;
     }
 

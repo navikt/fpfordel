@@ -1,23 +1,12 @@
 package no.nav.foreldrepenger.mottak.klient;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public enum YtelseTypeDto {
-
-    ENGANGSTØNAD("ES"),
-    FORELDREPENGER("FP"),
-    SVANGERSKAPSPENGER("SVP"),
-    ;
-
-    @JsonValue
-    private String kode;
-
-    YtelseTypeDto(String kode) {
-        this.kode = kode;
-    }
-
-    public String getKode() {
-        return kode;
-    }
-
+    @JsonProperty("ES")
+    ENGANGSTØNAD,
+    @JsonProperty("FP")
+    FORELDREPENGER,
+    @JsonProperty("SVP")
+    SVANGERSKAPSPENGER,
 }
