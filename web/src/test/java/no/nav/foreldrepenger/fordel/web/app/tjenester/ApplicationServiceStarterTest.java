@@ -11,7 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.vedtak.log.metrics.Controllable;
 
 @ExtendWith(MockitoExtension.class)
-class ApplicationServiceStarterListenerImplTest {
+class ApplicationServiceStarterTest {
 
     private ApplicationServiceStarter serviceStarter;
 

@@ -11,6 +11,10 @@ import io.micrometer.core.instrument.Metrics;
 import no.nav.foreldrepenger.konfig.Environment;
 
 class DatasourceUtil {
+
+    private DatasourceUtil() {
+    }
+
     private static final Environment ENV = Environment.current();
 
     static DataSource createDatasource(int maxPoolSize) {

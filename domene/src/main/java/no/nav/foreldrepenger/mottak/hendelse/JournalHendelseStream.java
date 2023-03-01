@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.mottak.hendelse;
 
+import static org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse.SHUTDOWN_CLIENT;
+
 import java.time.Duration;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -78,9 +80,9 @@ public class JournalHendelseStream implements LiveAndReadinessAware, Controllabl
                 stop();
             }
         });
-        stream.setUncaughtExceptionHandler((t, e) -> {
-            LOG.error("{} :: Caught exception in stream, exiting", getTopicName(), e);
-            stop();
+        stream.setUncaughtExceptionHandler(ex -> {
+            LOG.error("{} :: Caught exception in stream, exiting", getTopicName(), ex);
+            return SHUTDOWN_CLIENT;
         });
     }
 

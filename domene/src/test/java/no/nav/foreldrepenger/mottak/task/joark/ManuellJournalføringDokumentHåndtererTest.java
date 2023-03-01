@@ -82,7 +82,7 @@ class ManuellJournalføringDokumentHåndtererTest {
         assertThat(result.getBehandlingTema()).isEqualTo(BehandlingTema.FORELDREPENGER);
         assertThat(result.getArkivId()).isEqualTo(ARKIV_ID);
         assertThat(result.getProsessTaskData().taskType()).isEqualTo(DEFAULT_TASK_FOR_MANUELL_JOURNALFØRING);
-        assertThat(result.getAktørId().get()).isEqualTo(AKTØR_ID);
+        assertThat(result.getAktørId()).contains(AKTØR_ID);
     }
 
     @Test
@@ -96,7 +96,7 @@ class ManuellJournalføringDokumentHåndtererTest {
 
         assertThat(result.getArkivId()).isEqualTo(ARKIV_ID);
         assertThat(result.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTask(TilJournalføringTask.class));
-        assertThat(result.getAktørId().get()).isEqualTo(AKTØR_ID);
+        assertThat(result.getAktørId()).contains(AKTØR_ID);
     }
 
     @Test

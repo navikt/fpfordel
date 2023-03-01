@@ -263,7 +263,7 @@ public class FerdigstillJournalføringRestTjeneste {
                 arkivTjeneste.ferdigstillJournalføring(journalpost.getJournalpostId(), request.enhetId());
             } catch (Exception e) {
                 LOG.warn("FPFORDEL JOURNALFØRING oppdaterOgFerdigstillJournalfoering feiler for {}", journalpost.getJournalpostId(), e);
-                throw new TekniskException("FP-15689", lagUgyldigInputMelding("Bruker", BRUKER_MANGLER), e);
+                throw new TekniskException("FP-15689", lagUgyldigInputMelding("Bruker", BRUKER_MANGLER));
             }
         }
 
