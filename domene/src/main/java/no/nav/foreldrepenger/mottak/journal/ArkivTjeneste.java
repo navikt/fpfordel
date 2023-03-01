@@ -210,7 +210,9 @@ public class ArkivTjeneste {
         var dokumentInfoId = journalpost.dokumenter().get(0).dokumentInfoId();
         var referanse = saf.hentEksternReferanseId(dokumentInfoId).stream().map(Journalpost::eksternReferanseId).filter(Objects::nonNull).findFirst();
         var loggtekst = referanse.orElse("ingen");
-        LOG.info("FPFORDEL hentEksternReferanseId fant referanse {} for journalpost {}", loggtekst, journalpost.journalpostId());
+        if (LOG.isInfoEnabled()) {
+            LOG.info("FPFORDEL hentEksternReferanseId fant referanse {} for journalpost {}", loggtekst, journalpost.journalpostId());
+        }
         return referanse;
     }
 
@@ -243,16 +245,20 @@ public class ArkivTjeneste {
         var tilleggDokumentType = arkivJournalpost.getTilleggsopplysninger().stream().filter(to -> FP_DOK_TYPE.equals(to.nokkel())).findFirst();
         if (tilleggDokumentType.isEmpty()) {
             var builder = OppdaterJournalpostRequest.ny();
-            LOG.info("FPFORDEL oppdaterer tilleggsopplysninger for {} med {}", journalpost.journalpostId(), hovedtype.getOffisiellKode());
+            if (LOG.isInfoEnabled()) {
+                LOG.info("FPFORDEL oppdaterer tilleggsopplysninger for {} med {}", journalpost.journalpostId(), hovedtype.getOffisiellKode());
+            }
             if (!arkivJournalpost.getTilleggsopplysninger().isEmpty()) {
                 builder.medTilleggsopplysninger(arkivJournalpost.getTilleggsopplysninger());
             }
             builder.leggTilTilleggsopplysning(new Tilleggsopplysning(FP_DOK_TYPE, hovedtype.getOffisiellKode()));
             if (!dokArkivTjeneste.oppdaterJournalpost(journalpost.journalpostId(), builder.build())) {
-                throw new IllegalStateException("FPFORDEL Kunne ikke oppdatere " + journalpost.journalpostId());
+                throw new IllegalStateException("FPFORDEL Kunne ikke oppdatere journalpost " + journalpost.journalpostId());
             }
         } else {
-            LOG.info("FPFORDEL tilleggsopplysninger allerede satt for {} med {}", journalpost.journalpostId(), tilleggDokumentType);
+            if (LOG.isInfoEnabled()) {
+                LOG.info("FPFORDEL tilleggsopplysninger allerede satt for {} med {}", journalpost.journalpostId(), tilleggDokumentType);
+            }
         }
     }
 
@@ -271,19 +277,25 @@ public class ArkivTjeneste {
             == null)) {
             var fnr = personTjeneste.hentPersonIdentForAktørId(aktørId).orElseThrow(() -> new IllegalStateException("Mangler fnr for aktørid"));
             var navn = personTjeneste.hentNavn(aktørId);
-            LOG.info("FPFORDEL oppdaterer manglende avsender for {}", journalpost.journalpostId());
+            if (LOG.isInfoEnabled()) {
+                LOG.info("FPFORDEL oppdaterer manglende avsender for {}", journalpost.journalpostId());
+            }
             builder.medAvsender(fnr, navn);
         }
         if (journalpost.tittel() == null) {
             if (DokumentTypeId.UDEFINERT.equals(hovedtype)) {
                 tittelMangler = true;
             } else {
-                LOG.info("FPFORDEL oppdaterer manglende tittel for {}", journalpost.journalpostId());
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("FPFORDEL oppdaterer manglende tittel for {}", journalpost.journalpostId());
+                }
                 builder.medTittel(hovedtype.getTermNavn());
             }
         }
         if (journalpost.tema() == null) {
-            LOG.info("FPFORDEL oppdaterer manglende tema for {}", journalpost.journalpostId());
+            if (LOG.isInfoEnabled()) {
+                LOG.info("FPFORDEL oppdaterer manglende tema for {}", journalpost.journalpostId());
+            }
             builder.medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode());
         }
         if ((journalpost.behandlingstema() == null) && !BehandlingTema.UDEFINERT.equals(utledetBehandlingTema)) {
@@ -291,7 +303,9 @@ public class ArkivTjeneste {
             builder.medBehandlingstema(utledetBehandlingTema.getOffisiellKode());
         }
         if ((journalpost.bruker() == null) || (journalpost.bruker().id() == null)) {
-            LOG.info("FPFORDEL oppdaterer manglende bruker for {}", journalpost.journalpostId());
+            if (LOG.isInfoEnabled()) {
+                LOG.info("FPFORDEL oppdaterer manglende bruker for {}", journalpost.journalpostId());
+            }
             builder.medBruker(aktørId);
         }
         var oppdaterDok = journalpost.dokumenter()
@@ -301,8 +315,8 @@ public class ArkivTjeneste {
             .map(d -> new OppdaterJournalpostRequest.DokumentInfoOppdater(d.dokumentInfoId(), NAVSkjema.fraOffisiellKode(d.brevkode()).getTermNavn(),
                 d.brevkode()))
             .toList();
-        if (!oppdaterDok.isEmpty()) {
-            LOG.info("FPFORDEL oppdaterer manglende dokumenttitler for {}", journalpost.journalpostId());
+        if (!oppdaterDok.isEmpty() && LOG.isInfoEnabled()) {
+                LOG.info("FPFORDEL oppdaterer manglende dokumenttitler for {}", journalpost.journalpostId());
         }
         oppdaterDok.forEach(builder::leggTilDokument);
         if (!dokArkivTjeneste.oppdaterJournalpost(journalpost.journalpostId(), builder.build())) {
@@ -310,7 +324,7 @@ public class ArkivTjeneste {
         }
         var resultat = !tittelMangler && (journalpost.dokumenter().stream().filter(d -> (d.tittel() == null) || d.tittel().isEmpty()).count()
             == oppdaterDok.size());
-        if (!resultat) {
+        if (!resultat && LOG.isInfoEnabled()) {
             LOG.info("FPFORDEL oppdaterer gjenstår tittel eller dokumenttittel for {}", journalpost.journalpostId());
         }
         return resultat;
@@ -376,7 +390,7 @@ public class ArkivTjeneste {
         var ident = personTjeneste.hentPersonIdentForAktørId(avsenderAktørId).orElseThrow(() -> new IllegalStateException("Aktør uten personident"));
         var avsender = new AvsenderMottaker(ident, AvsenderMottaker.AvsenderMottakerIdType.FNR, personTjeneste.hentNavn(avsenderAktørId));
 
-        var request = OpprettJournalpostRequest.nyInngående()
+        return OpprettJournalpostRequest.nyInngående()
             .medTittel(tittel)
             .medKanal(MottakKanal.SELVBETJENING.getKode())
             .medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode())
@@ -388,8 +402,6 @@ public class ArkivTjeneste {
             .medDokumenter(opprettDokumenter)
             .medTilleggsopplysninger(
                 DokumentTypeId.UDEFINERT.equals(hovedtype) ? List.of() : List.of(new Tilleggsopplysning(FP_DOK_TYPE, hovedtype.getOffisiellKode())));
-
-        return request;
     }
 
     public byte[] hentDokumet(String journalpostId, String dokumentId) {

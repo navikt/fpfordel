@@ -8,6 +8,10 @@ public class MapNAVSkjemaDokumentTypeId {
     public static final int GEN_RANK = 90;
     public static final int UDEF_RANK = 99;
 
+    private MapNAVSkjemaDokumentTypeId() {
+        // Hide constructor
+    }
+
     private static final Map<NAVSkjema, DokumentTypeId> BREVKODE_DOKUMENT_TYPE = Map.ofEntries(
         Map.entry(NAVSkjema.SKJEMA_SVANGERSKAPSPENGER, DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER),
         Map.entry(NAVSkjema.SKJEMA_SVANGERSKAPSPENGER_SN, DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER),

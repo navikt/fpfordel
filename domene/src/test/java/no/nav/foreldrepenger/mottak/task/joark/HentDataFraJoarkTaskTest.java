@@ -1,8 +1,10 @@
 package no.nav.foreldrepenger.mottak.task.joark;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
@@ -206,7 +208,7 @@ class HentDataFraJoarkTaskTest {
     }
 
     @Test
-    public void skal_sende_inntektsmelding_til_vl_hvis_gjelder_svangerskapspenger() {
+    void skal_sende_inntektsmelding_til_vl_hvis_gjelder_svangerskapspenger() {
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         dataWrapper.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
         var dokument = joarkTestsupport.lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING, "testsoknader/inntektsmelding-svp.xml");
@@ -280,7 +282,7 @@ class HentDataFraJoarkTaskTest {
     @Test
     void test_validerDatagrunnlag_uten_feil() {
         dataWrapper.setArkivId("123456");
-        joarkTaskTestobjekt.precondition(dataWrapper);
+        assertDoesNotThrow(() -> joarkTaskTestobjekt.precondition(dataWrapper));
     }
 
     @Test

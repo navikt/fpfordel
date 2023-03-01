@@ -9,7 +9,7 @@ import static no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Fors
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -300,7 +300,7 @@ public class DokumentforsendelseRestTjeneste {
             .setDokumentTypeId(filMetadata.dokumentTypeId());
         try {
             if (MediaType.APPLICATION_XML_TYPE.isCompatible(inputPart.getMediaType())) {
-                builder.setDokumentInnhold(inputPart.getEntityAs(String.class).getBytes(Charset.forName("UTF-8")),
+                builder.setDokumentInnhold(inputPart.getEntityAs(String.class).getBytes(StandardCharsets.UTF_8),
                     mapMediatypeTilArkivFilType(inputPart.getMediaType()));
             } else {
                 builder.setDokumentInnhold(inputPart.getEntityAs(byte[].class), mapMediatypeTilArkivFilType(inputPart.getMediaType()));
@@ -310,11 +310,11 @@ public class DokumentforsendelseRestTjeneste {
         }
 
         var dokument = builder.build();
-        if (dokument.erHovedDokument() && ArkivFilType.XML.equals(dokument.getArkivFilType())) {
+        if (Boolean.TRUE.equals(dokument.erHovedDokument()) && ArkivFilType.XML.equals(dokument.getArkivFilType())) {
             // Sjekker om nødvendige elementer er satt
             var abstractDto = MeldingXmlParser.unmarshallXml(dokument.getKlartekstDokument());
-            if (no.nav.foreldrepenger.mottak.domene.v3.Søknad.class.isInstance(abstractDto)) {
-                ((no.nav.foreldrepenger.mottak.domene.v3.Søknad) abstractDto).sjekkNødvendigeFeltEksisterer(dokument.getForsendelseId());
+            if (abstractDto instanceof no.nav.foreldrepenger.mottak.domene.v3.Søknad v3søknad) {
+                v3søknad.sjekkNødvendigeFeltEksisterer(dokument.getForsendelseId());
             }
         }
         return dokument;

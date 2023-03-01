@@ -60,6 +60,7 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
 
     @Override
     protected void validerSkjemaSemantisk(MottakMeldingDataWrapper dataWrapper) {
+        // Ikke gjør noe
     }
 
     private LocalDate getStartdatoForeldrepengeperiode() {
