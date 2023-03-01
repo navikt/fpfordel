@@ -40,7 +40,7 @@ class RestApiAbacTest {
     void test_at_alle_restmetoder_er_annotert_med_BeskyttetRessurs() throws Exception {
         for (Method restMethod : RestApiTester.finnAlleRestMetoder()) {
             if (restMethod.getAnnotation(BeskyttetRessurs.class) == null) {
-                throw new AssertionError("Mangler @" + BeskyttetRessurs.class.getSimpleName() + "-annotering på " + restMethod);
+                fail("Mangler @" + BeskyttetRessurs.class.getSimpleName() + "-annotering på " + restMethod);
             }
         }
     }
@@ -84,7 +84,7 @@ class RestApiAbacTest {
             }
         }
         if (feilmeldinger.length() > 0) {
-            throw new AssertionError("Følgende inputparametre til REST-tjenester mangler AbacDto-impl\n" + feilmeldinger);
+            fail("Følgende inputparametre til REST-tjenester mangler AbacDto-impl\n" + feilmeldinger);
         }
     }
 

@@ -207,7 +207,9 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
 
     @Override
     public void ping() {
-        LOG.debug(removeLineBreaks("ping"));
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(removeLineBreaks("ping"));
+        }
     }
 
     @Override
@@ -340,7 +342,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             // Her er det "greit" - da har man bestemt seg, men kan lage rot i saken.
             if ("FP-401245".equals(e.getKode())) {
                 String logMessage = e.getMessage();
-                LOG.info("FPFORDEL GOSYS" + logMessage);
+                LOG.info("FPFORDEL GOSYS {}", logMessage);
             } else {
                 throw e;
             }

@@ -76,7 +76,7 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
         if (cause instanceof WebApplicationException wae && wae.getResponse() != null) {
             return wae.getResponse();
         }
-        // TODO re-enable og slett den over etter validering loggTilApplikasjonslogg(cause); //NOSONAR
+        // TODO re-enable og slett den over etter validering loggTilApplikasjonslogg(cause);
         if (cause instanceof ManglerTilgangException mte) {
             return ikkeTilgang(mte);
         } else {
