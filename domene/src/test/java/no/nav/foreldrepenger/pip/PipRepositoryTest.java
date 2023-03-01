@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.extensions.JpaExtension;
 
 @ExtendWith(JpaExtension.class)
-public class PipRepositoryTest {
+class PipRepositoryTest {
 
     private PipRepository pipRepository;
     private DokumentRepository dokumentRepository;
@@ -38,13 +38,13 @@ public class PipRepositoryTest {
     }
 
     @Test
-    public void en_aktørId_for_en_forsendelse() {
+    void en_aktørId_for_en_forsendelse() {
         dokumentRepository.lagre(dokumentMetadata(brukerId, forsendelseId));
         assertThat(pipRepository.hentAktørIdForForsendelser(Set.of(forsendelseId))).containsOnly(brukerId);
     }
 
     @Test
-    public void en_aktørId_for_to_forsendelser_fra_samme_bruker() {
+    void en_aktørId_for_to_forsendelser_fra_samme_bruker() {
         dokumentRepository.lagre(dokumentMetadata(brukerId, forsendelseId));
         dokumentRepository.lagre(dokumentMetadata(brukerId, forsendelseId2));
 
@@ -53,7 +53,7 @@ public class PipRepositoryTest {
     }
 
     @Test
-    public void to_aktørIder_for_to_forsendelser_fra_forskjellige_brukere() {
+    void to_aktørIder_for_to_forsendelser_fra_forskjellige_brukere() {
         dokumentRepository.lagre(dokumentMetadata(brukerId, forsendelseId));
         dokumentRepository.lagre(dokumentMetadata(brukerId2, forsendelseId2));
 

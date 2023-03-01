@@ -33,6 +33,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(TilJournalføringTask.class);
     private static final String AUTOMATISK_ENHET = "9999";
+    private static final String PROSESSERING_AV_PRECONDITIONS_FOR_S_MANGLER_S_TASK_ID_S = "Prosessering av preconditions for %s mangler %s. TaskId: %s";
 
     private ArkivTjeneste arkivTjeneste;
     private PersonInformasjon aktør;
@@ -52,17 +53,17 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
     public void precondition(MottakMeldingDataWrapper dataWrapper) {
         if (dataWrapper.getAktørId().isEmpty()) {
             throw new TekniskException("FP-941984",
-                String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.AKTØR_ID_KEY,
+                String.format(PROSESSERING_AV_PRECONDITIONS_FOR_S_MANGLER_S_TASK_ID_S, TASKNAME, MottakMeldingDataWrapper.AKTØR_ID_KEY,
                     dataWrapper.getId()));
         }
         if (dataWrapper.getSaksnummer().isEmpty()) {
-            throw new TekniskException("FP-941984",
-                String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.SAKSNUMMER_KEY,
+            throw new TekniskException("FP-941985",
+                String.format(PROSESSERING_AV_PRECONDITIONS_FOR_S_MANGLER_S_TASK_ID_S, TASKNAME, MottakMeldingDataWrapper.SAKSNUMMER_KEY,
                     dataWrapper.getId()));
         }
         if (dataWrapper.getArkivId() == null || dataWrapper.getArkivId().isEmpty()) {
-            throw new TekniskException("FP-941984",
-                String.format("Prosessering av preconditions for %s mangler %s. TaskId: %s", TASKNAME, MottakMeldingDataWrapper.ARKIV_ID_KEY,
+            throw new TekniskException("FP-941986",
+                String.format(PROSESSERING_AV_PRECONDITIONS_FOR_S_MANGLER_S_TASK_ID_S, TASKNAME, MottakMeldingDataWrapper.ARKIV_ID_KEY,
                     dataWrapper.getId()));
         }
     }
@@ -84,8 +85,9 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
         // Annet dokument fra dokumentmottak (scanning, altinn). Kan skippe
         // unntakshåndtering. Bør feile.
         try {
-            if (w.getInnkommendeSaksnummer().isPresent()) {
-                LOG.info("FORDEL OPPRETT/FERDIG presatt saksnummer {} for journalpost {}", w.getInnkommendeSaksnummer().get(), w.getArkivId());
+            var innkommendeSaksnummer = w.getInnkommendeSaksnummer();
+            if (innkommendeSaksnummer.isPresent()) {
+                LOG.info("FORDEL OPPRETT/FERDIG presatt saksnummer {} for journalpost {}", innkommendeSaksnummer.get(), w.getArkivId());
             } else {
                 arkivTjeneste.oppdaterMedSak(w.getArkivId(), saksnummer, w.getAktørId().orElseThrow());
             }

@@ -53,7 +53,9 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
         if (cause instanceof ManglerTilgangException) {
             LOGGER.info(feil, cause);
         } else {
-            LOGGER.error("Fikk uventet feil:" + feil, cause);
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error(String.format("Fikk uventet feil: %s", feil), cause);
+            }
         }
 
         // key for å tracke prosess -- nullstill denne
@@ -74,7 +76,7 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
         if (cause instanceof WebApplicationException wae && wae.getResponse() != null) {
             return wae.getResponse();
         }
-        // TODO re-enable og slett den over etter validering loggTilApplikasjonslogg(cause);
+        // TODO re-enable og slett den over etter validering loggTilApplikasjonslogg(cause); //NOSONAR
         if (cause instanceof ManglerTilgangException mte) {
             return ikkeTilgang(mte);
         } else {

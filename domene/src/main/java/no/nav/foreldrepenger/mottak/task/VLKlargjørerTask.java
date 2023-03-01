@@ -5,9 +5,6 @@ import java.time.LocalDateTime;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -27,7 +24,6 @@ public class VLKlargjørerTask extends WrappedProsessTaskHandler {
 
     public static final String REINNSEND = "REINNSEND";
     static final String TASKNAME = "fordeling.klargjoering";
-    private static final Logger LOG = LoggerFactory.getLogger(VLKlargjørerTask.class);
     private VLKlargjører klargjører;
 
     public VLKlargjørerTask() {

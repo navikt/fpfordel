@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.TilbakekrevingKlient;
 
 @ExtendWith(MockitoExtension.class)
-public class VLKlargjørerTest {
+class VLKlargjørerTest {
 
     private static final String ARKIV_ID = "123";
     private static final String SAK_ID = "456";
@@ -41,7 +41,7 @@ public class VLKlargjørerTest {
     }
 
     @Test
-    public void skal_knytte_og_sende() {
+    void skal_knytte_og_sende() {
 
         klargjørForVLTjeneste.klargjør(null, SAK_ID, ARKIV_ID, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, LocalDate.now().atStartOfDay(),
             BehandlingTema.FORELDREPENGER, null, DokumentKategori.SØKNAD, ENHET_ID, null);

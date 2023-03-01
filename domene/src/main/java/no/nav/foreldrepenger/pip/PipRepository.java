@@ -12,7 +12,7 @@ import javax.persistence.EntityManager;
 @Dependent
 public class PipRepository {
 
-    private static String PIP_QUERY = """
+    private static final String PIP_QUERY = """
         select BRUKER_ID
         from DOKUMENT_METADATA
         where FORSENDELSE_ID in (:dokumentforsendelseIder)
@@ -32,7 +32,7 @@ public class PipRepository {
             return Set.of();
         }
 
-        return new HashSet<String>(
+        return new HashSet<>(
             entityManager.createNativeQuery(PIP_QUERY).setParameter("dokumentforsendelseIder", dokumentforsendelseIder).getResultList());
     }
 }

@@ -282,10 +282,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             return journalpost.getBrukerAktørId();
         }
         if (journalpost.getAvsenderIdent() != null && getIdHvisFNR(journalpost.getOriginalJournalpost().avsenderMottaker()).isPresent()) {
-            LOG.info("FPFORDEL HentFraArkiv journalpost uten bruker med FNR-avsender journalpost {} kanal {} tittel {}",
-                journalpost.getJournalpostId(), journalpost.getKanal(), journalpost.getTittel());
-            // return
-            // aktørConsumer.hentAktørIdForPersonIdent(journalpost.getAvsenderIdent());
+                LOG.info("FPFORDEL HentFraArkiv journalpost uten bruker med FNR-avsender journalpost {} kanal {} tittel {}",
+                    journalpost.getJournalpostId(), journalpost.getKanal(), journalpost.getTittel());
         }
         return Optional.empty();
     }

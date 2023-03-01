@@ -46,8 +46,6 @@ import no.nav.vedtak.sikkerhet.jaspic.OidcAuthModule;
 
 public class JettyServer {
 
-    public static final String TOKENX = "tokenx";
-
     private static final Environment ENV = Environment.current();
     private static final Logger LOG = LoggerFactory.getLogger(JettyServer.class);
 

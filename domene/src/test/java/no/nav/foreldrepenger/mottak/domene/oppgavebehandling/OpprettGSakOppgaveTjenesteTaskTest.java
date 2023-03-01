@@ -34,7 +34,7 @@ class OpprettGSakOppgaveTjenesteTaskTest {
 
     @Mock
     private ProsessTaskTjeneste prosessTaskTjeneste;
-    private String fordelingsOppgaveEnhetsId = "4825";
+    private final String fordelingsOppgaveEnhetsId = "4825";
 
     private OpprettGSakOppgaveTask task;
     @Mock

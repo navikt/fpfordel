@@ -39,6 +39,7 @@ public class FordelSokeFilterDto implements AbacDto {
     private LocalDate opprettetTilOgMed = LocalDate.now();
 
     public FordelSokeFilterDto() {
+        // Jackson
     }
 
     @Schema(description = "Søketekst")

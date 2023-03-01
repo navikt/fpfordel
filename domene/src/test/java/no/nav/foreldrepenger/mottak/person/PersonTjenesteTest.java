@@ -4,12 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,8 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.pdl.Adressebeskyttelse;
 import no.nav.pdl.AdressebeskyttelseGradering;
@@ -29,13 +25,10 @@ import no.nav.pdl.Navn;
 import no.nav.pdl.Person;
 import no.nav.vedtak.felles.integrasjon.person.Persondata;
 
-
 @ExtendWith(MockitoExtension.class)
 class PersonTjenesteTest {
     private static final String AKTØR_ID = "2222222222222";
     private static final String FNR = "11111111111";
-    private static final Duration DURATION = Duration.ofSeconds(1);
-    private static final Logger LOG = LoggerFactory.getLogger(PersonTjenesteTest.class);
     private PersonInformasjon personTjeneste;
     @Mock
     private Persondata pdl;
@@ -47,31 +40,31 @@ class PersonTjenesteTest {
 
     @Test
     void skal_returnere_fnr() throws Exception {
-        when(pdl.hentPersonIdentForAktørId(eq(AKTØR_ID))).thenReturn(Optional.of(FNR));
+        when(pdl.hentPersonIdentForAktørId(AKTØR_ID)).thenReturn(Optional.of(FNR));
         var fnr = personTjeneste.hentPersonIdentForAktørId(AKTØR_ID);
         assertEquals(Optional.of(FNR), fnr);
         personTjeneste.hentPersonIdentForAktørId(AKTØR_ID);
-        verify(pdl).hentPersonIdentForAktørId(eq(AKTØR_ID));
+        verify(pdl).hentPersonIdentForAktørId(AKTØR_ID);
         Thread.sleep(1000);
         personTjeneste.hentPersonIdentForAktørId(AKTØR_ID);
-        verify(pdl, times(2)).hentPersonIdentForAktørId(eq(AKTØR_ID));
+        verify(pdl, times(2)).hentPersonIdentForAktørId(AKTØR_ID);
     }
 
     @Test
     void skal_returnere_aktørid() throws Exception {
-        when(pdl.hentAktørIdForPersonIdent(eq(FNR))).thenReturn(Optional.of(AKTØR_ID));
+        when(pdl.hentAktørIdForPersonIdent(FNR)).thenReturn(Optional.of(AKTØR_ID));
         var aid = personTjeneste.hentAktørIdForPersonIdent(FNR);
         assertEquals(Optional.of(AKTØR_ID), aid);
         personTjeneste.hentAktørIdForPersonIdent(FNR);
-        verify(pdl).hentAktørIdForPersonIdent(eq(FNR));
+        verify(pdl).hentAktørIdForPersonIdent(FNR);
         Thread.sleep(1000);
         personTjeneste.hentAktørIdForPersonIdent(FNR);
-        verify(pdl, times(2)).hentAktørIdForPersonIdent(eq(FNR));
+        verify(pdl, times(2)).hentAktørIdForPersonIdent(FNR);
     }
 
     @Test
     void skal_returnere_empty_uten_match() {
-        when(pdl.hentPersonIdentForAktørId(eq(AKTØR_ID))).thenReturn(Optional.empty());
+        when(pdl.hentPersonIdentForAktørId(AKTØR_ID)).thenReturn(Optional.empty());
         assertThat(personTjeneste.hentPersonIdentForAktørId(AKTØR_ID)).isEmpty();
     }
 

@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.mottak.domene.v3;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBElement;
 
@@ -92,8 +92,8 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
             throw new TekniskException("FP-502574",
                 String.format("Ulik aktørId i tynnmelding (%s) og søknadsdokument (%s)", dataWrapper.getArkivId(), aktørId));
         }
-        if (getYtelse() instanceof Endringssoeknad) {
-            final String saksnummer = ((Endringssoeknad) getYtelse()).getSaksnummer();
+        if (getYtelse() instanceof Endringssoeknad endringssoeknad) {
+            final var saksnummer = endringssoeknad.getSaksnummer();
             if (!Objects.equals(dataWrapper.getSaksnummer().orElse(null), saksnummer)) {
                 throw new FunksjonellException("FP-401245",
                     String.format("Ulike saksnummer i melding/VL (%s) og endringssøknad (%s).", dataWrapper.getSaksnummer().orElse(null), saksnummer),
@@ -153,24 +153,24 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
 
     public Optional<LocalDate> hentTermindato() {
         Ytelse ytelse = getYtelse();
-        if (ytelse instanceof Svangerskapspenger) {
-            return Optional.ofNullable(((Svangerskapspenger) ytelse).getTermindato());
+        if (ytelse instanceof Svangerskapspenger svangerskapspenger) {
+            return Optional.ofNullable(svangerskapspenger.getTermindato());
         }
         SoekersRelasjonTilBarnet relasjon = getRelasjonTilBarnet();
-        if (relasjon instanceof Termin) {
-            return Optional.ofNullable(((Termin) relasjon).getTermindato());
+        if (relasjon instanceof Termin termin) {
+            return Optional.ofNullable(termin.getTermindato());
         }
         return Optional.empty();
     }
 
     public Optional<LocalDate> hentFødselsdato() {
         Ytelse ytelse = getYtelse();
-        if (ytelse instanceof Svangerskapspenger) {
-            return Optional.ofNullable(((Svangerskapspenger) ytelse).getFødselsdato());
+        if (ytelse instanceof Svangerskapspenger svangerskapspenger) {
+            return Optional.ofNullable(svangerskapspenger.getFødselsdato());
         }
         SoekersRelasjonTilBarnet relasjon = getRelasjonTilBarnet();
-        if (relasjon instanceof Foedsel) {
-            return Optional.ofNullable(((Foedsel) relasjon).getFoedselsdato());
+        if (relasjon instanceof Foedsel fødsel) {
+            return Optional.ofNullable(fødsel.getFoedselsdato());
         }
         return Optional.empty();
     }
@@ -178,11 +178,11 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
     public List<LocalDate> hentFødselsdatoForAdopsjonsbarn() {
         SoekersRelasjonTilBarnet relasjon = getRelasjonTilBarnet();
         List<LocalDate> datoList = Collections.emptyList();
-        if (relasjon instanceof Adopsjon) {
-            datoList = ((Adopsjon) relasjon).getFoedselsdato().stream().collect(Collectors.toList());
+        if (relasjon instanceof Adopsjon adopsjon) {
+            datoList = new ArrayList<>(adopsjon.getFoedselsdato());
         }
-        if (relasjon instanceof Omsorgsovertakelse) {
-            datoList = ((Omsorgsovertakelse) relasjon).getFoedselsdato().stream().collect(Collectors.toList());
+        if (relasjon instanceof Omsorgsovertakelse overtakelse) {
+            datoList = new ArrayList<>(overtakelse.getFoedselsdato());
         }
 
         return datoList;
@@ -190,11 +190,11 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
 
     public Optional<LocalDate> hentOmsorgsovertakelsesdato() {
         SoekersRelasjonTilBarnet relasjon = getRelasjonTilBarnet();
-        if (relasjon instanceof Omsorgsovertakelse) {
-            return Optional.ofNullable(((Omsorgsovertakelse) relasjon).getOmsorgsovertakelsesdato());
+        if (relasjon instanceof Omsorgsovertakelse overtakelse) {
+            return Optional.ofNullable(overtakelse.getOmsorgsovertakelsesdato());
         }
-        if (relasjon instanceof Adopsjon) {
-            return Optional.ofNullable(((Adopsjon) relasjon).getOmsorgsovertakelsesdato());
+        if (relasjon instanceof Adopsjon adopsjon) {
+            return Optional.ofNullable(adopsjon.getOmsorgsovertakelsesdato());
         }
         return Optional.empty();
     }
@@ -215,19 +215,19 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
 
     private SoekersRelasjonTilBarnet getRelasjonTilBarnet() {
         Ytelse ytelse = getYtelse();
-        if (ytelse instanceof Foreldrepenger) {
-            return ((Foreldrepenger) ytelse).getRelasjonTilBarnet();
+        if (ytelse instanceof Foreldrepenger foreldrepenger) {
+            return foreldrepenger.getRelasjonTilBarnet();
         }
-        if (ytelse instanceof Engangsstønad) {
-            return ((Engangsstønad) ytelse).getSoekersRelasjonTilBarnet();
+        if (ytelse instanceof Engangsstønad engangsstønad) {
+            return engangsstønad.getSoekersRelasjonTilBarnet();
         }
         return null;
     }
 
     private Fordeling getFordeling() {
         Ytelse ytelse = getYtelse();
-        if (ytelse instanceof Foreldrepenger) {
-            return ((Foreldrepenger) ytelse).getFordeling();
+        if (ytelse instanceof Foreldrepenger foreldrepenger) {
+            return foreldrepenger.getFordeling();
         }
         return null;
     }
