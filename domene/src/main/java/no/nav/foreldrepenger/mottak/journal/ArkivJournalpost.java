@@ -42,6 +42,7 @@ public class ArkivJournalpost {
     private String beskrivelse;
 
     public ArkivJournalpost() {
+        // Jackson
     }
 
     public static Builder getBuilder() {

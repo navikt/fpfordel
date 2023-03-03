@@ -192,7 +192,8 @@ class DokumentforsendelseTjenesteImplTest {
     void dokumentforsendelse_med_uuid_ikke_funnet() {
         ForsendelseIdDto forsendelseIdDto = lagForsendelseIdDto();
         when(dokumentRepositoryMock.hentUnikDokumentMetadata(any(UUID.class))).thenReturn(Optional.empty());
-        var e = assertThrows(TekniskException.class, () -> tjeneste.finnStatusinformasjon(forsendelseIdDto.forsendelseId()));
+        var forsendelseId = forsendelseIdDto.forsendelseId();
+        var e = assertThrows(TekniskException.class, () -> tjeneste.finnStatusinformasjon(forsendelseId));
         assertTrue(e.getMessage().contains("FP-295614"));
     }
 

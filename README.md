@@ -1,11 +1,16 @@
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=bugs)](https://sonarcloud.io/dashboard?id=navikt_fpfordel)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=code_smells)](https://sonarcloud.io/dashboard?id=navikt_fpfordel)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=coverage)](https://sonarcloud.io/dashboard?id=navikt_fpfordel)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=security_rating)](https://sonarcloud.io/dashboard?id=navikt_fpfordel)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=sqale_index)](https://sonarcloud.io/dashboard?id=navikt_fpfordel)
-
 FPFORDEL
 ===============
+[![Bygg og deploy](https://github.com/navikt/fpfordel/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/navikt/fpfordel/actions/workflows/build.yml)
+[![Promote](https://github.com/navikt/fpfordel/actions/workflows/promote.yml/badge.svg?branch=master)](https://github.com/navikt/fpfordel/actions/workflows/promote.yml)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=navikt_fpfordel)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=coverage)](https://sonarcloud.io/summary/new_code?id=navikt_fpfordel)
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=alert_status)](https://sonarcloud.io/dashboard?id=navikt_fpfordel)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=bugs)](https://sonarcloud.io/dashboard?id=navikt_fpfordel)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=navikt_fpfordel)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=navikt_fpfordel)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=navikt_fpfordel)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=sqale_index)](https://sonarcloud.io/dashboard?id=navikt_fpfordel)
 
 Dette er kildkode som dekker applikasjonen for fordeling av søknader fra Selvbetjening mellom Gosys, Infotrygd og FPSAK/FPTIBAKE.
 Løsningen prøver å journalføre andre dokumenter også - om det ikke er mulig blir de sendt til manuell journalføring.

@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.fordel.web.app.selftest;
+package no.nav.foreldrepenger.fordel.web.app.healthcheck;
 
 import no.nav.foreldrepenger.fordel.web.app.tjenester.ApplicationServiceStarter;
 import no.nav.vedtak.log.metrics.LivenessAware;

@@ -76,7 +76,7 @@ class SøknadTest {
         søknad.setOmYtelse(mapOmYtelse(engangsstønad));
         test.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
-        assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
+        assertThat(test.getAktørId()).contains(AKTØR_ID);
 
     }
 
@@ -89,7 +89,7 @@ class SøknadTest {
         søknad.setOmYtelse(mapOmYtelse(engangsstønad));
         test.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
-        assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
+        assertThat(test.getAktørId()).contains(AKTØR_ID);
     }
 
     @Test
@@ -101,7 +101,7 @@ class SøknadTest {
         søknad.setOmYtelse(mapOmYtelse(engangsstønad));
         test.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_ADOPSJON);
         søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
-        assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
+        assertThat(test.getAktørId()).contains(AKTØR_ID);
     }
 
     @Test
@@ -113,7 +113,7 @@ class SøknadTest {
         søknad.setOmYtelse(mapOmYtelse(engangsstønad));
         test.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_ADOPSJON);
         søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
-        assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
+        assertThat(test.getAktørId()).contains(AKTØR_ID);
     }
 
     @Test
@@ -121,7 +121,7 @@ class SøknadTest {
         søknad.setOmYtelse(mapOmYtelse(new Engangsstønad()));
         test.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD);
         søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
-        assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
+        assertThat(test.getAktørId()).contains(AKTØR_ID);
 
     }
 
@@ -134,7 +134,7 @@ class SøknadTest {
         søknad.setOmYtelse(mapOmYtelse(foreldrepenger));
         test.setBehandlingTema(BehandlingTema.FORELDREPENGER_FØDSEL);
         søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
-        assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
+        assertThat(test.getAktørId()).contains(AKTØR_ID);
     }
 
     @Test
@@ -146,7 +146,7 @@ class SøknadTest {
         søknad.setOmYtelse(mapOmYtelse(foreldrepenger));
         test.setBehandlingTema(BehandlingTema.FORELDREPENGER_FØDSEL);
         søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
-        assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
+        assertThat(test.getAktørId()).contains(AKTØR_ID);
     }
 
     @Test
@@ -158,7 +158,7 @@ class SøknadTest {
         søknad.setOmYtelse(mapOmYtelse(foreldrepenger));
         test.setBehandlingTema(BehandlingTema.FORELDREPENGER_ADOPSJON);
         søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
-        assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
+        assertThat(test.getAktørId()).contains(AKTØR_ID);
     }
 
     @Test
@@ -170,7 +170,7 @@ class SøknadTest {
         søknad.setOmYtelse(mapOmYtelse(foreldrepenger));
         test.setBehandlingTema(BehandlingTema.FORELDREPENGER_ADOPSJON);
         søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
-        assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
+        assertThat(test.getAktørId()).contains(AKTØR_ID);
     }
 
     @Test
@@ -237,6 +237,6 @@ class SøknadTest {
         søknad.setOmYtelse(mapOmYtelse(null));
         test.setBehandlingTema(BehandlingTema.UDEFINERT);
         søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
-        assertThat(test.getAktørId().get()).isEqualTo(AKTØR_ID);
+        assertThat(test.getAktørId()).contains(AKTØR_ID);
     }
 }

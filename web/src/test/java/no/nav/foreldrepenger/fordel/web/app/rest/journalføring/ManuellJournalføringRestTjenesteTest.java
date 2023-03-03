@@ -208,7 +208,9 @@ class ManuellJournalføringRestTjenesteTest {
 
         when(arkiv.hentArkivJournalpost(expectedJournalpostId)).thenReturn(null);
 
-        var ex = assertThrows(TekniskException.class, () -> restTjeneste.hentJournalpostDetaljer(new JournalpostIdDto(expectedJournalpostId)));
+        var journalpostId = new JournalpostIdDto(expectedJournalpostId);
+
+        var ex = assertThrows(TekniskException.class, () -> restTjeneste.hentJournalpostDetaljer(journalpostId));
 
         assertThat(ex).isNotNull();
         assertThat(ex.getMessage()).isEqualTo("FORDEL-123:Journapost " + expectedJournalpostId + " finnes ikke i arkivet.");

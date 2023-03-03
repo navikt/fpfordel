@@ -10,11 +10,10 @@ public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler, C
 
     protected ProsessTaskTjeneste prosessTaskTjeneste;
 
-    public WrappedProsessTaskHandler() {
-
+    protected WrappedProsessTaskHandler() {
     }
 
-    public WrappedProsessTaskHandler(ProsessTaskTjeneste prosessTaskTjeneste) {
+    protected WrappedProsessTaskHandler(ProsessTaskTjeneste prosessTaskTjeneste) {
         this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
 

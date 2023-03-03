@@ -133,6 +133,6 @@ class JournalføringHendelseHåndtererTest {
 
     @Test
     void test_0argCtor() {
-        new JournalføringHendelseHåndterer();
+        assertThat(new JournalføringHendelseHåndterer()).isNotNull();
     }
 }

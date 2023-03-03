@@ -19,6 +19,7 @@ import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_SVAN
 import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.UDEFINERT;
 import static no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype.INNGÅENDE;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -107,41 +108,52 @@ class BehandleDokumentServiceTest {
 
     @Test
     void skalValiderePåkrevdInput_enhetId() {
-        assertThat(assertThrows(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class,
-            () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req(null, JOURNALPOST_ID, SAKSNUMMER))).getMessage().contains(ENHET_MANGLER));
+        var req = req(null, JOURNALPOST_ID, SAKSNUMMER);
+        assertThat(
+            assertThrows(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class,
+            () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req))
+        .getMessage()).contains(ENHET_MANGLER);
     }
 
     @Test
     void skalValiderePåkrevdInput_journalpostId() {
-        assertThat(assertThrows(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class,
-            () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req(ENHETID, null, SAKSNUMMER))).getMessage().contains(JOURNALPOST_MANGLER));
+        var req = req(ENHETID, null, SAKSNUMMER);
+        assertThat(
+            assertThrows(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class,
+            () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req))
+        .getMessage()).contains(JOURNALPOST_MANGLER);
     }
 
     @Test
     void skalValiderePåkrevdInput_saksnummer() {
-        assertThat(assertThrows(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class,
-            () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req(ENHETID, JOURNALPOST_ID, null))).getMessage()
-            .contains(SAKSNUMMER_UGYLDIG));
+        var req = req(ENHETID, JOURNALPOST_ID, null);
+        assertThat(
+            assertThrows(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class,
+            () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req))
+        .getMessage()).contains(SAKSNUMMER_UGYLDIG);
     }
 
     @Test
     void skalValidereAtFagsakFinnes() {
         when(fagsak.finnFagsakInfomasjon(any())).thenReturn(Optional.empty());
-        assertThat(assertThrows(FunksjonellException.class,
-            () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req(ENHETID, JOURNALPOST_ID, SAKSNUMMER))).getMessage()
-            .contains("Kan ikke journalføre på saksnummer"));
 
+        var req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        assertThat(
+                assertThrows(FunksjonellException.class,
+                    () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req))
+            .getMessage()).contains("Kan ikke journalføre på saksnummer");
     }
 
     @Test
     void skalIkkeJournalføreKlagerPåSakUtenBehandling() {
-
         when(fagsak.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any())).thenReturn(
             Optional.of(new FagsakInfomasjonDto(AKTØR_ID, UDEFINERT.getOffisiellKode())));
 
         when(journalpost.getHovedtype()).thenReturn(KLAGE_DOKUMENT);
+
+        var req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         assertThrows(FunksjonellException.class,
-            () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
+            () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
     }
 
     @Test
@@ -150,18 +162,19 @@ class BehandleDokumentServiceTest {
         when(journalpost.getHovedtype()).thenReturn(KLAGE_DOKUMENT);
         when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
-        behandleDokument.oppdaterOgFerdigstillJournalfoering(req(ENHETID, JOURNALPOST_ID, SAKSNUMMER));
+        assertDoesNotThrow(() -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
     }
 
     @Test
     void skalIkkeJournalførePapirsøknadSakAnnenYtelse() {
-
         when(fagsak.finnFagsakInfomasjon(ArgumentMatchers.<SaksnummerDto>any())).thenReturn(
             Optional.of(new FagsakInfomasjonDto(AKTØR_ID, FORELDREPENGER_FØDSEL.getOffisiellKode())));
 
         when(journalpost.getHovedtype()).thenReturn(SØKNAD_SVANGERSKAPSPENGER);
+
+        var req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         assertThrows(FunksjonellException.class,
-            () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
+            () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
     }
 
     @Test
@@ -207,8 +220,9 @@ class BehandleDokumentServiceTest {
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
         when(journalpost.getStrukturertPayload()).thenReturn(readFile("testdata/inntektsmelding-svangerskapspenger.xml"));
 
+        var req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         assertThrows(FunksjonellException.class,
-            () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
+            () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
     }
 
     @Test
@@ -219,9 +233,12 @@ class BehandleDokumentServiceTest {
 
         when(journalpost.getStrukturertPayload()).thenReturn(readFile("testdata/selvb-soeknad-forp-uttak-før-konfigverdi.xml"));
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
-        assertThat(assertThrows(FunksjonellException.class,
-            () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req(ENHETID, JOURNALPOST_ID, SAKSNUMMER))).getMessage()).contains(
-            "For tidlig");
+
+        var req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
+        assertThat(
+            assertThrows(FunksjonellException.class,
+            () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req))
+        .getMessage()).contains("For tidlig");
     }
 
     @Test
@@ -232,8 +249,11 @@ class BehandleDokumentServiceTest {
 
         when(journalpost.getStrukturertPayload()).thenReturn(readFile("testdata/fp-adopsjon-far.xml"));
         when(journalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
+
+        var req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         var e = assertThrows(FunksjonellException.class,
-            () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req(ENHETID, JOURNALPOST_ID, SAKSNUMMER)));
+            () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req));
+
         assertThat(e.getMessage()).contains("For tidlig");
     }
 

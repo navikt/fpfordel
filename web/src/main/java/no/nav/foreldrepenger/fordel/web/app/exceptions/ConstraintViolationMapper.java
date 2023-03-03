@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.fordel.web.app.exceptions;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.Path;
@@ -21,7 +20,7 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
     private static final Logger LOG = LoggerFactory.getLogger(ConstraintViolationMapper.class);
 
     private static String getFeltNavn(Path propertyPath) {
-        return propertyPath instanceof PathImpl ? ((PathImpl) propertyPath).getLeafNode().toString() : null;
+        return propertyPath instanceof PathImpl path ? path.getLeafNode().toString() : null;
     }
 
     @Override
@@ -32,7 +31,7 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
             String feltNavn = getFeltNavn(cv.getPropertyPath());
             feilene.add(new FeltFeilDto(feltNavn, cv.getMessage(), null));
         }
-        var feltNavn = feilene.stream().map(felt -> felt.navn()).collect(Collectors.toList());
+        var feltNavn = feilene.stream().map(FeltFeilDto::navn).toList();
         var feil = new FunksjonellException("FP-328673", String.format("Det oppstod en valideringsfeil på felt %s", feltNavn),
             "Kontroller at alle feltverdier er korrekte");
         LOG.warn(feil.getMessage());

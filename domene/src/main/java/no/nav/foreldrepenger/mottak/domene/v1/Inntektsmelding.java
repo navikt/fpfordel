@@ -45,6 +45,7 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
 
     @Override
     protected void validerSkjemaSemantisk(MottakMeldingDataWrapper dataWrapper) {
+        // Ikke gjør noe
     }
 
     private LocalDate getStartdatoForeldrepengeperiode() {
@@ -59,10 +60,6 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
         return startdatoForeldrepengeperiode.getValue();
     }
 
-    // FIXME (GS) Disse to verdiene må bli kodeverk her og i fpsak, men hardkodes nå
-    // som string for å unngå duplisering av kodeverk og migrering. Det må vel
-    // finnes
-    // en bedre løsning enn duplisering
     private String getÅrsakTilInnsending() {
         return getSkjema().getSkjemainnhold().getAarsakTilInnsending();
     }

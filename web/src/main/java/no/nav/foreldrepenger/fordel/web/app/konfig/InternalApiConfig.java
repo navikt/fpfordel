@@ -7,7 +7,7 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 import no.nav.foreldrepenger.fordel.web.app.metrics.PrometheusRestService;
-import no.nav.foreldrepenger.fordel.web.app.selftest.HealthCheckRestService;
+import no.nav.foreldrepenger.fordel.web.app.healthcheck.HealthCheckRestService;
 
 @ApplicationScoped
 @ApplicationPath(InternalApiConfig.API_URL)

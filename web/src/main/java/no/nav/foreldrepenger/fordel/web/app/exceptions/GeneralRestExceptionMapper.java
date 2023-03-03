@@ -53,7 +53,9 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
         if (cause instanceof ManglerTilgangException) {
             LOGGER.info(feil, cause);
         } else {
-            LOGGER.error("Fikk uventet feil:" + feil, cause);
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error(String.format("Fikk uventet feil: %s", feil), cause);
+            }
         }
 
         // key for å tracke prosess -- nullstill denne

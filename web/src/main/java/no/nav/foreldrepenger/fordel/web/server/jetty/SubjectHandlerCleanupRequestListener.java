@@ -12,7 +12,7 @@ import no.nav.vedtak.sikkerhet.context.ContextCleaner;
 @WebListener
 public class SubjectHandlerCleanupRequestListener implements ServletRequestListener {
 
-    private final Logger LOG = LoggerFactory.getLogger(SubjectHandlerCleanupRequestListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SubjectHandlerCleanupRequestListener.class);
 
     @Override
     public void requestDestroyed(ServletRequestEvent sre) {

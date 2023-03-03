@@ -15,6 +15,7 @@ public class CustomConfidentialMarkerFilter extends MarkerFilter {
         super.setMarker(CONFIDENTIAL.getName());
     }
 
+    @Override
     public FilterReply decide(Marker marker, Logger logger, Level level, String format, Object[] params, Throwable t) {
         if (this.isStarted() && marker != null) {
             if (marker.equals(CONFIDENTIAL)) {

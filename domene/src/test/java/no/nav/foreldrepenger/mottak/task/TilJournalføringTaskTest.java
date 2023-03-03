@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.task;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -164,7 +165,8 @@ class TilJournalføringTaskTest {
         data.setSaksnummer("saksnummer");
         data.setAktørId(AKTØR_ID);
         data.setArkivId(ARKIV_ID);
-        task.precondition(data);
+
+        assertDoesNotThrow(() -> task.precondition(data));
     }
 
     @Test

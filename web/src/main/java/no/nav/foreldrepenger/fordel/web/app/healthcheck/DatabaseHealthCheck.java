@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.fordel.web.app.selftest;
+package no.nav.foreldrepenger.fordel.web.app.healthcheck;
 
 import java.sql.SQLException;
 

@@ -39,9 +39,7 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
     }
 
     private static SimpleModule createModule() {
-        SimpleModule module = new SimpleModule("VL-REST", new Version(1, 0, 0, null, null, null));
-
-        return module;
+        return new SimpleModule("VL-REST", new Version(1, 0, 0, null, null, null));
     }
 
     public ObjectMapper getObjectMapper() {
