@@ -4,6 +4,10 @@ import java.time.LocalDate;
 
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 
-public record SakInfoDto(SaksnummerDto saksnummer, YtelseTypeDto ytelseType, LocalDate opprettetDato, LocalDate endretDato, StatusDto status, LocalDate gjeldendeFamiliehendelseDato) {
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+public record SakInfoDto(@NotNull @Valid SaksnummerDto saksnummer, @NotNull @Valid FagSakYtelseTypeDto fagSakYtelseTypeDto, @NotNull LocalDate opprettetDato, @NotNull @Valid FagsakStatusDto status, @Valid FamiliehendelseInfoDto familiehendelseInfoDto, LocalDate førsteUttaksdato) {
+    public record FamiliehendelseInfoDto(LocalDate familiehendelseDato, @Valid FamilieHendelseTypeDto familihendelseType) {}
 }
 

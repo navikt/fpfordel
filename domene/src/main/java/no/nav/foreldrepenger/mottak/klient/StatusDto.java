@@ -1,23 +1,14 @@
 package no.nav.foreldrepenger.mottak.klient;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public enum StatusDto {
-
-    OPPRETTET("OPPR"),
-    UNDER_BEHANDLING("UBEH"),
-    LØPENDE("LOP"),
-    AVSLUTTET("AVSLU"),
-    ;
-
-    @JsonValue
-    private String kode;
-
-    StatusDto(String kode) {
-        this.kode = kode;
-    }
-
-    public String getKode() {
-        return kode;
-    }
+    @JsonProperty("OPPR")
+    OPPRETTET,
+    @JsonProperty("UBEH")
+    UNDER_BEHANDLING,
+    @JsonProperty("LOP")
+    LØPENDE,
+    @JsonProperty("AVSLU")
+    AVSLUTTET
 }
