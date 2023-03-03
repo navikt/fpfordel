@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.mapFagsakStatusTilStatusDto;
 import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.mapYtelseTypeTilDto;
 
 import java.io.ByteArrayInputStream;
@@ -184,10 +183,10 @@ public class ManuellJournalføringRestTjeneste {
         if (aktørId == null) {
             return List.of();
         }
-        return fagsak.hentBrukersSaker(new AktørIdDto(aktørId)).stream()
-            .map(sak -> new JournalpostDetaljerDto.SakJournalføringDto(sak.saksnummer(), mapYtelseTypeTilDto(sak.fagSakYtelseTypeDto()), sak.opprettetDato(), mapFagsakStatusTilStatusDto(sak.status()),
-                new JournalpostDetaljerDto.SakJournalføringDto.FamilieHendelseJournalføringDto(sak.familiehendelseInfoDto().familiehendelseDato(), ManuellJournalføringMapper.mapHendelseTypeJF(sak.familiehendelseInfoDto().familihendelseType())),
-                sak.førsteUttaksdato())).toList();
+        return fagsak.hentBrukersSaker(new AktørIdDto(aktørId))
+            .stream()
+            .map(ManuellJournalføringMapper::mapSakJournalførinfDto)
+            .toList();
     }
     private JournalpostDetaljerDto.BrukerDto mapBruker(String aktørId) {
         if (aktørId != null) {

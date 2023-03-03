@@ -4,6 +4,7 @@ import no.nav.foreldrepenger.mottak.klient.FagSakYtelseTypeDto;
 
 import no.nav.foreldrepenger.mottak.klient.FagsakStatusDto;
 
+import no.nav.foreldrepenger.mottak.klient.SakInfoDto;
 import no.nav.foreldrepenger.mottak.klient.StatusDto;
 
 import org.slf4j.Logger;
@@ -114,5 +115,11 @@ private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringM
             case ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON, ENGANGSSTØNAD_FØDSEL -> YtelseTypeDto.ENGANGSTØNAD;
             default -> null;
         };
+    }
+
+    public static JournalpostDetaljerDto.SakJournalføringDto mapSakJournalførinfDto(SakInfoDto sakInfoDto) {
+        var familihendelseJFDto = sakInfoDto.familiehendelseInfoDto() != null ?
+            new JournalpostDetaljerDto.SakJournalføringDto.FamilieHendelseJournalføringDto(sakInfoDto.familiehendelseInfoDto().familiehendelseDato(), ManuellJournalføringMapper.mapHendelseTypeJF(sakInfoDto.familiehendelseInfoDto().familihendelseType())) : null;
+        return new JournalpostDetaljerDto.SakJournalføringDto(sakInfoDto.saksnummer(), mapYtelseTypeTilDto(sakInfoDto.fagSakYtelseTypeDto()), sakInfoDto.opprettetDato(), mapFagsakStatusTilStatusDto(sakInfoDto.status()), familihendelseJFDto,sakInfoDto.førsteUttaksdato());
     }
 }
