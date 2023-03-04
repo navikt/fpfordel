@@ -11,6 +11,9 @@ on:
       - '.java-version'
       - 'LICENCE'
       - 'CODEOWNERS'
+      - '.github/dependabot.yml'
+      - '.oracle/**'
+      - 'docs/**'
 
 jobs:
   build-app:
