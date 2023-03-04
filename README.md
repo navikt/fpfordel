@@ -1,4 +1,4 @@
-FPFORDEL
+FP-FORDEL
 ===============
 [![Bygg og deploy](https://github.com/navikt/fpfordel/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/navikt/fpfordel/actions/workflows/build.yml)
 [![Promote](https://github.com/navikt/fpfordel/actions/workflows/promote.yml/badge.svg?branch=master)](https://github.com/navikt/fpfordel/actions/workflows/promote.yml)
