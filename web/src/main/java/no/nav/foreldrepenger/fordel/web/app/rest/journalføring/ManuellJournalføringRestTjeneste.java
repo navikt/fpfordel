@@ -185,7 +185,7 @@ public class ManuellJournalføringRestTjeneste {
         }
         return fagsak.hentBrukersSaker(new AktørIdDto(aktørId))
             .stream()
-            .map(ManuellJournalføringMapper::mapSakJournalførinfDto)
+            .map(ManuellJournalføringMapper::mapSakJournalføringDto)
             .toList();
     }
     private JournalpostDetaljerDto.BrukerDto mapBruker(String aktørId) {

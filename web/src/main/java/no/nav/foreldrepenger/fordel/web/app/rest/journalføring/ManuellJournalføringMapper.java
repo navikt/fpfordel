@@ -16,6 +16,9 @@ import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 
 public class ManuellJournalføringMapper {
+    private ManuellJournalføringMapper() {
+        //sonar
+    }
 private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringMapper.class);
 
     static FamilihendelseTypeJFDto mapHendelseTypeJF(FamilieHendelseTypeDto familihendelseType) {
@@ -117,9 +120,9 @@ private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringM
         };
     }
 
-    public static JournalpostDetaljerDto.SakJournalføringDto mapSakJournalførinfDto(SakInfoDto sakInfoDto) {
+    static JournalpostDetaljerDto.SakJournalføringDto mapSakJournalføringDto(SakInfoDto sakInfoDto) {
         var familihendelseJFDto = sakInfoDto.familiehendelseInfoDto() != null ?
             new JournalpostDetaljerDto.SakJournalføringDto.FamilieHendelseJournalføringDto(sakInfoDto.familiehendelseInfoDto().familiehendelseDato(), ManuellJournalføringMapper.mapHendelseTypeJF(sakInfoDto.familiehendelseInfoDto().familihendelseType())) : null;
-        return new JournalpostDetaljerDto.SakJournalføringDto(sakInfoDto.saksnummer(), mapYtelseTypeTilDto(sakInfoDto.fagSakYtelseTypeDto()), sakInfoDto.opprettetDato(), mapFagsakStatusTilStatusDto(sakInfoDto.status()), familihendelseJFDto,sakInfoDto.førsteUttaksdato());
+        return new JournalpostDetaljerDto.SakJournalføringDto(sakInfoDto.saksnummer().getSaksnummer(), mapYtelseTypeTilDto(sakInfoDto.fagSakYtelseTypeDto()), sakInfoDto.opprettetDato(), mapFagsakStatusTilStatusDto(sakInfoDto.status()), familihendelseJFDto,sakInfoDto.førsteUttaksdato());
     }
 }
