@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.fordel.kodeverdi;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import no.nav.foreldrepenger.mottak.klient.FagSakYtelseTypeDto;
+import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -132,15 +132,15 @@ public enum BehandlingTema implements Kodeverdi {
         return termnavn;
     }
 
-    public FagSakYtelseTypeDto utledYtelseType() {
+    public FagsakYtelseTypeDto utledYtelseType() {
         if (BehandlingTema.gjelderForeldrepenger(this)) {
-            return FagSakYtelseTypeDto.FORELDREPENGER;
+            return FagsakYtelseTypeDto.FORELDREPENGER;
         }
         if (BehandlingTema.gjelderEngangsstønad(this)) {
-            return FagSakYtelseTypeDto.ENGANGSTØNAD;
+            return FagsakYtelseTypeDto.ENGANGSTØNAD;
         }
         if (BehandlingTema.gjelderSvangerskapspenger(this)) {
-            return FagSakYtelseTypeDto.SVANGERSKAPSPENGER;
+            return FagsakYtelseTypeDto.SVANGERSKAPSPENGER;
         }
         return null;
     }

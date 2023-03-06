@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.mottak.klient;
 
-public enum FagSakYtelseTypeDto {
+public enum FagsakYtelseTypeDto {
     ENGANGSTØNAD,
     FORELDREPENGER,
     SVANGERSKAPSPENGER,
