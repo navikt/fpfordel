@@ -9,8 +9,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-
-import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.klient.StatusDto;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 
@@ -27,7 +25,7 @@ public record JournalpostDetaljerDto(@NotNull String journalpostId, @NotNull Str
     public record DokumentDto(@NotNull String dokumentId, @NotNull String tittel, @NotNull String lenke) {
     }
 
-    public record SakJournalføringDto(@NotNull @Valid SaksnummerDto saksnummer, @NotNull @Valid YtelseTypeDto ytelseType, @NotNull LocalDate opprettetDato, @NotNull @Valid StatusDto status, FamilieHendelseJournalføringDto familieHendelseJf, LocalDate førsteUttaksdato ) {
+    public record SakJournalføringDto(@NotNull String saksnummer, @NotNull @Valid YtelseTypeDto ytelseType, @NotNull LocalDate opprettetDato, @NotNull @Valid StatusDto status, FamilieHendelseJournalføringDto familieHendelseJf, LocalDate førsteUttaksdato ) {
         record FamilieHendelseJournalføringDto(LocalDate familiehHendelseDato, @Valid FamilihendelseTypeJFDto familihendelseType) {}
     }
 }
