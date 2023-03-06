@@ -16,7 +16,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
-@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, application = FpApplication.FPLOS)
+@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPLOS)
 @ApplicationScoped
 public class LosKlient implements Los {
 
