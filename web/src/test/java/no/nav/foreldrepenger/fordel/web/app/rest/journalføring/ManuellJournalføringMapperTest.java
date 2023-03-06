@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
-import no.nav.foreldrepenger.mottak.klient.FagSakYtelseTypeDto;
+import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
 import no.nav.foreldrepenger.mottak.klient.FamilieHendelseTypeDto;
 
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
@@ -22,16 +22,16 @@ class ManuellJournalføringMapperTest {
 
     @Test
     void mapYtelseTypeFraDto() {
-        assertThat(ManuellJournalføringMapper.mapYtelseTypeFraDto(YtelseTypeDto.ENGANGSTØNAD)).isEqualTo(FagSakYtelseTypeDto.ENGANGSTØNAD);
-        assertThat(ManuellJournalføringMapper.mapYtelseTypeFraDto(YtelseTypeDto.FORELDREPENGER)).isEqualTo(FagSakYtelseTypeDto.FORELDREPENGER);
-        assertThat(ManuellJournalføringMapper.mapYtelseTypeFraDto(YtelseTypeDto.SVANGERSKAPSPENGER)).isEqualTo(FagSakYtelseTypeDto.SVANGERSKAPSPENGER);
+        assertThat(ManuellJournalføringMapper.mapYtelseTypeFraDto(YtelseTypeDto.ENGANGSTØNAD)).isEqualTo(FagsakYtelseTypeDto.ENGANGSTØNAD);
+        assertThat(ManuellJournalføringMapper.mapYtelseTypeFraDto(YtelseTypeDto.FORELDREPENGER)).isEqualTo(FagsakYtelseTypeDto.FORELDREPENGER);
+        assertThat(ManuellJournalføringMapper.mapYtelseTypeFraDto(YtelseTypeDto.SVANGERSKAPSPENGER)).isEqualTo(FagsakYtelseTypeDto.SVANGERSKAPSPENGER);
     }
 
     @Test
     void mapYtelseTypeTilDto() {
-        assertThat(ManuellJournalføringMapper.mapYtelseTypeTilDto(FagSakYtelseTypeDto.ENGANGSTØNAD)).isEqualTo(YtelseTypeDto.ENGANGSTØNAD);
-        assertThat(ManuellJournalføringMapper.mapYtelseTypeTilDto(FagSakYtelseTypeDto.FORELDREPENGER)).isEqualTo(YtelseTypeDto.FORELDREPENGER);
-        assertThat(ManuellJournalføringMapper.mapYtelseTypeTilDto(FagSakYtelseTypeDto.SVANGERSKAPSPENGER)).isEqualTo(YtelseTypeDto.SVANGERSKAPSPENGER);
+        assertThat(ManuellJournalføringMapper.mapYtelseTypeTilDto(FagsakYtelseTypeDto.ENGANGSTØNAD)).isEqualTo(YtelseTypeDto.ENGANGSTØNAD);
+        assertThat(ManuellJournalføringMapper.mapYtelseTypeTilDto(FagsakYtelseTypeDto.FORELDREPENGER)).isEqualTo(YtelseTypeDto.FORELDREPENGER);
+        assertThat(ManuellJournalføringMapper.mapYtelseTypeTilDto(FagsakYtelseTypeDto.SVANGERSKAPSPENGER)).isEqualTo(YtelseTypeDto.SVANGERSKAPSPENGER);
     }
 
     @Test

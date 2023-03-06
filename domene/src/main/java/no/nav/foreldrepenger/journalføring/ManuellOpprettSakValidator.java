@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.AktørIdDto;
-import no.nav.foreldrepenger.mottak.klient.FagSakYtelseTypeDto;
+import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.FagsakStatusDto;
 import no.nav.foreldrepenger.typer.AktørId;
@@ -35,56 +35,56 @@ public class ManuellOpprettSakValidator {
         this.fagsak = fagsak;
     }
 
-    private static FagSakYtelseTypeDto utledYtelseTypeFor(DokumentTypeId dokumentTypeId) {
+    private static FagsakYtelseTypeDto utledYtelseTypeFor(DokumentTypeId dokumentTypeId) {
         return switch (dokumentTypeId) {
-            case SØKNAD_ENGANGSSTØNAD_ADOPSJON -> FagSakYtelseTypeDto.ENGANGSTØNAD;
-            case SØKNAD_ENGANGSSTØNAD_FØDSEL -> FagSakYtelseTypeDto.ENGANGSTØNAD;
-            case SØKNAD_FORELDREPENGER_ADOPSJON -> FagSakYtelseTypeDto.FORELDREPENGER;
-            case SØKNAD_FORELDREPENGER_FØDSEL -> FagSakYtelseTypeDto.FORELDREPENGER;
-            case SØKNAD_SVANGERSKAPSPENGER -> FagSakYtelseTypeDto.SVANGERSKAPSPENGER;
+            case SØKNAD_ENGANGSSTØNAD_ADOPSJON -> FagsakYtelseTypeDto.ENGANGSTØNAD;
+            case SØKNAD_ENGANGSSTØNAD_FØDSEL -> FagsakYtelseTypeDto.ENGANGSTØNAD;
+            case SØKNAD_FORELDREPENGER_ADOPSJON -> FagsakYtelseTypeDto.FORELDREPENGER;
+            case SØKNAD_FORELDREPENGER_FØDSEL -> FagsakYtelseTypeDto.FORELDREPENGER;
+            case SØKNAD_SVANGERSKAPSPENGER -> FagsakYtelseTypeDto.SVANGERSKAPSPENGER;
             default -> null;
         };
     }
 
-    public void validerKonsistensMedSak(JournalpostId journalpostId, FagSakYtelseTypeDto oppgittFagSakYtelseTypeDto, AktørId aktørId) {
+    public void validerKonsistensMedSak(JournalpostId journalpostId, FagsakYtelseTypeDto oppgittFagsakYtelseTypeDto, AktørId aktørId) {
         requireNonNull(journalpostId, "Ugyldig input: JournalpostId kan ikke være null ved opprettelse av en sak.");
-        requireNonNull(oppgittFagSakYtelseTypeDto, "Ugyldig input: YtelseType kan ikke være null ved opprettelse av en sak.");
+        requireNonNull(oppgittFagsakYtelseTypeDto, "Ugyldig input: YtelseType kan ikke være null ved opprettelse av en sak.");
         requireNonNull(aktørId, "Ugyldig input: AktørId kan ikke være null ved opprettelse av en sak.");
 
         var arkivJournalpost = arkivTjeneste.hentArkivJournalpost(journalpostId.getVerdi());
         var hovedDokumentType = arkivJournalpost.getHovedtype();
 
-        FagSakYtelseTypeDto journalpostFagSakYtelseTypeDto = null;
+        FagsakYtelseTypeDto journalpostFagsakYtelseTypeDto = null;
 
         if (DokumentTypeId.erSøknadType(hovedDokumentType)) {
-            journalpostFagSakYtelseTypeDto = utledYtelseTypeFor(hovedDokumentType);
-            if (oppgittFagSakYtelseTypeDto.equals(journalpostFagSakYtelseTypeDto)) {
+            journalpostFagsakYtelseTypeDto = utledYtelseTypeFor(hovedDokumentType);
+            if (oppgittFagsakYtelseTypeDto.equals(journalpostFagsakYtelseTypeDto)) {
                 return;
             }
         } else if (DokumentTypeId.INNTEKTSMELDING.equals(hovedDokumentType)) {
             var original = arkivJournalpost.getStrukturertPayload().toLowerCase();
             if (original.contains("ytelse>foreldrepenger<")) {
-                if (harAktivSak(aktørId, oppgittFagSakYtelseTypeDto)) {
+                if (harAktivSak(aktørId, oppgittFagsakYtelseTypeDto)) {
                     throw new TekniskException("FP-34238",
                         "Kan ikke journalføre FP inntektsmelding på en ny sak fordi det finnes en aktiv foreldrepenger sak allerede.");
                 }
-                journalpostFagSakYtelseTypeDto = FagSakYtelseTypeDto.FORELDREPENGER;
+                journalpostFagsakYtelseTypeDto = FagsakYtelseTypeDto.FORELDREPENGER;
             } else if (original.contains("ytelse>svangerskapspenger<")) {
-                journalpostFagSakYtelseTypeDto = FagSakYtelseTypeDto.SVANGERSKAPSPENGER;
+                journalpostFagsakYtelseTypeDto = FagsakYtelseTypeDto.SVANGERSKAPSPENGER;
             }
         }
-        LOG.info("FPSAK vurdering ytelsedok {} vs ytelseoppgitt {}", journalpostFagSakYtelseTypeDto, oppgittFagSakYtelseTypeDto);
-        if (!oppgittFagSakYtelseTypeDto.equals(journalpostFagSakYtelseTypeDto)) {
+        LOG.info("FPSAK vurdering ytelsedok {} vs ytelseoppgitt {}", journalpostFagsakYtelseTypeDto, oppgittFagsakYtelseTypeDto);
+        if (!oppgittFagsakYtelseTypeDto.equals(journalpostFagsakYtelseTypeDto)) {
             throw new FunksjonellException("FP-785359", "Dokument og valgt ytelsetype i uoverenstemmelse",
                 "Velg ytelsetype som samstemmer med dokument");
         }
     }
 
-    private boolean harAktivSak(AktørId aktørId, FagSakYtelseTypeDto oppgittFagSakYtelseTypeDto) {
+    private boolean harAktivSak(AktørId aktørId, FagsakYtelseTypeDto oppgittFagsakYtelseTypeDto) {
         return fagsak.hentBrukersSaker(new AktørIdDto(aktørId.getId()))
             .stream()
             .filter(it -> !it.status().equals(FagsakStatusDto.AVSLUTTET))
-            .anyMatch(it -> it.fagSakYtelseTypeDto().equals(oppgittFagSakYtelseTypeDto));
+            .anyMatch(it -> it.fagsakYtelseTypeDto().equals(oppgittFagsakYtelseTypeDto));
     }
 
 }

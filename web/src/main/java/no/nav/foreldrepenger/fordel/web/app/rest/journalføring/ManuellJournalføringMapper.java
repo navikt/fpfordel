@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
-import no.nav.foreldrepenger.mottak.klient.FagSakYtelseTypeDto;
+import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
 
 import no.nav.foreldrepenger.mottak.klient.FagsakStatusDto;
 
@@ -30,25 +30,25 @@ private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringM
         };
     }
 
-    static YtelseTypeDto mapYtelseTypeTilDto(FagSakYtelseTypeDto fagSakYtelseTypeDto) {
-        if (null == fagSakYtelseTypeDto) {
+    static YtelseTypeDto mapYtelseTypeTilDto(FagsakYtelseTypeDto fagsakYtelseTypeDto) {
+        if (null == fagsakYtelseTypeDto) {
             return null;
         }
-        return switch (fagSakYtelseTypeDto) {
+        return switch (fagsakYtelseTypeDto) {
             case FORELDREPENGER -> YtelseTypeDto.FORELDREPENGER;
             case SVANGERSKAPSPENGER -> YtelseTypeDto.SVANGERSKAPSPENGER;
             case ENGANGSTØNAD -> YtelseTypeDto.ENGANGSTØNAD;
         };
     }
 
-    static FagSakYtelseTypeDto mapYtelseTypeFraDto(YtelseTypeDto ytelseTypeDto) {
+    static FagsakYtelseTypeDto mapYtelseTypeFraDto(YtelseTypeDto ytelseTypeDto) {
         if (null == ytelseTypeDto) {
             return null;
         }
         return switch (ytelseTypeDto) {
-            case FORELDREPENGER -> FagSakYtelseTypeDto.FORELDREPENGER;
-            case SVANGERSKAPSPENGER -> FagSakYtelseTypeDto.SVANGERSKAPSPENGER;
-            case ENGANGSTØNAD -> FagSakYtelseTypeDto.ENGANGSTØNAD;
+            case FORELDREPENGER -> FagsakYtelseTypeDto.FORELDREPENGER;
+            case SVANGERSKAPSPENGER -> FagsakYtelseTypeDto.SVANGERSKAPSPENGER;
+            case ENGANGSTØNAD -> FagsakYtelseTypeDto.ENGANGSTØNAD;
         };
     }
 
@@ -123,6 +123,6 @@ private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringM
     static JournalpostDetaljerDto.SakJournalføringDto mapSakJournalføringDto(SakInfoDto sakInfoDto) {
         var familihendelseJFDto = sakInfoDto.familiehendelseInfoDto() != null ?
             new JournalpostDetaljerDto.SakJournalføringDto.FamilieHendelseJournalføringDto(sakInfoDto.familiehendelseInfoDto().familiehendelseDato(), ManuellJournalføringMapper.mapHendelseTypeJF(sakInfoDto.familiehendelseInfoDto().familihendelseType())) : null;
-        return new JournalpostDetaljerDto.SakJournalføringDto(sakInfoDto.saksnummer().getSaksnummer(), mapYtelseTypeTilDto(sakInfoDto.fagSakYtelseTypeDto()), sakInfoDto.opprettetDato(), mapFagsakStatusTilStatusDto(sakInfoDto.status()), familihendelseJFDto,sakInfoDto.førsteUttaksdato());
+        return new JournalpostDetaljerDto.SakJournalføringDto(sakInfoDto.saksnummer().getSaksnummer(), mapYtelseTypeTilDto(sakInfoDto.fagsakYtelseTypeDto()), sakInfoDto.opprettetDato(), mapFagsakStatusTilStatusDto(sakInfoDto.status()), familihendelseJFDto,sakInfoDto.førsteUttaksdato());
     }
 }
