@@ -121,8 +121,8 @@ private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringM
     }
 
     static JournalpostDetaljerDto.SakJournalføringDto mapSakJournalføringDto(SakInfoDto sakInfoDto) {
-        var familihendelseJFDto = sakInfoDto.familiehendelseInfoDto() != null ?
-            new JournalpostDetaljerDto.SakJournalføringDto.FamilieHendelseJournalføringDto(sakInfoDto.familiehendelseInfoDto().familiehendelseDato(), ManuellJournalføringMapper.mapHendelseTypeJF(sakInfoDto.familiehendelseInfoDto().familihendelseType())) : null;
-        return new JournalpostDetaljerDto.SakJournalføringDto(sakInfoDto.saksnummer().getSaksnummer(), mapYtelseTypeTilDto(sakInfoDto.fagsakYtelseTypeDto()), sakInfoDto.opprettetDato(), mapFagsakStatusTilStatusDto(sakInfoDto.status()), familihendelseJFDto,sakInfoDto.førsteUttaksdato());
+        var familihendelseJFDto = sakInfoDto.familiehendelseInfoDto() != null ? new JournalpostDetaljerDto.SakJournalføringDto.FamilieHendelseJournalføringDto(sakInfoDto.familiehendelseInfoDto().familiehendelseDato(), ManuellJournalføringMapper.mapHendelseTypeJF(sakInfoDto.familiehendelseInfoDto().familihendelseType())) : null;
+
+        return new JournalpostDetaljerDto.SakJournalføringDto(sakInfoDto.saksnummer().getSaksnummer(), mapYtelseTypeTilDto(sakInfoDto.ytelseType()), sakInfoDto.opprettetDato(), mapFagsakStatusTilStatusDto(sakInfoDto.status()), familihendelseJFDto,sakInfoDto.førsteUttaksdato());
     }
 }

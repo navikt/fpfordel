@@ -84,7 +84,7 @@ public class ManuellOpprettSakValidator {
         return fagsak.hentBrukersSaker(new AktørIdDto(aktørId.getId()))
             .stream()
             .filter(it -> !it.status().equals(FagsakStatusDto.AVSLUTTET))
-            .anyMatch(it -> it.fagsakYtelseTypeDto().equals(oppgittFagsakYtelseTypeDto));
+            .anyMatch(it -> it.ytelseType().equals(oppgittFagsakYtelseTypeDto));
     }
 
 }
