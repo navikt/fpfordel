@@ -20,6 +20,7 @@ import static no.nav.vedtak.konfig.Tid.TIDENES_BEGYNNELSE;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -62,6 +63,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     private static final TaskType TASK_GOSYS = TaskType.forProsessTask(OpprettGSakOppgaveTask.class);
     private static final TaskType TASK_JOURNALFØR = TaskType.forProsessTask(TilJournalføringTask.class);
+
+    private static final Set<String> DIREKTE_KA = Set.of("anke", "rettskjennelse fra trygderetten");
 
     private static final Logger LOG = LoggerFactory.getLogger(HentDataFraJoarkTask.class);
 
@@ -174,9 +177,9 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         }
 
         // Egen rute for rene ankedokument - journalføringsoppgave Klageinstans
-        if (journalpost.getAlleTyper().contains(DokumentTypeId.KLAGE_DOKUMENT) && journalpost.getSaksnummer().isEmpty() && (
-            journalpost.getTittel().filter(t -> t.equalsIgnoreCase("anke")).isPresent() || ArkivTjeneste.harBrevKode(
-                journalpost.getOriginalJournalpost(), NAVSkjema.SKJEMA_KLAGE_A_DOKUMENT))) {
+        if (journalpost.getAlleTyper().contains(DokumentTypeId.KLAGE_DOKUMENT) && journalpost.getSaksnummer().isEmpty() &&
+            (journalpost.getTittel().map(String::toLowerCase).filter(DIREKTE_KA::contains).isPresent() ||
+                ArkivTjeneste.harBrevKode(journalpost.getOriginalJournalpost(), NAVSkjema.SKJEMA_KLAGE_A_DOKUMENT))) {
             LOG.info("FPFORDEL HentFraArkiv ankedokument til KA journalpost {} kanal {} dokumenttype {}", journalpost.getJournalpostId(),
                 journalpost.getKanal(), journalpost.getHovedtype());
             w.setJournalførendeEnhet(JournalføringsOppgave.NK_ENHET_ID);

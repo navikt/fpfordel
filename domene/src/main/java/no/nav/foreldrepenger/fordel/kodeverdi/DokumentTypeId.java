@@ -108,11 +108,13 @@ public enum DokumentTypeId implements Kodeverdi {
     private static final Set<DokumentTypeId> SØKNAD_TYPER = Set.of(SØKNAD_ENGANGSSTØNAD_FØDSEL, SØKNAD_FORELDREPENGER_FØDSEL,
         SØKNAD_ENGANGSSTØNAD_ADOPSJON, SØKNAD_FORELDREPENGER_ADOPSJON, SØKNAD_SVANGERSKAPSPENGER);
     private static final Set<DokumentTypeId> ENDRING_SØKNAD_TYPER = Set.of(FORELDREPENGER_ENDRING_SØKNAD, FLEKSIBELT_UTTAK_FORELDREPENGER);
+
     // Ulike titler er brukt i selvbetjening, fordel, sak og kodeverk
     private static final Map<String, DokumentTypeId> ALT_TITLER = Map.ofEntries(
         Map.entry("Søknad om svangerskapspenger til selvstendig næringsdrivende og frilanser", SØKNAD_SVANGERSKAPSPENGER),
         Map.entry("Søknad om svangerskapspenger for selvstendig", SØKNAD_SVANGERSKAPSPENGER),
-        Map.entry("Inntektsopplysningsskjema", INNTEKTSOPPLYSNINGER), Map.entry("Bekreftelse på avtalt ferie", DOK_FERIE),
+        Map.entry("Inntektsopplysningsskjema", INNTEKTSOPPLYSNINGER),
+        Map.entry("Bekreftelse på avtalt ferie", DOK_FERIE),
         Map.entry("Mor er innlagt i helseinstitusjon", DOK_INNLEGGELSE),
         Map.entry("Mor er i arbeid, tar utdanning eller er for syk til å ta seg av barnet", DOK_MORS_UTDANNING_ARBEID_SYKDOM),
         Map.entry("Dokumentasjon av termindato, fødsel eller dato for omsorgsovertakelse", DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL),
@@ -121,9 +123,13 @@ public enum DokumentTypeId implements Kodeverdi {
         Map.entry("Dokumentasjon av etterlønn eller sluttvederlag", DOK_ETTERLØNN),
         Map.entry("Beskrivelse/Dokumentasjon funksjonsnedsettelse", BESKRIVELSE_FUNKSJONSNEDSETTELSE),
         Map.entry("Mor deltar i kvalifiseringsprogrammet", BEKREFTELSE_DELTAR_KVALIFISERINGSPROGRAM),
-        Map.entry("Mor tar utdanning på heltid", BEKREFTELSE_FRA_STUDIESTED), Map.entry("Terminbekreftelse", BEKREFTELSE_VENTET_FØDSELSDATO),
-        Map.entry("Kopi av skattemelding", KOPI_SKATTEMELDING), Map.entry("Svar på varsel om tilbakebetaling", TILBAKEKREV_UTTALELSE),
-        Map.entry("Klage", DokumentTypeId.KLAGE_DOKUMENT), Map.entry("Anke", DokumentTypeId.KLAGE_DOKUMENT));
+        Map.entry("Mor tar utdanning på heltid", BEKREFTELSE_FRA_STUDIESTED),
+        Map.entry("Terminbekreftelse", BEKREFTELSE_VENTET_FØDSELSDATO),
+        Map.entry("Kopi av skattemelding", KOPI_SKATTEMELDING),
+        Map.entry("Svar på varsel om tilbakebetaling", TILBAKEKREV_UTTALELSE),
+        Map.entry("Klage", DokumentTypeId.KLAGE_DOKUMENT),
+        Map.entry("Anke", DokumentTypeId.KLAGE_DOKUMENT),
+        Map.entry("Rettskjennelse fra Trygderetten", DokumentTypeId.KLAGE_DOKUMENT));
 
     static {
         for (var v : values()) {
