@@ -1,12 +1,14 @@
 package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
+import no.nav.foreldrepenger.mottak.journal.saf.DokumentInfo;
 import no.nav.foreldrepenger.mottak.journal.saf.Journalpost;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.Los;
@@ -31,6 +33,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -68,17 +71,20 @@ class ManuellJournalføringRestTjenesteTest {
     }
 
     @Test
-    @DisplayName("/oppgaver - 1 oppgave = liste med 1 oppgave.")
-    void skal_levere_en_liste_med_oppgaver() {
+    @DisplayName("/oppgaver - 1 oppgave = liste med 1 oppgave med tittel.")
+    void skal_levere_en_liste_med_oppgaver_med_tittel() {
         var expectedId = 123L;
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
         var beskrivelse = "beskrivelse";
+
+        var journalpost = opprettJournalpost(expectedJournalpostId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, "tittel");
         var journalføringOppgaver = List.of(
-            opprettOppgave(expectedId, now, expectedJournalpostId, beskrivelse, BehandlingTema.FORELDREPENGER_ADOPSJON, tilhørendeEnhetDto.enhetsnummer()));
+            opprettOppgave(expectedId, now, expectedJournalpostId, beskrivelse, BehandlingTema.FORELDREPENGER_FØDSEL, tilhørendeEnhetDto.enhetsnummer()));
 
         when(los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident())).thenReturn(List.of(tilhørendeEnhetDto));
         when(oppgaver.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, tilhørendeEnhetDto.enhetsnummer(), LIMIT)).thenReturn(journalføringOppgaver);
+        when(arkiv.hentArkivJournalpost(expectedJournalpostId)).thenReturn(journalpost);
 
         var oppgaveDtos = restTjeneste.hentÅpneOppgaverForSaksbehandler(saksbehandlerIdentDto);
 
@@ -98,6 +104,39 @@ class ManuellJournalføringRestTjenesteTest {
     }
 
     @Test
+    @DisplayName("/oppgaver - 1 oppgave = liste med 1 oppgave uten tittel.")
+    void skal_levere_en_liste_med_oppgaver_uten_tittel() {
+        var expectedJournalPostUtenTittel = "1236";
+        var expectedOppgaveId = 125L;
+        var now = LocalDate.now();
+        var beskrivelse = "beskrivelse";
+
+        var journalpost = opprettJournalpost(expectedJournalPostUtenTittel, DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER, null);
+        var journalføringOppgaver = List.of(opprettOppgave(expectedOppgaveId, now, expectedJournalPostUtenTittel, beskrivelse, BehandlingTema.SVANGERSKAPSPENGER, tilhørendeEnhetDto.enhetsnummer()));
+
+        when(los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident())).thenReturn(List.of(tilhørendeEnhetDto));
+        when(oppgaver.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, tilhørendeEnhetDto.enhetsnummer(), LIMIT)).thenReturn(journalføringOppgaver);
+        when(arkiv.hentArkivJournalpost(expectedJournalPostUtenTittel)).thenReturn(journalpost);
+
+        var oppgaveDtos = restTjeneste.hentÅpneOppgaverForSaksbehandler(saksbehandlerIdentDto);
+
+        assertThat(oppgaveDtos).isNotNull().hasSize(1);
+        var oppgave = oppgaveDtos.get(0);
+        assertThat(oppgave.journalpostId()).isEqualTo(expectedJournalPostUtenTittel);
+        assertThat(oppgave.id()).isEqualTo(expectedOppgaveId);
+        assertThat(oppgave.frist()).isEqualTo(now);
+        assertThat(oppgave.aktørId()).isEqualTo("aktørId");
+        assertThat(oppgave.fødselsnummer()).isNull();
+        assertThat(oppgave.beskrivelse()).isEqualTo(beskrivelse);
+        assertThat(oppgave.opprettetDato()).isEqualTo(now);
+        assertThat(oppgave.prioritet()).isEqualTo(ManuellJournalføringRestTjeneste.OppgavePrioritet.NORM);
+        assertThat(oppgave.ytelseType()).isEqualTo(YtelseTypeDto.SVANGERSKAPSPENGER);
+        assertThat(oppgave.enhetId()).isEqualTo(tilhørendeEnhetDto.enhetsnummer());
+        assertThat(oppgave.journalpostHarMangler()).isTrue();
+    }
+
+
+    @Test
     @DisplayName("/oppgaver - 2 oppgaver = liste med 2 oppgaver med ulike enheter.")
     void skal_levere_en_liste_med_oppgaver_på_ulike_enheter() {
         var now = LocalDate.now();
@@ -109,8 +148,11 @@ class ManuellJournalføringRestTjenesteTest {
         var journalføringOppgaveEnhet1 = opprettOppgave(123L, now, "1111", "beskrivelse1", BehandlingTema.FORELDREPENGER_ADOPSJON, enhet1);
         var journalføringOppgaveEnhet2 = opprettOppgave(124L, now, "2222", "beskrivelse2", BehandlingTema.SVANGERSKAPSPENGER, enhet2);
 
+        var journalpost = opprettJournalpost("2222", DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER, "tittel");
+
         when(oppgaver.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, enhet1, LIMIT)).thenReturn(List.of(journalføringOppgaveEnhet1));
         when(oppgaver.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, enhet2, LIMIT)).thenReturn(List.of(journalføringOppgaveEnhet2));
+        when(arkiv.hentArkivJournalpost(any())).thenReturn(journalpost);
 
         var oppgaveDtos = restTjeneste.hentÅpneOppgaverForSaksbehandler(saksbehandlerIdentDto);
 
@@ -136,6 +178,8 @@ class ManuellJournalføringRestTjenesteTest {
 
         when(los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident())).thenReturn(List.of(tilhørendeEnhetDto));
         when(oppgaver.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, tilhørendeEnhetDto.enhetsnummer(), LIMIT)).thenReturn(journalføringOppgaver);
+        var journalpost = opprettJournalpost(expectedJournalpostId, DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER, "tittel");
+        when(arkiv.hentArkivJournalpost(any())).thenReturn(journalpost);
 
         var fnr = "12344345678";
         when(pdl.hentPersonIdentForAktørId(aktørId)).thenReturn(Optional.of(fnr));
@@ -160,6 +204,8 @@ class ManuellJournalføringRestTjenesteTest {
 
         when(los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident())).thenReturn(List.of(tilhørendeEnhetDto));
         when(oppgaver.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, tilhørendeEnhetDto.enhetsnummer(), LIMIT)).thenReturn(journalføringOppgaver);
+        var journalpost = opprettJournalpost(expectedJournalpostId, DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER, "tittel");
+        when(arkiv.hentArkivJournalpost(any())).thenReturn(journalpost);
 
         var oppgaveDtos = restTjeneste.hentÅpneOppgaverForSaksbehandler(saksbehandlerIdentDto);
 
@@ -221,18 +267,25 @@ class ManuellJournalføringRestTjenesteTest {
     void skal_returnere_detaljer() {
         var expectedJournalpostId = "12334";
 
-        when(arkiv.hentArkivJournalpost(expectedJournalpostId)).thenReturn(ArkivJournalpost.getBuilder()
-            .medJournalpostId(expectedJournalpostId)
-            .medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER)
-            .medTilstand(Journalstatus.MOTTATT)
-            .medJournalpost(
-                new Journalpost(expectedJournalpostId, null, null, null, null, null, null, null, null, null, null, null, null, List.of(), List.of()))
-            .build());
+        when(arkiv.hentArkivJournalpost(expectedJournalpostId)).thenReturn(opprettJournalpost(expectedJournalpostId, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, "tittel"));
 
         var ex = restTjeneste.hentJournalpostDetaljer(new JournalpostIdDto(expectedJournalpostId));
 
         assertThat(ex).isNotNull();
         assertThat(ex.journalpostId()).isEqualTo(expectedJournalpostId);
+    }
+
+    private ArkivJournalpost opprettJournalpost(String journalpostId, DokumentTypeId dokumentTypeId, String tittel) {
+        return ArkivJournalpost.getBuilder()
+            .medJournalpostId(journalpostId)
+            .medHovedtype(dokumentTypeId)
+            .medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER)
+            .medTilstand(Journalstatus.MOTTATT)
+            .medJournalpost(
+                new Journalpost(journalpostId, null, null, null, "tittel", null, null, null, null, null, null, null, null, List.of(),
+                    List.of(new DokumentInfo("555", tittel, "brevkode", null, null)))
+            )
+            .build();
     }
 
     private static Oppgave opprettOppgave(long expectedId, LocalDate now, String expectedJournalpostId, String beskrivelse, BehandlingTema behandlingTema, String enhetsNr) {

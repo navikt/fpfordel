@@ -30,6 +30,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilType;
 import no.nav.foreldrepenger.fordel.web.app.konfig.ApiConfig;
@@ -199,9 +200,19 @@ public class ManuellJournalføringRestTjeneste {
 
     private OppgaveDto lagOppgaveDto(Oppgave oppgave) {
         var trimmetBeskrivelse = ManuellJournalføringMapper.tekstFraBeskrivelse(oppgave.beskrivelse());
-        return new OppgaveDto(oppgave.id(), oppgave.journalpostId(), oppgave.aktoerId(), hentPersonIdent(oppgave.aktoerId()).orElse(null),
-            ManuellJournalføringMapper.mapTilYtelseType(oppgave.behandlingstema()), oppgave.fristFerdigstillelse(), ManuellJournalføringMapper.mapPrioritet(oppgave.prioritet()), oppgave.beskrivelse(),
-            trimmetBeskrivelse, oppgave.aktivDato(), ManuellJournalføringMapper.harJournalpostMangler(trimmetBeskrivelse), oppgave.tildeltEnhetsnr());
+
+        return new OppgaveDto(oppgave.id(), oppgave.journalpostId(), oppgave.aktoerId(), hentPersonIdent(oppgave.aktoerId()).orElse(null), ManuellJournalføringMapper.mapTilYtelseType(oppgave.behandlingstema()),
+            oppgave.fristFerdigstillelse(), ManuellJournalføringMapper.mapPrioritet(oppgave.prioritet()), oppgave.beskrivelse(), trimmetBeskrivelse, oppgave.aktivDato(),
+            harJournalpostMangler(trimmetBeskrivelse, oppgave.journalpostId()), oppgave.tildeltEnhetsnr());
+    }
+
+    private boolean harJournalpostMangler(String beskrivelse, String journalpostId) {
+        return beskrivelse.startsWith("Journalføring") || utledOmTittelMangler(journalpostId);
+    }
+
+    private boolean utledOmTittelMangler(String journalpostId) {
+        var journalpost = arkiv.hentArkivJournalpost(journalpostId);
+        return  journalpost.getOriginalJournalpost().dokumenter().stream().anyMatch(d -> (d.tittel() == null)) || (journalpost.getTittel().isEmpty() && DokumentTypeId.UDEFINERT.equals(journalpost.getHovedtype()));
     }
 
     private Optional<String> hentPersonIdent(String aktørId) {

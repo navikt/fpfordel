@@ -50,16 +50,6 @@ class ManuellJournalføringMapperTest {
     }
 
     @Test
-    void journalpostHarMangler() {
-        assertThat(ManuellJournalføringMapper.harJournalpostMangler("Journalføring (01.01.2022)")).isTrue();
-    }
-
-    @Test
-    void journalpostHarIkkeMangler() {
-        assertThat(ManuellJournalføringMapper.harJournalpostMangler("Inntektsmelding (01.01.2022)")).isFalse();
-    }
-
-    @Test
     void mapTilYtelseType() {
         assertThat(ManuellJournalføringMapper.mapTilYtelseType("ab0326")).isEqualTo(YtelseTypeDto.FORELDREPENGER);
     }
