@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.mottak.task.dokumentforsendelse.BehandleDokumentfor
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseIdDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -128,24 +127,6 @@ public class ForvaltningRestTjeneste {
     public Response autoRunBatch() {
         taskTjeneste.lagre(ProsessTaskData.forProsessTask(RekjørFeiledeTasksBatchTask.class));
         taskTjeneste.lagre(ProsessTaskData.forProsessTask(SlettGamleTasksBatchTask.class));
-        return Response.ok().build();
-    }
-
-    @POST
-    @Path("/retryAlleTasks")
-    @Operation(description = "Restarter alle prosesstask med status FEILET.", summary = "Dette endepunktet vil tvinge feilede tasks til å trigge ett forsøk uavhengig av maks antall forsøk", tags = "Forvaltning", responses = {@ApiResponse(responseCode = "200", description = "Response med liste av prosesstasks som restartes"), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")})
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response retryAlleProsessTasks() {
-        var antall = "Antall " + taskTjeneste.restartAlleFeiledeTasks();
-        return Response.ok(antall).build();
-    }
-
-    @POST
-    @Path("/setTaskFerdig")
-    @Operation(description = "Setter feilet prosesstask med angitt prosesstask-id til FERDIG (kjøres ikke)", tags = "Forvaltning", responses = {@ApiResponse(responseCode = "200", description = "Angitt prosesstask-id satt til status FERDIG"), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")})
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response setFeiletTaskFerdig(@Parameter(description = "Prosesstask-id for feilet prosesstask") @NotNull @Valid RetryTaskKanalrefDto dto) {
-        taskTjeneste.setProsessTaskFerdig(dto.getProsessTaskIdDto().getProsessTaskId(), ProsessTaskStatus.valueOf(dto.getRetrySuffix()));
         return Response.ok().build();
     }
 
