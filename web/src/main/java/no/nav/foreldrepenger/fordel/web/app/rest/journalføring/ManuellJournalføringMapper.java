@@ -103,9 +103,6 @@ private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringM
             case NORM -> ManuellJournalføringRestTjeneste.OppgavePrioritet.NORM;
         };
     }
-    static boolean harJournalpostMangler(String beskrivelse) {
-        return beskrivelse.startsWith("Journalføring");
-    }
 
     static YtelseTypeDto mapTilYtelseType(String behandlingstema) {
         LOG.info("FPFORDEL JOURNALFØRING Oppgave med behandlingstema {}", behandlingstema);
