@@ -56,11 +56,16 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Path(ManuellJournalføringRestTjeneste.JOURNALFOERING_PATH)
 @RequestScoped
 @Transactional
 public class ManuellJournalføringRestTjeneste {
     private static final Environment ENV = Environment.current();
+
+    private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringRestTjeneste.class);
 
     public static final String JOURNALFOERING_PATH = "/journalfoering";
     private static final String DOKUMENT_HENT_PATH = "/dokument/hent";
@@ -94,6 +99,7 @@ public class ManuellJournalføringRestTjeneste {
     @Operation(description = "Henter alle åpne journalføringsoppgaver for tema FOR og for saksbehandlers tilhørende enhet.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public List<OppgaveDto> hentÅpneOppgaverForSaksbehandler(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("ident") @NotNull @Valid SaksbehandlerIdentDto saksbehandlerIdentDto) {
+        LOG.info("FPFORDEL RESTJOURNALFØRING: Henter oppgaver");
         //Midlertidig for å kunne verifisere i produksjon - fjernes når verifisert ok
         if (ENV.isProd() && ("J116396".equals(KontekstHolder.getKontekst().getUid()) || "W119202".equals(KontekstHolder.getKontekst().getUid()))) {
             return oppgaver.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null , LIMIT)
@@ -130,6 +136,7 @@ public class ManuellJournalføringRestTjeneste {
     @Operation(description = "Henter detaljer for en gitt jornalpostId som er relevante for å kunne ferdigstille journalføring på en fagsak.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public JournalpostDetaljerDto hentJournalpostDetaljer(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("journalpostId") @NotNull @Valid JournalpostIdDto journalpostId) {
+        LOG.info("FPFORDEL RESTJOURNALFØRING: Henter journalpostdetaljer");
         try {
             return Optional.ofNullable(arkiv.hentArkivJournalpost(journalpostId.getJournalpostId()))
                 .map(this::mapTilJournalpostDetaljerDto)
@@ -163,7 +170,7 @@ public class ManuellJournalføringRestTjeneste {
         }
     }
 
-    private static Set<JournalpostDetaljerDto.DokumentDto> mapDokumenter(String journalpostId, List<DokumentInfo> dokumenter) {
+        private static Set<JournalpostDetaljerDto.DokumentDto> mapDokumenter(String journalpostId, List<DokumentInfo> dokumenter) {
         return dokumenter.stream()
             .map(dok -> new JournalpostDetaljerDto.DokumentDto(dok.dokumentInfoId(), dok.tittel(),
                 String.format("%s?journalpostId=%s&dokumentId=%s", FULL_HENT_DOKUMENT_PATH, journalpostId, dok.dokumentInfoId())))
