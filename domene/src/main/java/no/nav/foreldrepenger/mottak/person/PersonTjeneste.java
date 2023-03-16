@@ -125,13 +125,13 @@ public class PersonTjeneste implements PersonInformasjon {
     }
 
     private String tilknytning(GeografiskTilknytning res) {
+        // Udefinert og utland likebehandles
         if (res == null || res.getGtType() == null) {
             return null;
         }
         return switch (res.getGtType()) {
             case BYDEL -> res.getGtBydel();
             case KOMMUNE -> res.getGtKommune();
-            case UTLAND -> res.getGtLand();
             default -> null;
         };
     }
