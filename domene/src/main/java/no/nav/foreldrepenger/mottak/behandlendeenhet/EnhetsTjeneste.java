@@ -105,8 +105,8 @@ public class EnhetsTjeneste implements JournalføringsOppgave {
         }
 
         var gt = pdl.hentGeografiskTilknytning(aktørId);
-        if (gt == null) {
-            return tilfeldigNfpEnhet();
+        if (gt == null) { // Udefinert og utland likebehandles
+            return UTLAND_ENHET_ID;
         }
 
         var request = ArbeidsfordelingRequest.ny()

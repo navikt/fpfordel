@@ -127,7 +127,7 @@ class PersonTjenesteTest {
 
         var gt = personTjeneste.hentGeografiskTilknytning(AKTØR_ID);
         var diskresjonskode = personTjeneste.harStrengDiskresjonskode(AKTØR_ID);
-        assertThat(gt).isEqualTo("POL");
+        assertThat(gt).isNull();
         assertThat(diskresjonskode).isTrue();
     }
 }
