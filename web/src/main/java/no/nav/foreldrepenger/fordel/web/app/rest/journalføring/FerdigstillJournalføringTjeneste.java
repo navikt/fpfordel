@@ -58,13 +58,18 @@ public class FerdigstillJournalføringTjeneste {
     static final String BRUKER_MANGLER = "Journalpost mangler knyting til bruker - prøv igjen om et halv minutt";
     static final String JOURNALPOST_IKKE_INNGÅENDE = "Journalpost ikke Inngående";
     private static final Logger LOG = LoggerFactory.getLogger(FerdigstillJournalføringTjeneste.class);
-    private final VLKlargjører klargjører;
-    private final Fagsak fagsak;
-    private final PersonInformasjon pdl;
-    private final Oppgaver oppgaver;
-    private final ProsessTaskTjeneste taskTjeneste;
-    private final ArkivTjeneste arkivTjeneste;
-    private final DokumentRepository dokumentRepository;
+    private VLKlargjører klargjører;
+    private Fagsak fagsak;
+    private PersonInformasjon pdl;
+    private Oppgaver oppgaver;
+    private ProsessTaskTjeneste taskTjeneste;
+    private ArkivTjeneste arkivTjeneste;
+    private DokumentRepository dokumentRepository;
+
+    FerdigstillJournalføringTjeneste() {
+        //CDI
+    }
+
     @Inject
     public FerdigstillJournalføringTjeneste(VLKlargjører klargjører,
                                             Fagsak fagsak,
