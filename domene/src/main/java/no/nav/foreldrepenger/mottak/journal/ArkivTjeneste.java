@@ -48,6 +48,8 @@ public class ArkivTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArkivTjeneste.class);
 
+    private static final String KUNNE_IKKE_OPPDATERE_JP = "FPFORDEL Kunne ikke oppdatere journalpost ";
+
     private static final String FP_DOK_TYPE = "fp_innholdtype";
 
     // Fyll på med gjengangertitler som ikke omfattes av kodeverk DokumentTypeId
@@ -235,7 +237,7 @@ public class ArkivTjeneste {
             .leggTilTilleggsopplysning(new Tilleggsopplysning(FP_DOK_TYPE, dokumentTypeId.getOffisiellKode()))
             .medBruker(aktørId);
         if (!dokArkivTjeneste.oppdaterJournalpost(journalpostId, builder.build())) {
-            throw new IllegalStateException("FPFORDEL Kunne ikke oppdatere " + journalpostId);
+            throw new IllegalStateException(KUNNE_IKKE_OPPDATERE_JP + journalpostId);
         }
     }
 
@@ -253,7 +255,7 @@ public class ArkivTjeneste {
             }
             builder.leggTilTilleggsopplysning(new Tilleggsopplysning(FP_DOK_TYPE, hovedtype.getOffisiellKode()));
             if (!dokArkivTjeneste.oppdaterJournalpost(journalpost.journalpostId(), builder.build())) {
-                throw new IllegalStateException("FPFORDEL Kunne ikke oppdatere journalpost " + journalpost.journalpostId());
+                throw new IllegalStateException(KUNNE_IKKE_OPPDATERE_JP + journalpost.journalpostId());
             }
         } else {
             if (LOG.isInfoEnabled()) {
@@ -320,7 +322,7 @@ public class ArkivTjeneste {
         }
         oppdaterDok.forEach(builder::leggTilDokument);
         if (!dokArkivTjeneste.oppdaterJournalpost(journalpost.journalpostId(), builder.build())) {
-            throw new IllegalStateException("FPFORDEL Kunne ikke oppdatere " + journalpost.journalpostId());
+            throw new IllegalStateException(KUNNE_IKKE_OPPDATERE_JP + journalpost.journalpostId());
         }
         var resultat = !tittelMangler && (journalpost.dokumenter().stream().filter(d -> (d.tittel() == null) || d.tittel().isEmpty()).count()
             == oppdaterDok.size());
@@ -329,6 +331,28 @@ public class ArkivTjeneste {
         }
         return resultat;
     }
+
+    public void oppdaterJournalpostMedTitler(String journalpostId, Optional<String> journalpostTittel, List<OppdaterJournalpostRequest.DokumentInfoOppdater> dokumenter) {
+        var builder = OppdaterJournalpostRequest.ny();
+
+        journalpostTittel.ifPresent(tittel -> {
+            LOG.info("Legger på ny journalpostTittel:{} for journalpostId:{} ", tittel, journalpostId);
+            builder.medTittel(tittel);
+        });
+
+        if (!dokumenter.isEmpty()) {
+            dokumenter.forEach( dok-> {
+                LOG.info("Legger på tittel:{} for dokumentId:{} for dokumentId:{} ", dok.tittel(), dok.dokumentInfoId(), journalpostId);
+                builder.leggTilDokument(dok);
+            });
+        }
+        var journalpostRequest = builder.build();
+
+        if (!dokArkivTjeneste.oppdaterJournalpost(journalpostId, journalpostRequest)) {
+            throw new IllegalStateException(KUNNE_IKKE_OPPDATERE_JP + journalpostId);
+        }
+    }
+
 
     public void oppdaterMedSak(String journalpostId, String sakId, String aktørId) {
         if (sakId == null) {
