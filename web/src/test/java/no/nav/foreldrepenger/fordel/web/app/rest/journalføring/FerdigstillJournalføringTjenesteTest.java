@@ -55,10 +55,8 @@ import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.saf.DokumentInfo;
 import no.nav.foreldrepenger.mottak.journal.saf.Journalpost;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
-import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.VLKlargjører;
-import no.nav.foreldrepenger.typer.AktørId;
 import no.nav.foreldrepenger.typer.JournalpostId;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
@@ -74,8 +72,6 @@ class FerdigstillJournalføringTjenesteTest {
     private static final String SAKSNUMMER = "789";
     private static final String OPPGAVE_ID = "123456L";
     private static final String AKTØR_ID = "9000000000009";
-    private static final AktørId aktørId = new AktørId("9000000000009");
-    private static final FagsakYtelseTypeDto ytelseType = FagsakYtelseTypeDto.FORELDREPENGER;
     @Mock
     private VLKlargjører klargjører;
     @Mock
@@ -112,7 +108,7 @@ class FerdigstillJournalføringTjenesteTest {
         lenient().when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
         lenient().doThrow(new IllegalArgumentException("FEIL")).when(oppgaver).ferdigstillOppgave(anyString());
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, ytelseType, aktørId, OPPGAVE_ID);
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID);
         verify(oppgaver).ferdigstillOppgave(OPPGAVE_ID);
         var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste).lagre(taskCaptor.capture());
@@ -128,7 +124,7 @@ class FerdigstillJournalføringTjenesteTest {
             Optional.of(new FagsakInfomasjonDto(AKTØR_ID, BehandlingTema.UDEFINERT.getOffisiellKode())));
         when(arkivJournalpost.getHovedtype()).thenReturn(KLAGE_DOKUMENT);
 
-        assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, FagsakYtelseTypeDto.SVANGERSKAPSPENGER, aktørId, OPPGAVE_ID));
+        assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID));
     }
 
     @Test
@@ -138,14 +134,14 @@ class FerdigstillJournalføringTjenesteTest {
             Optional.of(new FagsakInfomasjonDto(AKTØR_ID, FORELDREPENGER_FØDSEL.getOffisiellKode())));
 
         when(arkivJournalpost.getHovedtype()).thenReturn(SØKNAD_SVANGERSKAPSPENGER);
-        assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, FagsakYtelseTypeDto.SVANGERSKAPSPENGER, aktørId, OPPGAVE_ID));
+        assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID));
     }
 
     @Test
     void skalValidereAtFagsakFinnes() {
         when(fagsak.finnFagsakInfomasjon(any())).thenReturn(Optional.empty());
 
-        Exception ex = assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, FagsakYtelseTypeDto.SVANGERSKAPSPENGER, aktørId, OPPGAVE_ID));
+        Exception ex = assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID));
 
         assertThat(ex.getMessage()).contains("Kan ikke journalføre på saksnummer");
     }
@@ -157,7 +153,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
         when(arkivJournalpost.getHovedtype()).thenReturn(SØKNAD_ENGANGSSTØNAD_FØDSEL);
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, ytelseType, aktørId, OPPGAVE_ID);
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID);
 
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
@@ -176,7 +172,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
         when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, ytelseType, aktørId, OPPGAVE_ID);
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID);
 
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
@@ -193,7 +189,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
         when(arkivJournalpost.getStrukturertPayload()).thenReturn(readFile("testdata/inntektsmelding-svangerskapspenger.xml"));
 
-        assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, ytelseType, aktørId, OPPGAVE_ID));
+        assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID));
     }
 
     @Test
@@ -205,7 +201,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getStrukturertPayload()).thenReturn(readFile("testdata/selvb-soeknad-forp-uttak-før-konfigverdi.xml"));
         when(arkivJournalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
 
-        FunksjonellException ex = assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, ytelseType, aktørId, OPPGAVE_ID));
+        FunksjonellException ex = assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID));
         assertThat(ex.getMessage()).contains("For tidlig");
     }
 
@@ -218,7 +214,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getStrukturertPayload()).thenReturn(readFile("testdata/fp-adopsjon-far.xml"));
         when(arkivJournalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
 
-        var e = assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, ytelseType, aktørId, OPPGAVE_ID));
+        var e = assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID));
         assertThat(e.getMessage()).contains("For tidlig");
     }
 
@@ -234,7 +230,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
         when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, ytelseType, aktørId, OPPGAVE_ID);
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID);
 
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
@@ -254,7 +250,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
         when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, ytelseType, aktørId, OPPGAVE_ID);
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID);
 
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
@@ -273,7 +269,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
         when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, ytelseType, aktørId, OPPGAVE_ID);
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID);
 
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
@@ -293,7 +289,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
         when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, ytelseType, aktørId, OPPGAVE_ID);
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID);
 
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
@@ -306,7 +302,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getTilstand()).thenReturn(Journalstatus.JOURNALFOERT);
         when(arkivJournalpost.getHovedtype()).thenReturn(SØKNAD_ENGANGSSTØNAD_FØDSEL);
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, ytelseType, aktørId, OPPGAVE_ID);
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID);
 
         verify(klargjører).klargjør(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(), eq(ENGANGSSTØNAD_FØDSEL), any(), any(), any(), any());
     }
