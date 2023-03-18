@@ -36,14 +36,12 @@ import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.saf.DokumentInfo;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
-import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
 import no.nav.foreldrepenger.mottak.klient.OpprettSakV2Dto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.VLKlargjørerTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.VLKlargjører;
-import no.nav.foreldrepenger.typer.AktørId;
 import no.nav.foreldrepenger.typer.JournalpostId;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
@@ -87,18 +85,12 @@ public class FerdigstillJournalføringTjeneste {
         this.dokumentRepository = dokumentRepository;
     }
 
-    public void oppdaterJournalpostOgFerdigstill(String enhetId, String saksnummer, JournalpostId journalpostId, FagsakYtelseTypeDto ytelseType, AktørId aktørId, String oppgaveId ) {
+    public void oppdaterJournalpostOgFerdigstill(String enhetId, String saksnummer, JournalpostId journalpostId, String oppgaveId ) {
 
         final var journalpost = hentJournalpost(journalpostId.getVerdi());
         validerJournalposttype(journalpost.getJournalposttype());
 
         LOG.info("FPFORDEL RESTJOURNALFØRING: Ferdigstiller journalpostId: {}", journalpostId);
-
-        if (saksnummer == null) {
-        saksnummer = opprettSak(journalpostId, ytelseType, aktørId);
-        }
-
-        validerSaksnummer(saksnummer);
 
         var fagsakInfomasjon = hentOgValiderFagsak(saksnummer, journalpost);
 
@@ -217,13 +209,12 @@ public class FerdigstillJournalføringTjeneste {
         }
     }
 
-    String opprettSak(JournalpostId journalpostId, FagsakYtelseTypeDto ytelseType, AktørId aktørId) {
-        String saksnummer;
+    String opprettSak(JournalpostId journalpostId, FerdigstillJournalføringRestTjeneste.OpprettSak opprettSakInfo) {
+        var aktørId = opprettSakInfo.aktørId().toString();
 
-        new ManuellOpprettSakValidator(arkivTjeneste, fagsak).validerKonsistensMedSak(journalpostId, ytelseType, aktørId);
+        new ManuellOpprettSakValidator(arkivTjeneste, fagsak).validerKonsistensMedSak(journalpostId, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId());
 
-        saksnummer = fagsak.opprettSak(new OpprettSakV2Dto(journalpostId.getVerdi(), mapYtelseTypeTilDto(ytelseType), aktørId.getId())).getSaksnummer();
-        return saksnummer;
+        return fagsak.opprettSak(new OpprettSakV2Dto(journalpostId.getVerdi(), mapYtelseTypeTilDto(opprettSakInfo.ytelseType()), aktørId)).getSaksnummer();
     }
 
 
@@ -351,15 +342,6 @@ public class FerdigstillJournalføringTjeneste {
         var startDato = dataWrapper.getOmsorgsovertakelsedato().orElse(dataWrapper.getFørsteUttaksdag().orElse(Tid.TIDENES_ENDE));
         validerDokumentData(dataWrapper, behandlingTema, dokumentTypeId, imType, startDato);
         return xml;
-    }
-
-    private static void validerSaksnummer(String saksnummer) {
-        if (erNullEllerTom(saksnummer)) {
-            throw new TekniskException("FP-15677", lagUgyldigInputMelding("Saksnummer", saksnummer));
-        }
-    }
-    private static boolean erNullEllerTom(String s) {
-        return ((s == null) || s.isEmpty());
     }
 
     private static void validerJournalposttype(Journalposttype type) {

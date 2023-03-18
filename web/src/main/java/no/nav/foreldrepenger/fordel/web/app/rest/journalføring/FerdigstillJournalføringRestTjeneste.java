@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.fordel.web.server.abac.AppAbacAttributtType;
+import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.typer.AktørId;
 import no.nav.foreldrepenger.typer.JournalpostId;
@@ -67,21 +68,30 @@ public class FerdigstillJournalføringRestTjeneste {
     public void oppdaterOgFerdigstillJournalfoering(@Parameter(description = "Trenger journalpostId, saksnummer og enhet til ferdigstille en journalføring. "
             + "Om saksnummer ikke foreligger må ytelse type og aktørId oppgis for å opprette en ny sak.") @NotNull @Valid
             @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FerdigstillJournalføringRestTjeneste.FerdigstillRequest request) {
-
         validerJournalpostId(request.journalpostId());
         validerEnhetId(request.enhetId());
 
-        var opprettSak = Optional.ofNullable(request.opprettSak)
-            .orElseThrow(() -> new TekniskException("FP-32354", "OpprettSakDto kan ikke være null ved opprettelse av en sak."));
-
         var journalpostId = new JournalpostId(request.journalpostId);
-        var ytelseType = mapYtelseTypeFraDto(opprettSak.ytelseType());
-        var aktørId = new AktørId(opprettSak.aktørId());
         var oppgaveId = request.oppgaveId();
         var saksnummer = request.saksnummer() != null ? request.saksnummer() : null;
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(request.enhetId, saksnummer, journalpostId, ytelseType, aktørId, oppgaveId.toString());
+        if (saksnummer == null) {
+            saksnummer = journalføringTjeneste.opprettSak(journalpostId, mapOpprettSak(request.opprettSak()));
+        }
+
+        validerSaksnummer(saksnummer);
+
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(request.enhetId, saksnummer, journalpostId, oppgaveId.toString());
     }
+
+    private OpprettSak mapOpprettSak(OpprettSakDto opprettSakDto) {
+        if (opprettSakDto == null) {
+            throw new TekniskException("FP-32354", "OpprettSakDto kan ikke være null ved opprettelse av en sak.");
+        }
+        return new OpprettSak(new AktørId(opprettSakDto.aktørId), mapYtelseTypeFraDto(opprettSakDto.ytelseType));
+    }
+
+    public record OpprettSak(AktørId aktørId, FagsakYtelseTypeDto ytelseType ){}
 
     @POST
     @Path("/oppdaterJournalpostTittel")
@@ -105,6 +115,12 @@ public class FerdigstillJournalføringRestTjeneste {
 
     private List<FerdigstillJournalføringTjeneste.DokumenterMedNyTittel> mapTilDokumenter(List<OppdaterJournalpostMedTittelRequest.OppdaterDokumentRequest> dokumenter) {
         return dokumenter.stream().map(d -> new FerdigstillJournalføringTjeneste.DokumenterMedNyTittel(d.dokumentIdDto().dokumentId(), d.tittel())).toList();
+    }
+
+    private static void validerSaksnummer(String saksnummer) {
+        if (erNullEllerTom(saksnummer)) {
+            throw new TekniskException("FP-15677", lagUgyldigInputMelding("Saksnummer", saksnummer));
+        }
     }
 
     private static void validerEnhetId(String enhetId) {
