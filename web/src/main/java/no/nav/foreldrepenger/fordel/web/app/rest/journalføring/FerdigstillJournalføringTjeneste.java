@@ -113,7 +113,7 @@ public class FerdigstillJournalføringTjeneste {
             } catch (Exception e) {
                 LOG.info("FPFORDEL RESTJOURNALFØRING: Feil ved setting av tilleggsopplysninger for journalpostId {}", journalpost.getJournalpostId());
             }
-            LOG.info("FPFORDEL RESTJOURNALFØRING: Kaller tilJournalføring"); // NOSONAR
+            LOG.info("FPFORDEL RESTJOURNALFØRING: Kaller til Journalføring"); // NOSONAR
             try {
                 arkivTjeneste.oppdaterMedSak(journalpost.getJournalpostId(), saksnummer, aktørIdFagsak);
                 arkivTjeneste.ferdigstillJournalføring(journalpost.getJournalpostId(), enhetId);
