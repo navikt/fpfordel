@@ -37,6 +37,9 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Enkelt REST tjeneste for å oppdatere og ferdigstille journalføring på dokumenter som kunne ikke
  * journalføres automatisk på fpsak saker. Brukes for å klargjøre og sende over saken til videre behandling i VL.
@@ -49,6 +52,7 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Transactional
 public class FerdigstillJournalføringRestTjeneste {
     private FerdigstillJournalføringTjeneste journalføringTjeneste;
+    private static final Logger LOG = LoggerFactory.getLogger(FerdigstillJournalføringRestTjeneste.class);
 
 
     protected FerdigstillJournalføringRestTjeneste() {
@@ -70,6 +74,7 @@ public class FerdigstillJournalføringRestTjeneste {
             @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FerdigstillJournalføringRestTjeneste.FerdigstillRequest request) {
         validerJournalpostId(request.journalpostId());
         validerEnhetId(request.enhetId());
+        LOG.info("FPFORDEL RESTJOURNALFØRING: Starter ferdigstilling av journalpostId {}", request.journalpostId);
 
         var journalpostId = new JournalpostId(request.journalpostId);
         var oppgaveId = request.oppgaveId();
