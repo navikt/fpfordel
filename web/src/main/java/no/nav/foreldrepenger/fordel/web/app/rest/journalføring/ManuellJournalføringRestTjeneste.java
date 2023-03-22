@@ -102,11 +102,13 @@ public class ManuellJournalføringRestTjeneste {
         LOG.info("FPFORDEL RESTJOURNALFØRING: Henter oppgaver");
         //Midlertidig for å kunne verifisere i produksjon - fjernes når verifisert ok
         if (ENV.isProd() && ("J116396".equals(KontekstHolder.getKontekst().getUid()) || "W119202".equals(KontekstHolder.getKontekst().getUid()))) {
-            return oppgaver.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null , LIMIT)
+            var oppgaveDtoer = oppgaver.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null , LIMIT)
                 .stream()
                 .filter(oppgave -> oppgave.aktoerId() != null)
                 .map(this::lagOppgaveDto)
                 .toList();
+            LOG.info("FPFORDEL RESTJOURNALFØRING: Henter {} oppgaver", oppgaveDtoer.size());
+            return oppgaveDtoer;
         }
 
         var tilhørendeEnheter = los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident());
@@ -126,6 +128,7 @@ public class ManuellJournalføringRestTjeneste {
                 throw new IllegalStateException("FPFORDEL feilet å hente åpne oppgaver for enhet " + enhet + " med melding {} ", e);
             }
         }
+        LOG.info("FPFORDEL RESTJOURNALFØRING: Henter {} oppgaver", oppgaverPåSaksbehandlersEnheter.size());
         return oppgaverPåSaksbehandlersEnheter;
     }
 
@@ -136,11 +139,13 @@ public class ManuellJournalføringRestTjeneste {
     @Operation(description = "Henter detaljer for en gitt jornalpostId som er relevante for å kunne ferdigstille journalføring på en fagsak.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public JournalpostDetaljerDto hentJournalpostDetaljer(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("journalpostId") @NotNull @Valid JournalpostIdDto journalpostId) {
-        LOG.info("FPFORDEL RESTJOURNALFØRING: Henter journalpostdetaljer");
+        LOG.info("FPFORDEL RESTJOURNALFØRING: Henter journalpostdetaljer for journalpostId {}", journalpostId);
         try {
-            return Optional.ofNullable(arkiv.hentArkivJournalpost(journalpostId.getJournalpostId()))
+            var journalpostDetaljer =  Optional.ofNullable(arkiv.hentArkivJournalpost(journalpostId.getJournalpostId()))
                 .map(this::mapTilJournalpostDetaljerDto)
                 .orElseThrow();
+            LOG.info("FPFORDEL RESTJOURNALFØRING: Journalpost-tema:{} journalpostTittel:{} antall dokumenter:{}",  journalpostDetaljer.behandlingTema(), journalpostDetaljer.tittel(), journalpostDetaljer.dokumenter().size());
+            return journalpostDetaljer;
         } catch (NoSuchElementException ex) {
             throw new TekniskException("FORDEL-123", "Journapost " + journalpostId.getJournalpostId() + " finnes ikke i arkivet.", ex);
         }
