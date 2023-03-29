@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
 import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.mapYtelseTypeFraDto;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -86,7 +86,16 @@ public class FerdigstillJournalføringRestTjeneste {
 
         validerSaksnummer(saksnummer);
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(request.enhetId, saksnummer, journalpostId, oppgaveId.toString());
+        List<FerdigstillJournalføringTjeneste.DokumenterMedNyTittel> dokumenter = new ArrayList<>();
+        String nyJournalpostTittel = null;
+        if (request.oppdaterTitlerDto != null) {
+            if (!request.oppdaterTitlerDto.dokumenter().isEmpty()) {
+                dokumenter = mapTilDokumenter(request.oppdaterTitlerDto.dokumenter());
+            }
+            nyJournalpostTittel = request.oppdaterTitlerDto().journalpostTittel() != null ? request.oppdaterTitlerDto().journalpostTittel() : null;
+        }
+
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(request.enhetId, saksnummer, journalpostId, oppgaveId.toString(), nyJournalpostTittel ,dokumenter );
     }
 
     private OpprettSak mapOpprettSak(OpprettSakDto opprettSakDto) {
@@ -98,27 +107,7 @@ public class FerdigstillJournalføringRestTjeneste {
 
     public record OpprettSak(AktørId aktørId, FagsakYtelseTypeDto ytelseType ){}
 
-    @POST
-    @Path("/oppdaterJournalpostTittel")
-    @Operation(description = "Opdaterer tittel på angitte dokumenter. Dersom valg av dokumentittel fører til ny journalposttittel returneres denne", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "200", description = "Journalpost oppdatert"), @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
-    public JournalpostTittelDto oppdaterJournalpost(@Parameter(description = "Trenger journalpostId og en liste med dokumentId og tittel for de dokumentene som skal oppdateres.") @NotNull @Valid
-                                                    @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) OppdaterJournalpostMedTittelRequest journalpostRequest) {
-
-        validerJournalpostId(journalpostRequest.journalpostId());
-        var journalpostId = new JournalpostId(journalpostRequest.journalpostId());
-
-        if (journalpostRequest.dokumenter().isEmpty() ) {
-            throw new TekniskException("FpFordel: Ingen dokumenter å oppdatere for journalpostId {}",journalpostId.getVerdi() );
-        }
-        List<FerdigstillJournalføringTjeneste.DokumenterMedNyTittel> dokumenter = mapTilDokumenter(journalpostRequest.dokumenter());
-
-        Optional<String> nyJournalpostTittel = journalføringTjeneste.utledJournalpostTittelOgOppdater(dokumenter, journalpostId);
-
-        return new JournalpostTittelDto(nyJournalpostTittel.orElse(null));
-    }
-
-    private List<FerdigstillJournalføringTjeneste.DokumenterMedNyTittel> mapTilDokumenter(List<OppdaterJournalpostMedTittelRequest.OppdaterDokumentRequest> dokumenter) {
+    private List<FerdigstillJournalføringTjeneste.DokumenterMedNyTittel> mapTilDokumenter(List<OppdaterJournalpostMedTittelDto.DokummenterMedTitler> dokumenter) {
         return dokumenter.stream().map(d -> new FerdigstillJournalføringTjeneste.DokumenterMedNyTittel(d.dokumentIdDto().dokumentId(), d.tittel())).toList();
     }
 
@@ -147,7 +136,6 @@ public class FerdigstillJournalføringRestTjeneste {
     private static String lagUgyldigInputMelding(String feltnavn, String verdi) {
         return String.format("Ugyldig input: %s med verdi: %s er ugyldig input.", feltnavn, verdi);
     }
-    public record JournalpostTittelDto(String journalpostTittel) {}
 
     public static class AbacDataSupplier implements Function<Object, AbacDataAttributter> {
 
@@ -171,6 +159,6 @@ public class FerdigstillJournalføringRestTjeneste {
         @NotNull String enhetId,
         @Size(max = 11) @Pattern(regexp = "^[0-9_\\-]*$") String saksnummer,
         Long oppgaveId,
-        @Valid OpprettSakDto opprettSak) {
-    }
+        @Valid OpprettSakDto opprettSak,
+        OppdaterJournalpostMedTittelDto oppdaterTitlerDto ) {}
 }

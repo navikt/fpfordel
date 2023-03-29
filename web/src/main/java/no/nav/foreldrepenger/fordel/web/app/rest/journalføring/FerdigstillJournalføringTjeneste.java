@@ -5,6 +5,7 @@ import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJo
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -15,6 +16,9 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OppdaterJournalpostRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +89,8 @@ public class FerdigstillJournalføringTjeneste {
         this.dokumentRepository = dokumentRepository;
     }
 
-    public void oppdaterJournalpostOgFerdigstill(String enhetId, String saksnummer, JournalpostId journalpostId, String oppgaveId ) {
+    public void oppdaterJournalpostOgFerdigstill(String enhetId, String saksnummer, JournalpostId journalpostId, String oppgaveId,
+                                                 String nyJournalpostTittel, List<DokumenterMedNyTittel> dokumenterMedNyTittel) {
 
         final var journalpost = hentJournalpost(journalpostId.getVerdi());
         validerJournalposttype(journalpost.getJournalposttype());
@@ -96,7 +101,13 @@ public class FerdigstillJournalføringTjeneste {
 
         final var behandlingTemaFagsak = BehandlingTema.fraOffisiellKode(fagsakInfomasjon.getBehandlingstemaOffisiellKode());
         final var aktørIdFagsak = fagsakInfomasjon.getAktørId();
-        final var dokumentTypeId = journalpost.getHovedtype();
+
+        var dokumentTypeId = journalpost.getHovedtype();
+        var oppdatereTitler = nyJournalpostTittel != null || dokumenterMedNyTittel != null;
+        if (nyJournalpostTittel != null) {
+            dokumentTypeId = DokumentTypeId.fraTermNavn(nyJournalpostTittel);
+        }
+
         final var behandlingTemaDok = ArkivUtil.behandlingTemaFraDokumentType(BehandlingTema.UDEFINERT, dokumentTypeId);
         final var behandlingTema = validerOgVelgBehandlingTema(behandlingTemaFagsak, behandlingTemaDok, dokumentTypeId);
         final var dokumentKategori = ArkivUtil.utledKategoriFraDokumentType(dokumentTypeId);
@@ -105,11 +116,16 @@ public class FerdigstillJournalføringTjeneste {
 
         if (Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
             var brukDokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokumentTypeId) ? DokumentTypeId.ANNET : dokumentTypeId;
-            if (!arkivTjeneste.oppdaterRettMangler(journalpost, aktørIdFagsak, behandlingTema, brukDokumentTypeId)) {
-                throw new TekniskException("FP-15678", lagUgyldigInputMelding("Bruker", BRUKER_MANGLER));
+            //oppdaterJournalpostMedTittelOgMangler skal erstatte oppdaterRettMangler når gui er på plass
+            if (oppdatereTitler) {
+                oppdaterJournalpostMedTittelOgMangler(journalpost, nyJournalpostTittel, dokumenterMedNyTittel, aktørIdFagsak, behandlingTema);
+            } else {
+                if (!arkivTjeneste.oppdaterRettMangler(journalpost, aktørIdFagsak, behandlingTema, brukDokumentTypeId)) {
+                    throw new TekniskException("FP-15678", lagUgyldigInputMelding("Bruker", BRUKER_MANGLER));
+                }
             }
             try {
-                arkivTjeneste.settTilleggsOpplysninger(journalpost, brukDokumentTypeId);
+                arkivTjeneste.settTilleggsOpplysninger(journalpost, brukDokumentTypeId, oppdatereTitler);
             } catch (Exception e) {
                 LOG.info("FPFORDEL RESTJOURNALFØRING: Feil ved setting av tilleggsopplysninger for journalpostId {}", journalpost.getJournalpostId());
             }
@@ -144,23 +160,37 @@ public class FerdigstillJournalføringTjeneste {
         opprettFerdigstillOppgaveTask(oppgaveId);
     }
 
-    public Optional<String> utledJournalpostTittelOgOppdater(List<DokumenterMedNyTittel> dokumenterMedNyTittel, JournalpostId journalpostId) {
+    public void oppdaterJournalpostMedTittelOgMangler(ArkivJournalpost journalpost, String nyJournalpostTittel, List<DokumenterMedNyTittel> dokumenterMedNyTittel, String aktørId, BehandlingTema behandlingTema) {
+        var journalpostId = journalpost.getJournalpostId();
+        var kanal = journalpost.getKanal();
 
-        final var arkivJournalpost = hentJournalpost(journalpostId.getVerdi());
+        if ((nyJournalpostTittel != null || !dokumenterMedNyTittel.isEmpty()) && (MottakKanal.SELVBETJENING.name().equals(kanal) || MottakKanal.ALTINN.name().equals(kanal))) {
+                throw new FunksjonellException("FP-963071", String.format("Kan ikke endre tittel på journalpost med id %s som kommer fra Selvbetjening eller Altinn.", journalpostId),
+                    "Tittel kan ikke endres når journalposten kommer fra selvbetjening eller altinn");
+        }
 
-        LOG.info("FPFORDEL RESTJOURNALFØRING: Oppdaterer titler for journalpostId: {}", journalpostId.getVerdi());
+        LOG.info("FPFORDEL RESTJOURNALFØRING: Oppdaterer generelle mangler og titler for journalpostId: {}", journalpostId);
 
-        var opprinneligHovedType = arkivJournalpost.getHovedtype();
-        var dokumenterFraArkiv = arkivJournalpost.getOriginalJournalpost().dokumenter();
+        //Fjernes når vi har fått informasjon om hvor ofte dette skjer
+        if (nyJournalpostTittel != null ) {
+            var dokumenterFraArkiv = journalpost.getOriginalJournalpost().dokumenter();
 
-        Set<DokumentTypeId> dokumenttyper = utledDokumentTyper(dokumenterMedNyTittel, dokumenterFraArkiv);
+            Set<DokumentTypeId> nyeDokumenttyper = utledDokumentTyper(dokumenterMedNyTittel, dokumenterFraArkiv);
 
-        var nyHovedtype = ArkivUtil.utledHovedDokumentType(dokumenttyper);
-        var nyJournalpostTittel = skalOppdatereJournalpostTittel(nyHovedtype, opprinneligHovedType);
-        var dokumenterÅOppdatere = mapDokumenterTilOppdatering(dokumenterMedNyTittel);
+            var utledetDokType = ArkivUtil.utledHovedDokumentType(nyeDokumenttyper);
 
-        arkivTjeneste.oppdaterJournalpostMedTitler(arkivJournalpost.getJournalpostId(), nyJournalpostTittel, dokumenterÅOppdatere);
-        return nyJournalpostTittel;
+            if (!utledetDokType.getTermNavn().equals(nyJournalpostTittel)) {
+                LOG.info("FPFORDEL RESTJOURNALFØRING: Ny journalpost-tittel: {} avviker fra utledet journalpost-tittel: {} for journalpostId: {}",
+                    nyJournalpostTittel, utledetDokType.getTermNavn(), journalpostId);
+            }
+        }
+        List<OppdaterJournalpostRequest.DokumentInfoOppdater> dokumenterÅOppdatere = new ArrayList<>();
+
+        if (!dokumenterMedNyTittel.isEmpty()) {
+            dokumenterÅOppdatere = mapDokumenterTilOppdatering(dokumenterMedNyTittel);
+        }
+        arkivTjeneste.oppdaterJournalpostVedManuellJournalføring(journalpost.getJournalpostId(), nyJournalpostTittel, dokumenterÅOppdatere, journalpost, aktørId, behandlingTema );
+
     }
 
     public record DokumenterMedNyTittel(String dokumentId, String dokumentTittel) {}
@@ -170,10 +200,6 @@ public class FerdigstillJournalføringTjeneste {
             .filter(dt -> dt.dokumentId() != null && dt.dokumentTittel() != null)
             .map( dt -> new no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OppdaterJournalpostRequest.DokumentInfoOppdater(dt.dokumentId(), dt.dokumentTittel(),null))
             .toList();
-    }
-
-    private Optional<String> skalOppdatereJournalpostTittel(DokumentTypeId nyId, DokumentTypeId gammelId) {
-        return nyId.equals(gammelId) ? Optional.empty() : Optional.of(nyId.getTermNavn());
     }
 
     private static Set<DokumentTypeId> utledDokumentTyper(List<DokumenterMedNyTittel> dokumenterMedNyTittel,
@@ -219,7 +245,7 @@ public class FerdigstillJournalføringTjeneste {
     private static BehandlingTema validerOgVelgBehandlingTema(BehandlingTema behandlingTemaFagsak,
                                                               BehandlingTema behandlingTemaDok,
                                                               DokumentTypeId dokumentTypeId) {
-        if (BehandlingTema.UDEFINERT.equals(behandlingTemaDok)) {
+        if (BehandlingTema.UDEFINERT.equals(behandlingTemaDok) && !BehandlingTema.UDEFINERT.equals(behandlingTemaFagsak)) {
             return behandlingTemaFagsak;
         }
         if (BehandlingTema.UDEFINERT.equals(behandlingTemaFagsak)) {

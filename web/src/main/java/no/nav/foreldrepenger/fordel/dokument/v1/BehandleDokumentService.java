@@ -264,7 +264,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
                 ugyldigBrukerPrøvIgjen(request.getJournalpostId(), null);
             }
             try {
-                arkivTjeneste.settTilleggsOpplysninger(journalpost, brukDokumentTypeId);
+                arkivTjeneste.settTilleggsOpplysninger(journalpost, brukDokumentTypeId, false);
             } catch (Exception e) {
                 LOG.info("FPFORDEL GOSYS Feil ved setting av tilleggsopplysninger for journalpostId {}", journalpost.getJournalpostId());
             }
