@@ -68,11 +68,6 @@
                 <type>pom</type>
             </dependency>
             <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>felles-integrasjon-bom</artifactId>
-                <version>${felles.version}</version>
-            </dependency>
-            <dependency>
                 <!-- Importeres etter felles-root og felles for å sikre samme avhengigheter gjennom hele! -->
                 <groupId>no.nav.vedtak.prosesstask</groupId>
                 <artifactId>prosesstask-root</artifactId>
