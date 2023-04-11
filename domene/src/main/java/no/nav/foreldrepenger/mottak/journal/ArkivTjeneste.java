@@ -241,10 +241,15 @@ public class ArkivTjeneste {
         }
     }
 
-    public void settTilleggsOpplysninger(ArkivJournalpost arkivJournalpost, DokumentTypeId defaultDokumentTypeId) {
+    public void settTilleggsOpplysninger(ArkivJournalpost arkivJournalpost, DokumentTypeId defaultDokumentTypeId, boolean manuellJournalføring) {
         var journalpost = arkivJournalpost.getOriginalJournalpost();
-        var hovedtype = DokumentTypeId.UDEFINERT.equals(arkivJournalpost.getHovedtype()) ? defaultDokumentTypeId : arkivJournalpost.getHovedtype();
         var tilleggDokumentType = arkivJournalpost.getTilleggsopplysninger().stream().filter(to -> FP_DOK_TYPE.equals(to.nokkel())).findFirst();
+        var hovedtype = DokumentTypeId.UDEFINERT.equals(arkivJournalpost.getHovedtype()) ? defaultDokumentTypeId : arkivJournalpost.getHovedtype();
+        //saksbehandler kan velge journalpost-tittel ved manuell journalføring
+        if (manuellJournalføring && !hovedtype.equals(defaultDokumentTypeId)) {
+                hovedtype = defaultDokumentTypeId;
+        }
+
         if (tilleggDokumentType.isEmpty()) {
             var builder = OppdaterJournalpostRequest.ny();
             if (LOG.isInfoEnabled()) {
@@ -332,21 +337,50 @@ public class ArkivTjeneste {
         return resultat;
     }
 
-    public void oppdaterJournalpostMedTitler(String journalpostId, Optional<String> journalpostTittel, List<OppdaterJournalpostRequest.DokumentInfoOppdater> dokumenter) {
-        var builder = OppdaterJournalpostRequest.ny();
+    public void oppdaterJournalpostVedManuellJournalføring(String journalpostId, String nyJournalpostTittel, List<OppdaterJournalpostRequest.DokumentInfoOppdater> dokumenter,
+                                                           ArkivJournalpost journalpost, String aktørId, BehandlingTema behandlingTema) {
+        var originalJournalpost = journalpost.getOriginalJournalpost();
+        var utledetBehandlingTema = utledBehandlingTema(
+            BehandlingTema.UDEFINERT.equals(behandlingTema) ? originalJournalpost.behandlingstema() : behandlingTema.getOffisiellKode(), journalpost.getAlleTyper());
+        var oppdaterJournalpostBuilder = OppdaterJournalpostRequest.ny();
 
-        journalpostTittel.ifPresent(tittel -> {
-            LOG.info("Legger på ny journalpostTittel:{} for journalpostId:{} ", tittel, journalpostId);
-            builder.medTittel(tittel);
-        });
+        if ((originalJournalpost.avsenderMottaker() == null) || (originalJournalpost.avsenderMottaker().id() == null) || (originalJournalpost.avsenderMottaker().navn() == null)) {
+            var fnr = personTjeneste.hentPersonIdentForAktørId(aktørId).orElseThrow(() -> new IllegalStateException("Mangler fnr for aktørid"));
+            var navn = personTjeneste.hentNavn(aktørId);
+            if (LOG.isInfoEnabled()) {
+                LOG.info("FPFORDEL RESTJOURNALFØRING: oppdaterer manglende avsender for {}", originalJournalpost.journalpostId());
+            }
+            oppdaterJournalpostBuilder.medAvsender(fnr, navn);
+        }
+
+        if (originalJournalpost.tema() == null) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("FPFORDEL RESTJOURNALFØRING: oppdaterer manglende tema for {}", originalJournalpost.journalpostId());
+            }
+            oppdaterJournalpostBuilder.medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode());
+        }
+
+        if ((originalJournalpost.behandlingstema() == null) && !BehandlingTema.UDEFINERT.equals(utledetBehandlingTema)) {
+            // Logges ikke da den nesten alltid oppdateres
+            oppdaterJournalpostBuilder.medBehandlingstema(utledetBehandlingTema.getOffisiellKode());
+        }
+
+        if (originalJournalpost.tittel() == null && nyJournalpostTittel == null) {
+            throw new IllegalStateException("FPFORDEL RESTJOURNALFØRING: Kan ikke ferdigstille journalpost uten tittel på journalpost");
+        }
+
+        if (nyJournalpostTittel != null) {
+            LOG.info("FPFORDEL RESTJOURNALFØRING: Legger på ny journalpostTittel:{} for journalpostId:{} ", nyJournalpostTittel, journalpostId);
+            oppdaterJournalpostBuilder.medTittel(nyJournalpostTittel);
+        }
 
         if (!dokumenter.isEmpty()) {
             dokumenter.forEach( dok-> {
-                LOG.info("Legger på tittel:{} for dokumentId:{} for dokumentId:{} ", dok.tittel(), dok.dokumentInfoId(), journalpostId);
-                builder.leggTilDokument(dok);
+                LOG.info("FPFORDEL RESTJOURNALFØRING:Legger på tittel:{} for dokumentId:{} for journalspostId:{} ", dok.tittel(), dok.dokumentInfoId(), journalpostId);
+                oppdaterJournalpostBuilder.leggTilDokument(dok);
             });
         }
-        var journalpostRequest = builder.build();
+        var journalpostRequest = oppdaterJournalpostBuilder.build();
 
         if (!dokArkivTjeneste.oppdaterJournalpost(journalpostId, journalpostRequest)) {
             throw new IllegalStateException(KUNNE_IKKE_OPPDATERE_JP + journalpostId);

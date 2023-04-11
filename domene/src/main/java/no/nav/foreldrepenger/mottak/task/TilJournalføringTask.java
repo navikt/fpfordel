@@ -78,7 +78,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
         var saksnummer = w.getSaksnummer().orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mangler saksnummer"));
         try {
             var journalpost = arkivTjeneste.hentArkivJournalpost(w.getArkivId());
-            arkivTjeneste.settTilleggsOpplysninger(journalpost, w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT));
+            arkivTjeneste.settTilleggsOpplysninger(journalpost, w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT), false);
         } catch (Exception e) {
             LOG.info("Feil ved setting av tilleggsopplysninger for journalpostId {}", w.getArkivId());
         }
