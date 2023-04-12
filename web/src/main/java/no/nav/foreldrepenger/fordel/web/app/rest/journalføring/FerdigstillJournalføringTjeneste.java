@@ -103,7 +103,7 @@ public class FerdigstillJournalføringTjeneste {
         final var aktørIdFagsak = fagsakInfomasjon.getAktørId();
 
         var dokumentTypeId = journalpost.getHovedtype();
-        var oppdatereTitler = nyJournalpostTittel != null || dokumenterMedNyTittel != null;
+        var oppdatereTitler = nyJournalpostTittel != null || !dokumenterMedNyTittel.isEmpty();
         if (nyJournalpostTittel != null) {
             dokumentTypeId = DokumentTypeId.fraTermNavn(nyJournalpostTittel);
         }
