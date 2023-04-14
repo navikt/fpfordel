@@ -74,7 +74,7 @@ public class FerdigstillJournalføringRestTjeneste {
             @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FerdigstillJournalføringRestTjeneste.FerdigstillRequest request) {
         validerJournalpostId(request.journalpostId());
         validerEnhetId(request.enhetId());
-        LOG.info("FPFORDEL RESTJOURNALFØRING: Starter ferdigstilling av journalpostId {}", request.journalpostId);
+        LOG.info("FPFORDEL RESTJOURNALFØRING: Starter ferdigstilling av journalpostRequets {}", request);
 
         var journalpostId = new JournalpostId(request.journalpostId);
         var oppgaveId = request.oppgaveId();
@@ -89,10 +89,12 @@ public class FerdigstillJournalføringRestTjeneste {
         List<FerdigstillJournalføringTjeneste.DokumenterMedNyTittel> dokumenter = new ArrayList<>();
         String nyJournalpostTittel = null;
         if (request.oppdaterTitlerDto != null) {
+            LOG.info("Titler behandles");
             if (!request.oppdaterTitlerDto.dokumenter().isEmpty()) {
                 dokumenter = mapTilDokumenter(request.oppdaterTitlerDto.dokumenter());
             }
             nyJournalpostTittel = request.oppdaterTitlerDto().journalpostTittel() != null ? request.oppdaterTitlerDto().journalpostTittel() : null;
+            LOG.info("Ny journalposttittel er: {}", nyJournalpostTittel);
         }
 
         journalføringTjeneste.oppdaterJournalpostOgFerdigstill(request.enhetId, saksnummer, journalpostId, oppgaveId.toString(), nyJournalpostTittel ,dokumenter );
