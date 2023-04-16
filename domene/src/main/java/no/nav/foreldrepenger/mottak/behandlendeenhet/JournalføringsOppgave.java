@@ -18,6 +18,7 @@ public interface JournalføringsOppgave {
     String SF_ENHET_ID = "2103"; // Enhetsnummer NAV K6 enhet
     String UTLAND_ENHET_ID = "4806"; // Enhetsnummer NAV K6 enhet
     Set<String> SPESIALENHETER = Set.of(NK_ENHET_ID, SKJERMET_ENHET_ID, SF_ENHET_ID);
+    String NASJONAL_ENHET_ID = "4867";
 
     String hentFordelingEnhetId(Tema tema, BehandlingTema behandlingTema, Optional<String> enhetInput, String aktørId);
 

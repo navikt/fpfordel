@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.mottak.behandlendeenhet;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -29,13 +27,14 @@ import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 @ApplicationScoped
 public class EnhetsTjeneste implements JournalføringsOppgave {
     private static final Logger LOG = LoggerFactory.getLogger(EnhetsTjeneste.class);
+    private static final Set<String> FLYTTET = Set.of("4806");
     private PersonInformasjon pdl;
     private Arbeidsfordeling norgKlient;
     private SkjermetPersonKlient skjermetPersonKlient;
     private Oppgaver oppgaver;
 
     private Set<String> alleJournalførendeEnheter = new HashSet<>(); // Med klageinstans og kode6 og skjermet
-    private List<String> nfpJournalførendeEnheter = new ArrayList<>(); // Kun NFP
+    private Set<String> nfpJournalførendeEnheter = new HashSet<>(); // Kun NFP
     private LocalDate sisteInnhenting = LocalDate.MIN;
 
     public EnhetsTjeneste() {
@@ -57,8 +56,8 @@ public class EnhetsTjeneste implements JournalføringsOppgave {
         if (response == null || response.size() != 1) {
             throw new TekniskException("FP-669566", String.format("Finner ikke behandlende enhet for geografisk tilknytning %s", gt));
         }
-
-        return response.get(0).enhetNr();
+        var enhet = response.get(0).enhetNr();
+        return FLYTTET.contains(enhet) ? NASJONAL_ENHET_ID : enhet;
     }
 
     @Override
@@ -69,7 +68,7 @@ public class EnhetsTjeneste implements JournalføringsOppgave {
             return enhetInput.get();
         }
 
-        var id = Optional.ofNullable(aktørId).map(a -> hentEnhetId(a, behandlingTema, tema)).orElseGet(this::tilfeldigNfpEnhet);
+        var id = Optional.ofNullable(aktørId).map(a -> hentEnhetId(a, behandlingTema, tema)).orElse(NASJONAL_ENHET_ID);
         LOG.info("returnerer enhet id  {}", id);
         return id;
     }
@@ -120,10 +119,6 @@ public class EnhetsTjeneste implements JournalføringsOppgave {
         return validerOgVelgBehandlendeEnhet(norgKlient.finnEnhet(request), gt);
     }
 
-    private String tilfeldigNfpEnhet() {
-        return nfpJournalførendeEnheter.get(LocalDateTime.now().getSecond() % nfpJournalførendeEnheter.size());
-    }
-
     private void oppdaterEnhetCache() {
         if (sisteInnhenting.isBefore(LocalDate.now())) {
             var request = ArbeidsfordelingRequest.ny()
@@ -143,6 +138,8 @@ public class EnhetsTjeneste implements JournalføringsOppgave {
                 .forEach(nfpJournalførendeEnheter::add);
             alleJournalførendeEnheter.addAll(respons.stream().map(ArbeidsfordelingResponse::enhetNr).toList());
             alleJournalførendeEnheter.addAll(SPESIALENHETER);
+            alleJournalførendeEnheter.add(NASJONAL_ENHET_ID);
+            nfpJournalførendeEnheter.add(NASJONAL_ENHET_ID);
             sisteInnhenting = LocalDate.now();
         }
     }
