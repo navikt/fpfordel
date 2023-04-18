@@ -92,7 +92,7 @@ class FerdigstillJournalføringRestTjenesteTest {
         String tittel2 = "Tittel2";
         String journalpostTittel = "Journalpost-tittel";
 
-        var req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER, YtelseTypeDto.FORELDREPENGER, AKTØR_ID, new OppdaterJournalpostMedTittelDto(journalpostTittel, List.of(new OppdaterJournalpostMedTittelDto.DokummenterMedTitler(new DokumentIdDto("1"), tittel1), new OppdaterJournalpostMedTittelDto.DokummenterMedTitler(new DokumentIdDto("2"), tittel2))));
+        var req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER, YtelseTypeDto.FORELDREPENGER, AKTØR_ID, new OppdaterJournalpostMedTittelDto(journalpostTittel, List.of(new OppdaterJournalpostMedTittelDto.DokummenterMedTitler(("1"), tittel1), new OppdaterJournalpostMedTittelDto.DokummenterMedTitler("2", tittel2))));
         var journalpostId = new JournalpostId(JOURNALPOST_ID);
 
         behandleJournalpost.oppdaterOgFerdigstillJournalfoering(req);
