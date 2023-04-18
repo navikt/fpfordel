@@ -110,7 +110,7 @@ public class FerdigstillJournalføringRestTjeneste {
     public record OpprettSak(AktørId aktørId, FagsakYtelseTypeDto ytelseType ){}
 
     private List<FerdigstillJournalføringTjeneste.DokumenterMedNyTittel> mapTilDokumenter(List<OppdaterJournalpostMedTittelDto.DokummenterMedTitler> dokumenter) {
-        return dokumenter.stream().map(d -> new FerdigstillJournalføringTjeneste.DokumenterMedNyTittel(d.dokumentIdDto().dokumentId(), d.tittel())).toList();
+        return dokumenter.stream().map(d -> new FerdigstillJournalføringTjeneste.DokumenterMedNyTittel(d.dokumentId(), d.tittel())).toList();
     }
 
     private static void validerSaksnummer(String saksnummer) {
