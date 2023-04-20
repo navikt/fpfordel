@@ -157,7 +157,6 @@ class FerdigstillJournalføringTjenesteTest {
 
     @Test
     void skalKjøreHeltIgjennomNaarJournaltilstandIkkeErEndelig() {
-        when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
         when(arkivJournalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
         when(arkivJournalpost.getHovedtype()).thenReturn(SØKNAD_ENGANGSSTØNAD_FØDSEL);
@@ -179,7 +178,6 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getStrukturertPayload()).thenReturn(readFile("testdata/inntektsmelding-foreldrepenger.xml"));
         when(arkivJournalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
-        when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
         journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, null, Collections.emptyList());
 
@@ -240,7 +238,6 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
         when(arkivJournalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
-        when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
         journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, null, Collections.emptyList());
 
@@ -260,7 +257,6 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
         when(arkivJournalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
-        when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
         journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, null, Collections.emptyList());
 
@@ -279,7 +275,6 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
         when(arkivJournalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
-        when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
         journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, null, Collections.emptyList());
 
@@ -299,11 +294,9 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
         when(arkivJournalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
-        when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
 
         journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, null, Collections.emptyList());
 
-        verify(arkiv, times(0)).oppdaterJournalpostVedManuellJournalføring(any(), any(), any(), any(), any(), any());
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
         verify(klargjører).klargjør(eq(readFile("testdata/selvb-soeknad-endring.xml")), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),

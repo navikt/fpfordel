@@ -116,15 +116,11 @@ public class FerdigstillJournalføringTjeneste {
 
         if (Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
             var brukDokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokumentTypeId) ? DokumentTypeId.ANNET : dokumentTypeId;
-            //oppdaterJournalpostMedTittelOgMangler skal erstatte oppdaterRettMangler når gui er på plass
-            if (oppdatereTitler) {
-                oppdaterJournalpostMedTittelOgMangler(journalpost, nyJournalpostTittel, dokumenterMedNyTittel, aktørIdFagsak, behandlingTema);
-            } else {
-                if (!arkivTjeneste.oppdaterRettMangler(journalpost, aktørIdFagsak, behandlingTema, brukDokumentTypeId)) {
-                    throw new TekniskException("FP-15678", lagUgyldigInputMelding("Bruker", BRUKER_MANGLER));
-                }
-            }
+
+            oppdaterJournalpostMedTittelOgMangler(journalpost, nyJournalpostTittel, dokumenterMedNyTittel, aktørIdFagsak, behandlingTema);
+
             try {
+                //Todo Anja hva brukes tilleggsopplysninger til, burde vi oppdatere med ny dokumenttypeid?
                 arkivTjeneste.settTilleggsOpplysninger(journalpost, brukDokumentTypeId, oppdatereTitler);
             } catch (Exception e) {
                 LOG.info("FPFORDEL RESTJOURNALFØRING: Feil ved setting av tilleggsopplysninger for journalpostId {}", journalpost.getJournalpostId());
@@ -150,6 +146,7 @@ public class FerdigstillJournalføringTjeneste {
 
         var mottattTidspunkt = Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now);
 
+        //Todo Anja dersom ukjent tittel vil dokumenttype id her kunne være udefinert, bør vi i såfall overstyre til ANNET?
         final var xml = hentDokumentSettMetadata(saksnummer, behandlingTema, aktørIdFagsak, journalpost);
         klargjører.klargjør(xml, saksnummer, journalpostId.getVerdi(), dokumentTypeId, mottattTidspunkt, behandlingTema, forsendelseId.orElse(null),
             dokumentKategori, enhetId, eksternReferanseId);
