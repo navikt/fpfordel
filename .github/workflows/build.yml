@@ -18,7 +18,7 @@ on:
 jobs:
   build-app:
     name: Build
-    uses: navikt/fp-gha-workflows/.github/workflows/build-app-no-db.yml@main
+    uses: navikt/fp-gha-workflows/.github/workflows/build-app.yml@main
     with:
       sonar-scan: true
       build-image: ${{ github.ref_name == 'master' }} # default: true
