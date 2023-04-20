@@ -225,9 +225,6 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getStrukturertPayload()).thenReturn(readFile("testdata/fp-adopsjon-far.xml"));
         when(arkivJournalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
 
-
-
-
         var e = assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, null,
             tomDokumentListe));
         assertThat(e.getMessage()).contains("For tidlig");

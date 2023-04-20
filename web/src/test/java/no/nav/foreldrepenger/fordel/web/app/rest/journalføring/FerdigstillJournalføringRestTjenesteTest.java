@@ -99,6 +99,14 @@ class FerdigstillJournalføringRestTjenesteTest {
         verify(journalføringTjeneste).oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID.toString(), journalpostTittel, List.of(new FerdigstillJournalføringTjeneste.DokumenterMedNyTittel("1", tittel1), new FerdigstillJournalføringTjeneste.DokumenterMedNyTittel("2", tittel2)));
     }
 
+    @Test
+    void skalReturnereSaksnummerNårOk() {
+        var req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER, YtelseTypeDto.FORELDREPENGER, AKTØR_ID, null);
+
+        var saksnummerDto = behandleJournalpost.oppdaterOgFerdigstillJournalfoering(req);
+        assertThat(saksnummerDto.getSaksnummer()).isEqualTo(SAKSNUMMER);
+    }
+
     private static FerdigstillJournalføringRestTjeneste.FerdigstillRequest req(String enhetid, String journalpostId, String sakId, YtelseTypeDto ytelseTypeDto, String aktørId, OppdaterJournalpostMedTittelDto oppdaterJournalpostMedTittelDto) {
         FerdigstillJournalføringRestTjeneste.OpprettSakDto opprettSakDto = null;
         if (aktørId != null && ytelseTypeDto != null) {
