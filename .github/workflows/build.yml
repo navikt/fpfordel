@@ -18,7 +18,7 @@ on:
 jobs:
   build-app:
     name: Build
-    uses: navikt/fp-gha-workflows/.github/workflows/build-app.yml@main
+    uses: navikt/fp-gha-workflows/.github/workflows/build-app-no-db.yml@main
     with:
       sonar-scan: true
       build-image: ${{ github.ref_name == 'master' }} # default: true
@@ -37,7 +37,7 @@ jobs:
 
   notify:
     name: Notify
-    if: github.ref_name == 'master' && (success() || failure())
+    if: github.ref_name == 'master' && (success() || failure()) && !contains(fromJSON(needs.*.result, 'skipped')
     needs: [build-app, verdikjede]
     uses: navikt/fp-autotest/.github/workflows/report-and-notify.yml@master
     with:
