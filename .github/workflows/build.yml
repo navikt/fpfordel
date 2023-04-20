@@ -18,36 +18,49 @@ on:
 jobs:
   build-app:
     name: Build
-    uses: navikt/fp-gha-workflows/.github/workflows/build-app.yml@main
+    uses: navikt/fp-gha-workflows/.github/workflows/build-app-no-db.yml@main
     with:
       sonar-scan: true
       build-image: ${{ github.ref_name == 'master' }} # default: true
       push-image: ${{ github.ref_name == 'master' }} # default: false
     secrets: inherit
 
-  create-issue:
-    name: Issues
+  verdikjede:
+    name: Verdikjedetester
     if: github.ref_name == 'master'
     needs: build-app
-    uses: navikt/fp-gha-workflows/.github/workflows/issues.yml@main
+    uses: navikt/fp-autotest/.github/workflows/autotest.yml@master
     with:
+      build-version: ${{ needs.build-app.outputs.build-version }}
+      test-suite: verdikjede
+    secrets: inherit
+
+  notify:
+    name: Notify
+    if: github.ref_name == 'master' && (success() || failure())
+    needs: [build-app, verdikjede]
+    uses: navikt/fp-autotest/.github/workflows/report-and-notify.yml@master
+    with:
+      verdikjede: ${{ needs.verdikjede.outputs.resultat }}
       build-version: ${{ needs.build-app.outputs.build-version }}
     secrets: inherit
 
-  trigger-autotest:
-    name: Autotest
+  deploy-dev:
+    name: Deploy dev
     if: github.ref_name == 'master'
-    needs: [ build-app, create-issue ]
-    uses: navikt/fp-gha-workflows/.github/workflows/autotest.yml@main
+    needs: [build-app, verdikjede]
+    uses: navikt/fp-gha-workflows/.github/workflows/deploy.yml@main
     with:
-      build-version: ${{ needs.build-app.outputs.build-version }}
-      issue-number: ${{ needs.create-issue.outputs.issue-number }}
+      image: ghcr.io/${{ github.repository }}:${{ needs.build-app.outputs.build-version }}
+      cluster: dev-fss
     secrets: inherit
 
-  snyk:
-    name: Snyk
-    needs: build-app
-    uses: navikt/fp-gha-workflows/.github/workflows/snyk.yml@main
+  deploy-prod:
+    name: Deploy prod
+    if: github.ref_name == 'master'
+    needs: [build-app, verdikjede, deploy-dev]
+    uses: navikt/fp-gha-workflows/.github/workflows/deploy.yml@main
     with:
-      build-version: ${{ needs.build-app.outputs.build-version }}
+      image: ghcr.io/${{ github.repository }}:${{ needs.build-app.outputs.build-version }}
+      cluster: prod-fss
     secrets: inherit
