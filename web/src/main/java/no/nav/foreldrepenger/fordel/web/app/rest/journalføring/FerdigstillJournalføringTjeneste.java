@@ -111,16 +111,13 @@ public class FerdigstillJournalføringTjeneste {
         final var behandlingTemaDok = ArkivUtil.behandlingTemaFraDokumentType(BehandlingTema.UDEFINERT, dokumentTypeId);
         final var behandlingTema = validerOgVelgBehandlingTema(behandlingTemaFagsak, behandlingTemaDok, dokumentTypeId);
         final var dokumentKategori = ArkivUtil.utledKategoriFraDokumentType(dokumentTypeId);
+        var brukDokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokumentTypeId) ? DokumentTypeId.ANNET : dokumentTypeId;
 
-        validerKanJournalføreKlageDokument(behandlingTemaFagsak, dokumentTypeId, dokumentKategori);
+        validerKanJournalføreKlageDokument(behandlingTemaFagsak, brukDokumentTypeId, dokumentKategori);
 
         if (Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
-            var brukDokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokumentTypeId) ? DokumentTypeId.ANNET : dokumentTypeId;
-
             oppdaterJournalpostMedTittelOgMangler(journalpost, nyJournalpostTittel, dokumenterMedNyTittel, aktørIdFagsak, behandlingTema);
-
             try {
-                //Todo Anja hva brukes tilleggsopplysninger til, burde vi oppdatere med ny dokumenttypeid?
                 arkivTjeneste.settTilleggsOpplysninger(journalpost, brukDokumentTypeId, oppdatereTitler);
             } catch (Exception e) {
                 LOG.info("FPFORDEL RESTJOURNALFØRING: Feil ved setting av tilleggsopplysninger for journalpostId {}", journalpost.getJournalpostId());
@@ -138,7 +135,7 @@ public class FerdigstillJournalføringTjeneste {
         final var forsendelseId = asUUID(journalpost.getEksternReferanseId());
 
         String eksternReferanseId = null;
-        if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
+        if (DokumentTypeId.INNTEKTSMELDING.equals(brukDokumentTypeId)) {
             eksternReferanseId =
                 journalpost.getEksternReferanseId() != null ? journalpost.getEksternReferanseId() : arkivTjeneste.hentEksternReferanseId(
                     journalpost.getOriginalJournalpost()).orElse(null);
@@ -146,9 +143,8 @@ public class FerdigstillJournalføringTjeneste {
 
         var mottattTidspunkt = Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now);
 
-        //Todo Anja dersom ukjent tittel vil dokumenttype id her kunne være udefinert, bør vi i såfall overstyre til ANNET?
         final var xml = hentDokumentSettMetadata(saksnummer, behandlingTema, aktørIdFagsak, journalpost);
-        klargjører.klargjør(xml, saksnummer, journalpostId.getVerdi(), dokumentTypeId, mottattTidspunkt, behandlingTema, forsendelseId.orElse(null),
+        klargjører.klargjør(xml, saksnummer, journalpostId.getVerdi(), brukDokumentTypeId, mottattTidspunkt, behandlingTema, forsendelseId.orElse(null),
             dokumentKategori, enhetId, eksternReferanseId);
 
         // For å unngå klonede journalposter fra GOSYS - de kan komme via Kafka

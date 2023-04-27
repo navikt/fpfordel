@@ -245,15 +245,15 @@ public class ArkivTjeneste {
         var journalpost = arkivJournalpost.getOriginalJournalpost();
         var tilleggDokumentType = arkivJournalpost.getTilleggsopplysninger().stream().filter(to -> FP_DOK_TYPE.equals(to.nokkel())).findFirst();
         var hovedtype = DokumentTypeId.UDEFINERT.equals(arkivJournalpost.getHovedtype()) ? defaultDokumentTypeId : arkivJournalpost.getHovedtype();
-        //saksbehandler kan velge journalpost-tittel ved manuell journalføring
-        if (manuellJournalføring && !hovedtype.equals(defaultDokumentTypeId)) {
-                hovedtype = defaultDokumentTypeId;
+        //saksbehandler kan ha valgt ny tittel ifm manuellJournalføring
+        if (manuellJournalføring) {
+            hovedtype = defaultDokumentTypeId;
         }
 
-        if (tilleggDokumentType.isEmpty()) {
+        if (tilleggDokumentType.isEmpty() || !arkivJournalpost.getHovedtype().equals(defaultDokumentTypeId) ) {
             var builder = OppdaterJournalpostRequest.ny();
             if (LOG.isInfoEnabled()) {
-                LOG.info("FPFORDEL oppdaterer tilleggsopplysninger for {} med {}", journalpost.journalpostId(), hovedtype.getOffisiellKode());
+                LOG.info("FPFORDEL oppdaterer/legger til tilleggsopplysninger for {} med {}", journalpost.journalpostId(), hovedtype.getOffisiellKode());
             }
             if (!arkivJournalpost.getTilleggsopplysninger().isEmpty()) {
                 builder.medTilleggsopplysninger(arkivJournalpost.getTilleggsopplysninger());
