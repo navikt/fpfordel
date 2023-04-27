@@ -27,7 +27,7 @@ import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 @ApplicationScoped
 public class EnhetsTjeneste implements JournalføringsOppgave {
     private static final Logger LOG = LoggerFactory.getLogger(EnhetsTjeneste.class);
-    private static final Set<String> FLYTTET = Set.of("4806");
+    private static final Set<String> FLYTTET = Set.of("4806", "4833", "4849");
     private PersonInformasjon pdl;
     private Arbeidsfordeling norgKlient;
     private SkjermetPersonKlient skjermetPersonKlient;
