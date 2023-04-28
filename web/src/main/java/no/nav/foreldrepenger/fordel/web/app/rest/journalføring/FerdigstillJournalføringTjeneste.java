@@ -111,19 +111,12 @@ public class FerdigstillJournalføringTjeneste {
         final var behandlingTemaDok = ArkivUtil.behandlingTemaFraDokumentType(BehandlingTema.UDEFINERT, dokumentTypeId);
         final var behandlingTema = validerOgVelgBehandlingTema(behandlingTemaFagsak, behandlingTemaDok, dokumentTypeId);
         final var dokumentKategori = ArkivUtil.utledKategoriFraDokumentType(dokumentTypeId);
+        var brukDokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokumentTypeId) ? DokumentTypeId.ANNET : dokumentTypeId;
 
-        validerKanJournalføreKlageDokument(behandlingTemaFagsak, dokumentTypeId, dokumentKategori);
+        validerKanJournalføreKlageDokument(behandlingTemaFagsak, brukDokumentTypeId, dokumentKategori);
 
         if (Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
-            var brukDokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokumentTypeId) ? DokumentTypeId.ANNET : dokumentTypeId;
-            //oppdaterJournalpostMedTittelOgMangler skal erstatte oppdaterRettMangler når gui er på plass
-            if (oppdatereTitler) {
-                oppdaterJournalpostMedTittelOgMangler(journalpost, nyJournalpostTittel, dokumenterMedNyTittel, aktørIdFagsak, behandlingTema);
-            } else {
-                if (!arkivTjeneste.oppdaterRettMangler(journalpost, aktørIdFagsak, behandlingTema, brukDokumentTypeId)) {
-                    throw new TekniskException("FP-15678", lagUgyldigInputMelding("Bruker", BRUKER_MANGLER));
-                }
-            }
+            oppdaterJournalpostMedTittelOgMangler(journalpost, nyJournalpostTittel, dokumenterMedNyTittel, aktørIdFagsak, behandlingTema);
             try {
                 arkivTjeneste.settTilleggsOpplysninger(journalpost, brukDokumentTypeId, oppdatereTitler);
             } catch (Exception e) {
@@ -142,7 +135,7 @@ public class FerdigstillJournalføringTjeneste {
         final var forsendelseId = asUUID(journalpost.getEksternReferanseId());
 
         String eksternReferanseId = null;
-        if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
+        if (DokumentTypeId.INNTEKTSMELDING.equals(brukDokumentTypeId)) {
             eksternReferanseId =
                 journalpost.getEksternReferanseId() != null ? journalpost.getEksternReferanseId() : arkivTjeneste.hentEksternReferanseId(
                     journalpost.getOriginalJournalpost()).orElse(null);
@@ -151,7 +144,7 @@ public class FerdigstillJournalføringTjeneste {
         var mottattTidspunkt = Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now);
 
         final var xml = hentDokumentSettMetadata(saksnummer, behandlingTema, aktørIdFagsak, journalpost);
-        klargjører.klargjør(xml, saksnummer, journalpostId.getVerdi(), dokumentTypeId, mottattTidspunkt, behandlingTema, forsendelseId.orElse(null),
+        klargjører.klargjør(xml, saksnummer, journalpostId.getVerdi(), brukDokumentTypeId, mottattTidspunkt, behandlingTema, forsendelseId.orElse(null),
             dokumentKategori, enhetId, eksternReferanseId);
 
         // For å unngå klonede journalposter fra GOSYS - de kan komme via Kafka
