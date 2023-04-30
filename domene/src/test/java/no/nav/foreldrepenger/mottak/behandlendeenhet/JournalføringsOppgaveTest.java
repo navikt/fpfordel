@@ -50,8 +50,9 @@ class JournalføringsOppgaveTest {
     }
 
     @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
     void skal_returnere_enhetid() throws Exception {
-        assertThat(enhetId()).isNotNull().isEqualTo(ENHET.enhetNr());
+        assertThat(enhetId()).isNotNull().isEqualTo(FORDELING_ENHET.enhetNr());
     }
 
     @Test
