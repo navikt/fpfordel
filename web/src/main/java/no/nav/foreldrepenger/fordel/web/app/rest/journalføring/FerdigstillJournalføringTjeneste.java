@@ -90,7 +90,8 @@ public class FerdigstillJournalføringTjeneste {
     }
 
     public void oppdaterJournalpostOgFerdigstill(String enhetId, String saksnummer, JournalpostId journalpostId, String oppgaveId,
-                                                 String nyJournalpostTittel, List<DokumenterMedNyTittel> dokumenterMedNyTittel) {
+                                                 String nyJournalpostTittel, List<DokumenterMedNyTittel> dokumenterMedNyTittel,
+                                                 DokumentTypeId nyDokumentTypeId) {
 
         final var journalpost = hentJournalpost(journalpostId.getVerdi());
         validerJournalposttype(journalpost.getJournalposttype());
@@ -104,8 +105,8 @@ public class FerdigstillJournalføringTjeneste {
 
         var dokumentTypeId = journalpost.getHovedtype();
         var oppdatereTitler = nyJournalpostTittel != null || !dokumenterMedNyTittel.isEmpty();
-        if (nyJournalpostTittel != null) {
-            dokumentTypeId = DokumentTypeId.fraTermNavn(nyJournalpostTittel);
+        if (nyDokumentTypeId != null) {
+            dokumentTypeId = nyDokumentTypeId;
         }
 
         final var behandlingTemaDok = ArkivUtil.behandlingTemaFraDokumentType(BehandlingTema.UDEFINERT, dokumentTypeId);
@@ -228,8 +229,9 @@ public class FerdigstillJournalføringTjeneste {
         }
     }
 
-    String opprettSak(JournalpostId journalpostId, FerdigstillJournalføringRestTjeneste.OpprettSak opprettSakInfo) {
-        new ManuellOpprettSakValidator(arkivTjeneste, fagsak).validerKonsistensMedSak(journalpostId, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId());
+    String opprettSak(JournalpostId journalpostId, FerdigstillJournalføringRestTjeneste.OpprettSak opprettSakInfo, DokumentTypeId nyDokumentTypeId) {
+        new ManuellOpprettSakValidator(arkivTjeneste, fagsak).validerKonsistensMedSak(journalpostId, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
+            nyDokumentTypeId);
 
         return fagsak.opprettSak(new OpprettSakV2Dto(journalpostId.getVerdi(), mapYtelseTypeTilDto(opprettSakInfo.ytelseType()), opprettSakInfo.aktørId().getId())).getSaksnummer();
     }
