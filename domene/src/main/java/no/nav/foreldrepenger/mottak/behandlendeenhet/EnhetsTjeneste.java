@@ -27,14 +27,14 @@ import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 @ApplicationScoped
 public class EnhetsTjeneste implements JournalføringsOppgave {
     private static final Logger LOG = LoggerFactory.getLogger(EnhetsTjeneste.class);
-    private static final Set<String> FLYTTET = Set.of("4806", "4833", "4849");
+    private static final Set<String> FLYTTET = Set.of("4806", "4833", "4849", "4812", "4817", "4842");
     private PersonInformasjon pdl;
     private Arbeidsfordeling norgKlient;
     private SkjermetPersonKlient skjermetPersonKlient;
     private Oppgaver oppgaver;
 
-    private Set<String> alleJournalførendeEnheter = new HashSet<>(); // Med klageinstans og kode6 og skjermet
-    private Set<String> nfpJournalførendeEnheter = new HashSet<>(); // Kun NFP
+    private final Set<String> alleJournalførendeEnheter = new HashSet<>(); // Med klageinstans og kode6 og skjermet
+    private final Set<String> nfpJournalførendeEnheter = new HashSet<>(); // Kun NFP
     private LocalDate sisteInnhenting = LocalDate.MIN;
 
     public EnhetsTjeneste() {
@@ -51,6 +51,7 @@ public class EnhetsTjeneste implements JournalføringsOppgave {
         this.oppgaver = oppgaver;
     }
 
+    // Behold ut 2023
     private static String validerOgVelgBehandlendeEnhet(List<ArbeidsfordelingResponse> response, String gt) {
         // Vi forventer å få én behandlende enhet.
         if (response == null || response.size() != 1) {
@@ -63,14 +64,16 @@ public class EnhetsTjeneste implements JournalføringsOppgave {
     @Override
     public String hentFordelingEnhetId(Tema tema, BehandlingTema behandlingTema, Optional<String> enhetInput, String aktørId) {
         LOG.info("Henter enhet id for {},{}", tema, behandlingTema);
-        oppdaterEnhetCache();
-        if (enhetInput.filter(alleJournalførendeEnheter::contains).isPresent()) {
-            return enhetInput.get();
+        //oppdaterEnhetCache(); LA STÅ UT 2023
+        if (enhetInput.isPresent()) {
+            return SPESIALENHETER.contains(enhetInput.get()) ? enhetInput.get() : NASJONAL_ENHET_ID;
         }
+
 
         var id = Optional.ofNullable(aktørId).map(a -> hentEnhetId(a, behandlingTema, tema)).orElse(NASJONAL_ENHET_ID);
         LOG.info("returnerer enhet id  {}", id);
         return id;
+
     }
 
     @Override
@@ -108,6 +111,8 @@ public class EnhetsTjeneste implements JournalføringsOppgave {
             return UTLAND_ENHET_ID;
         }
 
+        return NASJONAL_ENHET_ID;
+        /* LA STÅ UT 2023
         var request = ArbeidsfordelingRequest.ny()
             .medTemagruppe(TEMAGRUPPE)
             .medTema(tema.getOffisiellKode())
@@ -117,6 +122,8 @@ public class EnhetsTjeneste implements JournalføringsOppgave {
             .medGeografiskOmraade(gt)
             .build();
         return validerOgVelgBehandlendeEnhet(norgKlient.finnEnhet(request), gt);
+
+         */
     }
 
     private void oppdaterEnhetCache() {
