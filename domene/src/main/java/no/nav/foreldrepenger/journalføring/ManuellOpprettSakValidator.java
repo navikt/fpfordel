@@ -46,13 +46,17 @@ public class ManuellOpprettSakValidator {
         };
     }
 
-    public void validerKonsistensMedSak(JournalpostId journalpostId, FagsakYtelseTypeDto oppgittFagsakYtelseTypeDto, AktørId aktørId) {
+    public void validerKonsistensMedSak(JournalpostId journalpostId, FagsakYtelseTypeDto oppgittFagsakYtelseTypeDto, AktørId aktørId,
+                                        DokumentTypeId nyDokumentTypeId) {
         requireNonNull(journalpostId, "Ugyldig input: JournalpostId kan ikke være null ved opprettelse av en sak.");
         requireNonNull(oppgittFagsakYtelseTypeDto, "Ugyldig input: YtelseType kan ikke være null ved opprettelse av en sak.");
         requireNonNull(aktørId, "Ugyldig input: AktørId kan ikke være null ved opprettelse av en sak.");
 
         var arkivJournalpost = arkivTjeneste.hentArkivJournalpost(journalpostId.getVerdi());
         var hovedDokumentType = arkivJournalpost.getHovedtype();
+        if (nyDokumentTypeId != null) {
+            hovedDokumentType = nyDokumentTypeId;
+        }
 
         FagsakYtelseTypeDto journalpostFagsakYtelseTypeDto = null;
 
