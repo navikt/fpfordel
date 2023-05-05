@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.fordel.web.server.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
@@ -73,32 +74,38 @@ public class FerdigstillJournalføringRestTjeneste {
     public SaksnummerDto oppdaterOgFerdigstillJournalfoering(@Parameter(description = "Trenger journalpostId, saksnummer og enhet til ferdigstille en journalføring. "
             + "Om saksnummer ikke foreligger må ytelse type og aktørId oppgis for å opprette en ny sak.") @NotNull @Valid
             @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FerdigstillJournalføringRestTjeneste.FerdigstillRequest request) {
+
         validerJournalpostId(request.journalpostId());
         validerEnhetId(request.enhetId());
+        var journalpostId = new JournalpostId(request.journalpostId);
+
         LOG.info("FPFORDEL RESTJOURNALFØRING: Starter ferdigstilling av journalpostRequets {}", request);
 
-        var journalpostId = new JournalpostId(request.journalpostId);
-        var oppgaveId = request.oppgaveId();
-        var saksnummer = request.saksnummer() != null ? request.saksnummer() : null;
-
-        if (saksnummer == null) {
-            saksnummer = journalføringTjeneste.opprettSak(journalpostId, mapOpprettSak(request.opprettSak()));
-        }
-
-        validerSaksnummer(saksnummer);
-
+        //Endring av titler
         List<FerdigstillJournalføringTjeneste.DokumenterMedNyTittel> dokumenter = new ArrayList<>();
         String nyJournalpostTittel = null;
+        DokumentTypeId nyDokumentTypeId = null;
         if (request.oppdaterTitlerDto != null) {
-            LOG.info("Titler behandles");
             if (!request.oppdaterTitlerDto.dokumenter().isEmpty()) {
                 dokumenter = mapTilDokumenter(request.oppdaterTitlerDto.dokumenter());
             }
             nyJournalpostTittel = request.oppdaterTitlerDto().journalpostTittel() != null ? request.oppdaterTitlerDto().journalpostTittel() : null;
-            LOG.info("Ny journalposttittel er: {}", nyJournalpostTittel);
+            if (nyJournalpostTittel != null) {
+                nyDokumentTypeId = DokumentTypeId.fraTermNavn(nyJournalpostTittel);
+            }
+            LOG.info("FPFORDEL RESTJOURNALFØRING:Ny journalposttittel er: {}, ny dokumentTypeId: {}", nyJournalpostTittel, nyDokumentTypeId);
         }
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(request.enhetId, saksnummer, journalpostId, oppgaveId.toString(), nyJournalpostTittel ,dokumenter );
+        var oppgaveId = request.oppgaveId();
+        var saksnummer = request.saksnummer() != null ? request.saksnummer() : null;
+
+        if (saksnummer == null) {
+            saksnummer = journalføringTjeneste.opprettSak(journalpostId, mapOpprettSak(request.opprettSak()), nyDokumentTypeId);
+        }
+
+        validerSaksnummer(saksnummer);
+
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(request.enhetId, saksnummer, journalpostId, oppgaveId.toString(), nyJournalpostTittel ,dokumenter, nyDokumentTypeId );
 
         return new SaksnummerDto(saksnummer);
     }
