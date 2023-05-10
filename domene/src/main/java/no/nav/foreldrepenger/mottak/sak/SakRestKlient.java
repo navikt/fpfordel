@@ -6,7 +6,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.core.UriBuilder;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.STS_CC, endpointProperty = "sak.rs.url", endpointDefault = "http://sak.default/api/v1/saker")
+@RestClientConfig(tokenConfig = TokenFlow.STS_CC, endpointProperty = "sak.rs.url", endpointDefault = "http://sak.teamdokumenthandtering/api/v1/saker")
 public class SakRestKlient implements SakClient {
 
     private final RestClient sender;
