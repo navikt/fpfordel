@@ -31,7 +31,9 @@ public class MapNAVSkjemaDokumentTypeId {
         Map.entry(NAVSkjema.SKJEMA_INNTEKTSOPPLYSNINGER, DokumentTypeId.INNTEKTSOPPLYSNINGER),
         Map.entry(NAVSkjema.SKJEMAE_INNTEKTSOPPLYSNING_SELVSTENDIG, DokumentTypeId.INNTEKTSOPPLYSNING_SELVSTENDIG),
         Map.entry(NAVSkjema.SKJEMAE_INNTEKTSOPPLYSNINGER, DokumentTypeId.INNTEKTSOPPLYSNINGER),
-        Map.entry(NAVSkjema.SKJEMA_INNTEKTSMELDING, DokumentTypeId.INNTEKTSMELDING), Map.entry(NAVSkjema.SKJEMA_ANNEN_POST, DokumentTypeId.ANNET),
+        Map.entry(NAVSkjema.SKJEMA_INNTEKTSMELDING, DokumentTypeId.INNTEKTSMELDING),
+        Map.entry(NAVSkjema.SKJEMA_ANNEN_POST, DokumentTypeId.ANNET),
+        Map.entry(NAVSkjema.SKJEMA_ANNEN_POST_UTLAND, DokumentTypeId.ANNET),
         Map.entry(NAVSkjema.SKJEMAE_SVANGERSKAPSPENGER, DokumentTypeId.ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG),
         Map.entry(NAVSkjema.SKJEMAE_FORELDREPENGER_ADOPSJON, DokumentTypeId.ETTERSENDT_SØKNAD_FORELDREPENGER_ADOPSJON),
         Map.entry(NAVSkjema.SKJEMAE_FORELDREPENGER_FØDSEL, DokumentTypeId.ETTERSENDT_SØKNAD_FORELDREPENGER_FØDSEL),
@@ -39,7 +41,9 @@ public class MapNAVSkjemaDokumentTypeId {
         Map.entry(NAVSkjema.SKJEMAE_ENGANGSSTØNAD_FØDSEL, DokumentTypeId.ETTERSENDT_SØKNAD_ENGANGSSTØNAD_FØDSEL),
         Map.entry(NAVSkjema.SKJEMAE_FLEKSIBELT_UTTAK, DokumentTypeId.ETTERSENDT_FLEKSIBELT_UTTAK_FORELDREPENGER),
         Map.entry(NAVSkjema.SKJEMAE_FORELDREPENGER_ENDRING, DokumentTypeId.ETTERSENDT_FORELDREPENGER_ENDRING_SØKNAD),
-        Map.entry(NAVSkjema.SKJEMAE_KLAGE, DokumentTypeId.ETTERSENDT_KLAGE));
+        Map.entry(NAVSkjema.SKJEMAE_KLAGE, DokumentTypeId.ETTERSENDT_KLAGE),
+        Map.entry(NAVSkjema.SKJEMAE_KLAGE_NY, DokumentTypeId.ETTERSENDT_KLAGE),
+        Map.entry(NAVSkjema.SKJEMAE_ANKE, DokumentTypeId.ETTERSENDT_KLAGE));
 
     private static final Map<DokumentTypeId, NAVSkjema> DOKUMENT_TYPE_BREVKODE = Map.ofEntries(
         Map.entry(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER, NAVSkjema.SKJEMA_SVANGERSKAPSPENGER),
@@ -50,7 +54,8 @@ public class MapNAVSkjemaDokumentTypeId {
         Map.entry(DokumentTypeId.FLEKSIBELT_UTTAK_FORELDREPENGER, NAVSkjema.SKJEMA_FLEKSIBELT_UTTAK),
         Map.entry(DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD, NAVSkjema.SKJEMA_FORELDREPENGER_ENDRING),
         Map.entry(DokumentTypeId.KLAGE_DOKUMENT, NAVSkjema.SKJEMA_KLAGE_DOKUMENT),
-        Map.entry(DokumentTypeId.INNTEKTSMELDING, NAVSkjema.SKJEMA_INNTEKTSMELDING), Map.entry(DokumentTypeId.ANNET, NAVSkjema.SKJEMA_ANNEN_POST),
+        Map.entry(DokumentTypeId.INNTEKTSMELDING, NAVSkjema.SKJEMA_INNTEKTSMELDING),
+        Map.entry(DokumentTypeId.ANNET, NAVSkjema.SKJEMA_ANNEN_POST),
         Map.entry(DokumentTypeId.UDEFINERT, NAVSkjema.UDEFINERT));
 
     private static final Map<DokumentTypeId, Integer> DOKUMENT_TYPE_RANK = Map.ofEntries(Map.entry(DokumentTypeId.INNTEKTSMELDING, 1),
