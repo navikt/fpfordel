@@ -1,7 +1,6 @@
 FP-FORDEL
 ===============
 [![Bygg og deploy](https://github.com/navikt/fpfordel/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/navikt/fpfordel/actions/workflows/build.yml)
-[![Promote](https://github.com/navikt/fpfordel/actions/workflows/promote.yml/badge.svg?branch=master)](https://github.com/navikt/fpfordel/actions/workflows/promote.yml)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=navikt_fpfordel)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=coverage)](https://sonarcloud.io/summary/new_code?id=navikt_fpfordel)
 
