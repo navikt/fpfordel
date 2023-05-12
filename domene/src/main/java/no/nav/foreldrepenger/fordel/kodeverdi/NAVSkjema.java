@@ -35,10 +35,13 @@ public enum NAVSkjema implements Kodeverdi {
     SKJEMAE_INNTEKTSOPPLYSNINGER("SEIP", "NAVe 08-30.01",
         "Ettersendelse til inntektsopplysninger for arbeidstaker som skal ha sykepenger, foreldrepenger, svangerskapspenger, pleie-/opplæringspenger og omsorgspenger"),
     SKJEMAE_KLAGE("SEKLAG", "NAVe 90-00.08", "Ettersendelse klage/anke"),
+    SKJEMAE_KLAGE_NY("SEKLGE", "NAVe 90-00.08 K", "Ettersendelse til Klage"),
+    SKJEMAE_ANKE("SEANKE", "NAVe 90-00.08 A", "Ettersendelse til Anke"),
     SKJEMAE_FORELDREPENGER_ENDRING("SEEN", "NAVe 14-05.10",
         "Ettersendelse til søknad om endring av uttak av foreldrepenger eller overføring av kvote"),
 
     SKJEMA_ANNEN_POST("SANP", "NAV 00-03.00", "Annen post"),
+    SKJEMA_ANNEN_POST_UTLAND("SAPU", "NAV 00-03.00 U", "Annen post Utland"),
 
     // Altinn-skjemakode
     SKJEMA_INNTEKTSMELDING("INNTEKTSMELDING", "4936", "Inntektsmelding"),

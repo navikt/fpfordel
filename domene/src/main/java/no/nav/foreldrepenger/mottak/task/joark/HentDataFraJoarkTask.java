@@ -64,7 +64,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     private static final TaskType TASK_GOSYS = TaskType.forProsessTask(OpprettGSakOppgaveTask.class);
     private static final TaskType TASK_JOURNALFØR = TaskType.forProsessTask(TilJournalføringTask.class);
 
-    private static final Set<String> DIREKTE_KA = Set.of("anke", "rettskjennelse fra trygderetten");
+    private static final Set<String> DIREKTE_KA = Set.of("anke", "rettskjennelse fra trygderetten", "ettersendelse til anke");
 
     private static final Logger LOG = LoggerFactory.getLogger(HentDataFraJoarkTask.class);
 
