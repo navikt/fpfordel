@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OppdaterJournalpostRequest;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +36,7 @@ class ArkivTjenesteTest {
 
     private static final String SAK_ID = "456";
     private static final String AVSENDER_ID = "3000";
+    private static final String BRUKER_AKTØR_ID = "1234567890123";
 
     private ArkivTjeneste arkivTjeneste;
     @Mock
@@ -47,13 +50,13 @@ class ArkivTjenesteTest {
 
     @BeforeEach
     void setup() {
-        when(personTjeneste.hentNavn(any())).thenReturn("For Etternavn");
-        when(personTjeneste.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(AVSENDER_ID));
         arkivTjeneste = new ArkivTjeneste(safTjeneste, dokArkivTjeneste, dokumentRepository, personTjeneste);
     }
 
     @Test
     void skal_sende_hoveddokument_med_xml_og_pdf_versjon_med_ett_vedlegg() {
+        setupHentPersonOgNavn();
+
         UUID forsendelseId = UUID.randomUUID();
 
         var metadata = DokumentArkivTestUtil.lagMetadata(forsendelseId, SAK_ID);
@@ -79,6 +82,8 @@ class ArkivTjenesteTest {
 
     @Test
     void skal_returnere_respons_med_journalTilstand_endelig() {
+        setupHentPersonOgNavn();
+
         UUID forsendelseId = UUID.randomUUID();
 
         var metadata = DokumentArkivTestUtil.lagMetadata(forsendelseId, SAK_ID);
@@ -101,4 +106,18 @@ class ArkivTjenesteTest {
         assertThat(resultat.ferdigstilt()).isEqualTo(Boolean.TRUE);
     }
 
+    @Test
+    void skal_oppdatere_bruker() {
+        when(personTjeneste.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(BRUKER_AKTØR_ID));
+        when(dokArkivTjeneste.oppdaterJournalpost(eq(DokumentArkivTestUtil.JOURNALPOST_ID), any(OppdaterJournalpostRequest.class))).thenReturn(true);
+
+        arkivTjeneste.oppdaterJournalpostBruker(DokumentArkivTestUtil.JOURNALPOST_ID, "2343431");
+
+        verify(dokArkivTjeneste).oppdaterJournalpost(eq(DokumentArkivTestUtil.JOURNALPOST_ID), any(OppdaterJournalpostRequest.class));
+    }
+
+    private void setupHentPersonOgNavn() {
+        when(personTjeneste.hentNavn(any())).thenReturn("For Etternavn");
+        when(personTjeneste.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(AVSENDER_ID));
+    }
 }

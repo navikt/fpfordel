@@ -37,10 +37,8 @@ public class ManuellOpprettSakValidator {
 
     private static FagsakYtelseTypeDto utledYtelseTypeFor(DokumentTypeId dokumentTypeId) {
         return switch (dokumentTypeId) {
-            case SØKNAD_ENGANGSSTØNAD_ADOPSJON -> FagsakYtelseTypeDto.ENGANGSTØNAD;
-            case SØKNAD_ENGANGSSTØNAD_FØDSEL -> FagsakYtelseTypeDto.ENGANGSTØNAD;
-            case SØKNAD_FORELDREPENGER_ADOPSJON -> FagsakYtelseTypeDto.FORELDREPENGER;
-            case SØKNAD_FORELDREPENGER_FØDSEL -> FagsakYtelseTypeDto.FORELDREPENGER;
+            case SØKNAD_ENGANGSSTØNAD_ADOPSJON, SØKNAD_ENGANGSSTØNAD_FØDSEL -> FagsakYtelseTypeDto.ENGANGSTØNAD;
+            case SØKNAD_FORELDREPENGER_ADOPSJON, SØKNAD_FORELDREPENGER_FØDSEL -> FagsakYtelseTypeDto.FORELDREPENGER;
             case SØKNAD_SVANGERSKAPSPENGER -> FagsakYtelseTypeDto.SVANGERSKAPSPENGER;
             default -> null;
         };

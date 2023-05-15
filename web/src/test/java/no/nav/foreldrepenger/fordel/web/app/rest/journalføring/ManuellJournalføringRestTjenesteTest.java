@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
@@ -35,6 +37,7 @@ import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Bruker;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
@@ -269,17 +272,90 @@ class ManuellJournalføringRestTjenesteTest {
         assertThat(ex.journalpostId()).isEqualTo(expectedJournalpostId);
     }
 
+    @Test
+    @DisplayName("/bruker/oppdater - exception om journalpost mangler")
+    void skal_kaste_exception_om_journalpostId_mangler() {
+        var request = new ManuellJournalføringRestTjeneste.OppdaterBrukerDto(null, null);
+        var ex = assertThrows(NullPointerException.class, () -> restTjeneste.oppdaterBruker(request));
+
+        assertThat(ex).isNotNull();
+        assertThat(ex.getMessage()).isEqualTo("JournalpostId må være satt.");
+    }
+
+    @Test
+    @DisplayName("/bruker/oppdater - exception om fødselsnummer mangler")
+    void skal_kaste_exception_om_fnr_mangler() {
+        var request = new ManuellJournalføringRestTjeneste.OppdaterBrukerDto("1234", null);
+        var ex = assertThrows(NullPointerException.class, () -> restTjeneste.oppdaterBruker(request));
+
+        assertThat(ex).isNotNull();
+        assertThat(ex.getMessage()).isEqualTo("FNR/DNR må være satt.");
+    }
+
+    @Test
+    @DisplayName("/bruker/oppdater - oppdater med Bruker om den ikke er satt")
+    void skal_oppdatere_bruker_om_ikke_satt() {
+        var expectedJournalpostId = "12334";
+        var expectedFnr = "11111122222";
+
+        when(arkiv.hentArkivJournalpost(expectedJournalpostId)).thenReturn(opprettJournalpost(expectedJournalpostId));
+
+        var request = new ManuellJournalføringRestTjeneste.OppdaterBrukerDto(expectedJournalpostId, expectedFnr);
+        var journalpostDetaljerDto = restTjeneste.oppdaterBruker(request);
+
+        assertThat(journalpostDetaljerDto).isNotNull();
+        verify(arkiv).oppdaterJournalpostBruker(expectedJournalpostId, expectedFnr);
+        verify(arkiv, times(2)).hentArkivJournalpost(expectedJournalpostId);
+    }
+
+    @Test
+    @DisplayName("/bruker/oppdater - ikke oppdater om bruker finnes på journalposten allerede.")
+    void skal_ikke_oppdatere_bruker_om_den_er_satt_allerede() {
+        var expectedJournalpostId = "12334";
+        var brukerAktørId = "1234567890123";
+        var expectedFnr = "11111122222";
+
+        when(arkiv.hentArkivJournalpost(expectedJournalpostId)).thenReturn(getStandardBuilder(expectedJournalpostId, brukerAktørId).build());
+        when(pdl.hentPersonIdentForAktørId(brukerAktørId)).thenReturn(Optional.of(expectedFnr));
+
+        var request = new ManuellJournalføringRestTjeneste.OppdaterBrukerDto(expectedJournalpostId, expectedFnr);
+        var journalpostDetaljerDto = restTjeneste.oppdaterBruker(request);
+
+        assertThat(journalpostDetaljerDto).isNotNull();
+        verify(arkiv, times(0)).oppdaterJournalpostBruker(expectedJournalpostId, expectedFnr);
+        verify(arkiv, times(2)).hentArkivJournalpost(expectedJournalpostId);
+    }
+
     private ArkivJournalpost opprettJournalpost(String journalpostId) {
+        return getStandardBuilder(journalpostId, null).build();
+    }
+
+    private static ArkivJournalpost.Builder getStandardBuilder(String journalpostId, String brukerAktørId) {
         return ArkivJournalpost.getBuilder()
             .medJournalpostId(journalpostId)
+            .medBrukerAktørId(brukerAktørId)
             .medHovedtype(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL)
             .medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER)
             .medTilstand(Journalstatus.MOTTATT)
-            .medJournalpost(
-                new Journalpost(journalpostId, null, null, null, "tittel", null, null, null, null, null, null, null, null, List.of(),
-                    List.of(new DokumentInfo("555", "tittel", "brevkode", null, null)))
-            )
-            .build();
+            .medJournalpost(opprettOriginalJournalpost(journalpostId, brukerAktørId));
+    }
+
+    private static Journalpost opprettOriginalJournalpost(String journalpostId, String brukerAktørId) {
+        return new Journalpost(journalpostId,
+            null,
+            null,
+            null,
+            "tittel",
+            null,
+            null,
+            null,
+            null,
+            null,
+            brukerAktørId != null ? new Bruker(brukerAktørId, Bruker.BrukerIdType.AKTOERID): null,
+            null,
+            null,
+            List.of(),
+            List.of(new DokumentInfo("555", "tittel", "brevkode", null, null)));
     }
 
     private static Oppgave opprettOppgave(long expectedId, LocalDate now, String expectedJournalpostId, String beskrivelse, BehandlingTema behandlingTema, String enhetsNr) {

@@ -1,13 +1,17 @@
 package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.mapPrioritet;
+import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.mapTilYtelseType;
 import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.mapYtelseTypeTilDto;
+import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.tekstFraBeskrivelse;
 
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -20,6 +24,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -30,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -44,7 +50,6 @@ import no.nav.foreldrepenger.mottak.journal.saf.DokumentInfo;
 import no.nav.foreldrepenger.mottak.klient.AktørIdDto;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.Los;
-import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.TekniskException;
@@ -53,6 +58,7 @@ import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
@@ -102,7 +108,7 @@ public class ManuellJournalføringRestTjeneste {
         if (ENV.isProd() && ("J116396".equals(KontekstHolder.getKontekst().getUid()) || "W119202".equals(KontekstHolder.getKontekst().getUid()))) {
             var oppgaveDtoer = oppgaver.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null , LIMIT)
                 .stream()
-                .filter(oppgave -> oppgave.aktoerId() != null)
+                .filter(oppgave -> oppgave.aktoerId() != null) //TODO: Fjernes da frontend er på plass
                 .map(this::lagOppgaveDto)
                 .toList();
             LOG.info("FPFORDEL RESTJOURNALFØRING: Henter {} oppgaver", oppgaveDtoer.size());
@@ -115,19 +121,43 @@ public class ManuellJournalføringRestTjeneste {
         }
 
         List<OppgaveDto> oppgaverPåSaksbehandlersEnheter = new ArrayList<>();
-        for (TilhørendeEnhetDto enhet : tilhørendeEnheter) {
+        for (var enhet : tilhørendeEnheter) {
             try {
                 oppgaverPåSaksbehandlersEnheter.addAll(oppgaver.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, enhet.enhetsnummer(), LIMIT)
                         .stream()
-                        .filter(oppgave -> oppgave.aktoerId() != null)
+                        .filter(oppgave -> oppgave.aktoerId() != null) //TODO: Fjernes da frontend er på plass
                         .map(this::lagOppgaveDto)
                         .toList());
             } catch (Exception e) {
-                throw new IllegalStateException("FPFORDEL feilet å hente åpne oppgaver for enhet " + enhet + " med melding {} ", e);
+                throw new IllegalStateException(String.format("FPFORDEL feilet å hente åpne oppgaver for enhet %s med melding {}", enhet), e);
             }
         }
         LOG.info("FPFORDEL RESTJOURNALFØRING: Henter {} oppgaver", oppgaverPåSaksbehandlersEnheter.size());
         return oppgaverPåSaksbehandlersEnheter;
+    }
+
+    @POST
+    @Path("/bruker/oppdater")
+    @Operation(description = "Oppdaterer manglende bruker og så returnerer en oppdatert journalpost detaljer.", tags = "Manuell journalføring", responses = { @ApiResponse(responseCode = "200", description = "Bruker oppdatert"), @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    public JournalpostDetaljerDto oppdaterBruker(@Parameter(description = "Trenger journalpostId, og FNR/DNR til å kunne oppdatere dokumentet.")
+                                                     @NotNull @Valid @TilpassetAbacAttributt(supplierClass = FnrDataSupplier.class) OppdaterBrukerDto request) {
+        Objects.requireNonNull(request.journalpostId(), "JournalpostId må være satt.");
+        Objects.requireNonNull(request.fødselsnummer(), "FNR/DNR må være satt.");
+
+        var journalpost = arkiv.hentArkivJournalpost(request.journalpostId()).getOriginalJournalpost();
+        var journalpostId = journalpost.journalpostId();
+
+        if ((journalpost.bruker() == null) || (journalpost.bruker().id() == null)) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("FPFORDEL oppdaterer manglende bruker for {}", journalpostId);
+            }
+            arkiv.oppdaterJournalpostBruker(journalpostId, request.fødselsnummer());
+        }
+
+        return Optional.ofNullable(arkiv.hentArkivJournalpost(journalpostId))
+            .map(this::mapTilJournalpostDetaljerDto)
+            .orElseThrow();
     }
 
     @GET
@@ -139,10 +169,13 @@ public class ManuellJournalføringRestTjeneste {
     public JournalpostDetaljerDto hentJournalpostDetaljer(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("journalpostId") @NotNull @Valid JournalpostIdDto journalpostId) {
         LOG.info("FPFORDEL RESTJOURNALFØRING: Henter journalpostdetaljer for journalpostId {}", journalpostId.getJournalpostId());
         try {
-            var journalpostDetaljer =  Optional.ofNullable(arkiv.hentArkivJournalpost(journalpostId.getJournalpostId()))
+            var journalpostDetaljer = Optional.ofNullable(arkiv.hentArkivJournalpost(journalpostId.getJournalpostId()))
                 .map(this::mapTilJournalpostDetaljerDto)
                 .orElseThrow();
-            LOG.info("FPFORDEL RESTJOURNALFØRING: Journalpost-tema:{} journalpostTittel:{} antall dokumenter:{}",  journalpostDetaljer.behandlingTema(), journalpostDetaljer.tittel(), journalpostDetaljer.dokumenter().size());
+
+            if (LOG.isInfoEnabled()) {
+                LOG.info("FPFORDEL RESTJOURNALFØRING: Journalpost-tema:{} journalpostTittel:{} antall dokumenter:{}",  journalpostDetaljer.behandlingTema(), journalpostDetaljer.tittel(), journalpostDetaljer.dokumenter().size());
+            }
             return journalpostDetaljer;
         } catch (NoSuchElementException ex) {
             throw new TekniskException("FORDEL-123", "Journapost " + journalpostId.getJournalpostId() + " finnes ikke i arkivet.", ex);
@@ -181,8 +214,11 @@ public class ManuellJournalføringRestTjeneste {
     }
 
     JournalpostDetaljerDto mapTilJournalpostDetaljerDto(ArkivJournalpost journalpost) {
-        return new JournalpostDetaljerDto(journalpost.getJournalpostId(), journalpost.getTittel().orElse(""),
-            journalpost.getBehandlingstema().getOffisiellKode(), journalpost.getKanal(),
+        return new JournalpostDetaljerDto(
+            journalpost.getJournalpostId(),
+            journalpost.getTittel().orElse(""),
+            journalpost.getBehandlingstema().getOffisiellKode(),
+            journalpost.getKanal(),
             journalpost.getBrukerAktørId().map(this::mapBruker).orElse(null),
             new JournalpostDetaljerDto.AvsenderDto(journalpost.getAvsenderNavn(), journalpost.getAvsenderIdent()),
             mapYtelseTypeTilDto(journalpost.getBehandlingstema().utledYtelseType()),
@@ -200,20 +236,27 @@ public class ManuellJournalføringRestTjeneste {
             .toList();
     }
     private JournalpostDetaljerDto.BrukerDto mapBruker(String aktørId) {
-        if (aktørId != null) {
-            var fnr = pdl.hentPersonIdentForAktørId(aktørId).orElseThrow(() -> new IllegalStateException("Mangler fnr for aktørid"));
-            var navn = pdl.hentNavn(aktørId);
-            return new JournalpostDetaljerDto.BrukerDto(navn, fnr, aktørId);
+        if (aktørId == null) {
+            return null;
         }
-        return null;
+        var fnr = pdl.hentPersonIdentForAktørId(aktørId).orElseThrow(() -> new IllegalStateException("Mangler fnr for aktørid"));
+        var navn = pdl.hentNavn(aktørId);
+        return new JournalpostDetaljerDto.BrukerDto(navn, fnr, aktørId);
     }
 
     private OppgaveDto lagOppgaveDto(Oppgave oppgave) {
-        var trimmetBeskrivelse = ManuellJournalføringMapper.tekstFraBeskrivelse(oppgave.beskrivelse());
-
-        return new OppgaveDto(oppgave.id(), oppgave.journalpostId(), oppgave.aktoerId(), hentPersonIdent(oppgave.aktoerId()).orElse(null), ManuellJournalføringMapper.mapTilYtelseType(oppgave.behandlingstema()),
-            oppgave.fristFerdigstillelse(), ManuellJournalføringMapper.mapPrioritet(oppgave.prioritet()), oppgave.beskrivelse(), trimmetBeskrivelse, oppgave.aktivDato(),
-            false, oppgave.tildeltEnhetsnr());
+        return new OppgaveDto(oppgave.id(),
+            oppgave.journalpostId(),
+            oppgave.aktoerId(),
+            hentPersonIdent(oppgave.aktoerId()).orElse(null),
+            mapTilYtelseType(oppgave.behandlingstema()),
+            oppgave.fristFerdigstillelse(),
+            mapPrioritet(oppgave.prioritet()),
+            oppgave.beskrivelse(),
+            tekstFraBeskrivelse(oppgave.beskrivelse()),
+            oppgave.aktivDato(),
+            false,
+            oppgave.tildeltEnhetsnr());
     }
 
     private Optional<String> hentPersonIdent(String aktørId) {
@@ -229,6 +272,8 @@ public class ManuellJournalføringRestTjeneste {
         LAV
     }
 
+    public record OppdaterBrukerDto(@NotNull String journalpostId, @NotNull String fødselsnummer) {}
+
     public record OppgaveDto(@NotNull Long id, @NotNull String journalpostId, String aktørId, String fødselsnummer, @Valid YtelseTypeDto ytelseType,
                              @NotNull LocalDate frist, OppgavePrioritet prioritet, String beskrivelse, String trimmetBeskrivelse,
                              @NotNull LocalDate opprettetDato, @NotNull boolean journalpostHarMangler, String enhetId) {
@@ -239,6 +284,14 @@ public class ManuellJournalføringRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             return AbacDataAttributter.opprett();
+        }
+    }
+
+    public static class FnrDataSupplier implements Function<Object, AbacDataAttributter> {
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var dto = (OppdaterBrukerDto) obj;
+            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.FNR, dto.fødselsnummer());
         }
     }
 }
