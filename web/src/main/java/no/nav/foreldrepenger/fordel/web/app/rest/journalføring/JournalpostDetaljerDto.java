@@ -12,9 +12,15 @@ import javax.validation.constraints.Size;
 import no.nav.foreldrepenger.mottak.klient.StatusDto;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 
-public record JournalpostDetaljerDto(@NotNull String journalpostId, @NotNull String tittel, @NotNull String behandlingTema, String kanal,
-                                     @Valid BrukerDto bruker, @Valid AvsenderDto avsender, @Valid YtelseTypeDto ytelseType,
-                                     @NotNull @Valid @Size(min = 1) Set<DokumentDto> dokumenter, @Valid List<SakJournalføringDto> fagsaker) {
+public record JournalpostDetaljerDto(@NotNull String journalpostId,
+                                     @NotNull String tittel,
+                                     @NotNull String behandlingTema,
+                                     String kanal,
+                                     @Valid BrukerDto bruker,
+                                     @Valid AvsenderDto avsender,
+                                     @Valid YtelseTypeDto ytelseType,
+                                     @NotNull @Valid @Size(min = 1) Set<DokumentDto> dokumenter,
+                                     @Valid List<SakJournalføringDto> fagsaker) {
 
     public record BrukerDto(@NotNull String navn, @NotNull String fnr, @NotNull String aktørId) {
     }
