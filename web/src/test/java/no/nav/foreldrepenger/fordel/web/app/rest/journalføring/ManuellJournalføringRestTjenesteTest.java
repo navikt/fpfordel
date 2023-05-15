@@ -293,7 +293,7 @@ class ManuellJournalføringRestTjenesteTest {
     }
 
     @Test
-    @DisplayName("/bruker/oppdater - exception om fødselsnummer mangler")
+    @DisplayName("/bruker/oppdater - oppdater med Bruker om den ikke er satt")
     void skal_oppdatere_bruker_om_ikke_satt() {
         var expectedJournalpostId = "12334";
         var expectedFnr = "11111122222";
