@@ -360,21 +360,22 @@ class ManuellJournalføringRestTjenesteTest {
 
     private static Oppgave opprettOppgave(long expectedId, LocalDate now, String expectedJournalpostId, String beskrivelse, BehandlingTema behandlingTema, String enhetsNr) {
         return new Oppgave(
-                expectedId,
-                expectedJournalpostId,
-                "FPSAK",
-                null,
-                "aktørId",
-                "tema",
-                behandlingTema.getOffisiellKode(),
-                Oppgavetype.JOURNALFØRING.getKode(),
-                "behType",
-                1,
-                enhetsNr,
-                now,
-                now,
-                Prioritet.NORM,
-                Oppgavestatus.AAPNET,
-                beskrivelse);
+            expectedId,
+            expectedJournalpostId,
+            "FPSAK",
+            null,
+            "aktørId",
+            "tema",
+            behandlingTema.getOffisiellKode(),
+            Oppgavetype.JOURNALFØRING.getKode(),
+            "behType",
+            1,
+            enhetsNr,
+            now,
+            now,
+            Prioritet.NORM,
+            Oppgavestatus.AAPNET,
+            beskrivelse,
+            null);
     }
 }
