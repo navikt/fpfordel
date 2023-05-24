@@ -241,6 +241,13 @@ public class ArkivTjeneste {
         }
     }
 
+    public void oppdaterJournalpostBruker(String journalpostId, String fødselsnummer) {
+        var aktørId = personTjeneste.hentAktørIdForPersonIdent(fødselsnummer).orElseThrow();
+        if (!dokArkivTjeneste.oppdaterJournalpost(journalpostId, OppdaterJournalpostRequest.ny().medBruker(aktørId).build())) {
+            throw new IllegalStateException(KUNNE_IKKE_OPPDATERE_JP + journalpostId + " med person opplysninger.");
+        }
+    }
+
     public void settTilleggsOpplysninger(ArkivJournalpost arkivJournalpost, DokumentTypeId defaultDokumentTypeId, boolean manuellJournalføring) {
         var journalpost = arkivJournalpost.getOriginalJournalpost();
         var tilleggDokumentType = arkivJournalpost.getTilleggsopplysninger().stream().filter(to -> FP_DOK_TYPE.equals(to.nokkel())).findFirst();
