@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OppdaterJournalpostRequest;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -155,7 +156,7 @@ public class FerdigstillJournalføringTjeneste {
     }
 
     public void oppdaterJournalpostMedTittelOgMangler(ArkivJournalpost journalpost, String nyJournalpostTittel, List<DokumenterMedNyTittel> dokumenterMedNyTittel, String aktørId, BehandlingTema behandlingTema) {
-        var journalpostId = journalpost.getJournalpostId();
+        var journalpostId = StringEscapeUtils.escapeHtml4(journalpost.getJournalpostId());
         var kanal = journalpost.getKanal();
 
         if ((nyJournalpostTittel != null || !dokumenterMedNyTittel.isEmpty()) && (MottakKanal.SELVBETJENING.name().equals(kanal) || MottakKanal.ALTINN.name().equals(kanal))) {
