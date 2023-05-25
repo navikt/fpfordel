@@ -21,7 +21,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OppdaterJournalpostRequest;
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,9 +127,9 @@ public class FerdigstillJournalføringTjeneste {
             LOG.info("FPFORDEL RESTJOURNALFØRING: Kaller til Journalføring"); // NOSONAR
             try {
                 arkivTjeneste.oppdaterMedSak(escapeHtml4(journalpost.getJournalpostId()), saksnummer, aktørIdFagsak);
-                arkivTjeneste.ferdigstillJournalføring(escapeHtml4(journalpost.getJournalpostId()), enhetId);
+                arkivTjeneste.ferdigstillJournalføring(escapeHtml4(journalpost.getJournalpostId()), escapeHtml4(enhetId));
             } catch (Exception e) {
-                LOG.warn("FPFORDEL RESTJOURNALFØRING: oppdaterJournalpostOgFerdigstill feiler for {}", journalpost.getJournalpostId(), e);
+                LOG.warn("FPFORDEL RESTJOURNALFØRING: oppdaterJournalpostOgFerdigstill feiler for {}", escapeHtml4(journalpost.getJournalpostId()), e);
                 throw new TekniskException("FP-15689", lagUgyldigInputMelding("Bruker", BRUKER_MANGLER));
             }
         }
@@ -185,7 +184,7 @@ public class FerdigstillJournalføringTjeneste {
         if (!dokumenterMedNyTittel.isEmpty()) {
             dokumenterÅOppdatere = mapDokumenterTilOppdatering(dokumenterMedNyTittel);
         }
-        arkivTjeneste.oppdaterJournalpostVedManuellJournalføring(journalpost.getJournalpostId(), nyJournalpostTittel, dokumenterÅOppdatere, journalpost, aktørId, behandlingTema );
+        arkivTjeneste.oppdaterJournalpostVedManuellJournalføring(journalpostId, nyJournalpostTittel, dokumenterÅOppdatere, journalpost, aktørId, behandlingTema );
 
     }
 
