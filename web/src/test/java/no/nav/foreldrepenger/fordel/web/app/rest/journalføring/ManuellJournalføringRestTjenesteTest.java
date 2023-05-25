@@ -106,7 +106,6 @@ class ManuellJournalføringRestTjenesteTest {
         assertThat(oppgave.prioritet()).isEqualTo(ManuellJournalføringRestTjeneste.OppgavePrioritet.NORM);
         assertThat(oppgave.ytelseType()).isEqualTo(YtelseTypeDto.FORELDREPENGER);
         assertThat(oppgave.enhetId()).isEqualTo(tilhørendeEnhetDto.enhetsnummer());
-        assertThat(oppgave.journalpostHarMangler()).isFalse();
     }
 
     @Test
@@ -136,7 +135,6 @@ class ManuellJournalføringRestTjenesteTest {
         assertThat(oppgave.prioritet()).isEqualTo(ManuellJournalføringRestTjeneste.OppgavePrioritet.NORM);
         assertThat(oppgave.ytelseType()).isEqualTo(YtelseTypeDto.SVANGERSKAPSPENGER);
         assertThat(oppgave.enhetId()).isEqualTo(tilhørendeEnhetDto.enhetsnummer());
-        assertThat(oppgave.journalpostHarMangler()).isFalse();
     }
 
 
@@ -189,7 +187,6 @@ class ManuellJournalføringRestTjenesteTest {
         assertThat(oppgave.aktørId()).isEqualTo(aktørId);
         assertThat(oppgave.fødselsnummer()).isEqualTo(fnr);
         assertThat(oppgave.ytelseType()).isEqualTo(YtelseTypeDto.FORELDREPENGER);
-        assertThat(oppgave.journalpostHarMangler()).isFalse();
     }
 
     @Test
