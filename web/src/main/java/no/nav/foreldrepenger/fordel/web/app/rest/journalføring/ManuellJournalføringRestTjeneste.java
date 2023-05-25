@@ -255,8 +255,8 @@ public class ManuellJournalføringRestTjeneste {
             oppgave.beskrivelse(),
             tekstFraBeskrivelse(oppgave.beskrivelse()),
             oppgave.aktivDato(),
-            false,
-            oppgave.tildeltEnhetsnr());
+            oppgave.tildeltEnhetsnr(),
+            oppgave.tilordnetRessurs());
     }
 
     private Optional<String> hentPersonIdent(String aktørId) {
@@ -276,7 +276,7 @@ public class ManuellJournalføringRestTjeneste {
 
     public record OppgaveDto(@NotNull Long id, @NotNull String journalpostId, String aktørId, String fødselsnummer, @Valid YtelseTypeDto ytelseType,
                              @NotNull LocalDate frist, OppgavePrioritet prioritet, String beskrivelse, String trimmetBeskrivelse,
-                             @NotNull LocalDate opprettetDato, @NotNull boolean journalpostHarMangler, String enhetId) {
+                             @NotNull LocalDate opprettetDato, String enhetId, String reservert) {
 
     }
 
