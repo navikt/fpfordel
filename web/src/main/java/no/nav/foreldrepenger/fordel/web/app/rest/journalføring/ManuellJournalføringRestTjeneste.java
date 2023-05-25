@@ -52,6 +52,7 @@ import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.Los;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
+import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
@@ -106,8 +107,8 @@ public class ManuellJournalføringRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public List<OppgaveDto> hentÅpneOppgaverForSaksbehandler(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("ident") @NotNull @Valid SaksbehandlerIdentDto saksbehandlerIdentDto) {
         //Midlertidig for å kunne verifisere i produksjon - fjernes når verifisert ok
-        if (ENV.isProd() && "W119202".equals(KontekstHolder.getKontekst().getUid())) {
-            var oppgaveDtoer = oppgaver.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null , LIMIT)
+        if (ENV.isProd() && ("W119202".equals(KontekstHolder.getKontekst().getUid()))) {
+            var oppgaveDtoer = oppgaver.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)
                 .stream()
                 .map(this::lagOppgaveDto)
                 .toList();
@@ -125,9 +126,9 @@ public class ManuellJournalføringRestTjeneste {
         for (var enhet : tilhørendeEnheter) {
             try {
                 oppgaverPåSaksbehandlersEnheter.addAll(oppgaver.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, enhet.enhetsnummer(), LIMIT)
-                        .stream()
-                        .map(this::lagOppgaveDto)
-                        .toList());
+                    .stream()
+                    .map(this::lagOppgaveDto)
+                    .toList());
             } catch (Exception e) {
                 throw new IllegalStateException(String.format("FPFORDEL feilet å hente åpne oppgaver for enhet %s med melding {}", enhet), e);
             }
@@ -201,7 +202,7 @@ public class ManuellJournalføringRestTjeneste {
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     @Operation(description = "Mulighet for å reservere/avreservere en oppgave", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response oppgaveReserver(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @NotNull @Valid ReserverOppgaveDto oppgaveDto) {
         var innloggetBruker = KontekstHolder.getKontekst().getUid();
         var oppgave = oppgaver.hentOppgave(oppgaveDto.oppgaveId());
@@ -342,7 +343,7 @@ public class ManuellJournalføringRestTjeneste {
             return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.FNR, dto.fødselsnummer());
         }
     }
-  
+
     private static boolean isBlank(final CharSequence cs) {
         final int strLen = length(cs);
         if (strLen == 0) {
