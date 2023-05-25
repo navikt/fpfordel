@@ -186,7 +186,7 @@ public class ManuellJournalføringRestTjeneste {
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     @Operation(description = "Mulighet for å reservere/avreservere en oppgave", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public Response oppgaveReserver(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @NotNull @Valid ReserverOppgaveDto oppgaveDto) {
         var innloggetBruker = KontekstHolder.getKontekst().getUid();
         var oppgave = oppgaver.hentOppgave(oppgaveDto.oppgaveId());
