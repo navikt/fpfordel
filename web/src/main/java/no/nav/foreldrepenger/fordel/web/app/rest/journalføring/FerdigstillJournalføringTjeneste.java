@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
 import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.gjelderForeldrepenger;
 import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.mapYtelseTypeTilDto;
+import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -122,12 +123,12 @@ public class FerdigstillJournalføringTjeneste {
             try {
                 arkivTjeneste.settTilleggsOpplysninger(journalpost, brukDokumentTypeId, oppdatereTitler);
             } catch (Exception e) {
-                LOG.info("FPFORDEL RESTJOURNALFØRING: Feil ved setting av tilleggsopplysninger for journalpostId {}", journalpost.getJournalpostId());
+                LOG.info("FPFORDEL RESTJOURNALFØRING: Feil ved setting av tilleggsopplysninger for journalpostId {}", escapeHtml4(journalpost.getJournalpostId()));
             }
             LOG.info("FPFORDEL RESTJOURNALFØRING: Kaller til Journalføring"); // NOSONAR
             try {
-                arkivTjeneste.oppdaterMedSak(journalpost.getJournalpostId(), saksnummer, aktørIdFagsak);
-                arkivTjeneste.ferdigstillJournalføring(journalpost.getJournalpostId(), enhetId);
+                arkivTjeneste.oppdaterMedSak(escapeHtml4(journalpost.getJournalpostId()), saksnummer, aktørIdFagsak);
+                arkivTjeneste.ferdigstillJournalføring(escapeHtml4(journalpost.getJournalpostId()), enhetId);
             } catch (Exception e) {
                 LOG.warn("FPFORDEL RESTJOURNALFØRING: oppdaterJournalpostOgFerdigstill feiler for {}", journalpost.getJournalpostId(), e);
                 throw new TekniskException("FP-15689", lagUgyldigInputMelding("Bruker", BRUKER_MANGLER));
@@ -156,7 +157,7 @@ public class FerdigstillJournalføringTjeneste {
     }
 
     public void oppdaterJournalpostMedTittelOgMangler(ArkivJournalpost journalpost, String nyJournalpostTittel, List<DokumenterMedNyTittel> dokumenterMedNyTittel, String aktørId, BehandlingTema behandlingTema) {
-        var journalpostId = StringEscapeUtils.escapeHtml4(journalpost.getJournalpostId());
+        var journalpostId = escapeHtml4(journalpost.getJournalpostId());
         var kanal = journalpost.getKanal();
 
         if ((nyJournalpostTittel != null || !dokumenterMedNyTittel.isEmpty()) && (MottakKanal.SELVBETJENING.name().equals(kanal) || MottakKanal.ALTINN.name().equals(kanal))) {
