@@ -31,6 +31,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import no.nav.vedtak.exception.FunksjonellException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -135,6 +137,21 @@ public class ManuellJournalføringRestTjeneste {
         }
         LOG.info("FPFORDEL RESTJOURNALFØRING: Henter {} oppgaver", oppgaverPåSaksbehandlersEnheter.size());
         return oppgaverPåSaksbehandlersEnheter;
+    }
+
+    @POST
+    @Path("/bruker/hent")
+    @Operation(description = "Hent bruker navn og etternavn", tags = "Manuell journalføring", responses = { @ApiResponse(responseCode = "200", description = "Bruker hentet"), @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    public Response hentBruker(@Parameter(description = "Trenger FNR/DNR til å kunne innhente en bruker.")
+                                                 @NotNull @Valid @TilpassetAbacAttributt(supplierClass = HentBrukerDataSupplier.class) HentBrukerDto request) {
+        Objects.requireNonNull(request.fødselsnummer(), "FNR/DNR må være satt.");
+        try {
+            var aktørId = pdl.hentAktørIdForPersonIdent(request.fødselsnummer()).orElseThrow();
+            return Response.ok(pdl.hentNavn(aktørId)).build();
+        } catch (NoSuchElementException e) {
+            throw new FunksjonellException("BRUKER-MANGLER", "Angitt bruker ikke funnet.", "Sjekk om oppgitt personnummer er riktig.", e);
+        }
     }
 
     @POST
@@ -294,6 +311,8 @@ public class ManuellJournalføringRestTjeneste {
     public record OppdaterBrukerDto(@NotNull String journalpostId, @NotNull String fødselsnummer) {
     }
 
+    public record HentBrukerDto(@NotNull String fødselsnummer) {}
+
     public record OppgaveDto(@NotNull Long id, @NotNull String journalpostId, String aktørId, String fødselsnummer, @Valid YtelseTypeDto ytelseType,
                              @NotNull LocalDate frist, OppgavePrioritet prioritet, String beskrivelse, String trimmetBeskrivelse,
                              @NotNull LocalDate opprettetDato, String enhetId, String reservertAv) {
@@ -318,6 +337,14 @@ public class ManuellJournalføringRestTjeneste {
         }
     }
 
+    public static class HentBrukerDataSupplier implements Function<Object, AbacDataAttributter> {
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var dto = (HentBrukerDto) obj;
+            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.FNR, dto.fødselsnummer());
+        }
+    }
+  
     private static boolean isBlank(final CharSequence cs) {
         final int strLen = length(cs);
         if (strLen == 0) {
