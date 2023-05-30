@@ -14,6 +14,8 @@ import java.util.Optional;
 
 import javax.ws.rs.core.MediaType;
 
+import no.nav.vedtak.exception.FunksjonellException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -321,6 +323,37 @@ class ManuellJournalføringRestTjenesteTest {
         assertThat(journalpostDetaljerDto).isNotNull();
         verify(arkiv, times(0)).oppdaterJournalpostBruker(expectedJournalpostId, expectedFnr);
         verify(arkiv, times(2)).hentArkivJournalpost(expectedJournalpostId);
+    }
+
+    @Test
+    @DisplayName("/bruker/hent - ok bruker finnes")
+    void skal_levere_navn_til_bruker() {
+        var expectedFnr = "11111122222";
+        var brukerAktørId = "1234567890123";
+        var navn = "Ola, Ola";
+
+        when(pdl.hentAktørIdForPersonIdent(expectedFnr)).thenReturn(Optional.of(brukerAktørId));
+        when(pdl.hentNavn(brukerAktørId)).thenReturn(navn);
+
+        var request = new ManuellJournalføringRestTjeneste.HentBrukerDto(expectedFnr);
+        var response = restTjeneste.hentBruker(request);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getEntity()).isEqualTo(navn);
+    }
+
+    @Test
+    @DisplayName("/bruker/hent - exception bruker finnes ikke")
+    void skal_levere_exception_om_bruker_ikke_finnes() {
+        var expectedFnr = "11111122222";
+
+        when(pdl.hentAktørIdForPersonIdent(expectedFnr)).thenReturn(Optional.empty());
+
+        var request = new ManuellJournalføringRestTjeneste.HentBrukerDto(expectedFnr);
+        var ex = assertThrows(FunksjonellException.class, () -> restTjeneste.hentBruker(request) );
+
+        assertThat(ex).isNotNull();
+        assertThat(ex.getMessage()).isEqualTo("BRUKER-MANGLER:Angitt bruker ikke funnet.");
     }
 
     private ArkivJournalpost opprettJournalpost(String journalpostId) {
