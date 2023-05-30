@@ -107,10 +107,9 @@ public class ManuellJournalføringRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public List<OppgaveDto> hentÅpneOppgaverForSaksbehandler(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("ident") @NotNull @Valid SaksbehandlerIdentDto saksbehandlerIdentDto) {
         //Midlertidig for å kunne verifisere i produksjon - fjernes når verifisert ok
-        if (ENV.isProd() && ("J116396".equals(KontekstHolder.getKontekst().getUid()) || "W119202".equals(KontekstHolder.getKontekst().getUid()))) {
+        if (ENV.isProd() && "W119202".equals(KontekstHolder.getKontekst().getUid())) {
             var oppgaveDtoer = oppgaver.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null , LIMIT)
                 .stream()
-                .filter(oppgave -> oppgave.aktoerId() != null) //TODO: Fjernes da frontend er på plass
                 .map(this::lagOppgaveDto)
                 .toList();
             LOG.info("FPFORDEL RESTJOURNALFØRING: Henter {} oppgaver", oppgaveDtoer.size());
@@ -127,7 +126,6 @@ public class ManuellJournalføringRestTjeneste {
             try {
                 oppgaverPåSaksbehandlersEnheter.addAll(oppgaver.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, enhet.enhetsnummer(), LIMIT)
                         .stream()
-                        .filter(oppgave -> oppgave.aktoerId() != null) //TODO: Fjernes da frontend er på plass
                         .map(this::lagOppgaveDto)
                         .toList());
             } catch (Exception e) {
