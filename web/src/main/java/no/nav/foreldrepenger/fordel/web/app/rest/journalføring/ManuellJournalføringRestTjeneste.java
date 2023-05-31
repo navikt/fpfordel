@@ -139,7 +139,6 @@ public class ManuellJournalføringRestTjeneste {
 
     @POST
     @Path("/bruker/hent")
-    @Produces(TEXT_PLAIN)
     @Operation(description = "Hent bruker navn og etternavn", tags = "Manuell journalføring", responses = { @ApiResponse(responseCode = "200", description = "Bruker hentet"), @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response hentBruker(@Parameter(description = "Trenger FNR/DNR til å kunne innhente en bruker.")
@@ -147,7 +146,7 @@ public class ManuellJournalføringRestTjeneste {
         Objects.requireNonNull(request.fødselsnummer(), "FNR/DNR må være satt.");
         try {
             var aktørId = pdl.hentAktørIdForPersonIdent(request.fødselsnummer()).orElseThrow();
-            return Response.ok(pdl.hentNavn(aktørId)).build();
+            return Response.ok(pdl.hentNavn(aktørId)).type(MediaType.TEXT_PLAIN_TYPE).build();
         } catch (NoSuchElementException e) {
             throw new FunksjonellException("BRUKER-MANGLER", "Angitt bruker ikke funnet.", "Sjekk om oppgitt personnummer er riktig.", e);
         }
