@@ -339,7 +339,8 @@ class ManuellJournalføringRestTjenesteTest {
         var response = restTjeneste.hentBruker(request);
 
         assertThat(response).isNotNull();
-        assertThat(response.getEntity()).isEqualTo(navn);
+        assertThat(response.navn()).isEqualTo(navn);
+        assertThat(response.fødselsnummer()).isEqualTo(expectedFnr);
     }
 
     @Test
