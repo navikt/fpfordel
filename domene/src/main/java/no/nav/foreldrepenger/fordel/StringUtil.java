@@ -21,4 +21,7 @@ public final class StringUtil {
             .orElse(value);
     }
 
+    public static boolean isBlank(final String value) {
+        return value == null || value.isBlank();
+    }
 }
