@@ -24,6 +24,6 @@ class StringUtilTest {
         assertEquals("352343*****", StringUtil.mask("    35234311111"));
         assertEquals("35234", StringUtil.mask("35234"));
         assertEquals("352  3*", StringUtil.mask("352  34"));
-        assertEquals("352  3********", StringUtil.mask("352  34111111"));
+        assertEquals("352  3*******", StringUtil.mask("352  34111111"));
     }
 }
