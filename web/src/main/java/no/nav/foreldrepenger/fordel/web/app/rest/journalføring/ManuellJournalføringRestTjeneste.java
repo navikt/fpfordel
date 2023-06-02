@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static no.nav.foreldrepenger.fordel.StringUtil.isBlank;
 import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.mapPrioritet;
 import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.mapTilYtelseType;
 import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.mapYtelseTypeTilDto;
@@ -52,8 +53,8 @@ import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.Los;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.FunksjonellException;
+import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
@@ -342,22 +343,5 @@ public class ManuellJournalføringRestTjeneste {
             var dto = (HentBrukerDto) obj;
             return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.FNR, dto.fødselsnummer());
         }
-    }
-
-    private static boolean isBlank(final CharSequence cs) {
-        final int strLen = length(cs);
-        if (strLen == 0) {
-            return true;
-        }
-        for (int i = 0; i < strLen; i++) {
-            if (!Character.isWhitespace(cs.charAt(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static int length(final CharSequence cs) {
-        return cs == null ? 0 : cs.length();
     }
 }
