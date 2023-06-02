@@ -279,6 +279,23 @@ class ManuellJournalføringRestTjenesteTest {
         assertThat(ex.journalpostId()).isEqualTo(expectedJournalpostId);
     }
 
+    @DisplayName("/bruker/hent - ok bruker finnes")
+    void skal_levere_navn_til_bruker() {
+        var expectedFnr = "11111122222";
+        var brukerAktørId = "1234567890123";
+        var navn = "Ola, Ola";
+
+        when(pdl.hentAktørIdForPersonIdent(expectedFnr)).thenReturn(Optional.of(brukerAktørId));
+        when(pdl.hentNavn(brukerAktørId)).thenReturn(navn);
+
+        var request = new ManuellJournalføringRestTjeneste.HentBrukerDto(expectedFnr);
+        var response = restTjeneste.hentBruker(request);
+
+        assertThat(response).isNotNull();
+        assertThat(response.navn()).isEqualTo(navn);
+        assertThat(response.fødselsnummer()).isEqualTo(expectedFnr);
+    }
+
     @Test
     @DisplayName("/bruker/oppdater - exception om journalpost mangler")
     void skal_kaste_exception_om_journalpostId_mangler() {
@@ -334,38 +351,24 @@ class ManuellJournalføringRestTjenesteTest {
     }
 
     @Test
-    @DisplayName("/oppgave/reserver - skal kunne reservere en ledig oppgave.")
-    void skal_kunne_reservere_en_ledig_oppgave() {
-        var expectedOppgaveId = 123L;
-
-        when(oppgaver.hentOppgave(anyString())).thenReturn(
-            opprettOppgave(expectedOppgaveId, LocalDate.now(), "12334", "test", BehandlingTema.FORELDREPENGER, "7070", null));
-
-        var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(String.valueOf(expectedOppgaveId), "Mike");
-
-        var response = restTjeneste.oppgaveReserver(request);
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatusInfo()).isEqualTo(Response.Status.OK);
-
-        verify(oppgaver).reserverOppgave("123", "Mike");
-        verify(oppgaver, times(0)).avreserverOppgave(anyString());
-    }
-
-    @Test
-    @DisplayName("/oppgave/reserver - exception om allerede reservert.")
-    void skal_kaste_exception_hvis_oppgave_allerede_reservert() {
+    @DisplayName("/oppgave/reserver - exception om avreserverer en reservasjon til en annen bruker.")
+    void skal_kaste_exception_hvis_oppgave_reservert_an_annen_saksbehandler() {
         var expectedOppgaveId = 123L;
 
         when(oppgaver.hentOppgave(anyString())).thenReturn(
             opprettOppgave(expectedOppgaveId, LocalDate.now(), "12334", "test", BehandlingTema.FORELDREPENGER, "7070", "John"));
 
-        var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(String.valueOf(expectedOppgaveId), "Mike");
+        var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(String.valueOf(expectedOppgaveId), null);
 
-        var ex = assertThrows(ManglerTilgangException.class, () -> restTjeneste.oppgaveReserver(request));
+        Exception ex;
+        try (var utilities = Mockito.mockStatic(KontekstHolder.class)) {
+            utilities.when(KontekstHolder::getKontekst).thenReturn(new TestKontekst("Mike"));
+            assertThat(KontekstHolder.getKontekst().getUid()).isEqualTo("Mike");
+            ex = assertThrows(ManglerTilgangException.class, () -> restTjeneste.oppgaveReserver(request));
+        }
 
         assertThat(ex).isNotNull();
-        assertThat(ex.getMessage()).contains("Det er ikke mulig å reservere en oppgave som tilhører til en annen saksbehandler.");
+        assertThat(ex.getMessage()).contains("Kan ikke avreservere en oppgave som tilhører en annen saksbehandler.");
 
         verify(oppgaver, times(0)).reserverOppgave(anyString(), anyString());
         verify(oppgaver, times(0)).avreserverOppgave(anyString());
@@ -393,147 +396,6 @@ class ManuellJournalføringRestTjenesteTest {
 
         verify(oppgaver).avreserverOppgave("123");
         verify(oppgaver, times(0)).reserverOppgave(anyString(), anyString());
-    }
-
-    @Test
-    @DisplayName("/oppgave/reserver - exception om avreserverer en reservasjon til en annen bruker.")
-    void skal_kaste_exception_hvis_oppgave_reservert_an_annen_saksbehandler() {
-        var expectedOppgaveId = 123L;
-
-        when(oppgaver.hentOppgave(anyString())).thenReturn(
-            opprettOppgave(expectedOppgaveId, LocalDate.now(), "12334", "test", BehandlingTema.FORELDREPENGER, "7070", "John"));
-
-        var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(String.valueOf(expectedOppgaveId), null);
-
-        Exception ex;
-        try (var utilities = Mockito.mockStatic(KontekstHolder.class)) {
-            utilities.when(KontekstHolder::getKontekst).thenReturn(new TestKontekst("Mike"));
-            assertThat(KontekstHolder.getKontekst().getUid()).isEqualTo("Mike");
-            ex = assertThrows(ManglerTilgangException.class, () -> restTjeneste.oppgaveReserver(request));
-        }
-
-        assertThat(ex).isNotNull();
-        assertThat(ex.getMessage()).contains("Kan ikke avreservere en oppgave som tilhører en annen saksbehandler.");
-
-        verify(oppgaver, times(0)).reserverOppgave(anyString(), anyString());
-        verify(oppgaver, times(0)).avreserverOppgave(anyString());
-    }
-  
-    @DisplayName("/bruker/hent - ok bruker finnes")
-    void skal_levere_navn_til_bruker() {
-        var expectedFnr = "11111122222";
-        var brukerAktørId = "1234567890123";
-        var navn = "Ola, Ola";
-
-        when(pdl.hentAktørIdForPersonIdent(expectedFnr)).thenReturn(Optional.of(brukerAktørId));
-        when(pdl.hentNavn(brukerAktørId)).thenReturn(navn);
-
-        var request = new ManuellJournalføringRestTjeneste.HentBrukerDto(expectedFnr);
-        var response = restTjeneste.hentBruker(request);
-
-        assertThat(response).isNotNull();
-        assertThat(response.navn()).isEqualTo(navn);
-        assertThat(response.fødselsnummer()).isEqualTo(expectedFnr);
-    }
-
-    @Test
-    @DisplayName("/bruker/hent - exception bruker finnes ikke")
-    void skal_levere_exception_om_bruker_ikke_finnes() {
-        var expectedFnr = "11111122222";
-
-        when(pdl.hentAktørIdForPersonIdent(expectedFnr)).thenReturn(Optional.empty());
-
-        var request = new ManuellJournalføringRestTjeneste.HentBrukerDto(expectedFnr);
-        var ex = assertThrows(FunksjonellException.class, () -> restTjeneste.hentBruker(request) );
-
-        assertThat(ex).isNotNull();
-        assertThat(ex.getMessage()).isEqualTo("BRUKER-MANGLER:Angitt bruker ikke funnet.");
-    }
-
-    @Test
-    @DisplayName("/oppgave/reserver - skal kunne reservere en ledig oppgave.")
-    void skal_kunne_reservere_en_ledig_oppgave() {
-        var expectedOppgaveId = 123L;
-
-        when(oppgaver.hentOppgave(anyString())).thenReturn(
-            opprettOppgave(expectedOppgaveId, LocalDate.now(), "12334", "test", BehandlingTema.FORELDREPENGER, "7070", null));
-
-        var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(String.valueOf(expectedOppgaveId), "Mike");
-
-        var response = restTjeneste.oppgaveReserver(request);
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatusInfo()).isEqualTo(Response.Status.OK);
-
-        verify(oppgaver).reserverOppgave("123", "Mike");
-        verify(oppgaver, times(0)).avreserverOppgave(anyString());
-    }
-
-    @Test
-    @DisplayName("/oppgave/reserver - exception om allerede reservert.")
-    void skal_kaste_exception_hvis_oppgave_allerede_reservert() {
-        var expectedOppgaveId = 123L;
-
-        when(oppgaver.hentOppgave(anyString())).thenReturn(
-            opprettOppgave(expectedOppgaveId, LocalDate.now(), "12334", "test", BehandlingTema.FORELDREPENGER, "7070", "John"));
-
-        var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(String.valueOf(expectedOppgaveId), "Mike");
-
-        var ex = assertThrows(ManglerTilgangException.class, () -> restTjeneste.oppgaveReserver(request));
-
-        assertThat(ex).isNotNull();
-        assertThat(ex.getMessage()).contains("Det er ikke mulig å reservere en oppgave som tilhører til en annen saksbehandler.");
-
-        verify(oppgaver, times(0)).reserverOppgave(anyString(), anyString());
-        verify(oppgaver, times(0)).avreserverOppgave(anyString());
-    }
-
-    @Test
-    @DisplayName("/oppgave/reserver - skal kunne avreservere sin egen oppgave.")
-    void skal_kunne_avreservere_en_ledig_oppgave() {
-        var expectedOppgaveId = 123L;
-
-        when(oppgaver.hentOppgave(anyString())).thenReturn(
-            opprettOppgave(expectedOppgaveId, LocalDate.now(), "12334", "test", BehandlingTema.FORELDREPENGER, "7070", "John"));
-
-        var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(String.valueOf(expectedOppgaveId), "");
-        Response response;
-
-        try (var utilities = Mockito.mockStatic(KontekstHolder.class)) {
-            utilities.when(KontekstHolder::getKontekst).thenReturn(new TestKontekst("John"));
-            assertThat(KontekstHolder.getKontekst().getUid()).isEqualTo("John");
-            response = restTjeneste.oppgaveReserver(request);
-        }
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatusInfo()).isEqualTo(Response.Status.OK);
-
-        verify(oppgaver).avreserverOppgave("123");
-        verify(oppgaver, times(0)).reserverOppgave(anyString(), anyString());
-    }
-
-    @Test
-    @DisplayName("/oppgave/reserver - exception om avreserverer en reservasjon til en annen bruker.")
-    void skal_kaste_exception_hvis_oppgave_reservert_an_annen_saksbehandler() {
-        var expectedOppgaveId = 123L;
-
-        when(oppgaver.hentOppgave(anyString())).thenReturn(
-            opprettOppgave(expectedOppgaveId, LocalDate.now(), "12334", "test", BehandlingTema.FORELDREPENGER, "7070", "John"));
-
-        var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(String.valueOf(expectedOppgaveId), null);
-
-        Exception ex;
-        try (var utilities = Mockito.mockStatic(KontekstHolder.class)) {
-            utilities.when(KontekstHolder::getKontekst).thenReturn(new TestKontekst("Mike"));
-            assertThat(KontekstHolder.getKontekst().getUid()).isEqualTo("Mike");
-            ex = assertThrows(ManglerTilgangException.class, () -> restTjeneste.oppgaveReserver(request));
-        }
-
-        assertThat(ex).isNotNull();
-        assertThat(ex.getMessage()).contains("Kan ikke avreservere en oppgave som tilhører en annen saksbehandler.");
-
-        verify(oppgaver, times(0)).reserverOppgave(anyString(), anyString());
-        verify(oppgaver, times(0)).avreserverOppgave(anyString());
     }
 
     private ArkivJournalpost opprettJournalpost(String journalpostId) {
