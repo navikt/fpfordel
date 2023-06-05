@@ -96,7 +96,6 @@ public class FerdigstillJournalføringRestTjeneste {
             LOG.info("FPFORDEL RESTJOURNALFØRING:Ny journalposttittel er: {}, ny dokumentTypeId: {}", nyJournalpostTittel, nyDokumentTypeId);
         }
 
-        var oppgaveId = request.oppgaveId();
         var saksnummer = request.saksnummer() != null ? request.saksnummer() : null;
 
         if (saksnummer == null) {
@@ -105,7 +104,7 @@ public class FerdigstillJournalføringRestTjeneste {
 
         validerSaksnummer(saksnummer);
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(request.enhetId, saksnummer, journalpostId, oppgaveId.toString(), nyJournalpostTittel ,dokumenter, nyDokumentTypeId );
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(request.enhetId, saksnummer, journalpostId, request.oppgaveId().toString(), nyJournalpostTittel ,dokumenter, nyDokumentTypeId );
 
         return new SaksnummerDto(saksnummer);
     }

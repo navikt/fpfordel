@@ -52,7 +52,7 @@ public class ManuellOpprettSakValidator {
 
         var arkivJournalpost = arkivTjeneste.hentArkivJournalpost(journalpostId.getVerdi());
         var hovedDokumentType = arkivJournalpost.getHovedtype();
-        if (nyDokumentTypeId != null) {
+        if (nyDokumentTypeId != null && !DokumentTypeId.UDEFINERT.equals(nyDokumentTypeId)) {
             hovedDokumentType = nyDokumentTypeId;
         }
 

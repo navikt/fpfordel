@@ -106,7 +106,7 @@ public class FerdigstillJournalføringTjeneste {
 
         var dokumentTypeId = journalpost.getHovedtype();
         var oppdatereTitler = nyJournalpostTittel != null || !dokumenterMedNyTittel.isEmpty();
-        if (nyDokumentTypeId != null) {
+        if (nyDokumentTypeId != null && !DokumentTypeId.UDEFINERT.equals(nyDokumentTypeId)) {
             dokumentTypeId = nyDokumentTypeId;
         }
 
