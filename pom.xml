@@ -44,6 +44,11 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-core</artifactId>
+                <version>9.19.3</version>
+            </dependency>
+            <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
                 <version>0.5.4</version>
