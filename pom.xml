@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>0.5.4</version>
+        <version>0.5.5</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger.fordel</groupId>
@@ -46,15 +46,9 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>0.5.4</version>
+                <version>0.5.5</version>
                 <scope>import</scope>
                 <type>pom</type>
-            </dependency>
-
-            <dependency>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-database-oracle</artifactId>
-                <version>${flyway.version}</version>
             </dependency>
 
             <dependency>
