@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   oracle:
-    image: gvenzl/oracle-xe:18.4.0-slim
+    image: gvenzl/oracle-xe:21.3.0-slim-faststart
     environment:
       - ORACLE_RANDOM_PASSWORD=true
     shm_size: 2gb
