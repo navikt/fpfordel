@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.hendelse.test;
 
 import org.apache.avro.Schema;
+import org.apache.kafka.common.header.Headers;
 
 import io.confluent.kafka.schemaregistry.avro.AvroSchema;
 import io.confluent.kafka.schemaregistry.client.MockSchemaRegistryClient;
@@ -23,5 +24,11 @@ public class VtpKafkaAvroDeserializer extends KafkaAvroDeserializer {
     public Object deserialize(String topic, byte[] bytes) {
         this.schemaRegistry = getMockClient(JournalfoeringHendelseRecord.SCHEMA$);
         return super.deserialize(topic, bytes);
+    }
+
+    @Override
+    public Object deserialize(String topic, Headers headers, byte[] bytes) {
+        this.schemaRegistry = getMockClient(JournalfoeringHendelseRecord.SCHEMA$);
+        return super.deserialize(topic, headers, bytes);
     }
 }
