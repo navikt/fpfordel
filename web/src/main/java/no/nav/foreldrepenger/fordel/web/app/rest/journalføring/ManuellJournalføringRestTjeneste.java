@@ -290,7 +290,7 @@ public class ManuellJournalføringRestTjeneste {
     private OppgaveDto lagOppgaveDto(Oppgave oppgave) {
         return new OppgaveDto(oppgave.id(), oppgave.journalpostId(), oppgave.aktoerId(), hentPersonIdent(oppgave.aktoerId()).orElse(null),
             mapTilYtelseType(oppgave.behandlingstema()), oppgave.fristFerdigstillelse(), mapPrioritet(oppgave.prioritet()), oppgave.beskrivelse(),
-            tekstFraBeskrivelse(oppgave.beskrivelse()), oppgave.aktivDato(), oppgave.tildeltEnhetsnr(), oppgave.tilordnetRessurs());
+            tekstFraBeskrivelse(oppgave.beskrivelse()), oppgave.aktivDato(), oppgave.tildeltEnhetsnr(), oppgave.tilordnetRessurs(), oppgave.versjon());
     }
 
     private Optional<String> hentPersonIdent(String aktørId) {
@@ -313,13 +313,23 @@ public class ManuellJournalføringRestTjeneste {
 
     public record HentBrukerResponseDto(@NotNull String navn, @NotNull String fødselsnummer) {}
 
-    public record OppgaveDto(@NotNull Long id, @NotNull String journalpostId, String aktørId, String fødselsnummer, @Valid YtelseTypeDto ytelseType,
-                             @NotNull LocalDate frist, OppgavePrioritet prioritet, String beskrivelse, String trimmetBeskrivelse,
-                             @NotNull LocalDate opprettetDato, String enhetId, String reservertAv) {
+    public record OppgaveDto(@NotNull Long id,
+                             @NotNull String journalpostId,
+                             String aktørId,
+                             String fødselsnummer,
+                             @Valid YtelseTypeDto ytelseType,
+                             @NotNull LocalDate frist,
+                             OppgavePrioritet prioritet,
+                             String beskrivelse,
+                             String trimmetBeskrivelse,
+                             @NotNull LocalDate opprettetDato,
+                             String enhetId,
+                             String reservertAv,
+                             Integer versjon) {
 
     }
 
-    public record ReserverOppgaveDto(@NotNull String oppgaveId, String reserverFor) {
+    public record ReserverOppgaveDto(@NotNull String oppgaveId, @NotNull Integer versjon, String reserverFor) {
     }
 
     public static class EmptyAbacDataSupplier implements Function<Object, AbacDataAttributter> {
