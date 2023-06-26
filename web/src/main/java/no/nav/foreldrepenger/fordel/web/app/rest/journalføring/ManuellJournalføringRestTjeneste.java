@@ -198,7 +198,7 @@ public class ManuellJournalføringRestTjeneste {
         }
     }
 
-    @GET
+    @POST
     @Path("/oppgave/reserver")
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
