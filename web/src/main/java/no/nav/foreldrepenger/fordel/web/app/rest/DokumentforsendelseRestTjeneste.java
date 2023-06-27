@@ -33,13 +33,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
 
 import org.glassfish.jersey.media.multipart.BodyPart;
 import org.glassfish.jersey.media.multipart.MultiPart;
@@ -80,22 +78,18 @@ public class DokumentforsendelseRestTjeneste {
     public static final MediaType APPLICATION_PDF_TYPE = MediaType.valueOf("application/pdf");
     static final String SERVICE_PATH = "/dokumentforsendelse";
     private static final String FPFORDEL_CONTEXT = "/fpfordel/api";
-    private static final String DOKUMENTFORSENDELSE_STATUS_PATH = "/api/dokumentforsendelse/status";
+    private static final String STATUS_PATH = "/api/dokumentforsendelse/status";
     private static final String PART_KEY_METADATA = "metadata";
     private static final String PART_KEY_HOVEDDOKUMENT = "hoveddokument";
     private static final String PART_KEY_VEDLEGG = "vedlegg";
     private static final ObjectMapper OBJECT_MAPPER = new JacksonJsonConfig().getObjectMapper();
     private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
 
+    private static final URI POLL_BASE = URI.create(FpApplication.contextPathFor(FpApplication.FPFORDEL) + STATUS_PATH);
+
     private static final Logger LOG = LoggerFactory.getLogger(DokumentforsendelseRestTjeneste.class);
 
     private DokumentforsendelseTjeneste service;
-
-    private URI fpStatusUrl;
-
-    @Context
-    private UriInfo uriInfo;
-
 
     public DokumentforsendelseRestTjeneste() {
     }
@@ -103,7 +97,6 @@ public class DokumentforsendelseRestTjeneste {
     @Inject
     public DokumentforsendelseRestTjeneste(DokumentforsendelseTjeneste service) {
         this.service = service;
-        this.fpStatusUrl = URI.create(FpApplication.contextPathFor(FpApplication.FPINFO) + DOKUMENTFORSENDELSE_STATUS_PATH);
         LOG.trace("Created");
     }
 
@@ -226,11 +219,6 @@ public class DokumentforsendelseRestTjeneste {
             default -> {
                 LOG.info("Forsendelse {} foreløpig ikke fordelt", dokumentforsendelse.getForsendelsesId());
                 var status = URI.create(FPFORDEL_CONTEXT + SERVICE_PATH + "/status?forsendelseId=" + dokumentforsendelse.getForsendelsesId());
-                if (uriInfo != null) {
-                    LOG.info("URIINFO status {}, old skool status {}",
-                        uriInfo.getBaseUriBuilder().path("status").queryParam("forsendelseId", dokumentforsendelse.getForsendelsesId()).build(),
-                        status);
-                }
                 yield Response.accepted().location(status).entity(forsendelseStatusDto).build();
             }
         };
@@ -253,7 +241,7 @@ public class DokumentforsendelseRestTjeneste {
     }
 
     private URI lagStatusURI(UUID forsendelseId) {
-        return UriBuilder.fromUri(fpStatusUrl).queryParam("forsendelseId", forsendelseId.toString()).build();
+        return UriBuilder.fromUri(POLL_BASE).queryParam("forsendelseId", forsendelseId.toString()).build();
     }
 
     private Dokument mapInputPartToDokument(Dokumentforsendelse dokumentforsendelse, BodyPart inputPart) {
