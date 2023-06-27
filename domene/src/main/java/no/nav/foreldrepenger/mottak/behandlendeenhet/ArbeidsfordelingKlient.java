@@ -7,7 +7,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @Dependent
-@RestClientConfig(tokenConfig = TokenFlow.STS_CC, endpointProperty = "arbeidsfordeling.rs.url", endpointDefault = "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter")
+@RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED, endpointProperty = "arbeidsfordeling.rs.url", endpointDefault = "http://norg2.org/norg2/api/v1/arbeidsfordeling/enheter")
 public class ArbeidsfordelingKlient extends AbstractArbeidsfordelingKlient {
 
     public ArbeidsfordelingKlient() {

@@ -11,7 +11,8 @@ import javax.enterprise.context.Dependent;
  * Grensesnitt se #skjermingsløsningen
  */
 @Dependent
-@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "skjermet.person.rs.url", endpointDefault = "https://skjermede-personer-pip.intern.nav.no/skjermet", scopesProperty = "skjermet.person.rs.azure.scope", scopesDefault = "api://prod-gcp.nom.skjermede-personer-pip/.default")
+@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "skjermet.person.rs.url", endpointDefault = "https://skjermede-personer-pip.intern.nav.no",
+    scopesProperty = "skjermet.person.scopes", scopesDefault = "api://prod-gcp.nom.skjermede-personer-pip/.default")
 public class SkjermetPersonKlient extends AbstractSkjermetPersonGCPKlient {
 
     public SkjermetPersonKlient() {
