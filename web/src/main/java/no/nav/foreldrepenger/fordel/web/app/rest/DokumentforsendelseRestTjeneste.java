@@ -5,7 +5,6 @@ import static javax.ws.rs.core.HttpHeaders.CONTENT_ID;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static no.nav.foreldrepenger.fordel.MDCUtils.ensureCallId;
-import static no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus.FPSAK;
 
 import java.io.IOException;
 import java.net.URI;
@@ -219,9 +218,6 @@ public class DokumentforsendelseRestTjeneste {
 
         var forsendelseId = forsendelseIdDto.forsendelseId();
         var forsendelseStatusDto = service.finnStatusinformasjon(forsendelseId);
-        if (FPSAK.equals(forsendelseStatusDto.getForsendelseStatus())) {
-            return Response.ok().entity(forsendelseStatusDto).build();
-        }
         return Response.ok(forsendelseStatusDto).build();
     }
 
