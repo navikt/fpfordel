@@ -178,7 +178,7 @@ class DokumentforsendelseRestTjenesteTest {
         var status = new ForsendelseStatusDto(ForsendelseStatus.FPSAK);
         when(dokumentTjeneste.finnStatusinformasjon(any(UUID.class))).thenReturn(status);
         var response = tjeneste.uploadFile(input);
-        assertThat(response.getStatus()).isEqualTo(303);
+        assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_OK);
     }
 
     @Test
@@ -198,10 +198,10 @@ class DokumentforsendelseRestTjenesteTest {
         when(dokumentTjeneste.finnStatusinformasjonHvisEksisterer(any(UUID.class))).thenReturn(Optional.of(status));
         var response2 = tjeneste.uploadFile(input);
 
-        assertThat(response1.getStatus()).isEqualTo(HttpURLConnection.HTTP_SEE_OTHER);
+        assertThat(response1.getStatus()).isEqualTo(HttpURLConnection.HTTP_OK);
         assertThat(response1.getEntity()).isEqualTo(status);
 
-        assertThat(response2.getStatus()).isEqualTo(HttpURLConnection.HTTP_SEE_OTHER);
+        assertThat(response2.getStatus()).isEqualTo(HttpURLConnection.HTTP_OK);
         assertThat(response2.getEntity()).isEqualTo(status);
     }
 
@@ -226,7 +226,7 @@ class DokumentforsendelseRestTjenesteTest {
         var statusDto = new ForsendelseStatusDto(ForsendelseStatus.FPSAK);
         when(dokumentTjeneste.finnStatusinformasjon(any(UUID.class))).thenReturn(statusDto);
         var response = tjeneste.finnStatusinformasjon(idDto);
-        assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_SEE_OTHER);
+        assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_OK);
         assertThat(response.getEntity()).isEqualTo(statusDto);
     }
 

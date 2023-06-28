@@ -5,7 +5,6 @@ import static javax.ws.rs.core.HttpHeaders.CONTENT_ID;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static no.nav.foreldrepenger.fordel.MDCUtils.ensureCallId;
-import static no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus.FPSAK;
 
 import java.io.IOException;
 import java.net.URI;
@@ -14,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Function;
 
 import javax.enterprise.context.RequestScoped;
@@ -33,13 +31,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
 
 import org.glassfish.jersey.media.multipart.BodyPart;
 import org.glassfish.jersey.media.multipart.MultiPart;
@@ -65,7 +60,6 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.FilMetadata;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseIdDto;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatusDto;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -80,7 +74,6 @@ public class DokumentforsendelseRestTjeneste {
     public static final MediaType APPLICATION_PDF_TYPE = MediaType.valueOf("application/pdf");
     static final String SERVICE_PATH = "/dokumentforsendelse";
     private static final String FPFORDEL_CONTEXT = "/fpfordel/api";
-    private static final String DOKUMENTFORSENDELSE_STATUS_PATH = "/api/dokumentforsendelse/status";
     private static final String PART_KEY_METADATA = "metadata";
     private static final String PART_KEY_HOVEDDOKUMENT = "hoveddokument";
     private static final String PART_KEY_VEDLEGG = "vedlegg";
@@ -91,19 +84,12 @@ public class DokumentforsendelseRestTjeneste {
 
     private DokumentforsendelseTjeneste service;
 
-    private URI fpStatusUrl;
-
-    @Context
-    private UriInfo uriInfo;
-
-
     public DokumentforsendelseRestTjeneste() {
     }
 
     @Inject
     public DokumentforsendelseRestTjeneste(DokumentforsendelseTjeneste service) {
         this.service = service;
-        this.fpStatusUrl = URI.create(FpApplication.contextPathFor(FpApplication.FPINFO) + DOKUMENTFORSENDELSE_STATUS_PATH);
         LOG.trace("Created");
     }
 
@@ -215,22 +201,10 @@ public class DokumentforsendelseRestTjeneste {
 
     private Response tilForsendelseStatusRespons(Dokumentforsendelse dokumentforsendelse, ForsendelseStatusDto forsendelseStatusDto) {
         return switch (forsendelseStatusDto.getForsendelseStatus()) {
-            case FPSAK -> {
-                LOG.info("Forsendelse {} ble fordelt til FPSAK", dokumentforsendelse.getForsendelsesId());
-                yield Response.seeOther(lagStatusURI(dokumentforsendelse.getForsendelsesId())).entity(forsendelseStatusDto).build();
-            }
-            case GOSYS -> {
-                LOG.info("Forsendelse {} ble fordelt til GOSYS", dokumentforsendelse.getForsendelsesId());
-                yield Response.ok(forsendelseStatusDto).build();
-            }
+            case FPSAK, GOSYS -> Response.ok(forsendelseStatusDto).build();
             default -> {
                 LOG.info("Forsendelse {} foreløpig ikke fordelt", dokumentforsendelse.getForsendelsesId());
                 var status = URI.create(FPFORDEL_CONTEXT + SERVICE_PATH + "/status?forsendelseId=" + dokumentforsendelse.getForsendelsesId());
-                if (uriInfo != null) {
-                    LOG.info("URIINFO status {}, old skool status {}",
-                        uriInfo.getBaseUriBuilder().path("status").queryParam("forsendelseId", dokumentforsendelse.getForsendelsesId()).build(),
-                        status);
-                }
                 yield Response.accepted().location(status).entity(forsendelseStatusDto).build();
             }
         };
@@ -244,16 +218,7 @@ public class DokumentforsendelseRestTjeneste {
 
         var forsendelseId = forsendelseIdDto.forsendelseId();
         var forsendelseStatusDto = service.finnStatusinformasjon(forsendelseId);
-        if (FPSAK.equals(forsendelseStatusDto.getForsendelseStatus())) {
-            URI statusURI = lagStatusURI(forsendelseId);
-            LOG.info("Returnerer redirect {}", statusURI);
-            return Response.seeOther(statusURI).entity(forsendelseStatusDto).build();
-        }
         return Response.ok(forsendelseStatusDto).build();
-    }
-
-    private URI lagStatusURI(UUID forsendelseId) {
-        return UriBuilder.fromUri(fpStatusUrl).queryParam("forsendelseId", forsendelseId.toString()).build();
     }
 
     private Dokument mapInputPartToDokument(Dokumentforsendelse dokumentforsendelse, BodyPart inputPart) {
