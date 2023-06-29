@@ -215,8 +215,8 @@ public class ManuellJournalføringRestTjeneste {
                 LOG.info("Oppgave {} avreservert av {}.", oppgave.id(), innloggetBruker);
             } else {
                 // Ikke mulig å avreservere for andre
-                throw new ManglerTilgangException("AVRESERVER",
-                    "Kan ikke avreservere en oppgave som tilhører en annen saksbehandler.");
+                throw new TekniskException("AVRESERVER",
+                    "Kan ikke avreservere en oppgave som allerede tilhører til en annen saksbehandler.");
             }
         } else {
             // Reserver
@@ -225,8 +225,8 @@ public class ManuellJournalføringRestTjeneste {
                 LOG.info("Oppgave {} reservert av {}.", oppgave.id(), innloggetBruker);
             }
             else {
-                throw new ManglerTilgangException("RESERVER",
-                    "Det er ikke mulig å reservere en oppgave som tilhører til en annen saksbehandler.");
+                throw new TekniskException("RESERVER",
+                    "Det er ikke mulig å reservere en oppgave som allerede tilhører til en annen saksbehandler.");
             }
         }
         return Response.ok().build();
