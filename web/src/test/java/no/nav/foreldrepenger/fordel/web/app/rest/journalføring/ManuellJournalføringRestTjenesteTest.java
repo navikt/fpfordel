@@ -16,8 +16,6 @@ import java.util.Optional;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import no.nav.vedtak.exception.FunksjonellException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,7 +39,6 @@ import no.nav.foreldrepenger.mottak.klient.Los;
 import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Bruker;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
@@ -364,11 +361,11 @@ class ManuellJournalføringRestTjenesteTest {
         try (var utilities = Mockito.mockStatic(KontekstHolder.class)) {
             utilities.when(KontekstHolder::getKontekst).thenReturn(new TestKontekst("Mike"));
             assertThat(KontekstHolder.getKontekst().getUid()).isEqualTo("Mike");
-            ex = assertThrows(ManglerTilgangException.class, () -> restTjeneste.oppgaveReserver(request));
+            ex = assertThrows(TekniskException.class, () -> restTjeneste.oppgaveReserver(request));
         }
 
         assertThat(ex).isNotNull();
-        assertThat(ex.getMessage()).contains("Kan ikke avreservere en oppgave som tilhører en annen saksbehandler.");
+        assertThat(ex.getMessage()).contains("Kan ikke avreservere en oppgave som allerede tilhører til en annen saksbehandler.");
 
         verify(oppgaver, times(0)).reserverOppgave(anyString(), anyString());
         verify(oppgaver, times(0)).avreserverOppgave(anyString());
