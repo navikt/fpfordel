@@ -18,6 +18,9 @@ on:
 jobs:
   build-app:
     name: Build
+    permissions:
+      contents: read
+      packages: write
     uses: navikt/fp-gha-workflows/.github/workflows/build-app.yml@main
     with:
       build-image: ${{ github.ref_name == 'master' }} # default: true
@@ -32,7 +35,6 @@ jobs:
     with:
       build-version: ${{ needs.build-app.outputs.build-version }}
       test-suite: verdikjede
-    secrets: inherit
 
   notify:
     name: Notify
