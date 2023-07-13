@@ -394,7 +394,6 @@ public class ArkivTjeneste {
         }
     }
 
-
     public void oppdaterMedSak(String journalpostId, String sakId, String aktørId) {
         if (sakId == null) {
             throw new IllegalArgumentException("FPFORDEL oppdaterMedSak mangler saksnummer " + journalpostId);
