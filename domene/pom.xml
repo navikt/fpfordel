@@ -11,9 +11,6 @@
 
     <artifactId>domene</artifactId>
     <name>Fordel :: Domene</name>
-    <properties>
-        <jaxb2-maven-plugin.version>1.5</jaxb2-maven-plugin.version>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>org.apache.kafka</groupId>
@@ -96,6 +93,10 @@
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-mapper</artifactId>
         </dependency>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+        </dependency>
 
         <!-- FP-Prosesstask -->
         <dependency>
@@ -136,6 +137,11 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-oracle</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.weld.se</groupId>
+            <artifactId>weld-se-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
