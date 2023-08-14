@@ -1,5 +1,21 @@
 package no.nav.foreldrepenger.mottak.domene.oppgavebehandling;
 
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.ARKIV_ID_KEY;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.BEHANDLINGSTEMA_KEY;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.FORSENDELSE_ID_KEY;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.JOURNAL_ENHET;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.SAKSNUMMER_KEY;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
@@ -11,17 +27,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
-
-import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.*;
 
 /**
  * <p>
@@ -74,9 +79,14 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
             .orElse(DokumentTypeId.UDEFINERT);
         behandlingTema = ArkivUtil.behandlingTemaFraDokumentType(behandlingTema, dokumentTypeId);
 
+        var journalpostId = prosessTaskData.getPropertyValue(ARKIV_ID_KEY);
+        if (enhetsidTjeneste.finnesÅpenJournalføringsoppgaveForJournalpost(journalpostId)) {
+            LOG.info("FPFORDEL JFR-OPPGAVE: finnes allerede åpen oppgave for journalpostId: {}", journalpostId);
+        }
+
         String oppgaveId = opprettOppgave(prosessTaskData, behandlingTema, dokumentTypeId);
 
-        LOG.info("Oppgave opprettet i Gosys med nummer: {}", oppgaveId);
+        LOG.info("FPFORDEL JFR-OPPGAVE: opprettet oppgave med id {} for journalpostId: {}", oppgaveId, journalpostId);
 
         String forsendelseIdString = prosessTaskData.getPropertyValue(FORSENDELSE_ID_KEY);
         if ((forsendelseIdString != null) && !forsendelseIdString.isEmpty()) {
