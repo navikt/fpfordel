@@ -82,6 +82,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         var journalpostId = prosessTaskData.getPropertyValue(ARKIV_ID_KEY);
         if (enhetsidTjeneste.finnesÅpenJournalføringsoppgaveForJournalpost(journalpostId)) {
             LOG.info("FPFORDEL JFR-OPPGAVE: finnes allerede åpen oppgave for journalpostId: {}", journalpostId);
+            return;
         }
 
         String oppgaveId = opprettOppgave(prosessTaskData, behandlingTema, dokumentTypeId);
