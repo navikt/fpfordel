@@ -96,6 +96,11 @@ public class EnhetsTjeneste implements JournalføringsOppgave {
         return oppgave.id().toString();
     }
 
+    @Override
+    public boolean finnesÅpenJournalføringsoppgaveForJournalpost(String journalpostId) {
+        return !oppgaver.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId).isEmpty();
+    }
+
     private String hentEnhetId(String aktørId, BehandlingTema behandlingTema, Tema tema) {
         if (pdl.harStrengDiskresjonskode(aktørId)) {
             return SF_ENHET_ID;
