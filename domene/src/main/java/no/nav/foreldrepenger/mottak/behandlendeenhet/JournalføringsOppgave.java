@@ -29,4 +29,6 @@ public interface JournalføringsOppgave {
                                         String behandlingTema,
                                         String beskrivelse);
 
+    boolean finnesÅpenJournalføringsoppgaveForJournalpost(String journalpostId);
+
 }

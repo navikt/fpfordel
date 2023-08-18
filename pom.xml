@@ -38,7 +38,7 @@
 
         <felles.version>4.4.4</felles.version>
         <prosesstask.version>3.2.6</prosesstask.version>
-        <fp-kontrakter.version>6.3.2</fp-kontrakter.version>
+        <fp-kontrakter.version>6.3.1</fp-kontrakter.version>
     </properties>
 
     <dependencyManagement>
