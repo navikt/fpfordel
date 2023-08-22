@@ -201,10 +201,6 @@
             <url>https://packages.confluent.io/maven/</url>
         </repository>
         <repository>
-            <id>legacy</id>
-            <url>https://maven.pkg.github.com/navikt/legacy-avhengigheter</url>
-        </repository>
-        <repository>
             <id>dok-github</id>
             <url>https://maven.pkg.github.com/navikt/teamdokumenthandtering-avro-schemas</url>
         </repository>
