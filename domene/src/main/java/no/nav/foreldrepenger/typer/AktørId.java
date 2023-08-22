@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.typer;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import javax.persistence.Column;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.Column;
+import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -20,7 +20,7 @@ public class AktørId implements Serializable, Comparable<AktørId> {
 
     @JsonValue
     @NotNull
-    @javax.validation.constraints.Pattern(regexp = VALID_REGEXP, message = "aktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')")
+    @jakarta.validation.constraints.Pattern(regexp = VALID_REGEXP, message = "aktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')")
     @Column(name = "aktoer_id", updatable = false, length = 50)
     private String aktørId;  // NOSONAR
 

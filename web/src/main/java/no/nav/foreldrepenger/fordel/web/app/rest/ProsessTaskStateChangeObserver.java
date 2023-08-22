@@ -5,8 +5,8 @@ import static no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus.FEILET;
 import static no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus.FERDIG;
 import static no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus.KJOERT;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskEvent;
 

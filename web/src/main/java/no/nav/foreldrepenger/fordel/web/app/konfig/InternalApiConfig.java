@@ -2,9 +2,9 @@ package no.nav.foreldrepenger.fordel.web.app.konfig;
 
 import java.util.Set;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
 
 import no.nav.foreldrepenger.fordel.web.app.metrics.PrometheusRestService;
 import no.nav.foreldrepenger.fordel.web.app.healthcheck.HealthCheckRestService;
