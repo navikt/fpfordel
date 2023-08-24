@@ -73,7 +73,7 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 public class DokumentforsendelseRestTjeneste {
     public static final MediaType APPLICATION_PDF_TYPE = MediaType.valueOf("application/pdf");
     public static final MediaType IMAGE_PNG_TYPE = MediaType.valueOf("image/png");
-    public static final MediaType IMAGE_JPG_TYPE = MediaType.valueOf("image/jpg");
+    public static final MediaType IMAGE_JPEG_TYPE = MediaType.valueOf("image/jpeg");
     static final String SERVICE_PATH = "/dokumentforsendelse";
     private static final String FPFORDEL_CONTEXT = "/fpfordel/api";
     private static final String PART_KEY_METADATA = "metadata";
@@ -163,8 +163,8 @@ public class DokumentforsendelseRestTjeneste {
         if (mediaType.isCompatible(APPLICATION_PDF_TYPE)) {
             return ArkivFilType.PDFA;
         }
-        if (mediaType.isCompatible(IMAGE_JPG_TYPE)) {
-            return ArkivFilType.JPG;
+        if (mediaType.isCompatible(IMAGE_JPEG_TYPE)) {
+            return ArkivFilType.JPEG;
         }
         if (mediaType.isCompatible(IMAGE_PNG_TYPE)) {
             return ArkivFilType.PNG;
@@ -250,7 +250,7 @@ public class DokumentforsendelseRestTjeneste {
             case PART_KEY_VEDLEGG:
                 hovedDokument = false;
                 if (!APPLICATION_PDF_TYPE.isCompatible(inputPart.getMediaType()) && !IMAGE_PNG_TYPE.isCompatible(inputPart.getMediaType()) &&
-                    !IMAGE_JPG_TYPE.isCompatible(inputPart.getMediaType())) {
+                    !IMAGE_JPEG_TYPE.isCompatible(inputPart.getMediaType())) {
                     throw new TekniskException("FP-882558", String.format("Vedlegg er hverken pdf, png eller jpeg, Content-ID=%s", contentId));
                 }
                 break;
