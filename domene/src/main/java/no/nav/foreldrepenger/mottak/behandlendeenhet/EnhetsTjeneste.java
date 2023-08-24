@@ -102,9 +102,12 @@ public class EnhetsTjeneste implements JournalføringsOppgave {
     }
 
     @Override
-    public void ferdigstillJournalføringsOppgaver(String journalpostId) {
-        oppgaver.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId)
-            .forEach(o -> oppgaver.ferdigstillOppgave(String.valueOf(o.id())));
+    public void ferdigstillÅpneJournalføringsOppgaver(String journalpostId) {
+        oppgaver.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId).forEach(o -> {
+            LOG.info("FPFORDEL JFR-OPPGAVE: ferdigstiller oppgaver {} for journalpostId: {}", o.id(), journalpostId);
+            oppgaver.ferdigstillOppgave(String.valueOf(o.id()));
+        });
+
     }
 
     private String hentEnhetId(String aktørId, BehandlingTema behandlingTema, Tema tema) {

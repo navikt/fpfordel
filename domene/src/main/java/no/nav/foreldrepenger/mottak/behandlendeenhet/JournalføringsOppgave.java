@@ -31,6 +31,6 @@ public interface JournalføringsOppgave {
 
     boolean finnesÅpenJournalføringsoppgaveForJournalpost(String journalpostId);
 
-    void ferdigstillJournalføringsOppgaver(String journalpostId);
+    void ferdigstillÅpneJournalføringsOppgaver(String journalpostId);
 
 }

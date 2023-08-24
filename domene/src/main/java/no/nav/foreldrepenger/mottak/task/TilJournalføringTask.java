@@ -101,10 +101,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             return w.nesteSteg(TaskType.forProsessTask(OpprettGSakOppgaveTask.class));
         }
         try {
-            if (journalføringsOppgave.finnesÅpenJournalføringsoppgaveForJournalpost(w.getArkivId())) {
-                journalføringsOppgave.ferdigstillJournalføringsOppgaver(w.getArkivId());
-                LOG.info("FPFORDEL JFR-OPPGAVE: ferdigstiller åpne oppgaver for journalpostId: {}", w.getArkivId());
-            }
+            journalføringsOppgave.ferdigstillÅpneJournalføringsOppgaver(w.getArkivId());
         } catch (Exception e) {
             LOG.info("FPFORDEL JFR-OPPGAVE: feil ved ferdigstilling av åpne oppgaver for journalpostId: {}", w.getArkivId());
         }
