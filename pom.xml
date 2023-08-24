@@ -18,6 +18,7 @@
     <description>Fordeling av mottatte dokumenter for FPSAK</description>
     <modules>
         <module>migreringer</module>
+        <module>integrasjoner</module>
         <module>domene</module>
         <module>web</module>
     </modules>
@@ -118,6 +119,11 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.fordel</groupId>
                 <artifactId>migreringer</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.fordel</groupId>
+                <artifactId>behandleDokumentforsendelse-v1</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
