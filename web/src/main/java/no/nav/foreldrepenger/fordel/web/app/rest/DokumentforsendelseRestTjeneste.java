@@ -72,6 +72,8 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Transactional
 public class DokumentforsendelseRestTjeneste {
     public static final MediaType APPLICATION_PDF_TYPE = MediaType.valueOf("application/pdf");
+    public static final MediaType IMAGE_PNG_TYPE = MediaType.valueOf("image/png");
+    public static final MediaType IMAGE_JPG_TYPE = MediaType.valueOf("image/jpg");
     static final String SERVICE_PATH = "/dokumentforsendelse";
     private static final String FPFORDEL_CONTEXT = "/fpfordel/api";
     private static final String PART_KEY_METADATA = "metadata";
@@ -155,11 +157,17 @@ public class DokumentforsendelseRestTjeneste {
     }
 
     private static ArkivFilType mapMediatypeTilArkivFilType(MediaType mediaType) {
+        if (mediaType.isCompatible(MediaType.APPLICATION_XML_TYPE)) {
+            return ArkivFilType.XML;
+        }
         if (mediaType.isCompatible(APPLICATION_PDF_TYPE)) {
             return ArkivFilType.PDFA;
         }
-        if (mediaType.isCompatible(MediaType.APPLICATION_XML_TYPE)) {
-            return ArkivFilType.XML;
+        if (mediaType.isCompatible(IMAGE_JPG_TYPE)) {
+            return ArkivFilType.JPG;
+        }
+        if (mediaType.isCompatible(IMAGE_PNG_TYPE)) {
+            return ArkivFilType.PNG;
         }
         throw new TekniskException("FP-892468", String.format("Ulovlig mediatype %s", mediaType.getType()));
 
@@ -183,11 +191,13 @@ public class DokumentforsendelseRestTjeneste {
         var dokumentforsendelse = map(dokumentforsendelseDto);
         var eksisterendeForsendelseStatus = service.finnStatusinformasjonHvisEksisterer(dokumentforsendelse.getForsendelsesId());
 
-        var response = eksisterendeForsendelseStatus.map(status -> tilForsendelseStatusRespons(dokumentforsendelse, status)).orElseGet(() -> {
-            var dokumenter = mapInputPartsToDokument(inputParts.subList(1, inputParts.size()), dokumentforsendelse);
-            service.lagreForsendelseValider(dokumentforsendelse.metadata(), dokumenter);
-            var status = service.finnStatusinformasjon(dokumentforsendelse.getForsendelsesId());
-            return tilForsendelseStatusRespons(dokumentforsendelse, status);
+        var response = eksisterendeForsendelseStatus
+            .map(status -> tilForsendelseStatusRespons(dokumentforsendelse, status))
+            .orElseGet(() -> {
+                var dokumenter = mapInputPartsToDokument(inputParts.subList(1, inputParts.size()), dokumentforsendelse);
+                service.lagreForsendelseValider(dokumentforsendelse.metadata(), dokumenter);
+                var status = service.finnStatusinformasjon(dokumentforsendelse.getForsendelsesId());
+                return tilForsendelseStatusRespons(dokumentforsendelse, status);
         });
         LOG.info("Innsending av dokumentforsendelse med id prosessert {}", dokumentforsendelse.getForsendelsesId());
         return response;
@@ -239,8 +249,9 @@ public class DokumentforsendelseRestTjeneste {
                 break;
             case PART_KEY_VEDLEGG:
                 hovedDokument = false;
-                if (!APPLICATION_PDF_TYPE.isCompatible(inputPart.getMediaType())) {
-                    throw new TekniskException("FP-882558", String.format("Vedlegg er ikke pdf, Content-ID=%s", contentId));
+                if (!APPLICATION_PDF_TYPE.isCompatible(inputPart.getMediaType()) && !IMAGE_PNG_TYPE.isCompatible(inputPart.getMediaType()) &&
+                    !IMAGE_JPG_TYPE.isCompatible(inputPart.getMediaType())) {
+                    throw new TekniskException("FP-882558", String.format("Vedlegg er hverken pdf, png eller jpeg, Content-ID=%s", contentId));
                 }
                 break;
             default:
