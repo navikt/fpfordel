@@ -1,13 +1,15 @@
 package no.nav.foreldrepenger.fordel.web.app.rest;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static javax.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
-import static javax.ws.rs.core.HttpHeaders.LOCATION;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML_TYPE;
+
+import static jakarta.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
+import static jakarta.ws.rs.core.HttpHeaders.LOCATION;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_XML_TYPE;
 import static no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste.APPLICATION_PDF_TYPE;
 import static no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste.IMAGE_JPEG_TYPE;
 import static no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste.IMAGE_PNG_TYPE;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -26,9 +28,10 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.ProcessingException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
 
 import org.glassfish.jersey.internal.util.collection.StringKeyIgnoreCaseMultivaluedMap;
 import org.glassfish.jersey.media.multipart.BodyPart;

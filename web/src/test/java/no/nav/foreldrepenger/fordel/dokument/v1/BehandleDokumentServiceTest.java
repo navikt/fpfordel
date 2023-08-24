@@ -36,6 +36,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.TimeZone;
 
+import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.binding.OppdaterOgFerdigstillJournalfoeringUgyldigInput;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,7 +58,6 @@ import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.sak.SakClient;
 import no.nav.foreldrepenger.mottak.tjeneste.VLKlargjører;
-import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.OppdaterOgFerdigstillJournalfoeringUgyldigInput;
 import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.meldinger.OppdaterOgFerdigstillJournalfoeringRequest;
 import no.nav.vedtak.exception.FunksjonellException;
 
@@ -111,8 +112,8 @@ class BehandleDokumentServiceTest {
         var req = req(null, JOURNALPOST_ID, SAKSNUMMER);
         assertThat(
             assertThrows(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class,
-            () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req))
-        .getMessage()).contains(ENHET_MANGLER);
+                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req))
+                .getMessage()).contains(ENHET_MANGLER);
     }
 
     @Test
@@ -120,8 +121,8 @@ class BehandleDokumentServiceTest {
         var req = req(ENHETID, null, SAKSNUMMER);
         assertThat(
             assertThrows(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class,
-            () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req))
-        .getMessage()).contains(JOURNALPOST_MANGLER);
+                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req))
+                .getMessage()).contains(JOURNALPOST_MANGLER);
     }
 
     @Test
@@ -129,8 +130,8 @@ class BehandleDokumentServiceTest {
         var req = req(ENHETID, JOURNALPOST_ID, null);
         assertThat(
             assertThrows(OppdaterOgFerdigstillJournalfoeringUgyldigInput.class,
-            () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req))
-        .getMessage()).contains(SAKSNUMMER_UGYLDIG);
+                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req))
+                .getMessage()).contains(SAKSNUMMER_UGYLDIG);
     }
 
     @Test
@@ -139,9 +140,9 @@ class BehandleDokumentServiceTest {
 
         var req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         assertThat(
-                assertThrows(FunksjonellException.class,
-                    () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req))
-            .getMessage()).contains("Kan ikke journalføre på saksnummer");
+            assertThrows(FunksjonellException.class,
+                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req))
+                .getMessage()).contains("Kan ikke journalføre på saksnummer");
     }
 
     @Test
@@ -237,8 +238,8 @@ class BehandleDokumentServiceTest {
         var req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER);
         assertThat(
             assertThrows(FunksjonellException.class,
-            () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req))
-        .getMessage()).contains("For tidlig");
+                () -> behandleDokument.oppdaterOgFerdigstillJournalfoering(req))
+                .getMessage()).contains("For tidlig");
     }
 
     @Test
