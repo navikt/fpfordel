@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.fordel.web.app.soap;
 
-import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.BehandleDokumentforsendelseV1;
+import no.nav.tjeneste.virksomhet.behandledokumentforsendelse.v1.binding.BehandleDokumentforsendelseV1;
 import no.nav.vedtak.felles.integrasjon.felles.ws.AbstractSoapServlet;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.servlet.annotation.WebServlet;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.servlet.annotation.WebServlet;
 
 @ApplicationScoped
 @WebServlet(urlPatterns = {"/tjenester", "/tjenester/", "/tjenester/*"}, loadOnStartup = 1)

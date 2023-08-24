@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto;
 import java.time.Duration;
 import java.util.Optional;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public class ForsendelseStatusDto {
     @NotNull

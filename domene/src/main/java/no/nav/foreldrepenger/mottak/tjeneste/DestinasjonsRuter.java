@@ -11,8 +11,8 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;

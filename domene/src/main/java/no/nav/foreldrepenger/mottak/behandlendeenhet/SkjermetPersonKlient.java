@@ -4,7 +4,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 import no.nav.vedtak.felles.integrasjon.skjerming.AbstractSkjermetPersonGCPKlient;
 
-import javax.enterprise.context.Dependent;
+import jakarta.enterprise.context.Dependent;
 
 /*
  * Klient for å sjekke om person er skjermet.

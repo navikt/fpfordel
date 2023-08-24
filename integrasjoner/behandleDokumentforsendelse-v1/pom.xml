@@ -1,0 +1,40 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>no.nav.foreldrepenger.fordel</groupId>
+        <artifactId>integrasjoner-pom</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>behandleDokumentforsendelse-v1</artifactId>
+    <packaging>jar</packaging>
+    <name>FPSAK :: Integrasjoner - behandleDokumentforsendelse v1</name>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.sun.xml.ws</groupId>
+                <artifactId>jaxws-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-java-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <keep>true</keep>
+                            <wsdlFiles>
+                                <wsdlFile>${project.basedir}/src/main/resources/wsdl/no/nav/tjeneste/virksomhet/behandleDokumentforsendelse/v1/Binding.wsdl</wsdlFile>
+                            </wsdlFiles>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
+

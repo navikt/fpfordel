@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
 import java.util.List;
 
-import javax.validation.constraints.Digits;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotNull;
 
 public record OppdaterJournalpostMedTittelDto(String journalpostTittel,
                                               List<OppdaterJournalpostMedTittelDto.DokummenterMedTitler> dokumenter) {

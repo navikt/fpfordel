@@ -12,32 +12,38 @@
     <artifactId>webapp</artifactId>
     <packaging>jar</packaging>
     <name>Fordel :: Web :: Applikasjon</name>
+
     <properties>
         <org.jvnet.jaxb2.version>0.12.0</org.jvnet.jaxb2.version>
         <wsdl.directory>src/main/wsdl</wsdl.directory>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.codehaus.woodstox</groupId>
+                <artifactId>stax2-api</artifactId>
+                <version>4.2.1</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
-
         <dependency>
-            <groupId>net.shibboleth.utilities</groupId>
-            <artifactId>java-support</artifactId>
-            <version>8.0.0</version>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-core-jakarta</artifactId>
         </dependency>
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-jaxrs2</artifactId>
+            <artifactId>swagger-jaxrs2-jakarta</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-micrometer</artifactId>
         </dependency>
         <dependency>
@@ -67,29 +73,21 @@
             <artifactId>migreringer</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-            <artifactId>felles-integrasjon-webservice</artifactId>
-        </dependency>
-        <dependency>
             <groupId>no.nav.vedtak.prosesstask</groupId>
             <artifactId>prosesstask-kontekst</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.vedtak.prosesstask</groupId>
             <artifactId>prosesstask</artifactId>
-
         </dependency>
         <dependency>
             <groupId>no.nav.vedtak.prosesstask</groupId>
             <artifactId>prosesstask-rest-api</artifactId>
         </dependency>
+
         <dependency>
             <groupId>no.nav.foreldrepenger.kontrakter</groupId>
             <artifactId>fordel-v1</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.tjenestespesifikasjoner</groupId>
-            <artifactId>behandledokumentforsendelse-v1-tjenestespesifikasjon</artifactId>
         </dependency>
 
         <dependency>
@@ -182,17 +180,10 @@
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>jakarta.activation</groupId>
             <artifactId>jakarta.activation-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.messaging.saaj</groupId>
-            <artifactId>saaj-impl</artifactId>
         </dependency>
 
         <dependency>
@@ -201,12 +192,35 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+
+        <!-- WS -->
+        <dependency>
+            <groupId>no.nav.foreldrepenger.fordel</groupId>
+            <artifactId>behandleDokumentforsendelse-v1</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.woodstox</groupId>
+            <artifactId>stax2-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+            <artifactId>felles-integrasjon-webservice</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.messaging.saaj</groupId>
+            <artifactId>saaj-impl</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.jvnet.jaxb2_commons</groupId>
             <artifactId>jaxb2-basics-runtime</artifactId>
             <version>${org.jvnet.jaxb2.version}</version>
         </dependency>
-        <!-- REST + WebService -->
+
+        <!-- REST -->
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-servlet</artifactId>

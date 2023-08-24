@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.mottak.klient;
 
-import javax.validation.constraints.Digits;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotNull;
 
 public record AktørIdDto(@NotNull @Digits(integer = 19, fraction = 0) String aktørId) {
     @Override

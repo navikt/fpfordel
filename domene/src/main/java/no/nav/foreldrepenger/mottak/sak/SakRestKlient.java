@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.mottak.sak;
 
 import no.nav.vedtak.felles.integrasjon.rest.*;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.core.UriBuilder;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.core.UriBuilder;
 
 @ApplicationScoped
 @RestClientConfig(tokenConfig = TokenFlow.STS_CC, endpointProperty = "sak.rs.url", endpointDefault = "http://sak.teamdokumenthandtering/api/v1/saker")
