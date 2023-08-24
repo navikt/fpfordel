@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.logging.LogManager;
 
 import javax.naming.NamingException;
-import javax.security.auth.message.config.AuthConfigFactory;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.security.auth.message.config.AuthConfigFactory;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 import org.eclipse.jetty.jaas.JAASLoginService;

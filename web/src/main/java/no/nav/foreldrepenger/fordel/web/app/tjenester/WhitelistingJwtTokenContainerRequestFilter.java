@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.fordel.web.app.tjenester;
 
 import java.lang.reflect.Method;
 
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ResourceInfo;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ResourceInfo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

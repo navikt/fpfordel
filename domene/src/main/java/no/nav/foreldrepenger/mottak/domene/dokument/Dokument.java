@@ -4,7 +4,7 @@ import no.nav.foreldrepenger.fordel.BaseEntitet;
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
