@@ -101,6 +101,15 @@ public class EnhetsTjeneste implements JournalføringsOppgave {
         return !oppgaver.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId).isEmpty();
     }
 
+    @Override
+    public void ferdigstillÅpneJournalføringsOppgaver(String journalpostId) {
+        oppgaver.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId).forEach(o -> {
+            LOG.info("FPFORDEL JFR-OPPGAVE: ferdigstiller oppgaver {} for journalpostId: {}", o.id(), journalpostId);
+            oppgaver.ferdigstillOppgave(String.valueOf(o.id()));
+        });
+
+    }
+
     private String hentEnhetId(String aktørId, BehandlingTema behandlingTema, Tema tema) {
         if (pdl.harStrengDiskresjonskode(aktørId)) {
             return SF_ENHET_ID;
