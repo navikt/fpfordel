@@ -22,12 +22,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.NAVSkjema;
@@ -177,9 +176,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         }
 
         // Egen rute for rene ankedokument - journalføringsoppgave Klageinstans
-        if (journalpost.getAlleTyper().contains(DokumentTypeId.KLAGE_DOKUMENT) && journalpost.getSaksnummer().isEmpty() &&
-            (journalpost.getTittel().map(String::toLowerCase).filter(DIREKTE_KA::contains).isPresent() ||
-                ArkivTjeneste.harBrevKode(journalpost.getOriginalJournalpost(), NAVSkjema.SKJEMA_KLAGE_A_DOKUMENT))) {
+        if (journalpost.getAlleTyper().contains(DokumentTypeId.KLAGE_DOKUMENT) && journalpost.getSaksnummer().isEmpty() && erAnkeRelatert(journalpost)) {
             LOG.info("FPFORDEL HentFraArkiv ankedokument til KA journalpost {} kanal {} dokumenttype {}", journalpost.getJournalpostId(),
                 journalpost.getKanal(), journalpost.getHovedtype());
             w.setJournalførendeEnhet(JournalføringsOppgave.NK_ENHET_ID);
@@ -294,6 +291,12 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     private Optional<String> getIdHvisFNR(AvsenderMottaker avsenderMottaker) {
         return AvsenderMottaker.AvsenderMottakerIdType.FNR.equals(avsenderMottaker.idType()) ? Optional.ofNullable(
             avsenderMottaker.id()) : Optional.empty();
+    }
+
+    private static boolean erAnkeRelatert(ArkivJournalpost journalpost) {
+        return journalpost.getTittel().map(String::toLowerCase).filter(DIREKTE_KA::contains).isPresent() ||
+            ArkivTjeneste.harBrevKode(journalpost.getOriginalJournalpost(), NAVSkjema.SKJEMA_KLAGE_A_DOKUMENT) ||
+            ArkivTjeneste.harBrevKode(journalpost.getOriginalJournalpost(), NAVSkjema.SKJEMAE_ANKE);
     }
 
     @Override
