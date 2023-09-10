@@ -19,6 +19,6 @@ jobs:
     name: Deploy dev
     uses: navikt/fp-gha-workflows/.github/workflows/deploy.yml@main
     with:
-      image: ghcr.io/${{ github.repository }}:${{ inputs.image }}
+      image: ${{ inputs.image }}
       cluster: ${{ inputs.environment }}-fss
     secrets: inherit
