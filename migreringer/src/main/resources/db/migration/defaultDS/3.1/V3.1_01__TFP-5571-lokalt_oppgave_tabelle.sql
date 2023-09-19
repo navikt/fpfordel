@@ -1,3 +1,8 @@
+create sequence SEQ_OPPGAVE
+    increment by 50
+    nocache
+/
+
 create table OPPGAVE
 (
     ID NUMBER(19) not null
