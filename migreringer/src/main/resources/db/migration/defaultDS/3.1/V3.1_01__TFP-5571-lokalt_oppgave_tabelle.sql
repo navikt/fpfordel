@@ -10,6 +10,7 @@ create table OPPGAVE
     PRIORITET VARCHAR2(20 char),
     BESKRIVELSE varchar2(200 char),
     ENHET VARCHAR2(10 char),
+    FRIST TIMESTAMP(3) not null,
     VERSJON INTEGER default 0 not null,
     OPPRETTET_AV VARCHAR2(20 char) default 'VL' not null,
     OPPRETTET_TID TIMESTAMP(3) default systimestamp not null,
@@ -33,6 +34,8 @@ comment on column OPPGAVE.PRIORITET is 'Prioritet til oppgaven. HØY, NORM, LAV'
 comment on column OPPGAVE.BESKRIVELSE is 'Oppgave beskrivelse.'
 /
 comment on column OPPGAVE.ENHET is 'Tildelt enhet som skal løse oppgaven.'
+/
+comment on column OPPGAVE.FRIST is 'Frist dato for å løse oppgaven.'
 /
 comment on column OPPGAVE.VERSJON is 'Teknisk versjonering av endringer.'
 /
