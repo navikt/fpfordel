@@ -1,19 +1,11 @@
-create sequence SEQ_OPPGAVE
-    increment by 50
-    nocache
-/
-
 create table OPPGAVE
 (
-    ID NUMBER(19) not null
+    JOURNALPOST_ID VARCHAR2(32 char) not null
         constraint PK_OPPGAVE
             primary key,
-    TYPE VARCHAR2(20 char) not null,
     STATUS VARCHAR2(20 char) not null,
-    JOURNALPOST_ID VARCHAR2(32 char),
     BRUKER_ID VARCHAR2(19 char),
-    BEHANDLING_TEMA VARCHAR2(20 char),
-    PRIORITET VARCHAR2(20 char),
+    YTELSE_TYPE VARCHAR2(20 char),
     BESKRIVELSE varchar2(200 char),
     ENHET VARCHAR2(10 char),
     FRIST TIMESTAMP(3) not null,
@@ -28,17 +20,13 @@ create table OPPGAVE
 
 comment on table OPPGAVE is 'Inneholder oppgaver som skal løses av saksbehandlere i journalføring.'
 /
-comment on column OPPGAVE.TYPE is 'Type av oppgaven f.eks JFR for journalføring. Mappes til Oppgavetype kodeverk.'
-/
 comment on column OPPGAVE.STATUS is 'Status av oppgaven. Foreløpig AAPENT, FERDIGSTILT.'
 /
 comment on column OPPGAVE.JOURNALPOST_ID is 'ID til journalposten i JOARK'
 /
 comment on column OPPGAVE.BRUKER_ID is 'ID til avsenderen av et dokument'
 /
-comment on column OPPGAVE.BEHANDLING_TEMA is 'Behandlingstema som beskriver ytelsen'
-/
-comment on column OPPGAVE.PRIORITET is 'Prioritet til oppgaven. HØY, NORM, LAV'
+comment on column OPPGAVE.YTELSE_TYPE is 'YtelseType fra kodeverk. FP, SVP, EN'
 /
 comment on column OPPGAVE.BESKRIVELSE is 'Oppgave beskrivelse.'
 /
@@ -51,6 +39,6 @@ comment on column OPPGAVE.RESERVERT_AV is 'Lagrer identen til SBH som reserverer
 comment on column OPPGAVE.VERSJON is 'Teknisk versjonering av endringer.'
 /
 
-create index IDX_OPPGAVE_TYPE
-    on OPPGAVE (TYPE)
+create index IDX_OPPGAVE_ID
+    on OPPGAVE (JOURNALPOST_ID)
 /

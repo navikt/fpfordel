@@ -66,7 +66,6 @@ public class FerdigstillJournalføringRestTjeneste {
         this.journalføringTjeneste = journalføringTjeneste;
     }
 
-
     @POST
     @Path("/ferdigstill")
     @Operation(description = "For å ferdigstille journalføring. Det opprettes en ny fagsak om saksnummer ikke sendes.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "200", description = "Journalføring ferdigstillt"), @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
