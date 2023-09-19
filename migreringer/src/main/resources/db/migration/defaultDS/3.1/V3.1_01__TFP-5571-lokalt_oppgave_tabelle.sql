@@ -1,14 +1,14 @@
 create table OPPGAVE
 (
-    JOURNALPOST_ID VARCHAR2(32 char) not null
+    JOURNALPOST_ID VARCHAR2(32 char)
         constraint PK_OPPGAVE
             primary key,
     STATUS VARCHAR2(20 char) not null,
+    ENHET VARCHAR2(10 char) not null,
+    FRIST TIMESTAMP(3) not null,
     BRUKER_ID VARCHAR2(19 char),
     YTELSE_TYPE VARCHAR2(20 char),
     BESKRIVELSE varchar2(200 char),
-    ENHET VARCHAR2(10 char),
-    FRIST TIMESTAMP(3) not null,
     RESERVERT_AV VARCHAR2(20 char),
     VERSJON INTEGER default 0 not null,
     OPPRETTET_AV VARCHAR2(20 char) default 'VL' not null,
@@ -39,6 +39,6 @@ comment on column OPPGAVE.RESERVERT_AV is 'Lagrer identen til SBH som reserverer
 comment on column OPPGAVE.VERSJON is 'Teknisk versjonering av endringer.'
 /
 
-create index IDX_OPPGAVE_ID
-    on OPPGAVE (JOURNALPOST_ID)
+create index IDX_OPPGAVE
+    on OPPGAVE (STATUS, ENHET)
 /
