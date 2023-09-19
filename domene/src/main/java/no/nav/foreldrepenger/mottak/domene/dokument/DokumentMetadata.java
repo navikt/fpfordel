@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.Forsendelse
 @Entity(name = "DokumentMetadata")
 @Table(name = "DOKUMENT_METADATA")
 public class DokumentMetadata extends BaseEntitet {
-    public static final String UNIQUE_FORSENDELSE_ID_CONSTRAINT = "CHK_UNIQUE_FORS_DOKUMENT_MT";
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_DOKUMENT_METADATA")
