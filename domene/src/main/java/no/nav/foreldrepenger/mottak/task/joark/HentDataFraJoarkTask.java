@@ -30,7 +30,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.NAVSkjema;
-import no.nav.foreldrepenger.mottak.behandlendeenhet.JournalføringsOppgave;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
@@ -179,7 +179,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         if (journalpost.getAlleTyper().contains(DokumentTypeId.KLAGE_DOKUMENT) && journalpost.getSaksnummer().isEmpty() && erAnkeRelatert(journalpost)) {
             LOG.info("FPFORDEL HentFraArkiv ankedokument til KA journalpost {} kanal {} dokumenttype {}", journalpost.getJournalpostId(),
                 journalpost.getKanal(), journalpost.getHovedtype());
-            w.setJournalførendeEnhet(JournalføringsOppgave.NK_ENHET_ID);
+            w.setJournalførendeEnhet(EnhetsTjeneste.NK_ENHET_ID);
             return w.nesteSteg(TASK_GOSYS);
         }
 

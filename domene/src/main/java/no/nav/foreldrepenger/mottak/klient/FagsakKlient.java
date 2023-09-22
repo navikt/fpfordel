@@ -4,12 +4,11 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.ws.rs.core.UriBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.core.UriBuilder;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -19,7 +18,7 @@ import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
-import no.nav.foreldrepenger.mottak.behandlendeenhet.JournalføringsOppgave;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
@@ -135,7 +134,7 @@ public class FagsakKlient implements Fagsak {
         LOG.info("Vurderer resultat");
 
         var brukPath = w.getJournalførendeEnhet()
-            .filter(JournalføringsOppgave.NK_ENHET_ID::equals)
+            .filter(EnhetsTjeneste.NK_ENHET_ID::equals)
             .isPresent() ? klageinstansEndpoint : fagsystemEndpoint;
 
         var request = RestRequest.newPOSTJson(dto, brukPath, restConfig);

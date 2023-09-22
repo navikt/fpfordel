@@ -1,33 +1,11 @@
 package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
-import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.gjelderForeldrepenger;
-import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.mapYtelseTypeTilDto;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverdi.Journalposttype;
-import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
-import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
+import no.nav.foreldrepenger.fordel.kodeverdi.*;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.journalføring.ManuellOpprettSakValidator;
+import no.nav.foreldrepenger.journalføring.domene.JournalføringsOppgave;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
@@ -48,10 +26,19 @@ import no.nav.foreldrepenger.typer.JournalpostId;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OppdaterJournalpostRequest;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.konfig.Tid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.gjelderForeldrepenger;
+import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.mapYtelseTypeTilDto;
 
 @ApplicationScoped
 public class FerdigstillJournalføringTjeneste {
@@ -62,7 +49,7 @@ public class FerdigstillJournalføringTjeneste {
     private VLKlargjører klargjører;
     private Fagsak fagsak;
     private PersonInformasjon pdl;
-    private Oppgaver oppgaver;
+    private JournalføringsOppgave oppgaver;
     private ProsessTaskTjeneste taskTjeneste;
     private ArkivTjeneste arkivTjeneste;
     private DokumentRepository dokumentRepository;
@@ -75,7 +62,7 @@ public class FerdigstillJournalføringTjeneste {
     public FerdigstillJournalføringTjeneste(VLKlargjører klargjører,
                                             Fagsak fagsak,
                                             PersonInformasjon pdl,
-                                            Oppgaver oppgaver,
+                                            JournalføringsOppgave oppgaver,
                                             ProsessTaskTjeneste taskTjeneste,
                                             ArkivTjeneste arkivTjeneste,
                                             DokumentRepository dokumentRepository) {
@@ -372,7 +359,7 @@ public class FerdigstillJournalføringTjeneste {
     void opprettFerdigstillOppgaveTask(String oppgaveId) {
         if (oppgaveId != null) {
             try {
-                oppgaver.ferdigstillOppgave(oppgaveId);
+                oppgaver.ferdigstillÅpneJournalføringsOppgaver(oppgaveId);
             } catch (Exception e) {
                 LOG.warn("FPFORDEL RESTJOURNALFØRING: Ferdigstilt oppgave med dokumentId {} feiler ", oppgaveId, e);
                 var ferdigstillOppgaveTask = ProsessTaskData.forProsessTask(FerdigstillOppgaveTask.class);

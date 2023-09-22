@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.behandlendeenhet;
+package no.nav.foreldrepenger.journalføring.domene;
 
 import jakarta.enterprise.context.Dependent;
 

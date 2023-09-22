@@ -2,14 +2,11 @@ package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.foreldrepenger.fordel.StringUtil.isBlank;
-import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.mapPrioritet;
-import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.mapTilYtelseType;
 import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.mapYtelseTypeTilDto;
 import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.tekstFraBeskrivelse;
 
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -18,6 +15,14 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -31,18 +36,12 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.domene.YtelseType;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilType;
 import no.nav.foreldrepenger.fordel.web.app.konfig.ApiConfig;
+import no.nav.foreldrepenger.journalføring.domene.JournalføringsOppgave;
+import no.nav.foreldrepenger.journalføring.domene.Oppgave;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
@@ -51,13 +50,11 @@ import no.nav.foreldrepenger.mottak.journal.saf.DokumentInfo;
 import no.nav.foreldrepenger.mottak.klient.AktørIdDto;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.Los;
+import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
@@ -67,9 +64,9 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @Path(ManuellJournalføringRestTjeneste.JOURNALFOERING_PATH)
-@RequestScoped
 @Consumes(APPLICATION_JSON)
 @Transactional
+@RequestScoped
 public class ManuellJournalføringRestTjeneste {
     private static final Environment ENV = Environment.current();
 
@@ -79,21 +76,23 @@ public class ManuellJournalføringRestTjeneste {
     private static final String DOKUMENT_HENT_PATH = "/dokument/hent";
     private static final String FULL_HENT_DOKUMENT_PATH =
         ENV.getProperty("context.path", "/fpfordel") + ApiConfig.API_URI + JOURNALFOERING_PATH + DOKUMENT_HENT_PATH;
-    private static final String LIMIT = "50";
-
-    private Oppgaver oppgaver;
+    private JournalføringsOppgave oppgaveTjeneste;
     private PersonInformasjon pdl;
     private ArkivTjeneste arkiv;
     private Fagsak fagsak;
     private Los los;
 
-    public ManuellJournalføringRestTjeneste() {
-        // For inject
+    ManuellJournalføringRestTjeneste() {
+        // CDI
     }
 
     @Inject
-    public ManuellJournalføringRestTjeneste(Oppgaver oppgaver, PersonInformasjon pdl, ArkivTjeneste arkiv, Fagsak fagsak, Los los) {
-        this.oppgaver = oppgaver;
+    public ManuellJournalføringRestTjeneste(JournalføringsOppgave oppgaveTjeneste,
+                                            PersonInformasjon pdl,
+                                            ArkivTjeneste arkiv,
+                                            Fagsak fagsak,
+                                            Los los) {
+        this.oppgaveTjeneste = oppgaveTjeneste;
         this.pdl = pdl;
         this.arkiv = arkiv;
         this.fagsak = fagsak;
@@ -108,7 +107,7 @@ public class ManuellJournalføringRestTjeneste {
     public List<OppgaveDto> hentÅpneOppgaverForSaksbehandler(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("ident") @NotNull @Valid SaksbehandlerIdentDto saksbehandlerIdentDto) {
         //Midlertidig for å kunne verifisere i produksjon - fjernes når verifisert ok
         if (ENV.isProd() && ("W119202".equals(KontekstHolder.getKontekst().getUid()))) {
-            var oppgaveDtoer = oppgaver.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)
+            var oppgaveDtoer = oppgaveTjeneste.finnÅpneOppgaverFor(null)
                 .stream()
                 .map(this::lagOppgaveDto)
                 .toList();
@@ -121,20 +120,13 @@ public class ManuellJournalføringRestTjeneste {
             throw new IllegalStateException(
                 String.format("Det forventes at saksbehandler %s har minst en tilførende enhet. Fant ingen.", saksbehandlerIdentDto.ident()));
         }
-
-        List<OppgaveDto> oppgaverPåSaksbehandlersEnheter = new ArrayList<>();
-        for (var enhet : tilhørendeEnheter) {
-            try {
-                oppgaverPåSaksbehandlersEnheter.addAll(oppgaver.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, enhet.enhetsnummer(), LIMIT)
-                    .stream()
-                    .map(this::lagOppgaveDto)
-                    .toList());
-            } catch (Exception e) {
-                throw new IllegalStateException(String.format("FPFORDEL feilet å hente åpne oppgaver for enhet %s med melding {}", enhet), e);
-            }
-        }
-        LOG.info("FPFORDEL RESTJOURNALFØRING: Henter {} oppgaver", oppgaverPåSaksbehandlersEnheter.size());
-        return oppgaverPåSaksbehandlersEnheter;
+        var enheter = tilhørendeEnheter.stream().map(TilhørendeEnhetDto::enhetsnummer).collect(Collectors.toSet());
+        var oppgaver = oppgaveTjeneste.finnÅpneOppgaverFor(enheter)
+            .stream()
+            .map(this::lagOppgaveDto)
+            .toList();
+        LOG.info("FPFORDEL RESTJOURNALFØRING: Henter {} oppgaver", oppgaver.size());
+        return oppgaver;
     }
 
     @POST
@@ -205,12 +197,12 @@ public class ManuellJournalføringRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response oppgaveReserver(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @NotNull @Valid ReserverOppgaveDto oppgaveDto) {
         var innloggetBruker = KontekstHolder.getKontekst().getUid();
-        var oppgave = oppgaver.hentOppgave(oppgaveDto.oppgaveId());
+        var oppgave = oppgaveTjeneste.hentOppgave(oppgaveDto.oppgaveId());
 
         if (isBlank(oppgaveDto.reserverFor())) {
             // Avreserver
             if (innloggetBruker.equals(oppgave.tilordnetRessurs())) {
-                oppgaver.avreserverOppgave(oppgave.id().toString());
+                oppgaveTjeneste.avreserverOppgave(oppgave.id());
                 LOG.info("Oppgave {} avreservert av {}.", oppgave.id(), innloggetBruker);
             } else {
                 // Ikke mulig å avreservere for andre
@@ -220,7 +212,7 @@ public class ManuellJournalføringRestTjeneste {
         } else {
             // Reserver
             if (isBlank(oppgave.tilordnetRessurs())) {
-                oppgaver.reserverOppgave(oppgave.id().toString(), oppgaveDto.reserverFor());
+                oppgaveTjeneste.reserverOppgave(oppgave.id(), oppgaveDto.reserverFor());
                 LOG.info("Oppgave {} reservert av {}.", oppgave.id(), innloggetBruker);
             }
             else {
@@ -287,10 +279,22 @@ public class ManuellJournalføringRestTjeneste {
     }
 
     private OppgaveDto lagOppgaveDto(Oppgave oppgave) {
-        return new OppgaveDto(oppgave.id(), oppgave.journalpostId(), oppgave.aktoerId(), hentPersonIdent(oppgave.aktoerId()).orElse(null),
-            mapTilYtelseType(oppgave.behandlingstema()), oppgave.fristFerdigstillelse(), mapPrioritet(oppgave.prioritet()), oppgave.beskrivelse(),
-            tekstFraBeskrivelse(oppgave.beskrivelse()), oppgave.aktivDato(), oppgave.tildeltEnhetsnr(), oppgave.tilordnetRessurs(), oppgave.versjon());
+        return new OppgaveDto(Long.valueOf(oppgave.id()), oppgave.id(), oppgave.aktoerId(), hentPersonIdent(oppgave.aktoerId()).orElse(null),
+            mapYtelseType(oppgave.ytelseType()), oppgave.fristFerdigstillelse(), OppgavePrioritet.NORM, oppgave.beskrivelse(),
+            tekstFraBeskrivelse(oppgave.beskrivelse()), oppgave.aktivDato(), oppgave.tildeltEnhetsnr(), oppgave.tilordnetRessurs());
     }
+
+    static YtelseTypeDto mapYtelseType(YtelseType ytelseType) {
+        if (null == ytelseType) {
+            return null;
+        }
+        return switch (ytelseType) {
+            case FORELDREPENGER -> YtelseTypeDto.FORELDREPENGER;
+            case SVANGERSKAPSPENGER -> YtelseTypeDto.SVANGERSKAPSPENGER;
+            case ENGANGSTØNAD -> YtelseTypeDto.ENGANGSTØNAD;
+        };
+    }
+
 
     private Optional<String> hentPersonIdent(String aktørId) {
         if (aktørId != null) {
@@ -323,8 +327,7 @@ public class ManuellJournalføringRestTjeneste {
                              String trimmetBeskrivelse,
                              @NotNull LocalDate opprettetDato,
                              String enhetId,
-                             String reservertAv,
-                             Integer versjon) {
+                             String reservertAv) {
 
     }
 

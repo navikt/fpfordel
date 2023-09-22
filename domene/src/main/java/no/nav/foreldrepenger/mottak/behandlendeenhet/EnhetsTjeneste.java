@@ -1,37 +1,43 @@
 package no.nav.foreldrepenger.mottak.behandlendeenhet;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.fordel.kodeverdi.Temagrupper;
+import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.Arbeidsfordeling;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingRequest;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.Arbeidsfordeling;
-import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingRequest;
-import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingResponse;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
-
 @ApplicationScoped
-public class EnhetsTjeneste implements JournalføringsOppgave {
+public class EnhetsTjeneste {
+    public static String NK_ENHET_ID = "4292"; // Enhetsnummer NAV Klageinstans Midt-Norge
+    public static String SKJERMET_ENHET_ID = "4883"; // Enhetsnummer NAV Familie og Pensjon Skjermet
+    private static String TEMAGRUPPE = Temagrupper.FAMILIEYTELSER.getKode(); // Kodeverk Temagrupper - dekker FOR + OMS
+    private static String TEMA = Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode();
+    private static String OPPGAVETYPE_JFR = "JFR"; // Kodeverk Oppgavetyper - NFP , uten spesialenheter
+    private static String ENHET_TYPE_NFP = "FPY"; // Kodeverk EnhetstyperNORG - NFP , uten spesialenheter
+    private static String BEHANDLINGTYPE = "ae0034"; // Kodeverk Behandlingstype, bruker søknad
+    private static String SF_ENHET_ID = "2103"; // Enhetsnummer NAV K6 enhet
+    private static String UTLAND_ENHET_ID = "4806"; // Enhetsnummer NAV K6 enhet
+    private static Set<String> SPESIALENHETER = Set.of(NK_ENHET_ID, SKJERMET_ENHET_ID, SF_ENHET_ID, UTLAND_ENHET_ID);
+    private static String NASJONAL_ENHET_ID = "4867";
+
     private static final Logger LOG = LoggerFactory.getLogger(EnhetsTjeneste.class);
     private static final Set<String> FLYTTET = Set.of("4806", "4833", "4849", "4812", "4817", "4842");
     private PersonInformasjon pdl;
     private Arbeidsfordeling norgKlient;
     private SkjermetPersonKlient skjermetPersonKlient;
-    private Oppgaver oppgaver;
 
     private final Set<String> alleJournalførendeEnheter = new HashSet<>(); // Med klageinstans og kode6 og skjermet
     private final Set<String> nfpJournalførendeEnheter = new HashSet<>(); // Kun NFP
@@ -43,12 +49,10 @@ public class EnhetsTjeneste implements JournalføringsOppgave {
     @Inject
     public EnhetsTjeneste(PersonInformasjon personTjeneste,
                           Arbeidsfordeling norgKlient,
-                          SkjermetPersonKlient skjermetPersonKlient,
-                          Oppgaver oppgaver) {
+                          SkjermetPersonKlient skjermetPersonKlient) {
         this.pdl = personTjeneste;
         this.norgKlient = norgKlient;
         this.skjermetPersonKlient = skjermetPersonKlient;
-        this.oppgaver = oppgaver;
     }
 
     // Behold ut 2023
@@ -61,7 +65,6 @@ public class EnhetsTjeneste implements JournalføringsOppgave {
         return FLYTTET.contains(enhet) ? NASJONAL_ENHET_ID : enhet;
     }
 
-    @Override
     public String hentFordelingEnhetId(Tema tema, BehandlingTema behandlingTema, Optional<String> enhetInput, String aktørId) {
         LOG.info("Henter enhet id for {},{}", tema, behandlingTema);
         //oppdaterEnhetCache(); LA STÅ UT 2023
@@ -73,40 +76,6 @@ public class EnhetsTjeneste implements JournalføringsOppgave {
         var id = Optional.ofNullable(aktørId).map(a -> hentEnhetId(a, behandlingTema, tema)).orElse(NASJONAL_ENHET_ID);
         LOG.info("returnerer enhet id  {}", id);
         return id;
-
-    }
-
-    @Override
-    public String opprettJournalføringsOppgave(String journalpostId,
-                                               String enhetId,
-                                               String aktørId,
-                                               String saksref,
-                                               String behandlingTema,
-                                               String beskrivelse) {
-        var request = OpprettOppgave.getBuilderTemaFOR(Oppgavetype.JOURNALFØRING, Prioritet.NORM, 1)
-            .medAktoerId(aktørId)
-            .medSaksreferanse(saksref)
-            .medTildeltEnhetsnr(enhetId)
-            .medOpprettetAvEnhetsnr(enhetId)
-            .medJournalpostId(journalpostId)
-            .medBeskrivelse(beskrivelse)
-            .medBehandlingstema(behandlingTema);
-        var oppgave = oppgaver.opprettetOppgave(request.build());
-        LOG.info("FPFORDEL GOSYS opprettet oppgave {}", oppgave);
-        return oppgave.id().toString();
-    }
-
-    @Override
-    public boolean finnesÅpenJournalføringsoppgaveForJournalpost(String journalpostId) {
-        return !oppgaver.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId).isEmpty();
-    }
-
-    @Override
-    public void ferdigstillÅpneJournalføringsOppgaver(String journalpostId) {
-        oppgaver.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId).forEach(o -> {
-            LOG.info("FPFORDEL JFR-OPPGAVE: ferdigstiller oppgaver {} for journalpostId: {}", o.id(), journalpostId);
-            oppgaver.ferdigstillOppgave(String.valueOf(o.id()));
-        });
 
     }
 

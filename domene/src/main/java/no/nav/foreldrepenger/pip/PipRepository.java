@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.pip;
 
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -12,11 +12,7 @@ import jakarta.persistence.EntityManager;
 @Dependent
 public class PipRepository {
 
-    private static final String PIP_QUERY = """
-        select BRUKER_ID
-        from DOKUMENT_METADATA
-        where FORSENDELSE_ID in (:dokumentforsendelseIder)
-        """;
+    private static final String PIP_QUERY = "select brukerId from DokumentMetadata where forsendelseId in (:dokumentforsendelseIder)";
 
     private final EntityManager entityManager;
 
@@ -32,7 +28,9 @@ public class PipRepository {
             return Set.of();
         }
 
-        return new HashSet<>(
-            entityManager.createNativeQuery(PIP_QUERY).setParameter("dokumentforsendelseIder", dokumentforsendelseIder).getResultList());
+        return entityManager.createQuery(PIP_QUERY, String.class)
+            .setParameter("dokumentforsendelseIder", dokumentforsendelseIder)
+            .getResultStream()
+            .collect(Collectors.toUnmodifiableSet());
     }
 }

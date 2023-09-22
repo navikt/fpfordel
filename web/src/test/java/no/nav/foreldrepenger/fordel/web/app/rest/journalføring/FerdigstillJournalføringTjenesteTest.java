@@ -39,9 +39,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
-import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OppdaterJournalpostRequest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -53,6 +50,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
+import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
+import no.nav.foreldrepenger.journalføring.domene.JournalføringsOppgave;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.FerdigstillOppgaveTask;
@@ -65,7 +64,7 @@ import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.tjeneste.VLKlargjører;
 import no.nav.foreldrepenger.typer.JournalpostId;
 import no.nav.vedtak.exception.FunksjonellException;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OppdaterJournalpostRequest;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
@@ -85,7 +84,7 @@ class FerdigstillJournalføringTjenesteTest {
     @Mock
     private PersonInformasjon pdl;
     @Mock
-    private Oppgaver oppgaver;
+    private JournalføringsOppgave oppgaver;
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
     @Mock
@@ -113,10 +112,10 @@ class FerdigstillJournalføringTjenesteTest {
 
         lenient().when(arkivJournalpost.getHovedtype()).thenReturn(KLAGE_DOKUMENT);
         lenient().when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
-        lenient().doThrow(new IllegalArgumentException("FEIL")).when(oppgaver).ferdigstillOppgave(anyString());
+        lenient().doThrow(new IllegalArgumentException("FEIL")).when(oppgaver).ferdigstillÅpneJournalføringsOppgaver(anyString());
 
         journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, null, Collections.emptyList(),null);
-        verify(oppgaver).ferdigstillOppgave(OPPGAVE_ID);
+        verify(oppgaver).ferdigstillÅpneJournalføringsOppgaver(OPPGAVE_ID);
         var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste).lagre(taskCaptor.capture());
         var taskdata = taskCaptor.getValue();
