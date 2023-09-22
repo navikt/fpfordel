@@ -21,17 +21,17 @@ import java.util.Set;
 
 @ApplicationScoped
 public class EnhetsTjeneste {
-    public static String NK_ENHET_ID = "4292"; // Enhetsnummer NAV Klageinstans Midt-Norge
-    public static String SKJERMET_ENHET_ID = "4883"; // Enhetsnummer NAV Familie og Pensjon Skjermet
-    private static String TEMAGRUPPE = Temagrupper.FAMILIEYTELSER.getKode(); // Kodeverk Temagrupper - dekker FOR + OMS
-    private static String TEMA = Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode();
-    private static String OPPGAVETYPE_JFR = "JFR"; // Kodeverk Oppgavetyper - NFP , uten spesialenheter
-    private static String ENHET_TYPE_NFP = "FPY"; // Kodeverk EnhetstyperNORG - NFP , uten spesialenheter
-    private static String BEHANDLINGTYPE = "ae0034"; // Kodeverk Behandlingstype, bruker søknad
-    private static String SF_ENHET_ID = "2103"; // Enhetsnummer NAV K6 enhet
-    private static String UTLAND_ENHET_ID = "4806"; // Enhetsnummer NAV K6 enhet
-    private static Set<String> SPESIALENHETER = Set.of(NK_ENHET_ID, SKJERMET_ENHET_ID, SF_ENHET_ID, UTLAND_ENHET_ID);
-    private static String NASJONAL_ENHET_ID = "4867";
+    public static final String NK_ENHET_ID = "4292"; // Enhetsnummer NAV Klageinstans Midt-Norge
+    public static final String SKJERMET_ENHET_ID = "4883"; // Enhetsnummer NAV Familie og Pensjon Skjermet
+    private static final String TEMAGRUPPE = Temagrupper.FAMILIEYTELSER.getKode(); // Kodeverk Temagrupper - dekker FOR + OMS
+    private static final String TEMA = Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode();
+    private static final String OPPGAVETYPE_JFR = "JFR"; // Kodeverk Oppgavetyper - NFP , uten spesialenheter
+    private static final String ENHET_TYPE_NFP = "FPY"; // Kodeverk EnhetstyperNORG - NFP , uten spesialenheter
+    private static final String BEHANDLINGTYPE = "ae0034"; // Kodeverk Behandlingstype, bruker søknad
+    private static final String SF_ENHET_ID = "2103"; // Enhetsnummer NAV K6 enhet
+    private static final String UTLAND_ENHET_ID = "4806"; // Enhetsnummer NAV K6 enhet
+    private static final Set<String> SPESIALENHETER = Set.of(NK_ENHET_ID, SKJERMET_ENHET_ID, SF_ENHET_ID, UTLAND_ENHET_ID);
+    private static final String NASJONAL_ENHET_ID = "4867";
 
     private static final Logger LOG = LoggerFactory.getLogger(EnhetsTjeneste.class);
     private static final Set<String> FLYTTET = Set.of("4806", "4833", "4849", "4812", "4817", "4842");
@@ -56,7 +56,7 @@ public class EnhetsTjeneste {
     }
 
     // Behold ut 2023
-    private static String validerOgVelgBehandlendeEnhet(List<ArbeidsfordelingResponse> response, String gt) {
+    private static String validerOgVelgBehandlendeEnhet(List<ArbeidsfordelingResponse> response, String gt) { //NOSONAR
         // Vi forventer å få én behandlende enhet.
         if (response == null || response.size() != 1) {
             throw new TekniskException("FP-669566", String.format("Finner ikke behandlende enhet for geografisk tilknytning %s", gt));
@@ -79,7 +79,7 @@ public class EnhetsTjeneste {
 
     }
 
-    private String hentEnhetId(String aktørId, BehandlingTema behandlingTema, Tema tema) {
+    private String hentEnhetId(String aktørId, BehandlingTema behandlingTema, Tema tema) { //NOSONAR
         if (pdl.harStrengDiskresjonskode(aktørId)) {
             return SF_ENHET_ID;
         }
@@ -103,13 +103,13 @@ public class EnhetsTjeneste {
             .medBehandlingstype(BEHANDLINGTYPE)
             .medOppgavetype(OPPGAVETYPE_JFR)
             .medGeografiskOmraade(gt)
-            .build();
-        return validerOgVelgBehandlendeEnhet(norgKlient.finnEnhet(request), gt);
+            .build(); //NOSONAR
+        return validerOgVelgBehandlendeEnhet(norgKlient.finnEnhet(request), gt); //NOSONAR
 
          */
     }
 
-    private void oppdaterEnhetCache() {
+    private void oppdaterEnhetCache() { // NOSONAR
         if (sisteInnhenting.isBefore(LocalDate.now())) {
             var request = ArbeidsfordelingRequest.ny()
                 .medTemagruppe(TEMAGRUPPE)

@@ -1,24 +1,26 @@
 package no.nav.foreldrepenger.domene;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.regex.Pattern;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
 
 /**
  * Id som genereres fra NAV Aktør Register. Denne iden benyttes til interne forhold i Nav og vil ikke endres f.eks. dersom bruker går fra
  * DNR til FNR i Folkeregisteret. Tilsvarende vil den kunne referere personer som har ident fra et utenlandsk system.
  */
 @Embeddable
-public class BrukerId {
+public class BrukerId implements Serializable {
+    private static final long serialVersionUID = 1905122041950223207L;
+
     private static final String VALID_REGEXP = "^\\d{13}$";
 
     private static final Pattern VALID = Pattern.compile(VALID_REGEXP, Pattern.CASE_INSENSITIVE);
 
     @Column(name = "BRUKER_ID", length = 19)
-    private String brukerId;
+    private String id;
 
     protected BrukerId() {
         // for hibernate
@@ -29,7 +31,7 @@ public class BrukerId {
     }
 
     public BrukerId(String aktørId) {
-        this.brukerId = validateBrukerId(aktørId);
+        this.id = validateBrukerId(aktørId);
     }
 
     private String validateBrukerId(String aktørId) {
@@ -42,7 +44,7 @@ public class BrukerId {
     }
 
     public String getId() {
-        return brukerId;
+        return id;
     }
 
     @Override
@@ -55,13 +57,13 @@ public class BrukerId {
     }
 
     private String maskerAktørId() {
-        if (brukerId == null) {
+        if (id == null) {
             return "";
         }
-        var length = brukerId.length();
+        var length = id.length();
         if (length <= 4) {
             return "*".repeat(length);
         }
-        return "*".repeat(length - 4) + brukerId.substring(length - 4);
+        return "*".repeat(length - 4) + id.substring(length - 4);
     }
 }

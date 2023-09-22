@@ -90,7 +90,7 @@ class ManuellJournalføringRestTjenesteTest {
         var beskrivelse = "beskrivelse";
 
         var journalføringOppgaver = List.of(
-            opprettOppgave(expectedJournalpostId, now, beskrivelse, tilhørendeEnhetDto.enhetsnummer(), null, YtelseType.FORELDREPENGER));
+            opprettOppgave(expectedJournalpostId, now, beskrivelse, tilhørendeEnhetDto.enhetsnummer(), null, YtelseType.FP));
 
         when(los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident())).thenReturn(List.of(tilhørendeEnhetDto));
         when(oppgaveTjeneste.finnÅpneOppgaverFor(Set.of(tilhørendeEnhetDto.enhetsnummer()))).thenReturn(journalføringOppgaver);
@@ -119,7 +119,7 @@ class ManuellJournalføringRestTjenesteTest {
         var beskrivelse = "beskrivelse";
 
         var journalføringOppgaver = List.of(opprettOppgave(expectedJournalPostUtenTittel, now, beskrivelse, tilhørendeEnhetDto.enhetsnummer(), null,
-            YtelseType.SVANGERSKAPSPENGER));
+            YtelseType.SVP));
 
         when(los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident())).thenReturn(List.of(tilhørendeEnhetDto));
         when(oppgaveTjeneste.finnÅpneOppgaverFor(Set.of(tilhørendeEnhetDto.enhetsnummer()))).thenReturn(journalføringOppgaver);
@@ -149,8 +149,8 @@ class ManuellJournalføringRestTjenesteTest {
 
         when(los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident())).thenReturn(List.of(new TilhørendeEnhetDto(enhet1, "Enhet 1"), new TilhørendeEnhetDto(enhet2, "Enhet 2")));
 
-        var journalføringOppgaveEnhet1 = opprettOppgave("1111", now, "beskrivelse1", enhet1, null, YtelseType.FORELDREPENGER);
-        var journalføringOppgaveEnhet2 = opprettOppgave("2222", now, "beskrivelse2", enhet2, null, YtelseType.SVANGERSKAPSPENGER);
+        var journalføringOppgaveEnhet1 = opprettOppgave("1111", now, "beskrivelse1", enhet1, null, YtelseType.FP);
+        var journalføringOppgaveEnhet2 = opprettOppgave("2222", now, "beskrivelse2", enhet2, null, YtelseType.SVP);
 
         when(oppgaveTjeneste.finnÅpneOppgaverFor(Set.of(enhet1, enhet2))).thenReturn(List.of(journalføringOppgaveEnhet1, journalføringOppgaveEnhet2));
 
@@ -173,7 +173,7 @@ class ManuellJournalføringRestTjenesteTest {
         var beskrivelse = "beskrivelse";
         var aktørId = "aktørId";
         var journalføringOppgaver = List.of(
-            opprettOppgave(expectedJournalpostId, now, beskrivelse, tilhørendeEnhetDto.enhetsnummer(), null, YtelseType.FORELDREPENGER));
+            opprettOppgave(expectedJournalpostId, now, beskrivelse, tilhørendeEnhetDto.enhetsnummer(), null, YtelseType.FP));
 
         when(los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident())).thenReturn(List.of(tilhørendeEnhetDto));
         when(oppgaveTjeneste.finnÅpneOppgaverFor(Set.of(tilhørendeEnhetDto.enhetsnummer()))).thenReturn(journalføringOppgaver);
@@ -345,7 +345,7 @@ class ManuellJournalføringRestTjenesteTest {
         var expectedOppgaveId = 123L;
 
         when(oppgaveTjeneste.hentOppgave(anyString())).thenReturn(
-            opprettOppgave("12334", LocalDate.now(), "test", "7070", "John", YtelseType.FORELDREPENGER));
+            opprettOppgave("12334", LocalDate.now(), "test", "7070", "John", YtelseType.FP));
 
         var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(String.valueOf(expectedOppgaveId), 1,null);
 
@@ -369,7 +369,7 @@ class ManuellJournalføringRestTjenesteTest {
         var expectedOppgaveId = "123";
 
         when(oppgaveTjeneste.hentOppgave(anyString())).thenReturn(
-            opprettOppgave(expectedOppgaveId, LocalDate.now(), "test", "7070", "John", YtelseType.FORELDREPENGER));
+            opprettOppgave(expectedOppgaveId, LocalDate.now(), "test", "7070", "John", YtelseType.FP));
 
         var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(String.valueOf(expectedOppgaveId), 1, "");
         Response response;

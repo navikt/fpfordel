@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.journalføring.domene.oppgave;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -19,7 +20,8 @@ import no.nav.foreldrepenger.fordel.BaseEntitet;
 
 @Entity(name = "Oppgave")
 @Table(name = "OPPGAVE")
-public class OppgaveEntitet extends BaseEntitet {
+public class OppgaveEntitet extends BaseEntitet implements Serializable {
+    private static final long serialVersionUID = 1345122041950251207L;
 
     @Id
     @NaturalId
@@ -50,7 +52,7 @@ public class OppgaveEntitet extends BaseEntitet {
     private String reservertAv;
 
     @Version
-    @Column(name = "VERSION", columnDefinition = "INTEGER default 0", nullable = false)
+    @Column(name = "VERSJON", columnDefinition = "INTEGER default 0", nullable = false)
     private int versjon = 0;
 
     private OppgaveEntitet() {

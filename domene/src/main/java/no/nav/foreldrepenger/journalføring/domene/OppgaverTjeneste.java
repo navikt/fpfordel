@@ -203,9 +203,9 @@ class OppgaverTjeneste implements JournalføringsOppgave {
         LOG.info("Fant oppgave med behandlingTemaMappet {}", behandlingTemaMappet);
 
         return switch (behandlingTemaMappet) {
-            case FORELDREPENGER, FORELDREPENGER_ADOPSJON, FORELDREPENGER_FØDSEL -> YtelseType.FORELDREPENGER;
-            case SVANGERSKAPSPENGER -> YtelseType.SVANGERSKAPSPENGER;
-            case ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON, ENGANGSSTØNAD_FØDSEL -> YtelseType.ENGANGSTØNAD;
+            case FORELDREPENGER, FORELDREPENGER_ADOPSJON, FORELDREPENGER_FØDSEL -> YtelseType.FP;
+            case SVANGERSKAPSPENGER -> YtelseType.SVP;
+            case ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON, ENGANGSSTØNAD_FØDSEL -> YtelseType.EN;
             default -> null;
         };
     }

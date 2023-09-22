@@ -29,7 +29,7 @@ class OppgaveTest {
         builder.medFrist(now.plusDays(1));
         builder.medStatus(Status.AAPNET);
         builder.medBeskrivelse(TEST_BESKRIVELSE);
-        builder.medYtelseType(YtelseType.FORELDREPENGER);
+        builder.medYtelseType(YtelseType.FP);
         builder.medReservertAv(reservertAv);
 
         var oppgave = builder.build();
@@ -40,7 +40,7 @@ class OppgaveTest {
         assertThat(oppgave.getFrist()).isEqualTo(now.plusDays(1));
         assertThat(oppgave.getStatus()).isEqualTo(Status.AAPNET);
         assertThat(oppgave.getBeskrivelse()).isEqualTo(TEST_BESKRIVELSE);
-        assertThat(oppgave.getYtelseType()).isEqualTo(YtelseType.FORELDREPENGER);
+        assertThat(oppgave.getYtelseType()).isEqualTo(YtelseType.FP);
         assertThat(oppgave.getReservertAv()).isEqualTo(reservertAv);
     }
 }
