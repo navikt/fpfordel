@@ -12,9 +12,9 @@ public interface JournalføringsOppgave {
                                         String behandlingTema,
                                         String beskrivelse);
 
-    boolean finnesÅpenJournalføringsoppgaveForJournalpost(String oppgaveId);
+    boolean finnesÅpenJournalføringsoppgaveForJournalpost(String journalpostId);
 
-    void ferdigstillÅpneJournalføringsOppgaver(String oppgaveId);
+    void ferdigstillÅpneJournalføringsOppgaver(String journalpostId);
 
     Oppgave hentOppgave(String oppgaveId);
 

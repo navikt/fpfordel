@@ -25,7 +25,7 @@ public class OppgaveRepository {
         this.em = Objects.requireNonNull(entityManager);
     }
 
-    public void commit(Object entity) {
+    private void commit(Object entity) {
         em.persist(entity);
         em.flush();
     }
@@ -49,10 +49,6 @@ public class OppgaveRepository {
         return em.createQuery("from Oppgave where status = :status", OppgaveEntitet.class)
             .setParameter("status", Status.AAPNET)
             .getResultList();
-    }
-
-    public Optional<OppgaveEntitet> finnOppgave(String journalpostId) {
-        return Optional.ofNullable(em.find(OppgaveEntitet.class, journalpostId));
     }
 
     public List<OppgaveEntitet> finnÅpneOppgaverFor(String enhet) {

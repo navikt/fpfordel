@@ -43,9 +43,8 @@ class OppgaverTjeneste implements JournalføringsOppgave {
         this.lagreOppgaverLokalt = lagreOppgaverLokalt;
     }
 
-
     @Override
-    public String opprettJournalføringsOppgave(String oppgaveId,
+    public String opprettJournalføringsOppgave(String journalpostId,
                                                String enhetId,
                                                String aktørId,
                                                String saksref,
@@ -53,7 +52,7 @@ class OppgaverTjeneste implements JournalføringsOppgave {
                                                String beskrivelse) {
         if (lagreOppgaverLokalt) {
             var oppgave = OppgaveEntitet.builder()
-                .medJournalpostId(oppgaveId)
+                .medJournalpostId(journalpostId)
                 .medEnhet(enhetId)
                 .medBrukerId(new BrukerId(aktørId))
                 .medFrist(helgeJustertFrist(LocalDate.now().plusDays(1)))
@@ -70,7 +69,7 @@ class OppgaverTjeneste implements JournalføringsOppgave {
                 .medSaksreferanse(saksref)
                 .medTildeltEnhetsnr(enhetId)
                 .medOpprettetAvEnhetsnr(enhetId)
-                .medJournalpostId(oppgaveId)
+                .medJournalpostId(journalpostId)
                 .medBeskrivelse(beskrivelse)
                 .medBehandlingstema(behandlingTema);
             var oppgave = oppgaveKlient.opprettetOppgave(request.build());
@@ -80,20 +79,20 @@ class OppgaverTjeneste implements JournalføringsOppgave {
     }
 
     @Override
-    public boolean finnesÅpenJournalføringsoppgaveForJournalpost(String oppgaveId) {
-        return !oppgaveKlient.finnÅpneJournalføringsoppgaverForJournalpost(oppgaveId).isEmpty() && !oppgaveRepository.harÅpenOppgave(
-            oppgaveId);
+    public boolean finnesÅpenJournalføringsoppgaveForJournalpost(String journalpostId) {
+        return !oppgaveKlient.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId).isEmpty()
+                && !oppgaveRepository.harÅpenOppgave(journalpostId);
     }
 
     @Override
-    public void ferdigstillÅpneJournalføringsOppgaver(String oppgaveId) {
-        oppgaveKlient.finnÅpneJournalføringsoppgaverForJournalpost(oppgaveId).forEach(o -> {
-            LOG.info("FPFORDEL JFR-OPPGAVE: ferdigstiller oppgaver {} for oppgaveId: {}", o.id(), oppgaveId);
+    public void ferdigstillÅpneJournalføringsOppgaver(String journalpostId) {
+        oppgaveKlient.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId).forEach(o -> {
+            LOG.info("FPFORDEL JFR-OPPGAVE: ferdigstiller oppgaver {} for journalpostId: {}", o.id(), journalpostId);
             oppgaveKlient.ferdigstillOppgave(String.valueOf(o.id()));
         });
 
-        if (oppgaveRepository.harÅpenOppgave(oppgaveId)) {
-            oppgaveRepository.ferdigstillOppgave(oppgaveId);
+        if (oppgaveRepository.harÅpenOppgave(journalpostId)) {
+            oppgaveRepository.ferdigstillOppgave(journalpostId);
         }
     }
 

@@ -115,12 +115,12 @@ class FerdigstillJournalføringTjenesteTest {
         lenient().doThrow(new IllegalArgumentException("FEIL")).when(oppgaver).ferdigstillÅpneJournalføringsOppgaver(anyString());
 
         journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, null, Collections.emptyList(),null);
-        verify(oppgaver).ferdigstillÅpneJournalføringsOppgaver(OPPGAVE_ID);
+        verify(oppgaver).ferdigstillÅpneJournalføringsOppgaver(journalpostId.getVerdi());
         var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste).lagre(taskCaptor.capture());
         var taskdata = taskCaptor.getValue();
         assertThat(taskdata.getTaskType()).isEqualTo(TaskType.forProsessTask(FerdigstillOppgaveTask.class).value());
-        assertThat(taskdata.getPropertyValue(FerdigstillOppgaveTask.OPPGAVEID_KEY)).isEqualTo(OPPGAVE_ID);
+        assertThat(taskdata.getPropertyValue(FerdigstillOppgaveTask.JOURNALPOSTID_KEY)).isEqualTo(journalpostId.getVerdi());
     }
 
     @Test

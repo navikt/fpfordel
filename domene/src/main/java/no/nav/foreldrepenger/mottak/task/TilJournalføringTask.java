@@ -38,7 +38,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
 
     private ArkivTjeneste arkivTjeneste;
     private PersonInformasjon aktør;
-    private JournalføringsOppgave journalføringsOppgave;
+    private JournalføringsOppgave oppgave;
 
     public TilJournalføringTask() {
 
@@ -50,7 +50,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
         super(taskTjeneste);
         this.arkivTjeneste = arkivTjeneste;
         this.aktør = aktørConsumer;
-        this.journalføringsOppgave = journalføringsOppgave;
+        this.oppgave = journalføringsOppgave;
     }
 
     @Override
@@ -101,7 +101,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             return w.nesteSteg(TaskType.forProsessTask(OpprettGSakOppgaveTask.class));
         }
         try {
-            journalføringsOppgave.ferdigstillÅpneJournalføringsOppgaver(w.getArkivId());
+            oppgave.ferdigstillÅpneJournalføringsOppgaver(w.getArkivId());
         } catch (Exception e) {
             LOG.info("FPFORDEL JFR-OPPGAVE: feil ved ferdigstilling av åpne oppgaver for journalpostId: {}", w.getArkivId());
         }
