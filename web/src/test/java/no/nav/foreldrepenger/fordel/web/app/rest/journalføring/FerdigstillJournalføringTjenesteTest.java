@@ -114,7 +114,7 @@ class FerdigstillJournalføringTjenesteTest {
         lenient().when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
         lenient().doThrow(new IllegalArgumentException("FEIL")).when(oppgaver).ferdigstillÅpneJournalføringsOppgaver(anyString());
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, null, Collections.emptyList(),null);
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, null, Collections.emptyList(),null);
         verify(oppgaver).ferdigstillÅpneJournalføringsOppgaver(journalpostId.getVerdi());
         var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste).lagre(taskCaptor.capture());
@@ -130,7 +130,7 @@ class FerdigstillJournalføringTjenesteTest {
             Optional.of(new FagsakInfomasjonDto(AKTØR_ID, BehandlingTema.UDEFINERT.getOffisiellKode())));
         when(arkivJournalpost.getHovedtype()).thenReturn(KLAGE_DOKUMENT);
 
-        assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, null, tomDokumentListe, null));
+        assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, null, tomDokumentListe, null));
     }
 
     @Test
@@ -140,7 +140,7 @@ class FerdigstillJournalføringTjenesteTest {
             Optional.of(new FagsakInfomasjonDto(AKTØR_ID, FORELDREPENGER_FØDSEL.getOffisiellKode())));
 
         when(arkivJournalpost.getHovedtype()).thenReturn(SØKNAD_SVANGERSKAPSPENGER);
-        assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, null,
+        assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, null,
             tomDokumentListe, null));
     }
 
@@ -148,7 +148,7 @@ class FerdigstillJournalføringTjenesteTest {
     void skalValidereAtFagsakFinnes() {
         when(fagsak.finnFagsakInfomasjon(any())).thenReturn(Optional.empty());
 
-        Exception ex = assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, null ,
+        Exception ex = assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, null ,
             tomDokumentListe, null));
 
         assertThat(ex.getMessage()).contains("Kan ikke journalføre på saksnummer");
@@ -160,7 +160,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
         when(arkivJournalpost.getHovedtype()).thenReturn(SØKNAD_ENGANGSSTØNAD_FØDSEL);
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, null, Collections.emptyList(), null);
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, null, Collections.emptyList(), null);
 
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
@@ -178,7 +178,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, null, Collections.emptyList(), null);
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, null, Collections.emptyList(), null);
 
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
@@ -195,7 +195,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
         when(arkivJournalpost.getStrukturertPayload()).thenReturn(readFile("testdata/inntektsmelding-svangerskapspenger.xml"));
 
-        assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, null,
+        assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, null,
             tomDokumentListe, null));
     }
 
@@ -208,7 +208,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getStrukturertPayload()).thenReturn(readFile("testdata/selvb-soeknad-forp-uttak-før-konfigverdi.xml"));
         when(arkivJournalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
 
-        FunksjonellException ex = assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, null,
+        FunksjonellException ex = assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, null,
             tomDokumentListe, null));
         assertThat(ex.getMessage()).contains("For tidlig");
     }
@@ -222,7 +222,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getStrukturertPayload()).thenReturn(readFile("testdata/fp-adopsjon-far.xml"));
         when(arkivJournalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
 
-        var e = assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, null,
+        var e = assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, null,
             tomDokumentListe, null));
         assertThat(e.getMessage()).contains("For tidlig");
     }
@@ -238,7 +238,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, null, Collections.emptyList(), null);
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, null, Collections.emptyList(), null);
 
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
@@ -257,7 +257,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, null, Collections.emptyList(), null);
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, null, Collections.emptyList(), null);
 
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
@@ -275,7 +275,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, null, Collections.emptyList(), null);
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, null, Collections.emptyList(), null);
 
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
@@ -294,7 +294,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, null, Collections.emptyList(), null);
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, null, Collections.emptyList(), null);
 
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
@@ -307,7 +307,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getTilstand()).thenReturn(Journalstatus.JOURNALFOERT);
         when(arkivJournalpost.getHovedtype()).thenReturn(SØKNAD_ENGANGSSTØNAD_FØDSEL);
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, null, Collections.emptyList(),  null);
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, null, Collections.emptyList(),  null);
 
         verify(klargjører).klargjør(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(), eq(ENGANGSSTØNAD_FØDSEL), any(), any(), any(), any());
     }
@@ -328,7 +328,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getKanal()).thenReturn(MottakKanal.SKAN_NETS.name());
         when(arkivJournalpost.getOriginalJournalpost()).thenReturn(opprettJournalpost(forrigeTittel, List.of(new DokumentInfo("1", forrigeTittel, "kode", null, null))));
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, nyTittel, dokumenterMedNyeTitler, nyDokumentTypeId);
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, nyTittel, dokumenterMedNyeTitler, nyDokumentTypeId);
 
         verify(arkiv, times(1)).oppdaterJournalpostVedManuellJournalføring(JOURNALPOST_ID, nyTittel, List.of(new OppdaterJournalpostRequest.DokumentInfoOppdater("1", nyTittel, null)), arkivJournalpost, AKTØR_ID, FORELDREPENGER_FØDSEL);
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
@@ -351,7 +351,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getKanal()).thenReturn(MottakKanal.SELVBETJENING.name());
 
 
-        var e = assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID, nyTittel, dokumenterMedNyeTitler, nyDokumentTypeId));
+        var e = assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, nyTittel, dokumenterMedNyeTitler, nyDokumentTypeId));
         assertThat(e.getMessage()).contains("Kan ikke endre tittel på journalpost med id 123 som kommer fra Selvbetjening eller Altinn");
     }
 

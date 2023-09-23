@@ -85,7 +85,7 @@ class FerdigstillJournalføringRestTjenesteTest {
         when(journalføringTjeneste.opprettSak(journalpostId, new FerdigstillJournalføringRestTjeneste.OpprettSak(new AktørId(AKTØR_ID), FagsakYtelseTypeDto.FORELDREPENGER),null)).thenReturn(SAKSNUMMER);
 
         behandleJournalpost.oppdaterOgFerdigstillJournalfoering(req);
-        verify(journalføringTjeneste).oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID.toString(),null , Collections.emptyList(), null );
+        verify(journalføringTjeneste).oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, null , Collections.emptyList(), null );
     }
 
     @Test
@@ -98,7 +98,7 @@ class FerdigstillJournalføringRestTjenesteTest {
         var journalpostId = new JournalpostId(JOURNALPOST_ID);
 
         behandleJournalpost.oppdaterOgFerdigstillJournalfoering(req);
-        verify(journalføringTjeneste).oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID.toString(), journalpostTittel, List.of(new FerdigstillJournalføringTjeneste.DokumenterMedNyTittel("1", tittel1), new FerdigstillJournalføringTjeneste.DokumenterMedNyTittel("2", tittel2)),
+        verify(journalføringTjeneste).oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, journalpostTittel, List.of(new FerdigstillJournalføringTjeneste.DokumenterMedNyTittel("1", tittel1), new FerdigstillJournalføringTjeneste.DokumenterMedNyTittel("2", tittel2)),
             DokumentTypeId.UDEFINERT);
     }
 

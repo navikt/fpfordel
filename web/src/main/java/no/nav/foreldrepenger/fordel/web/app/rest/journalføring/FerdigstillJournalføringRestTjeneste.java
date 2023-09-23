@@ -103,7 +103,7 @@ public class FerdigstillJournalføringRestTjeneste {
 
         validerSaksnummer(saksnummer);
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(request.enhetId, saksnummer, journalpostId, request.oppgaveId().toString(), nyJournalpostTittel ,dokumenter, nyDokumentTypeId );
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(request.enhetId, saksnummer, journalpostId, nyJournalpostTittel ,dokumenter, nyDokumentTypeId );
 
         return new SaksnummerDto(saksnummer);
     }

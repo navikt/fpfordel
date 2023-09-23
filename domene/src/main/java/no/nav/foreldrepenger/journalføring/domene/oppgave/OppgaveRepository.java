@@ -1,15 +1,13 @@
 package no.nav.foreldrepenger.journalføring.domene.oppgave;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Objects;
 
 @ApplicationScoped
 public class OppgaveRepository {
