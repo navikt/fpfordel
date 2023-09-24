@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.journalføring.domene;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 import no.nav.foreldrepenger.domene.YtelseType;
 
@@ -61,6 +62,16 @@ public class OppgaveBuilder {
     }
 
     public Oppgave build() {
+        validate();
         return new Oppgave(id, aktoerId, ytelseType, tildeltEnhetsnr, fristFerdigstillelse, aktivDato, status, beskrivelse, tilordnetRessurs);
+    }
+
+    private void validate() {
+        Objects.requireNonNull(id, "id");
+        Objects.requireNonNull(tildeltEnhetsnr, "tildeltEnhetsnr");
+        Objects.requireNonNull(aktivDato, "aktivDato");
+        Objects.requireNonNull(status, "status");
+        Objects.requireNonNull(fristFerdigstillelse, "frist");
+        Objects.requireNonNull(beskrivelse, "beskrivelse");
     }
 }

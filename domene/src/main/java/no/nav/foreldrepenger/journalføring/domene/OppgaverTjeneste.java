@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import no.nav.foreldrepenger.journalføring.domene.oppgave.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,7 @@ import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 class OppgaverTjeneste implements JournalføringsOppgave {
     private static final Logger LOG = LoggerFactory.getLogger(OppgaverTjeneste.class);
     private static final String LIMIT = "50";
+    protected static final int FRIST_DAGER = 1;
 
     private OppgaveRepository oppgaveRepository;
     private Oppgaver oppgaveKlient;
@@ -52,19 +54,20 @@ class OppgaverTjeneste implements JournalføringsOppgave {
                                                String beskrivelse) {
         if (lagreOppgaverLokalt) {
             var oppgave = OppgaveEntitet.builder()
-                .medJournalpostId(journalpostId)
-                .medEnhet(enhetId)
-                .medBrukerId(new BrukerId(aktørId))
-                .medFrist(helgeJustertFrist(LocalDate.now().plusDays(1)))
-                .medBeskrivelse(beskrivelse)
-                .medYtelseType(mapTilYtelseType(behandlingTema))
-                .build();
+                    .medJournalpostId(journalpostId)
+                    .medEnhet(enhetId)
+                    .medStatus(Status.AAPNET)
+                    .medBrukerId(new BrukerId(aktørId))
+                    .medFrist(helgeJustertFrist(LocalDate.now().plusDays(FRIST_DAGER)))
+                    .medBeskrivelse(beskrivelse)
+                    .medYtelseType(mapTilYtelseType(behandlingTema))
+                    .build();
 
             var id = oppgaveRepository.lagre(oppgave);
             LOG.info("FPFORDEL opprettet lokalt oppgave med id:{}", id);
             return id;
         } else {
-            var request = OpprettOppgave.getBuilderTemaFOR(Oppgavetype.JOURNALFØRING, no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet.NORM, 1)
+            var request = OpprettOppgave.getBuilderTemaFOR(Oppgavetype.JOURNALFØRING, no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet.NORM, FRIST_DAGER)
                 .medAktoerId(aktørId)
                 .medSaksreferanse(saksref)
                 .medTildeltEnhetsnr(enhetId)
@@ -73,15 +76,15 @@ class OppgaverTjeneste implements JournalføringsOppgave {
                 .medBeskrivelse(beskrivelse)
                 .medBehandlingstema(behandlingTema);
             var oppgave = oppgaveKlient.opprettetOppgave(request.build());
-            LOG.info("FPFORDEL GOSYS opprettet oppgave {}", oppgave);
+            LOG.info("FPFORDEL GOSYS opprettet oppgave:{}", oppgave);
             return oppgave.id().toString();
         }
     }
 
     @Override
     public boolean finnesÅpenJournalføringsoppgaveForJournalpost(String journalpostId) {
-        return !oppgaveKlient.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId).isEmpty()
-                && !oppgaveRepository.harÅpenOppgave(journalpostId);
+        return oppgaveRepository.harÅpenOppgave(journalpostId) ||
+                !oppgaveKlient.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId).isEmpty();
     }
 
     @Override
@@ -97,33 +100,33 @@ class OppgaverTjeneste implements JournalføringsOppgave {
     }
 
     @Override
-    public Oppgave hentOppgave(String oppgaveId) {
-        if (oppgaveRepository.harÅpenOppgave(oppgaveId)) {
-            return mapTilOppgave(oppgaveRepository.hentOppgave(oppgaveId));
+    public Oppgave hentOppgave(String journalpostId) {
+        if (oppgaveRepository.harÅpenOppgave(journalpostId)) {
+            return mapTilOppgave(oppgaveRepository.hentOppgave(journalpostId));
         } else {
-            return mapTilOppgave(oppgaveKlient.hentOppgave(oppgaveId));
+            return mapTilOppgave(oppgaveKlient.hentOppgave(journalpostId));
         }
     }
 
     @Override
-    public void reserverOppgave(String oppgaveId, String reserverFor) {
-        if (oppgaveRepository.harÅpenOppgave(oppgaveId)) {
-            var oppgave = oppgaveRepository.hentOppgave(oppgaveId);
+    public void reserverOppgave(String journalpostId, String reserverFor) {
+        if (oppgaveRepository.harÅpenOppgave(journalpostId)) {
+            var oppgave = oppgaveRepository.hentOppgave(journalpostId);
             oppgave.setReservertAv(reserverFor);
             oppgaveRepository.lagre(oppgave);
         } else {
-            oppgaveKlient.reserverOppgave(oppgaveId, reserverFor);
+            oppgaveKlient.reserverOppgave(journalpostId, reserverFor);
         }
     }
 
     @Override
-    public void avreserverOppgave(String oppgaveId) {
-        if (oppgaveRepository.harÅpenOppgave(oppgaveId)) {
-            var oppgave = oppgaveRepository.hentOppgave(oppgaveId);
+    public void avreserverOppgave(String journalpostId) {
+        if (oppgaveRepository.harÅpenOppgave(journalpostId)) {
+            var oppgave = oppgaveRepository.hentOppgave(journalpostId);
             oppgave.setReservertAv(null);
             oppgaveRepository.lagre(oppgave);
         } else {
-            oppgaveKlient.avreserverOppgave(oppgaveId);
+            oppgaveKlient.avreserverOppgave(journalpostId);
         }
     }
 
@@ -180,15 +183,16 @@ class OppgaverTjeneste implements JournalføringsOppgave {
 
     private static Oppgave mapTilOppgave(OppgaveEntitet entitet) {
         return Oppgave.builder()
-            .medId(entitet.getJournalpostId())
-            .medStatus(Oppgavestatus.valueOf(entitet.getStatus().name()))
-            .medTildeltEnhetsnr(entitet.getEnhet())
-            .medFristFerdigstillelse(entitet.getFrist())
-            .medAktoerId(entitet.getBrukerId().getId())
-            .medYtelseType(YtelseType.valueOf(entitet.getYtelseType().name()))
-            .medBeskrivelse(entitet.getBeskrivelse())
-            .medTilordnetRessurs(entitet.getReservertAv())
-            .build();
+                .medId(entitet.getJournalpostId())
+                .medStatus(Oppgavestatus.valueOf(entitet.getStatus().name()))
+                .medTildeltEnhetsnr(entitet.getEnhet())
+                .medFristFerdigstillelse(entitet.getFrist())
+                .medAktoerId(entitet.getBrukerId().getId())
+                .medYtelseType(YtelseType.valueOf(entitet.getYtelseType().name()))
+                .medBeskrivelse(entitet.getBeskrivelse())
+                .medTilordnetRessurs(entitet.getReservertAv())
+                .medAktivDato(LocalDate.now())
+                .build();
     }
 
     private static LocalDate helgeJustertFrist(LocalDate dato) {
