@@ -68,7 +68,7 @@ class OppgaverTjenesteTest {
                 "1234",
                 "1234567890123",
                 "referanse",
-                BehandlingTema.FORELDREPENGER.getOffisiellKode(),
+                BehandlingTema.SVANGERSKAPSPENGER.getOffisiellKode(),
                 "Test beskrivelse");
 
         assertEquals(expectedId, id);

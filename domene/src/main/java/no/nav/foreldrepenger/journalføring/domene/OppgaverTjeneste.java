@@ -76,8 +76,9 @@ class OppgaverTjeneste implements JournalføringsOppgave {
                 .medBeskrivelse(beskrivelse)
                 .medBehandlingstema(behandlingTema);
             var oppgave = oppgaveKlient.opprettetOppgave(request.build());
-            LOG.info("FPFORDEL GOSYS opprettet oppgave:{}", oppgave);
-            return oppgave.id().toString();
+            var id = oppgave.id().toString();
+            LOG.info("FPFORDEL GOSYS opprettet oppgave:{}", id);
+            return id;
         }
     }
 
@@ -96,6 +97,8 @@ class OppgaverTjeneste implements JournalføringsOppgave {
 
         if (oppgaveRepository.harÅpenOppgave(journalpostId)) {
             oppgaveRepository.ferdigstillOppgave(journalpostId);
+            LOG.info("FPFORDEL JFR-OPPGAVE: ferdigstiller lokal oppgave for journalpostId: {}", journalpostId);
+
         }
     }
 
