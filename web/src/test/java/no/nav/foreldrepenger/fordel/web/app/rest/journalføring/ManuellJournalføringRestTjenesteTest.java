@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
-import no.nav.foreldrepenger.journalføring.domene.JournalføringsOppgave;
+import no.nav.foreldrepenger.journalføring.domene.Journalføringsoppgave;
 import no.nav.foreldrepenger.journalføring.domene.Oppgave;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
@@ -55,7 +55,7 @@ class ManuellJournalføringRestTjenesteTest {
     @Mock
     private PersonInformasjon pdl;
     @Mock
-    private JournalføringsOppgave oppgaveTjeneste;
+    private Journalføringsoppgave oppgaveTjeneste;
     @Mock
     private Fagsak fagsak;
     @Mock
@@ -344,7 +344,7 @@ class ManuellJournalføringRestTjenesteTest {
     void skal_kaste_exception_hvis_oppgave_reservert_an_annen_saksbehandler() {
         var expectedOppgaveId = 123L;
 
-        when(oppgaveTjeneste.hentOppgave(anyString())).thenReturn(
+        when(oppgaveTjeneste.hentOppgaveFor(anyString())).thenReturn(
             opprettOppgave("12334", LocalDate.now(), "test", "7070", "John", YtelseType.FP));
 
         var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(String.valueOf(expectedOppgaveId), 1,null);
@@ -359,8 +359,8 @@ class ManuellJournalføringRestTjenesteTest {
         assertThat(ex).isNotNull();
         assertThat(ex.getMessage()).contains("Kan ikke avreservere en oppgave som allerede tilhører til en annen saksbehandler.");
 
-        verify(oppgaveTjeneste, times(0)).reserverOppgave(anyString(), anyString());
-        verify(oppgaveTjeneste, times(0)).avreserverOppgave(anyString());
+        verify(oppgaveTjeneste, times(0)).reserverOppgaveFor(anyString(), anyString());
+        verify(oppgaveTjeneste, times(0)).avreserverOppgaveFor(anyString());
     }
 
     @Test
@@ -368,7 +368,7 @@ class ManuellJournalføringRestTjenesteTest {
     void skal_kunne_avreservere_en_ledig_oppgave() {
         var expectedOppgaveId = "123";
 
-        when(oppgaveTjeneste.hentOppgave(anyString())).thenReturn(
+        when(oppgaveTjeneste.hentOppgaveFor(anyString())).thenReturn(
             opprettOppgave(expectedOppgaveId, LocalDate.now(), "test", "7070", "John", YtelseType.FP));
 
         var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(String.valueOf(expectedOppgaveId), 1, "");
@@ -383,8 +383,8 @@ class ManuellJournalføringRestTjenesteTest {
         assertThat(response).isNotNull();
         assertThat(response.getStatusInfo()).isEqualTo(Response.Status.OK);
 
-        verify(oppgaveTjeneste).avreserverOppgave(expectedOppgaveId);
-        verify(oppgaveTjeneste, times(0)).reserverOppgave(anyString(), anyString());
+        verify(oppgaveTjeneste).avreserverOppgaveFor(expectedOppgaveId);
+        verify(oppgaveTjeneste, times(0)).reserverOppgaveFor(anyString(), anyString());
     }
 
     private ArkivJournalpost opprettJournalpost(String journalpostId) {

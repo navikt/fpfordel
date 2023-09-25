@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.journalføring.domene.JournalføringsOppgave;
+import no.nav.foreldrepenger.journalføring.domene.Journalføringsoppgave;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
@@ -38,7 +38,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
 
     private ArkivTjeneste arkivTjeneste;
     private PersonInformasjon aktør;
-    private JournalføringsOppgave oppgave;
+    private Journalføringsoppgave oppgave;
 
     public TilJournalføringTask() {
 
@@ -46,7 +46,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
 
     @Inject
     public TilJournalføringTask(ProsessTaskTjeneste taskTjeneste, ArkivTjeneste arkivTjeneste, PersonInformasjon aktørConsumer,
-                                JournalføringsOppgave journalføringsOppgave) {
+                                Journalføringsoppgave journalføringsOppgave) {
         super(taskTjeneste);
         this.arkivTjeneste = arkivTjeneste;
         this.aktør = aktørConsumer;
@@ -101,7 +101,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             return w.nesteSteg(TaskType.forProsessTask(OpprettGSakOppgaveTask.class));
         }
         try {
-            oppgave.ferdigstillÅpneJournalføringsOppgaver(w.getArkivId());
+            oppgave.ferdigstillAlleÅpneJournalføringsoppgaverFor(w.getArkivId());
         } catch (Exception e) {
             LOG.info("FPFORDEL JFR-OPPGAVE: feil ved ferdigstilling av åpne oppgaver for journalpostId: {}", w.getArkivId());
         }

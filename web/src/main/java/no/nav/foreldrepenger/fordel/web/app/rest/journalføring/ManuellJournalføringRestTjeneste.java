@@ -40,7 +40,7 @@ import no.nav.foreldrepenger.domene.YtelseType;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilType;
 import no.nav.foreldrepenger.fordel.web.app.konfig.ApiConfig;
-import no.nav.foreldrepenger.journalføring.domene.JournalføringsOppgave;
+import no.nav.foreldrepenger.journalføring.domene.Journalføringsoppgave;
 import no.nav.foreldrepenger.journalføring.domene.Oppgave;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
@@ -76,7 +76,7 @@ public class ManuellJournalføringRestTjeneste {
     private static final String DOKUMENT_HENT_PATH = "/dokument/hent";
     private static final String FULL_HENT_DOKUMENT_PATH =
         ENV.getProperty("context.path", "/fpfordel") + ApiConfig.API_URI + JOURNALFOERING_PATH + DOKUMENT_HENT_PATH;
-    private JournalføringsOppgave oppgaveTjeneste;
+    private Journalføringsoppgave oppgaveTjeneste;
     private PersonInformasjon pdl;
     private ArkivTjeneste arkiv;
     private Fagsak fagsak;
@@ -87,7 +87,7 @@ public class ManuellJournalføringRestTjeneste {
     }
 
     @Inject
-    public ManuellJournalføringRestTjeneste(JournalføringsOppgave oppgaveTjeneste,
+    public ManuellJournalføringRestTjeneste(Journalføringsoppgave oppgaveTjeneste,
                                             PersonInformasjon pdl,
                                             ArkivTjeneste arkiv,
                                             Fagsak fagsak,
@@ -197,12 +197,12 @@ public class ManuellJournalføringRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response oppgaveReserver(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @NotNull @Valid ReserverOppgaveDto oppgaveDto) {
         var innloggetBruker = KontekstHolder.getKontekst().getUid();
-        var oppgave = oppgaveTjeneste.hentOppgave(oppgaveDto.oppgaveId());
+        var oppgave = oppgaveTjeneste.hentOppgaveFor(oppgaveDto.oppgaveId());
 
         if (isBlank(oppgaveDto.reserverFor())) {
             // Avreserver
             if (innloggetBruker.equals(oppgave.tilordnetRessurs())) {
-                oppgaveTjeneste.avreserverOppgave(oppgave.id());
+                oppgaveTjeneste.avreserverOppgaveFor(oppgave.id());
                 LOG.info("Oppgave {} avreservert av {}.", oppgave.id(), innloggetBruker);
             } else {
                 // Ikke mulig å avreservere for andre
@@ -212,7 +212,7 @@ public class ManuellJournalføringRestTjeneste {
         } else {
             // Reserver
             if (isBlank(oppgave.tilordnetRessurs())) {
-                oppgaveTjeneste.reserverOppgave(oppgave.id(), oppgaveDto.reserverFor());
+                oppgaveTjeneste.reserverOppgaveFor(oppgave.id(), oppgaveDto.reserverFor());
                 LOG.info("Oppgave {} reservert av {}.", oppgave.id(), innloggetBruker);
             }
             else {

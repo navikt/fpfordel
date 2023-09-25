@@ -23,7 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.journalføring.domene.JournalføringsOppgave;
+import no.nav.foreldrepenger.journalføring.domene.Journalføringsoppgave;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
@@ -41,12 +41,12 @@ class OpprettGSakOppgaveTjenesteTaskTest {
     @Mock
     private EnhetsTjeneste enhetsidTjeneste;
     @Mock
-    private JournalføringsOppgave oppgaverTjeneste;
+    private Journalføringsoppgave oppgaverTjeneste;
 
     @BeforeEach
     public void setup() {
         when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), any(), any())).thenReturn(fordelingsOppgaveEnhetsId);
-        when(oppgaverTjeneste.opprettJournalføringsOppgave(any(), any(), any(), any(), any(), any())).thenReturn("99");
+        when(oppgaverTjeneste.opprettJournalføringsoppgaveFor(any(), any(), any(), any(), any(), any())).thenReturn("99");
         task = new OpprettGSakOppgaveTask(prosessTaskTjeneste, oppgaverTjeneste, enhetsidTjeneste);
     }
 
@@ -66,7 +66,7 @@ class OpprettGSakOppgaveTjenesteTaskTest {
 
         task.doTask(taskData);
 
-        verify(oppgaverTjeneste).opprettJournalføringsOppgave(null, fordelingsOppgaveEnhetsId, aktørId, null,
+        verify(oppgaverTjeneste).opprettJournalføringsoppgaveFor(null, fordelingsOppgaveEnhetsId, aktørId, null,
             BehandlingTema.ENGANGSSTØNAD.getOffisiellKode(), beskrivelse);
     }
 
@@ -84,7 +84,7 @@ class OpprettGSakOppgaveTjenesteTaskTest {
 
         task.doTask(taskData);
 
-        verify(oppgaverTjeneste).opprettJournalføringsOppgave(null, enhet, null, null, BehandlingTema.ENGANGSSTØNAD.getOffisiellKode(), beskrivelse);
+        verify(oppgaverTjeneste).opprettJournalføringsoppgaveFor(null, enhet, null, null, BehandlingTema.ENGANGSSTØNAD.getOffisiellKode(), beskrivelse);
 
 
     }
@@ -105,7 +105,7 @@ class OpprettGSakOppgaveTjenesteTaskTest {
 
         task.doTask(taskData);
 
-        verify(oppgaverTjeneste).opprettJournalføringsOppgave(arkivId, fordelingsOppgaveEnhetsId, null, null,
+        verify(oppgaverTjeneste).opprettJournalføringsoppgaveFor(arkivId, fordelingsOppgaveEnhetsId, null, null,
             BehandlingTema.FORELDREPENGER.getOffisiellKode(), beskrivelse);
     }
 }

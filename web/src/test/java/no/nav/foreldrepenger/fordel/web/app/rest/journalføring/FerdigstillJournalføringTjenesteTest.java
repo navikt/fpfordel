@@ -51,7 +51,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
-import no.nav.foreldrepenger.journalføring.domene.JournalføringsOppgave;
+import no.nav.foreldrepenger.journalføring.domene.Journalføringsoppgave;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.FerdigstillOppgaveTask;
@@ -84,7 +84,7 @@ class FerdigstillJournalføringTjenesteTest {
     @Mock
     private PersonInformasjon pdl;
     @Mock
-    private JournalføringsOppgave oppgaver;
+    private Journalføringsoppgave oppgaver;
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
     @Mock
@@ -112,10 +112,10 @@ class FerdigstillJournalføringTjenesteTest {
 
         lenient().when(arkivJournalpost.getHovedtype()).thenReturn(KLAGE_DOKUMENT);
         lenient().when(arkiv.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
-        lenient().doThrow(new IllegalArgumentException("FEIL")).when(oppgaver).ferdigstillÅpneJournalføringsOppgaver(anyString());
+        lenient().doThrow(new IllegalArgumentException("FEIL")).when(oppgaver).ferdigstillAlleÅpneJournalføringsoppgaverFor(anyString());
 
         journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, null, Collections.emptyList(),null);
-        verify(oppgaver).ferdigstillÅpneJournalføringsOppgaver(journalpostId.getVerdi());
+        verify(oppgaver).ferdigstillAlleÅpneJournalføringsoppgaverFor(journalpostId.getVerdi());
         var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste).lagre(taskCaptor.capture());
         var taskdata = taskCaptor.getValue();

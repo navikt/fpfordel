@@ -5,7 +5,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.*;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.journalføring.ManuellOpprettSakValidator;
-import no.nav.foreldrepenger.journalføring.domene.JournalføringsOppgave;
+import no.nav.foreldrepenger.journalføring.domene.Journalføringsoppgave;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
@@ -49,7 +49,7 @@ public class FerdigstillJournalføringTjeneste {
     private VLKlargjører klargjører;
     private Fagsak fagsak;
     private PersonInformasjon pdl;
-    private JournalføringsOppgave oppgaver;
+    private Journalføringsoppgave oppgaver;
     private ProsessTaskTjeneste taskTjeneste;
     private ArkivTjeneste arkivTjeneste;
     private DokumentRepository dokumentRepository;
@@ -62,7 +62,7 @@ public class FerdigstillJournalføringTjeneste {
     public FerdigstillJournalføringTjeneste(VLKlargjører klargjører,
                                             Fagsak fagsak,
                                             PersonInformasjon pdl,
-                                            JournalføringsOppgave oppgaver,
+                                            Journalføringsoppgave oppgaver,
                                             ProsessTaskTjeneste taskTjeneste,
                                             ArkivTjeneste arkivTjeneste,
                                             DokumentRepository dokumentRepository) {
@@ -360,7 +360,7 @@ public class FerdigstillJournalføringTjeneste {
     void opprettFerdigstillOppgaveTask(String journalpostId) {
         if (journalpostId != null) {
             try {
-                oppgaver.ferdigstillÅpneJournalføringsOppgaver(journalpostId);
+                oppgaver.ferdigstillAlleÅpneJournalføringsoppgaverFor(journalpostId);
             } catch (Exception e) {
                 LOG.warn("FPFORDEL RESTJOURNALFØRING: Ferdigstilt oppgave med dokumentId {} feiler ", journalpostId, e);
                 var ferdigstillOppgaveTask = ProsessTaskData.forProsessTask(FerdigstillOppgaveTask.class);

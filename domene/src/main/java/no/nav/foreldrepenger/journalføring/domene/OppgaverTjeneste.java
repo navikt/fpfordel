@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.journalføring.domene;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -23,9 +24,9 @@ import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 
 @Dependent
-class OppgaverTjeneste implements JournalføringsOppgave {
+class OppgaverTjeneste implements Journalføringsoppgave {
     private static final Logger LOG = LoggerFactory.getLogger(OppgaverTjeneste.class);
-    private static final String LIMIT = "50";
+    protected static final String LIMIT = "50";
     protected static final int FRIST_DAGER = 1;
 
     private OppgaveRepository oppgaveRepository;
@@ -46,12 +47,12 @@ class OppgaverTjeneste implements JournalføringsOppgave {
     }
 
     @Override
-    public String opprettJournalføringsOppgave(String journalpostId,
-                                               String enhetId,
-                                               String aktørId,
-                                               String saksref,
-                                               String behandlingTema,
-                                               String beskrivelse) {
+    public String opprettJournalføringsoppgaveFor(String journalpostId,
+                                                  String enhetId,
+                                                  String aktørId,
+                                                  String saksref,
+                                                  String behandlingTema,
+                                                  String beskrivelse) {
         if (lagreOppgaverLokalt) {
             var oppgave = OppgaveEntitet.builder()
                     .medJournalpostId(journalpostId)
@@ -83,13 +84,13 @@ class OppgaverTjeneste implements JournalføringsOppgave {
     }
 
     @Override
-    public boolean finnesÅpenJournalføringsoppgaveForJournalpost(String journalpostId) {
+    public boolean finnesÅpeneJournalføringsoppgaverFor(String journalpostId) {
         return oppgaveRepository.harÅpenOppgave(journalpostId) ||
                 !oppgaveKlient.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId).isEmpty();
     }
 
     @Override
-    public void ferdigstillÅpneJournalføringsOppgaver(String journalpostId) {
+    public void ferdigstillAlleÅpneJournalføringsoppgaverFor(String journalpostId) {
         oppgaveKlient.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId).forEach(o -> {
             LOG.info("FPFORDEL JFR-OPPGAVE: ferdigstiller oppgaver {} for journalpostId: {}", o.id(), journalpostId);
             oppgaveKlient.ferdigstillOppgave(String.valueOf(o.id()));
@@ -98,12 +99,11 @@ class OppgaverTjeneste implements JournalføringsOppgave {
         if (oppgaveRepository.harÅpenOppgave(journalpostId)) {
             oppgaveRepository.ferdigstillOppgave(journalpostId);
             LOG.info("FPFORDEL JFR-OPPGAVE: ferdigstiller lokal oppgave for journalpostId: {}", journalpostId);
-
         }
     }
 
     @Override
-    public Oppgave hentOppgave(String journalpostId) {
+    public Oppgave hentOppgaveFor(String journalpostId) {
         if (oppgaveRepository.harÅpenOppgave(journalpostId)) {
             return mapTilOppgave(oppgaveRepository.hentOppgave(journalpostId));
         } else {
@@ -112,18 +112,19 @@ class OppgaverTjeneste implements JournalføringsOppgave {
     }
 
     @Override
-    public void reserverOppgave(String journalpostId, String reserverFor) {
+    public void reserverOppgaveFor(String journalpostId, String reserverFor) {
         if (oppgaveRepository.harÅpenOppgave(journalpostId)) {
             var oppgave = oppgaveRepository.hentOppgave(journalpostId);
             oppgave.setReservertAv(reserverFor);
             oppgaveRepository.lagre(oppgave);
         } else {
+            // journalpostId er egentlig oppgaveId i dette tilfellet.
             oppgaveKlient.reserverOppgave(journalpostId, reserverFor);
         }
     }
 
     @Override
-    public void avreserverOppgave(String journalpostId) {
+    public void avreserverOppgaveFor(String journalpostId) {
         if (oppgaveRepository.harÅpenOppgave(journalpostId)) {
             var oppgave = oppgaveRepository.hentOppgave(journalpostId);
             oppgave.setReservertAv(null);
@@ -142,7 +143,11 @@ class OppgaverTjeneste implements JournalføringsOppgave {
         } else {
             enheter.forEach(enhet -> finnOppgaver(enhet, oppgaver));
         }
-        return oppgaver.stream().sorted().toList();
+        return oppgaver.stream().sorted(
+                Comparator.nullsLast(
+                        Comparator.comparing(Oppgave::fristFerdigstillelse)
+                                .thenComparing(Oppgave::tildeltEnhetsnr)))
+                .toList();
     }
 
     private void finnOppgaver(String enhet, List<Oppgave> resultat) {

@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
-import no.nav.foreldrepenger.journalføring.domene.JournalføringsOppgave;
+import no.nav.foreldrepenger.journalføring.domene.Journalføringsoppgave;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -20,12 +20,12 @@ public class FerdigstillOppgaveTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(FerdigstillOppgaveTask.class);
 
-    private final JournalføringsOppgave oppgaver;
+    private final Journalføringsoppgave oppgaver;
 
     private final Oppgaver oppgaverKlient;
 
     @Inject
-    public FerdigstillOppgaveTask(JournalføringsOppgave oppgaver, Oppgaver oppgaverKlient) {
+    public FerdigstillOppgaveTask(Journalføringsoppgave oppgaver, Oppgaver oppgaverKlient) {
         this.oppgaver = oppgaver;
         this.oppgaverKlient = oppgaverKlient;
     }
@@ -39,7 +39,7 @@ public class FerdigstillOppgaveTask implements ProsessTaskHandler {
             LOG.info("Ferdigstilte eksterne oppgave med id {}", oppgaveId);
         }
         if (journalpostId != null) {
-            oppgaver.ferdigstillÅpneJournalføringsOppgaver(journalpostId);
+            oppgaver.ferdigstillAlleÅpneJournalføringsoppgaverFor(journalpostId);
             LOG.info("Ferdigstilte lokalt oppgave med id {}", journalpostId);
         }
     }

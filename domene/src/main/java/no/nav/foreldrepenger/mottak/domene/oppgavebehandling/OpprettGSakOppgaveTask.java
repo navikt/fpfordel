@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.journalføring.domene.JournalføringsOppgave;
+import no.nav.foreldrepenger.journalføring.domene.Journalføringsoppgave;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.task.SlettForsendelseTask;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
@@ -43,13 +43,13 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(OpprettGSakOppgaveTask.class);
 
-    private final JournalføringsOppgave oppgaverTjeneste;
+    private final Journalføringsoppgave oppgaverTjeneste;
     private final ProsessTaskTjeneste taskTjeneste;
     private final EnhetsTjeneste enhetsTjeneste;
 
     @Inject
     public OpprettGSakOppgaveTask(ProsessTaskTjeneste taskTjeneste,
-                                  JournalføringsOppgave oppgaverTjeneste,
+                                  Journalføringsoppgave oppgaverTjeneste,
                                   EnhetsTjeneste enhetsTjeneste) {
         this.taskTjeneste = taskTjeneste;
         this.oppgaverTjeneste = oppgaverTjeneste;
@@ -86,7 +86,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         behandlingTema = ArkivUtil.behandlingTemaFraDokumentType(behandlingTema, dokumentTypeId);
 
         var journalpostId = prosessTaskData.getPropertyValue(ARKIV_ID_KEY);
-        if (oppgaverTjeneste.finnesÅpenJournalføringsoppgaveForJournalpost(journalpostId)) {
+        if (oppgaverTjeneste.finnesÅpeneJournalføringsoppgaverFor(journalpostId)) {
             LOG.info("FPFORDEL JFR-OPPGAVE: finnes allerede åpen oppgave for journalpostId: {}", journalpostId);
             return;
         }
@@ -127,7 +127,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         final String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, behandlingTema,
             Optional.ofNullable(enhetInput), prosessTaskData.getAktørId());
         final String beskrivelse = lagBeskrivelse(behandlingTema, dokumentTypeId, prosessTaskData);
-        return oppgaverTjeneste.opprettJournalføringsOppgave(arkivId, enhetId, prosessTaskData.getAktørId(),
+        return oppgaverTjeneste.opprettJournalføringsoppgaveFor(arkivId, enhetId, prosessTaskData.getAktørId(),
             prosessTaskData.getPropertyValue(SAKSNUMMER_KEY), brukBT, beskrivelse);
     }
 
