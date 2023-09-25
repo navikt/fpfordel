@@ -242,7 +242,7 @@ class OppgaverTjenesteTest {
 
         assertThat(alleOppgaver).isEmpty();
 
-        verify(oppgaveRepository).finnÅpneOppgaverFor(enhet);
+        verify(oppgaveRepository).hentÅpneOppgaverFor(enhet);
         verify(oppgaveKlient).finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, enhet, LIMIT);
         verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
     }
@@ -255,8 +255,8 @@ class OppgaverTjenesteTest {
 
         assertThat(alleOppgaver).isEmpty();
 
-        verify(oppgaveRepository).finnÅpneOppgaverFor(enhet);
-        verify(oppgaveRepository).finnÅpneOppgaverFor(enhet2);
+        verify(oppgaveRepository).hentÅpneOppgaverFor(enhet);
+        verify(oppgaveRepository).hentÅpneOppgaverFor(enhet2);
         verify(oppgaveKlient).finnÅpneOppgaverAvType(eq(Oppgavetype.JOURNALFØRING), isNull(), eq(enhet), eq(LIMIT));
         verify(oppgaveKlient).finnÅpneOppgaverAvType(eq(Oppgavetype.JOURNALFØRING), isNull(), eq(enhet2), eq(LIMIT));
         verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);

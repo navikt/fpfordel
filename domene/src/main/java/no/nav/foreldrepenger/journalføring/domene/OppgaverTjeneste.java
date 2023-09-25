@@ -162,7 +162,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
                 .map(OppgaverTjeneste::mapTilOppgave)
                 .toList();
         }
-        return oppgaveRepository.finnÅpneOppgaverFor(enhet)
+        return oppgaveRepository.hentÅpneOppgaverFor(enhet)
             .stream()
             .map(OppgaverTjeneste::mapTilOppgave)
             .toList();
@@ -216,7 +216,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
         return switch (behandlingTemaMappet) {
             case FORELDREPENGER, FORELDREPENGER_ADOPSJON, FORELDREPENGER_FØDSEL -> YtelseType.FP;
             case SVANGERSKAPSPENGER -> YtelseType.SVP;
-            case ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON, ENGANGSSTØNAD_FØDSEL -> YtelseType.EN;
+            case ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON, ENGANGSSTØNAD_FØDSEL -> YtelseType.ES;
             default -> null;
         };
     }

@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.domene;
 
 public enum YtelseType {
-    EN,
+    ES,
     FP,
     SVP
 }

@@ -136,7 +136,7 @@
             <groupId>no.nav.foreldrepenger.fordel</groupId>
             <artifactId>migreringer</artifactId>
             <type>test-jar</type>
-            <scope>test</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
@@ -158,6 +158,17 @@
             <artifactId>HikariCP</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>jakarta.el</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>

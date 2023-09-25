@@ -25,7 +25,6 @@ public class OppgaveRepository {
 
     private void commit(Object entity) {
         em.persist(entity);
-        em.flush();
     }
 
     public String lagre(OppgaveEntitet oppgave) {
@@ -45,15 +44,15 @@ public class OppgaveRepository {
 
     public List<OppgaveEntitet> hentAlleÅpneOppgaver() {
         return em.createQuery("from Oppgave where status = :status", OppgaveEntitet.class)
-            .setParameter("status", Status.AAPNET)
-            .getResultList();
+                .setParameter("status", Status.AAPNET)
+                .getResultList();
     }
 
-    public List<OppgaveEntitet> finnÅpneOppgaverFor(String enhet) {
+    public List<OppgaveEntitet> hentÅpneOppgaverFor(String enhet) {
         return em.createQuery("from Oppgave where enhet = :enhet and status = :status", OppgaveEntitet.class)
-            .setParameter("enhet", enhet)
-            .setParameter("status", Status.AAPNET)
-            .getResultList();
+                .setParameter("enhet", enhet)
+                .setParameter("status", Status.AAPNET)
+                .getResultList();
     }
 
     public void ferdigstillOppgave(String journalpostId) {

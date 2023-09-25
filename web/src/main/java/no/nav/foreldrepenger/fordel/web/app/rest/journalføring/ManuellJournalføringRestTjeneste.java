@@ -291,7 +291,7 @@ public class ManuellJournalføringRestTjeneste {
         return switch (ytelseType) {
             case FP -> YtelseTypeDto.FORELDREPENGER;
             case SVP -> YtelseTypeDto.SVANGERSKAPSPENGER;
-            case EN -> YtelseTypeDto.ENGANGSTØNAD;
+            case ES -> YtelseTypeDto.ENGANGSTØNAD;
         };
     }
 
