@@ -120,14 +120,14 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         // Oppgave har ikke mapping for alle undertyper fødsel/adopsjon
         final String brukBT = BehandlingTema.forYtelseUtenFamilieHendelse(behandlingTema).getOffisiellKode();
 
-        String arkivId = prosessTaskData.getPropertyValue(ARKIV_ID_KEY);
+        String journalpostId = prosessTaskData.getPropertyValue(ARKIV_ID_KEY);
 
         // Overstyr saker fra NFP+NK, deretter egen logikk hvis fødselsnummer ikke er
         // oppgitt
         final String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, behandlingTema,
             Optional.ofNullable(enhetInput), prosessTaskData.getAktørId());
         final String beskrivelse = lagBeskrivelse(behandlingTema, dokumentTypeId, prosessTaskData);
-        return oppgaverTjeneste.opprettJournalføringsoppgaveFor(arkivId, enhetId, prosessTaskData.getAktørId(),
+        return oppgaverTjeneste.opprettJournalføringsoppgaveFor(journalpostId, enhetId, prosessTaskData.getAktørId(),
             prosessTaskData.getPropertyValue(SAKSNUMMER_KEY), brukBT, beskrivelse);
     }
 

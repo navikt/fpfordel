@@ -1,20 +1,22 @@
 package no.nav.foreldrepenger.journalføring.domene.oppgave;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.FlushModeType;
-import jakarta.transaction.TransactionScoped;
-import no.nav.foreldrepenger.domene.BrukerId;
-import no.nav.foreldrepenger.domene.YtelseType;
-import no.nav.foreldrepenger.mottak.extensions.JpaExtension;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 import java.util.Random;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.TransactionScoped;
+import no.nav.foreldrepenger.domene.BrukerId;
+import no.nav.foreldrepenger.domene.YtelseType;
+import no.nav.foreldrepenger.mottak.extensions.JpaExtension;
 
 @ExtendWith(JpaExtension.class)
 class OppgaveRepositoryTest {
@@ -25,39 +27,37 @@ class OppgaveRepositoryTest {
 
     @BeforeEach
     void setUp(EntityManager em) {
-        // Støtte for flush i testene - siden vi ikke vil kalle på flush eksplisit i repo.
-        em.setFlushMode(FlushModeType.AUTO);
         repo = new OppgaveRepository(em);
     }
 
     @Test
     void lagreOgHente() {
-        var oppgaveEntitet = lagTestOppgave(JOURNALPOST_ID);
+        var oppgaveEntitet = lagTestOppgave();
         assertThat(repo.hentOppgave(JOURNALPOST_ID)).isNotNull().isEqualTo(oppgaveEntitet);
     }
 
     @Test
     void lagreToOppgaverMedSammeId() {
-        lagTestOppgave(JOURNALPOST_ID);
-        assertThrows(Exception.class, () -> lagTestOppgave(JOURNALPOST_ID));
+        lagTestOppgave();
+        assertThrows(Exception.class, this::lagTestOppgave);
     }
 
     @Test
     void harÅpenOppgave() {
-        lagTestOppgave(JOURNALPOST_ID);
+        lagTestOppgave();
         assertTrue(repo.harÅpenOppgave(JOURNALPOST_ID));
         assertFalse(repo.harÅpenOppgave("ikke_finnes_"));
     }
 
     @Test
     void harFerdigstilltOppgave() {
-        lagTestOppgave(JOURNALPOST_ID, Status.FERDIGSTILT);
+        lagTestOppgave(Status.FERDIGSTILT);
         assertFalse(repo.harÅpenOppgave(JOURNALPOST_ID));
     }
 
     @Test
     void hentOppgave() {
-        var oppgaveEntitet = lagTestOppgave(JOURNALPOST_ID);
+        var oppgaveEntitet = lagTestOppgave();
         var result = repo.hentOppgave(JOURNALPOST_ID);
         assertThat(result).isNotNull().isEqualTo(oppgaveEntitet);
         assertThat(result.getJournalpostId()).isEqualTo(JOURNALPOST_ID);
@@ -76,8 +76,8 @@ class OppgaveRepositoryTest {
     @Test
     @TransactionScoped
     void hentÅpneOppgaverFor() {
-        var antall = 6;
         lagreOppgaver(2, "4321");
+        var antall = 6;
         lagreOppgaver(antall, ENHET);
         var oppgaver = repo.hentÅpneOppgaverFor(ENHET);
         assertThat(oppgaver).isNotEmpty().hasSize(antall);
@@ -86,7 +86,7 @@ class OppgaveRepositoryTest {
 
     @Test
     void ferdigstillOppgave() {
-        lagTestOppgave(JOURNALPOST_ID, Status.AAPNET);
+        lagTestOppgave(Status.AAPNET);
         var lagret = repo.hentOppgave(JOURNALPOST_ID);
         assertThat(lagret.getStatus()).isEqualTo(Status.AAPNET);
 
@@ -113,15 +113,16 @@ class OppgaveRepositoryTest {
                 .medEnhet(enhet)
                 .medBrukerId(new BrukerId("1234567890123"))
                 .build();
+
         repo.lagre(oppgaveEntitet);
         return oppgaveEntitet;
     }
 
-    private OppgaveEntitet lagTestOppgave(String journalpostId, Status status) {
-        return lagTestOppgave(journalpostId, ENHET, status);
+    private void lagTestOppgave(Status status) {
+        lagTestOppgave(JOURNALPOST_ID, ENHET, status);
     }
 
-    private OppgaveEntitet lagTestOppgave(String journalpostId) {
-        return lagTestOppgave(journalpostId, ENHET, Status.AAPNET);
+    private OppgaveEntitet lagTestOppgave() {
+        return lagTestOppgave(JOURNALPOST_ID, ENHET, Status.AAPNET);
     }
 }

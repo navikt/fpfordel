@@ -16,11 +16,11 @@ public interface Journalføringsoppgave {
 
     void ferdigstillAlleÅpneJournalføringsoppgaverFor(String journalpostId);
 
-    Oppgave hentOppgaveFor(String journalpostId);
+    Oppgave hentOppgaveFor(String oppgaveId);
 
-    void reserverOppgaveFor(String journalpostId, String reserverFor);
+    void reserverOppgaveFor(String oppgaveId, String reserverFor);
 
-    void avreserverOppgaveFor(String journalpostId);
+    void avreserverOppgaveFor(String oppgaveId);
 
     List<Oppgave> finnÅpneOppgaverFor(Set<String> enhet);
 }

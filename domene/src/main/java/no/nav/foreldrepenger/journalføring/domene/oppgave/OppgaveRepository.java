@@ -25,6 +25,7 @@ public class OppgaveRepository {
 
     private void commit(Object entity) {
         em.persist(entity);
+        em.flush();
     }
 
     public String lagre(OppgaveEntitet oppgave) {

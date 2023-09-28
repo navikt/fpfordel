@@ -103,34 +103,34 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     }
 
     @Override
-    public Oppgave hentOppgaveFor(String journalpostId) {
-        if (oppgaveRepository.harÅpenOppgave(journalpostId)) {
-            return mapTilOppgave(oppgaveRepository.hentOppgave(journalpostId));
+    public Oppgave hentOppgaveFor(String oppgaveId) {
+        if (oppgaveRepository.harÅpenOppgave(oppgaveId)) {
+            return mapTilOppgave(oppgaveRepository.hentOppgave(oppgaveId));
         } else {
-            return mapTilOppgave(oppgaveKlient.hentOppgave(journalpostId));
+            return mapTilOppgave(oppgaveKlient.hentOppgave(oppgaveId));
         }
     }
 
     @Override
-    public void reserverOppgaveFor(String journalpostId, String reserverFor) {
-        if (oppgaveRepository.harÅpenOppgave(journalpostId)) {
-            var oppgave = oppgaveRepository.hentOppgave(journalpostId);
+    public void reserverOppgaveFor(String oppgaveId, String reserverFor) {
+        // oppgaveId er egentlig journalpostId i dette tilfellet.
+        if (oppgaveRepository.harÅpenOppgave(oppgaveId)) {
+            var oppgave = oppgaveRepository.hentOppgave(oppgaveId);
             oppgave.setReservertAv(reserverFor);
             oppgaveRepository.lagre(oppgave);
         } else {
-            // journalpostId er egentlig oppgaveId i dette tilfellet.
-            oppgaveKlient.reserverOppgave(journalpostId, reserverFor);
+            oppgaveKlient.reserverOppgave(oppgaveId, reserverFor);
         }
     }
 
     @Override
-    public void avreserverOppgaveFor(String journalpostId) {
-        if (oppgaveRepository.harÅpenOppgave(journalpostId)) {
-            var oppgave = oppgaveRepository.hentOppgave(journalpostId);
+    public void avreserverOppgaveFor(String oppgaveId) {
+        if (oppgaveRepository.harÅpenOppgave(oppgaveId)) {
+            var oppgave = oppgaveRepository.hentOppgave(oppgaveId);
             oppgave.setReservertAv(null);
             oppgaveRepository.lagre(oppgave);
         } else {
-            oppgaveKlient.avreserverOppgave(journalpostId);
+            oppgaveKlient.avreserverOppgave(oppgaveId);
         }
     }
 
