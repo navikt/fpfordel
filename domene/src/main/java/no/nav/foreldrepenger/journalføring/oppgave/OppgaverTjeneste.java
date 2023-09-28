@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.journalføring.domene;
+package no.nav.foreldrepenger.journalføring.oppgave;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -7,7 +7,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import no.nav.foreldrepenger.journalføring.domene.oppgave.Status;
+import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
+import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,8 +18,8 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.domene.BrukerId;
 import no.nav.foreldrepenger.domene.YtelseType;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.journalføring.domene.oppgave.OppgaveEntitet;
-import no.nav.foreldrepenger.journalføring.domene.oppgave.OppgaveRepository;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
@@ -112,14 +114,14 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     }
 
     @Override
-    public void reserverOppgaveFor(String oppgaveId, String reserverFor) {
+    public void reserverOppgaveFor(String oppgaveId, String saksbehandlerId) {
         // oppgaveId er egentlig journalpostId i dette tilfellet.
         if (oppgaveRepository.harÅpenOppgave(oppgaveId)) {
             var oppgave = oppgaveRepository.hentOppgave(oppgaveId);
-            oppgave.setReservertAv(reserverFor);
+            oppgave.setReservertAv(saksbehandlerId);
             oppgaveRepository.lagre(oppgave);
         } else {
-            oppgaveKlient.reserverOppgave(oppgaveId, reserverFor);
+            oppgaveKlient.reserverOppgave(oppgaveId, saksbehandlerId);
         }
     }
 

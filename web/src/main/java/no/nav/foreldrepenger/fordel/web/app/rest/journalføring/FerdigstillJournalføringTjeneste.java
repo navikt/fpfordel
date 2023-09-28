@@ -5,7 +5,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.*;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.journalføring.ManuellOpprettSakValidator;
-import no.nav.foreldrepenger.journalføring.domene.Journalføringsoppgave;
+import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;

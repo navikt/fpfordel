@@ -1,11 +1,13 @@
-package no.nav.foreldrepenger.journalføring.domene;
+package no.nav.foreldrepenger.journalføring.oppgave;
 
 import no.nav.foreldrepenger.domene.BrukerId;
 import no.nav.foreldrepenger.domene.YtelseType;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.journalføring.domene.oppgave.OppgaveEntitet;
-import no.nav.foreldrepenger.journalføring.domene.oppgave.OppgaveRepository;
-import no.nav.foreldrepenger.journalføring.domene.oppgave.Status;
+import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
+import no.nav.foreldrepenger.journalføring.oppgave.OppgaverTjeneste;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.*;
@@ -20,7 +22,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
-import static no.nav.foreldrepenger.journalføring.domene.OppgaverTjeneste.LIMIT;
+import static no.nav.foreldrepenger.journalføring.oppgave.OppgaverTjeneste.LIMIT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;

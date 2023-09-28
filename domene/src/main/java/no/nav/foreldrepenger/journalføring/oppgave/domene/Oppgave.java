@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.journalføring.domene;
+package no.nav.foreldrepenger.journalføring.oppgave.domene;
 
 import java.time.LocalDate;
 

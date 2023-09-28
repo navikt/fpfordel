@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.journalføring.domene.oppgave;
+package no.nav.foreldrepenger.journalføring.oppgave.lager;
 
 import java.io.Serializable;
 import java.time.LocalDate;

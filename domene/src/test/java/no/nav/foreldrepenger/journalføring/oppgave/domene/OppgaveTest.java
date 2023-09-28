@@ -1,9 +1,11 @@
-package no.nav.foreldrepenger.journalføring.domene.oppgave;
+package no.nav.foreldrepenger.journalføring.oppgave.domene;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
+import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.domene.BrukerId;

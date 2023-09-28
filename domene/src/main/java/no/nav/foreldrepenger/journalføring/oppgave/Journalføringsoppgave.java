@@ -1,4 +1,6 @@
-package no.nav.foreldrepenger.journalføring.domene;
+package no.nav.foreldrepenger.journalføring.oppgave;
+
+import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
 
 import java.util.List;
 import java.util.Set;
@@ -18,7 +20,7 @@ public interface Journalføringsoppgave {
 
     Oppgave hentOppgaveFor(String oppgaveId);
 
-    void reserverOppgaveFor(String oppgaveId, String reserverFor);
+    void reserverOppgaveFor(String oppgaveId, String saksbehandlerId);
 
     void avreserverOppgaveFor(String oppgaveId);
 

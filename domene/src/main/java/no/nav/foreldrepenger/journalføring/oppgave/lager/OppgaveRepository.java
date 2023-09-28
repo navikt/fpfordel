@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.journalføring.domene.oppgave;
+package no.nav.foreldrepenger.journalføring.oppgave.lager;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

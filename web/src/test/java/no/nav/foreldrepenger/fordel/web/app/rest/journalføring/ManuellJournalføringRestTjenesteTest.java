@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,8 +31,8 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
-import no.nav.foreldrepenger.journalføring.domene.Journalføringsoppgave;
-import no.nav.foreldrepenger.journalføring.domene.Oppgave;
+import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
+import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
@@ -421,9 +423,9 @@ class ManuellJournalføringRestTjenesteTest {
 
     private static Oppgave opprettOppgave(String expectedId, LocalDate now, String beskrivelse, String enhetsNr, String reservertAv,
                                           YtelseType ytelseType) {
-        return no.nav.foreldrepenger.journalføring.domene.Oppgave.builder()
+        return Oppgave.builder()
             .medId(expectedId)
-            .medStatus(no.nav.foreldrepenger.journalføring.domene.Oppgavestatus.AAPNET)
+            .medStatus(Oppgavestatus.AAPNET)
             .medTildeltEnhetsnr(enhetsNr)
             .medAktoerId("aktørId")
             .medYtelseType(ytelseType)

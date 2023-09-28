@@ -13,6 +13,6 @@
     <entity class="no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata"/>
     <entity class="no.nav.foreldrepenger.mottak.domene.dokument.Dokument"/>
     <entity class="no.nav.foreldrepenger.mottak.domene.dokument.Journalpost"/>
-    <entity class="no.nav.foreldrepenger.journalføring.domene.oppgave.OppgaveEntitet"/>
+    <entity class="no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet"/>
 
 </entity-mappings>
