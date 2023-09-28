@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene;
+package no.nav.foreldrepenger.journalføring.oppgave.lager;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

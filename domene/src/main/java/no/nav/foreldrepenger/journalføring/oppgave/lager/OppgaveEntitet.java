@@ -14,8 +14,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
-import no.nav.foreldrepenger.domene.BrukerId;
-import no.nav.foreldrepenger.domene.YtelseType;
 import no.nav.foreldrepenger.fordel.BaseEntitet;
 
 @Entity(name = "Oppgave")
@@ -158,6 +156,11 @@ public class OppgaveEntitet extends BaseEntitet implements Serializable {
 
         public Builder medBrukerId(BrukerId brukerId) {
             this.brukerId = brukerId;
+            return this;
+        }
+
+        public Builder medBrukerId(String brukerId) {
+            this.brukerId = new BrukerId(brukerId);
             return this;
         }
 

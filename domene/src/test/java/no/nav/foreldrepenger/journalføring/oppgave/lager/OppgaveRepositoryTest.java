@@ -8,17 +8,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.LocalDate;
 import java.util.Random;
 
-import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.TransactionScoped;
-import no.nav.foreldrepenger.domene.BrukerId;
-import no.nav.foreldrepenger.domene.YtelseType;
 import no.nav.foreldrepenger.mottak.extensions.JpaExtension;
 
 @ExtendWith(JpaExtension.class)

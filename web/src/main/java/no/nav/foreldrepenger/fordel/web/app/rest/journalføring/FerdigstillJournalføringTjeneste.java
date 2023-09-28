@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.mottak.task.VLKlargjørerTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.VLKlargjører;
-import no.nav.foreldrepenger.typer.JournalpostId;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OppdaterJournalpostRequest;
@@ -359,13 +359,12 @@ public class FerdigstillJournalføringTjeneste {
 
     void opprettFerdigstillOppgaveTask(JournalpostId journalpostId) {
         if (journalpostId != null) {
-            var journalpost = journalpostId.getVerdi();
             try {
-                oppgaver.ferdigstillAlleÅpneJournalføringsoppgaverFor(journalpost);
+                oppgaver.ferdigstillAlleÅpneJournalføringsoppgaverFor(journalpostId);
             } catch (Exception e) {
                 LOG.warn("FPFORDEL RESTJOURNALFØRING: Ferdigstilt oppgave med dokumentId {} feiler ", journalpostId, e);
                 var ferdigstillOppgaveTask = ProsessTaskData.forProsessTask(FerdigstillOppgaveTask.class);
-                ferdigstillOppgaveTask.setProperty(FerdigstillOppgaveTask.JOURNALPOSTID_KEY, journalpost);
+                ferdigstillOppgaveTask.setProperty(FerdigstillOppgaveTask.JOURNALPOSTID_KEY, journalpostId.getVerdi());
                 ferdigstillOppgaveTask.setCallIdFraEksisterende();
                 taskTjeneste.lagre(ferdigstillOppgaveTask);
             }

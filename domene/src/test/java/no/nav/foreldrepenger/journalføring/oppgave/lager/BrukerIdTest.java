@@ -1,5 +1,6 @@
-package no.nav.foreldrepenger.domene;
+package no.nav.foreldrepenger.journalføring.oppgave.lager;
 
+import no.nav.foreldrepenger.journalføring.oppgave.lager.BrukerId;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

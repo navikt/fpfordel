@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.journalføring.oppgave.domene;
 
 import java.time.LocalDate;
 
-import no.nav.foreldrepenger.domene.YtelseType;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
 
 public record Oppgave(String id,
                       String aktoerId,

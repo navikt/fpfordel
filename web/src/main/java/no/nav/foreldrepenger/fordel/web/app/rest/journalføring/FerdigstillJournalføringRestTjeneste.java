@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.typer.AktørId;
-import no.nav.foreldrepenger.typer.JournalpostId;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -76,7 +76,7 @@ public class FerdigstillJournalføringRestTjeneste {
 
         validerJournalpostId(request.journalpostId());
         validerEnhetId(request.enhetId());
-        var journalpostId = new JournalpostId(request.journalpostId);
+        var journalpostId = JournalpostId.fra(request.journalpostId);
 
         LOG.info("FPFORDEL RESTJOURNALFØRING: Starter ferdigstilling av journalpostRequets {}", request);
 

@@ -23,7 +23,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
+import no.nav.foreldrepenger.journalføring.oppgave.domene.OppgaveSystem;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
@@ -46,7 +48,7 @@ class OpprettGSakOppgaveTjenesteTaskTest {
     @BeforeEach
     public void setup() {
         when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), any(), any())).thenReturn(fordelingsOppgaveEnhetsId);
-        when(oppgaverTjeneste.opprettJournalføringsoppgaveFor(any(), any(), any(), any(), any(), any())).thenReturn("99");
+        when(oppgaverTjeneste.opprettJournalføringsoppgaveFor(any(), any(), any(), any(), any(), any(), any())).thenReturn("99");
         task = new OpprettGSakOppgaveTask(prosessTaskTjeneste, oppgaverTjeneste, enhetsidTjeneste);
     }
 
@@ -61,13 +63,15 @@ class OpprettGSakOppgaveTjenesteTaskTest {
         taskData.setProperty(BEHANDLINGSTEMA_KEY, behandlingTema.getKode());
         taskData.setProperty(DOKUMENTTYPE_ID_KEY, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getKode());
         taskData.setAktørId(aktørId);
+        var arkivId = "123456";
+        taskData.setProperty(ARKIV_ID_KEY, arkivId);
 
         String beskrivelse = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getTermNavn();
 
         task.doTask(taskData);
 
-        verify(oppgaverTjeneste).opprettJournalføringsoppgaveFor(null, fordelingsOppgaveEnhetsId, aktørId, null,
-            BehandlingTema.ENGANGSSTØNAD.getOffisiellKode(), beskrivelse);
+        verify(oppgaverTjeneste).opprettJournalføringsoppgaveFor(JournalpostId.fra(arkivId), fordelingsOppgaveEnhetsId, aktørId, null,
+            BehandlingTema.ENGANGSSTØNAD.getOffisiellKode(), beskrivelse, OppgaveSystem.LOKALT);
     }
 
     @Test
@@ -78,13 +82,16 @@ class OpprettGSakOppgaveTjenesteTaskTest {
         taskData.setProperty(BEHANDLINGSTEMA_KEY, BehandlingTema.ENGANGSSTØNAD_FØDSEL.getKode());
         taskData.setProperty(DOKUMENTTYPE_ID_KEY, DokumentTypeId.UDEFINERT.getKode());
         taskData.setProperty(JOURNAL_ENHET, enhet);
+        var arkivId = "123456";
+        taskData.setProperty(ARKIV_ID_KEY, arkivId);
         String beskrivelse = "Journalføring " + BehandlingTema.ENGANGSSTØNAD_FØDSEL.getTermNavn();
 
         when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), eq(Optional.of(enhet)), any())).thenReturn(enhet);
 
         task.doTask(taskData);
 
-        verify(oppgaverTjeneste).opprettJournalføringsoppgaveFor(null, enhet, null, null, BehandlingTema.ENGANGSSTØNAD.getOffisiellKode(), beskrivelse);
+        verify(oppgaverTjeneste).opprettJournalføringsoppgaveFor(JournalpostId.fra(arkivId), enhet, null, null, BehandlingTema.ENGANGSSTØNAD.getOffisiellKode(), beskrivelse,
+            OppgaveSystem.LOKALT);
 
 
     }
@@ -105,7 +112,7 @@ class OpprettGSakOppgaveTjenesteTaskTest {
 
         task.doTask(taskData);
 
-        verify(oppgaverTjeneste).opprettJournalføringsoppgaveFor(arkivId, fordelingsOppgaveEnhetsId, null, null,
-            BehandlingTema.FORELDREPENGER.getOffisiellKode(), beskrivelse);
+        verify(oppgaverTjeneste).opprettJournalføringsoppgaveFor(JournalpostId.fra(arkivId), fordelingsOppgaveEnhetsId, null, null,
+            BehandlingTema.FORELDREPENGER.getOffisiellKode(), beskrivelse, OppgaveSystem.LOKALT);
     }
 }

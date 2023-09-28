@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,13 +24,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import no.nav.foreldrepenger.domene.YtelseType;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
+import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
@@ -53,7 +52,6 @@ import no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext;
 @ExtendWith(MockitoExtension.class)
 class ManuellJournalføringRestTjenesteTest {
 
-    private final String LIMIT = "50";
     @Mock
     private PersonInformasjon pdl;
     @Mock

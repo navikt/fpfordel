@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.fordel</groupId>
         <artifactId>fpfordel</artifactId>
-        <version>${revision}</version>
+        <version>2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>domene</artifactId>

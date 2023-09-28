@@ -8,8 +8,8 @@ import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.domene.BrukerId;
-import no.nav.foreldrepenger.domene.YtelseType;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.BrukerId;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
 
 class OppgaveTest {
 

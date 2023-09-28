@@ -7,33 +7,35 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
-import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
+
+import no.nav.foreldrepenger.journalføring.oppgave.domene.OppgaveSystem;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
-import no.nav.foreldrepenger.domene.BrukerId;
-import no.nav.foreldrepenger.domene.YtelseType;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
+import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 
 @Dependent
 class OppgaverTjeneste implements Journalføringsoppgave {
+
     private static final Logger LOG = LoggerFactory.getLogger(OppgaverTjeneste.class);
     protected static final String LIMIT = "50";
     protected static final int FRIST_DAGER = 1;
 
     private OppgaveRepository oppgaveRepository;
     private Oppgaver oppgaveKlient;
-    private boolean lagreOppgaverLokalt;
 
     OppgaverTjeneste() {
         // CDI
@@ -41,26 +43,25 @@ class OppgaverTjeneste implements Journalføringsoppgave {
 
     @Inject
     public OppgaverTjeneste(OppgaveRepository oppgaveRepository,
-                            Oppgaver oppgaveKlient,
-                            @KonfigVerdi(value = "lagre.oppgaver.lokalt.toggle", defaultVerdi = "false") boolean lagreOppgaverLokalt) {
+                            Oppgaver oppgaveKlient) {
         this.oppgaveRepository = oppgaveRepository;
         this.oppgaveKlient = oppgaveKlient;
-        this.lagreOppgaverLokalt = lagreOppgaverLokalt;
     }
 
     @Override
-    public String opprettJournalføringsoppgaveFor(String journalpostId,
+    public String opprettJournalføringsoppgaveFor(JournalpostId journalpostId,
                                                   String enhetId,
                                                   String aktørId,
                                                   String saksref,
                                                   String behandlingTema,
-                                                  String beskrivelse) {
-        if (lagreOppgaverLokalt) {
+                                                  String beskrivelse,
+                                                  OppgaveSystem oppgaveSystem) {
+        if (!OppgaveSystem.GOSYS.equals(oppgaveSystem)) {
             var oppgave = OppgaveEntitet.builder()
-                    .medJournalpostId(journalpostId)
+                    .medJournalpostId(journalpostId.getVerdi())
                     .medEnhet(enhetId)
                     .medStatus(Status.AAPNET)
-                    .medBrukerId(new BrukerId(aktørId))
+                    .medBrukerId(aktørId)
                     .medFrist(helgeJustertFrist(LocalDate.now().plusDays(FRIST_DAGER)))
                     .medBeskrivelse(beskrivelse)
                     .medYtelseType(mapTilYtelseType(behandlingTema))
@@ -75,7 +76,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
                 .medSaksreferanse(saksref)
                 .medTildeltEnhetsnr(enhetId)
                 .medOpprettetAvEnhetsnr(enhetId)
-                .medJournalpostId(journalpostId)
+                .medJournalpostId(journalpostId.getVerdi())
                 .medBeskrivelse(beskrivelse)
                 .medBehandlingstema(behandlingTema);
             var oppgave = oppgaveKlient.opprettetOppgave(request.build());
@@ -86,20 +87,21 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     }
 
     @Override
-    public boolean finnesÅpeneJournalføringsoppgaverFor(String journalpostId) {
-        return oppgaveRepository.harÅpenOppgave(journalpostId) ||
-                !oppgaveKlient.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId).isEmpty();
+    public boolean finnesÅpeneJournalføringsoppgaverFor(JournalpostId journalpostId) {
+        return oppgaveRepository.harÅpenOppgave(journalpostId.getVerdi()) ||
+                !oppgaveKlient.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId.getVerdi()).isEmpty();
     }
 
     @Override
-    public void ferdigstillAlleÅpneJournalføringsoppgaverFor(String journalpostId) {
-        oppgaveKlient.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId).forEach(o -> {
+    public void ferdigstillAlleÅpneJournalføringsoppgaverFor(JournalpostId journalpostId) {
+        var verdi = journalpostId.getVerdi();
+        oppgaveKlient.finnÅpneJournalføringsoppgaverForJournalpost(verdi).forEach(o -> {
             LOG.info("FPFORDEL JFR-OPPGAVE: ferdigstiller oppgaver {} for journalpostId: {}", o.id(), journalpostId);
             oppgaveKlient.ferdigstillOppgave(String.valueOf(o.id()));
         });
 
-        if (oppgaveRepository.harÅpenOppgave(journalpostId)) {
-            oppgaveRepository.ferdigstillOppgave(journalpostId);
+        if (oppgaveRepository.harÅpenOppgave(verdi)) {
+            oppgaveRepository.ferdigstillOppgave(verdi);
             LOG.info("FPFORDEL JFR-OPPGAVE: ferdigstiller lokal oppgave for journalpostId: {}", journalpostId);
         }
     }

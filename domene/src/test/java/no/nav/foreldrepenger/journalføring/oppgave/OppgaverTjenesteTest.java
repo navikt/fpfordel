@@ -1,16 +1,29 @@
 package no.nav.foreldrepenger.journalføring.oppgave;
 
-import no.nav.foreldrepenger.domene.BrukerId;
-import no.nav.foreldrepenger.domene.YtelseType;
-import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
-import no.nav.foreldrepenger.journalføring.oppgave.OppgaverTjeneste;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.*;
+import static no.nav.foreldrepenger.journalføring.oppgave.OppgaverTjeneste.LIMIT;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
+
+import no.nav.foreldrepenger.journalføring.oppgave.domene.OppgaveSystem;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,15 +31,18 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
-
-import static no.nav.foreldrepenger.journalføring.oppgave.OppgaverTjeneste.LIMIT;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 
 @ExtendWith(MockitoExtension.class)
 class OppgaverTjenesteTest {
@@ -39,7 +55,7 @@ class OppgaverTjenesteTest {
 
     @BeforeEach
     void setUp() {
-        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient, false);
+        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient);
     }
 
     @Test
@@ -50,12 +66,12 @@ class OppgaverTjenesteTest {
         when(oppgaveKlient.opprettetOppgave(any())).thenReturn(oppgaveMock);
 
         var id = oppgaver.opprettJournalføringsoppgaveFor(
-                "123456",
-                "1234",
-                "1234567890123",
-                "referanse",
-                BehandlingTema.SVANGERSKAPSPENGER.getOffisiellKode(),
-                "Test beskrivelse");
+            JournalpostId.fra("123456"),
+            "1234",
+            "1234567890123",
+            "referanse",
+            BehandlingTema.SVANGERSKAPSPENGER.getOffisiellKode(),
+            "Test beskrivelse", OppgaveSystem.GOSYS);
 
         assertEquals(expectedId.toString(), id);
         verifyNoInteractions(oppgaveRepository);
@@ -64,17 +80,17 @@ class OppgaverTjenesteTest {
 
     @Test
     void opprettJournalføringsOppgaveLokalt() {
-        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient, true);
+        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient);
         var expectedId = "11";
         when(oppgaveRepository.lagre(any(OppgaveEntitet.class))).thenReturn(expectedId);
 
         var id = oppgaver.opprettJournalføringsoppgaveFor(
-                "123456",
-                "1234",
-                "1234567890123",
-                "referanse",
-                BehandlingTema.FORELDREPENGER.getOffisiellKode(),
-                "Test beskrivelse");
+            JournalpostId.fra("123456"),
+            "1234",
+            "1234567890123",
+            "referanse",
+            BehandlingTema.FORELDREPENGER.getOffisiellKode(),
+            "Test beskrivelse", OppgaveSystem.LOKALT);
 
         assertEquals(expectedId, id);
 
@@ -91,7 +107,7 @@ class OppgaverTjenesteTest {
         when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(false);
         when(oppgaveKlient.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId)).thenReturn(List.of(mock(Oppgave.class)));
 
-        assertTrue(oppgaver.finnesÅpeneJournalføringsoppgaverFor(journalpostId));
+        assertTrue(oppgaver.finnesÅpeneJournalføringsoppgaverFor(JournalpostId.fra(journalpostId)));
     }
 
     @Test
@@ -99,7 +115,7 @@ class OppgaverTjenesteTest {
         var journalpostId = "1234";
         when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(true);
 
-        assertTrue(oppgaver.finnesÅpeneJournalføringsoppgaverFor(journalpostId));
+        assertTrue(oppgaver.finnesÅpeneJournalføringsoppgaverFor(JournalpostId.fra(journalpostId)));
         verifyNoInteractions(oppgaveKlient);
     }
 
@@ -108,7 +124,7 @@ class OppgaverTjenesteTest {
         var journalpostId = "1234";
         when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(false);
         when(oppgaveKlient.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId)).thenReturn(List.of());
-        assertFalse(oppgaver.finnesÅpeneJournalføringsoppgaverFor(journalpostId));
+        assertFalse(oppgaver.finnesÅpeneJournalføringsoppgaverFor(JournalpostId.fra(journalpostId)));
     }
 
     @Test
@@ -122,7 +138,7 @@ class OppgaverTjenesteTest {
                 .thenReturn(List.of(oppgave1Mock, oppgave2Mock));
         when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(false);
 
-        oppgaver.ferdigstillAlleÅpneJournalføringsoppgaverFor(journalpostId);
+        oppgaver.ferdigstillAlleÅpneJournalføringsoppgaverFor(JournalpostId.fra(journalpostId));
 
         verify(oppgaveRepository).harÅpenOppgave(journalpostId);
         verify(oppgaveKlient, times(2)).ferdigstillOppgave(anyString());
@@ -135,7 +151,7 @@ class OppgaverTjenesteTest {
         when(oppgaveKlient.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId)).thenReturn(List.of());
         when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(true);
 
-        oppgaver.ferdigstillAlleÅpneJournalføringsoppgaverFor(journalpostId);
+        oppgaver.ferdigstillAlleÅpneJournalføringsoppgaverFor(JournalpostId.fra(journalpostId));
 
         verify(oppgaveRepository).harÅpenOppgave(journalpostId);
         verify(oppgaveRepository).ferdigstillOppgave(journalpostId);
@@ -285,7 +301,7 @@ class OppgaverTjenesteTest {
                 .medStatus(Status.AAPNET)
                 .medBeskrivelse("test")
                 .medEnhet("1234")
-                .medBrukerId(new BrukerId("1234567890123"))
+                .medBrukerId("1234567890123")
                 .medFrist(LocalDate.now())
                 .medYtelseType(YtelseType.FP)
                 .medReservertAv("saksbehandler")

@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.journalføring.oppgave.domene;
 import java.time.LocalDate;
 import java.util.Objects;
 
-import no.nav.foreldrepenger.domene.YtelseType;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
 
 public class OppgaveBuilder {
     private String id;

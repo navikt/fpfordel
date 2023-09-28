@@ -6,6 +6,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,7 +103,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             return w.nesteSteg(TaskType.forProsessTask(OpprettGSakOppgaveTask.class));
         }
         try {
-            oppgave.ferdigstillAlleÅpneJournalføringsoppgaverFor(w.getArkivId());
+            oppgave.ferdigstillAlleÅpneJournalføringsoppgaverFor(JournalpostId.fra(w.getArkivId()));
         } catch (Exception e) {
             LOG.info("FPFORDEL JFR-OPPGAVE: feil ved ferdigstilling av åpne oppgaver for journalpostId: {}", w.getArkivId());
         }

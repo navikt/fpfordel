@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.mottak.domene.oppgavebehandling;
 
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ public class FerdigstillOppgaveTask implements ProsessTaskHandler {
             LOG.info("Ferdigstilte eksterne oppgave med id {}", oppgaveId);
         }
         if (journalpostId != null) {
-            oppgaver.ferdigstillAlleÅpneJournalføringsoppgaverFor(journalpostId);
+            oppgaver.ferdigstillAlleÅpneJournalføringsoppgaverFor(JournalpostId.fra(journalpostId));
             LOG.info("Ferdigstilte lokalt oppgave med id {}", journalpostId);
         }
     }

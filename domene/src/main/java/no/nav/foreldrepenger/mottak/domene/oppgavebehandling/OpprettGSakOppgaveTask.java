@@ -10,18 +10,18 @@ import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.SAKSN
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import jakarta.enterprise.context.Dependent;
-import jakarta.inject.Inject;
-
-import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
+import no.nav.foreldrepenger.journalføring.oppgave.domene.OppgaveSystem;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.task.SlettForsendelseTask;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
@@ -86,7 +86,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         behandlingTema = ArkivUtil.behandlingTemaFraDokumentType(behandlingTema, dokumentTypeId);
 
         var journalpostId = prosessTaskData.getPropertyValue(ARKIV_ID_KEY);
-        if (oppgaverTjeneste.finnesÅpeneJournalføringsoppgaverFor(journalpostId)) {
+        if (oppgaverTjeneste.finnesÅpeneJournalføringsoppgaverFor(JournalpostId.fra(journalpostId))) {
             LOG.info("FPFORDEL JFR-OPPGAVE: finnes allerede åpen oppgave for journalpostId: {}", journalpostId);
             return;
         }
@@ -127,8 +127,8 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         final String enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, behandlingTema,
             Optional.ofNullable(enhetInput), prosessTaskData.getAktørId());
         final String beskrivelse = lagBeskrivelse(behandlingTema, dokumentTypeId, prosessTaskData);
-        return oppgaverTjeneste.opprettJournalføringsoppgaveFor(journalpostId, enhetId, prosessTaskData.getAktørId(),
-            prosessTaskData.getPropertyValue(SAKSNUMMER_KEY), brukBT, beskrivelse);
+        return oppgaverTjeneste.opprettJournalføringsoppgaveFor(JournalpostId.fra(journalpostId), enhetId, prosessTaskData.getAktørId(),
+            prosessTaskData.getPropertyValue(SAKSNUMMER_KEY), brukBT, beskrivelse, OppgaveSystem.LOKALT);
     }
 
 }
