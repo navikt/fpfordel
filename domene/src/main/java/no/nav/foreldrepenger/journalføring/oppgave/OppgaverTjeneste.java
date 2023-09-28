@@ -7,9 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
-
-import no.nav.foreldrepenger.journalføring.oppgave.domene.OppgaveSystem;
+import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
@@ -49,41 +48,36 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     }
 
     @Override
-    public String opprettJournalføringsoppgaveFor(JournalpostId journalpostId,
-                                                  String enhetId,
-                                                  String aktørId,
-                                                  String saksref,
-                                                  String behandlingTema,
-                                                  String beskrivelse,
-                                                  OppgaveSystem oppgaveSystem) {
-        if (!OppgaveSystem.GOSYS.equals(oppgaveSystem)) {
-            var oppgave = OppgaveEntitet.builder()
-                    .medJournalpostId(journalpostId.getVerdi())
-                    .medEnhet(enhetId)
-                    .medStatus(Status.AAPNET)
-                    .medBrukerId(aktørId)
-                    .medFrist(helgeJustertFrist(LocalDate.now().plusDays(FRIST_DAGER)))
-                    .medBeskrivelse(beskrivelse)
-                    .medYtelseType(mapTilYtelseType(behandlingTema))
-                    .build();
+    public String opprettGosysJournalføringsoppgaveFor(NyOppgave nyOppgave) {
+        var request = OpprettOppgave.getBuilderTemaFOR(Oppgavetype.JOURNALFØRING, no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet.NORM, FRIST_DAGER)
+            .medAktoerId(nyOppgave.aktørId())
+            .medSaksreferanse(nyOppgave.saksref())
+            .medTildeltEnhetsnr(nyOppgave.enhetId())
+            .medOpprettetAvEnhetsnr(nyOppgave.enhetId())
+            .medJournalpostId(nyOppgave.journalpostId().getVerdi())
+            .medBeskrivelse(nyOppgave.beskrivelse())
+            .medBehandlingstema(nyOppgave.behandlingTema());
+        var oppgave = oppgaveKlient.opprettetOppgave(request.build());
+        var id = oppgave.id().toString();
+        LOG.info("FPFORDEL GOSYS opprettet oppgave:{}", id);
+        return id;
+    }
 
-            var id = oppgaveRepository.lagre(oppgave);
-            LOG.info("FPFORDEL opprettet lokalt oppgave med id:{}", id);
-            return id;
-        } else {
-            var request = OpprettOppgave.getBuilderTemaFOR(Oppgavetype.JOURNALFØRING, no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet.NORM, FRIST_DAGER)
-                .medAktoerId(aktørId)
-                .medSaksreferanse(saksref)
-                .medTildeltEnhetsnr(enhetId)
-                .medOpprettetAvEnhetsnr(enhetId)
-                .medJournalpostId(journalpostId.getVerdi())
-                .medBeskrivelse(beskrivelse)
-                .medBehandlingstema(behandlingTema);
-            var oppgave = oppgaveKlient.opprettetOppgave(request.build());
-            var id = oppgave.id().toString();
-            LOG.info("FPFORDEL GOSYS opprettet oppgave:{}", id);
-            return id;
-        }
+    @Override
+    public String opprettJournalføringsoppgaveFor(NyOppgave nyOppgave) {
+        var oppgave = OppgaveEntitet.builder()
+            .medJournalpostId(nyOppgave.journalpostId().getVerdi())
+            .medEnhet(nyOppgave.enhetId())
+            .medStatus(Status.AAPNET)
+            .medBrukerId(nyOppgave.aktørId())
+            .medFrist(helgeJustertFrist(LocalDate.now().plusDays(FRIST_DAGER)))
+            .medBeskrivelse(nyOppgave.beskrivelse())
+            .medYtelseType(mapTilYtelseType(nyOppgave.behandlingTema()))
+            .build();
+
+        var id = oppgaveRepository.lagre(oppgave);
+        LOG.info("FPFORDEL opprettet lokalt oppgave med id:{}", id);
+        return id;
     }
 
     @Override

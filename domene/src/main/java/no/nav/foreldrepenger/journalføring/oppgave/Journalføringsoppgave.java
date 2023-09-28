@@ -1,21 +1,17 @@
 package no.nav.foreldrepenger.journalføring.oppgave;
 
-import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
-import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
-import no.nav.foreldrepenger.journalføring.oppgave.domene.OppgaveSystem;
-
 import java.util.List;
 import java.util.Set;
 
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
+import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
+import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
+
 public interface Journalføringsoppgave {
 
-    String opprettJournalføringsoppgaveFor(JournalpostId journalpostId,
-                                           String enhetId,
-                                           String aktørId,
-                                           String saksref,
-                                           String behandlingTema,
-                                           String beskrivelse,
-                                           OppgaveSystem oppgaveSystem);
+    String opprettJournalføringsoppgaveFor(NyOppgave nyOppgave);
+
+    String opprettGosysJournalføringsoppgaveFor(NyOppgave nyOppgave);
 
     boolean finnesÅpeneJournalføringsoppgaverFor(JournalpostId journalpostId);
 

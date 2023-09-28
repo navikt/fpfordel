@@ -22,7 +22,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
-import no.nav.foreldrepenger.journalføring.oppgave.domene.OppgaveSystem;
+import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -65,13 +65,14 @@ class OppgaverTjenesteTest {
         when(oppgaveMock.id()).thenReturn(expectedId);
         when(oppgaveKlient.opprettetOppgave(any())).thenReturn(oppgaveMock);
 
-        var id = oppgaver.opprettJournalføringsoppgaveFor(
-            JournalpostId.fra("123456"),
-            "1234",
-            "1234567890123",
-            "referanse",
-            BehandlingTema.SVANGERSKAPSPENGER.getOffisiellKode(),
-            "Test beskrivelse", OppgaveSystem.GOSYS);
+        var id = oppgaver.opprettGosysJournalføringsoppgaveFor(NyOppgave.builder()
+            .medJournalpostId(JournalpostId.fra("123456"))
+            .medEnhetId("1234")
+            .medAktørId("1234567890123")
+            .medSaksref("referanse")
+            .medBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER.getOffisiellKode())
+            .medBeskrivelse("Test beskrivelse")
+            .build());
 
         assertEquals(expectedId.toString(), id);
         verifyNoInteractions(oppgaveRepository);
@@ -84,13 +85,13 @@ class OppgaverTjenesteTest {
         var expectedId = "11";
         when(oppgaveRepository.lagre(any(OppgaveEntitet.class))).thenReturn(expectedId);
 
-        var id = oppgaver.opprettJournalføringsoppgaveFor(
-            JournalpostId.fra("123456"),
-            "1234",
-            "1234567890123",
-            "referanse",
-            BehandlingTema.FORELDREPENGER.getOffisiellKode(),
-            "Test beskrivelse", OppgaveSystem.LOKALT);
+        var id = oppgaver.opprettJournalføringsoppgaveFor(NyOppgave.builder().medJournalpostId(JournalpostId.fra("123456"))
+            .medEnhetId("1234")
+            .medAktørId("1234567890123")
+            .medSaksref("referanse")
+            .medBehandlingTema(BehandlingTema.FORELDREPENGER.getOffisiellKode())
+            .medBeskrivelse("Test beskrivelse")
+            .build());
 
         assertEquals(expectedId, id);
 
