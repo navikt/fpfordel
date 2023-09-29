@@ -11,7 +11,7 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-
+import jakarta.persistence.TypedQuery;
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.TekniskException;
@@ -62,24 +62,21 @@ public class DokumentRepository {
     }
 
     public DokumentMetadata hentEksaktDokumentMetadata(UUID forsendelseId) {
-        return hentEksaktResultat(em.createQuery("from DokumentMetadata where forsendelseId = :forsendelseId", DokumentMetadata.class)
-            .setParameter(FORSENDELSE_ID, forsendelseId));
+        return hentEksaktResultat(getMetadataQuery(forsendelseId));
     }
 
     public Optional<DokumentMetadata> hentUnikDokumentMetadata(UUID forsendelseId) {
-        return hentUniktResultat(em.createQuery("from DokumentMetadata where forsendelseId = :forsendelseId", DokumentMetadata.class)
-            .setParameter(FORSENDELSE_ID, forsendelseId));
+        return hentUniktResultat(getMetadataQuery(forsendelseId));
+    }
+
+    private TypedQuery<DokumentMetadata> getMetadataQuery(UUID forsendelseId) {
+        return em.createQuery("from DokumentMetadata where forsendelseId = :forsendelseId", DokumentMetadata.class)
+            .setParameter(FORSENDELSE_ID, forsendelseId);
     }
 
     public void slettForsendelse(UUID forsendelseId) {
-        em.createNativeQuery("delete from DOKUMENT where FORSENDELSE_ID  = :forsendelseId")
-            .setParameter(FORSENDELSE_ID, forsendelseId)
-            .executeUpdate();
-
-        em.createNativeQuery("delete from DOKUMENT_METADATA where FORSENDELSE_ID  = :forsendelseId")
-            .setParameter(FORSENDELSE_ID, forsendelseId)
-            .executeUpdate();
-
+        em.createQuery("delete from Dokument where forsendelseId = :forsendelseId").setParameter(FORSENDELSE_ID, forsendelseId).executeUpdate();
+        em.createQuery("delete from DokumentMetadata where forsendelseId = :forsendelseId").setParameter(FORSENDELSE_ID, forsendelseId).executeUpdate();
         em.flush();
     }
 
@@ -106,8 +103,7 @@ public class DokumentRepository {
 
     public void lagreJournalpostLokal(String journalpostId, String kanal, String tilstand, String referanse) {
         var journalpost = new Journalpost(journalpostId, tilstand, kanal, referanse, LOKALT_OPPHAV);
-        em.persist(journalpost);
-        em.flush();
+        lagre(journalpost);
     }
 
     public List<Journalpost> hentJournalposter(String journalpostId) {

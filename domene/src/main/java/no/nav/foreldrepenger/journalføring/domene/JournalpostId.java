@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.typer;
+package no.nav.foreldrepenger.journalføring.domene;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -22,12 +22,7 @@ public class JournalpostId implements Serializable {
         // for hibernate
     }
 
-    public JournalpostId(Long journalpostId) {
-        Objects.requireNonNull(journalpostId, "journalpostId");
-        this.journalpostId = Long.toString(journalpostId);
-    }
-
-    public JournalpostId(String journalpostId) {
+    private JournalpostId(String journalpostId) {
         Objects.requireNonNull(journalpostId, "journalpostId");
         if (!VALID.matcher(journalpostId).matches()) {
             // skal ikke skje, funksjonelle feilmeldinger håndteres ikke her.
@@ -35,6 +30,14 @@ public class JournalpostId implements Serializable {
                 "Ugyldig aktørId, støtter kun A-Z/0-9/:/-/_ tegn. Var: " + journalpostId.replaceAll(INVALID.pattern(), "?") + " (vasket)");
         }
         this.journalpostId = journalpostId;
+    }
+
+    public static JournalpostId fra(Long journalpostId) {
+        return fra(Long.toString(journalpostId));
+    }
+
+    public static JournalpostId fra(String journalpostId) {
+        return new JournalpostId(journalpostId);
     }
 
     public static boolean erGyldig(String input) {

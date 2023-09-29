@@ -22,7 +22,7 @@ import org.mockito.quality.Strictness;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.mottak.behandlendeenhet.JournalføringsOppgave;
+import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
@@ -48,7 +48,7 @@ class TilJournalføringTaskTest {
     @Mock
     private PersonInformasjon aktørConsumerMock;
     @Mock
-    private JournalføringsOppgave journalføringsOppgave;
+    private Journalføringsoppgave journalføringsOppgave;
 
     private TilJournalføringTask task;
     private ProsessTaskData ptd;

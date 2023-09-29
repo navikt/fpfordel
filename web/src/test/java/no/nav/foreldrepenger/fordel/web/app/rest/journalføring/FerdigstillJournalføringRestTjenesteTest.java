@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.typer.AktørId;
-import no.nav.foreldrepenger.typer.JournalpostId;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.vedtak.exception.TekniskException;
 
 @ExtendWith(MockitoExtension.class)
@@ -81,11 +81,11 @@ class FerdigstillJournalføringRestTjenesteTest {
     @Test
     void sakSkalOpprettesNårSaksnummerErNull() {
         var req = req(ENHETID, JOURNALPOST_ID, null, YtelseTypeDto.FORELDREPENGER, AKTØR_ID, null);
-        var journalpostId = new JournalpostId(JOURNALPOST_ID);
+        var journalpostId = JournalpostId.fra(JOURNALPOST_ID);
         when(journalføringTjeneste.opprettSak(journalpostId, new FerdigstillJournalføringRestTjeneste.OpprettSak(new AktørId(AKTØR_ID), FagsakYtelseTypeDto.FORELDREPENGER),null)).thenReturn(SAKSNUMMER);
 
         behandleJournalpost.oppdaterOgFerdigstillJournalfoering(req);
-        verify(journalføringTjeneste).oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID.toString(),null , Collections.emptyList(), null );
+        verify(journalføringTjeneste).oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, null , Collections.emptyList(), null );
     }
 
     @Test
@@ -95,10 +95,10 @@ class FerdigstillJournalføringRestTjenesteTest {
         String journalpostTittel = "Journalpost-tittel";
 
         var req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER, YtelseTypeDto.FORELDREPENGER, AKTØR_ID, new OppdaterJournalpostMedTittelDto(journalpostTittel, List.of(new OppdaterJournalpostMedTittelDto.DokummenterMedTitler(("1"), tittel1), new OppdaterJournalpostMedTittelDto.DokummenterMedTitler("2", tittel2))));
-        var journalpostId = new JournalpostId(JOURNALPOST_ID);
+        var journalpostId = JournalpostId.fra(JOURNALPOST_ID);
 
         behandleJournalpost.oppdaterOgFerdigstillJournalfoering(req);
-        verify(journalføringTjeneste).oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, OPPGAVE_ID.toString(), journalpostTittel, List.of(new FerdigstillJournalføringTjeneste.DokumenterMedNyTittel("1", tittel1), new FerdigstillJournalføringTjeneste.DokumenterMedNyTittel("2", tittel2)),
+        verify(journalføringTjeneste).oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, journalpostTittel, List.of(new FerdigstillJournalføringTjeneste.DokumenterMedNyTittel("1", tittel1), new FerdigstillJournalføringTjeneste.DokumenterMedNyTittel("2", tittel2)),
             DokumentTypeId.UDEFINERT);
     }
 

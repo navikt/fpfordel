@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.FagsakStatusDto;
 import no.nav.foreldrepenger.typer.AktørId;
-import no.nav.foreldrepenger.typer.JournalpostId;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 

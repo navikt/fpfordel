@@ -1,14 +1,8 @@
 package no.nav.foreldrepenger.mottak.behandlendeenhet;
 
-import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.FORELDREPENGER;
-import static no.nav.foreldrepenger.fordel.kodeverdi.Tema.FORELDRE_OG_SVANGERSKAPSPENGER;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
-import java.util.List;
-import java.util.Optional;
-
+import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.Arbeidsfordeling;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,49 +11,50 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.Arbeidsfordeling;
-import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingResponse;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
+import java.util.List;
+import java.util.Optional;
+
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.FORELDREPENGER;
+import static no.nav.foreldrepenger.fordel.kodeverdi.Tema.FORELDRE_OG_SVANGERSKAPSPENGER;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class JournalføringsOppgaveTest {
+class EnhetsTjenesteTest {
     public static final String GEOGRAFISK_TILKNYTNING = "test";
-    public static final String DISKRESJONSKODE = "diskresjonskode";
     private static final String AKTØR_ID = "9999999999999";
     private static final String FNR = "99999999999";
     private static final ArbeidsfordelingResponse ENHET = new ArbeidsfordelingResponse("4801", "Enhet", "Aktiv", "FPY");
     private static final ArbeidsfordelingResponse FORDELING_ENHET = new ArbeidsfordelingResponse("4867", "Oslo", "Aktiv", "FPY");
-    private JournalføringsOppgave enhetsTjeneste;
+    private EnhetsTjeneste enhetsTjeneste;
     @Mock
     private Arbeidsfordeling arbeidsfordeling;
     @Mock
     private PersonInformasjon personTjeneste;
     @Mock
     private SkjermetPersonKlient skjermetPersonKlient;
-    @Mock
-    private Oppgaver oppgaver;
 
     @BeforeEach
     void setup() {
         when(personTjeneste.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(FNR));
         when(arbeidsfordeling.hentAlleAktiveEnheter(any())).thenReturn(List.of(FORDELING_ENHET));
-        enhetsTjeneste = new EnhetsTjeneste(personTjeneste, arbeidsfordeling, skjermetPersonKlient, oppgaver);
         when(arbeidsfordeling.finnEnhet(any())).thenReturn(List.of(ENHET));
         when(personTjeneste.hentGeografiskTilknytning(any())).thenReturn(GEOGRAFISK_TILKNYTNING);
+        enhetsTjeneste = new EnhetsTjeneste(personTjeneste, arbeidsfordeling, skjermetPersonKlient);
     }
 
     @Test
     @MockitoSettings(strictness = Strictness.LENIENT)
-    void skal_returnere_enhetid() throws Exception {
+    void skal_returnere_enhetid() {
         assertThat(enhetId()).isNotNull().isEqualTo(FORDELING_ENHET.enhetNr());
     }
 
     @Test
     @MockitoSettings(strictness = Strictness.LENIENT)
-    void skal_returnere_enhetid_skjermet() throws Exception {
+    void skal_returnere_enhetid_skjermet() {
         when(skjermetPersonKlient.erSkjermet(any())).thenReturn(true);
-        assertThat(enhetId()).isNotNull().isEqualTo(JournalføringsOppgave.SKJERMET_ENHET_ID);
+        assertThat(enhetId()).isNotNull().isEqualTo(EnhetsTjeneste.SKJERMET_ENHET_ID);
     }
 
     @Test

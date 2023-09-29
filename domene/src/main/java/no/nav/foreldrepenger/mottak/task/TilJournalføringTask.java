@@ -6,11 +6,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.mottak.behandlendeenhet.JournalføringsOppgave;
+import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
@@ -38,7 +40,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
 
     private ArkivTjeneste arkivTjeneste;
     private PersonInformasjon aktør;
-    private JournalføringsOppgave journalføringsOppgave;
+    private Journalføringsoppgave oppgave;
 
     public TilJournalføringTask() {
 
@@ -46,11 +48,11 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
 
     @Inject
     public TilJournalføringTask(ProsessTaskTjeneste taskTjeneste, ArkivTjeneste arkivTjeneste, PersonInformasjon aktørConsumer,
-                                JournalføringsOppgave journalføringsOppgave) {
+                                Journalføringsoppgave journalføringsOppgave) {
         super(taskTjeneste);
         this.arkivTjeneste = arkivTjeneste;
         this.aktør = aktørConsumer;
-        this.journalføringsOppgave = journalføringsOppgave;
+        this.oppgave = journalføringsOppgave;
     }
 
     @Override
@@ -101,7 +103,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             return w.nesteSteg(TaskType.forProsessTask(OpprettGSakOppgaveTask.class));
         }
         try {
-            journalføringsOppgave.ferdigstillÅpneJournalføringsOppgaver(w.getArkivId());
+            oppgave.ferdigstillAlleÅpneJournalføringsoppgaverFor(JournalpostId.fra(w.getArkivId()));
         } catch (Exception e) {
             LOG.info("FPFORDEL JFR-OPPGAVE: feil ved ferdigstilling av åpne oppgaver for journalpostId: {}", w.getArkivId());
         }
