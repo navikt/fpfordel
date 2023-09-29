@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
@@ -34,6 +35,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
+import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskIdDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
@@ -48,15 +50,17 @@ public class ForvaltningRestTjeneste {
 
     private ProsessTaskTjeneste taskTjeneste;
     private Fagsak fagsak;
+    private OppgaveRepository oppgaveRepository;
 
     public ForvaltningRestTjeneste() {
         // CDI
     }
 
     @Inject
-    public ForvaltningRestTjeneste(ProsessTaskTjeneste taskTjeneste, Fagsak fagsak) {
+    public ForvaltningRestTjeneste(ProsessTaskTjeneste taskTjeneste, Fagsak fagsak, OppgaveRepository oppgaveRepository) {
         this.taskTjeneste = taskTjeneste;
         this.fagsak = fagsak;
+        this.oppgaveRepository = oppgaveRepository;
     }
 
     @POST
@@ -188,5 +192,24 @@ public class ForvaltningRestTjeneste {
         taskTjeneste.lagre(fra.getProsessTaskData());
         return Response.ok().build();
     }
+
+    @POST
+    @Operation(description = "Slett lokal oppgave og rekjør opprettOppgave", tags = "Forvaltning", summary = "Bruker eksisterende task til å opprette Oppgave", responses =
+
+        {@ApiResponse(responseCode = "200", description = "oppgave opprettet")})
+
+    @Path("/slett-lokal-oppgave")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response slettLokalOppgave(@Parameter(description = "TaskMedRef") @NotNull @Valid RetryTaskKanalrefDto dto) {
+        var data = taskTjeneste.finn(dto.getProsessTaskIdDto().getProsessTaskId());
+        if (data == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        oppgaveRepository.fjernFeilopprettetOppgave(data.getPropertyValue("arkivId"));
+        taskTjeneste.lagre(data);
+        return Response.ok().build();
+    }
+
+
 
 }
