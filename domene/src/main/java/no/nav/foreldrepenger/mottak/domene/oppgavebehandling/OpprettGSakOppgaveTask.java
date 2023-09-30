@@ -154,13 +154,10 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     }
 
     private boolean erGosysOppgave(String enhet, DokumentTypeId dokumentType) {
-        if (NK_ENHET_ID.equals(enhet) || Set.of(DokumentTypeId.ANNET, DokumentTypeId.UDEFINERT).contains(dokumentType)) {
+        if (NK_ENHET_ID.equals(enhet) || erKlageType(dokumentType) || Set.of(DokumentTypeId.ANNET, DokumentTypeId.UDEFINERT).contains(dokumentType)) {
             return true;
         }
         // denne kan fjerner i neste omgang.
-        else if (erKlageType(dokumentType) || erSøknadType(dokumentType) || erInntektsmelding(dokumentType)) {
-            return false;
-        }
-        return true;
+        return !erSøknadType(dokumentType) && !erInntektsmelding(dokumentType);
     }
 }

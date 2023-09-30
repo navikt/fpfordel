@@ -64,4 +64,9 @@ public class OppgaveRepository {
             LOG.info("Oppgave med Id: {} ferdigstillt.", oppgave.getJournalpostId());
         }
     }
+
+    public void fjernFeilopprettetOppgave(String journalpostId) {
+        em.createQuery("delete from Oppgave where journalpostId = :journalpostId").setParameter("journalpostId", journalpostId).executeUpdate();
+        em.flush();
+    }
 }
