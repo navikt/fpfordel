@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
+import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.task.RekjørFeiledeTasksBatchTask;
@@ -194,19 +195,19 @@ public class ForvaltningRestTjeneste {
     }
 
     @POST
-    @Operation(description = "Slett lokal oppgave og rekjør opprettOppgave", tags = "Forvaltning", summary = "Bruker eksisterende task til å opprette Oppgave", responses =
-
-        {@ApiResponse(responseCode = "200", description = "oppgave opprettet")})
-
-    @Path("/slett-lokal-oppgave")
+    @Operation(description = "Lager en ny OpprettOppgaveTask basert på tidligere + slett evt lokaloppgave", tags = "Forvaltning",
+        summary = "Bruker eksisterende task til å opprette Oppgave", responses = {@ApiResponse(responseCode = "200", description = "oppgave opprettet")})
+    @Path("/rerun-opprett-oppgave")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response slettLokalOppgave(@Parameter(description = "TaskMedRef") @NotNull @Valid RetryTaskKanalrefDto dto) {
-        var data = taskTjeneste.finn(dto.getProsessTaskIdDto().getProsessTaskId());
-        if (data == null) {
+    public Response rerunOpprettOppgave(@Parameter(description = "TaskMedRef") @NotNull @Valid RetryTaskKanalrefDto dto) {
+        var eksisterendeTask = taskTjeneste.finn(dto.getProsessTaskIdDto().getProsessTaskId());
+        if (eksisterendeTask == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        oppgaveRepository.fjernFeilopprettetOppgave(data.getPropertyValue("arkivId"));
-        taskTjeneste.lagre(data);
+        oppgaveRepository.fjernFeilopprettetOppgave(eksisterendeTask.getPropertyValue("arkivId"));
+        var nyTask = ProsessTaskData.forProsessTask(OpprettGSakOppgaveTask.class);
+        nyTask.setProperties(eksisterendeTask.getProperties());
+        taskTjeneste.lagre(nyTask);
         return Response.ok().build();
     }
 
