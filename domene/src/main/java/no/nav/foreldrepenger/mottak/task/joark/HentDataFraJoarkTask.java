@@ -132,6 +132,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             w.setEksternReferanseId(journalpost.getEksternReferanseId());
         }
 
+        Optional.ofNullable(journalpost.getKanal()).ifPresent(w::setKanal);
         w.setForsendelseMottattTidspunkt(Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now));
         w.setDokumentTypeId(journalpost.getHovedtype());
         w.setBehandlingTema(ArkivUtil.behandlingTemaFraDokumentType(w.getBehandlingTema(), journalpost.getHovedtype()));
@@ -140,7 +141,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         journalpost.getJournalfoerendeEnhet().ifPresent(w::setJournalførendeEnhet);
         w.setStrukturertDokument(journalpost.getInnholderStrukturertInformasjon());
         journalpost.getSaksnummer().ifPresent(s -> {
-            LOG.info("FORDEL HentFraArkiv presatt saksnummer {} for journalpost {}", s, w.getArkivId());
+            LOG.info("FPFORDEL HentFraArkiv presatt saksnummer {} for journalpost {} kanal {} dokumenttype {}", s, w.getArkivId(),
+                journalpost.getKanal(), journalpost.getHovedtype());
             w.setSaksnummer(s);
             w.setInnkommendeSaksnummer(s);
         });
@@ -217,7 +219,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         if (erInntektsmelding(journalpost.getHovedtype())) {
             oppdaterInntektsmelding(w);
             if (kreverInntektsmeldingManuellVurdering(w)) {
-                LOG.info("FPFORDEL HentFraArkiv inntektsmelding til manuell murdering journalpost {}", journalpost.getJournalpostId());
+                LOG.info("FPFORDEL HentFraArkiv inntektsmelding til manuell vurdering journalpost {}", journalpost.getJournalpostId());
                 return w.nesteSteg(TASK_GOSYS);
             }
         } else if (!arkiv.oppdaterRettMangler(journalpost, w.getAktørId().orElse(null), w.getBehandlingTema(), w.getDokumentTypeId().orElse(UDEFINERT))) {

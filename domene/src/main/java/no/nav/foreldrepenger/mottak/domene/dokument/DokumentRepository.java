@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.mottak.domene.dokument;
 import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
 import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -110,5 +111,9 @@ public class DokumentRepository {
         return em.createQuery("from Journalpost where journalpostId = :journalpostId", Journalpost.class)
             .setParameter("journalpostId", journalpostId)
             .getResultList();
+    }
+
+    public int slettJournalpostLokalEldreEnn(LocalDate dato) {
+        return em.createQuery("delete from Journalpost where opprettetTidspunkt < :opprettet").setParameter("opprettet", dato).executeUpdate();
     }
 }

@@ -324,7 +324,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getHovedtype()).thenReturn(DOK_INNLEGGELSE);
         when(arkivJournalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
-        when(arkivJournalpost.getKanal()).thenReturn(MottakKanal.SKAN_NETS.name());
+        when(arkivJournalpost.getKanal()).thenReturn(MottakKanal.SKAN_IM.getKode());
         when(arkivJournalpost.getOriginalJournalpost()).thenReturn(opprettJournalpost(forrigeTittel, List.of(new DokumentInfo("1", forrigeTittel, "kode", null, null))));
 
         journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, nyTittel, dokumenterMedNyeTitler, nyDokumentTypeId);
@@ -347,7 +347,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getHovedtype()).thenReturn(SØKNAD_FORELDREPENGER_FØDSEL);
         when(arkivJournalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
         when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
-        when(arkivJournalpost.getKanal()).thenReturn(MottakKanal.SELVBETJENING.name());
+        when(arkivJournalpost.getKanal()).thenReturn(MottakKanal.SELVBETJENING.getKode());
 
 
         var e = assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, nyTittel, dokumenterMedNyeTitler, nyDokumentTypeId));
