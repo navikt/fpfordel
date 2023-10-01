@@ -32,6 +32,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.BrukerId;
+import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.OppgaveBuilder;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
@@ -43,6 +45,7 @@ import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 class OppgaverTjenesteTest {
@@ -55,7 +58,7 @@ class OppgaverTjenesteTest {
 
     @BeforeEach
     void setUp() {
-        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient);
+        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient, mock(ProsessTaskTjeneste.class));
     }
 
     @Test
@@ -68,9 +71,9 @@ class OppgaverTjenesteTest {
         var id = oppgaver.opprettGosysJournalføringsoppgaveFor(NyOppgave.builder()
             .medJournalpostId(JournalpostId.fra("123456"))
             .medEnhetId("1234")
-            .medAktørId("1234567890123")
+            .medAktørId(new BrukerId("1234567890123"))
             .medSaksref("referanse")
-            .medBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER.getOffisiellKode())
+            .medBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER)
             .medBeskrivelse("Test beskrivelse")
             .build());
 
@@ -81,15 +84,15 @@ class OppgaverTjenesteTest {
 
     @Test
     void opprettJournalføringsOppgaveLokalt() {
-        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient);
+        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient, mock(ProsessTaskTjeneste.class));
         var expectedId = "11";
         when(oppgaveRepository.lagre(any(OppgaveEntitet.class))).thenReturn(expectedId);
 
         var id = oppgaver.opprettJournalføringsoppgaveFor(NyOppgave.builder().medJournalpostId(JournalpostId.fra("123456"))
             .medEnhetId("1234")
-            .medAktørId("1234567890123")
+            .medAktørId(new BrukerId("1234567890123"))
             .medSaksref("referanse")
-            .medBehandlingTema(BehandlingTema.FORELDREPENGER.getOffisiellKode())
+            .medBehandlingTema(BehandlingTema.FORELDREPENGER)
             .medBeskrivelse("Test beskrivelse")
             .build());
 

@@ -50,14 +50,7 @@ public class JournalpostId implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (obj == null || !getClass().equals(obj.getClass())) {
-            return false;
-        }
-        var other = (JournalpostId) obj;
-        return Objects.equals(journalpostId, other.journalpostId);
+        return obj instanceof JournalpostId other && getClass().equals(other.getClass()) && Objects.equals(journalpostId, other.journalpostId);
     }
 
     @Override

@@ -52,6 +52,16 @@ public class BrukerId implements Serializable {
         return getClass().getSimpleName() + "<" + maskerAktørId() + ">";
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof BrukerId other && getClass().equals(other.getClass()) && Objects.equals(id, other.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
     public static boolean erGyldigBrukerId(String aktørId) {
         return aktørId != null && VALID.matcher(aktørId).matches();
     }

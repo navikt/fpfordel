@@ -1,13 +1,17 @@
 package no.nav.foreldrepenger.journalføring.oppgave.domene;
 
+import java.util.Optional;
+
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.BrukerId;
 
 public class NyOppgaveBuilder {
     private JournalpostId journalpostId;
     private String enhetId;
-    private String aktørId;
+    private BrukerId aktørId;
     private String saksref;
-    private String behandlingTema;
+    private BehandlingTema behandlingTema;
     private String beskrivelse;
 
     NyOppgaveBuilder() {
@@ -24,6 +28,11 @@ public class NyOppgaveBuilder {
     }
 
     public NyOppgaveBuilder medAktørId(String aktørId) {
+        this.aktørId = Optional.ofNullable(aktørId).map(BrukerId::new).orElse(null);
+        return this;
+    }
+
+    public NyOppgaveBuilder medAktørId(BrukerId aktørId) {
         this.aktørId = aktørId;
         return this;
     }
@@ -33,7 +42,7 @@ public class NyOppgaveBuilder {
         return this;
     }
 
-    public NyOppgaveBuilder medBehandlingTema(String behandlingTema) {
+    public NyOppgaveBuilder medBehandlingTema(BehandlingTema behandlingTema) {
         this.behandlingTema = behandlingTema;
         return this;
     }

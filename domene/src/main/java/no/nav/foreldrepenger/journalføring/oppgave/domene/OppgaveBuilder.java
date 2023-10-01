@@ -15,6 +15,7 @@ public class OppgaveBuilder {
     private Oppgavestatus status;
     private String beskrivelse;
     private String tilordnetRessurs;
+    private Oppgave.Kilde kilde;
     private String kildeId;
 
     public OppgaveBuilder medId(String id) {
@@ -67,9 +68,14 @@ public class OppgaveBuilder {
         return this;
     }
 
+    public OppgaveBuilder medKilde(Oppgave.Kilde kilde) {
+        this.kilde = kilde;
+        return this;
+    }
+
     public Oppgave build() {
         validate();
-        return new Oppgave(id, aktoerId, ytelseType, tildeltEnhetsnr, fristFerdigstillelse, aktivDato, status, beskrivelse, tilordnetRessurs, kildeId);
+        return new Oppgave(id, aktoerId, ytelseType, tildeltEnhetsnr, fristFerdigstillelse, aktivDato, status, beskrivelse, tilordnetRessurs, kilde, kildeId);
     }
 
     private void validate() {
@@ -79,5 +85,7 @@ public class OppgaveBuilder {
         Objects.requireNonNull(status, "status");
         Objects.requireNonNull(fristFerdigstillelse, "frist");
         Objects.requireNonNull(beskrivelse, "beskrivelse");
+        Objects.requireNonNull(kilde, "kilde");
+        Objects.requireNonNull(kildeId, "kildeId");
     }
 }

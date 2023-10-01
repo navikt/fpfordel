@@ -122,7 +122,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     private String opprettOppgave(ProsessTaskData prosessTaskData, BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId) {
         var enhetInput = prosessTaskData.getPropertyValue(JOURNAL_ENHET);
         // Oppgave har ikke mapping for alle undertyper fødsel/adopsjon
-        var brukBT = BehandlingTema.forYtelseUtenFamilieHendelse(behandlingTema).getOffisiellKode();
+        var brukBT = BehandlingTema.forYtelseUtenFamilieHendelse(behandlingTema);
 
         var journalpostId = prosessTaskData.getPropertyValue(ARKIV_ID_KEY);
 

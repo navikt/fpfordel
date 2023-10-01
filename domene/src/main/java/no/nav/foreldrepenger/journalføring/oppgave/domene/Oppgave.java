@@ -13,7 +13,10 @@ public record Oppgave(String id,
                       Oppgavestatus status,
                       String beskrivelse,
                       String tilordnetRessurs,
+                      Kilde kilde,
                       String kildeId) {
+
+    public enum Kilde { LOKAL, GLOBAL }
 
     public static OppgaveBuilder builder() {
         return new OppgaveBuilder();

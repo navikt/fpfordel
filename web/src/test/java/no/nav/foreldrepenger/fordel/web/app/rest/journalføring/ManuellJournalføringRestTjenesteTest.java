@@ -111,6 +111,7 @@ class ManuellJournalføringRestTjenesteTest {
         assertThat(oppgave.prioritet()).isEqualTo(ManuellJournalføringRestTjeneste.OppgavePrioritet.NORM);
         assertThat(oppgave.ytelseType()).isEqualTo(YtelseTypeDto.FORELDREPENGER);
         assertThat(oppgave.enhetId()).isEqualTo(tilhørendeEnhetDto.enhetsnummer());
+        assertThat(oppgave.kilde()).isEqualTo(ManuellJournalføringRestTjeneste.OppgaveKilde.GOSYS);
     }
 
     @Test
@@ -433,6 +434,7 @@ class ManuellJournalføringRestTjenesteTest {
             .medTilordnetRessurs(reservertAv)
             .medAktivDato(now)
             .medFristFerdigstillelse(now)
+            .medKilde(Oppgave.Kilde.GLOBAL)
             .build();
     }
 
