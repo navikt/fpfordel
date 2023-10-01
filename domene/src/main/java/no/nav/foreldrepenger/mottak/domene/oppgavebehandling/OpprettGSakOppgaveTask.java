@@ -22,6 +22,7 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
@@ -144,7 +145,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
             .medBeskrivelse(beskrivelse)
             .build();
 
-        if (erGosysOppgave(enhetId, dokumentTypeId)) {
+        if (erGosysOppgave(enhetId, dokumentTypeId, prosessTaskData.getPropertyValue(MottakMeldingDataWrapper.KANAL_KEY))) {
             LOG.info("Oppretter en gosys oppgave for {} med {}", journalpost, dokumentTypeId);
             return oppgaverTjeneste.opprettGosysJournalføringsoppgaveFor(nyOppgave);
         } else {
@@ -153,8 +154,13 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         }
     }
 
-    private boolean erGosysOppgave(String enhet, DokumentTypeId dokumentType) {
+    private boolean erGosysOppgave(String enhet, DokumentTypeId dokumentType, String kanal) {
         if (NK_ENHET_ID.equals(enhet) || erKlageType(dokumentType) || Set.of(DokumentTypeId.ANNET, DokumentTypeId.UDEFINERT).contains(dokumentType)) {
+            return true;
+        }
+        // Til vi har journalfør på generell sak - inntektsmeldinger feil type (+scanning med feil forside)
+        // kanal skal være satt for kafka-journalposter - men ikke for søknader fra egen selvbetjening
+        if (erInntektsmelding(dokumentType) || MottakKanal.SKAN_IM.getKode().equals(kanal)) {
             return true;
         }
         // denne kan fjerner i neste omgang.
