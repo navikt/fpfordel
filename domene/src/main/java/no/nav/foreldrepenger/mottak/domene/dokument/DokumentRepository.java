@@ -114,6 +114,6 @@ public class DokumentRepository {
     }
 
     public int slettJournalpostLokalEldreEnn(LocalDate dato) {
-        return em.createQuery("delete from Journalpost where opprettetTidspunkt < :opprettet").setParameter("opprettet", dato).executeUpdate();
+        return em.createQuery("delete from Journalpost where opprettetTidspunkt < :opprettet").setParameter("opprettet", dato.atStartOfDay()).executeUpdate();
     }
 }
