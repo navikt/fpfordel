@@ -336,6 +336,26 @@ class FerdigstillJournalføringTjenesteTest {
     }
 
     @Test
+    void verifisereAtRiktigOppdateringAvGenerellJournalpostKallesOgMedriktigeParametere() {
+        var nyTittel = "Søknad om foreldrepenger ved fødsel";
+        var forrigeTittel = "Mor er innlagt i helseinstitusjon";
+        var dokumenterMedNyeTitler = (List.of(opprettDokument(nyTittel )));
+        var nyDokumentTypeId = DokumentTypeId.fraTermNavn(nyTittel);
+
+        when(arkivJournalpost.getHovedtype()).thenReturn(DOK_INNLEGGELSE);
+        when(arkivJournalpost.getTilstand()).thenReturn(Journalstatus.MOTTATT);
+        when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
+        when(arkivJournalpost.getKanal()).thenReturn(MottakKanal.SKAN_IM.getKode());
+        when(arkivJournalpost.getOriginalJournalpost()).thenReturn(opprettJournalpost(forrigeTittel, List.of(new DokumentInfo("1", forrigeTittel, "kode", null, null))));
+
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstillGenerellSak(ENHETID, journalpostId, AKTØR_ID, nyTittel, dokumenterMedNyeTitler, nyDokumentTypeId);
+
+        verify(arkiv, times(1)).oppdaterJournalpostVedManuellJournalføring(JOURNALPOST_ID, nyTittel, List.of(new OppdaterJournalpostRequest.DokumentInfoOppdater("1", nyTittel, null)), arkivJournalpost, AKTØR_ID, FORELDREPENGER_FØDSEL);
+        verify(arkiv).oppdaterMedGenerellSak(JOURNALPOST_ID, AKTØR_ID);
+        verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
+    }
+
+    @Test
     void verifisereAtFeilKastesNårJournalpostErFraSelvbetjening() {
         var nyTittel = "Mor er innlagt i helseinstitusjon";
         var dokumenterMedNyeTitler = (List.of(opprettDokument(nyTittel )));
