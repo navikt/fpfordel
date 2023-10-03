@@ -17,7 +17,7 @@ public interface Journalføringsoppgave {
 
     void ferdigstillAlleÅpneJournalføringsoppgaverFor(JournalpostId journalpostId);
 
-    Oppgave hentOppgaveFor(String oppgaveId);
+    Oppgave hentOppgaveFor(JournalpostId journalpostId);
 
     void reserverOppgaveFor(String oppgaveId, String saksbehandlerId);
 

@@ -36,6 +36,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilType;
@@ -197,7 +198,7 @@ public class ManuellJournalføringRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response oppgaveReserver(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @NotNull @Valid ReserverOppgaveDto oppgaveDto) {
         var innloggetBruker = KontekstHolder.getKontekst().getUid();
-        var oppgave = oppgaveTjeneste.hentOppgaveFor(oppgaveDto.oppgaveId());
+        var oppgave = oppgaveTjeneste.hentOppgaveFor(JournalpostId.fra(oppgaveDto.oppgaveId()));
 
         if (isBlank(oppgaveDto.reserverFor())) {
             // Avreserver
