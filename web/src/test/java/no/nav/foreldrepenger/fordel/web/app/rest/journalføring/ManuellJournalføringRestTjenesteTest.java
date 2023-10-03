@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -28,6 +29,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus;
@@ -344,7 +346,7 @@ class ManuellJournalføringRestTjenesteTest {
     void skal_kaste_exception_hvis_oppgave_reservert_an_annen_saksbehandler() {
         var expectedOppgaveId = 123L;
 
-        when(oppgaveTjeneste.hentOppgaveFor(anyString())).thenReturn(
+        when(oppgaveTjeneste.hentOppgaveFor(any(JournalpostId.class))).thenReturn(
             opprettOppgave("12334", LocalDate.now(), "test", "7070", "John", YtelseType.FP));
 
         var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(String.valueOf(expectedOppgaveId), 1,null);
@@ -368,7 +370,7 @@ class ManuellJournalføringRestTjenesteTest {
     void skal_kunne_avreservere_en_ledig_oppgave() {
         var expectedOppgaveId = "123";
 
-        when(oppgaveTjeneste.hentOppgaveFor(anyString())).thenReturn(
+        when(oppgaveTjeneste.hentOppgaveFor(any(JournalpostId.class))).thenReturn(
             opprettOppgave(expectedOppgaveId, LocalDate.now(), "test", "7070", "John", YtelseType.FP));
 
         var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(String.valueOf(expectedOppgaveId), 1, "");

@@ -165,13 +165,13 @@ class OppgaverTjenesteTest {
     void hentOppgaveGlobalt() {
         var journalpostId = "1234";
         when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(false);
-        when(oppgaveKlient.hentOppgave(journalpostId)).thenReturn(gosysOppgave(journalpostId));
+        when(oppgaveKlient.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId)).thenReturn(List.of(gosysOppgave(journalpostId)));
 
-        var oppgave = oppgaver.hentOppgaveFor(journalpostId);
+        var oppgave = oppgaver.hentOppgaveFor(JournalpostId.fra(journalpostId));
 
         assertThat(oppgave.id()).isEqualTo(journalpostId);
 
-        verify(oppgaveKlient).hentOppgave(journalpostId);
+        verify(oppgaveKlient).finnÅpneJournalføringsoppgaverForJournalpost(journalpostId);
         verify(oppgaveRepository, never()).hentOppgave(journalpostId);
     }
 
@@ -181,7 +181,7 @@ class OppgaverTjenesteTest {
         when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(true);
         when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalOppgave(journalpostId));
 
-        var oppgave = oppgaver.hentOppgaveFor(journalpostId);
+        var oppgave = oppgaver.hentOppgaveFor(JournalpostId.fra(journalpostId));
 
         assertThat(oppgave.id()).isEqualTo(journalpostId);
 

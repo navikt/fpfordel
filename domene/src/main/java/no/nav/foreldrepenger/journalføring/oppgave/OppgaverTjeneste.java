@@ -101,11 +101,14 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     }
 
     @Override
-    public Oppgave hentOppgaveFor(String oppgaveId) {
-        if (oppgaveRepository.harÅpenOppgave(oppgaveId)) {
-            return mapTilOppgave(oppgaveRepository.hentOppgave(oppgaveId));
+    public Oppgave hentOppgaveFor(JournalpostId journalpostId) {
+        if (oppgaveRepository.harÅpenOppgave(journalpostId.getVerdi())) {
+            return mapTilOppgave(oppgaveRepository.hentOppgave(journalpostId.getVerdi()));
         } else {
-            return mapTilOppgave(oppgaveKlient.hentOppgave(oppgaveId));
+            return oppgaveKlient.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId.getVerdi()).stream()
+                .filter(o -> o.journalpostId() != null)
+                .map(OppgaverTjeneste::mapTilOppgave)
+                .findFirst().orElse(null);
         }
     }
 
@@ -169,6 +172,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     private List<Oppgave> finnGlobaleOppgaver(String enhet) {
         return oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, enhet, LIMIT)
             .stream()
+            .filter(o -> o.journalpostId() != null)
             .map(OppgaverTjeneste::mapTilOppgave)
             .toList();
     }
