@@ -175,7 +175,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
 
     private static Oppgave mapTilOppgave(no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave oppgave) {
         return Oppgave.builder()
-            .medId(oppgave.id().toString())
+            .medId(oppgave.journalpostId())
             .medStatus(Oppgavestatus.valueOf(oppgave.status().name()))
             .medTildeltEnhetsnr(oppgave.tildeltEnhetsnr())
             .medFristFerdigstillelse(oppgave.fristFerdigstillelse())
