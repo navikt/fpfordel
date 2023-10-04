@@ -16,7 +16,9 @@ public record Oppgave(String id,
                       Kilde kilde,
                       String kildeId) {
 
-    public enum Kilde { LOKAL, GLOBAL }
+    public enum Kilde { LOKAL,
+        GOSYS
+    }
 
     public static OppgaveBuilder builder() {
         return new OppgaveBuilder();

@@ -317,7 +317,7 @@ public class ManuellJournalføringRestTjeneste {
         }
         return switch (oppgave.kilde()) {
             case LOKAL -> OppgaveKilde.LOKAL;
-            case GLOBAL -> OppgaveKilde.GOSYS;
+            case GOSYS -> OppgaveKilde.GOSYS;
         };
     }
 

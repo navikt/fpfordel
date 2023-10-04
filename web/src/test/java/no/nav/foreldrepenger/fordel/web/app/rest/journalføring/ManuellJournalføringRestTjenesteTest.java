@@ -434,7 +434,7 @@ class ManuellJournalføringRestTjenesteTest {
             .medTilordnetRessurs(reservertAv)
             .medAktivDato(now)
             .medFristFerdigstillelse(now)
-            .medKilde(Oppgave.Kilde.GLOBAL)
+            .medKilde(Oppgave.Kilde.GOSYS)
             .build();
     }
 

@@ -224,7 +224,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
             .medBeskrivelse(oppgave.beskrivelse())
             .medTilordnetRessurs(oppgave.tilordnetRessurs())
             .medAktivDato(oppgave.aktivDato())
-            .medKilde(Oppgave.Kilde.GLOBAL)
+            .medKilde(Oppgave.Kilde.GOSYS)
             .build();
     }
 
