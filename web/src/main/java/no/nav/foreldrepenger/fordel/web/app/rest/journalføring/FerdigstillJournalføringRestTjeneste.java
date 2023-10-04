@@ -98,6 +98,14 @@ public class FerdigstillJournalføringRestTjeneste {
         var saksnummer = request.saksnummer() != null ? request.saksnummer() : null;
 
         if (saksnummer == null) {
+            if (request.opprettSak() == null || (!SakstypeDto.GENERELL.equals(request.opprettSak().sakstype()) && request.opprettSak().ytelseType() == null)) {
+                throw new TekniskException("FP-32354", "OpprettSakDto kan ikke være null ved opprettelse av en sak eller mangler ytelsestype.");
+            }
+            if (SakstypeDto.GENERELL.equals(request.opprettSak().sakstype())) {
+                journalføringTjeneste.oppdaterJournalpostOgFerdigstillGenerellSak(request.enhetId, journalpostId, request.opprettSak().aktørId(),
+                    nyJournalpostTittel, dokumenter, nyDokumentTypeId);
+                return new SaksnummerDto("000000000");
+            }
             saksnummer = journalføringTjeneste.opprettSak(journalpostId, mapOpprettSak(request.opprettSak()), nyDokumentTypeId);
         }
 
@@ -160,7 +168,9 @@ public class FerdigstillJournalføringRestTjeneste {
         }
     }
 
-    record OpprettSakDto(@NotNull YtelseTypeDto ytelseType,
+    enum SakstypeDto { FAGSAK, GENERELL }
+
+    record OpprettSakDto(@Valid YtelseTypeDto ytelseType, @Valid FerdigstillJournalføringRestTjeneste.SakstypeDto sakstype,
                          @NotNull @Pattern(regexp = "^\\d{13}$", message = "aktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String aktørId) {
     }
 

@@ -153,6 +153,43 @@ public class FerdigstillJournalføringTjeneste {
         opprettFerdigstillOppgaveTask(journalpostId);
     }
 
+    public void oppdaterJournalpostOgFerdigstillGenerellSak(String enhetId, JournalpostId journalpostId, String aktørId,
+                                                 String nyJournalpostTittel, List<DokumenterMedNyTittel> dokumenterMedNyTittel,
+                                                 DokumentTypeId nyDokumentTypeId) {
+
+        final var journalpost = hentJournalpost(journalpostId.getVerdi());
+        validerJournalposttype(journalpost.getJournalposttype());
+
+        LOG.info("FPFORDEL RESTJOURNALFØRING GENERELL: Ferdigstiller journalpostId: {}", journalpostId);
+
+        var dokumentTypeId = journalpost.getHovedtype();
+        if (nyDokumentTypeId != null) {
+            dokumentTypeId = nyDokumentTypeId;
+        }
+
+        final var behandlingTemaDok = ArkivUtil.behandlingTemaFraDokumentType(BehandlingTema.UDEFINERT, dokumentTypeId);
+        final var behandlingTema = validerOgVelgBehandlingTema(BehandlingTema.UDEFINERT, behandlingTemaDok, dokumentTypeId);
+
+        // For å unngå klonede journalposter fra GOSYS - de kan komme via Kafka - må skje før vi ferdigstiller.
+        // Ellers kan kan kafka hendelsen komme tidligere en vi klarer å lagre og oppretter en ny oppgave.
+        dokumentRepository.lagreJournalpostLokal(journalpost.getJournalpostId(), journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
+
+        if (Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
+            oppdaterJournalpostMedTittelOgMangler(journalpost, nyJournalpostTittel, dokumenterMedNyTittel, aktørId, behandlingTema);
+            LOG.info("FPFORDEL RESTJOURNALFØRING GENERELL: Kaller til Journalføring"); // NOSONAR
+            try {
+                arkivTjeneste.oppdaterMedGenerellSak(journalpost.getJournalpostId(), aktørId);
+                arkivTjeneste.ferdigstillJournalføring(journalpost.getJournalpostId(), enhetId);
+            } catch (Exception e) {
+                LOG.warn("FPFORDEL RESTJOURNALFØRING GENERELL: oppdaterJournalpostOgFerdigstill feiler for {}", journalpost.getJournalpostId(), e);
+                throw new TekniskException("FP-15689", lagUgyldigInputMelding("Bruker", BRUKER_MANGLER));
+            }
+        }
+
+        opprettFerdigstillOppgaveTask(journalpostId);
+    }
+
+
     public void oppdaterJournalpostMedTittelOgMangler(ArkivJournalpost journalpost, String nyJournalpostTittel, List<DokumenterMedNyTittel> dokumenterMedNyTittel, String aktørId, BehandlingTema behandlingTema) {
         var journalpostId = journalpost.getJournalpostId();
         var kanal = journalpost.getKanal();

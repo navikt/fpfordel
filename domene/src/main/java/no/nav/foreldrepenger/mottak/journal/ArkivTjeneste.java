@@ -413,6 +413,19 @@ public class ArkivTjeneste {
         }
     }
 
+    public void oppdaterMedGenerellSak(String journalpostId, String aktørId) {
+        var builder = OppdaterJournalpostRequest.ny()
+            .medSak(new Sak(null, null, Sak.Sakstype.GENERELL_SAK))
+            .medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode())
+            .medBruker(aktørId);
+
+        if (dokArkivTjeneste.oppdaterJournalpost(journalpostId, builder.build())) {
+            LOG.info("FPFORDEL SAKSOPPDATERING oppdaterte {} med generell sak", journalpostId);
+        } else {
+            throw new IllegalStateException("FPFORDEL Kunne ikke knytte journalpost " + journalpostId + " til generell sak");
+        }
+    }
+
     public void ferdigstillJournalføring(String journalpostId, String enhet) {
         if (dokArkivTjeneste.ferdigstillJournalpost(journalpostId, enhet)) {
             LOG.info("FPFORDEL FERDIGSTILLING ferdigstilte journalpost {} enhet {}", journalpostId, enhet);

@@ -75,7 +75,7 @@ class FerdigstillJournalføringRestTjenesteTest {
     void skalValiderePåkrevdInput_opprettSakDto() {
         var req = req(ENHETID, JOURNALPOST_ID, null, null, null, null);
         Exception ex = assertThrows(TekniskException.class, () -> behandleJournalpost.oppdaterOgFerdigstillJournalfoering(req));
-        assertThat(ex.getMessage()).contains("OpprettSakDto kan ikke være null ved opprettelse av en sak.");
+        assertThat(ex.getMessage()).contains("OpprettSakDto kan ikke være null ved opprettelse av en sak eller mangler ytelsestype.");
     }
 
     @Test
@@ -86,6 +86,15 @@ class FerdigstillJournalføringRestTjenesteTest {
 
         behandleJournalpost.oppdaterOgFerdigstillJournalfoering(req);
         verify(journalføringTjeneste).oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, null , Collections.emptyList(), null );
+    }
+
+    @Test
+    void sakSkalOppretteGenerellNårAngitt() {
+        var req = reqGenerell(ENHETID, JOURNALPOST_ID, null, AKTØR_ID, null);
+        var journalpostId = JournalpostId.fra(JOURNALPOST_ID);
+
+        behandleJournalpost.oppdaterOgFerdigstillJournalfoering(req);
+        verify(journalføringTjeneste).oppdaterJournalpostOgFerdigstillGenerellSak(ENHETID, journalpostId, AKTØR_ID, null, Collections.emptyList(), null );
     }
 
     @Test
@@ -113,8 +122,13 @@ class FerdigstillJournalføringRestTjenesteTest {
     private static FerdigstillJournalføringRestTjeneste.FerdigstillRequest req(String enhetid, String journalpostId, String sakId, YtelseTypeDto ytelseTypeDto, String aktørId, OppdaterJournalpostMedTittelDto oppdaterJournalpostMedTittelDto) {
         FerdigstillJournalføringRestTjeneste.OpprettSakDto opprettSakDto = null;
         if (aktørId != null && ytelseTypeDto != null) {
-            opprettSakDto = new FerdigstillJournalføringRestTjeneste.OpprettSakDto(ytelseTypeDto, aktørId);
+            opprettSakDto = new FerdigstillJournalføringRestTjeneste.OpprettSakDto(ytelseTypeDto, null, aktørId);
         }
+        return new FerdigstillJournalføringRestTjeneste.FerdigstillRequest(journalpostId, enhetid, sakId, OPPGAVE_ID, opprettSakDto,  oppdaterJournalpostMedTittelDto);
+    }
+
+    private static FerdigstillJournalføringRestTjeneste.FerdigstillRequest reqGenerell(String enhetid, String journalpostId, String sakId, String aktørId, OppdaterJournalpostMedTittelDto oppdaterJournalpostMedTittelDto) {
+        var opprettSakDto = new FerdigstillJournalføringRestTjeneste.OpprettSakDto(null, FerdigstillJournalføringRestTjeneste.SakstypeDto.GENERELL, aktørId);
         return new FerdigstillJournalføringRestTjeneste.FerdigstillRequest(journalpostId, enhetid, sakId, OPPGAVE_ID, opprettSakDto,  oppdaterJournalpostMedTittelDto);
     }
 }
