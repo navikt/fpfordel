@@ -158,9 +158,8 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         if (NK_ENHET_ID.equals(enhet) || erKlageType(dokumentType) || Set.of(DokumentTypeId.ANNET, DokumentTypeId.UDEFINERT).contains(dokumentType)) {
             return true;
         }
-        // Til vi har journalfør på generell sak - inntektsmeldinger feil type (+scanning med feil forside)
-        // kanal skal være satt for kafka-journalposter - men ikke for søknader fra egen selvbetjening
-        if (erInntektsmelding(dokumentType) || MottakKanal.SKAN_IM.getKode().equals(kanal)) {
+        // Søknader fra scanning kan være ymse. Vent til vi har en flytt-til-gosys
+        if (MottakKanal.SKAN_IM.getKode().equals(kanal)) {
             return true;
         }
         // denne kan fjerner i neste omgang.
