@@ -349,7 +349,7 @@ class ManuellJournalføringRestTjenesteTest {
         when(oppgaveTjeneste.hentOppgaveFor(any(JournalpostId.class))).thenReturn(
             opprettOppgave("12334", LocalDate.now(), "test", "7070", "John", YtelseType.FP));
 
-        var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(String.valueOf(expectedOppgaveId), 1,null);
+        var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(String.valueOf(expectedOppgaveId),null);
 
         Exception ex;
         try (var utilities = Mockito.mockStatic(KontekstHolder.class)) {
@@ -373,7 +373,7 @@ class ManuellJournalføringRestTjenesteTest {
         when(oppgaveTjeneste.hentOppgaveFor(any(JournalpostId.class))).thenReturn(
             opprettOppgave(expectedOppgaveId, LocalDate.now(), "test", "7070", "John", YtelseType.FP));
 
-        var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(String.valueOf(expectedOppgaveId), 1, "");
+        var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(String.valueOf(expectedOppgaveId), "");
         Response response;
 
         try (var utilities = Mockito.mockStatic(KontekstHolder.class)) {
