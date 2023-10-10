@@ -36,13 +36,13 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilType;
 import no.nav.foreldrepenger.fordel.web.app.konfig.ApiConfig;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
@@ -203,7 +203,7 @@ public class ManuellJournalføringRestTjeneste {
         if (isBlank(oppgaveDto.reserverFor())) {
             // Avreserver
             if (innloggetBruker.equals(oppgave.tilordnetRessurs())) {
-                oppgaveTjeneste.avreserverOppgaveFor(oppgave.id());
+                oppgaveTjeneste.avreserverOppgaveFor(oppgave);
                 LOG.info("Oppgave {} avreservert av {}.", oppgave.id(), innloggetBruker);
             } else {
                 // Ikke mulig å avreservere for andre
@@ -213,7 +213,7 @@ public class ManuellJournalføringRestTjeneste {
         } else {
             // Reserver
             if (isBlank(oppgave.tilordnetRessurs())) {
-                oppgaveTjeneste.reserverOppgaveFor(oppgave.id(), oppgaveDto.reserverFor());
+                oppgaveTjeneste.reserverOppgaveFor(oppgave, oppgaveDto.reserverFor());
                 LOG.info("Oppgave {} reservert av {}.", oppgave.id(), innloggetBruker);
             }
             else {
