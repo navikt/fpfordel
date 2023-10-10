@@ -32,9 +32,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.BrukerId;
-import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.OppgaveBuilder;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.BrukerId;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
@@ -197,6 +196,7 @@ class OppgaverTjenesteTest {
         var journalpostId = "1234";
         var saksbehandler = "TestIdent";
         var oppgave = new OppgaveBuilder().medId(journalpostId).medKildeId(journalpostId)
+            .medKilde(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.Kilde.GOSYS)
             .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
             .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
             .medFristFerdigstillelse(LocalDate.now().plusDays(1))
@@ -215,6 +215,7 @@ class OppgaverTjenesteTest {
         var journalpostId = "1234";
         var saksbehandler = "TestIdent";
         var oppgave = new OppgaveBuilder().medId(journalpostId).medKildeId(journalpostId)
+            .medKilde(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.Kilde.LOKAL)
             .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
             .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
             .medFristFerdigstillelse(LocalDate.now().plusDays(1))
@@ -236,6 +237,7 @@ class OppgaverTjenesteTest {
     void avreserverOppgaveGosys() {
         var journalpostId = "1234";
         var oppgave = new OppgaveBuilder().medId(journalpostId).medKildeId(journalpostId)
+            .medKilde(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.Kilde.GOSYS)
             .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
             .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
             .medFristFerdigstillelse(LocalDate.now().plusDays(1))
@@ -253,6 +255,7 @@ class OppgaverTjenesteTest {
     void avreserverOppgaveLokalt() {
         var journalpostId = "1234";
         var oppgave = new OppgaveBuilder().medId(journalpostId).medKildeId(journalpostId)
+            .medKilde(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.Kilde.LOKAL)
             .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
             .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
             .medFristFerdigstillelse(LocalDate.now().plusDays(1))

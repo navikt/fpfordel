@@ -435,6 +435,7 @@ class ManuellJournalføringRestTjenesteTest {
             .medAktivDato(now)
             .medFristFerdigstillelse(now)
             .medKilde(Oppgave.Kilde.GOSYS)
+            .medKildeId(expectedId)
             .build();
     }
 
