@@ -12,7 +12,8 @@ public record Oppgave(String id,
                       LocalDate aktivDato,
                       Oppgavestatus status,
                       String beskrivelse,
-                      String tilordnetRessurs) {
+                      String tilordnetRessurs,
+                      String kildeId) {
 
     public static OppgaveBuilder builder() {
         return new OppgaveBuilder();

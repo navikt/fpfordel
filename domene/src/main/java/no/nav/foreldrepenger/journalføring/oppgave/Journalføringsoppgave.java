@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Set;
 
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
-import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
+import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
 
 public interface Journalføringsoppgave {
 
@@ -19,9 +19,9 @@ public interface Journalføringsoppgave {
 
     Oppgave hentOppgaveFor(JournalpostId journalpostId);
 
-    void reserverOppgaveFor(String oppgaveId, String saksbehandlerId);
+    void reserverOppgaveFor(Oppgave oppgave, String saksbehandlerId);
 
-    void avreserverOppgaveFor(String oppgaveId);
+    void avreserverOppgaveFor(Oppgave oppgave);
 
     List<Oppgave> finnÅpneOppgaverFor(Set<String> enhet);
 }

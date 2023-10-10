@@ -7,8 +7,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +14,7 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
+import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
@@ -113,25 +112,25 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     }
 
     @Override
-    public void reserverOppgaveFor(String oppgaveId, String saksbehandlerId) {
+    public void reserverOppgaveFor(Oppgave oppgave, String saksbehandlerId) {
         // oppgaveId er egentlig journalpostId i dette tilfellet.
-        if (oppgaveRepository.harÅpenOppgave(oppgaveId)) {
-            var oppgave = oppgaveRepository.hentOppgave(oppgaveId);
-            oppgave.setReservertAv(saksbehandlerId);
-            oppgaveRepository.lagre(oppgave);
+        if (oppgaveRepository.harÅpenOppgave(oppgave.kildeId())) {
+            var oppdaterOppgave = oppgaveRepository.hentOppgave(oppgave.kildeId());
+            oppdaterOppgave.setReservertAv(saksbehandlerId);
+            oppgaveRepository.lagre(oppdaterOppgave);
         } else {
-            oppgaveKlient.reserverOppgave(oppgaveId, saksbehandlerId);
+            oppgaveKlient.reserverOppgave(oppgave.kildeId(), saksbehandlerId);
         }
     }
 
     @Override
-    public void avreserverOppgaveFor(String oppgaveId) {
-        if (oppgaveRepository.harÅpenOppgave(oppgaveId)) {
-            var oppgave = oppgaveRepository.hentOppgave(oppgaveId);
-            oppgave.setReservertAv(null);
-            oppgaveRepository.lagre(oppgave);
+    public void avreserverOppgaveFor(Oppgave oppgave) {
+        if (oppgaveRepository.harÅpenOppgave(oppgave.kildeId())) {
+            var oppdaterOppgave = oppgaveRepository.hentOppgave(oppgave.kildeId());
+            oppdaterOppgave.setReservertAv(null);
+            oppgaveRepository.lagre(oppdaterOppgave);
         } else {
-            oppgaveKlient.avreserverOppgave(oppgaveId);
+            oppgaveKlient.avreserverOppgave(oppgave.kildeId());
         }
     }
 
@@ -180,6 +179,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     private static Oppgave mapTilOppgave(no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave oppgave) {
         return Oppgave.builder()
             .medId(oppgave.journalpostId())
+            .medKildeId(oppgave.id().toString())
             .medStatus(Oppgavestatus.valueOf(oppgave.status().name()))
             .medTildeltEnhetsnr(oppgave.tildeltEnhetsnr())
             .medFristFerdigstillelse(oppgave.fristFerdigstillelse())
@@ -194,6 +194,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     private static Oppgave mapTilOppgave(OppgaveEntitet entitet) {
         return Oppgave.builder()
                 .medId(entitet.getJournalpostId())
+                .medKildeId(entitet.getJournalpostId())
                 .medStatus(Oppgavestatus.valueOf(entitet.getStatus().name()))
                 .medTildeltEnhetsnr(entitet.getEnhet())
                 .medFristFerdigstillelse(entitet.getFrist())

@@ -22,8 +22,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
-import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +31,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
+import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
+import no.nav.foreldrepenger.journalføring.oppgave.domene.OppgaveBuilder;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
@@ -193,9 +193,15 @@ class OppgaverTjenesteTest {
     void reserverOppgaveGosys() {
         var journalpostId = "1234";
         var saksbehandler = "TestIdent";
+        var oppgave = new OppgaveBuilder().medId(journalpostId).medKildeId(journalpostId)
+            .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
+            .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
+            .medFristFerdigstillelse(LocalDate.now().plusDays(1))
+            .medBeskrivelse("tom")
+            .build();
         when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(false);
 
-        oppgaver.reserverOppgaveFor(journalpostId, saksbehandler);
+        oppgaver.reserverOppgaveFor(oppgave, saksbehandler);
 
         verify(oppgaveKlient).reserverOppgave(journalpostId, saksbehandler);
         verifyNoMoreInteractions(oppgaveRepository);
@@ -205,11 +211,17 @@ class OppgaverTjenesteTest {
     void reserverOppgaveLokalt() {
         var journalpostId = "1234";
         var saksbehandler = "TestIdent";
+        var oppgave = new OppgaveBuilder().medId(journalpostId).medKildeId(journalpostId)
+            .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
+            .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
+            .medFristFerdigstillelse(LocalDate.now().plusDays(1))
+            .medBeskrivelse("tom")
+            .build();
         when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(true);
         when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalOppgave(journalpostId));
         var argumentCaptor = ArgumentCaptor.forClass(OppgaveEntitet.class);
 
-        oppgaver.reserverOppgaveFor(journalpostId, saksbehandler);
+        oppgaver.reserverOppgaveFor(oppgave, saksbehandler);
 
         verify(oppgaveRepository).lagre(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().getReservertAv()).isEqualTo(saksbehandler);
@@ -220,9 +232,15 @@ class OppgaverTjenesteTest {
     @Test
     void avreserverOppgaveGosys() {
         var journalpostId = "1234";
+        var oppgave = new OppgaveBuilder().medId(journalpostId).medKildeId(journalpostId)
+            .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
+            .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
+            .medFristFerdigstillelse(LocalDate.now().plusDays(1))
+            .medBeskrivelse("tom")
+            .build();
         when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(false);
 
-        oppgaver.avreserverOppgaveFor(journalpostId);
+        oppgaver.avreserverOppgaveFor(oppgave);
 
         verify(oppgaveKlient).avreserverOppgave(journalpostId);
         verifyNoMoreInteractions(oppgaveRepository);
@@ -231,11 +249,17 @@ class OppgaverTjenesteTest {
     @Test
     void avreserverOppgaveLokalt() {
         var journalpostId = "1234";
+        var oppgave = new OppgaveBuilder().medId(journalpostId).medKildeId(journalpostId)
+            .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
+            .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
+            .medFristFerdigstillelse(LocalDate.now().plusDays(1))
+            .medBeskrivelse("tom")
+            .build();
         when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(true);
         when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalOppgave(journalpostId));
         var argumentCaptor = ArgumentCaptor.forClass(OppgaveEntitet.class);
 
-        oppgaver.avreserverOppgaveFor(journalpostId);
+        oppgaver.avreserverOppgaveFor(oppgave);
 
         verify(oppgaveRepository).lagre(argumentCaptor.capture());
         assertNull(argumentCaptor.getValue().getReservertAv());

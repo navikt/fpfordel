@@ -15,9 +15,15 @@ public class OppgaveBuilder {
     private Oppgavestatus status;
     private String beskrivelse;
     private String tilordnetRessurs;
+    private String kildeId;
 
     public OppgaveBuilder medId(String id) {
         this.id = id;
+        return this;
+    }
+
+    public OppgaveBuilder medKildeId(String kildeId) {
+        this.kildeId = kildeId;
         return this;
     }
 
@@ -63,7 +69,7 @@ public class OppgaveBuilder {
 
     public Oppgave build() {
         validate();
-        return new Oppgave(id, aktoerId, ytelseType, tildeltEnhetsnr, fristFerdigstillelse, aktivDato, status, beskrivelse, tilordnetRessurs);
+        return new Oppgave(id, aktoerId, ytelseType, tildeltEnhetsnr, fristFerdigstillelse, aktivDato, status, beskrivelse, tilordnetRessurs, kildeId);
     }
 
     private void validate() {

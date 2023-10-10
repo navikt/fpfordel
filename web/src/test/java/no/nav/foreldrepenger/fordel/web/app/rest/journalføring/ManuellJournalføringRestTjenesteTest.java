@@ -361,17 +361,17 @@ class ManuellJournalføringRestTjenesteTest {
         assertThat(ex).isNotNull();
         assertThat(ex.getMessage()).contains("Kan ikke avreservere en oppgave som allerede tilhører til en annen saksbehandler.");
 
-        verify(oppgaveTjeneste, times(0)).reserverOppgaveFor(anyString(), anyString());
-        verify(oppgaveTjeneste, times(0)).avreserverOppgaveFor(anyString());
+        verify(oppgaveTjeneste, times(0)).reserverOppgaveFor(any(), anyString());
+        verify(oppgaveTjeneste, times(0)).avreserverOppgaveFor(any());
     }
 
     @Test
     @DisplayName("/oppgave/reserver - skal kunne avreservere sin egen oppgave.")
     void skal_kunne_avreservere_en_ledig_oppgave() {
         var expectedOppgaveId = "123";
+        var oppgave = opprettOppgave(expectedOppgaveId, LocalDate.now(), "test", "7070", "John", YtelseType.FP);
 
-        when(oppgaveTjeneste.hentOppgaveFor(any(JournalpostId.class))).thenReturn(
-            opprettOppgave(expectedOppgaveId, LocalDate.now(), "test", "7070", "John", YtelseType.FP));
+        when(oppgaveTjeneste.hentOppgaveFor(any(JournalpostId.class))).thenReturn(oppgave);
 
         var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(String.valueOf(expectedOppgaveId), "");
         Response response;
@@ -385,8 +385,8 @@ class ManuellJournalføringRestTjenesteTest {
         assertThat(response).isNotNull();
         assertThat(response.getStatusInfo()).isEqualTo(Response.Status.OK);
 
-        verify(oppgaveTjeneste).avreserverOppgaveFor(expectedOppgaveId);
-        verify(oppgaveTjeneste, times(0)).reserverOppgaveFor(anyString(), anyString());
+        verify(oppgaveTjeneste).avreserverOppgaveFor(oppgave);
+        verify(oppgaveTjeneste, times(0)).reserverOppgaveFor(any(), anyString());
     }
 
     private ArkivJournalpost opprettJournalpost(String journalpostId) {
