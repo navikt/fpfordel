@@ -332,7 +332,7 @@ public class ManuellJournalføringRestTjeneste {
 
     }
 
-    public record ReserverOppgaveDto(@NotNull String oppgaveId, @NotNull Integer versjon, String reserverFor) {
+    public record ReserverOppgaveDto(@NotNull String oppgaveId, String reserverFor) {
     }
 
     public static class EmptyAbacDataSupplier implements Function<Object, AbacDataAttributter> {
