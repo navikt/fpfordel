@@ -37,7 +37,6 @@ public class MottakMeldingDataWrapper {
     public static final String BARN_OMSORGSOVERTAKELSEDATO_KEY = "barn.omsorgsovertakelsedato";
     public static final String BARN_ANTALL_KEY = "barn.antall";
     public static final String STRUKTURERT_DOKUMENT = "strukturert.dokument";
-    public static final String RETRY_ENDELIG = "retry.endelig";
     public static final String FORSENDELSE_MOTTATT_TIDSPUNKT_KEY = "forsendelse.mottatt.tidspunkt";
     public static final String JOURNAL_ENHET = "journalforende.enhet";
     public static final String FORSENDELSE_ID_KEY = "forsendelse.id";

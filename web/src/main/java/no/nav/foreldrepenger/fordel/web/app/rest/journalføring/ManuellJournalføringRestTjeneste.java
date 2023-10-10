@@ -191,6 +191,21 @@ public class ManuellJournalføringRestTjeneste {
     }
 
     @POST
+    @Path("/oppgave/tilgosys")
+    @Produces(APPLICATION_JSON)
+    @Operation(description = "Flytter evt lokal oppgave til Gosys for å utføre avanserte funksjoner.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
+    public Response flyttOppgaveTilGosys(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("journalpostId") @NotNull @Valid JournalpostIdDto journalpostId) {
+        LOG.info("FPFORDEL TILGOSYS: Flytter journalpostId {} til Gosys", journalpostId.getJournalpostId());
+        try {
+            oppgaveTjeneste.flyttLokalOppgaveTilGosys(JournalpostId.fra(journalpostId.getJournalpostId()));
+            return Response.ok().build();
+        } catch (NoSuchElementException ex) {
+            throw new TekniskException("FORDEL-123", "Journalpost " + journalpostId.getJournalpostId() + " kunne ikke flyttes til Gosys.", ex);
+        }
+    }
+
+    @POST
     @Path("/oppgave/reserver")
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
@@ -280,26 +295,36 @@ public class ManuellJournalføringRestTjeneste {
     }
 
     private OppgaveDto lagOppgaveDto(Oppgave oppgave) {
-        return new OppgaveDto(Long.valueOf(oppgave.id()), oppgave.id(), oppgave.aktoerId(), hentPersonIdent(oppgave.aktoerId()).orElse(null),
-            mapYtelseType(oppgave.ytelseType()), oppgave.fristFerdigstillelse(), OppgavePrioritet.NORM, oppgave.beskrivelse(),
-            tekstFraBeskrivelse(oppgave.beskrivelse()), oppgave.aktivDato(), oppgave.tildeltEnhetsnr(), oppgave.tilordnetRessurs());
+        return new OppgaveDto(Long.valueOf(oppgave.id()), oppgave.id(), oppgave.aktoerId(), hentPersonIdent(oppgave).orElse(null),
+            mapYtelseType(oppgave), oppgave.fristFerdigstillelse(), OppgavePrioritet.NORM, oppgave.beskrivelse(),
+            tekstFraBeskrivelse(oppgave.beskrivelse()), oppgave.aktivDato(), oppgave.tildeltEnhetsnr(), oppgave.tilordnetRessurs(), mapKilde(oppgave));
     }
 
-    static YtelseTypeDto mapYtelseType(YtelseType ytelseType) {
-        if (null == ytelseType) {
+    static YtelseTypeDto mapYtelseType(Oppgave oppgave) {
+        if (oppgave == null || oppgave.ytelseType() == null) {
             return null;
         }
-        return switch (ytelseType) {
+        return switch (oppgave.ytelseType()) {
             case FP -> YtelseTypeDto.FORELDREPENGER;
             case SVP -> YtelseTypeDto.SVANGERSKAPSPENGER;
             case ES -> YtelseTypeDto.ENGANGSTØNAD;
         };
     }
 
+    static OppgaveKilde mapKilde(Oppgave oppgave) {
+        if (oppgave == null || oppgave.kilde() == null) {
+            return null;
+        }
+        return switch (oppgave.kilde()) {
+            case LOKAL -> OppgaveKilde.LOKAL;
+            case GOSYS -> OppgaveKilde.GOSYS;
+        };
+    }
 
-    private Optional<String> hentPersonIdent(String aktørId) {
-        if (aktørId != null) {
-            return pdl.hentPersonIdentForAktørId(aktørId);
+
+    private Optional<String> hentPersonIdent(Oppgave oppgave) {
+        if (oppgave != null && oppgave.aktoerId() != null) {
+            return pdl.hentPersonIdentForAktørId(oppgave.aktoerId());
         }
         return Optional.empty();
     }
@@ -309,6 +334,8 @@ public class ManuellJournalføringRestTjeneste {
         NORM,
         LAV
     }
+
+    public enum OppgaveKilde { LOKAL, GOSYS }
 
     public record OppdaterBrukerDto(@NotNull String journalpostId, @NotNull String fødselsnummer) {
     }
@@ -328,7 +355,8 @@ public class ManuellJournalføringRestTjeneste {
                              String trimmetBeskrivelse,
                              @NotNull LocalDate opprettetDato,
                              String enhetId,
-                             String reservertAv) {
+                             String reservertAv,
+                             OppgaveKilde kilde) {
 
     }
 

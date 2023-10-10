@@ -139,7 +139,7 @@ class OpprettGSakOppgaveTjenesteTaskTest {
             .medEnhetId(enhet)
             .medAktørId(aktørId)
             .medSaksref(null)
-            .medBehandlingTema(behandlingTema.getOffisiellKode())
+            .medBehandlingTema(behandlingTema)
             .medBeskrivelse(beskrivelse)
             .build();
     }
