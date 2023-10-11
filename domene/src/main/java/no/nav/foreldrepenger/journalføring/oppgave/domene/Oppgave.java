@@ -4,8 +4,9 @@ import java.time.LocalDate;
 
 import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
 
-public record Oppgave(String id,
-                      String aktoerId,
+public record Oppgave(String oppgaveId,
+                      String journalpostId,
+                      String aktørId,
                       YtelseType ytelseType,
                       String tildeltEnhetsnr,
                       LocalDate fristFerdigstillelse,
@@ -13,11 +14,11 @@ public record Oppgave(String id,
                       Oppgavestatus status,
                       String beskrivelse,
                       String tilordnetRessurs,
-                      Kilde kilde,
-                      String kildeId) {
+                      Kilde kilde) {
 
-    public enum Kilde { LOKAL,
-        GOSYS
+    public enum Kilde {
+        LOKAL,
+        GOSYS,
     }
 
     public static OppgaveBuilder builder() {

@@ -6,8 +6,9 @@ import java.util.Objects;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
 
 public class OppgaveBuilder {
-    private String id;
-    private String aktoerId;
+    private String oppgaveId;
+    private String journalpostId;
+    private String aktørId;
     private YtelseType ytelseType;
     private String tildeltEnhetsnr;
     private LocalDate fristFerdigstillelse;
@@ -16,20 +17,22 @@ public class OppgaveBuilder {
     private String beskrivelse;
     private String tilordnetRessurs;
     private Oppgave.Kilde kilde;
-    private String kildeId;
 
-    public OppgaveBuilder medId(String id) {
-        this.id = id;
+    OppgaveBuilder() {
+    }
+
+    public OppgaveBuilder medOppgaveId(String oppgaveId) {
+        this.oppgaveId = oppgaveId;
         return this;
     }
 
-    public OppgaveBuilder medKildeId(String kildeId) {
-        this.kildeId = kildeId;
+    public OppgaveBuilder medJournalpostId(String id) {
+        this.journalpostId = id;
         return this;
     }
 
-    public OppgaveBuilder medAktoerId(String aktoerId) {
-        this.aktoerId = aktoerId;
+    public OppgaveBuilder medAktørId(String aktørId) {
+        this.aktørId = aktørId;
         return this;
     }
 
@@ -75,17 +78,17 @@ public class OppgaveBuilder {
 
     public Oppgave build() {
         validate();
-        return new Oppgave(id, aktoerId, ytelseType, tildeltEnhetsnr, fristFerdigstillelse, aktivDato, status, beskrivelse, tilordnetRessurs, kilde, kildeId);
+        return new Oppgave(oppgaveId, journalpostId, aktørId, ytelseType, tildeltEnhetsnr, fristFerdigstillelse, aktivDato, status, beskrivelse, tilordnetRessurs, kilde);
     }
 
     private void validate() {
-        Objects.requireNonNull(id, "id");
+        Objects.requireNonNull(journalpostId, "journalpostId");
         Objects.requireNonNull(tildeltEnhetsnr, "tildeltEnhetsnr");
         Objects.requireNonNull(aktivDato, "aktivDato");
         Objects.requireNonNull(status, "status");
         Objects.requireNonNull(fristFerdigstillelse, "frist");
         Objects.requireNonNull(beskrivelse, "beskrivelse");
         Objects.requireNonNull(kilde, "kilde");
-        Objects.requireNonNull(kildeId, "kildeId");
+        Objects.requireNonNull(oppgaveId, "oppgaveId");
     }
 }

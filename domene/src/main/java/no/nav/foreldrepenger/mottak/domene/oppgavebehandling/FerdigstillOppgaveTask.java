@@ -37,11 +37,11 @@ public class FerdigstillOppgaveTask implements ProsessTaskHandler {
         var journalpostId = prosessTaskData.getPropertyValue(JOURNALPOSTID_KEY);
         if (oppgaveId != null) {
             oppgaverKlient.ferdigstillOppgave(oppgaveId);
-            LOG.info("Ferdigstilte eksterne oppgave med id {}", oppgaveId);
+            LOG.info("Ferdigstilte eksterne oppgave med journalpostId {}", oppgaveId);
         }
         if (journalpostId != null) {
             oppgaver.ferdigstillAlleÅpneJournalføringsoppgaverFor(JournalpostId.fra(journalpostId));
-            LOG.info("Ferdigstilte lokalt oppgave med id {}", journalpostId);
+            LOG.info("Ferdigstilte lokalt oppgave med journalpostId {}", journalpostId);
         }
     }
 }

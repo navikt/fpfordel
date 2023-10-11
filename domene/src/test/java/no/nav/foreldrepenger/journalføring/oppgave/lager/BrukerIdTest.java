@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.journalføring.oppgave.lager;
 
-import no.nav.foreldrepenger.journalføring.oppgave.lager.BrukerId;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,29 +12,29 @@ class BrukerIdTest {
 
     @Test
     void okBrukerIdTest() {
-        var bruker = new BrukerId(GYLDIG_AKTØRID);
+        var bruker = new AktørId(GYLDIG_AKTØRID);
         assertThat(bruker.getId()).isEqualTo(GYLDIG_AKTØRID);
     }
 
     @Test
     void nokBrukerIdTest() {
-        var ex = assertThrows(IllegalArgumentException.class, () -> new BrukerId(IKKE_GYLDIG_AKTØRID));
+        var ex = assertThrows(IllegalArgumentException.class, () -> new AktørId(IKKE_GYLDIG_AKTØRID));
         assertThat(ex.getMessage()).contains("Ugyldig aktørId");
     }
 
     @Test
     void brukerGyldigTest() {
-        assertTrue(BrukerId.erGyldigBrukerId(GYLDIG_AKTØRID));
+        assertTrue(AktørId.erGyldigBrukerId(GYLDIG_AKTØRID));
     }
 
     @Test
     void ikkeGyldigBrukerTest() {
-        assertFalse(BrukerId.erGyldigBrukerId(IKKE_GYLDIG_AKTØRID));
+        assertFalse(AktørId.erGyldigBrukerId(IKKE_GYLDIG_AKTØRID));
     }
 
     @Test
     void testMaskering() {
-        var toString = new BrukerId(GYLDIG_AKTØRID).toString();
+        var toString = new AktørId(GYLDIG_AKTØRID).toString();
         assertThat(toString)
             .doesNotContain(GYLDIG_AKTØRID)
             .containsSubsequence("******");

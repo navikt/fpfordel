@@ -66,7 +66,7 @@ public class EnhetsTjeneste {
     }
 
     public String hentFordelingEnhetId(Tema tema, BehandlingTema behandlingTema, Optional<String> enhetInput, String aktørId) {
-        LOG.info("Henter enhet id for {},{}", tema, behandlingTema);
+        LOG.info("Henter enhet journalpostId for {},{}", tema, behandlingTema);
         //oppdaterEnhetCache(); LA STÅ UT 2023
         if (enhetInput.isPresent()) {
             return SPESIALENHETER.contains(enhetInput.get()) ? enhetInput.get() : NASJONAL_ENHET_ID;
@@ -74,7 +74,7 @@ public class EnhetsTjeneste {
 
 
         var id = Optional.ofNullable(aktørId).map(a -> hentEnhetId(a, behandlingTema, tema)).orElse(NASJONAL_ENHET_ID);
-        LOG.info("returnerer enhet id  {}", id);
+        LOG.info("returnerer enhet journalpostId  {}", id);
         return id;
 
     }

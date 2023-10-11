@@ -88,9 +88,9 @@ class SafTjenesteImpl implements SafTjeneste {
         q.setDokumentInfoId(dokumentInfoId);
         q.setTilknytning(Tilknytning.GJENBRUK);
         var p = new JournalpostResponseProjection().journalpostId().eksternReferanseId();
-        LOG.info("Henter ekstern id");
+        LOG.info("Henter ekstern journalpostId");
         var res = SafMapper.mapJP(saf.query(q, p, TilknyttedeJournalposterQueryResponse.class).tilknyttedeJournalposter());
-        LOG.info("Hentet ekstern id OK");
+        LOG.info("Hentet ekstern journalpostId OK");
         return res;
     }
 }

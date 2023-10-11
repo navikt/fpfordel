@@ -32,8 +32,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
-import no.nav.foreldrepenger.journalføring.oppgave.domene.OppgaveBuilder;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.BrukerId;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.AktørId;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
@@ -70,7 +69,7 @@ class OppgaverTjenesteTest {
         var id = oppgaver.opprettGosysJournalføringsoppgaveFor(NyOppgave.builder()
             .medJournalpostId(JournalpostId.fra("123456"))
             .medEnhetId("1234")
-            .medAktørId(new BrukerId("1234567890123"))
+            .medAktørId(new AktørId("1234567890123"))
             .medSaksref("referanse")
             .medBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER)
             .medBeskrivelse("Test beskrivelse")
@@ -89,7 +88,7 @@ class OppgaverTjenesteTest {
 
         var id = oppgaver.opprettJournalføringsoppgaveFor(NyOppgave.builder().medJournalpostId(JournalpostId.fra("123456"))
             .medEnhetId("1234")
-            .medAktørId(new BrukerId("1234567890123"))
+            .medAktørId(new AktørId("1234567890123"))
             .medSaksref("referanse")
             .medBehandlingTema(BehandlingTema.FORELDREPENGER)
             .medBeskrivelse("Test beskrivelse")
@@ -171,7 +170,7 @@ class OppgaverTjenesteTest {
 
         var oppgave = oppgaver.hentOppgaveFor(JournalpostId.fra(journalpostId));
 
-        assertThat(oppgave.id()).isEqualTo(journalpostId);
+        assertThat(oppgave.journalpostId()).isEqualTo(journalpostId);
 
         verify(oppgaveKlient).finnÅpneJournalføringsoppgaverForJournalpost(journalpostId);
         verify(oppgaveRepository, never()).hentOppgave(journalpostId);
@@ -185,7 +184,7 @@ class OppgaverTjenesteTest {
 
         var oppgave = oppgaver.hentOppgaveFor(JournalpostId.fra(journalpostId));
 
-        assertThat(oppgave.id()).isEqualTo(journalpostId);
+        assertThat(oppgave.journalpostId()).isEqualTo(journalpostId);
 
         verify(oppgaveKlient, never()).hentOppgave(journalpostId);
         verify(oppgaveRepository).hentOppgave(journalpostId);
@@ -193,20 +192,23 @@ class OppgaverTjenesteTest {
 
     @Test
     void reserverOppgaveGosys() {
+        var gosysOppgaveId = "5678";
         var journalpostId = "1234";
         var saksbehandler = "TestIdent";
-        var oppgave = new OppgaveBuilder().medId(journalpostId).medKildeId(journalpostId)
+        var oppgave = no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.builder()
+            .medJournalpostId(journalpostId)
+            .medOppgaveId(gosysOppgaveId)
             .medKilde(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.Kilde.GOSYS)
             .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
             .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
             .medFristFerdigstillelse(LocalDate.now().plusDays(1))
             .medBeskrivelse("tom")
             .build();
-        when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(false);
+        when(oppgaveRepository.harÅpenOppgave(gosysOppgaveId)).thenReturn(false);
 
         oppgaver.reserverOppgaveFor(oppgave, saksbehandler);
 
-        verify(oppgaveKlient).reserverOppgave(journalpostId, saksbehandler);
+        verify(oppgaveKlient).reserverOppgave(gosysOppgaveId, saksbehandler);
         verifyNoMoreInteractions(oppgaveRepository);
     }
 
@@ -214,7 +216,9 @@ class OppgaverTjenesteTest {
     void reserverOppgaveLokalt() {
         var journalpostId = "1234";
         var saksbehandler = "TestIdent";
-        var oppgave = new OppgaveBuilder().medId(journalpostId).medKildeId(journalpostId)
+        var oppgave = no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.builder()
+            .medJournalpostId(journalpostId)
+            .medOppgaveId(journalpostId)
             .medKilde(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.Kilde.LOKAL)
             .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
             .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
@@ -235,26 +239,31 @@ class OppgaverTjenesteTest {
 
     @Test
     void avreserverOppgaveGosys() {
+        var gosysOppgaveId = "5678";
         var journalpostId = "1234";
-        var oppgave = new OppgaveBuilder().medId(journalpostId).medKildeId(journalpostId)
+        var oppgave = no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.builder()
+            .medJournalpostId(journalpostId)
+            .medOppgaveId(gosysOppgaveId)
             .medKilde(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.Kilde.GOSYS)
             .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
             .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
             .medFristFerdigstillelse(LocalDate.now().plusDays(1))
             .medBeskrivelse("tom")
             .build();
-        when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(false);
+        when(oppgaveRepository.harÅpenOppgave(gosysOppgaveId)).thenReturn(false);
 
         oppgaver.avreserverOppgaveFor(oppgave);
 
-        verify(oppgaveKlient).avreserverOppgave(journalpostId);
+        verify(oppgaveKlient).avreserverOppgave(gosysOppgaveId);
         verifyNoMoreInteractions(oppgaveRepository);
     }
 
     @Test
     void avreserverOppgaveLokalt() {
         var journalpostId = "1234";
-        var oppgave = new OppgaveBuilder().medId(journalpostId).medKildeId(journalpostId)
+        var oppgave = no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.builder()
+            .medJournalpostId(journalpostId)
+            .medOppgaveId(journalpostId)
             .medKilde(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.Kilde.LOKAL)
             .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
             .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)

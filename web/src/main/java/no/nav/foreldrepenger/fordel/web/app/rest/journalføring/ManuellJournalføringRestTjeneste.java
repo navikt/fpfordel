@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.foreldrepenger.fordel.StringUtil.isBlank;
 import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.mapYtelseTypeTilDto;
-import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.tekstFraBeskrivelse;
 
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
@@ -42,7 +41,6 @@ import no.nav.foreldrepenger.fordel.web.app.konfig.ApiConfig;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
@@ -195,7 +193,7 @@ public class ManuellJournalføringRestTjeneste {
     @Produces(APPLICATION_JSON)
     @Operation(description = "Flytter evt lokal oppgave til Gosys for å utføre avanserte funksjoner.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public Response flyttOppgaveTilGosys(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("journalpostId") @NotNull @Valid JournalpostIdDto journalpostId) {
+    public Response flyttOppgaveTilGosys(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @NotNull @Valid JournalpostIdDto journalpostId) {
         LOG.info("FPFORDEL TILGOSYS: Flytter journalpostId {} til Gosys", journalpostId.getJournalpostId());
         try {
             oppgaveTjeneste.flyttLokalOppgaveTilGosys(JournalpostId.fra(journalpostId.getJournalpostId()));
@@ -211,15 +209,15 @@ public class ManuellJournalføringRestTjeneste {
     @Consumes(APPLICATION_JSON)
     @Operation(description = "Mulighet for å reservere/avreservere en oppgave", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response oppgaveReserver(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @NotNull @Valid ReserverOppgaveDto oppgaveDto) {
+    public Response oppgaveReserver(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @NotNull @Valid ReserverOppgaveDto reserverOppgaveDto) {
         var innloggetBruker = KontekstHolder.getKontekst().getUid();
-        var oppgave = oppgaveTjeneste.hentOppgaveFor(JournalpostId.fra(oppgaveDto.oppgaveId()));
+        var oppgave = oppgaveTjeneste.hentOppgaveFor(JournalpostId.fra(reserverOppgaveDto.journalpostId()));
 
-        if (isBlank(oppgaveDto.reserverFor())) {
+        if (isBlank(reserverOppgaveDto.reserverFor())) {
             // Avreserver
             if (innloggetBruker.equals(oppgave.tilordnetRessurs())) {
                 oppgaveTjeneste.avreserverOppgaveFor(oppgave);
-                LOG.info("Oppgave {} avreservert av {}.", oppgave.id(), innloggetBruker);
+                LOG.info("Oppgave {} avreservert av {}.", oppgave.journalpostId(), innloggetBruker);
             } else {
                 // Ikke mulig å avreservere for andre
                 throw new TekniskException("AVRESERVER",
@@ -228,8 +226,8 @@ public class ManuellJournalføringRestTjeneste {
         } else {
             // Reserver
             if (isBlank(oppgave.tilordnetRessurs())) {
-                oppgaveTjeneste.reserverOppgaveFor(oppgave, oppgaveDto.reserverFor());
-                LOG.info("Oppgave {} reservert av {}.", oppgave.id(), innloggetBruker);
+                oppgaveTjeneste.reserverOppgaveFor(oppgave, reserverOppgaveDto.reserverFor());
+                LOG.info("Oppgave {} reservert av {}.", oppgave.journalpostId(), innloggetBruker);
             }
             else {
                 throw new TekniskException("RESERVER",
@@ -269,8 +267,11 @@ public class ManuellJournalføringRestTjeneste {
     }
 
     JournalpostDetaljerDto mapTilJournalpostDetaljerDto(ArkivJournalpost journalpost) {
-        return new JournalpostDetaljerDto(journalpost.getJournalpostId(), journalpost.getTittel().orElse(""),
-            journalpost.getBehandlingstema().getOffisiellKode(), journalpost.getKanal(),
+        return new JournalpostDetaljerDto(
+            journalpost.getJournalpostId(),
+            journalpost.getTittel().orElse(""),
+            journalpost.getBehandlingstema().getOffisiellKode(),
+            journalpost.getKanal(),
             journalpost.getBrukerAktørId().map(this::mapBruker).orElse(null),
             new JournalpostDetaljerDto.AvsenderDto(journalpost.getAvsenderNavn(), journalpost.getAvsenderIdent()),
             mapYtelseTypeTilDto(journalpost.getBehandlingstema().utledYtelseType()),
@@ -295,9 +296,19 @@ public class ManuellJournalføringRestTjeneste {
     }
 
     private OppgaveDto lagOppgaveDto(Oppgave oppgave) {
-        return new OppgaveDto(Long.valueOf(oppgave.id()), oppgave.id(), oppgave.aktoerId(), hentPersonIdent(oppgave).orElse(null),
-            mapYtelseType(oppgave), oppgave.fristFerdigstillelse(), OppgavePrioritet.NORM, oppgave.beskrivelse(),
-            tekstFraBeskrivelse(oppgave.beskrivelse()), oppgave.aktivDato(), oppgave.tildeltEnhetsnr(), oppgave.tilordnetRessurs(), mapKilde(oppgave));
+        return new OppgaveDto(
+            Long.valueOf(oppgave.oppgaveId()),
+            oppgave.journalpostId(),
+            oppgave.aktørId(),
+            hentPersonIdent(oppgave).orElse(null),
+            mapYtelseType(oppgave),
+            oppgave.fristFerdigstillelse(),
+            OppgavePrioritet.NORM,
+            oppgave.beskrivelse(),
+            oppgave.aktivDato(),
+            oppgave.tildeltEnhetsnr(),
+            oppgave.tilordnetRessurs(),
+            mapKilde(oppgave));
     }
 
     static YtelseTypeDto mapYtelseType(Oppgave oppgave) {
@@ -323,8 +334,8 @@ public class ManuellJournalføringRestTjeneste {
 
 
     private Optional<String> hentPersonIdent(Oppgave oppgave) {
-        if (oppgave != null && oppgave.aktoerId() != null) {
-            return pdl.hentPersonIdentForAktørId(oppgave.aktoerId());
+        if (oppgave != null && oppgave.aktørId() != null) {
+            return pdl.hentPersonIdentForAktørId(oppgave.aktørId());
         }
         return Optional.empty();
     }
@@ -344,7 +355,7 @@ public class ManuellJournalføringRestTjeneste {
 
     public record HentBrukerResponseDto(@NotNull String navn, @NotNull String fødselsnummer) {}
 
-    public record OppgaveDto(@NotNull Long id,
+    public record OppgaveDto(@NotNull Long oppgaveId,
                              @NotNull String journalpostId,
                              String aktørId,
                              String fødselsnummer,
@@ -352,7 +363,6 @@ public class ManuellJournalføringRestTjeneste {
                              @NotNull LocalDate frist,
                              OppgavePrioritet prioritet,
                              String beskrivelse,
-                             String trimmetBeskrivelse,
                              @NotNull LocalDate opprettetDato,
                              String enhetId,
                              String reservertAv,
@@ -360,7 +370,7 @@ public class ManuellJournalføringRestTjeneste {
 
     }
 
-    public record ReserverOppgaveDto(@NotNull String oppgaveId, String reserverFor) {
+    public record ReserverOppgaveDto(@NotNull String journalpostId, String reserverFor) {
     }
 
     public static class EmptyAbacDataSupplier implements Function<Object, AbacDataAttributter> {

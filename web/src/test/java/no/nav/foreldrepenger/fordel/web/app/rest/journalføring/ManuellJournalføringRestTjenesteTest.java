@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -102,7 +103,7 @@ class ManuellJournalføringRestTjenesteTest {
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
         var oppgave = oppgaveDtos.get(0);
         assertThat(oppgave.journalpostId()).isEqualTo(expectedJournalpostId);
-        assertThat(oppgave.id()).isEqualTo(Long.valueOf(expectedJournalpostId));
+        assertThat(oppgave.oppgaveId()).isEqualTo(Long.valueOf(expectedJournalpostId));
         assertThat(oppgave.frist()).isEqualTo(now);
         assertThat(oppgave.aktørId()).isEqualTo("aktørId");
         assertThat(oppgave.fødselsnummer()).isNull();
@@ -132,7 +133,7 @@ class ManuellJournalføringRestTjenesteTest {
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
         var oppgave = oppgaveDtos.get(0);
         assertThat(oppgave.journalpostId()).isEqualTo(expectedJournalPostUtenTittel);
-        assertThat(oppgave.id()).isEqualTo(Long.valueOf(expectedJournalPostUtenTittel));
+        assertThat(oppgave.oppgaveId()).isEqualTo(Long.valueOf(expectedJournalPostUtenTittel));
         assertThat(oppgave.frist()).isEqualTo(now);
         assertThat(oppgave.aktørId()).isEqualTo("aktørId");
         assertThat(oppgave.fødselsnummer()).isNull();
@@ -345,12 +346,12 @@ class ManuellJournalføringRestTjenesteTest {
     @Test
     @DisplayName("/oppgave/reserver - exception om avreserverer en reservasjon til en annen bruker.")
     void skal_kaste_exception_hvis_oppgave_reservert_an_annen_saksbehandler() {
-        var expectedOppgaveId = 123L;
+        var expectedJournalpostId = "123";
 
         when(oppgaveTjeneste.hentOppgaveFor(any(JournalpostId.class))).thenReturn(
             opprettOppgave("12334", LocalDate.now(), "test", "7070", "John", YtelseType.FP));
 
-        var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(String.valueOf(expectedOppgaveId),null);
+        var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(expectedJournalpostId,null);
 
         Exception ex;
         try (var utilities = Mockito.mockStatic(KontekstHolder.class)) {
@@ -362,19 +363,19 @@ class ManuellJournalføringRestTjenesteTest {
         assertThat(ex).isNotNull();
         assertThat(ex.getMessage()).contains("Kan ikke avreservere en oppgave som allerede tilhører til en annen saksbehandler.");
 
-        verify(oppgaveTjeneste, times(0)).reserverOppgaveFor(any(), anyString());
-        verify(oppgaveTjeneste, times(0)).avreserverOppgaveFor(any());
+        verify(oppgaveTjeneste, never()).reserverOppgaveFor(any(), anyString());
+        verify(oppgaveTjeneste, never()).avreserverOppgaveFor(any());
     }
 
     @Test
     @DisplayName("/oppgave/reserver - skal kunne avreservere sin egen oppgave.")
     void skal_kunne_avreservere_en_ledig_oppgave() {
-        var expectedOppgaveId = "123";
-        var oppgave = opprettOppgave(expectedOppgaveId, LocalDate.now(), "test", "7070", "John", YtelseType.FP);
+        var expectedJournalpostId = "123";
+        var oppgave = opprettOppgave(expectedJournalpostId, LocalDate.now(), "test", "7070", "John", YtelseType.FP);
 
         when(oppgaveTjeneste.hentOppgaveFor(any(JournalpostId.class))).thenReturn(oppgave);
 
-        var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(String.valueOf(expectedOppgaveId), "");
+        var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(expectedJournalpostId, "");
         Response response;
 
         try (var utilities = Mockito.mockStatic(KontekstHolder.class)) {
@@ -387,7 +388,7 @@ class ManuellJournalføringRestTjenesteTest {
         assertThat(response.getStatusInfo()).isEqualTo(Response.Status.OK);
 
         verify(oppgaveTjeneste).avreserverOppgaveFor(oppgave);
-        verify(oppgaveTjeneste, times(0)).reserverOppgaveFor(any(), anyString());
+        verify(oppgaveTjeneste, never()).reserverOppgaveFor(any(), anyString());
     }
 
     private ArkivJournalpost opprettJournalpost(String journalpostId) {
@@ -425,17 +426,17 @@ class ManuellJournalføringRestTjenesteTest {
     private static Oppgave opprettOppgave(String expectedId, LocalDate now, String beskrivelse, String enhetsNr, String reservertAv,
                                           YtelseType ytelseType) {
         return Oppgave.builder()
-            .medId(expectedId)
+            .medJournalpostId(expectedId)
             .medStatus(Oppgavestatus.AAPNET)
             .medTildeltEnhetsnr(enhetsNr)
-            .medAktoerId("aktørId")
+            .medAktørId("aktørId")
             .medYtelseType(ytelseType)
             .medBeskrivelse(beskrivelse)
             .medTilordnetRessurs(reservertAv)
             .medAktivDato(now)
             .medFristFerdigstillelse(now)
             .medKilde(Oppgave.Kilde.GOSYS)
-            .medKildeId(expectedId)
+            .medOppgaveId(expectedId)
             .build();
     }
 

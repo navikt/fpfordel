@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.BrukerId;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.AktørId;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
@@ -57,7 +57,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     @Override
     public String opprettGosysJournalføringsoppgaveFor(NyOppgave nyOppgave) {
         var request = OpprettOppgave.getBuilderTemaFOR(Oppgavetype.JOURNALFØRING, no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet.NORM, FRIST_DAGER)
-            .medAktoerId(Optional.ofNullable(nyOppgave.aktørId()).map(BrukerId::getId).orElse(null))
+            .medAktoerId(Optional.ofNullable(nyOppgave.aktørId()).map(AktørId::getId).orElse(null))
             .medSaksreferanse(nyOppgave.saksref())
             .medTildeltEnhetsnr(nyOppgave.enhetId())
             .medOpprettetAvEnhetsnr(nyOppgave.enhetId())
@@ -83,7 +83,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
             .build();
 
         var id = oppgaveRepository.lagre(oppgave);
-        LOG.info("FPFORDEL opprettet lokalt oppgave med id:{}", id);
+        LOG.info("FPFORDEL opprettet lokalt oppgave med journalpostId:{}", id);
         return id;
     }
 
@@ -136,24 +136,25 @@ class OppgaverTjeneste implements Journalføringsoppgave {
 
     @Override
     public void reserverOppgaveFor(Oppgave oppgave, String saksbehandlerId) {
-        // oppgaveId er egentlig journalpostId i dette tilfellet.
-        if (oppgaveRepository.harÅpenOppgave(oppgave.kildeId())) {
-            var oppdaterOppgave = oppgaveRepository.hentOppgave(oppgave.kildeId());
+        // lokale oppgaver bruker journalpostId som nøkkel og da bør oppgaveId = journalpostId
+        if (oppgaveRepository.harÅpenOppgave(oppgave.journalpostId())) {
+            var oppdaterOppgave = oppgaveRepository.hentOppgave(oppgave.journalpostId());
             oppdaterOppgave.setReservertAv(saksbehandlerId);
             oppgaveRepository.lagre(oppdaterOppgave);
         } else {
-            oppgaveKlient.reserverOppgave(oppgave.kildeId(), saksbehandlerId);
+            oppgaveKlient.reserverOppgave(oppgave.oppgaveId(), saksbehandlerId);
         }
     }
 
     @Override
     public void avreserverOppgaveFor(Oppgave oppgave) {
-        if (oppgaveRepository.harÅpenOppgave(oppgave.kildeId())) {
-            var oppdaterOppgave = oppgaveRepository.hentOppgave(oppgave.kildeId());
+        // lokale oppgaver bruker journalpostId som nøkkel og da bør oppgaveId = journalpostId
+        if (oppgaveRepository.harÅpenOppgave(oppgave.journalpostId())) {
+            var oppdaterOppgave = oppgaveRepository.hentOppgave(oppgave.journalpostId());
             oppdaterOppgave.setReservertAv(null);
             oppgaveRepository.lagre(oppdaterOppgave);
         } else {
-            oppgaveKlient.avreserverOppgave(oppgave.kildeId());
+            oppgaveKlient.avreserverOppgave(oppgave.oppgaveId());
         }
     }
 
@@ -180,7 +181,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
             var taskdata = ProsessTaskData.forProsessTask(FlyttLokalOppgaveTilGosysTask.class);
             taskdata.setCallIdFraEksisterende();
             taskdata.setNesteKjøringEtter(LocalDateTime.now());
-            MottakMeldingDataWrapper melding = new MottakMeldingDataWrapper(taskdata);
+            var melding = new MottakMeldingDataWrapper(taskdata);
             melding.setArkivId(oppgave.getJournalpostId());
             taskTjeneste.lagre(melding.getProsessTaskData());
         }
@@ -214,12 +215,12 @@ class OppgaverTjeneste implements Journalføringsoppgave {
 
     private static Oppgave mapTilOppgave(no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave oppgave) {
         return Oppgave.builder()
-            .medId(oppgave.journalpostId())
-            .medKildeId(oppgave.id().toString())
+            .medJournalpostId(oppgave.journalpostId())
+            .medOppgaveId(oppgave.id().toString())
             .medStatus(Oppgavestatus.valueOf(oppgave.status().name()))
             .medTildeltEnhetsnr(oppgave.tildeltEnhetsnr())
             .medFristFerdigstillelse(oppgave.fristFerdigstillelse())
-            .medAktoerId(oppgave.aktoerId())
+            .medAktørId(oppgave.aktoerId())
             .medYtelseType(mapTilYtelseType(oppgave.behandlingstema()))
             .medBeskrivelse(oppgave.beskrivelse())
             .medTilordnetRessurs(oppgave.tilordnetRessurs())
@@ -230,12 +231,12 @@ class OppgaverTjeneste implements Journalføringsoppgave {
 
     private static Oppgave mapTilOppgave(OppgaveEntitet entitet) {
         return Oppgave.builder()
-                .medId(entitet.getJournalpostId())
-                .medKildeId(entitet.getJournalpostId())
+                .medJournalpostId(entitet.getJournalpostId())
+                .medOppgaveId(entitet.getJournalpostId())
                 .medStatus(Oppgavestatus.valueOf(entitet.getStatus().name()))
                 .medTildeltEnhetsnr(entitet.getEnhet())
                 .medFristFerdigstillelse(entitet.getFrist())
-                .medAktoerId(entitet.getBrukerId().getId())
+                .medAktørId(entitet.getBrukerId().getId())
                 .medYtelseType(YtelseType.valueOf(entitet.getYtelseType().name()))
                 .medBeskrivelse(entitet.getBeskrivelse())
                 .medTilordnetRessurs(entitet.getReservertAv())

@@ -30,7 +30,7 @@ public class OppgaveRepository {
 
     public String lagre(OppgaveEntitet oppgave) {
         commit(oppgave);
-        LOG.info("Oppgaver med id: {} lagret.", oppgave.getJournalpostId());
+        LOG.info("Oppgaver med journalpostId: {} lagret.", oppgave.getJournalpostId());
         return oppgave.getJournalpostId();
     }
 

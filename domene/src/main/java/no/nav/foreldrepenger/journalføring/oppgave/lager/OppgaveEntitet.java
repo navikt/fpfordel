@@ -37,7 +37,7 @@ public class OppgaveEntitet extends BaseEntitet implements Serializable {
     private LocalDate frist;
 
     @Embedded
-    private BrukerId brukerId;
+    private AktørId brukerId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "YTELSE_TYPE", nullable = false)
@@ -76,7 +76,7 @@ public class OppgaveEntitet extends BaseEntitet implements Serializable {
         return frist;
     }
 
-    public BrukerId getBrukerId() {
+    public AktørId getBrukerId() {
         return brukerId;
     }
 
@@ -108,7 +108,7 @@ public class OppgaveEntitet extends BaseEntitet implements Serializable {
         this.frist = frist;
     }
 
-    public void setBrukerId(BrukerId brukerId) {
+    public void setBrukerId(AktørId brukerId) {
         this.brukerId = brukerId;
     }
 
@@ -129,7 +129,7 @@ public class OppgaveEntitet extends BaseEntitet implements Serializable {
         private Status status;
         private String enhet;
         private LocalDate frist;
-        private BrukerId brukerId;
+        private AktørId brukerId;
         private YtelseType ytelseType;
         private String beskrivelse;
         private String reservertAv;
@@ -154,13 +154,13 @@ public class OppgaveEntitet extends BaseEntitet implements Serializable {
             return this;
         }
 
-        public Builder medBrukerId(BrukerId brukerId) {
+        public Builder medBrukerId(AktørId brukerId) {
             this.brukerId = brukerId;
             return this;
         }
 
         public Builder medBrukerId(String brukerId) {
-            this.brukerId = new BrukerId(brukerId);
+            this.brukerId = new AktørId(brukerId);
             return this;
         }
 

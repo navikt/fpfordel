@@ -109,7 +109,7 @@ class OppgaveRepositoryTest {
                 .medYtelseType(YtelseType.FP)
                 .medFrist(LocalDate.now())
                 .medEnhet(enhet)
-                .medBrukerId(new BrukerId("1234567890123"))
+                .medBrukerId(new AktørId("1234567890123"))
                 .build();
 
         repo.lagre(oppgaveEntitet);
