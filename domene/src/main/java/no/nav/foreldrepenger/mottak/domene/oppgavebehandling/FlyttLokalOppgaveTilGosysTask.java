@@ -14,12 +14,11 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.BrukerId;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.AktørId;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 /**
  * <p>
@@ -27,12 +26,11 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
  * tilfeller som ikke kan håndteres automatisk av vedtaksløsningen.
  * <p>
  * </p>
+ * @deprecated Bør fjernes ved neste prodsetting.
  */
 @Dependent
 @ProsessTask(value = "integrasjon.gsak.flyttOppgave", maxFailedRuns = 2)
 public class FlyttLokalOppgaveTilGosysTask implements ProsessTaskHandler {
-
-    public static final String BESKRIVELSE_KEY = "oppgave.beskrivelse";
 
     private static final Logger LOG = LoggerFactory.getLogger(FlyttLokalOppgaveTilGosysTask.class);
 
@@ -40,7 +38,7 @@ public class FlyttLokalOppgaveTilGosysTask implements ProsessTaskHandler {
     private final EnhetsTjeneste enhetsTjeneste;
 
     @Inject
-    public FlyttLokalOppgaveTilGosysTask(ProsessTaskTjeneste taskTjeneste, Journalføringsoppgave oppgaverTjeneste, EnhetsTjeneste enhetsTjeneste) {
+    public FlyttLokalOppgaveTilGosysTask(Journalføringsoppgave oppgaverTjeneste, EnhetsTjeneste enhetsTjeneste) {
         this.oppgaverTjeneste = oppgaverTjeneste;
         this.enhetsTjeneste = enhetsTjeneste;
     }
@@ -59,12 +57,12 @@ public class FlyttLokalOppgaveTilGosysTask implements ProsessTaskHandler {
             case SVP -> BehandlingTema.SVANGERSKAPSPENGER;
         };
         var enhet = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, behandlingTema,
-            Optional.ofNullable(oppgave.tildeltEnhetsnr()), oppgave.aktoerId());
+            Optional.ofNullable(oppgave.tildeltEnhetsnr()), oppgave.aktørId());
 
         var nyOppgave = NyOppgave.builder()
             .medJournalpostId(journalpostId)
             .medEnhetId(enhet)
-            .medAktørId(new BrukerId(oppgave.aktoerId()))
+            .medAktørId(new AktørId(oppgave.aktørId()))
             .medBehandlingTema(behandlingTema)
             .medBeskrivelse(oppgave.beskrivelse())
             .build();

@@ -32,19 +32,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
-import no.nav.foreldrepenger.journalføring.oppgave.domene.OppgaveBuilder;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.BrukerId;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.AktørId;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 class OppgaverTjenesteTest {
@@ -54,10 +53,12 @@ class OppgaverTjenesteTest {
     private OppgaveRepository oppgaveRepository;
     @Mock
     private Oppgaver oppgaveKlient;
+    @Mock
+    private EnhetsTjeneste enhetsTjeneste;
 
     @BeforeEach
     void setUp() {
-        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient, mock(ProsessTaskTjeneste.class));
+        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient, enhetsTjeneste);
     }
 
     @Test
@@ -70,7 +71,7 @@ class OppgaverTjenesteTest {
         var id = oppgaver.opprettGosysJournalføringsoppgaveFor(NyOppgave.builder()
             .medJournalpostId(JournalpostId.fra("123456"))
             .medEnhetId("1234")
-            .medAktørId(new BrukerId("1234567890123"))
+            .medAktørId(new AktørId("1234567890123"))
             .medSaksref("referanse")
             .medBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER)
             .medBeskrivelse("Test beskrivelse")
@@ -83,13 +84,13 @@ class OppgaverTjenesteTest {
 
     @Test
     void opprettJournalføringsOppgaveLokalt() {
-        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient, mock(ProsessTaskTjeneste.class));
+        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient, enhetsTjeneste);
         var expectedId = "11";
         when(oppgaveRepository.lagre(any(OppgaveEntitet.class))).thenReturn(expectedId);
 
         var id = oppgaver.opprettJournalføringsoppgaveFor(NyOppgave.builder().medJournalpostId(JournalpostId.fra("123456"))
             .medEnhetId("1234")
-            .medAktørId(new BrukerId("1234567890123"))
+            .medAktørId(new AktørId("1234567890123"))
             .medSaksref("referanse")
             .medBehandlingTema(BehandlingTema.FORELDREPENGER)
             .medBeskrivelse("Test beskrivelse")
@@ -171,7 +172,7 @@ class OppgaverTjenesteTest {
 
         var oppgave = oppgaver.hentOppgaveFor(JournalpostId.fra(journalpostId));
 
-        assertThat(oppgave.id()).isEqualTo(journalpostId);
+        assertThat(oppgave.journalpostId()).isEqualTo(journalpostId);
 
         verify(oppgaveKlient).finnÅpneJournalføringsoppgaverForJournalpost(journalpostId);
         verify(oppgaveRepository, never()).hentOppgave(journalpostId);
@@ -185,7 +186,7 @@ class OppgaverTjenesteTest {
 
         var oppgave = oppgaver.hentOppgaveFor(JournalpostId.fra(journalpostId));
 
-        assertThat(oppgave.id()).isEqualTo(journalpostId);
+        assertThat(oppgave.journalpostId()).isEqualTo(journalpostId);
 
         verify(oppgaveKlient, never()).hentOppgave(journalpostId);
         verify(oppgaveRepository).hentOppgave(journalpostId);
@@ -193,9 +194,12 @@ class OppgaverTjenesteTest {
 
     @Test
     void reserverOppgaveGosys() {
+        var gosysOppgaveId = "5678";
         var journalpostId = "1234";
         var saksbehandler = "TestIdent";
-        var oppgave = new OppgaveBuilder().medId(journalpostId).medKildeId(journalpostId)
+        var oppgave = no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.builder()
+            .medJournalpostId(journalpostId)
+            .medOppgaveId(gosysOppgaveId)
             .medKilde(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.Kilde.GOSYS)
             .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
             .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
@@ -206,7 +210,7 @@ class OppgaverTjenesteTest {
 
         oppgaver.reserverOppgaveFor(oppgave, saksbehandler);
 
-        verify(oppgaveKlient).reserverOppgave(journalpostId, saksbehandler);
+        verify(oppgaveKlient).reserverOppgave(gosysOppgaveId, saksbehandler);
         verifyNoMoreInteractions(oppgaveRepository);
     }
 
@@ -214,7 +218,9 @@ class OppgaverTjenesteTest {
     void reserverOppgaveLokalt() {
         var journalpostId = "1234";
         var saksbehandler = "TestIdent";
-        var oppgave = new OppgaveBuilder().medId(journalpostId).medKildeId(journalpostId)
+        var oppgave = no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.builder()
+            .medJournalpostId(journalpostId)
+            .medOppgaveId(journalpostId)
             .medKilde(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.Kilde.LOKAL)
             .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
             .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
@@ -235,8 +241,11 @@ class OppgaverTjenesteTest {
 
     @Test
     void avreserverOppgaveGosys() {
+        var gosysOppgaveId = "5678";
         var journalpostId = "1234";
-        var oppgave = new OppgaveBuilder().medId(journalpostId).medKildeId(journalpostId)
+        var oppgave = no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.builder()
+            .medJournalpostId(journalpostId)
+            .medOppgaveId(gosysOppgaveId)
             .medKilde(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.Kilde.GOSYS)
             .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
             .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
@@ -247,14 +256,16 @@ class OppgaverTjenesteTest {
 
         oppgaver.avreserverOppgaveFor(oppgave);
 
-        verify(oppgaveKlient).avreserverOppgave(journalpostId);
+        verify(oppgaveKlient).avreserverOppgave(gosysOppgaveId);
         verifyNoMoreInteractions(oppgaveRepository);
     }
 
     @Test
     void avreserverOppgaveLokalt() {
         var journalpostId = "1234";
-        var oppgave = new OppgaveBuilder().medId(journalpostId).medKildeId(journalpostId)
+        var oppgave = no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.builder()
+            .medJournalpostId(journalpostId)
+            .medOppgaveId(journalpostId)
             .medKilde(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.Kilde.LOKAL)
             .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
             .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
@@ -323,6 +334,26 @@ class OppgaverTjenesteTest {
 
         verify(oppgaveRepository).hentAlleÅpneOppgaver();
         verify(oppgaveKlient).finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT);
+        verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
+    }
+
+    @Test
+    void flyttOppgaveTilGosys() {
+        var journalpostId = "1234";
+
+        var oppgaveMock = mock(Oppgave.class);
+        Long expectedId = 11L;
+        when(oppgaveMock.id()).thenReturn(expectedId);
+        when(oppgaveKlient.opprettetOppgave(any())).thenReturn(oppgaveMock);
+
+        when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(true);
+        when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalOppgave(journalpostId));
+
+
+        oppgaver.flyttLokalOppgaveTilGosys(JournalpostId.fra(journalpostId));
+
+        verify(oppgaveRepository).ferdigstillOppgave(journalpostId);
+        verify(oppgaveKlient).opprettetOppgave(any(OpprettOppgave.class));
         verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
     }
 

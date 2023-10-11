@@ -74,7 +74,7 @@ public class EnhetsTjeneste {
 
 
         var id = Optional.ofNullable(aktørId).map(a -> hentEnhetId(a, behandlingTema, tema)).orElse(NASJONAL_ENHET_ID);
-        LOG.info("returnerer enhet id  {}", id);
+        LOG.info("returnerer enhet id {}", id);
         return id;
 
     }

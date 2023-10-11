@@ -8,7 +8,7 @@ import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.journalføring.oppgave.lager.BrukerId;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.AktørId;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
 
 class OppgaveTest {
@@ -20,7 +20,7 @@ class OppgaveTest {
         var builder = OppgaveEntitet.builder();
 
         var now = LocalDate.now();
-        var brukerId = new BrukerId("0123456789123");
+        var brukerId = new AktørId("0123456789123");
         var journalpostId = "123";
         var enhet = "1234";
         var reservertAv = "SAKSBEH";

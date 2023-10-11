@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,12 +19,13 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.typer.AktørId;
-import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.vedtak.exception.TekniskException;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,7 +34,6 @@ class FerdigstillJournalføringRestTjenesteTest {
     private static final String JOURNALPOST_ID = "123";
     private static final String ENHETID = "4567";
     private static final String SAKSNUMMER = "789";
-    private static final Long OPPGAVE_ID = 123456L;
     private static final String AKTØR_ID = "9000000000009";
 
     static {
@@ -124,11 +122,11 @@ class FerdigstillJournalføringRestTjenesteTest {
         if (aktørId != null && ytelseTypeDto != null) {
             opprettSakDto = new FerdigstillJournalføringRestTjeneste.OpprettSakDto(ytelseTypeDto, null, aktørId);
         }
-        return new FerdigstillJournalføringRestTjeneste.FerdigstillRequest(journalpostId, enhetid, sakId, OPPGAVE_ID, opprettSakDto,  oppdaterJournalpostMedTittelDto);
+        return new FerdigstillJournalføringRestTjeneste.FerdigstillRequest(journalpostId, enhetid, sakId, opprettSakDto, oppdaterJournalpostMedTittelDto);
     }
 
     private static FerdigstillJournalføringRestTjeneste.FerdigstillRequest reqGenerell(String enhetid, String journalpostId, String sakId, String aktørId, OppdaterJournalpostMedTittelDto oppdaterJournalpostMedTittelDto) {
         var opprettSakDto = new FerdigstillJournalføringRestTjeneste.OpprettSakDto(null, FerdigstillJournalføringRestTjeneste.SakstypeDto.GENERELL, aktørId);
-        return new FerdigstillJournalføringRestTjeneste.FerdigstillRequest(journalpostId, enhetid, sakId, OPPGAVE_ID, opprettSakDto,  oppdaterJournalpostMedTittelDto);
+        return new FerdigstillJournalføringRestTjeneste.FerdigstillRequest(journalpostId, enhetid, sakId, opprettSakDto, oppdaterJournalpostMedTittelDto);
     }
 }

@@ -56,47 +56,6 @@ public class ManuellJournalføringMapper {
         };
     }
 
-    static String tekstFraBeskrivelse(String beskrivelse) {
-        if (beskrivelse == null) {
-            return "Journalføring";
-        }
-        //Når vi oppretter gosys oppgave avsluttes teksten med (dd.mm.yyyy)
-        int i = beskrivelse.length();
-        if (beskrivelse.charAt(i - 1) == ')') {
-            i = i - 12;
-        }
-
-        while (i > 0 && !(Character.isDigit(beskrivelse.charAt(i - 1)) || beskrivelse.charAt(i - 1) == ',' || beskrivelse.charAt(i - 1) == '*'
-            || beskrivelse.charAt(i - 1) == '>')) {
-            i--;
-        }
-
-        if (i < beskrivelse.length() && beskrivelse.charAt(i) == ' ') {
-            i++;
-        }
-
-        if (i == beskrivelse.length()) {
-            return beskrivelse;
-        }
-        //I tilfelle vi tar bort for mye
-        if (beskrivelse.substring(i).length() < 2) {
-            var i2 = beskrivelse.length();
-            while (i2 > 0 && (beskrivelse.charAt(i2 - 1) != ',')) {
-                i2--;
-            }
-            return beskrivelse.substring(i2);
-        }
-        return beskrivelse.substring(i);
-    }
-
-    static ManuellJournalføringRestTjeneste.OppgavePrioritet mapPrioritet(Prioritet prioritet) {
-        return switch (prioritet) {
-            case HOY -> ManuellJournalføringRestTjeneste.OppgavePrioritet.HØY;
-            case LAV -> ManuellJournalføringRestTjeneste.OppgavePrioritet.LAV;
-            case NORM -> ManuellJournalføringRestTjeneste.OppgavePrioritet.NORM;
-        };
-    }
-
     static YtelseTypeDto mapTilYtelseType(String behandlingstema) {
         LOG.info("FPFORDEL JOURNALFØRING Oppgave med behandlingstema {}", behandlingstema);
         var behandlingTemaMappet = BehandlingTema.fraOffisiellKode(behandlingstema);

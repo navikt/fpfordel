@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  * DNR til FNR i Folkeregisteret. Tilsvarende vil den kunne referere personer som har ident fra et utenlandsk system.
  */
 @Embeddable
-public class BrukerId implements Serializable {
+public class AktørId implements Serializable {
     private static final long serialVersionUID = 1905122041950223207L;
 
     private static final String VALID_REGEXP = "^\\d{13}$";
@@ -22,15 +22,15 @@ public class BrukerId implements Serializable {
     @Column(name = "BRUKER_ID", length = 19)
     private String id;
 
-    protected BrukerId() {
+    protected AktørId() {
         // for hibernate
     }
 
-    public BrukerId(Long aktørId) {
+    public AktørId(Long aktørId) {
         this(aktørId.toString());
     }
 
-    public BrukerId(String aktørId) {
+    public AktørId(String aktørId) {
         this.id = validateBrukerId(aktørId);
     }
 
@@ -54,7 +54,7 @@ public class BrukerId implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof BrukerId other && getClass().equals(other.getClass()) && Objects.equals(id, other.id);
+        return obj instanceof AktørId other && getClass().equals(other.getClass()) && Objects.equals(id, other.id);
     }
 
     @Override
