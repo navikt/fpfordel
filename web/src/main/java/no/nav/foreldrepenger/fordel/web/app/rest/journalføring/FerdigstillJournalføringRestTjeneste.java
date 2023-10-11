@@ -111,7 +111,7 @@ public class FerdigstillJournalføringRestTjeneste {
 
         validerSaksnummer(saksnummer);
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(request.enhetId, saksnummer, journalpostId, nyJournalpostTittel ,dokumenter, nyDokumentTypeId );
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(request.enhetId, saksnummer, journalpostId, nyJournalpostTittel, dokumenter, nyDokumentTypeId);
 
         return new SaksnummerDto(saksnummer);
     }
@@ -178,7 +178,6 @@ public class FerdigstillJournalføringRestTjeneste {
         @NotNull @Pattern(regexp = "^(-?[1-9]|[a-z0])[a-z0-9_:-]*$", message = "journalpostId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String journalpostId,
         @NotNull String enhetId,
         @Size(max = 11) @Pattern(regexp = "^[0-9_\\-]*$") String saksnummer,
-        @NotNull Long oppgaveId,
         @Valid OpprettSakDto opprettSak,
         @Valid OppdaterJournalpostMedTittelDto oppdaterTitlerDto ) {}
 }

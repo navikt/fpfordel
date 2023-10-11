@@ -114,10 +114,6 @@ public class FerdigstillJournalføringTjeneste {
 
         validerKanJournalføreKlageDokument(behandlingTemaFagsak, brukDokumentTypeId, dokumentKategori);
 
-        // For å unngå klonede journalposter fra GOSYS - de kan komme via Kafka - må skje før vi ferdigstiller.
-        // Ellers kan kan kafka hendelsen komme tidligere en vi klarer å lagre og oppretter en ny oppgave.
-        dokumentRepository.lagreJournalpostLokal(journalpost.getJournalpostId(), journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
-
         if (Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
             oppdaterJournalpostMedTittelOgMangler(journalpost, nyJournalpostTittel, dokumenterMedNyTittel, aktørIdFagsak, behandlingTema);
             try {
@@ -149,6 +145,9 @@ public class FerdigstillJournalføringTjeneste {
         final var xml = hentDokumentSettMetadata(saksnummer, behandlingTema, aktørIdFagsak, journalpost);
         klargjører.klargjør(xml, saksnummer, journalpostId.getVerdi(), brukDokumentTypeId, mottattTidspunkt, behandlingTema, forsendelseId.orElse(null),
                 dokumentKategori, enhetId, eksternReferanseId);
+
+        // For å unngå klonede journalposter fra GOSYS - de kan komme via Kafka.
+        dokumentRepository.lagreJournalpostLokal(journalpost.getJournalpostId(), journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
 
         opprettFerdigstillOppgaveTask(journalpostId);
     }
