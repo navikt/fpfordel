@@ -204,7 +204,7 @@ class OppgaverTjenesteTest {
             .medFristFerdigstillelse(LocalDate.now().plusDays(1))
             .medBeskrivelse("tom")
             .build();
-        when(oppgaveRepository.harÅpenOppgave(gosysOppgaveId)).thenReturn(false);
+        when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(false);
 
         oppgaver.reserverOppgaveFor(oppgave, saksbehandler);
 
@@ -250,7 +250,7 @@ class OppgaverTjenesteTest {
             .medFristFerdigstillelse(LocalDate.now().plusDays(1))
             .medBeskrivelse("tom")
             .build();
-        when(oppgaveRepository.harÅpenOppgave(gosysOppgaveId)).thenReturn(false);
+        when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(false);
 
         oppgaver.avreserverOppgaveFor(oppgave);
 
