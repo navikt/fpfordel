@@ -33,11 +33,6 @@ class ManuellJournalføringMapperTest {
     }
 
     @Test
-    void mapPrioritet() {
-        assertThat(ManuellJournalføringMapper.mapPrioritet(Prioritet.NORM)).isEqualTo(JournalføringRestTjeneste.OppgavePrioritet.NORM);
-    }
-
-    @Test
     void mapTilYtelseType() {
         assertThat(ManuellJournalføringMapper.mapTilYtelseType("ab0326")).isEqualTo(YtelseTypeDto.FORELDREPENGER);
     }

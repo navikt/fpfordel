@@ -103,13 +103,11 @@ class JournalføringRestTjenesteTest {
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
         var oppgave = oppgaveDtos.get(0);
         assertThat(oppgave.journalpostId()).isEqualTo(expectedJournalpostId);
-        assertThat(oppgave.oppgaveId()).isEqualTo(Long.valueOf(expectedJournalpostId));
         assertThat(oppgave.frist()).isEqualTo(now);
         assertThat(oppgave.aktørId()).isEqualTo("aktørId");
         assertThat(oppgave.fødselsnummer()).isNull();
         assertThat(oppgave.beskrivelse()).isEqualTo(beskrivelse);
         assertThat(oppgave.opprettetDato()).isEqualTo(now);
-        assertThat(oppgave.prioritet()).isEqualTo(JournalføringRestTjeneste.OppgavePrioritet.NORM);
         assertThat(oppgave.ytelseType()).isEqualTo(YtelseTypeDto.FORELDREPENGER);
         assertThat(oppgave.enhetId()).isEqualTo(tilhørendeEnhetDto.enhetsnummer());
         assertThat(oppgave.kilde()).isEqualTo(JournalføringRestTjeneste.OppgaveKilde.GOSYS);
@@ -133,13 +131,11 @@ class JournalføringRestTjenesteTest {
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
         var oppgave = oppgaveDtos.get(0);
         assertThat(oppgave.journalpostId()).isEqualTo(expectedJournalPostUtenTittel);
-        assertThat(oppgave.oppgaveId()).isEqualTo(Long.valueOf(expectedJournalPostUtenTittel));
         assertThat(oppgave.frist()).isEqualTo(now);
         assertThat(oppgave.aktørId()).isEqualTo("aktørId");
         assertThat(oppgave.fødselsnummer()).isNull();
         assertThat(oppgave.beskrivelse()).isEqualTo(beskrivelse);
         assertThat(oppgave.opprettetDato()).isEqualTo(now);
-        assertThat(oppgave.prioritet()).isEqualTo(JournalføringRestTjeneste.OppgavePrioritet.NORM);
         assertThat(oppgave.ytelseType()).isEqualTo(YtelseTypeDto.SVANGERSKAPSPENGER);
         assertThat(oppgave.enhetId()).isEqualTo(tilhørendeEnhetDto.enhetsnummer());
     }

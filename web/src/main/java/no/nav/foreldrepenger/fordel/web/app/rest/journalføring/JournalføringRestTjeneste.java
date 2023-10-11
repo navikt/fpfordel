@@ -297,13 +297,11 @@ public class JournalføringRestTjeneste {
 
     private OppgaveDto lagOppgaveDto(Oppgave oppgave) {
         return new OppgaveDto(
-            Long.valueOf(oppgave.oppgaveId()),
             oppgave.journalpostId(),
             oppgave.aktørId(),
             hentPersonIdent(oppgave).orElse(null),
             mapYtelseType(oppgave),
             oppgave.fristFerdigstillelse(),
-            OppgavePrioritet.NORM,
             oppgave.beskrivelse(),
             oppgave.aktivDato(),
             oppgave.tildeltEnhetsnr(),
@@ -340,12 +338,6 @@ public class JournalføringRestTjeneste {
         return Optional.empty();
     }
 
-    public enum OppgavePrioritet {
-        HØY,
-        NORM,
-        LAV
-    }
-
     public enum OppgaveKilde { LOKAL, GOSYS }
 
     public record OppdaterBrukerDto(@NotNull String journalpostId, @NotNull String fødselsnummer) {
@@ -355,13 +347,11 @@ public class JournalføringRestTjeneste {
 
     public record HentBrukerResponseDto(@NotNull String navn, @NotNull String fødselsnummer) {}
 
-    public record OppgaveDto(@NotNull Long oppgaveId,
-                             @NotNull String journalpostId,
+    public record OppgaveDto(@NotNull String journalpostId,
                              String aktørId,
                              String fødselsnummer,
                              @Valid YtelseTypeDto ytelseType,
                              @NotNull LocalDate frist,
-                             OppgavePrioritet prioritet,
                              String beskrivelse,
                              @NotNull LocalDate opprettetDato,
                              String enhetId,

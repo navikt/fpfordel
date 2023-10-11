@@ -56,14 +56,6 @@ public class ManuellJournalføringMapper {
         };
     }
 
-    static JournalføringRestTjeneste.OppgavePrioritet mapPrioritet(Prioritet prioritet) {
-        return switch (prioritet) {
-            case HOY -> JournalføringRestTjeneste.OppgavePrioritet.HØY;
-            case LAV -> JournalføringRestTjeneste.OppgavePrioritet.LAV;
-            case NORM -> JournalføringRestTjeneste.OppgavePrioritet.NORM;
-        };
-    }
-
     static YtelseTypeDto mapTilYtelseType(String behandlingstema) {
         LOG.info("FPFORDEL JOURNALFØRING Oppgave med behandlingstema {}", behandlingstema);
         var behandlingTemaMappet = BehandlingTema.fraOffisiellKode(behandlingstema);
