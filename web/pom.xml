@@ -14,7 +14,7 @@
     <name>Fordel :: Web :: Applikasjon</name>
 
     <properties>
-        <org.jvnet.jaxb2.version>0.12.0</org.jvnet.jaxb2.version>
+        <org.jvnet.jaxb2.version>1.11.1-PUBLISHED-BY-MISTAKE</org.jvnet.jaxb2.version>
         <wsdl.directory>src/main/wsdl</wsdl.directory>
     </properties>
 
@@ -23,7 +23,7 @@
             <dependency>
                 <groupId>org.codehaus.woodstox</groupId>
                 <artifactId>stax2-api</artifactId>
-                <version>4.2.1</version>
+                <version>4.2.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
