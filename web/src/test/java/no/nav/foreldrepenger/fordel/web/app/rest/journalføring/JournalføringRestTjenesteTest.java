@@ -53,7 +53,7 @@ import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext;
 
 @ExtendWith(MockitoExtension.class)
-class ManuellJournalføringRestTjenesteTest {
+class JournalføringRestTjenesteTest {
 
     @Mock
     private PersonInformasjon pdl;
@@ -68,11 +68,11 @@ class ManuellJournalføringRestTjenesteTest {
     private final SaksbehandlerIdentDto saksbehandlerIdentDto = new SaksbehandlerIdentDto("123456");
     private final TilhørendeEnhetDto tilhørendeEnhetDto = new TilhørendeEnhetDto("9999", "Navn på enhet");
 
-    private ManuellJournalføringRestTjeneste restTjeneste;
+    private JournalføringRestTjeneste restTjeneste;
 
     @BeforeEach
     void setUp() {
-        restTjeneste = new ManuellJournalføringRestTjeneste(oppgaveTjeneste, pdl, arkiv, fagsak, los);
+        restTjeneste = new JournalføringRestTjeneste(oppgaveTjeneste, pdl, arkiv, fagsak, los);
     }
 
     @Test
@@ -109,10 +109,10 @@ class ManuellJournalføringRestTjenesteTest {
         assertThat(oppgave.fødselsnummer()).isNull();
         assertThat(oppgave.beskrivelse()).isEqualTo(beskrivelse);
         assertThat(oppgave.opprettetDato()).isEqualTo(now);
-        assertThat(oppgave.prioritet()).isEqualTo(ManuellJournalføringRestTjeneste.OppgavePrioritet.NORM);
+        assertThat(oppgave.prioritet()).isEqualTo(JournalføringRestTjeneste.OppgavePrioritet.NORM);
         assertThat(oppgave.ytelseType()).isEqualTo(YtelseTypeDto.FORELDREPENGER);
         assertThat(oppgave.enhetId()).isEqualTo(tilhørendeEnhetDto.enhetsnummer());
-        assertThat(oppgave.kilde()).isEqualTo(ManuellJournalføringRestTjeneste.OppgaveKilde.GOSYS);
+        assertThat(oppgave.kilde()).isEqualTo(JournalføringRestTjeneste.OppgaveKilde.GOSYS);
     }
 
     @Test
@@ -139,7 +139,7 @@ class ManuellJournalføringRestTjenesteTest {
         assertThat(oppgave.fødselsnummer()).isNull();
         assertThat(oppgave.beskrivelse()).isEqualTo(beskrivelse);
         assertThat(oppgave.opprettetDato()).isEqualTo(now);
-        assertThat(oppgave.prioritet()).isEqualTo(ManuellJournalføringRestTjeneste.OppgavePrioritet.NORM);
+        assertThat(oppgave.prioritet()).isEqualTo(JournalføringRestTjeneste.OppgavePrioritet.NORM);
         assertThat(oppgave.ytelseType()).isEqualTo(YtelseTypeDto.SVANGERSKAPSPENGER);
         assertThat(oppgave.enhetId()).isEqualTo(tilhørendeEnhetDto.enhetsnummer());
     }
@@ -281,7 +281,7 @@ class ManuellJournalføringRestTjenesteTest {
         when(pdl.hentAktørIdForPersonIdent(expectedFnr)).thenReturn(Optional.of(brukerAktørId));
         when(pdl.hentNavn(brukerAktørId)).thenReturn(navn);
 
-        var request = new ManuellJournalføringRestTjeneste.HentBrukerDto(expectedFnr);
+        var request = new JournalføringRestTjeneste.HentBrukerDto(expectedFnr);
         var response = restTjeneste.hentBruker(request);
 
         assertThat(response).isNotNull();
@@ -292,7 +292,7 @@ class ManuellJournalføringRestTjenesteTest {
     @Test
     @DisplayName("/bruker/oppdater - exception om journalpost mangler")
     void skal_kaste_exception_om_journalpostId_mangler() {
-        var request = new ManuellJournalføringRestTjeneste.OppdaterBrukerDto(null, null);
+        var request = new JournalføringRestTjeneste.OppdaterBrukerDto(null, null);
         var ex = assertThrows(NullPointerException.class, () -> restTjeneste.oppdaterBruker(request));
 
         assertThat(ex).isNotNull();
@@ -302,7 +302,7 @@ class ManuellJournalføringRestTjenesteTest {
     @Test
     @DisplayName("/bruker/oppdater - exception om fødselsnummer mangler")
     void skal_kaste_exception_om_fnr_mangler() {
-        var request = new ManuellJournalføringRestTjeneste.OppdaterBrukerDto("1234", null);
+        var request = new JournalføringRestTjeneste.OppdaterBrukerDto("1234", null);
         var ex = assertThrows(NullPointerException.class, () -> restTjeneste.oppdaterBruker(request));
 
         assertThat(ex).isNotNull();
@@ -317,7 +317,7 @@ class ManuellJournalføringRestTjenesteTest {
 
         when(arkiv.hentArkivJournalpost(expectedJournalpostId)).thenReturn(opprettJournalpost(expectedJournalpostId));
 
-        var request = new ManuellJournalføringRestTjeneste.OppdaterBrukerDto(expectedJournalpostId, expectedFnr);
+        var request = new JournalføringRestTjeneste.OppdaterBrukerDto(expectedJournalpostId, expectedFnr);
         var journalpostDetaljerDto = restTjeneste.oppdaterBruker(request);
 
         assertThat(journalpostDetaljerDto).isNotNull();
@@ -335,7 +335,7 @@ class ManuellJournalføringRestTjenesteTest {
         when(arkiv.hentArkivJournalpost(expectedJournalpostId)).thenReturn(getStandardBuilder(expectedJournalpostId, brukerAktørId).build());
         when(pdl.hentPersonIdentForAktørId(brukerAktørId)).thenReturn(Optional.of(expectedFnr));
 
-        var request = new ManuellJournalføringRestTjeneste.OppdaterBrukerDto(expectedJournalpostId, expectedFnr);
+        var request = new JournalføringRestTjeneste.OppdaterBrukerDto(expectedJournalpostId, expectedFnr);
         var journalpostDetaljerDto = restTjeneste.oppdaterBruker(request);
 
         assertThat(journalpostDetaljerDto).isNotNull();
@@ -351,7 +351,7 @@ class ManuellJournalføringRestTjenesteTest {
         when(oppgaveTjeneste.hentOppgaveFor(any(JournalpostId.class))).thenReturn(
             opprettOppgave("12334", LocalDate.now(), "test", "7070", "John", YtelseType.FP));
 
-        var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(expectedJournalpostId,null);
+        var request = new JournalføringRestTjeneste.ReserverOppgaveDto(expectedJournalpostId,null);
 
         Exception ex;
         try (var utilities = Mockito.mockStatic(KontekstHolder.class)) {
@@ -375,7 +375,7 @@ class ManuellJournalføringRestTjenesteTest {
 
         when(oppgaveTjeneste.hentOppgaveFor(any(JournalpostId.class))).thenReturn(oppgave);
 
-        var request = new ManuellJournalføringRestTjeneste.ReserverOppgaveDto(expectedJournalpostId, "");
+        var request = new JournalføringRestTjeneste.ReserverOppgaveDto(expectedJournalpostId, "");
         Response response;
 
         try (var utilities = Mockito.mockStatic(KontekstHolder.class)) {

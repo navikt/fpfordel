@@ -56,11 +56,11 @@ public class ManuellJournalføringMapper {
         };
     }
 
-    static ManuellJournalføringRestTjeneste.OppgavePrioritet mapPrioritet(Prioritet prioritet) {
+    static JournalføringRestTjeneste.OppgavePrioritet mapPrioritet(Prioritet prioritet) {
         return switch (prioritet) {
-            case HOY -> ManuellJournalføringRestTjeneste.OppgavePrioritet.HØY;
-            case LAV -> ManuellJournalføringRestTjeneste.OppgavePrioritet.LAV;
-            case NORM -> ManuellJournalføringRestTjeneste.OppgavePrioritet.NORM;
+            case HOY -> JournalføringRestTjeneste.OppgavePrioritet.HØY;
+            case LAV -> JournalføringRestTjeneste.OppgavePrioritet.LAV;
+            case NORM -> JournalføringRestTjeneste.OppgavePrioritet.NORM;
         };
     }
 

@@ -37,13 +37,13 @@ import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 class OppgaverTjenesteTest {
@@ -53,10 +53,12 @@ class OppgaverTjenesteTest {
     private OppgaveRepository oppgaveRepository;
     @Mock
     private Oppgaver oppgaveKlient;
+    @Mock
+    private EnhetsTjeneste enhetsTjeneste;
 
     @BeforeEach
     void setUp() {
-        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient, mock(ProsessTaskTjeneste.class));
+        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient, enhetsTjeneste);
     }
 
     @Test
@@ -82,7 +84,7 @@ class OppgaverTjenesteTest {
 
     @Test
     void opprettJournalføringsOppgaveLokalt() {
-        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient, mock(ProsessTaskTjeneste.class));
+        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient, enhetsTjeneste);
         var expectedId = "11";
         when(oppgaveRepository.lagre(any(OppgaveEntitet.class))).thenReturn(expectedId);
 
@@ -332,6 +334,26 @@ class OppgaverTjenesteTest {
 
         verify(oppgaveRepository).hentAlleÅpneOppgaver();
         verify(oppgaveKlient).finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT);
+        verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
+    }
+
+    @Test
+    void flyttOppgaveTilGosys() {
+        var journalpostId = "1234";
+
+        var oppgaveMock = mock(Oppgave.class);
+        Long expectedId = 11L;
+        when(oppgaveMock.id()).thenReturn(expectedId);
+        when(oppgaveKlient.opprettetOppgave(any())).thenReturn(oppgaveMock);
+
+        when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(true);
+        when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalOppgave(journalpostId));
+
+
+        oppgaver.flyttLokalOppgaveTilGosys(JournalpostId.fra(journalpostId));
+
+        verify(oppgaveRepository).ferdigstillOppgave(journalpostId);
+        verify(oppgaveKlient).opprettetOppgave(any(OpprettOppgave.class));
         verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
     }
 

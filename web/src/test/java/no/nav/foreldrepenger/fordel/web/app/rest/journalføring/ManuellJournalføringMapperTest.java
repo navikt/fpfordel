@@ -34,7 +34,7 @@ class ManuellJournalføringMapperTest {
 
     @Test
     void mapPrioritet() {
-        assertThat(ManuellJournalføringMapper.mapPrioritet(Prioritet.NORM)).isEqualTo(ManuellJournalføringRestTjeneste.OppgavePrioritet.NORM);
+        assertThat(ManuellJournalføringMapper.mapPrioritet(Prioritet.NORM)).isEqualTo(JournalføringRestTjeneste.OppgavePrioritet.NORM);
     }
 
     @Test

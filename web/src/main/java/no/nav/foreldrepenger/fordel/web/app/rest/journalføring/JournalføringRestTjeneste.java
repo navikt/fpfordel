@@ -62,14 +62,14 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
-@Path(ManuellJournalføringRestTjeneste.JOURNALFOERING_PATH)
+@Path(JournalføringRestTjeneste.JOURNALFOERING_PATH)
 @Consumes(APPLICATION_JSON)
 @Transactional
 @RequestScoped
-public class ManuellJournalføringRestTjeneste {
+public class JournalføringRestTjeneste {
     private static final Environment ENV = Environment.current();
 
-    private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringRestTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JournalføringRestTjeneste.class);
 
     public static final String JOURNALFOERING_PATH = "/journalfoering";
     private static final String DOKUMENT_HENT_PATH = "/dokument/hent";
@@ -81,16 +81,16 @@ public class ManuellJournalføringRestTjeneste {
     private Fagsak fagsak;
     private Los los;
 
-    ManuellJournalføringRestTjeneste() {
+    JournalføringRestTjeneste() {
         // CDI
     }
 
     @Inject
-    public ManuellJournalføringRestTjeneste(Journalføringsoppgave oppgaveTjeneste,
-                                            PersonInformasjon pdl,
-                                            ArkivTjeneste arkiv,
-                                            Fagsak fagsak,
-                                            Los los) {
+    public JournalføringRestTjeneste(Journalføringsoppgave oppgaveTjeneste,
+                                     PersonInformasjon pdl,
+                                     ArkivTjeneste arkiv,
+                                     Fagsak fagsak,
+                                     Los los) {
         this.oppgaveTjeneste = oppgaveTjeneste;
         this.pdl = pdl;
         this.arkiv = arkiv;
