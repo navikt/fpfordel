@@ -189,7 +189,7 @@ public class DokumentforsendelseRestTjeneste {
             var status = service.finnStatusinformasjon(dokumentforsendelse.getForsendelsesId());
             return tilForsendelseStatusRespons(dokumentforsendelse, status);
         });
-        LOG.info("Innsending av dokumentforsendelse med journalpostId prosessert {}", dokumentforsendelse.getForsendelsesId());
+        LOG.info("Innsending av dokumentforsendelse med id prosessert {}", dokumentforsendelse.getForsendelsesId());
         return response;
     }
 

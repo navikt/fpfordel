@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-class BrukerIdTest {
+class AktørIdTest {
 
     protected static final String GYLDIG_AKTØRID = "0123456789123";
     protected static final String IKKE_GYLDIG_AKTØRID = "ikke_gyldig";

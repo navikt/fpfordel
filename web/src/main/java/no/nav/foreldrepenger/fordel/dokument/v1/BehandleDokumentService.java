@@ -237,7 +237,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             LOG.info("FPFORDEL GOSYS Fant en FP-sak med saksnummer {} som har rett aktør", saksnummerFraRequest);
             fagsakInfomasjonDto = fagsakFraRequestSomTrefferRettAktør.get();
         } else {
-            // Gosys sender alltid arkivsaksnummer- dvs sak.journalpostId
+            // Gosys sender alltid arkivsaksnummer- dvs sak.id
             final var saksnummerFraArkiv = saksnummerOppslagMotArkiv(saksnummerFraRequest).orElseThrow(
                 () -> BehandleDokumentServiceFeil.finnerIkkeFagsak(saksnummerFraRequest));
             LOG.info("FPFORDEL GOSYS slår opp fagsak {} finner {}", saksnummerFraRequest, saksnummerFraArkiv);
@@ -306,7 +306,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
         } catch (Exception e) {
             LOG.warn("FORDEL WS fikk feil fra hentjournalpost: ", e);
             JournalpostIkkeFunnet journalpostIkkeFunnet = new JournalpostIkkeFunnet();
-            journalpostIkkeFunnet.setFeilmelding("Finner ikke journalpost med journalpostId " + arkivId);
+            journalpostIkkeFunnet.setFeilmelding("Finner ikke journalpost med id " + arkivId);
             journalpostIkkeFunnet.setFeilaarsak("Finner ikke journalpost");
             throw new OppdaterOgFerdigstillJournalfoeringJournalpostIkkeFunnet(journalpostIkkeFunnet.getFeilmelding(), journalpostIkkeFunnet);
         }

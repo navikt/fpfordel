@@ -195,7 +195,7 @@ public class FerdigstillJournalføringTjeneste {
         var kanal = journalpost.getKanal();
 
         if ((nyJournalpostTittel != null || !dokumenterMedNyTittel.isEmpty()) && (MottakKanal.SELVBETJENING.getKode().equals(kanal) || MottakKanal.ALTINN.getKode().equals(kanal))) {
-            throw new FunksjonellException("FP-963071", String.format("Kan ikke endre tittel på journalpost med journalpostId %s som kommer fra Selvbetjening eller Altinn.", journalpostId),
+            throw new FunksjonellException("FP-963071", String.format("Kan ikke endre tittel på journalpost med id %s som kommer fra Selvbetjening eller Altinn.", journalpostId),
                     "Tittel kan ikke endres når journalposten kommer fra selvbetjening eller altinn");
         }
 

@@ -97,7 +97,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
         String oppgaveId = opprettOppgave(prosessTaskData, behandlingTema, dokumentTypeId);
 
-        LOG.info("FPFORDEL JFR-OPPGAVE: opprettet oppgave med journalpostId {} for journalpostId: {}", oppgaveId, journalpostId);
+        LOG.info("FPFORDEL JFR-OPPGAVE: opprettet oppgave med id {} for journalpostId: {}", oppgaveId, journalpostId);
 
         String forsendelseIdString = prosessTaskData.getPropertyValue(FORSENDELSE_ID_KEY);
         if ((forsendelseIdString != null) && !forsendelseIdString.isEmpty()) {

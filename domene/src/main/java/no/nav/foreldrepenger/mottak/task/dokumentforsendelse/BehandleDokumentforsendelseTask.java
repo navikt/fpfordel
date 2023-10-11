@@ -240,7 +240,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
     }
 
     private OpprettetJournalpost opprettJournalpostFerdigstillHvisSaksnummer(UUID forsendelseId, MottakMeldingDataWrapper w, String saksnummer) {
-        var avsenderId = w.getAktørId().orElseThrow(() -> new IllegalStateException("Hvor ble det av brukers journalpostId?"));
+        var avsenderId = w.getAktørId().orElseThrow(() -> new IllegalStateException("Hvor ble det av brukers id?"));
 
         if (saksnummer != null) {
             var opprettetJournalpost = arkiv.opprettJournalpost(forsendelseId, avsenderId, saksnummer);

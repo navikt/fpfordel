@@ -21,7 +21,7 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 public class MottakMeldingDataWrapper {
 
     public static final String ARKIV_ID_KEY = "arkivId";
-    public static final String AKTØR_ID_KEY = "aktørId";
+    public static final String AKTØR_ID_KEY = "aktoerId";
     public static final String SAKSNUMMER_KEY = "saksnummer";
     public static final String INN_SAKSNR_KEY = "journalpostsak";
     public static final String KANAL_KEY = "kanal";
@@ -39,12 +39,12 @@ public class MottakMeldingDataWrapper {
     public static final String STRUKTURERT_DOKUMENT = "strukturert.dokument";
     public static final String FORSENDELSE_MOTTATT_TIDSPUNKT_KEY = "forsendelse.mottatt.tidspunkt";
     public static final String JOURNAL_ENHET = "journalforende.enhet";
-    public static final String FORSENDELSE_ID_KEY = "forsendelse.journalpostId";
-    public static final String ANNEN_PART_ID_KEY = "annen.part.journalpostId";
+    public static final String FORSENDELSE_ID_KEY = "forsendelse.id";
+    public static final String ANNEN_PART_ID_KEY = "annen.part.id";
     public static final String ANNEN_PART_HAR_RETT_KEY = "annen.part.har.rett";
     public static final String FØRSTE_UTTAKSDAG_KEY = "forste.uttaksdag";
     public static final String VIRKSOMHETSNUMMER = "virksomhetsnummer";
-    public static final String ARBEIDSGIVER_AKTØR_ID = "arbeidsgiver.aktørId";
+    public static final String ARBEIDSGIVER_AKTØR_ID = "arbeidsgiver.aktoerId";
     public static final String ARBEIDSFORHOLDSID = "arbeidsforholdsId";
     public static final String INNTEKTSMELDING_YTELSE = "im.ytelse";
     public static final String EKSTERN_REFERANSE = "eksternreferanse";

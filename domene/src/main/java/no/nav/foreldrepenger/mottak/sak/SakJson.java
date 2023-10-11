@@ -25,7 +25,7 @@ public record SakJson(Long id, String tema, String applikasjon, String aktoerId,
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [journalpostId=" + id + ", tema=" + tema + ", applikasjon=" + applikasjon + ", fagsakNr=" + fagsakNr + "]";
+        return getClass().getSimpleName() + " [id=" + id + ", tema=" + tema + ", applikasjon=" + applikasjon + ", fagsakNr=" + fagsakNr + "]";
     }
 
 }

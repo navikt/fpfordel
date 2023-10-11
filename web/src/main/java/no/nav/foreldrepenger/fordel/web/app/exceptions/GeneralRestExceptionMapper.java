@@ -38,9 +38,9 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
         String feilbeskrivelse = getExceptionMelding(feil);
         if (feil instanceof FunksjonellException f) {
             String løsningsforslag = f.getLøsningsforslag();
-            return "Det oppstod en feil: " + avsluttMedPunktum(feilbeskrivelse) + avsluttMedPunktum(løsningsforslag) + ". Referanse-journalpostId: " + callId;
+            return "Det oppstod en feil: " + avsluttMedPunktum(feilbeskrivelse) + avsluttMedPunktum(løsningsforslag) + ". Referanse-id: " + callId;
         }
-        return "Det oppstod en serverfeil: " + avsluttMedPunktum(feilbeskrivelse) + ". Meld til support med referanse-journalpostId: " + callId;
+        return "Det oppstod en serverfeil: " + avsluttMedPunktum(feilbeskrivelse) + ". Meld til support med referanse-id: " + callId;
 
     }
 

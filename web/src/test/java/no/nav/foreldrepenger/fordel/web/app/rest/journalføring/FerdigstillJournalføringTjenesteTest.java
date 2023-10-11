@@ -371,7 +371,7 @@ class FerdigstillJournalføringTjenesteTest {
 
 
         var e = assertThrows(FunksjonellException.class, () -> journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, journalpostId, nyTittel, dokumenterMedNyeTitler, nyDokumentTypeId));
-        assertThat(e.getMessage()).contains("Kan ikke endre tittel på journalpost med journalpostId 123 som kommer fra Selvbetjening eller Altinn");
+        assertThat(e.getMessage()).contains("Kan ikke endre tittel på journalpost med id 123 som kommer fra Selvbetjening eller Altinn");
     }
 
     private Journalpost opprettJournalpost(String tittel, List<DokumentInfo> dokumenter) {
