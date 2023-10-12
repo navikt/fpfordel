@@ -10,7 +10,6 @@ import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.SAKSN
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,7 +140,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
             .medBeskrivelse(beskrivelse)
             .build();
 
-        if (erGosysOppgave(enhetId, dokumentTypeId)) {
+        if (erGosysOppgave(enhetId)) {
             LOG.info("Oppretter en gosys oppgave for {} med {}", journalpost, dokumentTypeId);
             return oppgaverTjeneste.opprettGosysJournalføringsoppgaveFor(nyOppgave);
         } else {
@@ -150,7 +149,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         }
     }
 
-    private boolean erGosysOppgave(String enhet, DokumentTypeId dokumentType) {
-        return NK_ENHET_ID.equals(enhet) || Set.of(DokumentTypeId.ANNET, DokumentTypeId.UDEFINERT).contains(dokumentType);
+    private boolean erGosysOppgave(String enhet) {
+        return NK_ENHET_ID.equals(enhet);
     }
 }
