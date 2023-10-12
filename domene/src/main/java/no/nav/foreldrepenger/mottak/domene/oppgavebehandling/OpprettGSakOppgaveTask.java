@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.mottak.domene.oppgavebehandling;
 
-import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.erInntektsmelding;
-import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.erKlageType;
-import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.erSøknadType;
 import static no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste.NK_ENHET_ID;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.ARKIV_ID_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.BEHANDLINGSTEMA_KEY;
@@ -22,7 +19,6 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
@@ -145,7 +141,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
             .medBeskrivelse(beskrivelse)
             .build();
 
-        if (erGosysOppgave(enhetId, dokumentTypeId, prosessTaskData.getPropertyValue(MottakMeldingDataWrapper.KANAL_KEY))) {
+        if (erGosysOppgave(enhetId, dokumentTypeId)) {
             LOG.info("Oppretter en gosys oppgave for {} med {}", journalpost, dokumentTypeId);
             return oppgaverTjeneste.opprettGosysJournalføringsoppgaveFor(nyOppgave);
         } else {
@@ -154,15 +150,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         }
     }
 
-    private boolean erGosysOppgave(String enhet, DokumentTypeId dokumentType, String kanal) {
-        if (NK_ENHET_ID.equals(enhet) || erKlageType(dokumentType) || Set.of(DokumentTypeId.ANNET, DokumentTypeId.UDEFINERT).contains(dokumentType)) {
-            return true;
-        }
-        // Søknader fra scanning kan være ymse. Vent til vi har en flytt-til-gosys
-        if (MottakKanal.SKAN_IM.getKode().equals(kanal)) {
-            return true;
-        }
-        // denne kan fjerner i neste omgang.
-        return !erSøknadType(dokumentType) && !erInntektsmelding(dokumentType);
+    private boolean erGosysOppgave(String enhet, DokumentTypeId dokumentType) {
+        return NK_ENHET_ID.equals(enhet) || Set.of(DokumentTypeId.ANNET, DokumentTypeId.UDEFINERT).contains(dokumentType);
     }
 }
