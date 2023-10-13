@@ -112,8 +112,8 @@ public class ArkivTjeneste {
         return Optional.ofNullable(tittel).map(TITTEL_MAP::get);
     }
 
-    public static boolean harBrevKode(Journalpost journalpost, NAVSkjema brevkode) {
-        if (journalpost == null || brevkode == null) {
+    public static boolean harBrevKode(Journalpost journalpost, Set<NAVSkjema> brevkoder) {
+        if (journalpost == null || brevkoder == null || brevkoder.isEmpty()) {
             return false;
         }
         Set<NAVSkjema> allebrevkoder = new HashSet<>();
@@ -123,7 +123,7 @@ public class ArkivTjeneste {
             allebrevkoder.add(NAVSkjema.fraTermNavn(d.tittel()));
             d.logiskeVedlegg().forEach(v -> allebrevkoder.add(NAVSkjema.fraTermNavn(v.tittel())));
         });
-        return allebrevkoder.contains(brevkode);
+        return brevkoder.stream().anyMatch(allebrevkoder::contains);
     }
 
     private static List<DokumentInfoOpprett> lagAlleDokumentForOpprett(List<Dokument> dokumenter) {

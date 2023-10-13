@@ -21,6 +21,7 @@ public enum NAVSkjema implements Kodeverdi {
     SKJEMA_KLAGE_DOKUMENT("SKLAGE", "NAV 90-00.08", "Klage/anke"),
     SKJEMA_KLAGE_A_DOKUMENT("SKANKE", "NAV 90-00.08 A", "Anke"),
     SKJEMA_KLAGE_K_DOKUMENT("SKKLAG", "NAV 90-00.08 K", "Klage"),
+    SKJEMA_TRYGDERETT_DOKUMENT("SKTRETT", "NAV 96-01.01", "Rettskjennelse fra Trygderetten"),
     SKJEMA_FORELDREPENGER_ENDRING("SEND", "NAV 14-05.10", "Søknad om endring av uttak av foreldrepenger eller overføring av kvote"),
 
     SKJEMAE_SVANGERSKAPSPENGER("SESV", "NAVe 14-04.10",
@@ -37,6 +38,7 @@ public enum NAVSkjema implements Kodeverdi {
     SKJEMAE_KLAGE("SEKLAG", "NAVe 90-00.08", "Ettersendelse klage/anke"),
     SKJEMAE_KLAGE_NY("SEKLGE", "NAVe 90-00.08 K", "Ettersendelse til Klage"),
     SKJEMAE_ANKE("SEANKE", "NAVe 90-00.08 A", "Ettersendelse til Anke"),
+    SKJEMAE_TRYGDERETT("SETRETT", "NAVe 96-01.01", "Ettersendelse til Rettskjennelse fra Trygderetten"),
     SKJEMAE_FORELDREPENGER_ENDRING("SEEN", "NAVe 14-05.10",
         "Ettersendelse til søknad om endring av uttak av foreldrepenger eller overføring av kvote"),
 
