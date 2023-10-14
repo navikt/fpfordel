@@ -273,6 +273,7 @@ public class BehandleDokumentService implements BehandleDokumentforsendelseV1 {
             LOG.info("FPFORDEL GOSYS Kaller tilJournalføring"); // NOSONAR
             try {
                 arkivTjeneste.oppdaterMedSak(journalpost.getJournalpostId(), saksnummer, fagsakInfoAktørId);
+                LOG.info("FPFORDEL GOSYS Ferdigstiller journalpost {} enhet {} dokumentType {}", journalpost.getJournalpostId(), request.getEnhetId(), dokumentTypeId); // NOSONAR
                 arkivTjeneste.ferdigstillJournalføring(journalpost.getJournalpostId(), request.getEnhetId());
             } catch (Exception e) {
                 ugyldigBrukerPrøvIgjen(request.getJournalpostId(), e);

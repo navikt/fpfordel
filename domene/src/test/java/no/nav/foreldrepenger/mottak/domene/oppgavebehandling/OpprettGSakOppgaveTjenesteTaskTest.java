@@ -129,8 +129,8 @@ class OpprettGSakOppgaveTjenesteTaskTest {
 
         task.doTask(taskData);
 
-        verify(oppgaverTjeneste).opprettGosysJournalføringsoppgaveFor(buildNyOppgave(arkivId, FORDELINGSOPPGAVE_ENHET_ID, null, BehandlingTema.FORELDREPENGER, beskrivelse));
-        verify(oppgaverTjeneste, never()).opprettJournalføringsoppgaveFor(any(NyOppgave.class));
+        verify(oppgaverTjeneste).opprettJournalføringsoppgaveFor(buildNyOppgave(arkivId, FORDELINGSOPPGAVE_ENHET_ID, null, BehandlingTema.FORELDREPENGER, beskrivelse));
+        verify(oppgaverTjeneste, never()).opprettGosysJournalføringsoppgaveFor(any(NyOppgave.class));
     }
 
     private NyOppgave buildNyOppgave(String arkivId, String enhet, String aktørId, BehandlingTema behandlingTema, String beskrivelse) {

@@ -64,6 +64,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     private static final TaskType TASK_JOURNALFØR = TaskType.forProsessTask(TilJournalføringTask.class);
 
     private static final Set<String> DIREKTE_KA = Set.of("anke", "rettskjennelse fra trygderetten", "ettersendelse til anke");
+    private static final Set<NAVSkjema> SKJEMA_KA = Set.of(NAVSkjema.SKJEMA_KLAGE_A_DOKUMENT, NAVSkjema.SKJEMA_TRYGDERETT_DOKUMENT,
+        NAVSkjema.SKJEMAE_ANKE, NAVSkjema.SKJEMAE_TRYGDERETT);
 
     private static final Logger LOG = LoggerFactory.getLogger(HentDataFraJoarkTask.class);
 
@@ -297,8 +299,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     private static boolean erAnkeRelatert(ArkivJournalpost journalpost) {
         return journalpost.getTittel().map(String::toLowerCase).filter(DIREKTE_KA::contains).isPresent() ||
-            ArkivTjeneste.harBrevKode(journalpost.getOriginalJournalpost(), NAVSkjema.SKJEMA_KLAGE_A_DOKUMENT) ||
-            ArkivTjeneste.harBrevKode(journalpost.getOriginalJournalpost(), NAVSkjema.SKJEMAE_ANKE);
+            ArkivTjeneste.harBrevKode(journalpost.getOriginalJournalpost(), SKJEMA_KA);
     }
 
     @Override

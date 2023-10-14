@@ -27,6 +27,7 @@ public class MapNAVSkjemaDokumentTypeId {
         Map.entry(NAVSkjema.SKJEMA_KLAGE_DOKUMENT, DokumentTypeId.KLAGE_DOKUMENT),
         Map.entry(NAVSkjema.SKJEMA_KLAGE_A_DOKUMENT, DokumentTypeId.KLAGE_DOKUMENT),
         Map.entry(NAVSkjema.SKJEMA_KLAGE_K_DOKUMENT, DokumentTypeId.KLAGE_DOKUMENT),
+        Map.entry(NAVSkjema.SKJEMA_TRYGDERETT_DOKUMENT, DokumentTypeId.KLAGE_DOKUMENT),
         Map.entry(NAVSkjema.SKJEMA_INNTEKTSOPPLYSNING_SELVSTENDIG, DokumentTypeId.INNTEKTSOPPLYSNING_SELVSTENDIG),
         Map.entry(NAVSkjema.SKJEMA_INNTEKTSOPPLYSNINGER, DokumentTypeId.INNTEKTSOPPLYSNINGER),
         Map.entry(NAVSkjema.SKJEMAE_INNTEKTSOPPLYSNING_SELVSTENDIG, DokumentTypeId.INNTEKTSOPPLYSNING_SELVSTENDIG),
@@ -43,7 +44,8 @@ public class MapNAVSkjemaDokumentTypeId {
         Map.entry(NAVSkjema.SKJEMAE_FORELDREPENGER_ENDRING, DokumentTypeId.ETTERSENDT_FORELDREPENGER_ENDRING_SØKNAD),
         Map.entry(NAVSkjema.SKJEMAE_KLAGE, DokumentTypeId.ETTERSENDT_KLAGE),
         Map.entry(NAVSkjema.SKJEMAE_KLAGE_NY, DokumentTypeId.ETTERSENDT_KLAGE),
-        Map.entry(NAVSkjema.SKJEMAE_ANKE, DokumentTypeId.ETTERSENDT_KLAGE));
+        Map.entry(NAVSkjema.SKJEMAE_ANKE, DokumentTypeId.ETTERSENDT_KLAGE),
+        Map.entry(NAVSkjema.SKJEMAE_TRYGDERETT, DokumentTypeId.KLAGE_DOKUMENT));
 
     private static final Map<DokumentTypeId, NAVSkjema> DOKUMENT_TYPE_BREVKODE = Map.ofEntries(
         Map.entry(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER, NAVSkjema.SKJEMA_SVANGERSKAPSPENGER),
