@@ -195,7 +195,6 @@ public class OppgaveEntitet extends BaseEntitet implements Serializable {
 
         private void verifiser() {
             Objects.requireNonNull(journalpostId);
-            Objects.requireNonNull(ytelseType);
             Objects.requireNonNull(status);
             Objects.requireNonNull(enhet);
             Objects.requireNonNull(frist);
