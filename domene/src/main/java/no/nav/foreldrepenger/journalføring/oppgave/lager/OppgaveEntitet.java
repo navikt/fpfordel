@@ -39,9 +39,8 @@ public class OppgaveEntitet extends BaseEntitet implements Serializable {
     @Embedded
     private AktørId brukerId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "YTELSE_TYPE", nullable = false)
-    private YtelseType ytelseType;
+    @Column(name = "YTELSE_TYPE")
+    private String ytelseType;
 
     @Column(name = "BESKRIVELSE", length = 200)
     private String beskrivelse;
@@ -81,7 +80,7 @@ public class OppgaveEntitet extends BaseEntitet implements Serializable {
     }
 
     public YtelseType getYtelseType() {
-        return ytelseType;
+        return ytelseType != null ? YtelseType.valueOf(ytelseType) : null;
     }
 
     public String getBeskrivelse() {
@@ -113,7 +112,7 @@ public class OppgaveEntitet extends BaseEntitet implements Serializable {
     }
 
     public void setYtelseType(YtelseType ytelseType) {
-        this.ytelseType = ytelseType;
+        this.ytelseType = ytelseType != null ? ytelseType.name() : null;
     }
 
     public void setBeskrivelse(String beskrivelse) {
@@ -195,7 +194,6 @@ public class OppgaveEntitet extends BaseEntitet implements Serializable {
 
         private void verifiser() {
             Objects.requireNonNull(journalpostId);
-            Objects.requireNonNull(ytelseType);
             Objects.requireNonNull(status);
             Objects.requireNonNull(enhet);
             Objects.requireNonNull(frist);
