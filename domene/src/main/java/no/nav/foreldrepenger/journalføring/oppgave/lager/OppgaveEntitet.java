@@ -40,7 +40,7 @@ public class OppgaveEntitet extends BaseEntitet implements Serializable {
     private AktørId brukerId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "YTELSE_TYPE", nullable = false)
+    @Column(name = "YTELSE_TYPE")
     private YtelseType ytelseType;
 
     @Column(name = "BESKRIVELSE", length = 200)
