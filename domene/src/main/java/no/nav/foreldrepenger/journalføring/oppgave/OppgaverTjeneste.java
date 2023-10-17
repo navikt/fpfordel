@@ -251,7 +251,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
             .medTildeltEnhetsnr(entitet.getEnhet())
             .medFristFerdigstillelse(entitet.getFrist())
             .medAktørId(entitet.getBrukerId().getId())
-            .medYtelseType(YtelseType.valueOf(entitet.getYtelseType().name()))
+            .medYtelseType(entitet.getYtelseType())
             .medBeskrivelse(entitet.getBeskrivelse())
             .medTilordnetRessurs(entitet.getReservertAv())
             .medAktivDato(LocalDate.now())
