@@ -183,7 +183,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
         if (oppgaveOpt.isPresent()) {
             var oppgave = oppgaveOpt.get();
 
-            var behandlingTema = switch (oppgave.ytelseType()) {
+            var behandlingTema = oppgave.ytelseType() == null ? null: switch (oppgave.ytelseType()) {
                 case ES -> BehandlingTema.ENGANGSSTØNAD;
                 case FP -> BehandlingTema.FORELDREPENGER;
                 case SVP -> BehandlingTema.SVANGERSKAPSPENGER;
@@ -251,7 +251,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
             .medTildeltEnhetsnr(entitet.getEnhet())
             .medFristFerdigstillelse(entitet.getFrist())
             .medAktørId(entitet.getBrukerId().getId())
-            .medYtelseType(YtelseType.valueOf(entitet.getYtelseType().name()))
+            .medYtelseType(entitet.getYtelseType())
             .medBeskrivelse(entitet.getBeskrivelse())
             .medTilordnetRessurs(entitet.getReservertAv())
             .medAktivDato(LocalDate.now())
