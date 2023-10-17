@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.journalføring.oppgave.lager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -32,6 +33,14 @@ class OppgaveRepositoryTest {
     void lagreOgHente() {
         var oppgaveEntitet = lagTestOppgave();
         assertThat(repo.hentOppgave(JOURNALPOST_ID)).isNotNull().isEqualTo(oppgaveEntitet);
+    }
+
+    @Test
+    void lagreOgHenteUtenYtelseType() {
+        var oppgaveEntitet = lagTestOppgave(JOURNALPOST_ID, ENHET, Status.AAPNET, null);
+        var actual = repo.hentOppgave(JOURNALPOST_ID);
+        assertThat(actual).isNotNull().isEqualTo(oppgaveEntitet);
+        assertNull(actual.getYtelseType());
     }
 
     @Test
@@ -98,15 +107,15 @@ class OppgaveRepositoryTest {
     private void lagreOppgaver(int antall, String enhet) {
         var randomId = new Random().nextInt(10000);
         for (int i = 0; i < antall; i++) {
-            repo.lagre(lagTestOppgave(String.valueOf(randomId + i), enhet, Status.AAPNET));
+            repo.lagre(lagTestOppgave(String.valueOf(randomId + i), enhet, Status.AAPNET, YtelseType.FP));
         }
     }
 
-    private OppgaveEntitet lagTestOppgave(String journalpostId, String enhet, Status status) {
+    private OppgaveEntitet lagTestOppgave(String journalpostId, String enhet, Status status, YtelseType ytelseType) {
         var oppgaveEntitet = OppgaveEntitet.builder()
                 .medJournalpostId(journalpostId)
                 .medStatus(status)
-                .medYtelseType(YtelseType.FP)
+                .medYtelseType(ytelseType)
                 .medFrist(LocalDate.now())
                 .medEnhet(enhet)
                 .medBrukerId(new AktørId("1234567890123"))
@@ -117,10 +126,10 @@ class OppgaveRepositoryTest {
     }
 
     private void lagTestOppgave(Status status) {
-        lagTestOppgave(JOURNALPOST_ID, ENHET, status);
+        lagTestOppgave(JOURNALPOST_ID, ENHET, status, YtelseType.FP);
     }
 
     private OppgaveEntitet lagTestOppgave() {
-        return lagTestOppgave(JOURNALPOST_ID, ENHET, Status.AAPNET);
+        return lagTestOppgave(JOURNALPOST_ID, ENHET, Status.AAPNET, YtelseType.FP);
     }
 }
