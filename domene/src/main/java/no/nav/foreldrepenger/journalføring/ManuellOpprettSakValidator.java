@@ -6,15 +6,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
-import no.nav.foreldrepenger.mottak.klient.AktørIdDto;
-import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
-import no.nav.foreldrepenger.mottak.klient.Fagsak;
-import no.nav.foreldrepenger.mottak.klient.FagsakStatusDto;
-import no.nav.foreldrepenger.typer.AktørId;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
+import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
+import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
+import no.nav.foreldrepenger.typer.AktørId;
 import no.nav.vedtak.exception.FunksjonellException;
-import no.nav.vedtak.exception.TekniskException;
 
 /**
  * Denne validatoren sjekker om gitt journalpost er faglig konform med de valgene SBH har gjort i GUI, f.eks:
@@ -28,11 +24,9 @@ public class ManuellOpprettSakValidator {
     private static final Logger LOG = LoggerFactory.getLogger(ManuellOpprettSakValidator.class);
 
     private final ArkivTjeneste arkivTjeneste;
-    private final Fagsak fagsak;
 
-    public ManuellOpprettSakValidator(ArkivTjeneste arkivTjeneste, Fagsak fagsak) {
+    public ManuellOpprettSakValidator(ArkivTjeneste arkivTjeneste) {
         this.arkivTjeneste = arkivTjeneste;
-        this.fagsak = fagsak;
     }
 
     private static FagsakYtelseTypeDto utledYtelseTypeFor(DokumentTypeId dokumentTypeId) {
@@ -66,10 +60,6 @@ public class ManuellOpprettSakValidator {
         } else if (DokumentTypeId.INNTEKTSMELDING.equals(hovedDokumentType)) {
             var original = arkivJournalpost.getStrukturertPayload().toLowerCase();
             if (original.contains("ytelse>foreldrepenger<")) {
-                if (harAktivSak(aktørId, oppgittFagsakYtelseTypeDto)) {
-                    throw new TekniskException("FP-34238",
-                        "Kan ikke journalføre FP inntektsmelding på en ny sak fordi det finnes en aktiv foreldrepenger sak allerede.");
-                }
                 journalpostFagsakYtelseTypeDto = FagsakYtelseTypeDto.FORELDREPENGER;
             } else if (original.contains("ytelse>svangerskapspenger<")) {
                 journalpostFagsakYtelseTypeDto = FagsakYtelseTypeDto.SVANGERSKAPSPENGER;
@@ -80,13 +70,6 @@ public class ManuellOpprettSakValidator {
             throw new FunksjonellException("FP-785359", "Dokument og valgt ytelsetype i uoverenstemmelse",
                 "Velg ytelsetype som samstemmer med dokument");
         }
-    }
-
-    private boolean harAktivSak(AktørId aktørId, FagsakYtelseTypeDto oppgittFagsakYtelseTypeDto) {
-        return fagsak.hentBrukersSaker(new AktørIdDto(aktørId.getId()))
-            .stream()
-            .filter(it -> !it.status().equals(FagsakStatusDto.AVSLUTTET))
-            .anyMatch(it -> it.ytelseType().equals(oppgittFagsakYtelseTypeDto));
     }
 
 }
