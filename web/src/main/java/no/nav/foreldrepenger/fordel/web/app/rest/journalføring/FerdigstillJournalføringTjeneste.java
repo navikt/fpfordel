@@ -266,7 +266,7 @@ public class FerdigstillJournalføringTjeneste {
     }
 
     String opprettSak(JournalpostId journalpostId, FerdigstillJournalføringRestTjeneste.OpprettSak opprettSakInfo, DokumentTypeId nyDokumentTypeId) {
-        new ManuellOpprettSakValidator(arkivTjeneste, fagsak).validerKonsistensMedSak(journalpostId, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
+        new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensMedSak(journalpostId, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
                 nyDokumentTypeId);
 
         return fagsak.opprettSak(new OpprettSakV2Dto(journalpostId.getVerdi(), mapYtelseTypeTilDto(opprettSakInfo.ytelseType()), opprettSakInfo.aktørId().getId())).getSaksnummer();
