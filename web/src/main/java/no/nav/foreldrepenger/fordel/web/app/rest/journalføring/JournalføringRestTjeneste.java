@@ -35,6 +35,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilType;
 import no.nav.foreldrepenger.fordel.web.app.konfig.ApiConfig;
@@ -138,7 +139,7 @@ public class JournalføringRestTjeneste {
         Objects.requireNonNull(request.fødselsnummer(), "FNR/DNR må være satt.");
         try {
             var aktørId = pdl.hentAktørIdForPersonIdent(request.fødselsnummer()).orElseThrow();
-            return new HentBrukerResponseDto(pdl.hentNavn(aktørId), request.fødselsnummer());
+            return new HentBrukerResponseDto(pdl.hentNavn(BehandlingTema.FORELDREPENGER, aktørId), request.fødselsnummer());
         } catch (NoSuchElementException e) {
             throw new FunksjonellException("BRUKER-MANGLER", "Angitt bruker ikke funnet.", "Sjekk om oppgitt personnummer er riktig.", e);
         }
@@ -272,7 +273,7 @@ public class JournalføringRestTjeneste {
             journalpost.getTittel().orElse(""),
             journalpost.getBehandlingstema().getOffisiellKode(),
             journalpost.getKanal(),
-            journalpost.getBrukerAktørId().map(this::mapBruker).orElse(null),
+            mapBruker(journalpost),
             new JournalpostDetaljerDto.AvsenderDto(journalpost.getAvsenderNavn(), journalpost.getAvsenderIdent()),
             mapYtelseTypeTilDto(journalpost.getBehandlingstema().utledYtelseType()),
             mapDokumenter(journalpost.getJournalpostId(), journalpost.getOriginalJournalpost().dokumenter()),
@@ -286,12 +287,13 @@ public class JournalføringRestTjeneste {
         return fagsak.hentBrukersSaker(new AktørIdDto(aktørId)).stream().map(ManuellJournalføringMapper::mapSakJournalføringDto).toList();
     }
 
-    private JournalpostDetaljerDto.BrukerDto mapBruker(String aktørId) {
+    private JournalpostDetaljerDto.BrukerDto mapBruker(ArkivJournalpost journalpost) {
+        var aktørId = journalpost.getBrukerAktørId().orElse(null);
         if (aktørId == null) {
             return null;
         }
         var fnr = pdl.hentPersonIdentForAktørId(aktørId).orElseThrow(() -> new IllegalStateException("Mangler fnr for aktørid"));
-        var navn = pdl.hentNavn(aktørId);
+        var navn = pdl.hentNavn(journalpost.getBehandlingstema(), aktørId);
         return new JournalpostDetaljerDto.BrukerDto(navn, fnr, aktørId);
     }
 

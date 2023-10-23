@@ -66,7 +66,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
             .medOpprettetAvEnhetsnr(nyOppgave.enhetId())
             .medJournalpostId(nyOppgave.journalpostId().getVerdi())
             .medBeskrivelse(nyOppgave.beskrivelse())
-            .medBehandlingstema(nyOppgave.behandlingTema().getOffisiellKode());
+            .medBehandlingstema(Optional.ofNullable(nyOppgave.behandlingTema()).map(BehandlingTema::getOffisiellKode).orElse(null));
         var oppgave = oppgaveKlient.opprettetOppgave(request.build());
         var id = oppgave.id().toString();
         LOG.info("FPFORDEL GOSYS opprettet oppgave:{}", id);
@@ -265,14 +265,15 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     }
 
     static YtelseType mapTilYtelseType(String behandlingstema) {
-        LOG.info("Oppgave med behandlingstema {}", behandlingstema);
         var behandlingTemaMappet = BehandlingTema.fraOffisiellKode(behandlingstema);
-        LOG.info("Fant oppgave med behandlingTemaMappet {}", behandlingTemaMappet);
 
         return mapTilYtelseType(behandlingTemaMappet);
     }
 
     static YtelseType mapTilYtelseType(BehandlingTema behandlingstema) {
+        if (behandlingstema == null) {
+            return null;
+        }
         return switch (behandlingstema) {
             case FORELDREPENGER, FORELDREPENGER_ADOPSJON, FORELDREPENGER_FØDSEL -> FP;
             case SVANGERSKAPSPENGER -> SVP;

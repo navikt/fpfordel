@@ -26,6 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
@@ -275,7 +276,7 @@ class JournalføringRestTjenesteTest {
         var navn = "Ola, Ola";
 
         when(pdl.hentAktørIdForPersonIdent(expectedFnr)).thenReturn(Optional.of(brukerAktørId));
-        when(pdl.hentNavn(brukerAktørId)).thenReturn(navn);
+        when(pdl.hentNavn(BehandlingTema.FORELDREPENGER, brukerAktørId)).thenReturn(navn);
 
         var request = new JournalføringRestTjeneste.HentBrukerDto(expectedFnr);
         var response = restTjeneste.hentBruker(request);
