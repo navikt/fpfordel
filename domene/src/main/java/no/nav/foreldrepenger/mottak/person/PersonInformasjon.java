@@ -2,16 +2,18 @@ package no.nav.foreldrepenger.mottak.person;
 
 import java.util.Optional;
 
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+
 public interface PersonInformasjon {
 
     Optional<String> hentAktørIdForPersonIdent(String id);
 
     Optional<String> hentPersonIdentForAktørId(String id);
 
-    String hentNavn(String id);
+    String hentNavn(BehandlingTema behandlingTema, String id);
 
-    String hentGeografiskTilknytning(String aktørId);
+    String hentGeografiskTilknytning(BehandlingTema behandlingTema, String aktørId);
 
-    boolean harStrengDiskresjonskode(String aktørId);
+    boolean harStrengDiskresjonskode(BehandlingTema behandlingTema, String aktørId);
 
 }

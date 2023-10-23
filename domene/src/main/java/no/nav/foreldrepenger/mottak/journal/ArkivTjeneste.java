@@ -10,12 +10,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
@@ -290,7 +289,7 @@ public class ArkivTjeneste {
         if ((journalpost.avsenderMottaker() == null) || (journalpost.avsenderMottaker().id() == null) || (journalpost.avsenderMottaker().navn()
             == null)) {
             var fnr = personTjeneste.hentPersonIdentForAktørId(aktørId).orElseThrow(() -> new IllegalStateException("Mangler fnr for aktørid"));
-            var navn = personTjeneste.hentNavn(aktørId);
+            var navn = personTjeneste.hentNavn(utledetBehandlingTema, aktørId);
             if (LOG.isInfoEnabled()) {
                 LOG.info("FPFORDEL oppdaterer manglende avsender for {}", journalpost.journalpostId());
             }
@@ -353,7 +352,7 @@ public class ArkivTjeneste {
 
         if ((originalJournalpost.avsenderMottaker() == null) || (originalJournalpost.avsenderMottaker().id() == null) || (originalJournalpost.avsenderMottaker().navn() == null)) {
             var fnr = personTjeneste.hentPersonIdentForAktørId(aktørId).orElseThrow(() -> new IllegalStateException("Mangler fnr for aktørid"));
-            var navn = personTjeneste.hentNavn(aktørId);
+            var navn = personTjeneste.hentNavn(utledetBehandlingTema, aktørId);
             if (LOG.isInfoEnabled()) {
                 LOG.info("FPFORDEL RESTJOURNALFØRING: oppdaterer manglende avsender for {}", originalJournalpost.journalpostId());
             }
@@ -465,7 +464,8 @@ public class ArkivTjeneste {
         var tittel = DokumentTypeId.UDEFINERT.equals(hovedtype) ? DokumentTypeId.ANNET.getTermNavn() : hovedtype.getTermNavn();
         var bruker = new Bruker(metadata.getBrukerId(), Bruker.BrukerIdType.AKTOERID);
         var ident = personTjeneste.hentPersonIdentForAktørId(avsenderAktørId).orElseThrow(() -> new IllegalStateException("Aktør uten personident"));
-        var avsender = new AvsenderMottaker(ident, AvsenderMottaker.AvsenderMottakerIdType.FNR, personTjeneste.hentNavn(avsenderAktørId));
+        var avsender = new AvsenderMottaker(ident, AvsenderMottaker.AvsenderMottakerIdType.FNR,
+            personTjeneste.hentNavn(behandlingstema, avsenderAktørId));
 
         return OpprettJournalpostRequest.nyInngående()
             .medTittel(tittel)

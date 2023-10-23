@@ -1,5 +1,14 @@
 package no.nav.foreldrepenger.mottak.behandlendeenhet;
 
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
@@ -10,14 +19,6 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.Arbeidsfordeling;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingRequest;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @ApplicationScoped
 public class EnhetsTjeneste {
@@ -80,7 +81,7 @@ public class EnhetsTjeneste {
     }
 
     private String hentEnhetId(String aktørId, BehandlingTema behandlingTema, Tema tema) { //NOSONAR
-        if (pdl.harStrengDiskresjonskode(aktørId)) {
+        if (pdl.harStrengDiskresjonskode(behandlingTema, aktørId)) {
             return SF_ENHET_ID;
         }
 
@@ -89,7 +90,7 @@ public class EnhetsTjeneste {
             return SKJERMET_ENHET_ID;
         }
 
-        var gt = pdl.hentGeografiskTilknytning(aktørId);
+        var gt = pdl.hentGeografiskTilknytning(behandlingTema, aktørId);
         if (gt == null) { // Udefinert og utland likebehandles
             return UTLAND_ENHET_ID;
         }
