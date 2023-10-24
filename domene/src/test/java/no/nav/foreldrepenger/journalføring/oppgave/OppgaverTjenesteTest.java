@@ -349,6 +349,24 @@ class OppgaverTjenesteTest {
         when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(true);
         when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalOppgave(journalpostId));
 
+        oppgaver.flyttLokalOppgaveTilGosys(JournalpostId.fra(journalpostId));
+
+        verify(oppgaveRepository).ferdigstillOppgave(journalpostId);
+        verify(oppgaveKlient).opprettetOppgave(any(OpprettOppgave.class));
+        verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
+    }
+
+    @Test
+    void flyttOppgaveTilGosysUtenAktørId() {
+        var journalpostId = "1234";
+
+        var oppgaveMock = mock(Oppgave.class);
+        Long expectedId = 11L;
+        when(oppgaveMock.id()).thenReturn(expectedId);
+        when(oppgaveKlient.opprettetOppgave(any())).thenReturn(oppgaveMock);
+
+        when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(true);
+        when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalOppgave(journalpostId, null));
 
         oppgaver.flyttLokalOppgaveTilGosys(JournalpostId.fra(journalpostId));
 
@@ -357,17 +375,22 @@ class OppgaverTjenesteTest {
         verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
     }
 
-    private OppgaveEntitet lokalOppgave(String journalpostId) {
+    private OppgaveEntitet lokalOppgave(String journalpostId, String aktørId) {
         return OppgaveEntitet.builder()
-                .medJournalpostId(journalpostId)
-                .medStatus(Status.AAPNET)
-                .medBeskrivelse("test")
-                .medEnhet("1234")
-                .medBrukerId("1234567890123")
-                .medFrist(LocalDate.now())
-                .medYtelseType(YtelseType.FP)
-                .medReservertAv("saksbehandler")
-                .build();
+            .medJournalpostId(journalpostId)
+            .medStatus(Status.AAPNET)
+            .medBeskrivelse("test")
+            .medEnhet("1234")
+            .medBrukerId(aktørId)
+            .medFrist(LocalDate.now())
+            .medYtelseType(YtelseType.FP)
+            .medReservertAv("saksbehandler")
+            .build();
+    }
+
+    private OppgaveEntitet lokalOppgave(String journalpostId) {
+        return lokalOppgave(journalpostId, "1234567890123");
+
     }
 
     private Oppgave gosysOppgave(String journalpostId) {

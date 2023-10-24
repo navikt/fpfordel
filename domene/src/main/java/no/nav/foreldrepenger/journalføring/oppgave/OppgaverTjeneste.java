@@ -194,7 +194,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
             var nyOppgave = NyOppgave.builder()
                 .medJournalpostId(journalpostId)
                 .medEnhetId(enhet)
-                .medAktørId(new AktørId(oppgave.aktørId()))
+                .medAktørId(oppgave.aktørId())
                 .medBehandlingTema(behandlingTema)
                 .medBeskrivelse(oppgave.beskrivelse())
                 .build();

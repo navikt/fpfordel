@@ -160,7 +160,7 @@ public class OppgaveEntitet extends BaseEntitet implements Serializable {
         }
 
         public Builder medBrukerId(String brukerId) {
-            this.brukerId = new AktørId(brukerId);
+            this.brukerId = (brukerId == null ? null : new AktørId(brukerId));
             return this;
         }
 
