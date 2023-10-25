@@ -4,8 +4,17 @@ import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJo
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -18,29 +27,22 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.fordel.web.server.abac.AppAbacAttributtType;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
+import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.typer.AktørId;
-import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Enkelt REST tjeneste for å oppdatere og ferdigstille journalføring på dokumenter som kunne ikke
@@ -55,6 +57,7 @@ import org.slf4j.LoggerFactory;
 public class FerdigstillJournalføringRestTjeneste {
     private FerdigstillJournalføringTjeneste journalføringTjeneste;
     private static final Logger LOG = LoggerFactory.getLogger(FerdigstillJournalføringRestTjeneste.class);
+    private static final String EXCEPTION_KODE = "FP-32354";
 
 
     protected FerdigstillJournalføringRestTjeneste() {
@@ -76,7 +79,13 @@ public class FerdigstillJournalføringRestTjeneste {
 
         validerJournalpostId(request.journalpostId());
         validerEnhetId(request.enhetId());
-        var journalpostId = JournalpostId.fra(request.journalpostId);
+        var journalpostId = JournalpostId.fra(request.journalpostId());
+
+        // sikre at finnes før oppretting av sak
+        var journalpost = journalføringTjeneste.hentJournalpost(request.journalpostId());
+        if (journalpost == null) {
+            throw new TekniskException(EXCEPTION_KODE, "Finner ikke journalpost.");
+        }
 
         LOG.info("FPFORDEL RESTJOURNALFØRING: Starter ferdigstilling av journalpostRequets {}", request);
 
@@ -99,26 +108,66 @@ public class FerdigstillJournalføringRestTjeneste {
 
         if (saksnummer == null) {
             if (request.opprettSak() == null || (!SakstypeDto.GENERELL.equals(request.opprettSak().sakstype()) && request.opprettSak().ytelseType() == null)) {
-                throw new TekniskException("FP-32354", "OpprettSakDto kan ikke være null ved opprettelse av en sak eller mangler ytelsestype.");
+                throw new TekniskException(EXCEPTION_KODE, "OpprettSakDto kan ikke være null ved opprettelse av en sak eller mangler ytelsestype.");
             }
             if (SakstypeDto.GENERELL.equals(request.opprettSak().sakstype())) {
-                journalføringTjeneste.oppdaterJournalpostOgFerdigstillGenerellSak(request.enhetId, journalpostId, request.opprettSak().aktørId(),
+                journalføringTjeneste.oppdaterJournalpostOgFerdigstillGenerellSak(request.enhetId, journalpost, request.opprettSak().aktørId(),
                     nyJournalpostTittel, dokumenter, nyDokumentTypeId);
                 return new SaksnummerDto("000000000");
             }
-            saksnummer = journalføringTjeneste.opprettSak(journalpostId, mapOpprettSak(request.opprettSak()), nyDokumentTypeId);
+            saksnummer = journalføringTjeneste.opprettSak(journalpost, mapOpprettSak(request.opprettSak()), nyDokumentTypeId);
         }
 
         validerSaksnummer(saksnummer);
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(request.enhetId, saksnummer, journalpostId, nyJournalpostTittel, dokumenter, nyDokumentTypeId);
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(request.enhetId, saksnummer, journalpost, nyJournalpostTittel, dokumenter, nyDokumentTypeId);
 
         return new SaksnummerDto(saksnummer);
     }
 
+    @POST
+    @Path("/knyttTilAnnenSak")
+    @Operation(description = "For å knytte journalpost til annen sak. Det opprettes en ny fagsak om saksnummer ikke sendes.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "200", description = "Journalføring ferdigstillt"), @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
+    public JournalpostIdDto knyttTilAnnenSak(@Parameter(description = "Trenger journalpostId, saksnummer og enhet for å knytte til annen sak. "
+        + "Om saksnummer ikke foreligger må ytelse type og aktørId oppgis for å opprette en ny sak.") @NotNull @Valid
+                                                             @TilpassetAbacAttributt(supplierClass = KnyttTilAnnenSakAbacDataSupplier.class) FerdigstillJournalføringRestTjeneste.KnyttTilAnnenSakRequest request) {
+
+        validerJournalpostId(request.journalpostId());
+        validerEnhetId(request.enhetId());
+
+        // sikre at finnes før oppretting av sak
+        var journalpost = journalføringTjeneste.hentJournalpost(request.journalpostId());
+        if (journalpost == null) {
+            throw new TekniskException(EXCEPTION_KODE, "Finner ikke journalpost.");
+        }
+        if (Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
+            throw new TekniskException(EXCEPTION_KODE, "Feil tilstand på journalpost " + journalpost.getJournalpostId());
+        }
+
+        LOG.info("FPFORDEL RESTJOURNALFØRING: Starter knytting av journalpost til annen/ny sak {}", request);
+
+        //Endring av titler
+        //var journalpost = jo.
+        var saksnummer = request.saksnummer() != null ? request.saksnummer() : null;
+
+        if (saksnummer == null) {
+            if (request.opprettSak() == null || SakstypeDto.GENERELL.equals(request.opprettSak().sakstype()) || request.opprettSak().ytelseType() == null) {
+                throw new TekniskException(EXCEPTION_KODE, "OpprettSakDto kan ikke være null ved opprettelse av en sak eller mangler ytelsestype.");
+            }
+            saksnummer = journalføringTjeneste.opprettSak(journalpost, mapOpprettSak(request.opprettSak()), journalpost.getHovedtype());
+        }
+
+        validerSaksnummer(saksnummer);
+
+        var nyJournalpost = journalføringTjeneste.knyttTilAnnenSak(journalpost, request.enhetId, saksnummer);
+
+        return Optional.ofNullable(nyJournalpost).map(JournalpostId::getVerdi).map(JournalpostIdDto::new).orElse(null);
+    }
+
     private OpprettSak mapOpprettSak(OpprettSakDto opprettSakDto) {
         if (opprettSakDto == null) {
-            throw new TekniskException("FP-32354", "OpprettSakDto kan ikke være null ved opprettelse av en sak.");
+            throw new TekniskException(EXCEPTION_KODE, "OpprettSakDto kan ikke være null ved opprettelse av en sak.");
         }
         return new OpprettSak(new AktørId(opprettSakDto.aktørId), mapYtelseTypeFraDto(opprettSakDto.ytelseType));
     }
@@ -168,6 +217,19 @@ public class FerdigstillJournalføringRestTjeneste {
         }
     }
 
+    public static class KnyttTilAnnenSakAbacDataSupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (KnyttTilAnnenSakRequest) obj;
+            var opprett = AbacDataAttributter.opprett();
+            if (req.opprettSak() != null) {
+                opprett.leggTil(AppAbacAttributtType.AKTØR_ID, req.opprettSak().aktørId());
+            }
+            return opprett;
+        }
+    }
+
     enum SakstypeDto { FAGSAK, GENERELL }
 
     record OpprettSakDto(@Valid YtelseTypeDto ytelseType, @Valid FerdigstillJournalføringRestTjeneste.SakstypeDto sakstype,
@@ -180,4 +242,10 @@ public class FerdigstillJournalføringRestTjeneste {
         @Size(max = 11) @Pattern(regexp = "^[0-9_\\-]*$") String saksnummer,
         @Valid OpprettSakDto opprettSak,
         @Valid OppdaterJournalpostMedTittelDto oppdaterTitlerDto ) {}
+
+    record KnyttTilAnnenSakRequest(
+        @NotNull @Pattern(regexp = "^(-?[1-9]|[a-z0])[a-z0-9_:-]*$", message = "journalpostId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String journalpostId,
+        @NotNull String enhetId,
+        @Size(max = 11) @Pattern(regexp = "^[0-9_\\-]*$") String saksnummer,
+        @Valid OpprettSakDto opprettSak) {}
 }

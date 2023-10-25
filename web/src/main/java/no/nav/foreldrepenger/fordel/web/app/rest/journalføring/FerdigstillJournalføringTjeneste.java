@@ -42,9 +42,11 @@ import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.OpprettSakV2Dto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.VLKlargjørerTask;
+import no.nav.foreldrepenger.mottak.task.joark.SendInnEndeligJournalførtTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.VLKlargjører;
+import no.nav.foreldrepenger.typer.AktørId;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OppdaterJournalpostRequest;
@@ -87,14 +89,13 @@ public class FerdigstillJournalføringTjeneste {
         this.dokumentRepository = dokumentRepository;
     }
 
-    public void oppdaterJournalpostOgFerdigstill(String enhetId, String saksnummer, JournalpostId journalpostId,
+    public void oppdaterJournalpostOgFerdigstill(String enhetId, String saksnummer, ArkivJournalpost journalpost,
                                                  String nyJournalpostTittel, List<DokumenterMedNyTittel> dokumenterMedNyTittel,
                                                  DokumentTypeId nyDokumentTypeId) {
 
-        final var journalpost = hentJournalpost(journalpostId.getVerdi());
         validerJournalposttype(journalpost.getJournalposttype());
 
-        LOG.info("FPFORDEL RESTJOURNALFØRING: Ferdigstiller journalpostId: {}", journalpostId);
+        LOG.info("FPFORDEL RESTJOURNALFØRING: Ferdigstiller journalpostId: {}", journalpost.getJournalpostId());
 
         var fagsakInfomasjon = hentOgValiderFagsak(saksnummer, journalpost);
 
@@ -143,23 +144,22 @@ public class FerdigstillJournalføringTjeneste {
         var mottattTidspunkt = Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now);
 
         final var xml = hentDokumentSettMetadata(saksnummer, behandlingTema, aktørIdFagsak, journalpost);
-        klargjører.klargjør(xml, saksnummer, journalpostId.getVerdi(), brukDokumentTypeId, mottattTidspunkt, behandlingTema, forsendelseId.orElse(null),
+        klargjører.klargjør(xml, saksnummer, journalpost.getJournalpostId(), brukDokumentTypeId, mottattTidspunkt, behandlingTema, forsendelseId.orElse(null),
                 dokumentKategori, enhetId, eksternReferanseId);
 
         // For å unngå klonede journalposter fra GOSYS - de kan komme via Kafka.
         dokumentRepository.lagreJournalpostLokal(journalpost.getJournalpostId(), journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
 
-        opprettFerdigstillOppgaveTask(journalpostId);
+        opprettFerdigstillOppgaveTask(JournalpostId.fra(journalpost.getJournalpostId()));
     }
 
-    public void oppdaterJournalpostOgFerdigstillGenerellSak(String enhetId, JournalpostId journalpostId, String aktørId,
+    public void oppdaterJournalpostOgFerdigstillGenerellSak(String enhetId, ArkivJournalpost journalpost, String aktørId,
                                                  String nyJournalpostTittel, List<DokumenterMedNyTittel> dokumenterMedNyTittel,
                                                  DokumentTypeId nyDokumentTypeId) {
 
-        final var journalpost = hentJournalpost(journalpostId.getVerdi());
         validerJournalposttype(journalpost.getJournalposttype());
 
-        LOG.info("FPFORDEL RESTJOURNALFØRING GENERELL: Ferdigstiller journalpostId: {}", journalpostId);
+        LOG.info("FPFORDEL RESTJOURNALFØRING GENERELL: Ferdigstiller journalpostId: {}", journalpost.getJournalpostId());
 
         var dokumentTypeId = journalpost.getHovedtype();
         if (nyDokumentTypeId != null) {
@@ -185,7 +185,7 @@ public class FerdigstillJournalføringTjeneste {
             }
         }
 
-        opprettFerdigstillOppgaveTask(journalpostId);
+        opprettFerdigstillOppgaveTask(JournalpostId.fra(journalpost.getJournalpostId()));
     }
 
 
@@ -248,7 +248,7 @@ public class FerdigstillJournalføringTjeneste {
         return dokumentTyper;
     }
 
-    private ArkivJournalpost hentJournalpost(String arkivId) {
+    public ArkivJournalpost hentJournalpost(String arkivId) {
         try {
             return arkivTjeneste.hentArkivJournalpost(arkivId);
         } catch (Exception e) {
@@ -265,13 +265,32 @@ public class FerdigstillJournalføringTjeneste {
         }
     }
 
-    String opprettSak(JournalpostId journalpostId, FerdigstillJournalføringRestTjeneste.OpprettSak opprettSakInfo, DokumentTypeId nyDokumentTypeId) {
-        new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensMedSak(journalpostId, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
+    String opprettSak(ArkivJournalpost journalpost, FerdigstillJournalføringRestTjeneste.OpprettSak opprettSakInfo, DokumentTypeId nyDokumentTypeId) {
+        new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensMedSak(journalpost, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
                 nyDokumentTypeId);
 
-        return fagsak.opprettSak(new OpprettSakV2Dto(journalpostId.getVerdi(), mapYtelseTypeTilDto(opprettSakInfo.ytelseType()), opprettSakInfo.aktørId().getId())).getSaksnummer();
+        return fagsak.opprettSak(new OpprettSakV2Dto(journalpost.getJournalpostId(), mapYtelseTypeTilDto(opprettSakInfo.ytelseType()), opprettSakInfo.aktørId().getId())).getSaksnummer();
     }
 
+    public JournalpostId knyttTilAnnenSak(ArkivJournalpost journalpost, String enhetId, String saksnummer) {
+        var saksinfo = hentFagsakInfo(saksnummer).orElseThrow();
+        var ytelseType = BehandlingTema.fraOffisiellKode(saksinfo.getBehandlingstemaOffisiellKode()).utledYtelseType();
+        new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensMedSak(journalpost, ytelseType, new AktørId(saksinfo.getAktørId()), journalpost.getHovedtype());
+        var nyJournalpost = arkivTjeneste.knyttTilAnnenSak(journalpost, enhetId, saksnummer, saksinfo.getAktørId());
+        lagreKlarTilInnsendingTask(nyJournalpost, saksnummer);
+        return Optional.ofNullable(nyJournalpost).map(JournalpostId::fra).orElse(null);
+    }
+
+    public void lagreKlarTilInnsendingTask(String arkivId, String saksnummer) {
+        var taskdata = ProsessTaskData.forProsessTask(SendInnEndeligJournalførtTask.class);
+        taskdata.setCallIdFraEksisterende();
+        MottakMeldingDataWrapper melding = new MottakMeldingDataWrapper(taskdata);
+        melding.setArkivId(arkivId);
+        melding.setSaksnummer(saksnummer);
+        var oppdatertTaskdata = melding.getProsessTaskData();
+        oppdatertTaskdata.setNesteKjøringEtter(LocalDateTime.now());
+        taskTjeneste.lagre(oppdatertTaskdata);
+    }
 
     private static BehandlingTema validerOgVelgBehandlingTema(BehandlingTema behandlingTemaFagsak,
                                                               BehandlingTema behandlingTemaDok,

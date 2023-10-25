@@ -59,7 +59,7 @@ class JournalpostValideringTjenesteTest {
     @Test
     @DisplayName("Exception om oppgitt JournalpostId er null.")
     void kast_exception_om_journalpostId_ikke_finnes() {
-        var exception = assertThrows(NullPointerException.class, () -> tjeneste.validerKonsistensMedSak(null, FagsakYtelseTypeDto.SVANGERSKAPSPENGER, AKTØR_ID,
+        var exception = assertThrows(NullPointerException.class, () -> tjeneste.validerKonsistensMedSak((ArkivJournalpost) null, FagsakYtelseTypeDto.SVANGERSKAPSPENGER, AKTØR_ID,
             null));
 
         var expectedMessage = "Ugyldig input: JournalpostId kan ikke være null ved opprettelse av en sak";
