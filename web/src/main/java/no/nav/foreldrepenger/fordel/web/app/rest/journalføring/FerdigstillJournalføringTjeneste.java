@@ -266,7 +266,7 @@ public class FerdigstillJournalføringTjeneste {
     }
 
     String opprettSak(ArkivJournalpost journalpost, FerdigstillJournalføringRestTjeneste.OpprettSak opprettSakInfo, DokumentTypeId nyDokumentTypeId) {
-        new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensMedSak(journalpost, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
+        new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensMedSakJP(journalpost, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
                 nyDokumentTypeId);
 
         return fagsak.opprettSak(new OpprettSakV2Dto(journalpost.getJournalpostId(), mapYtelseTypeTilDto(opprettSakInfo.ytelseType()), opprettSakInfo.aktørId().getId())).getSaksnummer();
@@ -275,7 +275,7 @@ public class FerdigstillJournalføringTjeneste {
     public JournalpostId knyttTilAnnenSak(ArkivJournalpost journalpost, String enhetId, String saksnummer) {
         var saksinfo = hentFagsakInfo(saksnummer).orElseThrow();
         var ytelseType = BehandlingTema.fraOffisiellKode(saksinfo.getBehandlingstemaOffisiellKode()).utledYtelseType();
-        new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensMedSak(journalpost, ytelseType, new AktørId(saksinfo.getAktørId()), journalpost.getHovedtype());
+        new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensMedSakJP(journalpost, ytelseType, new AktørId(saksinfo.getAktørId()), journalpost.getHovedtype());
         var nyJournalpost = arkivTjeneste.knyttTilAnnenSak(journalpost, enhetId, saksnummer, saksinfo.getAktørId());
         lagreKlarTilInnsendingTask(nyJournalpost, saksnummer);
         return Optional.ofNullable(nyJournalpost).map(JournalpostId::fra).orElse(null);
