@@ -3,8 +3,11 @@ package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.ENGANGSSTØNAD;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -12,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
+import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -123,20 +127,24 @@ class FerdigstillJournalføringRestTjenesteTest {
 
     @Test
     void knyttAnnenSakSkalOpprettesNårSaksnummerErNull() {
-        var opprettSakDto = new FerdigstillJournalføringRestTjeneste.OpprettSakDto(YtelseTypeDto.FORELDREPENGER, null, AKTØR_ID);
-        var req = new FerdigstillJournalføringRestTjeneste.KnyttTilAnnenSakRequest(JOURNALPOST_ID, ENHETID, null, opprettSakDto);
+        var req = req(ENHETID, JOURNALPOST_ID, null, YtelseTypeDto.FORELDREPENGER, AKTØR_ID, null);
         when(journalføringTjeneste.opprettSak(arkivJournalpost, new FerdigstillJournalføringRestTjeneste.OpprettSak(new AktørId(AKTØR_ID), FagsakYtelseTypeDto.FORELDREPENGER),null)).thenReturn(SAKSNUMMER);
 
         behandleJournalpost.knyttTilAnnenSak(req);
+        
+        verify(journalføringTjeneste).opprettSak(arkivJournalpost, new FerdigstillJournalføringRestTjeneste.OpprettSak(new AktørId(AKTØR_ID), FagsakYtelseTypeDto.FORELDREPENGER), null);
         verify(journalføringTjeneste).knyttTilAnnenSak(arkivJournalpost, ENHETID, SAKSNUMMER);
     }
 
     @Test
     void knyttAnnenSakSkalOBrukeSakNårSaksnummerErSatt() {
-        var req = new FerdigstillJournalføringRestTjeneste.KnyttTilAnnenSakRequest(JOURNALPOST_ID, ENHETID, SAKSNUMMER, null);
+        var req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER, null, null, null);
 
         behandleJournalpost.knyttTilAnnenSak(req);
+
+        verify(journalføringTjeneste).hentJournalpost(JOURNALPOST_ID);
         verify(journalføringTjeneste).knyttTilAnnenSak(arkivJournalpost, ENHETID, SAKSNUMMER);
+        verifyNoMoreInteractions(journalføringTjeneste);
     }
 
     private static FerdigstillJournalføringRestTjeneste.FerdigstillRequest req(String enhetid, String journalpostId, String sakId, YtelseTypeDto ytelseTypeDto, String aktørId, OppdaterJournalpostMedTittelDto oppdaterJournalpostMedTittelDto) {

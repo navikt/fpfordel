@@ -131,7 +131,7 @@ public class FerdigstillJournalføringRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
     public JournalpostIdDto knyttTilAnnenSak(@Parameter(description = "Trenger journalpostId, saksnummer og enhet for å knytte til annen sak. "
         + "Om saksnummer ikke foreligger må ytelse type og aktørId oppgis for å opprette en ny sak.") @NotNull @Valid
-                                                             @TilpassetAbacAttributt(supplierClass = KnyttTilAnnenSakAbacDataSupplier.class) FerdigstillJournalføringRestTjeneste.KnyttTilAnnenSakRequest request) {
+                                                             @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FerdigstillJournalføringRestTjeneste.FerdigstillRequest request) {
 
         validerJournalpostId(request.journalpostId());
         validerEnhetId(request.enhetId());
@@ -217,19 +217,6 @@ public class FerdigstillJournalføringRestTjeneste {
         }
     }
 
-    public static class KnyttTilAnnenSakAbacDataSupplier implements Function<Object, AbacDataAttributter> {
-
-        @Override
-        public AbacDataAttributter apply(Object obj) {
-            var req = (KnyttTilAnnenSakRequest) obj;
-            var opprett = AbacDataAttributter.opprett();
-            if (req.opprettSak() != null) {
-                opprett.leggTil(AppAbacAttributtType.AKTØR_ID, req.opprettSak().aktørId());
-            }
-            return opprett;
-        }
-    }
-
     enum SakstypeDto { FAGSAK, GENERELL }
 
     record OpprettSakDto(@Valid YtelseTypeDto ytelseType, @Valid FerdigstillJournalføringRestTjeneste.SakstypeDto sakstype,
@@ -243,9 +230,4 @@ public class FerdigstillJournalføringRestTjeneste {
         @Valid OpprettSakDto opprettSak,
         @Valid OppdaterJournalpostMedTittelDto oppdaterTitlerDto ) {}
 
-    record KnyttTilAnnenSakRequest(
-        @NotNull @Pattern(regexp = "^(-?[1-9]|[a-z0])[a-z0-9_:-]*$", message = "journalpostId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String journalpostId,
-        @NotNull String enhetId,
-        @Size(max = 11) @Pattern(regexp = "^[0-9_\\-]*$") String saksnummer,
-        @Valid OpprettSakDto opprettSak) {}
 }
