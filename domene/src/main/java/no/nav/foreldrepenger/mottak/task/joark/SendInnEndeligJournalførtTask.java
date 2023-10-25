@@ -83,19 +83,19 @@ public class SendInnEndeligJournalførtTask extends WrappedProsessTaskHandler {
             return null;
         }
 
-        if (!JOURNALFOERT.equals(journalpost.getTilstand())) {
-            LOG.info("FPFORDEL SendInnJournalpost feil tilstand på journalpost {} kanal {} tema {} tilstand {} hovedtype {} alle typer {}", w.getArkivId(),
-                journalpost.getKanal(), journalpost.getTema().getKode(), journalpost.getTilstand(), journalpost.getHovedtype(),
-                journalpost.getAlleTyper());
-            throw new IllegalStateException("Kan ikke håndtere tilstand");
-        }
-
         var dokumentType = journalpost.getHovedtype();
         if (!DokumentTypeId.erInntektsmelding(dokumentType) && !DokumentTypeId.erSøknadType(dokumentType) && !DokumentTypeId.erKlageType(dokumentType)) {
             LOG.info("FPFORDEL SendInnJournalpost feil dokumenttype på journalpost {} kanal {} tema {} tilstand {} hovedtype {} alle typer {}", w.getArkivId(),
                 journalpost.getKanal(), journalpost.getTema().getKode(), journalpost.getTilstand(), journalpost.getHovedtype(),
                 journalpost.getAlleTyper());
             return null;
+        }
+
+        if (!JOURNALFOERT.equals(journalpost.getTilstand())) {
+            LOG.info("FPFORDEL SendInnJournalpost feil tilstand på journalpost {} kanal {} tema {} tilstand {} hovedtype {} alle typer {}", w.getArkivId(),
+                journalpost.getKanal(), journalpost.getTema().getKode(), journalpost.getTilstand(), journalpost.getHovedtype(),
+                journalpost.getAlleTyper());
+            throw new IllegalStateException("Kan ikke håndtere tilstand");
         }
 
         // Disse 2 + behandlingstema er normalt satt fra før
