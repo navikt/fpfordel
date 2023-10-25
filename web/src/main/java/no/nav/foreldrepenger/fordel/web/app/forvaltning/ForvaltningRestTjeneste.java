@@ -4,8 +4,6 @@ import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.FORSENDELSE_ID_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.RETRY_KEY;
 
-import java.time.LocalDateTime;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -33,7 +31,6 @@ import no.nav.foreldrepenger.mottak.task.SlettGamleTasksBatchTask;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.VLKlargjørerTask;
 import no.nav.foreldrepenger.mottak.task.dokumentforsendelse.BehandleDokumentforsendelseTask;
-import no.nav.foreldrepenger.mottak.task.joark.SendInnEndeligJournalførtTask;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseIdDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
@@ -231,19 +228,9 @@ public class ForvaltningRestTjeneste {
     @Path("/send-inn-til-sak")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response sendInnTilSak(@Parameter(description = "Sak og Journalpost") @NotNull @Valid JournalpostSakDto dto) {
-        lagreKlarTilInnsendingTask(dto.journalpostIdDto().getJournalpostId(), dto.saksnummerDto().getSaksnummer());
+        var journalpost = journalføringTjeneste.hentJournalpost(dto.journalpostIdDto().getJournalpostId());
+        journalføringTjeneste.sendInnPåSak(journalpost, dto.saksnummerDto().getSaksnummer());
         return Response.ok().build();
-    }
-
-    public void lagreKlarTilInnsendingTask(String arkivId, String saksnummer) {
-        var taskdata = ProsessTaskData.forProsessTask(SendInnEndeligJournalførtTask.class);
-        taskdata.setCallIdFraEksisterende();
-        MottakMeldingDataWrapper melding = new MottakMeldingDataWrapper(taskdata);
-        melding.setArkivId(arkivId);
-        melding.setSaksnummer(saksnummer);
-        var oppdatertTaskdata = melding.getProsessTaskData();
-        oppdatertTaskdata.setNesteKjøringEtter(LocalDateTime.now());
-        taskTjeneste.lagre(oppdatertTaskdata);
     }
 
 }

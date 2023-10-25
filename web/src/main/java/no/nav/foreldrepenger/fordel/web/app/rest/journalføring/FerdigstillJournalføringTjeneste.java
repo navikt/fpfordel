@@ -42,7 +42,6 @@ import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.OpprettSakV2Dto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.VLKlargjørerTask;
-import no.nav.foreldrepenger.mottak.task.joark.SendInnEndeligJournalførtTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.VLKlargjører;
@@ -309,6 +308,33 @@ public class FerdigstillJournalføringTjeneste {
         dokumentRepository.lagreJournalpostLokal(nyJournalpostId, journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
 
         return Optional.ofNullable(nyJournalpostId).map(JournalpostId::fra).orElse(null);
+    }
+
+    // Forvaltning only
+    public void sendInnPåSak(ArkivJournalpost journalpost, String saksnummer) {
+        var saksinfo = hentFagsakInfo(saksnummer).orElseThrow();
+        final var behandlingTemaFagsak = BehandlingTema.fraOffisiellKode(saksinfo.getBehandlingstemaOffisiellKode());
+        final var aktørIdFagsak = saksinfo.getAktørId();
+
+        var dokumentTypeId = journalpost.getHovedtype();
+        final var behandlingTemaDok = ArkivUtil.behandlingTemaFraDokumentType(BehandlingTema.UDEFINERT, dokumentTypeId);
+        final var behandlingTema = validerOgVelgBehandlingTema(behandlingTemaFagsak, behandlingTemaDok, dokumentTypeId);
+        final var dokumentKategori = ArkivUtil.utledKategoriFraDokumentType(dokumentTypeId);
+        var brukDokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokumentTypeId) ? DokumentTypeId.ANNET : dokumentTypeId;
+
+        final var forsendelseId = asUUID(journalpost.getEksternReferanseId());
+
+        // Bruk fra opprinnelig
+        final var xml = hentDokumentSettMetadata(saksnummer, behandlingTema, aktørIdFagsak, journalpost);
+        var mottattTidspunkt = Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now);
+        String eksternReferanseId = null;
+        if (DokumentTypeId.INNTEKTSMELDING.equals(brukDokumentTypeId)) {
+            eksternReferanseId = journalpost.getEksternReferanseId() != null ? journalpost.getEksternReferanseId() :
+                arkivTjeneste.hentEksternReferanseId(journalpost.getOriginalJournalpost()).orElse(null);
+        }
+
+        klargjører.klargjør(xml, saksnummer, journalpost.getJournalpostId(), brukDokumentTypeId, mottattTidspunkt, behandlingTema, forsendelseId.orElse(null),
+            dokumentKategori, null, eksternReferanseId);
     }
 
 
