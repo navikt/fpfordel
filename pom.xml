@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.3</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger.fordel</groupId>
@@ -43,7 +43,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>1.0.2</version>
+                <version>1.0.3</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
