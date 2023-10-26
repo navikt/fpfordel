@@ -17,8 +17,10 @@ public record JournalpostDetaljerDto(@NotNull String journalpostId,
                                      @NotNull String behandlingTema,
                                      String kanal,
                                      @Valid BrukerDto bruker,
+                                     String tilstand,
                                      @Valid AvsenderDto avsender,
                                      @Valid YtelseTypeDto ytelseType,
+                                     String eksisterendeSaksnummer,
                                      @NotNull @Valid @Size(min = 1) Set<DokumentDto> dokumenter,
                                      @Valid List<SakJournalføringDto> fagsaker) {
 

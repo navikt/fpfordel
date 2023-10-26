@@ -37,6 +37,7 @@ import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.AvsenderMottaker;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Bruker;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.DokumentInfoOpprett;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Dokumentvariant;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.KnyttTilAnnenSakRequest;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OppdaterJournalpostRequest;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OpprettJournalpostRequest;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Sak;
@@ -430,6 +431,19 @@ public class ArkivTjeneste {
             LOG.info("FPFORDEL FERDIGSTILLING ferdigstilte journalpost {} enhet {}", journalpostId, enhet);
         } else {
             throw new IllegalStateException("FPFORDEL Kunne ikke ferdigstille journalpost " + journalpostId);
+        }
+    }
+
+    public String knyttTilAnnenSak(ArkivJournalpost journalpost, String enhet, String sakId, String aktørId) {
+        var bruker = new Bruker(aktørId, Bruker.BrukerIdType.AKTOERID);
+        var knyttTilAnnenSakRequest = new KnyttTilAnnenSakRequest(Sak.Sakstype.FAGSAK.name(), sakId, "FS36", bruker,
+            Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), enhet);
+        var resultat =  dokArkivTjeneste.knyttTilAnnenSak(journalpost.getJournalpostId(), knyttTilAnnenSakRequest);
+        if (resultat != null) {
+            LOG.info("FPFORDEL KNYTTILANNENSAK journalpost {} ny sak {} ny journalpost {} enhet {}", journalpost.getJournalpostId(), sakId, resultat.nyJournalpostId(), enhet);
+            return resultat.nyJournalpostId();
+        } else {
+            throw new IllegalStateException("FPFORDEL Kunne ikke knytte journalpost " + journalpost.getJournalpostId() + " til sak " + sakId);
         }
     }
 

@@ -4,6 +4,9 @@ import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.FORSENDELSE_ID_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.RETRY_KEY;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -15,11 +18,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste;
+import no.nav.foreldrepenger.fordel.web.app.rest.journalføring.FerdigstillJournalføringTjeneste;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
@@ -36,7 +36,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
-import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskIdDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
@@ -52,6 +51,7 @@ public class ForvaltningRestTjeneste {
     private ProsessTaskTjeneste taskTjeneste;
     private Fagsak fagsak;
     private OppgaveRepository oppgaveRepository;
+    private FerdigstillJournalføringTjeneste journalføringTjeneste;
 
     public ForvaltningRestTjeneste() {
         // CDI
@@ -211,6 +211,26 @@ public class ForvaltningRestTjeneste {
         return Response.ok().build();
     }
 
+    @POST
+    @Operation(description = "Knytter en journalpost til en ny sak ved å opprette ny journalpost", tags = "Forvaltning",
+        summary = "Knytter en journalpost til en ny sak ved å opprette ny journalpost", responses = {@ApiResponse(responseCode = "200", description = "journalpost opprettet")})
+    @Path("/knytt-til-annen-sak")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response knyttTilAnnenSak(@Parameter(description = "Sak og Journalpost") @NotNull @Valid JournalpostSakDto dto) {
+        var journalpost = journalføringTjeneste.hentJournalpost(dto.journalpostIdDto().getJournalpostId());
+        var response = journalføringTjeneste.knyttTilAnnenSak(journalpost, "9999", dto.saksnummerDto().getSaksnummer());
+        return Response.ok(response.getVerdi()).build();
+    }
 
+    @POST
+    @Operation(description = "Sender inn en journalpost til fpsak med angitt sak", tags = "Forvaltning",
+        summary = "Sender inn en journalpost til fpsak med angitt sak", responses = {@ApiResponse(responseCode = "200", description = "sendt inn")})
+    @Path("/send-inn-til-sak")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response sendInnTilSak(@Parameter(description = "Sak og Journalpost") @NotNull @Valid JournalpostSakDto dto) {
+        var journalpost = journalføringTjeneste.hentJournalpost(dto.journalpostIdDto().getJournalpostId());
+        journalføringTjeneste.sendInnPåSak(journalpost, dto.saksnummerDto().getSaksnummer());
+        return Response.ok().build();
+    }
 
 }

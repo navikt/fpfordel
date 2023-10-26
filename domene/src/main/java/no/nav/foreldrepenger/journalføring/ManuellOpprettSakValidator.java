@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
+import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
 import no.nav.foreldrepenger.typer.AktørId;
@@ -45,6 +46,15 @@ public class ManuellOpprettSakValidator {
         requireNonNull(aktørId, "Ugyldig input: AktørId kan ikke være null ved opprettelse av en sak.");
 
         var arkivJournalpost = arkivTjeneste.hentArkivJournalpost(journalpostId.getVerdi());
+        validerKonsistensMedSakJP(arkivJournalpost, oppgittFagsakYtelseTypeDto, aktørId, nyDokumentTypeId);
+    }
+
+    public void validerKonsistensMedSakJP(ArkivJournalpost arkivJournalpost, FagsakYtelseTypeDto oppgittFagsakYtelseTypeDto, AktørId aktørId,
+                                          DokumentTypeId nyDokumentTypeId) {
+        requireNonNull(arkivJournalpost, "Ugyldig input: Journalpost kan ikke være null ved opprettelse av en sak.");
+        requireNonNull(oppgittFagsakYtelseTypeDto, "Ugyldig input: YtelseType kan ikke være null ved opprettelse av en sak.");
+        requireNonNull(aktørId, "Ugyldig input: AktørId kan ikke være null ved opprettelse av en sak.");
+
         var hovedDokumentType = arkivJournalpost.getHovedtype();
         if (nyDokumentTypeId != null && !DokumentTypeId.UDEFINERT.equals(nyDokumentTypeId)) {
             hovedDokumentType = nyDokumentTypeId;
@@ -71,5 +81,4 @@ public class ManuellOpprettSakValidator {
                 "Velg ytelsetype som samstemmer med dokument");
         }
     }
-
 }
