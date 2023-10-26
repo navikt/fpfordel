@@ -55,6 +55,7 @@ import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Sak;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
@@ -268,14 +269,13 @@ public class JournalføringRestTjeneste {
     }
 
     JournalpostDetaljerDto mapTilJournalpostDetaljerDto(ArkivJournalpost journalpost) {
+        var eksisterendeSaksnummer = Sak.Sakstype.FAGSAK.equals(journalpost.getOriginalJournalpost().sak().sakstype()) &&
+            "FS36".equals(journalpost.getOriginalJournalpost().sak().fagsaksystem()) ? journalpost.getSaksnummer().orElse(null) : null;
         return new JournalpostDetaljerDto(
-            journalpost.getJournalpostId(),
-            journalpost.getTittel().orElse(""),
-            journalpost.getBehandlingstema().getOffisiellKode(),
-            journalpost.getKanal(),
-            mapBruker(journalpost),
+            journalpost.getJournalpostId(), journalpost.getTittel().orElse(""), journalpost.getBehandlingstema().getOffisiellKode(),
+            journalpost.getKanal(), mapBruker(journalpost), journalpost.getTilstand().name(),
             new JournalpostDetaljerDto.AvsenderDto(journalpost.getAvsenderNavn(), journalpost.getAvsenderIdent()),
-            mapYtelseTypeTilDto(journalpost.getBehandlingstema().utledYtelseType()),
+            mapYtelseTypeTilDto(journalpost.getBehandlingstema().utledYtelseType()), eksisterendeSaksnummer,
             mapDokumenter(journalpost.getJournalpostId(), journalpost.getOriginalJournalpost().dokumenter()),
             mapBrukersFagsaker(journalpost.getBrukerAktørId().orElse(null)));
     }
