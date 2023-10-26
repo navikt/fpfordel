@@ -269,7 +269,8 @@ public class JournalføringRestTjeneste {
     }
 
     JournalpostDetaljerDto mapTilJournalpostDetaljerDto(ArkivJournalpost journalpost) {
-        var eksisterendeSaksnummer = Sak.Sakstype.FAGSAK.equals(journalpost.getOriginalJournalpost().sak().sakstype()) &&
+        var eksisterendeSaksnummer = journalpost.getOriginalJournalpost() != null && journalpost.getOriginalJournalpost().sak() != null &&
+            Sak.Sakstype.FAGSAK.equals(journalpost.getOriginalJournalpost().sak().sakstype()) &&
             "FS36".equals(journalpost.getOriginalJournalpost().sak().fagsaksystem()) ? journalpost.getSaksnummer().orElse(null) : null;
         return new JournalpostDetaljerDto(
             journalpost.getJournalpostId(), journalpost.getTittel().orElse(""), journalpost.getBehandlingstema().getOffisiellKode(),
