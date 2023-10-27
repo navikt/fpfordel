@@ -58,10 +58,12 @@ public class ForvaltningRestTjeneste {
     }
 
     @Inject
-    public ForvaltningRestTjeneste(ProsessTaskTjeneste taskTjeneste, Fagsak fagsak, OppgaveRepository oppgaveRepository) {
+    public ForvaltningRestTjeneste(ProsessTaskTjeneste taskTjeneste, Fagsak fagsak, OppgaveRepository oppgaveRepository,
+                                   FerdigstillJournalføringTjeneste journalføringTjeneste) {
         this.taskTjeneste = taskTjeneste;
         this.fagsak = fagsak;
         this.oppgaveRepository = oppgaveRepository;
+        this.journalføringTjeneste = journalføringTjeneste;
     }
 
     @POST
