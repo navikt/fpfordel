@@ -191,7 +191,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
 
         return finnAlleOppgaver().stream()
             .filter(oppgave -> !NK_ENHET_ID.equals(oppgave.tildeltEnhetsnr())) // Klager går gjennom gosys
-            .filter(ikkeSkjermingenhetsoppgave().or(saksbehandlerHarTilgangTilSpesialenheten(saksbehandlerEnheter))) // må ha tilgang til Spesialenheten
+            .filter(ikkeSkjermingenhetsoppgave().or(saksbehandlerHarTilgangTilSkjermingenheten(saksbehandlerEnheter))) // må ha tilgang til Spesialenheten
             .filter(brukerUkjentEllerTilgjengeligIPdl())
             .sorted(Comparator.nullsLast(Comparator.comparing(Oppgave::fristFerdigstillelse).thenComparing(Oppgave::tildeltEnhetsnr)))
             .toList();
@@ -201,7 +201,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
         return oppgave -> !SKJERMINGENHETER.contains(oppgave.tildeltEnhetsnr());
     }
 
-    private Predicate<Oppgave> saksbehandlerHarTilgangTilSpesialenheten(Set<String> enheter) {
+    private Predicate<Oppgave> saksbehandlerHarTilgangTilSkjermingenheten(Set<String> enheter) {
         return oppgave -> enheter.contains(oppgave.tildeltEnhetsnr());
     }
 
