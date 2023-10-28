@@ -18,8 +18,8 @@ public class LosEnheterCachedTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(LosEnheterCachedTjeneste.class);
 
-    private static final int DEFAULT_CACHE_SIZE = 1000;
-    private static final long DEFAULT_CACHE_TIMEOUT = TimeUnit.MILLISECONDS.convert(10, TimeUnit.MINUTES);
+    private static final int DEFAULT_CACHE_SIZE = 200;
+    private static final long DEFAULT_CACHE_TIMEOUT = TimeUnit.MILLISECONDS.convert(12, TimeUnit.HOURS);
 
     private final LRUCache<String, List<TilhørendeEnhetDto>> enheterCache;
 
