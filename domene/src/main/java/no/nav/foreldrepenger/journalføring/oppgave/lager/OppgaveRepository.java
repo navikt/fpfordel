@@ -1,13 +1,14 @@
 package no.nav.foreldrepenger.journalføring.oppgave.lager;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
+import java.util.List;
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Objects;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 
 @ApplicationScoped
 public class OppgaveRepository {
@@ -45,13 +46,6 @@ public class OppgaveRepository {
 
     public List<OppgaveEntitet> hentAlleÅpneOppgaver() {
         return em.createQuery("from Oppgave where status = :status", OppgaveEntitet.class)
-                .setParameter("status", Status.AAPNET)
-                .getResultList();
-    }
-
-    public List<OppgaveEntitet> hentÅpneOppgaverFor(String enhet) {
-        return em.createQuery("from Oppgave where enhet = :enhet and status = :status", OppgaveEntitet.class)
-                .setParameter("enhet", enhet)
                 .setParameter("status", Status.AAPNET)
                 .getResultList();
     }

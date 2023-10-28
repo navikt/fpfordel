@@ -14,7 +14,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,8 +41,6 @@ import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.saf.DokumentInfo;
 import no.nav.foreldrepenger.mottak.journal.saf.Journalpost;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
-import no.nav.foreldrepenger.mottak.klient.Los;
-import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.TekniskException;
@@ -56,6 +53,8 @@ import no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext;
 @ExtendWith(MockitoExtension.class)
 class JournalføringRestTjenesteTest {
 
+    private static final String ENHET = "4321";
+
     @Mock
     private PersonInformasjon pdl;
     @Mock
@@ -64,24 +63,18 @@ class JournalføringRestTjenesteTest {
     private Fagsak fagsak;
     @Mock
     private ArkivTjeneste arkiv;
-    @Mock
-    private Los los;
-    private final SaksbehandlerIdentDto saksbehandlerIdentDto = new SaksbehandlerIdentDto("123456");
-    private final TilhørendeEnhetDto tilhørendeEnhetDto = new TilhørendeEnhetDto("9999", "Navn på enhet");
 
     private JournalføringRestTjeneste restTjeneste;
 
     @BeforeEach
     void setUp() {
-        restTjeneste = new JournalføringRestTjeneste(oppgaveTjeneste, pdl, arkiv, fagsak, los);
+        restTjeneste = new JournalføringRestTjeneste(oppgaveTjeneste, pdl, arkiv, fagsak);
     }
 
     @Test
     @DisplayName("/oppgaver - ingen oppgaver = tom liste")
     void skal_levere_en_tom_liste_om_ingen_oppgaver_funnet() {
-
-        when(los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident())).thenReturn(List.of(tilhørendeEnhetDto));
-        var oppgaveDtos = restTjeneste.hentÅpneOppgaverForSaksbehandler(saksbehandlerIdentDto);
+        var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull().isEmpty();
     }
@@ -94,12 +87,11 @@ class JournalføringRestTjenesteTest {
         var beskrivelse = "beskrivelse";
 
         var journalføringOppgaver = List.of(
-            opprettOppgave(expectedJournalpostId, now, beskrivelse, tilhørendeEnhetDto.enhetsnummer(), null, YtelseType.FP));
+            opprettOppgave(expectedJournalpostId, now, beskrivelse, ENHET, null, YtelseType.FP));
 
-        when(los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident())).thenReturn(List.of(tilhørendeEnhetDto));
-        when(oppgaveTjeneste.finnÅpneOppgaverFor(Set.of(tilhørendeEnhetDto.enhetsnummer()))).thenReturn(journalføringOppgaver);
+        when(oppgaveTjeneste.finnÅpneOppgaverFiltrert()).thenReturn(journalføringOppgaver);
 
-        var oppgaveDtos = restTjeneste.hentÅpneOppgaverForSaksbehandler(saksbehandlerIdentDto);
+        var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
         var oppgave = oppgaveDtos.get(0);
@@ -110,7 +102,7 @@ class JournalføringRestTjenesteTest {
         assertThat(oppgave.beskrivelse()).isEqualTo(beskrivelse);
         assertThat(oppgave.opprettetDato()).isEqualTo(now);
         assertThat(oppgave.ytelseType()).isEqualTo(YtelseTypeDto.FORELDREPENGER);
-        assertThat(oppgave.enhetId()).isEqualTo(tilhørendeEnhetDto.enhetsnummer());
+        assertThat(oppgave.enhetId()).isEqualTo(ENHET);
         assertThat(oppgave.kilde()).isEqualTo(JournalføringRestTjeneste.OppgaveKilde.GOSYS);
     }
 
@@ -121,13 +113,12 @@ class JournalføringRestTjenesteTest {
         var now = LocalDate.now();
         var beskrivelse = "beskrivelse";
 
-        var journalføringOppgaver = List.of(opprettOppgave(expectedJournalPostUtenTittel, now, beskrivelse, tilhørendeEnhetDto.enhetsnummer(), null,
+        var journalføringOppgaver = List.of(opprettOppgave(expectedJournalPostUtenTittel, now, beskrivelse, ENHET, null,
             YtelseType.SVP));
 
-        when(los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident())).thenReturn(List.of(tilhørendeEnhetDto));
-        when(oppgaveTjeneste.finnÅpneOppgaverFor(Set.of(tilhørendeEnhetDto.enhetsnummer()))).thenReturn(journalføringOppgaver);
+        when(oppgaveTjeneste.finnÅpneOppgaverFiltrert()).thenReturn(journalføringOppgaver);
 
-        var oppgaveDtos = restTjeneste.hentÅpneOppgaverForSaksbehandler(saksbehandlerIdentDto);
+        var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
         var oppgave = oppgaveDtos.get(0);
@@ -138,7 +129,7 @@ class JournalføringRestTjenesteTest {
         assertThat(oppgave.beskrivelse()).isEqualTo(beskrivelse);
         assertThat(oppgave.opprettetDato()).isEqualTo(now);
         assertThat(oppgave.ytelseType()).isEqualTo(YtelseTypeDto.SVANGERSKAPSPENGER);
-        assertThat(oppgave.enhetId()).isEqualTo(tilhørendeEnhetDto.enhetsnummer());
+        assertThat(oppgave.enhetId()).isEqualTo(ENHET);
     }
 
     @Test
@@ -148,14 +139,12 @@ class JournalføringRestTjenesteTest {
         var enhet1 = "111111";
         var enhet2 = "222222";
 
-        when(los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident())).thenReturn(List.of(new TilhørendeEnhetDto(enhet1, "Enhet 1"), new TilhørendeEnhetDto(enhet2, "Enhet 2")));
-
         var journalføringOppgaveEnhet1 = opprettOppgave("1111", now, "beskrivelse1", enhet1, null, YtelseType.FP);
         var journalføringOppgaveEnhet2 = opprettOppgave("2222", now, "beskrivelse2", enhet2, null, YtelseType.SVP);
 
-        when(oppgaveTjeneste.finnÅpneOppgaverFor(Set.of(enhet1, enhet2))).thenReturn(List.of(journalføringOppgaveEnhet1, journalføringOppgaveEnhet2));
+        when(oppgaveTjeneste.finnÅpneOppgaverFiltrert()).thenReturn(List.of(journalføringOppgaveEnhet1, journalføringOppgaveEnhet2));
 
-        var oppgaveDtos = restTjeneste.hentÅpneOppgaverForSaksbehandler(saksbehandlerIdentDto);
+        var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull().hasSize(2);
         var oppgave1 = oppgaveDtos.get(0);
@@ -174,14 +163,13 @@ class JournalføringRestTjenesteTest {
         var beskrivelse = "beskrivelse";
         var aktørId = "aktørId";
         var journalføringOppgaver = List.of(
-            opprettOppgave(expectedJournalpostId, now, beskrivelse, tilhørendeEnhetDto.enhetsnummer(), null, YtelseType.FP));
+            opprettOppgave(expectedJournalpostId, now, beskrivelse, ENHET, null, YtelseType.FP));
 
-        when(los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident())).thenReturn(List.of(tilhørendeEnhetDto));
-        when(oppgaveTjeneste.finnÅpneOppgaverFor(Set.of(tilhørendeEnhetDto.enhetsnummer()))).thenReturn(journalføringOppgaver);
+        when(oppgaveTjeneste.finnÅpneOppgaverFiltrert()).thenReturn(journalføringOppgaver);
 
         var fnr = "12344345678";
         when(pdl.hentPersonIdentForAktørId(aktørId)).thenReturn(Optional.of(fnr));
-        var oppgaveDtos = restTjeneste.hentÅpneOppgaverForSaksbehandler(saksbehandlerIdentDto);
+        var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
         var oppgave = oppgaveDtos.get(0);
@@ -196,12 +184,11 @@ class JournalføringRestTjenesteTest {
         var expectedJournalpostId = "12334";
         var now = LocalDate.now();
         var beskrivelse = "beskrivelse";
-        var journalføringOppgaver = List.of(opprettOppgave(expectedJournalpostId, now, beskrivelse, tilhørendeEnhetDto.enhetsnummer(), null, null));
+        var journalføringOppgaver = List.of(opprettOppgave(expectedJournalpostId, now, beskrivelse, ENHET, null, null));
 
-        when(los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident())).thenReturn(List.of(tilhørendeEnhetDto));
-        when(oppgaveTjeneste.finnÅpneOppgaverFor(Set.of(tilhørendeEnhetDto.enhetsnummer()))).thenReturn(journalføringOppgaver);
+        when(oppgaveTjeneste.finnÅpneOppgaverFiltrert()).thenReturn(journalføringOppgaver);
 
-        var oppgaveDtos = restTjeneste.hentÅpneOppgaverForSaksbehandler(saksbehandlerIdentDto);
+        var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
         assertThat(oppgaveDtos.get(0).ytelseType()).isNull();

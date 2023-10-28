@@ -49,8 +49,6 @@ import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.saf.DokumentInfo;
 import no.nav.foreldrepenger.mottak.klient.AktørIdDto;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
-import no.nav.foreldrepenger.mottak.klient.Los;
-import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.FunksjonellException;
@@ -81,7 +79,6 @@ public class JournalføringRestTjeneste {
     private PersonInformasjon pdl;
     private ArkivTjeneste arkiv;
     private Fagsak fagsak;
-    private Los los;
 
     JournalføringRestTjeneste() {
         // CDI
@@ -91,38 +88,20 @@ public class JournalføringRestTjeneste {
     public JournalføringRestTjeneste(Journalføringsoppgave oppgaveTjeneste,
                                      PersonInformasjon pdl,
                                      ArkivTjeneste arkiv,
-                                     Fagsak fagsak,
-                                     Los los) {
+                                     Fagsak fagsak) {
         this.oppgaveTjeneste = oppgaveTjeneste;
         this.pdl = pdl;
         this.arkiv = arkiv;
         this.fagsak = fagsak;
-        this.los = los;
     }
 
     @GET
     @Path("/oppgaver")
     @Produces(APPLICATION_JSON)
-    @Operation(description = "Henter alle åpne journalføringsoppgaver for tema FOR og for saksbehandlers tilhørende enhet.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
+    @Operation(description = "Henter alle åpne journalføringsoppgaver for tema FOR.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public List<OppgaveDto> hentÅpneOppgaverForSaksbehandler(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("ident") @NotNull @Valid SaksbehandlerIdentDto saksbehandlerIdentDto) {
-        //Midlertidig for å kunne verifisere i produksjon - fjernes når verifisert ok
-        if (ENV.isProd() && ("W119202".equals(KontekstHolder.getKontekst().getUid()))) {
-            var oppgaveDtoer = oppgaveTjeneste.finnÅpneOppgaverFor(null)
-                .stream()
-                .map(this::lagOppgaveDto)
-                .toList();
-            LOG.info("FPFORDEL RESTJOURNALFØRING: Henter {} oppgaver", oppgaveDtoer.size());
-            return oppgaveDtoer;
-        }
-
-        var tilhørendeEnheter = los.hentTilhørendeEnheter(saksbehandlerIdentDto.ident());
-        if (tilhørendeEnheter.isEmpty()) {
-            throw new IllegalStateException(
-                String.format("Det forventes at saksbehandler %s har minst en tilførende enhet. Fant ingen.", saksbehandlerIdentDto.ident()));
-        }
-        var enheter = tilhørendeEnheter.stream().map(TilhørendeEnhetDto::enhetsnummer).collect(Collectors.toSet());
-        var oppgaver = oppgaveTjeneste.finnÅpneOppgaverFor(enheter)
+    public List<OppgaveDto> hentÅpneOppgaver() {
+        var oppgaver = oppgaveTjeneste.finnÅpneOppgaverFiltrert()
             .stream()
             .map(this::lagOppgaveDto)
             .toList();

@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.journalføring.oppgave;
 import static no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType.ES;
 import static no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType.FP;
 import static no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType.SVP;
+import static no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste.NK_ENHET_ID;
+import static no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste.SPESIALENHETER;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -10,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +31,12 @@ import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.LosEnheterCachedTjeneste;
+import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @Dependent
 class OppgaverTjeneste implements Journalføringsoppgave {
@@ -43,17 +48,20 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     private OppgaveRepository oppgaveRepository;
     private Oppgaver oppgaveKlient;
     private EnhetsTjeneste enhetsTjeneste;
+    private LosEnheterCachedTjeneste losEnheterCachedTjeneste;
+
 
     OppgaverTjeneste() {
         // CDI
     }
 
     @Inject
-    public OppgaverTjeneste(OppgaveRepository oppgaveRepository, Oppgaver oppgaveKlient,
-                            EnhetsTjeneste enhetsTjeneste) {
+    public OppgaverTjeneste(OppgaveRepository oppgaveRepository, Oppgaver oppgaveKlient, EnhetsTjeneste enhetsTjeneste,
+                            LosEnheterCachedTjeneste losEnheterCachedTjeneste) {
         this.oppgaveRepository = oppgaveRepository;
         this.oppgaveKlient = oppgaveKlient;
         this.enhetsTjeneste = enhetsTjeneste;
+        this.losEnheterCachedTjeneste = losEnheterCachedTjeneste;
     }
 
     @Override
@@ -164,15 +172,19 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     }
 
     @Override
-    public List<Oppgave> finnÅpneOppgaverFor(Set<String> enheter) {
-        List<Oppgave> oppgaver = new ArrayList<>();
+    public List<Oppgave> finnÅpneOppgaverFiltrert() {
+        var sbhLosEnheter = losEnheterCachedTjeneste.hentLosEnheterFor(KontekstHolder.getKontekst().getUid())
+            .stream()
+            .map(TilhørendeEnhetDto::enhetsnummer)
+            .collect(Collectors.toUnmodifiableSet());
 
-        if (enheter == null || enheter.isEmpty()) {
-            finnOppgaver(null, oppgaver);
-        } else {
-            enheter.forEach(enhet -> finnOppgaver(enhet, oppgaver));
+        if (sbhLosEnheter.isEmpty()) {
+            return List.of();
         }
-        return oppgaver.stream()
+
+        return finnAlleOppgaver().stream()
+            .filter(oppgave -> !NK_ENHET_ID.equals(oppgave.tildeltEnhetsnr())) // Klager går gjennom gosys
+            .filter(oppgave -> !SPESIALENHETER.contains(oppgave.tildeltEnhetsnr()) || sbhLosEnheter.contains(oppgave.tildeltEnhetsnr())) // må ha tilgang til Spesialenheten
             .sorted(Comparator.nullsLast(Comparator.comparing(Oppgave::fristFerdigstillelse).thenComparing(Oppgave::tildeltEnhetsnr)))
             .toList();
     }
@@ -183,7 +195,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
         if (oppgaveOpt.isPresent()) {
             var oppgave = oppgaveOpt.get();
 
-            var behandlingTema = oppgave.ytelseType() == null ? null: switch (oppgave.ytelseType()) {
+            var behandlingTema = oppgave.ytelseType() == null ? null : switch (oppgave.ytelseType()) {
                 case ES -> BehandlingTema.ENGANGSSTØNAD;
                 case FP -> BehandlingTema.FORELDREPENGER;
                 case SVP -> BehandlingTema.SVANGERSKAPSPENGER;
@@ -207,20 +219,19 @@ class OppgaverTjeneste implements Journalføringsoppgave {
         }
     }
 
-    private void finnOppgaver(String enhet, List<Oppgave> resultat) {
-        resultat.addAll(finnLokaleOppgaver(enhet));
-        resultat.addAll(finnGlobaleOppgaver(enhet));
+    private List<Oppgave> finnAlleOppgaver() {
+        List<Oppgave> resultat = new ArrayList<>();
+        resultat.addAll(finnLokaleOppgaver());
+        resultat.addAll(finnGlobaleOppgaver());
+        return resultat;
     }
 
-    private List<Oppgave> finnLokaleOppgaver(String enhet) {
-        if (enhet == null) {
-            return oppgaveRepository.hentAlleÅpneOppgaver().stream().map(OppgaverTjeneste::mapTilOppgave).toList();
-        }
-        return oppgaveRepository.hentÅpneOppgaverFor(enhet).stream().map(OppgaverTjeneste::mapTilOppgave).toList();
+    private List<Oppgave> finnLokaleOppgaver() {
+        return oppgaveRepository.hentAlleÅpneOppgaver().stream().map(OppgaverTjeneste::mapTilOppgave).toList();
     }
 
-    private List<Oppgave> finnGlobaleOppgaver(String enhet) {
-        return oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, enhet, LIMIT)
+    private List<Oppgave> finnGlobaleOppgaver() {
+        return oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)
             .stream()
             .filter(o -> o.journalpostId() != null)
             .map(OppgaverTjeneste::mapTilOppgave)
