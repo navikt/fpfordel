@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +42,7 @@ import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.LosEnheterCachedTjeneste;
 import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
+import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
@@ -56,6 +55,7 @@ class OppgaverTjenesteTest {
 
     private static final String VANLIG_ENHETSNR = "4321";
     private static final String VANLIG_JOURNALPOSTID = "1234";
+    protected static final String AKTØR_ID = "1234567890123";
 
     private Journalføringsoppgave oppgaver;
     @Mock
@@ -84,7 +84,7 @@ class OppgaverTjenesteTest {
         var id = oppgaver.opprettGosysJournalføringsoppgaveFor(NyOppgave.builder()
             .medJournalpostId(JournalpostId.fra("123456"))
             .medEnhetId(VANLIG_ENHETSNR)
-            .medAktørId(new AktørId("1234567890123"))
+            .medAktørId(new AktørId(AKTØR_ID))
             .medSaksref("referanse")
             .medBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER)
             .medBeskrivelse("Test beskrivelse")
@@ -101,9 +101,10 @@ class OppgaverTjenesteTest {
         var expectedId = "11";
         when(oppgaveRepository.lagre(any(OppgaveEntitet.class))).thenReturn(expectedId);
 
-        var id = oppgaver.opprettJournalføringsoppgaveFor(NyOppgave.builder().medJournalpostId(JournalpostId.fra("123456"))
+        var id = oppgaver.opprettJournalføringsoppgaveFor(NyOppgave.builder()
+            .medJournalpostId(JournalpostId.fra("123456"))
             .medEnhetId(VANLIG_ENHETSNR)
-            .medAktørId(new AktørId("1234567890123"))
+            .medAktørId(new AktørId(AKTØR_ID))
             .medSaksref("referanse")
             .medBehandlingTema(BehandlingTema.FORELDREPENGER)
             .medBeskrivelse("Test beskrivelse")
@@ -151,8 +152,7 @@ class OppgaverTjenesteTest {
         when(oppgave1Mock.id()).thenReturn(1L);
         var oppgave2Mock = mock(Oppgave.class);
         when(oppgave2Mock.id()).thenReturn(2L);
-        when(oppgaveKlient.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId))
-                .thenReturn(List.of(oppgave1Mock, oppgave2Mock));
+        when(oppgaveKlient.finnÅpneJournalføringsoppgaverForJournalpost(journalpostId)).thenReturn(List.of(oppgave1Mock, oppgave2Mock));
         when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(false);
 
         oppgaver.ferdigstillAlleÅpneJournalføringsoppgaverFor(JournalpostId.fra(journalpostId));
@@ -214,7 +214,8 @@ class OppgaverTjenesteTest {
             .medJournalpostId(journalpostId)
             .medOppgaveId(gosysOppgaveId)
             .medKilde(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.Kilde.GOSYS)
-            .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
+            .medAktivDato(LocalDate.now())
+            .medTildeltEnhetsnr("4867")
             .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
             .medFristFerdigstillelse(LocalDate.now().plusDays(1))
             .medBeskrivelse("tom")
@@ -235,7 +236,8 @@ class OppgaverTjenesteTest {
             .medJournalpostId(journalpostId)
             .medOppgaveId(journalpostId)
             .medKilde(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.Kilde.LOKAL)
-            .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
+            .medAktivDato(LocalDate.now())
+            .medTildeltEnhetsnr("4867")
             .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
             .medFristFerdigstillelse(LocalDate.now().plusDays(1))
             .medBeskrivelse("tom")
@@ -260,7 +262,8 @@ class OppgaverTjenesteTest {
             .medJournalpostId(journalpostId)
             .medOppgaveId(gosysOppgaveId)
             .medKilde(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.Kilde.GOSYS)
-            .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
+            .medAktivDato(LocalDate.now())
+            .medTildeltEnhetsnr("4867")
             .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
             .medFristFerdigstillelse(LocalDate.now().plusDays(1))
             .medBeskrivelse("tom")
@@ -280,7 +283,8 @@ class OppgaverTjenesteTest {
             .medJournalpostId(journalpostId)
             .medOppgaveId(journalpostId)
             .medKilde(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.Kilde.LOKAL)
-            .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
+            .medAktivDato(LocalDate.now())
+            .medTildeltEnhetsnr("4867")
             .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
             .medFristFerdigstillelse(LocalDate.now().plusDays(1))
             .medBeskrivelse("tom")
@@ -353,8 +357,7 @@ class OppgaverTjenesteTest {
     @Test
     void finnFaktiskÅpneOppgaver() {
         when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalOppgave("1234567", VANLIG_ENHETSNR)));
-        when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT))
-                .thenReturn(List.of(gosysOppgave("76543231")));
+        when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)).thenReturn(List.of(gosysOppgave("76543231")));
         when(losEnheterCachedTjeneste.hentLosEnheterFor(any())).thenReturn(List.of(enhetVanlig()));
 
         var alleOppgaver = oppgaver.finnÅpneOppgaverFiltrert();
@@ -369,8 +372,7 @@ class OppgaverTjenesteTest {
     @Test
     void finnFaktiskÅpneOppgaver_filtreUtKlageAlltid() {
         when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalOppgave("1234567", EnhetsTjeneste.NK_ENHET_ID)));
-        when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT))
-            .thenReturn(List.of(gosysOppgave("76543231")));
+        when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)).thenReturn(List.of(gosysOppgave("76543231")));
         when(losEnheterCachedTjeneste.hentLosEnheterFor(any())).thenReturn(List.of(enhetVanlig()));
 
         var alleOppgaver = oppgaver.finnÅpneOppgaverFiltrert();
@@ -386,8 +388,7 @@ class OppgaverTjenesteTest {
     void finnFaktiskÅpneOppgaver_filtreUtKlageAlltid_BrukerIKlageEnhet() {
         when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalOppgave("1234567", EnhetsTjeneste.NK_ENHET_ID)));
         var gosysOppgave = gosysOppgave("76543231");
-        when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT))
-            .thenReturn(List.of(gosysOppgave));
+        when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)).thenReturn(List.of(gosysOppgave));
 
         when(losEnheterCachedTjeneste.hentLosEnheterFor(any())).thenReturn(List.of(enhet(EnhetsTjeneste.NK_ENHET_ID)));
 
@@ -405,8 +406,7 @@ class OppgaverTjenesteTest {
     void finnFaktiskÅpneOppgaver_filtreK6Alltid_BrukerIkkeIK6Ehnet() {
         when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalOppgave("1234567", EnhetsTjeneste.SF_ENHET_ID)));
         var gosysOppgave = gosysOppgave("76543231");
-        when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT))
-            .thenReturn(List.of(gosysOppgave));
+        when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)).thenReturn(List.of(gosysOppgave));
 
         when(losEnheterCachedTjeneste.hentLosEnheterFor(any())).thenReturn(List.of(enhet(EnhetsTjeneste.SKJERMET_ENHET_ID)));
 
@@ -421,17 +421,16 @@ class OppgaverTjenesteTest {
     }
 
     @Test
-    void finnFaktiskÅpneOppgaver_filtreSkjermet_BrukerIUtlandEhnet() {
+    void finnFaktiskÅpneOppgaver_filtreAlleSpesjaloppgaver_BrukerIkkeNoeEhnet() {
         when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalOppgave("1234567", EnhetsTjeneste.SKJERMET_ENHET_ID)));
         var gosysOppgave = gosysOppgave("76543231");
-        when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT))
-            .thenReturn(List.of(gosysOppgave));
+        when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)).thenReturn(List.of(gosysOppgave));
 
-        when(losEnheterCachedTjeneste.hentLosEnheterFor(any())).thenReturn(List.of(enhet(EnhetsTjeneste.UTLAND_ENHET_ID)));
+        when(losEnheterCachedTjeneste.hentLosEnheterFor(any())).thenReturn(List.of(enhet(EnhetsTjeneste.SKJERMET_ENHET_ID), enhetVanlig()));
 
         var alleOppgaver = oppgaver.finnÅpneOppgaverFiltrert();
 
-        assertThat(alleOppgaver).isNotEmpty().hasSize(1);
+        assertThat(alleOppgaver).isNotEmpty().hasSize(2);
 
         verify(oppgaveRepository).hentAlleÅpneOppgaver();
         verify(oppgaveKlient).finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT);
@@ -439,19 +438,42 @@ class OppgaverTjenesteTest {
     }
 
     @Test
-    void finnFaktiskÅpneOppgaver_filtreAlleSpesjaloppgaver_BrukerIkkeNoeEhnet() {
-        when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalOppgave("1234567", EnhetsTjeneste.UTLAND_ENHET_ID)));
-        var gosysOppgave = gosysOppgave("76543231");
-        when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT))
-            .thenReturn(List.of(gosysOppgave));
+    void finnFaktiskÅpneOppgaver_filtreOmPersonTjenesteKasterException() {
+        var beskyttetBruker = "0987654321123";
+        when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalOppgave("1234567", beskyttetBruker, VANLIG_ENHETSNR)));
+        var expectedOppgaveId = "76543231";
+        var gosysOppgave = gosysOppgave(expectedOppgaveId);
+        when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)).thenReturn(List.of(gosysOppgave));
 
-        when(losEnheterCachedTjeneste.hentLosEnheterFor(any())).thenReturn(List.of(
-            enhet(EnhetsTjeneste.UTLAND_ENHET_ID), enhetVanlig()));
+        when(personTjeneste.hentNavn(BehandlingTema.FORELDREPENGER, beskyttetBruker)).thenThrow(NoSuchElementException.class);
+
+        when(losEnheterCachedTjeneste.hentLosEnheterFor(any())).thenReturn(List.of(enhetVanlig()));
+
+        var alleOppgaver = oppgaver.finnÅpneOppgaverFiltrert();
+
+        assertThat(alleOppgaver).isNotEmpty().hasSize(1);
+        assertThat(alleOppgaver.get(0).oppgaveId()).isEqualTo(expectedOppgaveId);
+
+        verify(personTjeneste, times(2)).hentNavn(eq(BehandlingTema.FORELDREPENGER), anyString());
+        verify(oppgaveRepository).hentAlleÅpneOppgaver();
+        verify(oppgaveKlient).finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT);
+        verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
+    }
+
+    @Test
+    void finnFaktiskÅpneOppgaver_filtreIkkeOmAktørErUkjent() {
+        when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalOppgave("1234567", null, VANLIG_ENHETSNR)));
+        var expectedOppgaveId = "76543231";
+        var gosysOppgave = gosysOppgave(expectedOppgaveId);
+        when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)).thenReturn(List.of(gosysOppgave));
+        when(personTjeneste.hentNavn(BehandlingTema.FORELDREPENGER, AKTØR_ID)).thenReturn("Mike");
+        when(losEnheterCachedTjeneste.hentLosEnheterFor(any())).thenReturn(List.of(enhetVanlig()));
 
         var alleOppgaver = oppgaver.finnÅpneOppgaverFiltrert();
 
         assertThat(alleOppgaver).isNotEmpty().hasSize(2);
 
+        verify(personTjeneste, times(1)).hentNavn(BehandlingTema.FORELDREPENGER, AKTØR_ID);
         verify(oppgaveRepository).hentAlleÅpneOppgaver();
         verify(oppgaveKlient).finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT);
         verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
@@ -502,7 +524,8 @@ class OppgaverTjenesteTest {
             .medJournalpostId(journalpostId)
             .medOppgaveId(journalpostId)
             .medKilde(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.Kilde.LOKAL)
-            .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
+            .medAktivDato(LocalDate.now())
+            .medTildeltEnhetsnr("4867")
             .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
             .medFristFerdigstillelse(LocalDate.now().plusDays(1))
             .medBeskrivelse("tom")
@@ -510,7 +533,7 @@ class OppgaverTjenesteTest {
         when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(true);
         when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalOppgave(journalpostId, VANLIG_ENHETSNR));
         var fødselsnummer = "12342112345";
-        var aktørId = "1234567890123";
+        var aktørId = AKTØR_ID;
         when(personTjeneste.hentAktørIdForPersonIdent(fødselsnummer)).thenReturn(Optional.of(aktørId));
 
         var argumentCaptor = ArgumentCaptor.forClass(OppgaveEntitet.class);
@@ -525,13 +548,14 @@ class OppgaverTjenesteTest {
     }
 
     @Test
-    void oppdaterBrukerSomIkkeFinnes() {
+    void oppdaterBrukerSomIkkeFinnes_KastException() {
         var journalpostId = VANLIG_JOURNALPOSTID;
         var oppgave = no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.builder()
             .medJournalpostId(journalpostId)
             .medOppgaveId(journalpostId)
             .medKilde(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.Kilde.LOKAL)
-            .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
+            .medAktivDato(LocalDate.now())
+            .medTildeltEnhetsnr("4867")
             .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
             .medFristFerdigstillelse(LocalDate.now().plusDays(1))
             .medBeskrivelse("tom")
@@ -558,28 +582,14 @@ class OppgaverTjenesteTest {
     }
 
     private OppgaveEntitet lokalOppgave(String journalpostId, String enhet) {
-        return lokalOppgave(journalpostId, "1234567890123", enhet);
+        return lokalOppgave(journalpostId, AKTØR_ID, enhet);
 
     }
 
     private Oppgave gosysOppgave(String journalpostId) {
-        return new Oppgave(Long.parseLong(journalpostId),
-                journalpostId,
-                null,
-                "testRef",
-                "1234567890123",
-                null,
-                null,
-                Oppgavetype.JOURNALFØRING.getKode(),
-                null,
-                0, VANLIG_ENHETSNR,
-                LocalDate.now(),
-                LocalDate.now(),
-                Prioritet.NORM,
-                Oppgavestatus.AAPNET,
-                "test beskrivelse",
-                null
-        );
+        return new Oppgave(Long.parseLong(journalpostId), journalpostId, null, "testRef", AKTØR_ID, null, null,
+            Oppgavetype.JOURNALFØRING.getKode(), null, 0, VANLIG_ENHETSNR, LocalDate.now(), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET,
+            "test beskrivelse", null);
     }
 
     private static TilhørendeEnhetDto enhetVanlig() {

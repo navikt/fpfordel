@@ -4,21 +4,18 @@ import static no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType.ES;
 import static no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType.FP;
 import static no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType.SVP;
 import static no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste.NK_ENHET_ID;
-import static no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste.SPESIALENHETER;
+import static no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste.SKJERMINGENHETER;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-
-import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +36,8 @@ import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.LosEnheterCachedTjeneste;
 import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
+import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
+import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
@@ -192,17 +191,32 @@ class OppgaverTjeneste implements Journalføringsoppgave {
 
         return finnAlleOppgaver().stream()
             .filter(oppgave -> !NK_ENHET_ID.equals(oppgave.tildeltEnhetsnr())) // Klager går gjennom gosys
-            .filter(ikkeSpesialenhetsoppgave().or(saksbehandlerHarTilgangTilSpesialenheten(saksbehandlerEnheter))) // må ha tilgang til Spesialenheten
+            .filter(ikkeSkjermingenhetsoppgave().or(saksbehandlerHarTilgangTilSpesialenheten(saksbehandlerEnheter))) // må ha tilgang til Spesialenheten
+            .filter(brukerUkjentEllerTilgjengeligIPdl())
             .sorted(Comparator.nullsLast(Comparator.comparing(Oppgave::fristFerdigstillelse).thenComparing(Oppgave::tildeltEnhetsnr)))
             .toList();
     }
 
-    private Predicate<Oppgave> ikkeSpesialenhetsoppgave() {
-        return oppgave -> !SPESIALENHETER.contains(oppgave.tildeltEnhetsnr());
+    private Predicate<Oppgave> ikkeSkjermingenhetsoppgave() {
+        return oppgave -> !SKJERMINGENHETER.contains(oppgave.tildeltEnhetsnr());
     }
 
     private Predicate<Oppgave> saksbehandlerHarTilgangTilSpesialenheten(Set<String> enheter) {
         return oppgave -> enheter.contains(oppgave.tildeltEnhetsnr());
+    }
+
+    private Predicate<Oppgave> brukerUkjentEllerTilgjengeligIPdl() {
+        return oppgave -> {
+            if (oppgave.aktørId() == null) {
+                return true;
+            }
+            try {
+                personTjeneste.hentNavn(BehandlingTema.FORELDREPENGER, oppgave.aktørId());
+            } catch (NoSuchElementException ex) {
+                return false;
+            }
+            return true;
+        };
     }
 
     @Override

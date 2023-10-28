@@ -25,8 +25,9 @@ public class EnhetsTjeneste {
     public static final String NK_ENHET_ID = "4292"; // Enhetsnummer NAV Klageinstans Midt-Norge
     public static final String SKJERMET_ENHET_ID = "4883"; // Enhetsnummer NAV Familie og Pensjon Skjermet
     public static final String SF_ENHET_ID = "2103"; // Enhetsnummer NAV K6 enhet
-    public static final String UTLAND_ENHET_ID = "4806"; // Enhetsnummer NAV K6 enhet
-    public static final Set<String> SPESIALENHETER = Set.of(NK_ENHET_ID, SKJERMET_ENHET_ID, SF_ENHET_ID, UTLAND_ENHET_ID);
+    public static final Set<String> SKJERMINGENHETER = Set.of(SKJERMET_ENHET_ID, SF_ENHET_ID);
+    private static final String UTLAND_ENHET_ID = "4806"; // Enhetsnummer NAV Utland enhet
+    private static final Set<String> SPESIALENHETER = Set.of(NK_ENHET_ID, SKJERMET_ENHET_ID, SF_ENHET_ID, UTLAND_ENHET_ID);
     private static final String TEMAGRUPPE = Temagrupper.FAMILIEYTELSER.getKode(); // Kodeverk Temagrupper - dekker FOR + OMS
     private static final String TEMA = Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode();
     private static final String OPPGAVETYPE_JFR = "JFR"; // Kodeverk Oppgavetyper - NFP , uten spesialenheter
