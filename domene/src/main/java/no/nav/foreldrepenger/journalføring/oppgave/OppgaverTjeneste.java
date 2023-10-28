@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -173,20 +175,28 @@ class OppgaverTjeneste implements Journalføringsoppgave {
 
     @Override
     public List<Oppgave> finnÅpneOppgaverFiltrert() {
-        var sbhLosEnheter = losEnheterCachedTjeneste.hentLosEnheterFor(KontekstHolder.getKontekst().getUid())
+        var saksbehandlerEnheter = losEnheterCachedTjeneste.hentLosEnheterFor(KontekstHolder.getKontekst().getUid())
             .stream()
             .map(TilhørendeEnhetDto::enhetsnummer)
             .collect(Collectors.toUnmodifiableSet());
 
-        if (sbhLosEnheter.isEmpty()) {
+        if (saksbehandlerEnheter.isEmpty()) {
             return List.of();
         }
 
         return finnAlleOppgaver().stream()
             .filter(oppgave -> !NK_ENHET_ID.equals(oppgave.tildeltEnhetsnr())) // Klager går gjennom gosys
-            .filter(oppgave -> !SPESIALENHETER.contains(oppgave.tildeltEnhetsnr()) || sbhLosEnheter.contains(oppgave.tildeltEnhetsnr())) // må ha tilgang til Spesialenheten
+            .filter(ikkeSpesialenhetsoppgave().or(saksbehandlerHarTilgangTilSpesialenheten(saksbehandlerEnheter))) // må ha tilgang til Spesialenheten
             .sorted(Comparator.nullsLast(Comparator.comparing(Oppgave::fristFerdigstillelse).thenComparing(Oppgave::tildeltEnhetsnr)))
             .toList();
+    }
+
+    private Predicate<Oppgave> ikkeSpesialenhetsoppgave() {
+        return oppgave -> !SPESIALENHETER.contains(oppgave.tildeltEnhetsnr());
+    }
+
+    private Predicate<Oppgave> saksbehandlerHarTilgangTilSpesialenheten(Set<String> enheter) {
+        return oppgave -> enheter.contains(oppgave.tildeltEnhetsnr());
     }
 
     @Override
