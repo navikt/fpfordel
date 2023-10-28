@@ -16,6 +16,10 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
+
+import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +55,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     private Oppgaver oppgaveKlient;
     private EnhetsTjeneste enhetsTjeneste;
     private LosEnheterCachedTjeneste losEnheterCachedTjeneste;
+    private PersonInformasjon personTjeneste;
 
 
     OppgaverTjeneste() {
@@ -59,11 +64,12 @@ class OppgaverTjeneste implements Journalføringsoppgave {
 
     @Inject
     public OppgaverTjeneste(OppgaveRepository oppgaveRepository, Oppgaver oppgaveKlient, EnhetsTjeneste enhetsTjeneste,
-                            LosEnheterCachedTjeneste losEnheterCachedTjeneste) {
+                            LosEnheterCachedTjeneste losEnheterCachedTjeneste, PersonTjeneste personTjeneste) {
         this.oppgaveRepository = oppgaveRepository;
         this.oppgaveKlient = oppgaveKlient;
         this.enhetsTjeneste = enhetsTjeneste;
         this.losEnheterCachedTjeneste = losEnheterCachedTjeneste;
+        this.personTjeneste = personTjeneste;
     }
 
     @Override
@@ -226,6 +232,17 @@ class OppgaverTjeneste implements Journalføringsoppgave {
             ferdigstillLokalOppgaveFor(journalpostId);
         } else {
             LOG.warn("Skulle flytte en oppgave til GOSYS, men fant ikke oppgaven lokalt: {}.", journalpostId);
+        }
+    }
+
+    @Override
+    public void oppdaterBruker(Oppgave oppgave, String fødselsnummer) {
+        // lokale oppgaver bruker journalpostId som nøkkel og da bør oppgaveId = journalpostId
+        if (oppgaveRepository.harÅpenOppgave(oppgave.journalpostId())) {
+            var oppdaterOppgave = oppgaveRepository.hentOppgave(oppgave.journalpostId());
+            var aktørId = personTjeneste.hentAktørIdForPersonIdent(fødselsnummer).map(AktørId::new).orElseThrow();
+            oppdaterOppgave.setBrukerId(aktørId);
+            oppgaveRepository.lagre(oppdaterOppgave);
         }
     }
 

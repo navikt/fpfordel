@@ -51,7 +51,6 @@ import no.nav.foreldrepenger.mottak.klient.AktørIdDto;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Sak;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -121,7 +120,7 @@ public class JournalføringRestTjeneste {
             var aktørId = pdl.hentAktørIdForPersonIdent(request.fødselsnummer()).orElseThrow();
             return new HentBrukerResponseDto(pdl.hentNavn(BehandlingTema.FORELDREPENGER, aktørId), request.fødselsnummer());
         } catch (NoSuchElementException e) {
-            throw new FunksjonellException("BRUKER-MANGLER", "Angitt bruker ikke funnet.", "Sjekk om oppgitt personnummer er riktig.", e);
+            throw new TekniskException("BRUKER-MANGLER", "Angitt bruker ikke funnet. Sjekk om oppgitt personnummer er riktig.", e);
         }
     }
 
@@ -142,6 +141,9 @@ public class JournalføringRestTjeneste {
                 LOG.info("FPFORDEL oppdaterer manglende bruker for {}", journalpostId);
             }
             arkiv.oppdaterJournalpostBruker(journalpostId, request.fødselsnummer());
+
+            oppgaveTjeneste.hentLokalOppgaveFor(JournalpostId.fra(journalpostId))
+                .ifPresent(oppgave -> oppgaveTjeneste.oppdaterBruker(oppgave, request.fødselsnummer()));
         }
 
         return Optional.ofNullable(arkiv.hentArkivJournalpost(journalpostId)).map(this::mapTilJournalpostDetaljerDto).orElseThrow();

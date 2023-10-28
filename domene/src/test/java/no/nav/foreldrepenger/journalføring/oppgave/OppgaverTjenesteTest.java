@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyString;
@@ -20,6 +21,10 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
+import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,10 +66,12 @@ class OppgaverTjenesteTest {
     private EnhetsTjeneste enhetsTjeneste;
     @Mock
     LosEnheterCachedTjeneste losEnheterCachedTjeneste;
+    @Mock
+    PersonTjeneste personTjeneste;
 
     @BeforeEach
     void setUp() {
-        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient, enhetsTjeneste, losEnheterCachedTjeneste);
+        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient, enhetsTjeneste, losEnheterCachedTjeneste, personTjeneste);
     }
 
     @Test
@@ -90,7 +97,7 @@ class OppgaverTjenesteTest {
 
     @Test
     void opprettJournalføringsOppgaveLokalt() {
-        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient, enhetsTjeneste, losEnheterCachedTjeneste);
+        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient, enhetsTjeneste, losEnheterCachedTjeneste, personTjeneste);
         var expectedId = "11";
         when(oppgaveRepository.lagre(any(OppgaveEntitet.class))).thenReturn(expectedId);
 
@@ -486,6 +493,55 @@ class OppgaverTjenesteTest {
         verify(oppgaveRepository).ferdigstillOppgave(journalpostId);
         verify(oppgaveKlient).opprettetOppgave(any(OpprettOppgave.class));
         verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
+    }
+
+    @Test
+    void oppdaterBrukerSomFinnes() {
+        var journalpostId = VANLIG_JOURNALPOSTID;
+        var oppgave = no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.builder()
+            .medJournalpostId(journalpostId)
+            .medOppgaveId(journalpostId)
+            .medKilde(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.Kilde.LOKAL)
+            .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
+            .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
+            .medFristFerdigstillelse(LocalDate.now().plusDays(1))
+            .medBeskrivelse("tom")
+            .build();
+        when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(true);
+        when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalOppgave(journalpostId, VANLIG_ENHETSNR));
+        var fødselsnummer = "12342112345";
+        var aktørId = "1234567890123";
+        when(personTjeneste.hentAktørIdForPersonIdent(fødselsnummer)).thenReturn(Optional.of(aktørId));
+
+        var argumentCaptor = ArgumentCaptor.forClass(OppgaveEntitet.class);
+
+        oppgaver.oppdaterBruker(oppgave, fødselsnummer);
+
+        verify(oppgaveRepository).lagre(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().getBrukerId()).isNotNull();
+        assertThat(argumentCaptor.getValue().getBrukerId().getId()).isEqualTo(aktørId);
+        verifyNoMoreInteractions(oppgaveRepository);
+        verifyNoInteractions(oppgaveKlient);
+    }
+
+    @Test
+    void oppdaterBrukerSomIkkeFinnes() {
+        var journalpostId = VANLIG_JOURNALPOSTID;
+        var oppgave = no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.builder()
+            .medJournalpostId(journalpostId)
+            .medOppgaveId(journalpostId)
+            .medKilde(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave.Kilde.LOKAL)
+            .medAktivDato(LocalDate.now()).medTildeltEnhetsnr("4867")
+            .medStatus(no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgavestatus.AAPNET)
+            .medFristFerdigstillelse(LocalDate.now().plusDays(1))
+            .medBeskrivelse("tom")
+            .build();
+        when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(true);
+        when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalOppgave(journalpostId, VANLIG_ENHETSNR));
+        var fødselsnummer = "12342112345";
+        when(personTjeneste.hentAktørIdForPersonIdent(fødselsnummer)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class, () -> oppgaver.oppdaterBruker(oppgave, fødselsnummer));
     }
 
     private OppgaveEntitet lokalOppgave(String journalpostId, String aktørId, String enhet) {

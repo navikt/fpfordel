@@ -6,6 +6,7 @@ import java.util.Optional;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.AktørId;
 
 public interface Journalføringsoppgave {
 
@@ -38,4 +39,6 @@ public interface Journalføringsoppgave {
     List<Oppgave> finnÅpneOppgaverFiltrert();
 
     void flyttLokalOppgaveTilGosys(JournalpostId journalpostId);
+
+    void oppdaterBruker(Oppgave oppgave, String fødselsnummer);
 }
