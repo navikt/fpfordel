@@ -213,6 +213,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
             try {
                 personTjeneste.hentNavn(BehandlingTema.FORELDREPENGER, oppgave.aktørId());
             } catch (NoSuchElementException ex) {
+                LOG.info("FPFORDEL: Kan ikke innhente navn for bruker {}, filtrerer ut.", oppgave.aktørId());
                 return false;
             }
             return true;
