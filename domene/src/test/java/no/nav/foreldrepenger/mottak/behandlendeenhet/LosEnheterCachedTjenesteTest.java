@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.mottak.klient.Los;
 import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
 
 @ExtendWith(MockitoExtension.class)
-class SaksbehandlersEnheterTjenesteTest {
+class LosEnheterCachedTjenesteTest {
 
     @Mock
     Los losKlient;
