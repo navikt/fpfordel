@@ -144,6 +144,13 @@
                 <version>3aec620a</version>
             </dependency>
 
+            <!-- Fikser https://cwe.mitre.org/data/definitions/502.html -->
+            <dependency>
+                <groupId>org.apache.avro</groupId>
+                <artifactId>avro</artifactId>
+                <version>1.11.3</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-streams</artifactId>
