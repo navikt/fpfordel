@@ -2,11 +2,11 @@ package no.nav.foreldrepenger.journalføring.oppgave;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.AktørId;
 
 public interface Journalføringsoppgave {
 
@@ -28,7 +28,16 @@ public interface Journalføringsoppgave {
 
     void avreserverOppgaveFor(Oppgave oppgave);
 
-    List<Oppgave> finnÅpneOppgaverFor(Set<String> enhet);
+    /**
+     * Returnerer ingenting om innlogget saksbehandler ikke har enheter i Los
+     * Filtrerer alltid oppgaver tildelt til Klage enhet 4292
+     * Filtrerer Skjermet oppgaver om saksbehandler ikke er med i 4883 enhet i Los
+     * Filtrerer K6 oppgaver og saksbehandler ikke er med i 2103 enhet i Los
+     * @return Liste med åpne journalføringsoppgaver en innlogget saksbehandler har tilgang til.
+     */
+    List<Oppgave> finnÅpneOppgaverFiltrert();
 
     void flyttLokalOppgaveTilGosys(JournalpostId journalpostId);
+
+    void oppdaterBruker(Oppgave oppgave, String fødselsnummer);
 }

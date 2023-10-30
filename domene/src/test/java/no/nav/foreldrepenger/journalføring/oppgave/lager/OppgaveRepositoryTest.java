@@ -79,18 +79,7 @@ class OppgaveRepositoryTest {
         var oppgaver = repo.hentAlleÅpneOppgaver();
         assertThat(oppgaver).isNotEmpty().hasSize(antall);
     }
-
-    @Test
-    @TransactionScoped
-    void hentÅpneOppgaverFor() {
-        lagreOppgaver(2, "4321");
-        var antall = 6;
-        lagreOppgaver(antall, ENHET);
-        var oppgaver = repo.hentÅpneOppgaverFor(ENHET);
-        assertThat(oppgaver).isNotEmpty().hasSize(antall);
-        assertThat(repo.hentAlleÅpneOppgaver()).isNotEmpty().hasSize(8).containsAll(oppgaver);
-    }
-
+    
     @Test
     void ferdigstillOppgave() {
         lagTestOppgave(Status.AAPNET);
