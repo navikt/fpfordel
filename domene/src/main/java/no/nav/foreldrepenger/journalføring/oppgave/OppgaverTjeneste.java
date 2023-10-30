@@ -11,7 +11,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -180,44 +179,28 @@ class OppgaverTjeneste implements Journalføringsoppgave {
 
     @Override
     public List<Oppgave> finnÅpneOppgaverFiltrert() {
-        var saksbehandlerEnheter = losEnheterCachedTjeneste.hentLosEnheterFor(KontekstHolder.getKontekst().getUid())
+        var saksbehandlersEnheter = losEnheterCachedTjeneste.hentLosEnheterFor(KontekstHolder.getKontekst().getUid())
             .stream()
             .map(TilhørendeEnhetDto::enhetsnummer)
             .collect(Collectors.toUnmodifiableSet());
 
-        if (saksbehandlerEnheter.isEmpty()) {
+        if (saksbehandlersEnheter.isEmpty()) {
             return List.of();
         }
 
         return finnAlleOppgaver().stream()
             .filter(oppgave -> !NK_ENHET_ID.equals(oppgave.tildeltEnhetsnr())) // Klager går gjennom gosys
-            .filter(ikkeSkjermingenhetsoppgave().or(saksbehandlerHarTilgangTilSkjermingenheten(saksbehandlerEnheter))) // må ha tilgang til Spesialenheten
-            .filter(brukerUkjentEllerTilgjengeligIPdl())
+            .filter(ikkeEnOppgaveMedBeskyttelsesbehov().or(saksbehandlerHarTilgangTilSpesjalenheten(saksbehandlersEnheter))) // må ha tilgang til Spesialenheten
             .sorted(Comparator.nullsLast(Comparator.comparing(Oppgave::fristFerdigstillelse).thenComparing(Oppgave::tildeltEnhetsnr)))
             .toList();
     }
 
-    private Predicate<Oppgave> ikkeSkjermingenhetsoppgave() {
+    private Predicate<Oppgave> ikkeEnOppgaveMedBeskyttelsesbehov() {
         return oppgave -> !SKJERMINGENHETER.contains(oppgave.tildeltEnhetsnr());
     }
 
-    private Predicate<Oppgave> saksbehandlerHarTilgangTilSkjermingenheten(Set<String> enheter) {
+    private Predicate<Oppgave> saksbehandlerHarTilgangTilSpesjalenheten(Set<String> enheter) {
         return oppgave -> enheter.contains(oppgave.tildeltEnhetsnr());
-    }
-
-    private Predicate<Oppgave> brukerUkjentEllerTilgjengeligIPdl() {
-        return oppgave -> {
-            if (oppgave.aktørId() == null) {
-                return true;
-            }
-            try {
-                personTjeneste.hentNavn(BehandlingTema.FORELDREPENGER, oppgave.aktørId());
-            } catch (NoSuchElementException ex) {
-                LOG.info("FPFORDEL: Kan ikke innhente navn for bruker {}, filtrerer ut.", oppgave.aktørId());
-                return false;
-            }
-            return true;
-        };
     }
 
     @Override

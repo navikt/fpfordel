@@ -438,42 +438,17 @@ class OppgaverTjenesteTest {
     }
 
     @Test
-    void finnFaktiskÅpneOppgaver_filtreOmPersonTjenesteKasterException() {
-        var beskyttetBruker = "0987654321123";
-        when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalOppgave("1234567", beskyttetBruker, VANLIG_ENHETSNR)));
-        var expectedOppgaveId = "76543231";
-        var gosysOppgave = gosysOppgave(expectedOppgaveId);
-        when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)).thenReturn(List.of(gosysOppgave));
-
-        when(personTjeneste.hentNavn(BehandlingTema.FORELDREPENGER, beskyttetBruker)).thenThrow(NoSuchElementException.class);
-
-        when(losEnheterCachedTjeneste.hentLosEnheterFor(any())).thenReturn(List.of(enhetVanlig()));
-
-        var alleOppgaver = oppgaver.finnÅpneOppgaverFiltrert();
-
-        assertThat(alleOppgaver).isNotEmpty().hasSize(1);
-        assertThat(alleOppgaver.get(0).oppgaveId()).isEqualTo(expectedOppgaveId);
-
-        verify(personTjeneste, times(2)).hentNavn(eq(BehandlingTema.FORELDREPENGER), anyString());
-        verify(oppgaveRepository).hentAlleÅpneOppgaver();
-        verify(oppgaveKlient).finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT);
-        verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
-    }
-
-    @Test
     void finnFaktiskÅpneOppgaver_filtreIkkeOmAktørErUkjent() {
         when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalOppgave("1234567", null, VANLIG_ENHETSNR)));
         var expectedOppgaveId = "76543231";
         var gosysOppgave = gosysOppgave(expectedOppgaveId);
         when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)).thenReturn(List.of(gosysOppgave));
-        when(personTjeneste.hentNavn(BehandlingTema.FORELDREPENGER, AKTØR_ID)).thenReturn("Mike");
         when(losEnheterCachedTjeneste.hentLosEnheterFor(any())).thenReturn(List.of(enhetVanlig()));
 
         var alleOppgaver = oppgaver.finnÅpneOppgaverFiltrert();
 
         assertThat(alleOppgaver).isNotEmpty().hasSize(2);
 
-        verify(personTjeneste, times(1)).hentNavn(BehandlingTema.FORELDREPENGER, AKTØR_ID);
         verify(oppgaveRepository).hentAlleÅpneOppgaver();
         verify(oppgaveKlient).finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT);
         verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
