@@ -8,6 +8,8 @@ import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,15 +39,19 @@ public class JournalføringHendelseHåndterer {
 
     private ProsessTaskTjeneste taskTjeneste;
     private DokumentRepository dokumentRepository;
+    private int journalføringDelay;
 
     JournalføringHendelseHåndterer() {
         // CDI
     }
 
     @Inject
-    public JournalføringHendelseHåndterer(ProsessTaskTjeneste taskTjeneste, DokumentRepository dokumentRepository) {
+    public JournalføringHendelseHåndterer(ProsessTaskTjeneste taskTjeneste,
+                                          DokumentRepository dokumentRepository,
+                                          @KonfigVerdi(value="journalføring.timer.delay", defaultVerdi = "2") int journalføringDelay) {
         this.taskTjeneste = taskTjeneste;
         this.dokumentRepository = dokumentRepository;
+        this.journalføringDelay = journalføringDelay;
     }
 
     private static void setCallIdForHendelse(JournalfoeringHendelseRecord payload) {
@@ -68,8 +74,8 @@ public class JournalføringHendelseHåndterer {
 
         // De uten kanalreferanse er "klonet" av SBH og journalført fra Gosys.
         // Normalt blir de journalført, men det feiler av og til pga tilgang.
-        // Håndterer disse journalpostene senere (18h) i tilfelle SBH skal ha klart å ordne ting selv
-        var delay = eksternReferanseId == null && !mottaksKanal.equals(MottakKanal.SELVBETJENING.getKode()) ? Duration.ofHours(2) : Duration.ZERO;
+        // Håndterer disse journalpostene senere i tilfelle SBH skal ha klart å ordne ting selv
+        var delay = eksternReferanseId == null && !mottaksKanal.equals(MottakKanal.SELVBETJENING.getKode()) ? Duration.ofHours(journalføringDelay) : Duration.ZERO;
 
         if (HENDELSE_ENDRET.equalsIgnoreCase(payload.getHendelsesType())) {
             // Hendelsen kan komme før arkivet er oppdatert .....
