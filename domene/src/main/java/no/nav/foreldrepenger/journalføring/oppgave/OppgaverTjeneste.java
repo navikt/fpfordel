@@ -36,7 +36,6 @@ import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.LosEnheterCachedTjeneste;
 import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
@@ -55,14 +54,9 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     private LosEnheterCachedTjeneste losEnheterCachedTjeneste;
     private PersonInformasjon personTjeneste;
 
-
-    OppgaverTjeneste() {
-        // CDI
-    }
-
     @Inject
     public OppgaverTjeneste(OppgaveRepository oppgaveRepository, Oppgaver oppgaveKlient, EnhetsTjeneste enhetsTjeneste,
-                            LosEnheterCachedTjeneste losEnheterCachedTjeneste, PersonTjeneste personTjeneste) {
+                            LosEnheterCachedTjeneste losEnheterCachedTjeneste, PersonInformasjon personTjeneste) {
         this.oppgaveRepository = oppgaveRepository;
         this.oppgaveKlient = oppgaveKlient;
         this.enhetsTjeneste = enhetsTjeneste;

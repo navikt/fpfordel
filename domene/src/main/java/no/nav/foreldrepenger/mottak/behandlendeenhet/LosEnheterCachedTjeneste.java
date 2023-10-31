@@ -21,9 +21,13 @@ public class LosEnheterCachedTjeneste {
     private static final int DEFAULT_CACHE_SIZE = 200;
     private static final long DEFAULT_CACHE_TIMEOUT = TimeUnit.MILLISECONDS.convert(12, TimeUnit.HOURS);
 
-    private final LRUCache<String, List<TilhørendeEnhetDto>> enheterCache;
+    private LRUCache<String, List<TilhørendeEnhetDto>> enheterCache;
 
-    private final Los losKlient;
+    private Los losKlient;
+
+    LosEnheterCachedTjeneste() {
+        // CDI
+    }
 
     @Inject
     public LosEnheterCachedTjeneste(Los losKlient) {
