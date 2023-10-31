@@ -54,11 +54,6 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     private LosEnheterCachedTjeneste losEnheterCachedTjeneste;
     private PersonInformasjon personTjeneste;
 
-
-    OppgaverTjeneste() {
-        // CDI
-    }
-
     @Inject
     public OppgaverTjeneste(OppgaveRepository oppgaveRepository, Oppgaver oppgaveKlient, EnhetsTjeneste enhetsTjeneste,
                             LosEnheterCachedTjeneste losEnheterCachedTjeneste, PersonInformasjon personTjeneste) {
