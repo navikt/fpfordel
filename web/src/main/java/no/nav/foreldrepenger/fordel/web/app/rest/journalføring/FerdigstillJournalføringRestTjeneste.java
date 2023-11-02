@@ -34,6 +34,7 @@ import no.nav.foreldrepenger.fordel.web.server.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
 import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 import no.nav.foreldrepenger.typer.AktørId;
@@ -78,8 +79,7 @@ public class FerdigstillJournalføringRestTjeneste {
             @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FerdigstillJournalføringRestTjeneste.FerdigstillRequest request) {
 
         validerJournalpostId(request.journalpostId());
-        validerEnhetId(request.enhetId());
-        var journalpostId = JournalpostId.fra(request.journalpostId());
+        var brukEnhet = validerEnhetId(request.enhetId());
 
         // sikre at finnes før oppretting av sak
         var journalpost = journalføringTjeneste.hentJournalpost(request.journalpostId());
@@ -111,7 +111,7 @@ public class FerdigstillJournalføringRestTjeneste {
                 throw new TekniskException(EXCEPTION_KODE, "OpprettSakDto kan ikke være null ved opprettelse av en sak eller mangler ytelsestype.");
             }
             if (SakstypeDto.GENERELL.equals(request.opprettSak().sakstype())) {
-                journalføringTjeneste.oppdaterJournalpostOgFerdigstillGenerellSak(request.enhetId, journalpost, request.opprettSak().aktørId(),
+                journalføringTjeneste.oppdaterJournalpostOgFerdigstillGenerellSak(brukEnhet, journalpost, request.opprettSak().aktørId(),
                     nyJournalpostTittel, dokumenter, nyDokumentTypeId);
                 return new SaksnummerDto("000000000");
             }
@@ -120,7 +120,7 @@ public class FerdigstillJournalføringRestTjeneste {
 
         validerSaksnummer(saksnummer);
 
-        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(request.enhetId, saksnummer, journalpost, nyJournalpostTittel, dokumenter, nyDokumentTypeId);
+        journalføringTjeneste.oppdaterJournalpostOgFerdigstill(brukEnhet, saksnummer, journalpost, nyJournalpostTittel, dokumenter, nyDokumentTypeId);
 
         return new SaksnummerDto(saksnummer);
     }
@@ -134,7 +134,7 @@ public class FerdigstillJournalføringRestTjeneste {
                                                              @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FerdigstillJournalføringRestTjeneste.FerdigstillRequest request) {
 
         validerJournalpostId(request.journalpostId());
-        validerEnhetId(request.enhetId());
+        var brukEnhet = validerEnhetId(request.enhetId());
 
         // sikre at finnes før oppretting av sak
         var journalpost = journalføringTjeneste.hentJournalpost(request.journalpostId());
@@ -160,7 +160,7 @@ public class FerdigstillJournalføringRestTjeneste {
 
         validerSaksnummer(saksnummer);
 
-        var nyJournalpost = journalføringTjeneste.knyttTilAnnenSak(journalpost, request.enhetId, saksnummer);
+        var nyJournalpost = journalføringTjeneste.knyttTilAnnenSak(journalpost, brukEnhet, saksnummer);
 
         return Optional.ofNullable(nyJournalpost).map(JournalpostId::getVerdi).map(JournalpostIdDto::new).orElse(null);
     }
@@ -184,10 +184,11 @@ public class FerdigstillJournalføringRestTjeneste {
         }
     }
 
-    private static void validerEnhetId(String enhetId) {
+    private static String validerEnhetId(String enhetId) {
         if (enhetId == null) {
             throw new TekniskException("FP-15679", lagUgyldigInputMelding("EnhetId", enhetId));
         }
+        return EnhetsTjeneste.enhetEllerNasjonalEnhet(enhetId);
     }
 
     private static void validerJournalpostId(String journalpostId) {
