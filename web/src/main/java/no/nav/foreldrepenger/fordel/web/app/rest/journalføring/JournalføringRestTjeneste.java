@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import no.nav.foreldrepenger.fordel.web.server.abac.AppAbacAttributtType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -358,7 +360,7 @@ public class JournalføringRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var dto = (ReserverOppgaveDto) obj;
-            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.JOURNALPOST_ID, dto.journalpostId());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.JOURNALPOST_ID, JournalpostId.fra(dto.journalpostId()));
         }
     }
 
@@ -366,7 +368,7 @@ public class JournalføringRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var dto = (JournalpostIdDto) obj;
-            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.JOURNALPOST_ID, dto.getJournalpostId());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.JOURNALPOST_ID, JournalpostId.fra(dto.getJournalpostId()));
         }
     }
 
@@ -374,7 +376,7 @@ public class JournalføringRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var dto = (OppdaterBrukerDto) obj;
-            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.FNR, dto.fødselsnummer());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FNR, dto.fødselsnummer());
         }
     }
 
@@ -382,7 +384,7 @@ public class JournalføringRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var dto = (HentBrukerDto) obj;
-            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.FNR, dto.fødselsnummer());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FNR, dto.fødselsnummer());
         }
     }
 }

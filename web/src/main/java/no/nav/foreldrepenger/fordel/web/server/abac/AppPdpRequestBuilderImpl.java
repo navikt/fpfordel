@@ -38,8 +38,9 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
     public AppRessursData lagAppRessursData(AbacDataAttributter dataAttributter) {
         return AppRessursData.builder()
             .leggTilAktørIdSet(dataAttributter.getVerdier(AppAbacAttributtType.AKTØR_ID))
+            .leggTilFødselsnumre(dataAttributter.getVerdier(AppAbacAttributtType.FNR))
             .leggTilAktørIdSet(pipRepository.hentAktørIdForForsendelser(dataAttributter.getVerdier(AppAbacAttributtType.FORSENDELSE_UUID)))
-            .leggTilAktørId(pipRepository.hentAktørIdForForsendelser())
+            .leggTilAktørIdSet(pipRepository.hentAktørIdForOppgave(dataAttributter.getVerdier(AppAbacAttributtType.JOURNALPOST_ID)))
             .build();
 
     }

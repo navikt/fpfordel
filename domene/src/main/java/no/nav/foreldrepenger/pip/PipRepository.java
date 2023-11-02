@@ -8,11 +8,14 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.AktørId;
 
 @Dependent
 public class PipRepository {
 
     private static final String PIP_QUERY = "select brukerId from DokumentMetadata where forsendelseId in (:dokumentforsendelseIder)";
+    protected static final String PIP_OPPGAVE_QUERY = "select brukerId from Oppgave where id in (:journalpostIder) and brukerId is not null";
 
     private final EntityManager entityManager;
 
@@ -31,6 +34,20 @@ public class PipRepository {
         return entityManager.createQuery(PIP_QUERY, String.class)
             .setParameter("dokumentforsendelseIder", dokumentforsendelseIder)
             .getResultStream()
+            .collect(Collectors.toUnmodifiableSet());
+    }
+
+    public Set<String> hentAktørIdForOppgave(Set<JournalpostId> journalpostIder) {
+        Objects.requireNonNull(journalpostIder, "dokumentforsendelseIder");
+
+        if (journalpostIder.isEmpty()) {
+            return Set.of();
+        }
+
+        return entityManager.createQuery(PIP_OPPGAVE_QUERY, AktørId.class)
+            .setParameter("journalpostIder", journalpostIder.stream().map(JournalpostId::getVerdi).toList())
+            .getResultStream()
+            .map(AktørId::getId)
             .collect(Collectors.toUnmodifiableSet());
     }
 }
