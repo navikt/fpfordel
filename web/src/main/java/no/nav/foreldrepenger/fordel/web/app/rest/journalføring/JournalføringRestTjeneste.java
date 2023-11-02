@@ -257,6 +257,7 @@ public class JournalføringRestTjeneste {
             journalpost.getJournalpostId(), journalpost.getTittel().orElse(""), journalpost.getBehandlingstema().getOffisiellKode(),
             journalpost.getKanal(), mapBruker(journalpost), journalpost.getTilstand().name(),
             new JournalpostDetaljerDto.AvsenderDto(journalpost.getAvsenderNavn(), journalpost.getAvsenderIdent()),
+            journalpost.getJournalfoerendeEnhet().orElse(null),
             mapYtelseTypeTilDto(journalpost.getBehandlingstema().utledYtelseType()), eksisterendeSaksnummer,
             mapDokumenter(journalpost.getJournalpostId(), journalpost.getOriginalJournalpost().dokumenter()),
             mapBrukersFagsaker(journalpost.getBrukerAktørId().orElse(null)));

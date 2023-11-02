@@ -37,6 +37,7 @@ public class EnhetsTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(EnhetsTjeneste.class);
     private static final Set<String> FLYTTET = Set.of("4806", "4833", "4849", "4812", "4817", "4842");
+
     private PersonInformasjon pdl;
     private Arbeidsfordeling norgKlient;
     private SkjermetPersonKlient skjermetPersonKlient;
@@ -71,7 +72,7 @@ public class EnhetsTjeneste {
         LOG.info("Henter enhet id for {},{}", tema, behandlingTema);
         //oppdaterEnhetCache(); LA STÅ UT 2023
         if (enhetInput.isPresent()) {
-            return SPESIALENHETER.contains(enhetInput.get()) ? enhetInput.get() : NASJONAL_ENHET_ID;
+            return enhetEllerNasjonalEnhet(enhetInput.get());
         }
 
 
@@ -79,6 +80,10 @@ public class EnhetsTjeneste {
         LOG.info("returnerer enhet id {}", id);
         return id;
 
+    }
+
+    public static String enhetEllerNasjonalEnhet(String enhet) {
+        return SPESIALENHETER.contains(enhet) ? enhet : NASJONAL_ENHET_ID;
     }
 
     private String hentEnhetId(String aktørId, BehandlingTema behandlingTema, Tema tema) { //NOSONAR
