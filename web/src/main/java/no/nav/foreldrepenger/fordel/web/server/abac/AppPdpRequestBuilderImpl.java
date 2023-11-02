@@ -1,12 +1,5 @@
 package no.nav.foreldrepenger.fordel.web.server.abac;
 
-import no.nav.foreldrepenger.pip.PipRepository;
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.PdpRequestBuilder;
-import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
-
-import no.nav.vedtak.sikkerhet.abac.pdp.RessursDataKey;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +7,10 @@ import jakarta.annotation.Priority;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Alternative;
 import jakarta.inject.Inject;
+import no.nav.foreldrepenger.pip.PipRepository;
+import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
+import no.nav.vedtak.sikkerhet.abac.PdpRequestBuilder;
+import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 
 /**
  * Implementasjon av PDP request for denne applikasjonen.

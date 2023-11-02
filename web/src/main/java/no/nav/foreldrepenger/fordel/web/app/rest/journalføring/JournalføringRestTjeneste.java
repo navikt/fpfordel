@@ -14,8 +14,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.fordel.web.server.abac.AppAbacAttributtType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +39,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilType;
 import no.nav.foreldrepenger.fordel.web.app.konfig.ApiConfig;
+import no.nav.foreldrepenger.fordel.web.server.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
@@ -57,7 +56,6 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Sak;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
