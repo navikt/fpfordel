@@ -15,8 +15,9 @@ import no.nav.foreldrepenger.journalføring.oppgave.lager.AktørId;
 public class PipRepository {
 
     private static final String PIP_QUERY = "select brukerId from DokumentMetadata where forsendelseId in (:dokumentforsendelseIder)";
-    protected static final String PIP_OPPGAVE_QUERY = "select brukerId from Oppgave where id in (:journalpostIder) and brukerId is not null";
-    protected static final String DOKUMENTFORSENDELSE_IDER = "dokumentforsendelseIder";
+    private static final String PIP_OPPGAVE_QUERY = "select brukerId from Oppgave where id in (:journalpostIder) and brukerId is not null";
+    private static final String DOKUMENTFORSENDELSE_IDER = "dokumentforsendelseIder";
+    private static final String JOURNALPOST_IDER = "journalpostIder";
 
     private final EntityManager entityManager;
 
@@ -39,14 +40,14 @@ public class PipRepository {
     }
 
     public Set<String> hentAktørIdForOppgave(Set<JournalpostId> journalpostIder) {
-        Objects.requireNonNull(journalpostIder, DOKUMENTFORSENDELSE_IDER);
+        Objects.requireNonNull(journalpostIder, JOURNALPOST_IDER);
 
         if (journalpostIder.isEmpty()) {
             return Set.of();
         }
 
         return entityManager.createQuery(PIP_OPPGAVE_QUERY, AktørId.class)
-            .setParameter("journalpostIder", journalpostIder.stream().map(JournalpostId::getVerdi).toList())
+            .setParameter(JOURNALPOST_IDER, journalpostIder.stream().map(JournalpostId::getVerdi).toList())
             .getResultStream()
             .map(AktørId::getId)
             .collect(Collectors.toUnmodifiableSet());
