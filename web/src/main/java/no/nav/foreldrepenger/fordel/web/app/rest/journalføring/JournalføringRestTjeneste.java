@@ -39,6 +39,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilType;
 import no.nav.foreldrepenger.fordel.web.app.konfig.ApiConfig;
+import no.nav.foreldrepenger.fordel.web.server.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
@@ -55,7 +56,6 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Sak;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
@@ -98,7 +98,7 @@ public class JournalføringRestTjeneste {
     @Path("/oppgaver")
     @Produces(APPLICATION_JSON)
     @Operation(description = "Henter alle åpne journalføringsoppgaver for tema FOR.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.APPLIKASJON)
     public List<OppgaveDto> hentÅpneOppgaver() {
         var oppgaver = oppgaveTjeneste.finnÅpneOppgaverFiltrert()
             .stream()
@@ -154,7 +154,7 @@ public class JournalføringRestTjeneste {
     @Produces(APPLICATION_JSON)
     @Operation(description = "Henter detaljer for en gitt jornalpostId som er relevante for å kunne ferdigstille journalføring på en fagsak.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public JournalpostDetaljerDto hentJournalpostDetaljer(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("journalpostId") @NotNull @Valid JournalpostIdDto journalpostId) {
+    public JournalpostDetaljerDto hentJournalpostDetaljer(@TilpassetAbacAttributt(supplierClass = JournalpostDataSupplier.class) @QueryParam("journalpostId") @NotNull @Valid JournalpostIdDto journalpostId) {
         LOG.info("FPFORDEL RESTJOURNALFØRING: Henter journalpostdetaljer for journalpostId {}", journalpostId.getJournalpostId());
         try {
             var journalpostDetaljer = Optional.ofNullable(arkiv.hentArkivJournalpost(journalpostId.getJournalpostId()))
@@ -176,7 +176,7 @@ public class JournalføringRestTjeneste {
     @Produces(APPLICATION_JSON)
     @Operation(description = "Flytter evt lokal oppgave til Gosys for å utføre avanserte funksjoner.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public Response flyttOppgaveTilGosys(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @NotNull @Valid JournalpostIdDto journalpostId) {
+    public Response flyttOppgaveTilGosys(@TilpassetAbacAttributt(supplierClass = JournalpostDataSupplier.class) @NotNull @Valid JournalpostIdDto journalpostId) {
         LOG.info("FPFORDEL TILGOSYS: Flytter journalpostId {} til Gosys", journalpostId.getJournalpostId());
         try {
             oppgaveTjeneste.flyttLokalOppgaveTilGosys(JournalpostId.fra(journalpostId.getJournalpostId()));
@@ -192,7 +192,7 @@ public class JournalføringRestTjeneste {
     @Consumes(APPLICATION_JSON)
     @Operation(description = "Mulighet for å reservere/avreservere en oppgave", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response oppgaveReserver(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @NotNull @Valid ReserverOppgaveDto reserverOppgaveDto) {
+    public Response oppgaveReserver(@TilpassetAbacAttributt(supplierClass = ReserverOppgaveDataSupplier.class) @NotNull @Valid ReserverOppgaveDto reserverOppgaveDto) {
         var innloggetBruker = KontekstHolder.getKontekst().getUid();
         var oppgave = oppgaveTjeneste.hentOppgaveFor(JournalpostId.fra(reserverOppgaveDto.journalpostId()));
 
@@ -224,7 +224,7 @@ public class JournalføringRestTjeneste {
     @Path(DOKUMENT_HENT_PATH)
     @Operation(description = "Søk etter dokument på JOARK-identifikatorene journalpostId og dokumentId", summary = ("Retunerer dokument som er tilknyttet journalpost og dokumentId."), tags = "Manuell journalføring")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response hentDokument(@TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("journalpostId") @Valid JournalpostIdDto journalpostId,
+    public Response hentDokument(@TilpassetAbacAttributt(supplierClass = JournalpostDataSupplier.class) @QueryParam("journalpostId") @Valid JournalpostIdDto journalpostId,
                                  @TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("dokumentId") @Valid DokumentIdDto dokumentId) {
         var journalpost = journalpostId.getJournalpostId();
         var dokument = dokumentId.dokumentId();
@@ -354,11 +354,27 @@ public class JournalføringRestTjeneste {
         }
     }
 
+    public static class ReserverOppgaveDataSupplier implements Function<Object, AbacDataAttributter> {
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var dto = (ReserverOppgaveDto) obj;
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.JOURNALPOST_ID, JournalpostId.fra(dto.journalpostId()));
+        }
+    }
+
+    public static class JournalpostDataSupplier implements Function<Object, AbacDataAttributter> {
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var dto = (JournalpostIdDto) obj;
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.JOURNALPOST_ID, JournalpostId.fra(dto.getJournalpostId()));
+        }
+    }
+
     public static class FnrDataSupplier implements Function<Object, AbacDataAttributter> {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var dto = (OppdaterBrukerDto) obj;
-            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.FNR, dto.fødselsnummer());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FNR, dto.fødselsnummer());
         }
     }
 
@@ -366,7 +382,7 @@ public class JournalføringRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var dto = (HentBrukerDto) obj;
-            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.FNR, dto.fødselsnummer());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FNR, dto.fødselsnummer());
         }
     }
 }
