@@ -5,6 +5,8 @@ import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.PdpRequestBuilder;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 
+import no.nav.vedtak.sikkerhet.abac.pdp.RessursDataKey;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +39,7 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         return AppRessursData.builder()
             .leggTilAktørIdSet(dataAttributter.getVerdier(AppAbacAttributtType.AKTØR_ID))
             .leggTilAktørIdSet(pipRepository.hentAktørIdForForsendelser(dataAttributter.getVerdier(AppAbacAttributtType.FORSENDELSE_UUID)))
+            .leggTilAktørId(pipRepository.hentAktørIdForForsendelser())
             .build();
 
     }
