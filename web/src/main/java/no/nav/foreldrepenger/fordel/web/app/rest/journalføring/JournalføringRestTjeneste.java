@@ -153,7 +153,13 @@ public class JournalføringRestTjeneste {
     @GET
     @Path("/oppgave/detaljer")
     @Produces(APPLICATION_JSON)
-    @Operation(description = "Henter detaljer for en gitt jornalpostId som er relevante for å kunne ferdigstille journalføring på en fagsak.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
+    @Operation(description = "Henter detaljer for en gitt jornalpostId som er relevante for å kunne ferdigstille journalføring på en fagsak.",
+        tags = "Manuell journalføring",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Fant journalpost", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = JournalpostDetaljerDto.class))),
+            @ApiResponse(responseCode = "404", description = "Fant ikke journalpost"),
+            @ApiResponse(responseCode = "500", description = "Feil i request"),
+        })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response hentJournalpostDetaljer(@TilpassetAbacAttributt(supplierClass = JournalpostDataSupplier.class) @QueryParam("journalpostId") @NotNull @Valid JournalpostIdDto journalpostId) {
         LOG.info("FPFORDEL RESTJOURNALFØRING: Henter journalpostdetaljer for journalpostId {}", journalpostId.getJournalpostId());
