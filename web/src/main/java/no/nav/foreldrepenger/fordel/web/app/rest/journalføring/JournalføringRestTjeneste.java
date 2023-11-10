@@ -5,6 +5,7 @@ import static no.nav.foreldrepenger.fordel.StringUtil.isBlank;
 import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.mapYtelseTypeTilDto;
 
 import java.io.ByteArrayInputStream;
+import java.net.HttpURLConnection;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -154,7 +155,7 @@ public class JournalføringRestTjeneste {
     @Produces(APPLICATION_JSON)
     @Operation(description = "Henter detaljer for en gitt jornalpostId som er relevante for å kunne ferdigstille journalføring på en fagsak.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public JournalpostDetaljerDto hentJournalpostDetaljer(@TilpassetAbacAttributt(supplierClass = JournalpostDataSupplier.class) @QueryParam("journalpostId") @NotNull @Valid JournalpostIdDto journalpostId) {
+    public Response hentJournalpostDetaljer(@TilpassetAbacAttributt(supplierClass = JournalpostDataSupplier.class) @QueryParam("journalpostId") @NotNull @Valid JournalpostIdDto journalpostId) {
         LOG.info("FPFORDEL RESTJOURNALFØRING: Henter journalpostdetaljer for journalpostId {}", journalpostId.getJournalpostId());
         try {
             var journalpostDetaljer = Optional.ofNullable(arkiv.hentArkivJournalpost(journalpostId.getJournalpostId()))
@@ -165,8 +166,11 @@ public class JournalføringRestTjeneste {
                 LOG.info("FPFORDEL RESTJOURNALFØRING: Journalpost-tema:{} journalpostTittel:{} antall dokumenter:{}",
                     journalpostDetaljer.behandlingTema(), journalpostDetaljer.tittel(), journalpostDetaljer.dokumenter().size());
             }
-            return journalpostDetaljer;
-        } catch (NoSuchElementException ex) {
+            return Response.ok().entity(journalpostDetaljer).build();
+        } catch (TekniskException|NoSuchElementException ex) {
+            if (ex instanceof NoSuchElementException || ex.getMessage().contains("Fant ikke journalpost i fagarkivet")) {
+                return Response.status(HttpURLConnection.HTTP_NOT_FOUND).build();
+            }
             throw new TekniskException("FORDEL-123", "Journapost " + journalpostId.getJournalpostId() + " finnes ikke i arkivet.", ex);
         }
     }
