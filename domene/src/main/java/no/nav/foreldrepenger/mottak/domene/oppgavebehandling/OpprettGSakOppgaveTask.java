@@ -84,15 +84,22 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
             .orElse(DokumentTypeId.UDEFINERT);
         behandlingTema = ArkivUtil.behandlingTemaFraDokumentType(behandlingTema, dokumentTypeId);
 
-        var journalpostId = prosessTaskData.getPropertyValue(ARKIV_ID_KEY);
-        if (oppgaverTjeneste.finnesÅpeneJournalføringsoppgaverFor(JournalpostId.fra(journalpostId))) {
-            LOG.info("FPFORDEL JFR-OPPGAVE: finnes allerede åpen oppgave for journalpostId: {}", journalpostId);
-            return;
+        var journalpostId = JournalpostId.fra(prosessTaskData.getPropertyValue(ARKIV_ID_KEY));
+        if (oppgaverTjeneste.finnesÅpeneJournalføringsoppgaverFor(journalpostId)) {
+            var ikkeLokalOppgave = Optional.ofNullable(prosessTaskData.getPropertyValue(JOURNAL_ENHET))
+                .filter(OpprettGSakOppgaveTask::erGosysOppgave).isPresent();
+            LOG.info("FPFORDEL JFR-OPPGAVE: finnes allerede åpen oppgave for journalpostId: {}", journalpostId.getVerdi());
+            // Behold oppgave hvis skal behandles i Gosys - ellers lag lokal oppgave
+            if (ikkeLokalOppgave) {
+                return;
+            } else {
+                oppgaverTjeneste.ferdigstillAlleÅpneJournalføringsoppgaverFor(journalpostId);
+            }
         }
 
         String oppgaveId = opprettOppgave(prosessTaskData, behandlingTema, dokumentTypeId);
 
-        LOG.info("FPFORDEL JFR-OPPGAVE: opprettet oppgave med id {} for journalpostId: {}", oppgaveId, journalpostId);
+        LOG.info("FPFORDEL JFR-OPPGAVE: opprettet oppgave med id {} for journalpostId: {}", oppgaveId, journalpostId.getVerdi());
 
         String forsendelseIdString = prosessTaskData.getPropertyValue(FORSENDELSE_ID_KEY);
         if ((forsendelseIdString != null) && !forsendelseIdString.isEmpty()) {
@@ -149,7 +156,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         }
     }
 
-    private boolean erGosysOppgave(String enhet) {
+    private static boolean erGosysOppgave(String enhet) {
         return NK_ENHET_ID.equals(enhet);
     }
 }
