@@ -20,6 +20,7 @@ import org.mockito.quality.Strictness;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.Arbeidsfordeling;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingResponse;
+import no.nav.vedtak.felles.integrasjon.skjerming.Skjerming;
 
 @ExtendWith(MockitoExtension.class)
 class EnhetsTjenesteTest {
@@ -34,7 +35,7 @@ class EnhetsTjenesteTest {
     @Mock
     private PersonInformasjon personTjeneste;
     @Mock
-    private SkjermetPersonKlient skjermetPersonKlient;
+    private Skjerming skjermetPersonKlient;
 
     @BeforeEach
     void setup() {

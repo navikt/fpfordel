@@ -7,8 +7,6 @@
             <web-resource-name>Ubeskyttet</web-resource-name>
             <url-pattern>/internal/*</url-pattern>
             <url-pattern>/api/swagger.json</url-pattern>
-            <url-pattern>/ekstern/api/swagger.json</url-pattern>
-            <url-pattern>/tjenester/sak/*</url-pattern>
         </web-resource-collection>
     </security-constraint>
     <security-constraint>
