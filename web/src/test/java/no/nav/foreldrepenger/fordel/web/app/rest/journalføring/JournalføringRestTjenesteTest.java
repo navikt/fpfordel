@@ -241,7 +241,7 @@ class JournalføringRestTjenesteTest {
         var ex = restTjeneste.hentJournalpostDetaljer(journalpostId);
 
         assertThat(ex).isNotNull();
-        assertThat(ex.getStatus()).isEqualTo(HttpURLConnection.HTTP_NOT_FOUND);
+        assertThat(ex.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
     }
 
     @Test

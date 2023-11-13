@@ -157,7 +157,7 @@ public class JournalføringRestTjeneste {
         tags = "Manuell journalføring",
         responses = {
             @ApiResponse(responseCode = "200", description = "Fant journalpost", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = JournalpostDetaljerDto.class))),
-            @ApiResponse(responseCode = "404", description = "Fant ikke journalpost"),
+            @ApiResponse(responseCode = "204", description = "Fant ikke journalpost"),
             @ApiResponse(responseCode = "500", description = "Feil i request"),
         })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
@@ -175,7 +175,7 @@ public class JournalføringRestTjeneste {
             return Response.ok().entity(journalpostDetaljer).build();
         } catch (TekniskException|NoSuchElementException ex) {
             if (ex instanceof NoSuchElementException || ex.getMessage().contains("Fant ikke journalpost i fagarkivet")) {
-                return Response.status(HttpURLConnection.HTTP_NOT_FOUND).build();
+                return Response.noContent().build();
             }
             throw new TekniskException("FORDEL-123", "Journapost " + journalpostId.getJournalpostId() + " finnes ikke i arkivet.", ex);
         }
