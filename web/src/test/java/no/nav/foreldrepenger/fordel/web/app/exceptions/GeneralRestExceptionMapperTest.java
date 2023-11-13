@@ -2,11 +2,10 @@ package no.nav.foreldrepenger.fordel.web.app.exceptions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import jakarta.ws.rs.core.Response;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import jakarta.ws.rs.core.Response;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.TekniskException;
@@ -17,7 +16,7 @@ class GeneralRestExceptionMapperTest {
     private GeneralRestExceptionMapper mapper;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         mapper = new GeneralRestExceptionMapper();
     }
 

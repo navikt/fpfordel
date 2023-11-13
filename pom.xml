@@ -18,7 +18,6 @@
     <description>Fordeling av mottatte dokumenter for FPSAK</description>
     <modules>
         <module>migreringer</module>
-        <module>integrasjoner</module>
         <module>domene</module>
         <module>web</module>
     </modules>
@@ -121,11 +120,6 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.fordel</groupId>
-                <artifactId>behandleDokumentforsendelse-v1</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.fordel</groupId>
                 <artifactId>migreringer</artifactId>
                 <version>${project.version}</version>
                 <type>test-jar</type>
@@ -141,7 +135,7 @@
                 <artifactId>teamdokumenthandtering-avro-schemas</artifactId>
                 <version>3aec620a</version>
             </dependency>
-
+            <!-- kommer inn gjennom teamdokumenthandtering-avro-schemas overskrives pga et par CVEs -->
             <dependency>
                 <groupId>io.confluent</groupId>
                 <artifactId>kafka-streams-avro-serde</artifactId>

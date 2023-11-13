@@ -19,6 +19,7 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.Arbeidsfordeling;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingRequest;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingResponse;
+import no.nav.vedtak.felles.integrasjon.skjerming.Skjerming;
 
 @ApplicationScoped
 public class EnhetsTjeneste {
@@ -40,7 +41,7 @@ public class EnhetsTjeneste {
 
     private PersonInformasjon pdl;
     private Arbeidsfordeling norgKlient;
-    private SkjermetPersonKlient skjermetPersonKlient;
+    private Skjerming skjermetPersonKlient;
 
     private final Set<String> alleJournalførendeEnheter = new HashSet<>(); // Med klageinstans og kode6 og skjermet
     private final Set<String> nfpJournalførendeEnheter = new HashSet<>(); // Kun NFP
@@ -52,7 +53,7 @@ public class EnhetsTjeneste {
     @Inject
     public EnhetsTjeneste(PersonInformasjon personTjeneste,
                           Arbeidsfordeling norgKlient,
-                          SkjermetPersonKlient skjermetPersonKlient) {
+                          Skjerming skjermetPersonKlient) {
         this.pdl = personTjeneste;
         this.norgKlient = norgKlient;
         this.skjermetPersonKlient = skjermetPersonKlient;

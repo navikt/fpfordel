@@ -8,10 +8,9 @@ import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.Collection;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.junit.jupiter.api.Test;
 
+import jakarta.servlet.http.HttpServletRequest;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -19,8 +18,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 class RestApiAbacTest {
-
-    private static String PREV_LB_URL;
 
     private static void assertAtIngenBrukerDummyVerdierPåBeskyttetRessurs(Method metode) {
         Class<?> klasse = metode.getDeclaringClass();

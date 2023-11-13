@@ -13,21 +13,6 @@
     <packaging>jar</packaging>
     <name>Fordel :: Web :: Applikasjon</name>
 
-    <properties>
-        <org.jvnet.jaxb2.version>0.12.0</org.jvnet.jaxb2.version>
-        <wsdl.directory>src/main/wsdl</wsdl.directory>
-    </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.codehaus.woodstox</groupId>
-                <artifactId>stax2-api</artifactId>
-                <version>4.2.2</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
@@ -191,33 +176,6 @@
             <artifactId>migreringer</artifactId>
             <type>test-jar</type>
             <scope>test</scope>
-        </dependency>
-
-        <!-- WS -->
-        <dependency>
-            <groupId>no.nav.foreldrepenger.fordel</groupId>
-            <artifactId>behandleDokumentforsendelse-v1</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.woodstox</groupId>
-            <artifactId>stax2-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-            <artifactId>felles-integrasjon-webservice</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.messaging.saaj</groupId>
-            <artifactId>saaj-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jvnet.jaxb2_commons</groupId>
-            <artifactId>jaxb2-basics-runtime</artifactId>
-            <version>${org.jvnet.jaxb2.version}</version>
         </dependency>
 
         <!-- REST -->

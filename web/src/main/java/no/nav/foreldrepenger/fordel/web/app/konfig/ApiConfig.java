@@ -57,10 +57,18 @@ public class ApiConfig extends Application {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return Set.of(ProsessTaskRestTjeneste.class, FerdigstillJournalføringRestTjeneste.class,
-            DokumentforsendelseRestTjeneste.class, JournalføringRestTjeneste.class, ForvaltningRestTjeneste.class, OpenApiResource.class,
-            MultiPartFeature.class, ConstraintViolationMapper.class, JsonMappingExceptionMapper.class, JsonParseExceptionMapper.class,
-            GeneralRestExceptionMapper.class, JacksonJsonConfig.class);
+        return Set.of(ProsessTaskRestTjeneste.class,
+            FerdigstillJournalføringRestTjeneste.class,
+            DokumentforsendelseRestTjeneste.class,
+            JournalføringRestTjeneste.class,
+            ForvaltningRestTjeneste.class,
+            OpenApiResource.class,
+            MultiPartFeature.class,
+            ConstraintViolationMapper.class,
+            JsonMappingExceptionMapper.class,
+            JsonParseExceptionMapper.class,
+            GeneralRestExceptionMapper.class,
+            JacksonJsonConfig.class);
     }
 
     @Override
