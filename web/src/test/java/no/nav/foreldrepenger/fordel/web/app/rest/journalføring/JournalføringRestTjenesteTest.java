@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
+import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
@@ -237,10 +238,10 @@ class JournalføringRestTjenesteTest {
 
         var journalpostId = new JournalpostIdDto(expectedJournalpostId);
 
-        var ex = assertThrows(TekniskException.class, () -> restTjeneste.hentJournalpostDetaljer(journalpostId));
+        var ex = restTjeneste.hentJournalpostDetaljer(journalpostId);
 
         assertThat(ex).isNotNull();
-        assertThat(ex.getMessage()).isEqualTo("FORDEL-123:Journapost " + expectedJournalpostId + " finnes ikke i arkivet.");
+        assertThat(ex.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
     }
 
     @Test
@@ -253,7 +254,8 @@ class JournalføringRestTjenesteTest {
         var ex = restTjeneste.hentJournalpostDetaljer(new JournalpostIdDto(expectedJournalpostId));
 
         assertThat(ex).isNotNull();
-        assertThat(ex.journalpostId()).isEqualTo(expectedJournalpostId);
+        assertThat(ex.getStatus()).isEqualTo(HttpURLConnection.HTTP_OK);
+        assertThat(((JournalpostDetaljerDto) ex.getEntity()).journalpostId()).isEqualTo(expectedJournalpostId);
     }
 
     @DisplayName("/bruker/hent - ok bruker finnes")
