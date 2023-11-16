@@ -1,4 +1,4 @@
-FROM ghcr.io/navikt/fp-baseimages/java:17-appdynamics
+FROM ghcr.io/navikt/fp-baseimages/java:21
 
 LABEL org.opencontainers.image.source=https://github.com/navikt/fpfordel
 ENV TZ=Europe/Oslo

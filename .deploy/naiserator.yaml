@@ -50,8 +50,6 @@ spec:
       mountPath: /var/run/secrets/nais.io/defaultDSconfig
     - kvPath: {{serviceuserkv}}
       mountPath: /var/run/secrets/nais.io/serviceuser
-    - kvPath: /apikey/appdynamics/{{environment}}
-      mountPath: /var/run/secrets/nais.io/appdynamics
   env:
 {{#each env}}
    - name: {{@key}}
