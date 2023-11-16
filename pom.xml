@@ -28,6 +28,8 @@
         </license>
     </licenses>
     <properties>
+        <java.version>21</java.version>
+
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
         <sonar.projectName>fp-fordel</sonar.projectName>
         <sonar.projectKey>navikt_fpfordel</sonar.projectKey>
