@@ -178,6 +178,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>io.smallrye</groupId>
+            <artifactId>jandex</artifactId>
+            <version>3.1.5</version>
+        </dependency>
+
         <!-- REST -->
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
