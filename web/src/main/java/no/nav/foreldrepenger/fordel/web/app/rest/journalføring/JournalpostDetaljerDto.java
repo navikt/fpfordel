@@ -10,7 +10,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import no.nav.foreldrepenger.mottak.klient.StatusDto;
-import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
 
 public record JournalpostDetaljerDto(@NotNull String journalpostId,
                                      @NotNull String tittel,

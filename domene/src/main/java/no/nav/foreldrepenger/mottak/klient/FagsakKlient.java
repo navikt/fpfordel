@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.mottak.klient;
 
+import static no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste.NK_ENHET_ID;
+
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
@@ -16,9 +18,9 @@ import no.nav.foreldrepenger.kontrakter.fordel.BehandlendeFagsystemDto;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
+import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakV2Dto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
-import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
@@ -134,7 +136,7 @@ public class FagsakKlient implements Fagsak {
         LOG.info("Vurderer resultat");
 
         var brukPath = w.getJournalførendeEnhet()
-            .filter(EnhetsTjeneste.NK_ENHET_ID::equals)
+            .filter(NK_ENHET_ID::equals)
             .isPresent() ? klageinstansEndpoint : fagsystemEndpoint;
 
         var request = RestRequest.newPOSTJson(dto, brukPath, restConfig);

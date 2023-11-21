@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.mottak.klient.*;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
+import no.nav.foreldrepenger.mottak.klient.SakInfoDto;
+import no.nav.foreldrepenger.mottak.klient.StatusDto;
 
 public class ManuellJournalføringMapper {
     private ManuellJournalføringMapper() {
@@ -14,7 +15,7 @@ public class ManuellJournalføringMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringMapper.class);
 
-    static FamilihendelseTypeJFDto mapHendelseTypeJF(FamilieHendelseTypeDto familihendelseType) {
+    static FamilihendelseTypeJFDto mapHendelseTypeJF(SakInfoDto.FamilieHendelseTypeDto familihendelseType) {
         return switch (familihendelseType) {
             case TERMIN -> FamilihendelseTypeJFDto.TERMIN;
             case FØDSEL -> FamilihendelseTypeJFDto.FØDSEL;
@@ -45,7 +46,7 @@ public class ManuellJournalføringMapper {
         };
     }
 
-    static StatusDto mapFagsakStatusTilStatusDto(FagsakStatusDto fagsakStatusDto) {
+    static StatusDto mapFagsakStatusTilStatusDto(SakInfoDto.FagsakStatusDto fagsakStatusDto) {
         if (null == fagsakStatusDto) {
             return null;
         }
@@ -77,5 +78,14 @@ public class ManuellJournalføringMapper {
 
         return new JournalpostDetaljerDto.SakJournalføringDto(sakInfoDto.saksnummer().getSaksnummer(), mapYtelseTypeTilDto(sakInfoDto.ytelseType()),
             sakInfoDto.opprettetDato(), mapFagsakStatusTilStatusDto(sakInfoDto.status()), familihendelseJFDto, sakInfoDto.førsteUttaksdato());
+    }
+
+    static YtelseTypeDto mapYtelseTypeTilDto(SakInfoDto.FagsakYtelseTypeDto ytelseType) {
+        return switch (ytelseType) {
+            case FORELDREPENGER -> YtelseTypeDto.FORELDREPENGER;
+            case SVANGERSKAPSPENGER -> YtelseTypeDto.SVANGERSKAPSPENGER;
+            case ENGANGSTØNAD -> YtelseTypeDto.ENGANGSTØNAD;
+            case null -> throw new IllegalStateException("YtelseType kan ikke være null.");
+        };
     }
 }

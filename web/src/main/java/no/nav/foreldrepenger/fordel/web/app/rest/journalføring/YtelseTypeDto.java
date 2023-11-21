@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.klient;
+package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

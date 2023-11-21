@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
 import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.gjelderForeldrepenger;
-import static no.nav.foreldrepenger.fordel.web.app.rest.journalføring.ManuellJournalføringMapper.mapYtelseTypeTilDto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,7 +29,9 @@ import no.nav.foreldrepenger.journalføring.ManuellOpprettSakValidator;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
+import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakV2Dto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
+import no.nav.foreldrepenger.kontrakter.fordel.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.FerdigstillOppgaveTask;
@@ -39,7 +40,7 @@ import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.saf.DokumentInfo;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
-import no.nav.foreldrepenger.mottak.klient.OpprettSakV2Dto;
+import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.VLKlargjørerTask;
 import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
@@ -268,7 +269,7 @@ public class FerdigstillJournalføringTjeneste {
         new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensMedSakJP(journalpost, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
                 nyDokumentTypeId);
 
-        return fagsak.opprettSak(new OpprettSakV2Dto(journalpost.getJournalpostId(), mapYtelseTypeTilDto(opprettSakInfo.ytelseType()), opprettSakInfo.aktørId().getId())).getSaksnummer();
+        return fagsak.opprettSak(opprettSakRequest(journalpost.getJournalpostId(), opprettSakInfo)).getSaksnummer();
     }
 
     // Validerer mot eksisterende men sikrer at det opprettes ny sak
@@ -276,7 +277,20 @@ public class FerdigstillJournalføringTjeneste {
         new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensMedSakJP(journalpost, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
             nyDokumentTypeId);
 
-        return fagsak.opprettSak(new OpprettSakV2Dto(null, mapYtelseTypeTilDto(opprettSakInfo.ytelseType()), opprettSakInfo.aktørId().getId())).getSaksnummer();
+        return fagsak.opprettSak(opprettSakRequest(null, opprettSakInfo)).getSaksnummer();
+    }
+
+    private static OpprettSakV2Dto opprettSakRequest(String journalpostId, FerdigstillJournalføringRestTjeneste.OpprettSak opprettSakInfo) {
+        return new OpprettSakV2Dto(journalpostId, mapYtelseTypeV2TilDto(opprettSakInfo.ytelseType()), opprettSakInfo.aktørId().getId());
+    }
+
+    static YtelseTypeDto mapYtelseTypeV2TilDto(FagsakYtelseTypeDto ytelseType) {
+        return switch (ytelseType) {
+            case FORELDREPENGER -> YtelseTypeDto.FORELDREPENGER;
+            case SVANGERSKAPSPENGER -> YtelseTypeDto.SVANGERSKAPSPENGER;
+            case ENGANGSTØNAD -> YtelseTypeDto.ENGANGSTØNAD;
+            case null -> throw new IllegalStateException("YtelseType må være satt.");
+        };
     }
 
     public JournalpostId knyttTilAnnenSak(ArkivJournalpost journalpost, String enhetId, String saksnummer) {
