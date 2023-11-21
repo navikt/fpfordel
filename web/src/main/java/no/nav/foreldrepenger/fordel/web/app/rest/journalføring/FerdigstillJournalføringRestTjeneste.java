@@ -129,7 +129,7 @@ public class FerdigstillJournalføringRestTjeneste {
     @Path("/knyttTilAnnenSak")
     @Operation(description = "For å knytte journalpost til annen sak. Det opprettes en ny fagsak om saksnummer ikke sendes.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "200", description = "Journalføring ferdigstillt"), @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public JournalpostIdDto knyttTilAnnenSak(@Parameter(description = "Trenger journalpostId, saksnummer og enhet for å knytte til annen sak. "
+    public SaksnummerDto knyttTilAnnenSak(@Parameter(description = "Trenger journalpostId, saksnummer og enhet for å knytte til annen sak. "
         + "Om saksnummer ikke foreligger må ytelse type og aktørId oppgis for å opprette en ny sak.") @NotNull @Valid
                                                              @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FerdigstillJournalføringRestTjeneste.FerdigstillRequest request) {
 
@@ -155,14 +155,16 @@ public class FerdigstillJournalføringRestTjeneste {
             if (request.opprettSak() == null || SakstypeDto.GENERELL.equals(request.opprettSak().sakstype()) || request.opprettSak().ytelseType() == null) {
                 throw new TekniskException(EXCEPTION_KODE, "OpprettSakDto kan ikke være null ved opprettelse av en sak eller mangler ytelsestype.");
             }
-            saksnummer = journalføringTjeneste.opprettSak(journalpost, mapOpprettSak(request.opprettSak()), journalpost.getHovedtype());
+            saksnummer = journalføringTjeneste.opprettNySak(journalpost, mapOpprettSak(request.opprettSak()), journalpost.getHovedtype());
         }
 
         validerSaksnummer(saksnummer);
 
         var nyJournalpost = journalføringTjeneste.knyttTilAnnenSak(journalpost, brukEnhet, saksnummer);
 
-        return Optional.ofNullable(nyJournalpost).map(JournalpostId::getVerdi).map(JournalpostIdDto::new).orElse(null);
+        LOG.info("FPFORDEL RESTJOURNALFØRING: Knytting av journalpost {} til annen/ny sak {}", Optional.ofNullable(nyJournalpost).map(JournalpostId::getVerdi).orElse(""), saksnummer);
+
+        return Optional.ofNullable(saksnummer).map(SaksnummerDto::new).orElse(null);
     }
 
     private OpprettSak mapOpprettSak(OpprettSakDto opprettSakDto) {
@@ -222,6 +224,10 @@ public class FerdigstillJournalføringRestTjeneste {
 
     record OpprettSakDto(@Valid YtelseTypeDto ytelseType, @Valid FerdigstillJournalføringRestTjeneste.SakstypeDto sakstype,
                          @NotNull @Pattern(regexp = "^\\d{13}$", message = "aktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String aktørId) {
+        @Override
+        public String toString() {
+            return "OpprettSakDto{" + "ytelseType=" + ytelseType + ", sakstype=" + sakstype + '}';
+        }
     }
 
     record FerdigstillRequest(

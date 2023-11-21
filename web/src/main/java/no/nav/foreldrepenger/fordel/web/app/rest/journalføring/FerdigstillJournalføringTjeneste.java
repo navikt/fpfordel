@@ -271,6 +271,14 @@ public class FerdigstillJournalføringTjeneste {
         return fagsak.opprettSak(new OpprettSakV2Dto(journalpost.getJournalpostId(), mapYtelseTypeTilDto(opprettSakInfo.ytelseType()), opprettSakInfo.aktørId().getId())).getSaksnummer();
     }
 
+    // Validerer mot eksisterende men sikrer at det opprettes ny sak
+    String opprettNySak(ArkivJournalpost journalpost, FerdigstillJournalføringRestTjeneste.OpprettSak opprettSakInfo, DokumentTypeId nyDokumentTypeId) {
+        new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensMedSakJP(journalpost, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
+            nyDokumentTypeId);
+
+        return fagsak.opprettSak(new OpprettSakV2Dto(null, mapYtelseTypeTilDto(opprettSakInfo.ytelseType()), opprettSakInfo.aktørId().getId())).getSaksnummer();
+    }
+
     public JournalpostId knyttTilAnnenSak(ArkivJournalpost journalpost, String enhetId, String saksnummer) {
         var saksinfo = hentFagsakInfo(saksnummer).orElseThrow();
         final var behandlingTemaFagsak = BehandlingTema.fraOffisiellKode(saksinfo.getBehandlingstemaOffisiellKode());
