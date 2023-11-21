@@ -3,19 +3,17 @@ package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import no.nav.foreldrepenger.mottak.klient.SakInfoDto;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
-import no.nav.foreldrepenger.mottak.klient.FamilieHendelseTypeDto;
-import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class ManuellJournalføringMapperTest {
 
     @Test
     void mapHendelseTypeJF() {
-        assertThat(ManuellJournalføringMapper.mapHendelseTypeJF(FamilieHendelseTypeDto.FØDSEL)).isEqualTo(FamilihendelseTypeJFDto.FØDSEL);
+        assertThat(ManuellJournalføringMapper.mapHendelseTypeJF(SakInfoDto.FamilieHendelseTypeDto.FØDSEL)).isEqualTo(FamilihendelseTypeJFDto.FØDSEL);
     }
 
     @Test
