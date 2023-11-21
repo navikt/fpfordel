@@ -274,10 +274,10 @@ public class FerdigstillJournalføringTjeneste {
 
     static YtelseTypeDto mapYtelseTypeV2TilDto(FagsakYtelseTypeDto ytelseType) {
         return switch (ytelseType) {
-            case null -> null;
             case FORELDREPENGER -> YtelseTypeDto.FORELDREPENGER;
             case SVANGERSKAPSPENGER -> YtelseTypeDto.SVANGERSKAPSPENGER;
             case ENGANGSTØNAD -> YtelseTypeDto.ENGANGSTØNAD;
+            case null -> throw new IllegalStateException("YtelseType må være satt.");
         };
     }
 
