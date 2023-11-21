@@ -162,7 +162,7 @@ public class FerdigstillJournalføringRestTjeneste {
 
         var nyJournalpost = journalføringTjeneste.knyttTilAnnenSak(journalpost, brukEnhet, saksnummer);
 
-        LOG.info("FPFORDEL RESTJOURNALFØRING: Knytting av journalpost {} til annen/ny sak {}", nyJournalpost.getVerdi(), saksnummer);
+        LOG.info("FPFORDEL RESTJOURNALFØRING: Knytting av journalpost {} til annen/ny sak {}", Optional.ofNullable(nyJournalpost).map(JournalpostId::getVerdi).orElse(""), saksnummer);
 
         return Optional.ofNullable(saksnummer).map(SaksnummerDto::new).orElse(null);
     }

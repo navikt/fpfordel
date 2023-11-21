@@ -128,11 +128,11 @@ class FerdigstillJournalføringRestTjenesteTest {
     @Test
     void knyttAnnenSakSkalOpprettesNårSaksnummerErNull() {
         var req = req(ENHETID, JOURNALPOST_ID, null, YtelseTypeDto.FORELDREPENGER, AKTØR_ID, null);
-        when(journalføringTjeneste.opprettSak(arkivJournalpost, new FerdigstillJournalføringRestTjeneste.OpprettSak(new AktørId(AKTØR_ID), FagsakYtelseTypeDto.FORELDREPENGER),null)).thenReturn(SAKSNUMMER);
+        when(journalføringTjeneste.opprettNySak(arkivJournalpost, new FerdigstillJournalføringRestTjeneste.OpprettSak(new AktørId(AKTØR_ID), FagsakYtelseTypeDto.FORELDREPENGER),null)).thenReturn(SAKSNUMMER);
 
         behandleJournalpost.knyttTilAnnenSak(req);
 
-        verify(journalføringTjeneste).opprettSak(arkivJournalpost, new FerdigstillJournalføringRestTjeneste.OpprettSak(new AktørId(AKTØR_ID), FagsakYtelseTypeDto.FORELDREPENGER), null);
+        verify(journalføringTjeneste).opprettNySak(arkivJournalpost, new FerdigstillJournalføringRestTjeneste.OpprettSak(new AktørId(AKTØR_ID), FagsakYtelseTypeDto.FORELDREPENGER), null);
         verify(journalføringTjeneste).knyttTilAnnenSak(arkivJournalpost, ENHETID, SAKSNUMMER);
     }
 
