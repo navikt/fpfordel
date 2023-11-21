@@ -269,7 +269,19 @@ public class FerdigstillJournalføringTjeneste {
         new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensMedSakJP(journalpost, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
                 nyDokumentTypeId);
 
-        return fagsak.opprettSak(new OpprettSakV2Dto(journalpost.getJournalpostId(), mapYtelseTypeV2TilDto(opprettSakInfo.ytelseType()), opprettSakInfo.aktørId().getId())).getSaksnummer();
+        return fagsak.opprettSak(opprettSakRequest(journalpost.getJournalpostId(), opprettSakInfo)).getSaksnummer();
+    }
+
+    // Validerer mot eksisterende men sikrer at det opprettes ny sak
+    String opprettNySak(ArkivJournalpost journalpost, FerdigstillJournalføringRestTjeneste.OpprettSak opprettSakInfo, DokumentTypeId nyDokumentTypeId) {
+        new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensMedSakJP(journalpost, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
+            nyDokumentTypeId);
+
+        return fagsak.opprettSak(opprettSakRequest(null, opprettSakInfo)).getSaksnummer();
+    }
+
+    private static OpprettSakV2Dto opprettSakRequest(String journalpostId, FerdigstillJournalføringRestTjeneste.OpprettSak opprettSakInfo) {
+        return new OpprettSakV2Dto(journalpostId, mapYtelseTypeV2TilDto(opprettSakInfo.ytelseType()), opprettSakInfo.aktørId().getId());
     }
 
     static YtelseTypeDto mapYtelseTypeV2TilDto(FagsakYtelseTypeDto ytelseType) {
@@ -279,14 +291,6 @@ public class FerdigstillJournalføringTjeneste {
             case ENGANGSTØNAD -> YtelseTypeDto.ENGANGSTØNAD;
             case null -> throw new IllegalStateException("YtelseType må være satt.");
         };
-    }
-
-    // Validerer mot eksisterende men sikrer at det opprettes ny sak
-    String opprettNySak(ArkivJournalpost journalpost, FerdigstillJournalføringRestTjeneste.OpprettSak opprettSakInfo, DokumentTypeId nyDokumentTypeId) {
-        new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensMedSakJP(journalpost, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
-            nyDokumentTypeId);
-
-        return fagsak.opprettSak(new OpprettSakV2Dto(null, mapYtelseTypeTilDto(opprettSakInfo.ytelseType()), opprettSakInfo.aktørId().getId())).getSaksnummer();
     }
 
     public JournalpostId knyttTilAnnenSak(ArkivJournalpost journalpost, String enhetId, String saksnummer) {
