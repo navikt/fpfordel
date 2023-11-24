@@ -6,6 +6,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.kontrakter.fordel.SakInfoV2Dto;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +41,7 @@ public class FagsakKlient implements Fagsak {
     private static final String VURDER_FAGSYSTEM_PATH = "/api/fordel/vurderFagsystem";
     private static final String KLAGEINSTANS_FAGSYSTEM_PATH = "/api/fordel/klageinstans";
 
-    private static final String FINN_FAGSAKER_PATH = "/api/fordel/finnFagsaker";
+    private static final String FINN_FAGSAKER_PATH = "/api/fordel/finnFagsaker/v2";
     private static final Logger LOG = LoggerFactory.getLogger(FagsakKlient.class);
 
     private final URI knytningEndpoint;
@@ -149,11 +151,11 @@ public class FagsakKlient implements Fagsak {
     }
 
     @Override
-    public List<SakInfoDto> hentBrukersSaker(AktørIdDto dto) {
+    public List<SakInfoV2Dto> hentBrukersSaker(AktørIdDto dto) {
         LOG.info("Henter alle saker for en bruker");
         var target = UriBuilder.fromUri(finnFagsakerEndpoint).build();
         var request = RestRequest.newPOSTJson(dto, target, restConfig);
-        return klient.sendReturnList(request, SakInfoDto.class);
+        return klient.sendReturnList(request, SakInfoV2Dto.class);
     }
 
     @Override

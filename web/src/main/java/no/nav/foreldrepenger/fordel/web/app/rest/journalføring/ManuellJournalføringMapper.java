@@ -4,9 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.kontrakter.fordel.SakInfoV2Dto;
 import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
-import no.nav.foreldrepenger.mottak.klient.SakInfoDto;
-import no.nav.foreldrepenger.mottak.klient.StatusDto;
 
 public class ManuellJournalføringMapper {
     private ManuellJournalføringMapper() {
@@ -15,7 +14,7 @@ public class ManuellJournalføringMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringMapper.class);
 
-    static FamilihendelseTypeJFDto mapHendelseTypeJF(SakInfoDto.FamilieHendelseTypeDto familihendelseType) {
+    static FamilihendelseTypeJFDto mapHendelseTypeJF(SakInfoV2Dto.FamilieHendelseTypeDto familihendelseType) {
         return switch (familihendelseType) {
             case TERMIN -> FamilihendelseTypeJFDto.TERMIN;
             case FØDSEL -> FamilihendelseTypeJFDto.FØDSEL;
@@ -25,35 +24,29 @@ public class ManuellJournalføringMapper {
     }
 
     static YtelseTypeDto mapYtelseTypeTilDto(FagsakYtelseTypeDto ytelseType) {
-        if (null == ytelseType) {
-            return null;
-        }
         return switch (ytelseType) {
             case FORELDREPENGER -> YtelseTypeDto.FORELDREPENGER;
             case SVANGERSKAPSPENGER -> YtelseTypeDto.SVANGERSKAPSPENGER;
             case ENGANGSTØNAD -> YtelseTypeDto.ENGANGSTØNAD;
+            case null -> null;
         };
     }
 
     static FagsakYtelseTypeDto mapYtelseTypeFraDto(YtelseTypeDto ytelseTypeDto) {
-        if (null == ytelseTypeDto) {
-            return null;
-        }
         return switch (ytelseTypeDto) {
             case FORELDREPENGER -> FagsakYtelseTypeDto.FORELDREPENGER;
             case SVANGERSKAPSPENGER -> FagsakYtelseTypeDto.SVANGERSKAPSPENGER;
             case ENGANGSTØNAD -> FagsakYtelseTypeDto.ENGANGSTØNAD;
+            case null -> null;
         };
     }
 
-    static StatusDto mapFagsakStatusTilStatusDto(SakInfoDto.FagsakStatusDto fagsakStatusDto) {
-        if (null == fagsakStatusDto) {
-            return null;
-        }
+    private static JournalpostDetaljerDto.SakJournalføringDto.StatusDto mapFagsakStatusTilStatusDto(SakInfoV2Dto.FagsakStatusDto fagsakStatusDto) {
         return switch (fagsakStatusDto) {
-            case UNDER_BEHANDLING -> StatusDto.UNDER_BEHANDLING;
-            case LØPENDE -> StatusDto.LØPENDE;
-            case AVSLUTTET -> StatusDto.AVSLUTTET;
+            case UNDER_BEHANDLING -> JournalpostDetaljerDto.SakJournalføringDto.StatusDto.UNDER_BEHANDLING;
+            case LØPENDE -> JournalpostDetaljerDto.SakJournalføringDto.StatusDto.LØPENDE;
+            case AVSLUTTET -> JournalpostDetaljerDto.SakJournalføringDto.StatusDto.AVSLUTTET;
+            case null -> throw new IllegalStateException("FagsakStatus kan ikke være null.");
         };
     }
 
@@ -70,17 +63,19 @@ public class ManuellJournalføringMapper {
         };
     }
 
-    static JournalpostDetaljerDto.SakJournalføringDto mapSakJournalføringDto(SakInfoDto sakInfoDto) {
+    static JournalpostDetaljerDto.SakJournalføringDto mapSakJournalføringDto(SakInfoV2Dto sakInfoDto) {
         var familihendelseJFDto =
             sakInfoDto.familiehendelseInfoDto() != null ? new JournalpostDetaljerDto.SakJournalføringDto.FamilieHendelseJournalføringDto(
                 sakInfoDto.familiehendelseInfoDto().familiehendelseDato(),
                 ManuellJournalføringMapper.mapHendelseTypeJF(sakInfoDto.familiehendelseInfoDto().familihendelseType())) : null;
 
-        return new JournalpostDetaljerDto.SakJournalføringDto(sakInfoDto.saksnummer().getSaksnummer(), mapYtelseTypeTilDto(sakInfoDto.ytelseType()),
-            sakInfoDto.opprettetDato(), mapFagsakStatusTilStatusDto(sakInfoDto.status()), familihendelseJFDto, sakInfoDto.førsteUttaksdato());
+        return new JournalpostDetaljerDto.SakJournalføringDto(sakInfoDto.saksnummer().getSaksnummer(),
+            mapYtelseTypeTilDto(sakInfoDto.ytelseType()),
+            sakInfoDto.opprettetDato(),
+            mapFagsakStatusTilStatusDto(sakInfoDto.status()), familihendelseJFDto, sakInfoDto.førsteUttaksdato());
     }
 
-    static YtelseTypeDto mapYtelseTypeTilDto(SakInfoDto.FagsakYtelseTypeDto ytelseType) {
+    private static YtelseTypeDto mapYtelseTypeTilDto(no.nav.foreldrepenger.kontrakter.fordel.YtelseTypeDto ytelseType) {
         return switch (ytelseType) {
             case FORELDREPENGER -> YtelseTypeDto.FORELDREPENGER;
             case SVANGERSKAPSPENGER -> YtelseTypeDto.SVANGERSKAPSPENGER;
