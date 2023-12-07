@@ -19,7 +19,7 @@ import no.nav.vedtak.log.util.LoggerUtils;
 @Provider
 public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GeneralRestExceptionMapper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GeneralRestExceptionMapper.class);
 
     private static Response serverError(Throwable feil) {
         String feilmelding = getVLExceptionFeilmelding(feil);
@@ -51,10 +51,10 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
     private static void loggTilApplikasjonslogg(Throwable cause) {
         var feil = getExceptionMelding(cause);
         if (cause instanceof ManglerTilgangException) {
-            LOGGER.info(feil, cause);
+            LOG.info(feil, cause);
         } else {
-            if (LOGGER.isErrorEnabled()) {
-                LOGGER.error(String.format("Fikk uventet feil: %s", feil), cause);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn(String.format("Fikk uventet feil: %s", feil), cause);
             }
         }
 

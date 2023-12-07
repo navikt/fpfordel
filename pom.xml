@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>3.0.0</version>
+        <version>3.0.1</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger.fordel</groupId>
@@ -37,6 +37,8 @@
         <felles.version>7.0.0</felles.version>
         <prosesstask.version>5.0.0</prosesstask.version>
         <fp-kontrakter.version>9.0.2</fp-kontrakter.version>
+
+        <kafka.version>3.6.1</kafka.version> <!-- 3.6.0 logger excessive -->
     </properties>
 
     <dependencyManagement>
@@ -44,7 +46,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>3.0.0</version>
+                <version>3.0.1</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
