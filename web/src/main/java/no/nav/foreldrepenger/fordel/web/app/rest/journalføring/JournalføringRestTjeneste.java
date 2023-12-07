@@ -172,7 +172,9 @@ public class JournalføringRestTjeneste {
             }
             return Response.ok().entity(journalpostDetaljer).build();
         } catch (TekniskException|NoSuchElementException ex) {
-            if (ex instanceof NoSuchElementException || ex.getMessage().contains("Fant ikke journalpost i fagarkivet")) {
+            if (ex instanceof NoSuchElementException
+                || ex.getMessage().contains("Fant ikke journalpost i fagarkivet")
+                || ex.getMessage().contains("Saksbehandler har ikke tilgang til ressurs på grunn av journalposten sin status")) {
                 return Response.noContent().build();
             }
             throw new TekniskException("FORDEL-123", "Journapost " + journalpostId.getJournalpostId() + " finnes ikke i arkivet.", ex);
