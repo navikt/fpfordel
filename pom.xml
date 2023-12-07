@@ -37,6 +37,8 @@
         <felles.version>7.0.0</felles.version>
         <prosesstask.version>5.0.0</prosesstask.version>
         <fp-kontrakter.version>9.0.2</fp-kontrakter.version>
+
+        <kafka.version>3.6.1</kafka.version> <!-- 3.6.0 logger excessive -->
     </properties>
 
     <dependencyManagement>
