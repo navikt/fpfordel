@@ -38,11 +38,11 @@ spec:
         thresholdPercentage: 80
   resources:
     limits:
-      cpu: 2000m
-      memory: 3072Mi
+      cpu: "{{limits.cpu}}"
+      memory: "{{limits.mem}}"
     requests:
-      cpu: 500m
-      memory: 1024Mi
+      cpu: "{{requests.cpu}}"
+      memory: "{{requests.mem}}"
   vault:
     enabled: true
     paths:
@@ -52,11 +52,6 @@ spec:
       mountPath: /var/run/secrets/nais.io/defaultDSconfig
     - kvPath: {{serviceuserkv}}
       mountPath: /var/run/secrets/nais.io/serviceuser
-  env:
-{{#each env}}
-   - name: {{@key}}
-     value: "{{this}}"
-{{/each}}
   tokenx:
     enabled: true
   kafka:
