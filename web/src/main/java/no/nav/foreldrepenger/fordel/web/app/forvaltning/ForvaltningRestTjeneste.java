@@ -242,7 +242,7 @@ public class ForvaltningRestTjeneste {
         summary = "Fjerner lokal oppgave fra oversikten.", responses = {@ApiResponse(responseCode = "200", description = "oppgave feilregistrert")})
     @Path("/avslutt-oppgave")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response rerunOpprettOppgave(@TilpassetAbacAttributt(supplierClass = JournalføringRestTjeneste.JournalpostDataSupplier.class) @Parameter(description = "journalpostId") @NotNull @Valid JournalpostIdDto journalpostIdDto) {
+    public Response feilregistrerOppgave(@TilpassetAbacAttributt(supplierClass = JournalføringRestTjeneste.JournalpostDataSupplier.class) @Parameter(description = "journalpostId") @NotNull @Valid JournalpostIdDto journalpostIdDto) {
         oppgaveRepository.feilregistrerOppgave(journalpostIdDto.getJournalpostId());
         return Response.ok().build();
     }
