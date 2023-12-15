@@ -59,6 +59,15 @@ public class OppgaveRepository {
         }
     }
 
+    public void feilregistrerOppgave(String journalpostId) {
+        var oppgave = hentOppgave(journalpostId);
+        if (oppgave != null) {
+            oppgave.setStatus(Status.FEILREGISTRERT);
+            lagre(oppgave);
+            LOG.info("Oppgave med Id: {} feilregistrert.", oppgave.getJournalpostId());
+        }
+    }
+
     public void fjernFeilopprettetOppgave(String journalpostId) {
         em.createQuery("delete from Oppgave where journalpostId = :journalpostId").setParameter("journalpostId", journalpostId).executeUpdate();
         em.flush();
