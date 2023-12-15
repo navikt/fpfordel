@@ -20,7 +20,9 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
 import no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.rest.journalføring.FerdigstillJournalføringTjeneste;
+import no.nav.foreldrepenger.fordel.web.app.rest.journalføring.JournalføringRestTjeneste;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
+import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -232,6 +234,16 @@ public class ForvaltningRestTjeneste {
     public Response sendInnTilSak(@Parameter(description = "Sak og Journalpost") @NotNull @Valid JournalpostSakDto dto) {
         var journalpost = journalføringTjeneste.hentJournalpost(dto.journalpostIdDto().getJournalpostId());
         journalføringTjeneste.sendInnPåSak(journalpost, dto.saksnummerDto().getSaksnummer());
+        return Response.ok().build();
+    }
+
+    @POST
+    @Operation(description = "Setter den lokale oppgaven til status Feilregistrert slik at den fjernes fra oversikten.", tags = "Forvaltning",
+        summary = "Fjerner lokal oppgave fra oversikten.", responses = {@ApiResponse(responseCode = "200", description = "oppgave feilregistrert")})
+    @Path("/avslutt-oppgave")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response feilregistrerOppgave(@TilpassetAbacAttributt(supplierClass = JournalføringRestTjeneste.JournalpostDataSupplier.class) @Parameter(description = "journalpostId") @NotNull @Valid JournalpostIdDto journalpostIdDto) {
+        oppgaveRepository.feilregistrerOppgave(journalpostIdDto.getJournalpostId());
         return Response.ok().build();
     }
 

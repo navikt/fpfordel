@@ -203,10 +203,11 @@ class OppgaverTjeneste implements Journalføringsoppgave {
         if (oppgaveOpt.isPresent()) {
             var oppgave = oppgaveOpt.get();
 
-            var behandlingTema = oppgave.ytelseType() == null ? null : switch (oppgave.ytelseType()) {
+            var behandlingTema = switch (oppgave.ytelseType()) {
                 case ES -> BehandlingTema.ENGANGSSTØNAD;
                 case FP -> BehandlingTema.FORELDREPENGER;
                 case SVP -> BehandlingTema.SVANGERSKAPSPENGER;
+                case null -> null;
             };
             var enhet = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, behandlingTema,
                 Optional.ofNullable(oppgave.tildeltEnhetsnr()), oppgave.aktørId());
