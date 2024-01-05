@@ -92,7 +92,7 @@ public class PersonTjeneste implements PersonInformasjon {
     public String hentNavn(BehandlingTema behandlingTema, String id) {
         var ytelse = utledYtelse(behandlingTema);
         return pdl.hentPerson(ytelse, personQuery(id),
-                new PersonResponseProjection().navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn()))
+                new PersonResponseProjection().navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn()))
             .getNavn()
             .stream()
             .map(PersonTjeneste::mapNavn)
