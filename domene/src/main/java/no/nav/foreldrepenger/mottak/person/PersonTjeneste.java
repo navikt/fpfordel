@@ -57,10 +57,15 @@ public class PersonTjeneste implements PersonInformasjon {
         q.setIdent(aktørId);
         return q;
     }
-
     private static String mapNavn(Navn navn) {
-        return Optional.ofNullable(navn.getForkortetNavn())
-            .orElseGet(() -> navn.getEtternavn() + " " + navn.getFornavn() + Optional.ofNullable(navn.getMellomnavn()).map(n -> " " + n).orElse(""));
+        return navn.getFornavn() + leftPad(navn.getMellomnavn()) + leftPad(navn.getEtternavn());
+    }
+
+    private static String leftPad(String navn) {
+        if (navn == null) {
+            return "";
+        }
+        return " " + navn;
     }
 
     @Override
@@ -87,7 +92,7 @@ public class PersonTjeneste implements PersonInformasjon {
     public String hentNavn(BehandlingTema behandlingTema, String id) {
         var ytelse = utledYtelse(behandlingTema);
         return pdl.hentPerson(ytelse, personQuery(id),
-                new PersonResponseProjection().navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn()))
+                new PersonResponseProjection().navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn()))
             .getNavn()
             .stream()
             .map(PersonTjeneste::mapNavn)
