@@ -70,23 +70,13 @@ class PersonTjenesteTest {
     }
 
     @Test
-    void skal_returnere_forkortet_navn() {
-        var responsenavn = new Navn("Ola", null, "Nordmann", "Nordmann Ola", null, null, null, null);
-        var response = new Person();
-        response.setNavn(List.of(responsenavn));
-        when(pdl.hentPerson(any(), argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
-        String navn = personTjeneste.hentNavn(BehandlingTema.FORELDREPENGER, AKTØR_ID);
-        assertThat(navn).isEqualTo("Nordmann Ola");
-    }
-
-    @Test
     void skal_returnere_konstruert_navn() {
         var responsenavn = new Navn("Kari", "Mari", "Nordmann", null, null, null, null, null);
         var response = new Person();
         response.setNavn(List.of(responsenavn));
         when(pdl.hentPerson(any(), argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
         String navn = personTjeneste.hentNavn(BehandlingTema.FORELDREPENGER, AKTØR_ID);
-        assertThat(navn).isEqualTo("Nordmann Kari Mari");
+        assertThat(navn).isEqualTo("Kari Mari Nordmann");
     }
 
     @Test
