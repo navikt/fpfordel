@@ -57,10 +57,15 @@ public class PersonTjeneste implements PersonInformasjon {
         q.setIdent(aktørId);
         return q;
     }
-
     private static String mapNavn(Navn navn) {
-        return Optional.ofNullable(navn.getForkortetNavn())
-            .orElseGet(() -> navn.getEtternavn() + " " + navn.getFornavn() + Optional.ofNullable(navn.getMellomnavn()).map(n -> " " + n).orElse(""));
+        return navn.getFornavn() + leftPad(navn.getMellomnavn()) + leftPad(navn.getEtternavn());
+    }
+
+    private static String leftPad(String navn) {
+        if (navn == null) {
+            return "";
+        }
+        return " " + navn;
     }
 
     @Override
