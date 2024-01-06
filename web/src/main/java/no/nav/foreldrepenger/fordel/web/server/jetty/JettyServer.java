@@ -13,7 +13,7 @@ import javax.sql.DataSource;
 
 import org.eclipse.jetty.ee10.cdi.CdiDecoratingListener;
 import org.eclipse.jetty.ee10.cdi.CdiServletContainerInitializer;
-import org.eclipse.jetty.ee10.plus.jndi.EnvEntry;
+import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.eclipse.jetty.ee10.security.jaspi.DefaultAuthConfigFactory;
 import org.eclipse.jetty.ee10.security.jaspi.JaspiAuthenticatorFactory;
 import org.eclipse.jetty.ee10.security.jaspi.provider.JaspiAuthConfigProvider;
