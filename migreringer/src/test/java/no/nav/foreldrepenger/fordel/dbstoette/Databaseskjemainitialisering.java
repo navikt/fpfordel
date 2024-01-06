@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import org.eclipse.jetty.ee10.plus.jndi.EnvEntry;
+import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 
