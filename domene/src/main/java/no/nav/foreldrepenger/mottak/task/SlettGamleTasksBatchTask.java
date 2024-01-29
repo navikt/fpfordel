@@ -33,7 +33,7 @@ public class SlettGamleTasksBatchTask implements ProsessTaskHandler {
     public void doTask(ProsessTaskData prosessTaskData) {
         var slettetTask = prosessTaskTjeneste.slettÅrsgamleFerdige();
         LOG.info("Slettet {} tasks som er over ett år gamle.", slettetTask);
-        var slettetJournalpost = dokumentRepository.slettJournalpostLokalEldreEnn(LocalDate.now().minusYears(1));
-        LOG.info("Slettet {} journalposter som er over ett år gamle.", slettetJournalpost);
+        var slettetJournalpost = dokumentRepository.slettJournalpostLokalEldreEnn(LocalDate.now().minusMonths(4));
+        LOG.info("Slettet {} journalposter som er over 4 måneder gamle.", slettetJournalpost);
     }
 }

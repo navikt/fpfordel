@@ -113,6 +113,11 @@ public class DokumentRepository {
             .getResultList();
     }
 
+    public List<Journalpost> hentAlleJournalposter() {
+        return em.createQuery("from Journalpost", Journalpost.class)
+            .getResultList();
+    }
+
     public int slettJournalpostLokalEldreEnn(LocalDate dato) {
         return em.createQuery("delete from Journalpost where opprettetTidspunkt < :opprettet").setParameter("opprettet", dato.atStartOfDay()).executeUpdate();
     }
