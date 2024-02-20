@@ -2,7 +2,9 @@ package no.nav.foreldrepenger.fordel.web.app.forvaltning.migrering;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
+import java.util.HashSet;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -73,6 +75,24 @@ public class MigreringRestTjeneste {
     }
 
     @POST
+    @Operation(description = "Sammenligner oppgaver som skal migreres", tags = "Forvaltning",
+        summary = ("Sammenligner oppgaver som skal migreres"),
+        responses = {@ApiResponse(responseCode = "200", description = "Oppgaver")})
+    @Path("/sammenlignOppgaver")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
+    public Response sammenlignOppgaver(@TilpassetAbacAttributt(supplierClass = MigreringAbacSupplier.class)
+                                  @NotNull @Parameter(name = "oppgaver") @Valid MigreringOppgaveDto oppgaver) {
+        var rmap = oppgaver.oppgaver().stream()
+            .map(MigreringMapper::fraOppgaveDto)
+            .collect(Collectors.toList());
+        var lokale = oppgaveRepository.hentAlleÅpneOppgaver().stream()
+            .map(MigreringMapper::tilOppgaveDto)
+            .collect(Collectors.toSet());
+        var remote = new HashSet<>(oppgaver.oppgaver());
+        return lokale.size() == remote.size() && lokale.containsAll(remote) ? Response.ok().build() : Response.status(Response.Status.NOT_FOUND).build();
+    }
+
+    @POST
     @Operation(description = "Lagrer oppgaver som skal migreres", tags = "Forvaltning",
         summary = ("Lagre oppgaver som skal migreres"),
         responses = {@ApiResponse(responseCode = "200", description = "Oppgaver")})
@@ -90,7 +110,7 @@ public class MigreringRestTjeneste {
     @Operation(description = "Lagre lokale journalposter som skal migreres", tags = "Forvaltning",
         summary = ("Lagre lokale journalposter som skal migreres"),
         responses = {@ApiResponse(responseCode = "200", description = "Journalposter")})
-    @Path("/lagreTasks")
+    @Path("/lagreJournal")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
     public Response lagreJournal(@TilpassetAbacAttributt(supplierClass = MigreringAbacSupplier.class)
                                    @NotNull @Parameter(name = "journalposter") @Valid MigreringJournalpostDto journalposter) {
@@ -98,6 +118,24 @@ public class MigreringRestTjeneste {
             .map(MigreringMapper::fraJournalpostDto)
             .forEach(dokumentRepository::lagre);
         return Response.ok().build();
+    }
+
+    @POST
+    @Operation(description = "Sammenligne lokale journalposter som skal migreres", tags = "Forvaltning",
+        summary = ("Sammenligne lokale journalposter som skal migreres"),
+        responses = {@ApiResponse(responseCode = "200", description = "Journalposter")})
+    @Path("/sammenlignJournal")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
+    public Response sammenlignJournal(@TilpassetAbacAttributt(supplierClass = MigreringAbacSupplier.class)
+                                 @NotNull @Parameter(name = "journalposter") @Valid MigreringJournalpostDto journalposter) {
+        var rmap = journalposter.journalposter().stream()
+            .map(MigreringMapper::fraJournalpostDto)
+            .collect(Collectors.toList());
+        var lokale = dokumentRepository.hentAlleJournalposter().stream()
+            .map(MigreringMapper::tilJournalpostDto)
+            .collect(Collectors.toSet());
+        var remote = new HashSet<>(journalposter.journalposter());
+        return lokale.size() == remote.size() && lokale.containsAll(remote) ? Response.ok().build() : Response.status(Response.Status.NOT_FOUND).build();
     }
 
     @GET
