@@ -91,17 +91,7 @@ public final class ArkivUtil {
     }
 
     public static DokumentTypeId utledHovedDokumentType(Set<DokumentTypeId> alleTyper) {
-        int lavestrank = alleTyper.stream()
-            .map(MapNAVSkjemaDokumentTypeId::dokumentTypeRank)
-            .min(Comparator.naturalOrder())
-            .orElse(MapNAVSkjemaDokumentTypeId.UDEF_RANK);
-        if (lavestrank == MapNAVSkjemaDokumentTypeId.GEN_RANK) {
-            return alleTyper.stream()
-                .filter(t -> MapNAVSkjemaDokumentTypeId.dokumentTypeRank(t) == MapNAVSkjemaDokumentTypeId.GEN_RANK)
-                .findFirst()
-                .orElse(DokumentTypeId.UDEFINERT);
-        }
-        return MapNAVSkjemaDokumentTypeId.dokumentTypeFromRank(lavestrank);
+        return MapNAVSkjemaDokumentTypeId.velgRangertHovedDokumentType(alleTyper);
     }
 
     private static BehandlingTema mapDokumenttype(DokumentTypeId type) {

@@ -1,12 +1,13 @@
 package no.nav.foreldrepenger.fordel.kodeverdi;
 
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MapNAVSkjemaDokumentTypeId {
 
-    public static final int GEN_RANK = 90;
-    public static final int UDEF_RANK = 99;
+    private static final int MAX_RANK = 99;
 
     private MapNAVSkjemaDokumentTypeId() {
         // Hide constructor
@@ -60,20 +61,19 @@ public class MapNAVSkjemaDokumentTypeId {
         Map.entry(DokumentTypeId.ANNET, NAVSkjema.SKJEMA_ANNEN_POST),
         Map.entry(DokumentTypeId.UDEFINERT, NAVSkjema.UDEFINERT));
 
-    private static final Map<DokumentTypeId, Integer> DOKUMENT_TYPE_RANK = Map.ofEntries(Map.entry(DokumentTypeId.INNTEKTSMELDING, 1),
-        Map.entry(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, 2), Map.entry(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL, 3),
-        Map.entry(DokumentTypeId.FLEKSIBELT_UTTAK_FORELDREPENGER, 4), Map.entry(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER, 5),
-        Map.entry(DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD, 6), Map.entry(DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON, 7),
-        Map.entry(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON, 8), Map.entry(DokumentTypeId.KLAGE_DOKUMENT, 9),
-        Map.entry(DokumentTypeId.ETTERSENDT_KLAGE, 10), Map.entry(DokumentTypeId.TILBAKEKREV_UTTALELSE, 11),
-        Map.entry(DokumentTypeId.LEGEERKLÆRING, 20), Map.entry(DokumentTypeId.DOK_INNLEGGELSE, 21),
-        Map.entry(DokumentTypeId.DOKUMENTASJON_FORSVARSTJENESTE, 22), Map.entry(DokumentTypeId.DOKUMENTASJON_NAVTILTAK, 23),
-        Map.entry(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL, 30), Map.entry(DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO, 31),
-        Map.entry(DokumentTypeId.FØDSELSATTEST, 32), Map.entry(DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE, 33),
-        Map.entry(DokumentTypeId.DOKUMENTASJON_ALENEOMSORG, 34), Map.entry(DokumentTypeId.DOK_FERIE, 40),
-        Map.entry(DokumentTypeId.DOK_MORS_UTDANNING_ARBEID_SYKDOM, 41), Map.entry(DokumentTypeId.BESKRIVELSE_FUNKSJONSNEDSETTELSE, 42),
-        Map.entry(DokumentTypeId.BEKREFTELSE_FRA_ARBEIDSGIVER, 43), Map.entry(DokumentTypeId.BEKREFTELSE_FRA_STUDIESTED, 44),
-        Map.entry(DokumentTypeId.ANNET, 98), Map.entry(DokumentTypeId.UDEFINERT, UDEF_RANK));
+    private static final Map<DokumentTypeId, Integer> DOKUMENT_TYPE_RANK = Map.ofEntries(
+        Map.entry(DokumentTypeId.INNTEKTSMELDING, 1),
+        Map.entry(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, 2),
+        Map.entry(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL, 3),
+        Map.entry(DokumentTypeId.FLEKSIBELT_UTTAK_FORELDREPENGER, 4),
+        Map.entry(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER, 5),
+        Map.entry(DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD, 6),
+        Map.entry(DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON, 7),
+        Map.entry(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON, 8),
+        Map.entry(DokumentTypeId.KLAGE_DOKUMENT, 9),
+        Map.entry(DokumentTypeId.ETTERSENDT_KLAGE, 10),
+        Map.entry(DokumentTypeId.TILBAKEBETALING_UTTALSELSE, 11),
+        Map.entry(DokumentTypeId.TILBAKEKREV_UTTALELSE, 12));
 
     private static final Map<Integer, DokumentTypeId> RANK_DOKUMENT_TYPE = DOKUMENT_TYPE_RANK.entrySet()
         .stream()
@@ -93,14 +93,21 @@ public class MapNAVSkjemaDokumentTypeId {
         return DOKUMENT_TYPE_BREVKODE.getOrDefault(typeId, NAVSkjema.UDEFINERT);
     }
 
-    public static int dokumentTypeRank(DokumentTypeId dokumentTypeId) {
-        if (dokumentTypeId == null) {
-            return DOKUMENT_TYPE_RANK.get(DokumentTypeId.UDEFINERT);
+    public static DokumentTypeId velgRangertHovedDokumentType(Collection<DokumentTypeId> alleTyper) {
+        var typerMedBeskrivelse = alleTyper.stream()
+            .filter(t -> !t.erAnnenDokType() && !t.erEttersendelseType())
+            .collect(Collectors.toSet());
+        var minrank = typerMedBeskrivelse.stream()
+            .map(MapNAVSkjemaDokumentTypeId::dokumentTypeRank)
+            .min(Comparator.naturalOrder()).orElse(MAX_RANK);
+        if (minrank < MAX_RANK) {
+            return RANK_DOKUMENT_TYPE.get(minrank);
+        } else {
+            return typerMedBeskrivelse.stream().findFirst().or(() -> alleTyper.stream().findFirst()).orElse(DokumentTypeId.UDEFINERT);
         }
-        return DOKUMENT_TYPE_RANK.getOrDefault(dokumentTypeId, GEN_RANK);
     }
 
-    public static DokumentTypeId dokumentTypeFromRank(int rank) {
-        return RANK_DOKUMENT_TYPE.getOrDefault(rank, DokumentTypeId.UDEFINERT);
+    private static int dokumentTypeRank(DokumentTypeId dokumentTypeId) {
+        return DOKUMENT_TYPE_RANK.getOrDefault(dokumentTypeId, MAX_RANK);
     }
 }
