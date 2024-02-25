@@ -1,14 +1,14 @@
 package no.nav.foreldrepenger.fordel.kodeverdi;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 public enum DokumentTypeId implements Kodeverdi {
 
@@ -23,20 +23,25 @@ public enum DokumentTypeId implements Kodeverdi {
     FORELDREPENGER_ENDRING_SØKNAD("FORELDREPENGER_ENDRING_SØKNAD", "I000050",
         "Søknad om endring av uttak av foreldrepenger eller overføring av kvote"),
 
+    // Inntektsmelding
+    INNTEKTSMELDING("INNTEKTSMELDING", "I000067", "Inntektsmelding"),
+
     // Klage + Tilbakekreving
     KLAGE_DOKUMENT("KLAGE_DOKUMENT", "I000027", "Klage/anke"),
     ETTERSENDT_KLAGE("I500027", "I500027", "Ettersendelse til klage/anke"),
     TILBAKEKREV_UTTALELSE("TILBAKEKREV_UTTALELSE", "I000114", "Uttalelse tilbakekreving"),
+    TILBAKEBETALING_UTTALSELSE("I000119", "Uttalelse om tilbakebetaling"),
 
     // Inntekt
     INNTEKTSOPPLYSNING_SELVSTENDIG("INNTEKTSOPPLYSNING_SELVSTENDIG", "I000007",
         "Inntektsopplysninger om selvstendig næringsdrivende og/eller frilansere som skal ha foreldrepenger eller svangerskapspenger"),
     INNTEKTSOPPLYSNINGER("INNTEKTSOPPLYSNINGER", "I000026",
         "Inntektsopplysninger for arbeidstaker som skal ha sykepenger, foreldrepenger, svangerskapspenger, pleie-/opplæringspenger"),
+    INNTEKTSOPPLYSNINGSSKJEMA("I000052", "I000052", "Inntektsopplysningsskjema"),
+    DOK_INNTEKT("DOK_INNTEKT", "I000016", "Dokumentasjon av inntekt"),
     RESULTATREGNSKAP("RESULTATREGNSKAP", "I000032", "Resultatregnskap"),
-    INNTEKTSMELDING("INNTEKTSMELDING", "I000067", "Inntektsmelding"),
 
-    // Vedlegg fra brukerdialog - brukes i opplysningsplikt (ManglendeVedlegg)
+    // Vedlegg fra brukerdialog og fyllut-sendinn
     LEGEERKLÆRING("LEGEERKLÆRING", "I000023", "Legeerklæring"),
     DOK_INNLEGGELSE("DOK_INNLEGGELSE", "I000037", "Dokumentasjon av innleggelse i helseinstitusjon"),
     DOK_MORS_UTDANNING_ARBEID_SYKDOM("DOK_MORS_UTDANNING_ARBEID_SYKDOM", "I000038", "Dokumentasjon av mors utdanning, arbeid eller sykdom"),
@@ -49,7 +54,6 @@ public enum DokumentTypeId implements Kodeverdi {
     BEKREFTELSE_FRA_STUDIESTED("BEKREFTELSE_FRA_STUDIESTED", "I000061", "Bekreftelse fra studiested/skole"),
     BEKREFTELSE_VENTET_FØDSELSDATO("BEKREFTELSE_VENTET_FØDSELSDATO", "I000062", "Bekreftelse på ventet fødselsdato"),
     FØDSELSATTEST("FØDSELSATTEST", "I000063", "Fødselsattest"),
-    ELEVDOKUMENTASJON_LÆRESTED("ELEVDOKUMENTASJON_LÆRESTED", "I000064", "Elevdokumentasjon fra lærested"),
     BEKREFTELSE_FRA_ARBEIDSGIVER("BEKREFTELSE_FRA_ARBEIDSGIVER", "I000065", "Bekreftelse fra arbeidsgiver"),
     DOKUMENTASJON_ALENEOMSORG("DOKUMENTASJON_ALENEOMSORG", "I000110", "Dokumentasjon av aleneomsorg"),
     BEGRUNNELSE_SØKNAD_ETTERSKUDD("BEGRUNNELSE_SØKNAD_ETTERSKUDD", "I000111", "Dokumentasjon av begrunnelse for hvorfor man søker tilbake i tid"),
@@ -57,20 +61,27 @@ public enum DokumentTypeId implements Kodeverdi {
     DOKUMENTASJON_FORSVARSTJENESTE("DOKUMENTASJON_FORSVARSTJENESTE", "I000116",
         "Bekreftelse på øvelse eller tjeneste i Forsvaret eller Sivilforsvaret"),
     DOKUMENTASJON_NAVTILTAK("DOKUMENTASJON_NAVTILTAK", "I000117", "Bekreftelse på tiltak i regi av Arbeids- og velferdsetaten"),
+    SEN_SØKNAD("I000118", "Begrunnelse for sen søknad"),
+    MOR_INNLAGT("I000120", "Dokumentasjon på at mor er innlagt på sykehus"),
+    MOR_SYK("I000121", "Dokumentasjon på at mor er syk"),
+    FAR_INNLAGT("I000122", "Dokumentasjon på at far/medmor er innlagt på sykehus"),
+    FAR_SYK("I000123", "Dokumentasjon på at far/medmor er syk"),
+    BARN_INNLAGT("I000124", "Dokumentasjon på at barnet er innlagt på sykehus"),
+    MOR_ARBEID_STUDIE("I000130", "Dokumentasjon på at mor studerer og arbeider til sammen heltid"),
+    MOR_STUDIE("I000131", "Dokumentasjon på at mor studerer på heltid"),
+    MOR_ARBEID("I000132", "Dokumentasjon på at mor er i arbeid"),
+    MOR_KVALPROG("I000133", "Dokumentasjon av mors deltakelse i kvalifiseringsprogrammet"),
+    SKATTEMELDING("I000140", "Skattemelding"),
+    TERMINBEKREFTELSE("I000141", "Terminbekreftelse"),
+    MEDISINSK_DOK("I000142", "Medisinsk dokumentasjon"),
 
     // Tidligere selvbetjening - kan antagelig fjernes snart
     DOK_FERIE("DOK_FERIE", "I000036", "Dokumentasjon av ferie"),
-    DOK_ASYL_DATO("DOK_ASYL_DATO", "I000040", "Dokumentasjon av dato for asyl"),
     DOK_ARBEIDSFORHOLD("DOK_ARBEIDSFORHOLD", "I000043", "Dokumentasjon av arbeidsforhold"),
-    KVITTERING_DOKUMENTINNSENDING("KVITTERING_DOKUMENTINNSENDING", "I000046", "Kvittering dokumentinnsending"),
-    BRUKEROPPLASTET_DOKUMENTASJON("BRUKEROPPLASTET_DOKUMENTASJON", "I000047", "Brukeropplastet dokumentasjon"),
     BEKREFTELSE_DELTAR_KVALIFISERINGSPROGRAM("BEKREFTELSE_DELTAR_KVALIFISERINGSPROGRAM", "I000051",
         "Bekreftelse på deltakelse i kvalifiseringsprogrammet"),
     BEKREFTELSE_OPPHOLDSTILLATELSE("BEKREFTELSE_OPPHOLDSTILLATELSE", "I000055", "Bekreftelse på oppholdstillatelse"),
     KOPI_SKATTEMELDING("KOPI_SKATTEMELDING", "I000066", "Kopi av likningsattest eller selvangivelse"),
-    VURDERING_ARBEID_SYKEMELDING("VURDERING_ARBEID_SYKEMELDING", "I000107", "Vurdering av arbeidsmulighet/sykmelding"),
-    OPPLYSNING_TILRETTELEGGING_SVANGER("OPPLYSNING_TILRETTELEGGING_SVANGER", "I000108",
-        "Opplysninger om muligheter og behov for tilrettelegging ved svangerskap"),
     SKJEMA_TILRETTELEGGING_OMPLASSERING("SKJEMA_TILRETTELEGGING_OMPLASSERING", "I000109",
         "Skjema for tilrettelegging og omplassering ved graviditet"),
     OPPHOLDSOPPLYSNINGER("OPPHOLDSOPPLYSNINGER", "I001000", "Oppholdsopplysninger"),
@@ -100,7 +111,6 @@ public enum DokumentTypeId implements Kodeverdi {
 
     UDEFINERT("-", null, "Ukjent type dokument");
 
-    public static final String KODEVERK = "DOKUMENT_TYPE_ID";
     private static final Map<String, DokumentTypeId> KODER = new LinkedHashMap<>();
     private static final Map<String, DokumentTypeId> OFFISIELLE_KODER = new LinkedHashMap<>();
     private static final Map<String, DokumentTypeId> TERMNAVN_KODER = new LinkedHashMap<>();
@@ -109,11 +119,17 @@ public enum DokumentTypeId implements Kodeverdi {
         SØKNAD_ENGANGSSTØNAD_ADOPSJON, SØKNAD_FORELDREPENGER_ADOPSJON, SØKNAD_SVANGERSKAPSPENGER);
     private static final Set<DokumentTypeId> ENDRING_SØKNAD_TYPER = Set.of(FORELDREPENGER_ENDRING_SØKNAD, FLEKSIBELT_UTTAK_FORELDREPENGER);
 
+    private static final Set<DokumentTypeId> ANNET_DOK_TYPER = Set.of(ANNET, ANNET_SKJEMA_IKKE_NAV, ANNET_SKJEMA_UTLAND_IKKE_NAV, BREV, BREV_UTLAND);
+
+    private static final Set<DokumentTypeId> ETTERSENDELSE_TYPER = Set.of(ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG,
+        ETTERSENDT_SØKNAD_ENGANGSSTØNAD_FØDSEL, ETTERSENDT_SØKNAD_ENGANGSSTØNAD_ADOPSJON,
+        ETTERSENDT_SØKNAD_FORELDREPENGER_FØDSEL, ETTERSENDT_SØKNAD_FORELDREPENGER_ADOPSJON,
+        ETTERSENDT_FORELDREPENGER_ENDRING_SØKNAD, ETTERSENDT_FLEKSIBELT_UTTAK_FORELDREPENGER);
+
     // Ulike titler er brukt i selvbetjening, fordel, sak og kodeverk
     private static final Map<String, DokumentTypeId> ALT_TITLER = Map.ofEntries(
         Map.entry("Søknad om svangerskapspenger til selvstendig næringsdrivende og frilanser", SØKNAD_SVANGERSKAPSPENGER),
         Map.entry("Søknad om svangerskapspenger for selvstendig", SØKNAD_SVANGERSKAPSPENGER),
-        Map.entry("Inntektsopplysningsskjema", INNTEKTSOPPLYSNINGER),
         Map.entry("Bekreftelse på avtalt ferie", DOK_FERIE),
         Map.entry("Mor er innlagt i helseinstitusjon", DOK_INNLEGGELSE),
         Map.entry("Mor er i arbeid, tar utdanning eller er for syk til å ta seg av barnet", DOK_MORS_UTDANNING_ARBEID_SYKDOM),
@@ -124,7 +140,6 @@ public enum DokumentTypeId implements Kodeverdi {
         Map.entry("Beskrivelse/Dokumentasjon funksjonsnedsettelse", BESKRIVELSE_FUNKSJONSNEDSETTELSE),
         Map.entry("Mor deltar i kvalifiseringsprogrammet", BEKREFTELSE_DELTAR_KVALIFISERINGSPROGRAM),
         Map.entry("Mor tar utdanning på heltid", BEKREFTELSE_FRA_STUDIESTED),
-        Map.entry("Terminbekreftelse", BEKREFTELSE_VENTET_FØDSELSDATO),
         Map.entry("Kopi av skattemelding", KOPI_SKATTEMELDING),
         Map.entry("Svar på varsel om tilbakebetaling", TILBAKEKREV_UTTALELSE),
         Map.entry("Klage", DokumentTypeId.KLAGE_DOKUMENT),
@@ -150,7 +165,10 @@ public enum DokumentTypeId implements Kodeverdi {
     private String offisiellKode;
     private String termnavn;
 
-    private DokumentTypeId(String kode, String offisiellKode, String termnavn) {
+    DokumentTypeId(String offisiellKode, String termnavn) {
+        this(offisiellKode, offisiellKode, termnavn);
+    }
+    DokumentTypeId(String kode, String offisiellKode, String termnavn) {
         this.kode = kode;
         this.offisiellKode = offisiellKode;
         this.termnavn = termnavn;
@@ -201,6 +219,14 @@ public enum DokumentTypeId implements Kodeverdi {
 
     public static boolean erKlageType(DokumentTypeId kode) {
         return KLAGE_TYPER.contains(kode);
+    }
+
+    public boolean erAnnenDokType() {
+        return ANNET_DOK_TYPER.contains(this);
+    }
+
+    public boolean erEttersendelseType() {
+        return ETTERSENDELSE_TYPER.contains(this);
     }
 
     @Override

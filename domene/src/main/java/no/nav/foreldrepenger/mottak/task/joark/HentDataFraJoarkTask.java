@@ -137,7 +137,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         Optional.ofNullable(journalpost.getKanal()).ifPresent(w::setKanal);
         w.setForsendelseMottattTidspunkt(Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now));
         w.setDokumentTypeId(journalpost.getHovedtype());
-        w.setBehandlingTema(ArkivUtil.behandlingTemaFraDokumentType(w.getBehandlingTema(), journalpost.getHovedtype()));
+        w.setBehandlingTema(ArkivUtil.behandlingTemaFraDokumentTypeSet(w.getBehandlingTema(), journalpost.getAlleTyper()));
         w.setDokumentKategori(ArkivUtil.utledKategoriFraDokumentType(journalpost.getHovedtype()));
         finnAktørId(journalpost).ifPresent(w::setAktørId);
         journalpost.getJournalfoerendeEnhet().ifPresent(w::setJournalførendeEnhet);
