@@ -34,9 +34,12 @@
         <sonar.projectName>fp-fordel</sonar.projectName>
         <sonar.projectKey>navikt_fpfordel</sonar.projectKey>
 
-        <felles.version>7.0.6</felles.version>
+        <felles.version>7.0.8</felles.version>
         <prosesstask.version>5.0.5</prosesstask.version>
-        <fp-kontrakter.version>9.1.5</fp-kontrakter.version>
+        <fp-kontrakter.version>9.1.8</fp-kontrakter.version>
+
+        <!-- Eksterne -->
+        <confluent.version>7.6.0</confluent.version>
     </properties>
 
     <dependencyManagement>
@@ -133,16 +136,21 @@
             </dependency>
 
             <dependency>
-                <groupId>no.nav.teamdokumenthandtering</groupId>
-                <artifactId>teamdokumenthandtering-avro-schemas</artifactId>
-                <version>3aec620a</version>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-schema-registry-client</artifactId>
+                <version>${confluent.version}</version>
             </dependency>
-            <!-- kommer inn gjennom teamdokumenthandtering-avro-schemas overskrives pga et par CVEs -->
             <dependency>
                 <groupId>io.confluent</groupId>
-                <artifactId>kafka-streams-avro-serde</artifactId>
-                <version>7.6.0</version>
+                <artifactId>kafka-avro-serializer</artifactId>
+                <version>${confluent.version}</version>
             </dependency>
+            <dependency>
+                <groupId>no.nav.teamdokumenthandtering</groupId>
+                <artifactId>teamdokumenthandtering-avro-schemas</artifactId>
+                <version>1.1.0</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
