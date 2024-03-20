@@ -4,6 +4,9 @@ import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.FORSENDELSE_ID_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.RETRY_KEY;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -15,12 +18,13 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste;
+import no.nav.foreldrepenger.fordel.web.app.rest.journalføring.FerdigstillJournalføringTjeneste;
+import no.nav.foreldrepenger.fordel.web.app.rest.journalføring.JournalføringRestTjeneste;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
+import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
+import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.task.RekjørFeiledeTasksBatchTask;
@@ -48,15 +52,20 @@ public class ForvaltningRestTjeneste {
 
     private ProsessTaskTjeneste taskTjeneste;
     private Fagsak fagsak;
+    private OppgaveRepository oppgaveRepository;
+    private FerdigstillJournalføringTjeneste journalføringTjeneste;
 
     public ForvaltningRestTjeneste() {
         // CDI
     }
 
     @Inject
-    public ForvaltningRestTjeneste(ProsessTaskTjeneste taskTjeneste, Fagsak fagsak) {
+    public ForvaltningRestTjeneste(ProsessTaskTjeneste taskTjeneste, Fagsak fagsak, OppgaveRepository oppgaveRepository,
+                                   FerdigstillJournalføringTjeneste journalføringTjeneste) {
         this.taskTjeneste = taskTjeneste;
         this.fagsak = fagsak;
+        this.oppgaveRepository = oppgaveRepository;
+        this.journalføringTjeneste = journalføringTjeneste;
     }
 
     @POST
@@ -186,6 +195,55 @@ public class ForvaltningRestTjeneste {
         fra.setSaksnummer(dto.getSaksnummerDto().getSaksnummer());
         fra.setArkivId(dto.getJournalpostIdDto().getJournalpostId());
         taskTjeneste.lagre(fra.getProsessTaskData());
+        return Response.ok().build();
+    }
+
+    @POST
+    @Operation(description = "Lager en ny OpprettOppgaveTask basert på tidligere + slett evt lokaloppgave", tags = "Forvaltning",
+        summary = "Bruker eksisterende task til å opprette Oppgave", responses = {@ApiResponse(responseCode = "200", description = "oppgave opprettet")})
+    @Path("/rerun-opprett-oppgave")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response rerunOpprettOppgave(@Parameter(description = "TaskMedRef") @NotNull @Valid RetryTaskKanalrefDto dto) {
+        var eksisterendeTask = taskTjeneste.finn(dto.getProsessTaskIdDto().getProsessTaskId());
+        if (eksisterendeTask == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        oppgaveRepository.fjernFeilopprettetOppgave(eksisterendeTask.getPropertyValue("arkivId"));
+        var nyTask = ProsessTaskData.forProsessTask(OpprettGSakOppgaveTask.class);
+        nyTask.setProperties(eksisterendeTask.getProperties());
+        taskTjeneste.lagre(nyTask);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Operation(description = "Knytter en journalpost til en ny sak ved å opprette ny journalpost", tags = "Forvaltning",
+        summary = "Knytter en journalpost til en ny sak ved å opprette ny journalpost", responses = {@ApiResponse(responseCode = "200", description = "journalpost opprettet")})
+    @Path("/knytt-til-annen-sak")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response knyttTilAnnenSak(@Parameter(description = "Sak og Journalpost") @NotNull @Valid JournalpostSakDto dto) {
+        var journalpost = journalføringTjeneste.hentJournalpost(dto.journalpostIdDto().getJournalpostId());
+        var response = journalføringTjeneste.knyttTilAnnenSak(journalpost, "9999", dto.saksnummerDto().getSaksnummer());
+        return Response.ok(response.getVerdi()).build();
+    }
+
+    @POST
+    @Operation(description = "Sender inn en journalpost til fpsak med angitt sak", tags = "Forvaltning",
+        summary = "Sender inn en journalpost til fpsak med angitt sak", responses = {@ApiResponse(responseCode = "200", description = "sendt inn")})
+    @Path("/send-inn-til-sak")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response sendInnTilSak(@Parameter(description = "Sak og Journalpost") @NotNull @Valid JournalpostSakDto dto) {
+        var journalpost = journalføringTjeneste.hentJournalpost(dto.journalpostIdDto().getJournalpostId());
+        journalføringTjeneste.sendInnPåSak(journalpost, dto.saksnummerDto().getSaksnummer());
+        return Response.ok().build();
+    }
+
+    @POST
+    @Operation(description = "Setter den lokale oppgaven til status Feilregistrert slik at den fjernes fra oversikten.", tags = "Forvaltning",
+        summary = "Fjerner lokal oppgave fra oversikten.", responses = {@ApiResponse(responseCode = "200", description = "oppgave feilregistrert")})
+    @Path("/avslutt-oppgave")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response feilregistrerOppgave(@TilpassetAbacAttributt(supplierClass = JournalføringRestTjeneste.JournalpostDataSupplier.class) @Parameter(description = "journalpostId") @NotNull @Valid JournalpostIdDto journalpostIdDto) {
+        oppgaveRepository.feilregistrerOppgave(journalpostIdDto.getJournalpostId());
         return Response.ok().build();
     }
 

@@ -35,7 +35,7 @@ class JournalføringHendelseHåndtererTest {
 
     @BeforeEach
     void setup() {
-        hendelseHåndterer = new JournalføringHendelseHåndterer(taskTjeneste, dokumentRepository);
+        hendelseHåndterer = new JournalføringHendelseHåndterer(taskTjeneste, dokumentRepository, "topic", 2);
     }
 
     @Test
@@ -56,7 +56,7 @@ class JournalføringHendelseHåndtererTest {
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste, times(1)).lagre(captor.capture());
-        List<ProsessTaskData> result = captor.getAllValues();
+        var result = captor.getAllValues();
         assertThat(result).as("Forventer at en prosesstask er lagt til").hasSize(1);
 
         ProsessTaskInfo prosessTaskData = result.get(0);
@@ -82,7 +82,7 @@ class JournalføringHendelseHåndtererTest {
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste, times(1)).lagre(captor.capture());
-        List<ProsessTaskData> result = captor.getAllValues();
+        var result = captor.getAllValues();
         assertThat(result).as("Forventer at en prosesstask er lagt til").hasSize(1);
         ProsessTaskInfo prosessTaskData = result.get(0);
         assertThat(prosessTaskData.getTaskType()).as("Forventer at prosesstask av korrekt type blir opprettet. ")
@@ -107,7 +107,7 @@ class JournalføringHendelseHåndtererTest {
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste, times(1)).lagre(captor.capture());
-        List<ProsessTaskData> result = captor.getAllValues();
+        var result = captor.getAllValues();
         assertThat(result).as("Forventer at en prosesstask er lagt til").hasSize(1);
         ProsessTaskInfo prosessTaskData = result.get(0);
         assertThat(prosessTaskData.getNesteKjøringEtter()).isAfter(LocalDateTime.now().plusHours(1));

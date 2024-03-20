@@ -17,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.pdl.Adressebeskyttelse;
 import no.nav.pdl.AdressebeskyttelseGradering;
 import no.nav.pdl.GeografiskTilknytning;
@@ -69,23 +70,13 @@ class PersonTjenesteTest {
     }
 
     @Test
-    void skal_returnere_forkortet_navn() {
-        var responsenavn = new Navn("Ola", null, "Nordmann", "Nordmann Ola", null, null, null, null);
-        var response = new Person();
-        response.setNavn(List.of(responsenavn));
-        when(pdl.hentPerson(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
-        String navn = personTjeneste.hentNavn(AKTØR_ID);
-        assertThat(navn).isEqualTo("Nordmann Ola");
-    }
-
-    @Test
     void skal_returnere_konstruert_navn() {
         var responsenavn = new Navn("Kari", "Mari", "Nordmann", null, null, null, null, null);
         var response = new Person();
         response.setNavn(List.of(responsenavn));
-        when(pdl.hentPerson(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
-        String navn = personTjeneste.hentNavn(AKTØR_ID);
-        assertThat(navn).isEqualTo("Nordmann Kari Mari");
+        when(pdl.hentPerson(any(), argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
+        String navn = personTjeneste.hentNavn(BehandlingTema.FORELDREPENGER, AKTØR_ID);
+        assertThat(navn).isEqualTo("Kari Mari Nordmann");
     }
 
     @Test
@@ -94,10 +85,10 @@ class PersonTjenesteTest {
         var responsegt = new GeografiskTilknytning(null, null, null, null, null);
         var response = new Person();
         response.setAdressebeskyttelse(List.of(responsebeskyttelse));
-        when(pdl.hentPerson(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
-        when(pdl.hentGT(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(responsegt);
-        var gt = personTjeneste.hentGeografiskTilknytning(AKTØR_ID);
-        var diskresjonskode = personTjeneste.harStrengDiskresjonskode(AKTØR_ID);
+        when(pdl.hentPerson(any(), argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
+        when(pdl.hentGT(any(), argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(responsegt);
+        var gt = personTjeneste.hentGeografiskTilknytning(BehandlingTema.FORELDREPENGER, AKTØR_ID);
+        var diskresjonskode = personTjeneste.harStrengDiskresjonskode(BehandlingTema.FORELDREPENGER, AKTØR_ID);
         assertThat(gt).isNull();
         assertThat(diskresjonskode).isFalse();
     }
@@ -108,10 +99,10 @@ class PersonTjenesteTest {
         var responsegt = new GeografiskTilknytning(GtType.BYDEL, "Oslo", "030110", "NOR", null);
         var response = new Person();
         response.setAdressebeskyttelse(List.of(responsebeskyttelse));
-        when(pdl.hentPerson(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
-        when(pdl.hentGT(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(responsegt);
-        var gt = personTjeneste.hentGeografiskTilknytning(AKTØR_ID);
-        var diskresjonskode = personTjeneste.harStrengDiskresjonskode(AKTØR_ID);
+        when(pdl.hentPerson(any(), argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
+        when(pdl.hentGT(any(), argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(responsegt);
+        var gt = personTjeneste.hentGeografiskTilknytning(BehandlingTema.FORELDREPENGER, AKTØR_ID);
+        var diskresjonskode = personTjeneste.harStrengDiskresjonskode(BehandlingTema.FORELDREPENGER, AKTØR_ID);
         assertThat(gt).isEqualTo("030110");
         assertThat(diskresjonskode).isFalse();
     }
@@ -122,11 +113,11 @@ class PersonTjenesteTest {
         var responsegt = new GeografiskTilknytning(GtType.UTLAND, null, null, "POL", null);
         var response = new Person();
         response.setAdressebeskyttelse(List.of(responsebeskyttelse));
-        when(pdl.hentPerson(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
-        when(pdl.hentGT(argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(responsegt);
+        when(pdl.hentPerson(any(), argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
+        when(pdl.hentGT(any(), argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(responsegt);
 
-        var gt = personTjeneste.hentGeografiskTilknytning(AKTØR_ID);
-        var diskresjonskode = personTjeneste.harStrengDiskresjonskode(AKTØR_ID);
+        var gt = personTjeneste.hentGeografiskTilknytning(BehandlingTema.FORELDREPENGER, AKTØR_ID);
+        var diskresjonskode = personTjeneste.harStrengDiskresjonskode(BehandlingTema.FORELDREPENGER, AKTØR_ID);
         assertThat(gt).isNull();
         assertThat(diskresjonskode).isTrue();
     }

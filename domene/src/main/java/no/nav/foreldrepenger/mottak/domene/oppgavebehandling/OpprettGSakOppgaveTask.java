@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.mottak.domene.oppgavebehandling;
 
+import static no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste.NK_ENHET_ID;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.ARKIV_ID_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.BEHANDLINGSTEMA_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY;
@@ -10,16 +11,18 @@ import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.SAKSN
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import jakarta.enterprise.context.Dependent;
-import jakarta.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.mottak.behandlendeenhet.JournalføringsOppgave;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
+import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
+import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.task.SlettForsendelseTask;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
@@ -41,13 +44,15 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(OpprettGSakOppgaveTask.class);
 
-    private final JournalføringsOppgave enhetsidTjeneste;
+    private final Journalføringsoppgave oppgaverTjeneste;
     private final ProsessTaskTjeneste taskTjeneste;
+    private final EnhetsTjeneste enhetsTjeneste;
 
     @Inject
-    public OpprettGSakOppgaveTask(ProsessTaskTjeneste taskTjeneste, JournalføringsOppgave enhetsidTjeneste) {
-        this.enhetsidTjeneste = enhetsidTjeneste;
+    public OpprettGSakOppgaveTask(ProsessTaskTjeneste taskTjeneste, Journalføringsoppgave oppgaverTjeneste, EnhetsTjeneste enhetsTjeneste) {
         this.taskTjeneste = taskTjeneste;
+        this.oppgaverTjeneste = oppgaverTjeneste;
+        this.enhetsTjeneste = enhetsTjeneste;
     }
 
     private static String lagBeskrivelse(BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId, ProsessTaskData data) {
@@ -79,15 +84,22 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
             .orElse(DokumentTypeId.UDEFINERT);
         behandlingTema = ArkivUtil.behandlingTemaFraDokumentType(behandlingTema, dokumentTypeId);
 
-        var journalpostId = prosessTaskData.getPropertyValue(ARKIV_ID_KEY);
-        if (enhetsidTjeneste.finnesÅpenJournalføringsoppgaveForJournalpost(journalpostId)) {
-            LOG.info("FPFORDEL JFR-OPPGAVE: finnes allerede åpen oppgave for journalpostId: {}", journalpostId);
-            return;
+        var journalpostId = JournalpostId.fra(prosessTaskData.getPropertyValue(ARKIV_ID_KEY));
+        if (oppgaverTjeneste.finnesÅpeneJournalføringsoppgaverFor(journalpostId)) {
+            var ikkeLokalOppgave = Optional.ofNullable(prosessTaskData.getPropertyValue(JOURNAL_ENHET))
+                .filter(OpprettGSakOppgaveTask::erGosysOppgave).isPresent();
+            LOG.info("FPFORDEL JFR-OPPGAVE: finnes allerede åpen oppgave for journalpostId: {}", journalpostId.getVerdi());
+            // Behold oppgave hvis skal behandles i Gosys - ellers lag lokal oppgave
+            if (ikkeLokalOppgave) {
+                return;
+            } else {
+                oppgaverTjeneste.ferdigstillAlleÅpneJournalføringsoppgaverFor(journalpostId);
+            }
         }
 
         String oppgaveId = opprettOppgave(prosessTaskData, behandlingTema, dokumentTypeId);
 
-        LOG.info("FPFORDEL JFR-OPPGAVE: opprettet oppgave med id {} for journalpostId: {}", oppgaveId, journalpostId);
+        LOG.info("FPFORDEL JFR-OPPGAVE: opprettet oppgave med id {} for journalpostId: {}", oppgaveId, journalpostId.getVerdi());
 
         String forsendelseIdString = prosessTaskData.getPropertyValue(FORSENDELSE_ID_KEY);
         if ((forsendelseIdString != null) && !forsendelseIdString.isEmpty()) {
@@ -110,19 +122,41 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     }
 
     private String opprettOppgave(ProsessTaskData prosessTaskData, BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId) {
-        final String enhetInput = prosessTaskData.getPropertyValue(JOURNAL_ENHET);
+        var enhetInput = prosessTaskData.getPropertyValue(JOURNAL_ENHET);
         // Oppgave har ikke mapping for alle undertyper fødsel/adopsjon
-        final String brukBT = BehandlingTema.forYtelseUtenFamilieHendelse(behandlingTema).getOffisiellKode();
+        var brukBT = BehandlingTema.forYtelseUtenFamilieHendelse(behandlingTema);
 
-        String arkivId = prosessTaskData.getPropertyValue(ARKIV_ID_KEY);
+        var journalpostId = prosessTaskData.getPropertyValue(ARKIV_ID_KEY);
 
         // Overstyr saker fra NFP+NK, deretter egen logikk hvis fødselsnummer ikke er
         // oppgitt
-        final String enhetId = enhetsidTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, behandlingTema,
+        var enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, behandlingTema,
             Optional.ofNullable(enhetInput), prosessTaskData.getAktørId());
-        final String beskrivelse = lagBeskrivelse(behandlingTema, dokumentTypeId, prosessTaskData);
-        return enhetsidTjeneste.opprettJournalføringsOppgave(arkivId, enhetId, prosessTaskData.getAktørId(),
-            prosessTaskData.getPropertyValue(SAKSNUMMER_KEY), brukBT, beskrivelse);
+
+        var beskrivelse = lagBeskrivelse(behandlingTema, dokumentTypeId, prosessTaskData);
+        var saksref = prosessTaskData.getPropertyValue(SAKSNUMMER_KEY);
+
+        var journalpost = JournalpostId.fra(journalpostId);
+
+        var nyOppgave = NyOppgave.builder()
+            .medJournalpostId(journalpost)
+            .medEnhetId(enhetId)
+            .medAktørId(prosessTaskData.getAktørId())
+            .medSaksref(saksref)
+            .medBehandlingTema(brukBT)
+            .medBeskrivelse(beskrivelse)
+            .build();
+
+        if (erGosysOppgave(enhetId)) {
+            LOG.info("Oppretter en gosys oppgave for {} med {}", journalpost, dokumentTypeId);
+            return oppgaverTjeneste.opprettGosysJournalføringsoppgaveFor(nyOppgave);
+        } else {
+            LOG.info("Oppretter en lokal oppgave for {} med {}", journalpost, dokumentTypeId);
+            return oppgaverTjeneste.opprettJournalføringsoppgaveFor(nyOppgave);
+        }
     }
 
+    private static boolean erGosysOppgave(String enhet) {
+        return NK_ENHET_ID.equals(enhet);
+    }
 }

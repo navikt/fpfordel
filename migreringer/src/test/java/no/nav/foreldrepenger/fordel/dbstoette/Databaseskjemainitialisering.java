@@ -1,17 +1,20 @@
 package no.nav.foreldrepenger.fordel.dbstoette;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import no.nav.foreldrepenger.konfig.Environment;
+import static java.lang.Runtime.getRuntime;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
 import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 
-import javax.naming.NamingException;
-import javax.sql.DataSource;
-import java.util.concurrent.atomic.AtomicBoolean;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
-import static java.lang.Runtime.getRuntime;
+import no.nav.foreldrepenger.konfig.Environment;
 
 /**
  * Initielt skjemaoppsett + migrering av unittest-skjemaer

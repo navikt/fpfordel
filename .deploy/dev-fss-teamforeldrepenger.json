@@ -5,14 +5,18 @@
   "oraclecredskv": "/oracle/data/dev/creds/fpfordel_q1-fpfordel_q1",
   "minReplicas": "1",
   "maxReplicas": "2",
+  "limits": {
+    "cpu": "2",
+    "mem": "2048Mi"
+  },
+  "requests": {
+    "cpu": "200m",
+    "mem": "512Mi"
+  },
   "kafkaPool": "nav-dev",
   "ingresses": [
-    "https://fpfordel.dev.intern.nav.no",
     "https://fpfordel.dev-fss-pub.nais.io"
   ],
-  "env": {
-    "APPD_ENABLED": "false"
-  },
   "groups": [
     "27e77109-fef2-48ce-a174-269074490353",
     "8cddda87-0a22-4d35-9186-a2c32a6ab450",

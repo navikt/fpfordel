@@ -1,17 +1,12 @@
 package no.nav.foreldrepenger.journalføring;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
-
-import java.time.LocalDate;
-import java.util.List;
-
-import no.nav.foreldrepenger.mottak.klient.FagsakStatusDto;
-import no.nav.foreldrepenger.mottak.klient.FamilieHendelseTypeDto;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
+import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
+import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
+import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
+import no.nav.foreldrepenger.typer.AktørId;
+import no.nav.vedtak.exception.FunksjonellException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,35 +15,27 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
-import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
-import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
-import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
-import no.nav.foreldrepenger.mottak.klient.AktørIdDto;
-import no.nav.foreldrepenger.mottak.klient.SakInfoDto;
-import no.nav.foreldrepenger.mottak.klient.Fagsak;
-import no.nav.foreldrepenger.typer.AktørId;
-import no.nav.foreldrepenger.typer.JournalpostId;
-import no.nav.vedtak.exception.FunksjonellException;
-import no.nav.vedtak.exception.TekniskException;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @ExtendWith(MockitoExtension.class)
 class JournalpostValideringTjenesteTest {
 
-    private static final JournalpostId JOURNALPOST_ID = new JournalpostId(987654L);
+    private static final JournalpostId JOURNALPOST_ID = JournalpostId.fra("987654");
     private static final AktørId AKTØR_ID = new AktørId(1234567890123L);
     @Mock
     private ArkivTjeneste arkivTjeneste;
-    @Mock
-    private Fagsak fagsak;
     @Mock
     private ArkivJournalpost journalpost;
     private ManuellOpprettSakValidator tjeneste;
 
     @BeforeEach
     void setup() {
-        tjeneste = new ManuellOpprettSakValidator(arkivTjeneste, fagsak);
+        tjeneste = new ManuellOpprettSakValidator(arkivTjeneste);
     }
 
     @Test
@@ -66,8 +53,8 @@ class JournalpostValideringTjenesteTest {
     @Test
     @DisplayName("Exception om oppgitt JournalpostId er null.")
     void kast_exception_om_journalpostId_ikke_finnes() {
-        var exception = assertThrows(NullPointerException.class, () -> tjeneste.validerKonsistensMedSak(null, FagsakYtelseTypeDto.SVANGERSKAPSPENGER, AKTØR_ID,
-            null));
+        var exception = assertThrows(NullPointerException.class,
+            () -> tjeneste.validerKonsistensMedSak(null, FagsakYtelseTypeDto.SVANGERSKAPSPENGER, AKTØR_ID, null));
 
         var expectedMessage = "Ugyldig input: JournalpostId kan ikke være null ved opprettelse av en sak";
         var actualMessage = exception.getMessage();
@@ -78,8 +65,8 @@ class JournalpostValideringTjenesteTest {
     @Test
     @DisplayName("Exception om oppgitt AktørId er null.")
     void kast_exception_om_aktørId_ikke_finnes() {
-        var exception = assertThrows(NullPointerException.class, () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, FagsakYtelseTypeDto.ENGANGSTØNAD, null,
-            null));
+        var exception = assertThrows(NullPointerException.class,
+            () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, FagsakYtelseTypeDto.ENGANGSTØNAD, null, null));
 
         var expectedMessage = "Ugyldig input: AktørId kan ikke være null ved opprettelse av en sak";
         var actualMessage = exception.getMessage();
@@ -108,7 +95,8 @@ class JournalpostValideringTjenesteTest {
 
         var offisiellKode = FagsakYtelseTypeDto.ENGANGSTØNAD;
 
-        var exception = assertThrows(FunksjonellException.class, () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID, null));
+        var exception = assertThrows(FunksjonellException.class,
+            () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID, null));
 
         var expectedMessage = "FP-785359:Dokument og valgt ytelsetype i uoverenstemmelse";
         var actualMessage = exception.getMessage();
@@ -129,7 +117,8 @@ class JournalpostValideringTjenesteTest {
         when(journalpost.getStrukturertPayload()).thenReturn("ytelse>FORELDREPENGER<");
 
         var offisiellKode = FagsakYtelseTypeDto.SVANGERSKAPSPENGER;
-        var exception = assertThrows(FunksjonellException.class, () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID, null));
+        var exception = assertThrows(FunksjonellException.class,
+            () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID, null));
 
         var expectedMessage = "FP-785359:Dokument og valgt ytelsetype i uoverenstemmelse";
         var actualMessage = exception.getMessage();
@@ -142,29 +131,6 @@ class JournalpostValideringTjenesteTest {
     }
 
     @Test
-    @DisplayName("Exception om sak skal opprettes med det finnes en sak allerede. Gjelder kun foreldrepenger.")
-    void teknisk_exception_hvis_fp_inntektsmelding_men_åpen_sak_finnes() {
-
-        when(arkivTjeneste.hentArkivJournalpost(anyString())).thenReturn(journalpost);
-        when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.INNTEKTSMELDING);
-        when(journalpost.getStrukturertPayload()).thenReturn("YTELSE>FORELDREPENGER<");
-
-        var brukersFagsaker = List.of(opprettSakInfo(FagsakYtelseTypeDto.FORELDREPENGER, FagsakStatusDto.LØPENDE),
-            opprettSakInfo(FagsakYtelseTypeDto.FORELDREPENGER, FagsakStatusDto.AVSLUTTET),
-            opprettSakInfo(FagsakYtelseTypeDto.SVANGERSKAPSPENGER, FagsakStatusDto.LØPENDE));
-        when(fagsak.hentBrukersSaker(new AktørIdDto(AKTØR_ID.getId()))).thenReturn(brukersFagsaker);
-
-        var offisiellKode = FagsakYtelseTypeDto.FORELDREPENGER;
-        var exception = assertThrows(TekniskException.class, () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID, null));
-
-        var expectedMessage = "FP-34238:Kan ikke journalføre FP inntektsmelding på en ny sak fordi det finnes en aktiv foreldrepenger sak allerede.";
-        var actualMessage = exception.getMessage();
-
-
-        assertTrue(actualMessage.contains(expectedMessage));
-    }
-
-    @Test
     @DisplayName("Exception om svangerskapspenger inntektsmelding men det opprettes en foreldrepenger sak. Om det ikke finnes en aktiv sak allerede.")
     void funksjonell_exception_hvis_svp_inntektsmelding_men_valgt_behandling_tema_er_fp() {
 
@@ -174,7 +140,8 @@ class JournalpostValideringTjenesteTest {
         when(journalpost.getStrukturertPayload()).thenReturn("ytelse>SVANGERSKAPSPENGER<");
 
         var offisiellKode = FagsakYtelseTypeDto.FORELDREPENGER;
-        var exception = assertThrows(FunksjonellException.class, () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID, null));
+        var exception = assertThrows(FunksjonellException.class,
+            () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID, null));
 
         var expectedMessage = "FP-785359:Dokument og valgt ytelsetype i uoverenstemmelse";
         var actualMessage = exception.getMessage();
@@ -195,7 +162,8 @@ class JournalpostValideringTjenesteTest {
 
         var offisiellKode = FagsakYtelseTypeDto.FORELDREPENGER;
 
-        var exception = assertThrows(FunksjonellException.class, () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID, null));
+        var exception = assertThrows(FunksjonellException.class,
+            () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID, null));
 
         var expectedMessage = "FP-785359:Dokument og valgt ytelsetype i uoverenstemmelse";
         var actualMessage = exception.getMessage();
@@ -217,10 +185,5 @@ class JournalpostValideringTjenesteTest {
         tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, FagsakYtelseTypeDto.SVANGERSKAPSPENGER, AKTØR_ID, DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER);
 
         verify(arkivTjeneste, times(1)).hentArkivJournalpost(anyString());
-    }
-
-    private SakInfoDto opprettSakInfo(FagsakYtelseTypeDto fagSakYtelseTypeDto, FagsakStatusDto ytelseStatus) {
-        return new SakInfoDto(new SaksnummerDto("12345"),
-            fagSakYtelseTypeDto, LocalDate.now(), ytelseStatus, new SakInfoDto.FamiliehendelseInfoDto(LocalDate.now(), FamilieHendelseTypeDto.FØDSEL), LocalDate.now());
     }
 }

@@ -1,27 +1,20 @@
 package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
-import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
-
-import no.nav.foreldrepenger.mottak.klient.FagsakStatusDto;
-
-import no.nav.foreldrepenger.mottak.klient.SakInfoDto;
-import no.nav.foreldrepenger.mottak.klient.StatusDto;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.mottak.klient.FamilieHendelseTypeDto;
-import no.nav.foreldrepenger.mottak.klient.YtelseTypeDto;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
+import no.nav.foreldrepenger.kontrakter.fordel.SakInfoV2Dto;
+import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
 
 public class ManuellJournalføringMapper {
     private ManuellJournalføringMapper() {
         //sonar
     }
-private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringMapper.class);
 
-    static FamilihendelseTypeJFDto mapHendelseTypeJF(FamilieHendelseTypeDto familihendelseType) {
+    private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringMapper.class);
+
+    static FamilihendelseTypeJFDto mapHendelseTypeJF(SakInfoV2Dto.FamilieHendelseTypeDto familihendelseType) {
         return switch (familihendelseType) {
             case TERMIN -> FamilihendelseTypeJFDto.TERMIN;
             case FØDSEL -> FamilihendelseTypeJFDto.FØDSEL;
@@ -30,77 +23,30 @@ private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringM
         };
     }
 
-    static YtelseTypeDto mapYtelseTypeTilDto(FagsakYtelseTypeDto fagsakYtelseTypeDto) {
-        if (null == fagsakYtelseTypeDto) {
-            return null;
-        }
-        return switch (fagsakYtelseTypeDto) {
+    static YtelseTypeDto mapYtelseTypeTilDto(FagsakYtelseTypeDto ytelseType) {
+        return switch (ytelseType) {
             case FORELDREPENGER -> YtelseTypeDto.FORELDREPENGER;
             case SVANGERSKAPSPENGER -> YtelseTypeDto.SVANGERSKAPSPENGER;
             case ENGANGSTØNAD -> YtelseTypeDto.ENGANGSTØNAD;
+            case null -> null;
         };
     }
 
     static FagsakYtelseTypeDto mapYtelseTypeFraDto(YtelseTypeDto ytelseTypeDto) {
-        if (null == ytelseTypeDto) {
-            return null;
-        }
         return switch (ytelseTypeDto) {
             case FORELDREPENGER -> FagsakYtelseTypeDto.FORELDREPENGER;
             case SVANGERSKAPSPENGER -> FagsakYtelseTypeDto.SVANGERSKAPSPENGER;
             case ENGANGSTØNAD -> FagsakYtelseTypeDto.ENGANGSTØNAD;
+            case null -> null;
         };
     }
 
-    static StatusDto mapFagsakStatusTilStatusDto(FagsakStatusDto fagsakStatusDto) {
-        if (null == fagsakStatusDto) {
-            return null;
-        }
+    private static JournalpostDetaljerDto.SakJournalføringDto.StatusDto mapFagsakStatusTilStatusDto(SakInfoV2Dto.FagsakStatusDto fagsakStatusDto) {
         return switch (fagsakStatusDto) {
-            case UNDER_BEHANDLING -> StatusDto.UNDER_BEHANDLING;
-            case LØPENDE -> StatusDto.LØPENDE;
-            case AVSLUTTET -> StatusDto.AVSLUTTET;
-        };
-    }
-
-    static String tekstFraBeskrivelse(String beskrivelse) {
-        if (beskrivelse == null) {
-            return "Journalføring";
-        }
-        //Når vi oppretter gosys oppgave avsluttes teksten med (dd.mm.yyyy)
-        int i = beskrivelse.length();
-        if (beskrivelse.charAt(i - 1) == ')') {
-            i = i - 12;
-        }
-
-        while (i > 0 && !(Character.isDigit(beskrivelse.charAt(i - 1)) || beskrivelse.charAt(i - 1) == ',' || beskrivelse.charAt(i - 1) == '*'
-            || beskrivelse.charAt(i - 1) == '>')) {
-            i--;
-        }
-
-        if (i < beskrivelse.length() && beskrivelse.charAt(i) == ' ') {
-            i++;
-        }
-
-        if (i == beskrivelse.length()) {
-            return beskrivelse;
-        }
-        //I tilfelle vi tar bort for mye
-        if (beskrivelse.substring(i).length() < 2) {
-            var i2 = beskrivelse.length();
-            while (i2 > 0 && (beskrivelse.charAt(i2 - 1) != ',')) {
-                i2--;
-            }
-            return beskrivelse.substring(i2);
-        }
-        return beskrivelse.substring(i);
-    }
-
-    static ManuellJournalføringRestTjeneste.OppgavePrioritet mapPrioritet(Prioritet prioritet) {
-        return switch (prioritet) {
-            case HOY -> ManuellJournalføringRestTjeneste.OppgavePrioritet.HØY;
-            case LAV -> ManuellJournalføringRestTjeneste.OppgavePrioritet.LAV;
-            case NORM -> ManuellJournalføringRestTjeneste.OppgavePrioritet.NORM;
+            case UNDER_BEHANDLING -> JournalpostDetaljerDto.SakJournalføringDto.StatusDto.UNDER_BEHANDLING;
+            case LØPENDE -> JournalpostDetaljerDto.SakJournalføringDto.StatusDto.LØPENDE;
+            case AVSLUTTET -> JournalpostDetaljerDto.SakJournalføringDto.StatusDto.AVSLUTTET;
+            case null -> throw new IllegalStateException("FagsakStatus kan ikke være null.");
         };
     }
 
@@ -117,9 +63,24 @@ private static final Logger LOG = LoggerFactory.getLogger(ManuellJournalføringM
         };
     }
 
-    static JournalpostDetaljerDto.SakJournalføringDto mapSakJournalføringDto(SakInfoDto sakInfoDto) {
-        var familihendelseJFDto = sakInfoDto.familiehendelseInfoDto() != null ? new JournalpostDetaljerDto.SakJournalføringDto.FamilieHendelseJournalføringDto(sakInfoDto.familiehendelseInfoDto().familiehendelseDato(), ManuellJournalføringMapper.mapHendelseTypeJF(sakInfoDto.familiehendelseInfoDto().familihendelseType())) : null;
+    static JournalpostDetaljerDto.SakJournalføringDto mapSakJournalføringDto(SakInfoV2Dto sakInfoDto) {
+        var familihendelseJFDto =
+            sakInfoDto.familiehendelseInfoDto() != null ? new JournalpostDetaljerDto.SakJournalføringDto.FamilieHendelseJournalføringDto(
+                sakInfoDto.familiehendelseInfoDto().familiehendelseDato(),
+                ManuellJournalføringMapper.mapHendelseTypeJF(sakInfoDto.familiehendelseInfoDto().familihendelseType())) : null;
 
-        return new JournalpostDetaljerDto.SakJournalføringDto(sakInfoDto.saksnummer().getSaksnummer(), mapYtelseTypeTilDto(sakInfoDto.ytelseType()), sakInfoDto.opprettetDato(), mapFagsakStatusTilStatusDto(sakInfoDto.status()), familihendelseJFDto,sakInfoDto.førsteUttaksdato());
+        return new JournalpostDetaljerDto.SakJournalføringDto(sakInfoDto.saksnummer().getSaksnummer(),
+            mapYtelseTypeTilDto(sakInfoDto.ytelseType()),
+            sakInfoDto.opprettetDato(),
+            mapFagsakStatusTilStatusDto(sakInfoDto.status()), familihendelseJFDto, sakInfoDto.førsteUttaksdato());
+    }
+
+    private static YtelseTypeDto mapYtelseTypeTilDto(no.nav.foreldrepenger.kontrakter.fordel.YtelseTypeDto ytelseType) {
+        return switch (ytelseType) {
+            case FORELDREPENGER -> YtelseTypeDto.FORELDREPENGER;
+            case SVANGERSKAPSPENGER -> YtelseTypeDto.SVANGERSKAPSPENGER;
+            case ENGANGSTØNAD -> YtelseTypeDto.ENGANGSTØNAD;
+            case null -> throw new IllegalStateException("YtelseType kan ikke være null.");
+        };
     }
 }

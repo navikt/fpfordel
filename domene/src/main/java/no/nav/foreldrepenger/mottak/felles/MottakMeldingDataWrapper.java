@@ -24,6 +24,7 @@ public class MottakMeldingDataWrapper {
     public static final String AKTØR_ID_KEY = "aktoerId";
     public static final String SAKSNUMMER_KEY = "saksnummer";
     public static final String INN_SAKSNR_KEY = "journalpostsak";
+    public static final String KANAL_KEY = "kanal";
     public static final String TEMA_KEY = "tema";
     public static final String RETRY_KEY = "retry";
     public static final String BEHANDLINGSTEMA_KEY = "behandlingstema";
@@ -36,7 +37,6 @@ public class MottakMeldingDataWrapper {
     public static final String BARN_OMSORGSOVERTAKELSEDATO_KEY = "barn.omsorgsovertakelsedato";
     public static final String BARN_ANTALL_KEY = "barn.antall";
     public static final String STRUKTURERT_DOKUMENT = "strukturert.dokument";
-    public static final String RETRY_ENDELIG = "retry.endelig";
     public static final String FORSENDELSE_MOTTATT_TIDSPUNKT_KEY = "forsendelse.mottatt.tidspunkt";
     public static final String JOURNAL_ENHET = "journalforende.enhet";
     public static final String FORSENDELSE_ID_KEY = "forsendelse.id";
@@ -128,6 +128,16 @@ public class MottakMeldingDataWrapper {
     public boolean getHarTema() {
         return prosessTaskData.getPropertyValue(TEMA_KEY) != null;
     }
+
+
+    public Optional<String> getKanal() {
+        return Optional.ofNullable(prosessTaskData.getPropertyValue(KANAL_KEY));
+    }
+
+    public void setKanal(String kanal) {
+        prosessTaskData.setProperty(KANAL_KEY, kanal);
+    }
+
 
     public String getArkivId() {
         return prosessTaskData.getPropertyValue(ARKIV_ID_KEY);

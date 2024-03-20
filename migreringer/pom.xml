@@ -7,7 +7,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.fordel</groupId>
         <artifactId>fpfordel</artifactId>
-        <version>${revision}</version>
+        <version>2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>migreringer</artifactId>
@@ -42,8 +42,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-plus</artifactId>
+            <groupId>org.eclipse.jetty.ee10</groupId>
+            <artifactId>jetty-ee10-plus</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

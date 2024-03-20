@@ -8,6 +8,7 @@ import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.RETRY
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.TEMA_KEY;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -23,7 +24,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.mottak.behandlendeenhet.JournalføringsOppgave;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
+import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
+import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -31,20 +35,20 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 class OpprettGSakOppgaveTjenesteTaskTest {
+    private final String FORDELINGSOPPGAVE_ENHET_ID = "4825";
+    private OpprettGSakOppgaveTask task;
 
     @Mock
     private ProsessTaskTjeneste prosessTaskTjeneste;
-    private final String fordelingsOppgaveEnhetsId = "4825";
-
-    private OpprettGSakOppgaveTask task;
     @Mock
-    private JournalføringsOppgave enhetsidTjeneste;
+    private EnhetsTjeneste enhetsidTjeneste;
+    @Mock
+    private Journalføringsoppgave oppgaverTjeneste;
 
     @BeforeEach
     public void setup() {
-        when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), any(), any())).thenReturn(fordelingsOppgaveEnhetsId);
-        when(enhetsidTjeneste.opprettJournalføringsOppgave(any(), any(), any(), any(), any(), any())).thenReturn("99");
-        task = new OpprettGSakOppgaveTask(prosessTaskTjeneste, enhetsidTjeneste);
+        when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), any(), any())).thenReturn(FORDELINGSOPPGAVE_ENHET_ID);
+        task = new OpprettGSakOppgaveTask(prosessTaskTjeneste, oppgaverTjeneste, enhetsidTjeneste);
     }
 
     @Test
@@ -58,32 +62,35 @@ class OpprettGSakOppgaveTjenesteTaskTest {
         taskData.setProperty(BEHANDLINGSTEMA_KEY, behandlingTema.getKode());
         taskData.setProperty(DOKUMENTTYPE_ID_KEY, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getKode());
         taskData.setAktørId(aktørId);
+        var arkivId = "123456";
+        taskData.setProperty(ARKIV_ID_KEY, arkivId);
 
         String beskrivelse = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getTermNavn();
 
         task.doTask(taskData);
 
-        verify(enhetsidTjeneste).opprettJournalføringsOppgave(null, fordelingsOppgaveEnhetsId, aktørId, null,
-            BehandlingTema.ENGANGSSTØNAD.getOffisiellKode(), beskrivelse);
+        verify(oppgaverTjeneste).opprettJournalføringsoppgaveFor(buildNyOppgave(arkivId, FORDELINGSOPPGAVE_ENHET_ID, aktørId, BehandlingTema.ENGANGSSTØNAD, beskrivelse));
+        verify(oppgaverTjeneste, never()).opprettGosysJournalføringsoppgaveFor(any(NyOppgave.class));
     }
 
     @Test
-    void testServiceTask_uten_aktørId_fordelingsoppgave() {
-        String enhet = "4292";
+    void testServiceTask_uten_aktørId_fordelingsoppgave_klage_gosys() {
+        String klageEnhet = EnhetsTjeneste.NK_ENHET_ID;
         var taskData = ProsessTaskData.forProsessTask(OpprettGSakOppgaveTask.class);
         taskData.setProperty(TEMA_KEY, Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getKode());
         taskData.setProperty(BEHANDLINGSTEMA_KEY, BehandlingTema.ENGANGSSTØNAD_FØDSEL.getKode());
         taskData.setProperty(DOKUMENTTYPE_ID_KEY, DokumentTypeId.UDEFINERT.getKode());
-        taskData.setProperty(JOURNAL_ENHET, enhet);
+        taskData.setProperty(JOURNAL_ENHET, klageEnhet);
+        var arkivId = "123456";
+        taskData.setProperty(ARKIV_ID_KEY, arkivId);
         String beskrivelse = "Journalføring " + BehandlingTema.ENGANGSSTØNAD_FØDSEL.getTermNavn();
 
-        when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), eq(Optional.of(enhet)), any())).thenReturn(enhet);
+        when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), eq(Optional.of(klageEnhet)), any())).thenReturn(klageEnhet);
 
         task.doTask(taskData);
 
-        verify(enhetsidTjeneste).opprettJournalføringsOppgave(null, enhet, null, null, BehandlingTema.ENGANGSSTØNAD.getOffisiellKode(), beskrivelse);
-
-
+        verify(oppgaverTjeneste).opprettGosysJournalføringsoppgaveFor(buildNyOppgave(arkivId, klageEnhet, null, BehandlingTema.ENGANGSSTØNAD, beskrivelse));
+        verify(oppgaverTjeneste, never()).opprettJournalføringsoppgaveFor(any(NyOppgave.class));
     }
 
     @Test
@@ -102,7 +109,38 @@ class OpprettGSakOppgaveTjenesteTaskTest {
 
         task.doTask(taskData);
 
-        verify(enhetsidTjeneste).opprettJournalføringsOppgave(arkivId, fordelingsOppgaveEnhetsId, null, null,
-            BehandlingTema.FORELDREPENGER.getOffisiellKode(), beskrivelse);
+        verify(oppgaverTjeneste).opprettJournalføringsoppgaveFor(buildNyOppgave(arkivId, FORDELINGSOPPGAVE_ENHET_ID, null, BehandlingTema.FORELDREPENGER, beskrivelse));
+        verify(oppgaverTjeneste, never()).opprettGosysJournalføringsoppgaveFor(any(NyOppgave.class));
+    }
+
+    @Test
+    void testAnnetDokumentType_annet_gosys() {
+        var forsendelseId = UUID.randomUUID();
+        var taskData = ProsessTaskData.forProsessTask(OpprettGSakOppgaveTask.class);
+        taskData.setProperty(TEMA_KEY, Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getKode());
+        taskData.setProperty(BEHANDLINGSTEMA_KEY, BehandlingTema.FORELDREPENGER.getKode());
+        taskData.setProperty(MottakMeldingDataWrapper.FORSENDELSE_ID_KEY, forsendelseId.toString());
+        taskData.setProperty(DOKUMENTTYPE_ID_KEY, DokumentTypeId.ANNET.getKode());
+        taskData.setProperty(RETRY_KEY, "J");
+        var arkivId = DokumentArkivTestUtil.lagOpprettRespons(false).journalpostId();
+        taskData.setProperty(ARKIV_ID_KEY, arkivId);
+
+        String beskrivelse = DokumentTypeId.ANNET.getTermNavn();
+
+        task.doTask(taskData);
+
+        verify(oppgaverTjeneste).opprettJournalføringsoppgaveFor(buildNyOppgave(arkivId, FORDELINGSOPPGAVE_ENHET_ID, null, BehandlingTema.FORELDREPENGER, beskrivelse));
+        verify(oppgaverTjeneste, never()).opprettGosysJournalføringsoppgaveFor(any(NyOppgave.class));
+    }
+
+    private NyOppgave buildNyOppgave(String arkivId, String enhet, String aktørId, BehandlingTema behandlingTema, String beskrivelse) {
+        return NyOppgave.builder()
+            .medJournalpostId(JournalpostId.fra(arkivId))
+            .medEnhetId(enhet)
+            .medAktørId(aktørId)
+            .medSaksref(null)
+            .medBehandlingTema(behandlingTema)
+            .medBeskrivelse(beskrivelse)
+            .build();
     }
 }

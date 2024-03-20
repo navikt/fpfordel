@@ -10,12 +10,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
@@ -38,6 +37,7 @@ import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.AvsenderMottaker;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Bruker;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.DokumentInfoOpprett;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Dokumentvariant;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.KnyttTilAnnenSakRequest;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OppdaterJournalpostRequest;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OpprettJournalpostRequest;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Sak;
@@ -112,8 +112,8 @@ public class ArkivTjeneste {
         return Optional.ofNullable(tittel).map(TITTEL_MAP::get);
     }
 
-    public static boolean harBrevKode(Journalpost journalpost, NAVSkjema brevkode) {
-        if (journalpost == null || brevkode == null) {
+    public static boolean harBrevKode(Journalpost journalpost, Set<NAVSkjema> brevkoder) {
+        if (journalpost == null || brevkoder == null || brevkoder.isEmpty()) {
             return false;
         }
         Set<NAVSkjema> allebrevkoder = new HashSet<>();
@@ -123,7 +123,7 @@ public class ArkivTjeneste {
             allebrevkoder.add(NAVSkjema.fraTermNavn(d.tittel()));
             d.logiskeVedlegg().forEach(v -> allebrevkoder.add(NAVSkjema.fraTermNavn(v.tittel())));
         });
-        return allebrevkoder.contains(brevkode);
+        return brevkoder.stream().anyMatch(allebrevkoder::contains);
     }
 
     private static List<DokumentInfoOpprett> lagAlleDokumentForOpprett(List<Dokument> dokumenter) {
@@ -290,7 +290,7 @@ public class ArkivTjeneste {
         if ((journalpost.avsenderMottaker() == null) || (journalpost.avsenderMottaker().id() == null) || (journalpost.avsenderMottaker().navn()
             == null)) {
             var fnr = personTjeneste.hentPersonIdentForAktørId(aktørId).orElseThrow(() -> new IllegalStateException("Mangler fnr for aktørid"));
-            var navn = personTjeneste.hentNavn(aktørId);
+            var navn = personTjeneste.hentNavn(utledetBehandlingTema, aktørId);
             if (LOG.isInfoEnabled()) {
                 LOG.info("FPFORDEL oppdaterer manglende avsender for {}", journalpost.journalpostId());
             }
@@ -353,7 +353,7 @@ public class ArkivTjeneste {
 
         if ((originalJournalpost.avsenderMottaker() == null) || (originalJournalpost.avsenderMottaker().id() == null) || (originalJournalpost.avsenderMottaker().navn() == null)) {
             var fnr = personTjeneste.hentPersonIdentForAktørId(aktørId).orElseThrow(() -> new IllegalStateException("Mangler fnr for aktørid"));
-            var navn = personTjeneste.hentNavn(aktørId);
+            var navn = personTjeneste.hentNavn(utledetBehandlingTema, aktørId);
             if (LOG.isInfoEnabled()) {
                 LOG.info("FPFORDEL RESTJOURNALFØRING: oppdaterer manglende avsender for {}", originalJournalpost.journalpostId());
             }
@@ -413,11 +413,37 @@ public class ArkivTjeneste {
         }
     }
 
+    public void oppdaterMedGenerellSak(String journalpostId, String aktørId) {
+        var builder = OppdaterJournalpostRequest.ny()
+            .medSak(new Sak(null, null, Sak.Sakstype.GENERELL_SAK))
+            .medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode())
+            .medBruker(aktørId);
+
+        if (dokArkivTjeneste.oppdaterJournalpost(journalpostId, builder.build())) {
+            LOG.info("FPFORDEL SAKSOPPDATERING oppdaterte {} med generell sak", journalpostId);
+        } else {
+            throw new IllegalStateException("FPFORDEL Kunne ikke knytte journalpost " + journalpostId + " til generell sak");
+        }
+    }
+
     public void ferdigstillJournalføring(String journalpostId, String enhet) {
         if (dokArkivTjeneste.ferdigstillJournalpost(journalpostId, enhet)) {
             LOG.info("FPFORDEL FERDIGSTILLING ferdigstilte journalpost {} enhet {}", journalpostId, enhet);
         } else {
             throw new IllegalStateException("FPFORDEL Kunne ikke ferdigstille journalpost " + journalpostId);
+        }
+    }
+
+    public String knyttTilAnnenSak(ArkivJournalpost journalpost, String enhet, String sakId, String aktørId) {
+        var bruker = new Bruker(aktørId, Bruker.BrukerIdType.AKTOERID);
+        var knyttTilAnnenSakRequest = new KnyttTilAnnenSakRequest(Sak.Sakstype.FAGSAK.name(), sakId, "FS36", bruker,
+            Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode(), enhet);
+        var resultat =  dokArkivTjeneste.knyttTilAnnenSak(journalpost.getJournalpostId(), knyttTilAnnenSakRequest);
+        if (resultat != null) {
+            LOG.info("FPFORDEL KNYTTILANNENSAK journalpost {} ny sak {} ny journalpost {} enhet {}", journalpost.getJournalpostId(), sakId, resultat.nyJournalpostId(), enhet);
+            return resultat.nyJournalpostId();
+        } else {
+            throw new IllegalStateException("FPFORDEL Kunne ikke knytte journalpost " + journalpost.getJournalpostId() + " til sak " + sakId);
         }
     }
 
@@ -452,7 +478,8 @@ public class ArkivTjeneste {
         var tittel = DokumentTypeId.UDEFINERT.equals(hovedtype) ? DokumentTypeId.ANNET.getTermNavn() : hovedtype.getTermNavn();
         var bruker = new Bruker(metadata.getBrukerId(), Bruker.BrukerIdType.AKTOERID);
         var ident = personTjeneste.hentPersonIdentForAktørId(avsenderAktørId).orElseThrow(() -> new IllegalStateException("Aktør uten personident"));
-        var avsender = new AvsenderMottaker(ident, AvsenderMottaker.AvsenderMottakerIdType.FNR, personTjeneste.hentNavn(avsenderAktørId));
+        var avsender = new AvsenderMottaker(ident, AvsenderMottaker.AvsenderMottakerIdType.FNR,
+            personTjeneste.hentNavn(behandlingstema, avsenderAktørId));
 
         return OpprettJournalpostRequest.nyInngående()
             .medTittel(tittel)

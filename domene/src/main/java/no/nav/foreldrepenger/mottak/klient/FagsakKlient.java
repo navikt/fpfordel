@@ -1,15 +1,18 @@
 package no.nav.foreldrepenger.mottak.klient;
 
+import static no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste.NK_ENHET_ID;
+
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.ws.rs.core.UriBuilder;
+import no.nav.foreldrepenger.kontrakter.fordel.SakInfoV2Dto;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.core.UriBuilder;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -17,9 +20,9 @@ import no.nav.foreldrepenger.kontrakter.fordel.BehandlendeFagsystemDto;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
+import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakV2Dto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
-import no.nav.foreldrepenger.mottak.behandlendeenhet.JournalføringsOppgave;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
@@ -38,7 +41,7 @@ public class FagsakKlient implements Fagsak {
     private static final String VURDER_FAGSYSTEM_PATH = "/api/fordel/vurderFagsystem";
     private static final String KLAGEINSTANS_FAGSYSTEM_PATH = "/api/fordel/klageinstans";
 
-    private static final String FINN_FAGSAKER_PATH = "/api/fordel/finnFagsaker";
+    private static final String FINN_FAGSAKER_PATH = "/api/fordel/finnFagsaker/v2";
     private static final Logger LOG = LoggerFactory.getLogger(FagsakKlient.class);
 
     private final URI knytningEndpoint;
@@ -135,7 +138,7 @@ public class FagsakKlient implements Fagsak {
         LOG.info("Vurderer resultat");
 
         var brukPath = w.getJournalførendeEnhet()
-            .filter(JournalføringsOppgave.NK_ENHET_ID::equals)
+            .filter(NK_ENHET_ID::equals)
             .isPresent() ? klageinstansEndpoint : fagsystemEndpoint;
 
         var request = RestRequest.newPOSTJson(dto, brukPath, restConfig);
@@ -148,11 +151,11 @@ public class FagsakKlient implements Fagsak {
     }
 
     @Override
-    public List<SakInfoDto> hentBrukersSaker(AktørIdDto dto) {
+    public List<SakInfoV2Dto> hentBrukersSaker(AktørIdDto dto) {
         LOG.info("Henter alle saker for en bruker");
         var target = UriBuilder.fromUri(finnFagsakerEndpoint).build();
         var request = RestRequest.newPOSTJson(dto, target, restConfig);
-        return klient.sendReturnList(request, SakInfoDto.class);
+        return klient.sendReturnList(request, SakInfoV2Dto.class);
     }
 
     @Override

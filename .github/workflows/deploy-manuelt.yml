@@ -17,8 +17,11 @@ on:
 jobs:
   deploy:
     name: Deploy dev
+    permissions:
+      id-token: write
     uses: navikt/fp-gha-workflows/.github/workflows/deploy.yml@main
     with:
-      image: ghcr.io/${{ github.repository }}:${{ inputs.image }}
+      gar: true
+      image: ${{ inputs.image }}
       cluster: ${{ inputs.environment }}-fss
     secrets: inherit

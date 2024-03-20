@@ -1,11 +1,13 @@
 package no.nav.foreldrepenger.mottak.task;
 
-import jakarta.enterprise.context.Dependent;
-import jakarta.inject.Inject;
+import java.time.LocalDate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -18,15 +20,20 @@ public class SlettGamleTasksBatchTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(SlettGamleTasksBatchTask.class);
 
     private final ProsessTaskTjeneste prosessTaskTjeneste;
+    private final DokumentRepository dokumentRepository;
 
     @Inject
-    public SlettGamleTasksBatchTask(ProsessTaskTjeneste prosessTaskTjeneste) {
+    public SlettGamleTasksBatchTask(ProsessTaskTjeneste prosessTaskTjeneste,
+                                    DokumentRepository dokumentRepository) {
         this.prosessTaskTjeneste = prosessTaskTjeneste;
+        this.dokumentRepository = dokumentRepository;
     }
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        var slettet = prosessTaskTjeneste.slettÅrsgamleFerdige();
-        LOG.info("Slettet {} tasks som er over ett år gamle.", slettet);
+        var slettetTask = prosessTaskTjeneste.slettÅrsgamleFerdige();
+        LOG.info("Slettet {} tasks som er over ett år gamle.", slettetTask);
+        var slettetJournalpost = dokumentRepository.slettJournalpostLokalEldreEnn(LocalDate.now().minusMonths(4));
+        LOG.info("Slettet {} journalposter som er over 4 måneder gamle.", slettetJournalpost);
     }
 }

@@ -22,16 +22,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.NAVSkjema;
-import no.nav.foreldrepenger.mottak.behandlendeenhet.JournalføringsOppgave;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.felles.WrappedProsessTaskHandler;
@@ -65,6 +64,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     private static final TaskType TASK_JOURNALFØR = TaskType.forProsessTask(TilJournalføringTask.class);
 
     private static final Set<String> DIREKTE_KA = Set.of("anke", "rettskjennelse fra trygderetten", "ettersendelse til anke");
+    private static final Set<NAVSkjema> SKJEMA_KA = Set.of(NAVSkjema.SKJEMA_KLAGE_A_DOKUMENT, NAVSkjema.SKJEMA_TRYGDERETT_DOKUMENT,
+        NAVSkjema.SKJEMAE_ANKE, NAVSkjema.SKJEMAE_TRYGDERETT);
 
     private static final Logger LOG = LoggerFactory.getLogger(HentDataFraJoarkTask.class);
 
@@ -133,15 +134,17 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             w.setEksternReferanseId(journalpost.getEksternReferanseId());
         }
 
+        Optional.ofNullable(journalpost.getKanal()).ifPresent(w::setKanal);
         w.setForsendelseMottattTidspunkt(Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now));
         w.setDokumentTypeId(journalpost.getHovedtype());
-        w.setBehandlingTema(ArkivUtil.behandlingTemaFraDokumentType(w.getBehandlingTema(), journalpost.getHovedtype()));
+        w.setBehandlingTema(ArkivUtil.behandlingTemaFraDokumentTypeSet(w.getBehandlingTema(), journalpost.getAlleTyper()));
         w.setDokumentKategori(ArkivUtil.utledKategoriFraDokumentType(journalpost.getHovedtype()));
         finnAktørId(journalpost).ifPresent(w::setAktørId);
         journalpost.getJournalfoerendeEnhet().ifPresent(w::setJournalførendeEnhet);
         w.setStrukturertDokument(journalpost.getInnholderStrukturertInformasjon());
         journalpost.getSaksnummer().ifPresent(s -> {
-            LOG.info("FORDEL HentFraArkiv presatt saksnummer {} for journalpost {}", s, w.getArkivId());
+            LOG.info("FPFORDEL HentFraArkiv presatt saksnummer {} for journalpost {} kanal {} dokumenttype {}", s, w.getArkivId(),
+                journalpost.getKanal(), journalpost.getHovedtype());
             w.setSaksnummer(s);
             w.setInnkommendeSaksnummer(s);
         });
@@ -177,12 +180,10 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         }
 
         // Egen rute for rene ankedokument - journalføringsoppgave Klageinstans
-        if (journalpost.getAlleTyper().contains(DokumentTypeId.KLAGE_DOKUMENT) && journalpost.getSaksnummer().isEmpty() &&
-            (journalpost.getTittel().map(String::toLowerCase).filter(DIREKTE_KA::contains).isPresent() ||
-                ArkivTjeneste.harBrevKode(journalpost.getOriginalJournalpost(), NAVSkjema.SKJEMA_KLAGE_A_DOKUMENT))) {
+        if (journalpost.getAlleTyper().contains(DokumentTypeId.KLAGE_DOKUMENT) && journalpost.getSaksnummer().isEmpty() && erAnkeRelatert(journalpost)) {
             LOG.info("FPFORDEL HentFraArkiv ankedokument til KA journalpost {} kanal {} dokumenttype {}", journalpost.getJournalpostId(),
                 journalpost.getKanal(), journalpost.getHovedtype());
-            w.setJournalførendeEnhet(JournalføringsOppgave.NK_ENHET_ID);
+            w.setJournalførendeEnhet(EnhetsTjeneste.NK_ENHET_ID);
             return w.nesteSteg(TASK_GOSYS);
         }
 
@@ -220,7 +221,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         if (erInntektsmelding(journalpost.getHovedtype())) {
             oppdaterInntektsmelding(w);
             if (kreverInntektsmeldingManuellVurdering(w)) {
-                LOG.info("FPFORDEL HentFraArkiv inntektsmelding til manuell murdering journalpost {}", journalpost.getJournalpostId());
+                LOG.info("FPFORDEL HentFraArkiv inntektsmelding til manuell vurdering journalpost {}", journalpost.getJournalpostId());
                 return w.nesteSteg(TASK_GOSYS);
             }
         } else if (!arkiv.oppdaterRettMangler(journalpost, w.getAktørId().orElse(null), w.getBehandlingTema(), w.getDokumentTypeId().orElse(UDEFINERT))) {
@@ -294,6 +295,11 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
     private Optional<String> getIdHvisFNR(AvsenderMottaker avsenderMottaker) {
         return AvsenderMottaker.AvsenderMottakerIdType.FNR.equals(avsenderMottaker.idType()) ? Optional.ofNullable(
             avsenderMottaker.id()) : Optional.empty();
+    }
+
+    private static boolean erAnkeRelatert(ArkivJournalpost journalpost) {
+        return journalpost.getTittel().map(String::toLowerCase).filter(DIREKTE_KA::contains).isPresent() ||
+            ArkivTjeneste.harBrevKode(journalpost.getOriginalJournalpost(), SKJEMA_KA);
     }
 
     @Override

@@ -4,13 +4,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.StringUtil;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.pdl.Adressebeskyttelse;
 import no.nav.pdl.AdressebeskyttelseGradering;
 import no.nav.pdl.AdressebeskyttelseResponseProjection;
@@ -57,10 +57,15 @@ public class PersonTjeneste implements PersonInformasjon {
         q.setIdent(aktørId);
         return q;
     }
-
     private static String mapNavn(Navn navn) {
-        return Optional.ofNullable(navn.getForkortetNavn())
-            .orElseGet(() -> navn.getEtternavn() + " " + navn.getFornavn() + Optional.ofNullable(navn.getMellomnavn()).map(n -> " " + n).orElse(""));
+        return navn.getFornavn() + leftPad(navn.getMellomnavn()) + leftPad(navn.getEtternavn());
+    }
+
+    private static String leftPad(String navn) {
+        if (navn == null) {
+            return "";
+        }
+        return " " + navn;
     }
 
     @Override
@@ -84,9 +89,10 @@ public class PersonTjeneste implements PersonInformasjon {
     }
 
     @Override
-    public String hentNavn(String id) {
-        return pdl.hentPerson(personQuery(id),
-                new PersonResponseProjection().navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn()))
+    public String hentNavn(BehandlingTema behandlingTema, String id) {
+        var ytelse = utledYtelse(behandlingTema);
+        return pdl.hentPerson(ytelse, personQuery(id),
+                new PersonResponseProjection().navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn()))
             .getNavn()
             .stream()
             .map(PersonTjeneste::mapNavn)
@@ -95,17 +101,19 @@ public class PersonTjeneste implements PersonInformasjon {
     }
 
     @Override
-    public String hentGeografiskTilknytning(String id) {
+    public String hentGeografiskTilknytning(BehandlingTema behandlingTema, String id) {
+        var ytelse = utledYtelse(behandlingTema);
         var query = new HentGeografiskTilknytningQueryRequest();
         query.setIdent(id);
         var pgt = new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand();
-        return tilknytning(pdl.hentGT(query, pgt));
+        return tilknytning(pdl.hentGT(ytelse, query, pgt));
     }
 
     @Override
-    public boolean harStrengDiskresjonskode(String id) {
+    public boolean harStrengDiskresjonskode(BehandlingTema behandlingTema, String id) {
+        var ytelse = utledYtelse(behandlingTema);
         var pp = new PersonResponseProjection().adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
-        return pdl.hentPerson(personQuery(id), pp).getAdressebeskyttelse().stream().map(Adressebeskyttelse::getGradering).anyMatch(STRENG::contains);
+        return pdl.hentPerson(ytelse, personQuery(id), pp).getAdressebeskyttelse().stream().map(Adressebeskyttelse::getGradering).anyMatch(STRENG::contains);
     }
 
     private Optional<String> tilAktørId(String fnr) {
@@ -139,6 +147,16 @@ public class PersonTjeneste implements PersonInformasjon {
     @Override
     public String toString() {
         return getClass().getSimpleName() + " [pdl=" + pdl + "]";
+    }
+
+    private static Persondata.Ytelse utledYtelse(BehandlingTema behandlingTema) {
+        if (BehandlingTema.gjelderEngangsstønad(behandlingTema)) {
+            return Persondata.Ytelse.ENGANGSSTØNAD;
+        } else if (BehandlingTema.gjelderSvangerskapspenger(behandlingTema)) {
+            return Persondata.Ytelse.SVANGERSKAPSPENGER;
+        } else {
+            return Persondata.Ytelse.FORELDREPENGER;
+        }
     }
 
 }
