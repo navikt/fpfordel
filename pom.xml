@@ -135,7 +135,7 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- Fikser https://github.com/navikt/fpabonnent/security/dependabot/10 - kan fjernes om avro bumper selv. -->
+            <!-- Fikser security warning - kan fjernes om avro bumper selv. -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
