@@ -135,6 +135,12 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <!-- Fikser https://github.com/navikt/fpabonnent/security/dependabot/10 - kan fjernes om avro bumper selv. -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>1.26.1</version>
+            </dependency>
             <dependency>
                 <groupId>io.confluent</groupId>
                 <artifactId>kafka-schema-registry-client</artifactId>
