@@ -35,7 +35,7 @@ class JournalføringHendelseHåndtererTest {
 
     @BeforeEach
     void setup() {
-        hendelseHåndterer = new JournalføringHendelseHåndterer(taskTjeneste, dokumentRepository, 2);
+        hendelseHåndterer = new JournalføringHendelseHåndterer(taskTjeneste, dokumentRepository, "topic", 2);
     }
 
     @Test
