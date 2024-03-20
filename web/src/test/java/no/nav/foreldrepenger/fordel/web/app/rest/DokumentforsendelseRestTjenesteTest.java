@@ -1,10 +1,15 @@
 package no.nav.foreldrepenger.fordel.web.app.rest;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+
 import static jakarta.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
 import static jakarta.ws.rs.core.HttpHeaders.LOCATION;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_XML_TYPE;
+import static no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste.APPLICATION_PDF_TYPE;
+import static no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste.IMAGE_JPEG_TYPE;
+import static no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste.IMAGE_PNG_TYPE;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -58,7 +63,9 @@ class DokumentforsendelseRestTjenesteTest {
     private BodyPart metadataPart;
     private BodyPart hoveddokumentPart;
     private BodyPart hoveddokumentPartPdf;
-    private BodyPart vedleggPart;
+    private BodyPart vedleggPartPdf;
+    private BodyPart vedleggPartJpeg;
+    private BodyPart vedleggPartPng;
     @Mock
     private MultiPart input;
 
@@ -71,17 +78,33 @@ class DokumentforsendelseRestTjenesteTest {
         return part;
     }
 
-    private static BodyPart mockHoveddokumentPartPdf() throws Exception {
+    private static BodyPart mockHoveddokumentPartPdf() {
         var part = mockBasicInputPart(Optional.of("<some ID 2>"), "hoveddokument");
-        when(part.getMediaType()).thenReturn(MediaType.valueOf("application/pdf"));
+        when(part.getMediaType()).thenReturn(APPLICATION_PDF_TYPE);
         when(part.getEntityAs(String.class)).thenReturn("");
         when(part.getEntityAs(byte[].class)).thenReturn("body".getBytes(UTF_8));
         return part;
     }
 
-    private static BodyPart mockVedleggPart(String contentId) throws Exception {
+    private static BodyPart mockVedleggPartPDF(String contentId) {
         var part = mockBasicInputPart(Optional.of(contentId), "vedlegg");
-        when(part.getMediaType()).thenReturn(MediaType.valueOf("application/pdf"));
+        when(part.getMediaType()).thenReturn(APPLICATION_PDF_TYPE);
+        when(part.getEntityAs(String.class)).thenReturn("");
+        when(part.getEntityAs(byte[].class)).thenReturn("body".getBytes(UTF_8));
+        return part;
+    }
+
+    private static BodyPart mockVedleggPartJpeg(String contentId) {
+        var part = mockBasicInputPart(Optional.of(contentId), "vedlegg");
+        when(part.getMediaType()).thenReturn(IMAGE_JPEG_TYPE);
+        when(part.getEntityAs(String.class)).thenReturn("");
+        when(part.getEntityAs(byte[].class)).thenReturn("body".getBytes(UTF_8));
+        return part;
+    }
+
+    private static BodyPart mockVedleggPartPng(String contentId) {
+        var part = mockBasicInputPart(Optional.of(contentId), "vedlegg");
+        when(part.getMediaType()).thenReturn(IMAGE_PNG_TYPE);
         when(part.getEntityAs(String.class)).thenReturn("");
         when(part.getEntityAs(byte[].class)).thenReturn("body".getBytes(UTF_8));
         return part;
@@ -93,8 +116,10 @@ class DokumentforsendelseRestTjenesteTest {
         metadataPart = mockMetadataPart();
         hoveddokumentPart = mockHoveddokumentPartXml();
         hoveddokumentPartPdf = mockHoveddokumentPartPdf();
-        vedleggPart = mockVedleggPart("<some ID 3>");
-        when(input.getBodyParts()).thenReturn(List.of(metadataPart, hoveddokumentPart, hoveddokumentPartPdf, vedleggPart));
+        vedleggPartPdf = mockVedleggPartPDF("<some ID 3>");
+        vedleggPartJpeg = mockVedleggPartJpeg("<some ID 4>");
+        vedleggPartPng = mockVedleggPartPng("<some ID 5>");
+        when(input.getBodyParts()).thenReturn(List.of(metadataPart, hoveddokumentPart, hoveddokumentPartPdf, vedleggPartPdf, vedleggPartJpeg, vedleggPartPng));
     }
 
     @Test
@@ -140,7 +165,7 @@ class DokumentforsendelseRestTjenesteTest {
     @Test
     void skal_kaste_teknisk_exception_hvis_metadata_har_færre_filer_enn_lastet_opp() throws Exception {
         String contentId = "<some ID 4>";
-        var inputParts = List.of(metadataPart, hoveddokumentPart, hoveddokumentPartPdf, vedleggPart, mockVedleggPart(contentId));
+        var inputParts = List.of(metadataPart, hoveddokumentPart, hoveddokumentPartPdf, vedleggPartPdf, vedleggPartJpeg, vedleggPartPng, mockVedleggPartPDF(contentId));
         when(input.getBodyParts()).thenReturn(inputParts);
 
         assertThatThrownBy(() -> tjeneste.uploadFile(input)).isInstanceOf(TekniskException.class)
@@ -158,10 +183,10 @@ class DokumentforsendelseRestTjenesteTest {
     }
 
     @Test
-    void skal_kaste_teknisk_exception_hvis_vedlegg_ikke_er_mediatype_pdf() {
-        when(vedleggPart.getMediaType()).thenReturn(APPLICATION_XML_TYPE);
+    void skal_kaste_teknisk_exception_hvis_vedlegg_ikke_er_mediatype_pdf_jpeg_png() {
+        when(vedleggPartPdf.getMediaType()).thenReturn(APPLICATION_XML_TYPE);
         assertThatThrownBy(() -> tjeneste.uploadFile(input)).isInstanceOf(TekniskException.class)
-            .hasMessageContaining("FP-882558:Vedlegg er ikke pdf, Content-ID=<some ID 3>");
+            .hasMessageContaining("FP-882558:Vedlegg er hverken pdf, png eller jpeg, Content-ID=<some ID 3>");
     }
 
     @Test
@@ -235,7 +260,7 @@ class DokumentforsendelseRestTjenesteTest {
         assertThat(new DokumentforsendelseRestTjeneste.AbacDataSupplier().apply(input).toString()).contains("AKTØR_ID=[MASKERT#1]");
     }
 
-    private BodyPart mockMetadataPart() throws Exception, Exception {
+    private BodyPart mockMetadataPart() throws Exception {
         var part = mockBasicInputPart(Optional.empty(), "metadata");
         when(part.getMediaType()).thenReturn(APPLICATION_JSON_TYPE);
         when(part.getEntityAs(String.class)).thenReturn(byggMetadataString());
