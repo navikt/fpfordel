@@ -64,6 +64,7 @@ public class ApiConfig extends Application {
             ForvaltningRestTjeneste.class,
             MigreringRestTjeneste.class,
             OpenApiResource.class,
+            AuthenticationFilter.class,
             MultiPartFeature.class,
             ConstraintViolationMapper.class,
             JsonMappingExceptionMapper.class,
