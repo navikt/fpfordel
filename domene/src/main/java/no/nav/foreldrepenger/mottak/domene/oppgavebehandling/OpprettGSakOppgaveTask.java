@@ -39,7 +39,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
  * </p>
  */
 @Dependent
-@ProsessTask(value = "integrasjon.gsak.opprettOppgave", maxFailedRuns = 2)
+@ProsessTask(value = "integrasjon.gsak.opprettOppgave", prioritet = 2, maxFailedRuns = 2)
 public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(OpprettGSakOppgaveTask.class);
