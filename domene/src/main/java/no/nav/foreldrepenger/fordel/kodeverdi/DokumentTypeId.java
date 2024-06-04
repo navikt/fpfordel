@@ -36,7 +36,9 @@ public enum DokumentTypeId implements Kodeverdi {
     INNTEKTSOPPLYSNING_SELVSTENDIG("INNTEKTSOPPLYSNING_SELVSTENDIG", "I000007",
         "Inntektsopplysninger om selvstendig næringsdrivende og/eller frilansere som skal ha foreldrepenger eller svangerskapspenger"),
     INNTEKTSOPPLYSNINGER("INNTEKTSOPPLYSNINGER", "I000026",
-        "Inntektsopplysninger for arbeidstaker som skal ha sykepenger, foreldrepenger, svangerskapspenger, pleie-/opplæringspenger"),
+        "Inntektsopplysninger for arbeidstaker som skal ha sykepenger foreldrepenger svangerskapspenger pleie-/opplæringspenger"),
+    INNTEKTSOPPLYSNINGERNY("INNTEKTSOPPLYSNINGERNY", "I000226",
+        "Inntektsopplysninger for arbeidstaker som skal ha sykepenger foreldrepenger svangerskapspenger pleie-/opplæringspenger og omsorgspenger"),
     INNTEKTSOPPLYSNINGSSKJEMA("I000052", "I000052", "Inntektsopplysningsskjema"),
     DOK_INNTEKT("DOK_INNTEKT", "I000016", "Dokumentasjon av inntekt"),
     RESULTATREGNSKAP("RESULTATREGNSKAP", "I000032", "Resultatregnskap"),
@@ -44,7 +46,7 @@ public enum DokumentTypeId implements Kodeverdi {
     // Vedlegg fra brukerdialog og fyllut-sendinn
     LEGEERKLÆRING("LEGEERKLÆRING", "I000023", "Legeerklæring"),
     DOK_INNLEGGELSE("DOK_INNLEGGELSE", "I000037", "Dokumentasjon av innleggelse i helseinstitusjon"),
-    DOK_MORS_UTDANNING_ARBEID_SYKDOM("DOK_MORS_UTDANNING_ARBEID_SYKDOM", "I000038", "Dokumentasjon av mors utdanning, arbeid eller sykdom"),
+    DOK_MORS_UTDANNING_ARBEID_SYKDOM("DOK_MORS_UTDANNING_ARBEID_SYKDOM", "I000038", "Dokumentasjon av mors utdanning arbeid eller sykdom"),
     DOK_MILITÆR_SIVIL_TJENESTE("DOK_MILITÆR_SIVIL_TJENESTE", "I000039", "Dokumentasjon av militær- eller siviltjeneste"),
     DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL("DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL", "I000041",
         "Dokumentasjon av termindato (lev. kun av mor), fødsel eller dato for omsorgsovertakelse"),
@@ -128,23 +130,26 @@ public enum DokumentTypeId implements Kodeverdi {
 
     // Ulike titler er brukt i selvbetjening, fordel, sak og kodeverk
     private static final Map<String, DokumentTypeId> ALT_TITLER = Map.ofEntries(
-        Map.entry("Søknad om svangerskapspenger til selvstendig næringsdrivende og frilanser", SØKNAD_SVANGERSKAPSPENGER),
-        Map.entry("Søknad om svangerskapspenger for selvstendig", SØKNAD_SVANGERSKAPSPENGER),
-        Map.entry("Bekreftelse på avtalt ferie", DOK_FERIE),
-        Map.entry("Mor er innlagt i helseinstitusjon", DOK_INNLEGGELSE),
-        Map.entry("Mor er i arbeid, tar utdanning eller er for syk til å ta seg av barnet", DOK_MORS_UTDANNING_ARBEID_SYKDOM),
-        Map.entry("Dokumentasjon av termindato, fødsel eller dato for omsorgsovertakelse", DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL),
-        Map.entry("Tjenestebevis", DOK_MILITÆR_SIVIL_TJENESTE),
-        Map.entry("Dokumentasjon av overtakelse av omsorg", DOKUMENTASJON_AV_OMSORGSOVERTAKELSE),
-        Map.entry("Dokumentasjon av etterlønn eller sluttvederlag", DOK_ETTERLØNN),
-        Map.entry("Beskrivelse/Dokumentasjon funksjonsnedsettelse", BESKRIVELSE_FUNKSJONSNEDSETTELSE),
-        Map.entry("Mor deltar i kvalifiseringsprogrammet", BEKREFTELSE_DELTAR_KVALIFISERINGSPROGRAM),
-        Map.entry("Mor tar utdanning på heltid", BEKREFTELSE_FRA_STUDIESTED),
-        Map.entry("Kopi av skattemelding", KOPI_SKATTEMELDING),
-        Map.entry("Svar på varsel om tilbakebetaling", TILBAKEKREV_UTTALELSE),
-        Map.entry("Klage", DokumentTypeId.KLAGE_DOKUMENT),
-        Map.entry("Anke", DokumentTypeId.KLAGE_DOKUMENT),
-        Map.entry("Rettskjennelse fra Trygderetten", DokumentTypeId.KLAGE_DOKUMENT));
+        Map.entry("søknad om svangerskapspenger til selvstendig næringsdrivende og frilanser", SØKNAD_SVANGERSKAPSPENGER),
+        Map.entry("søknad om svangerskapspenger for selvstendig", SØKNAD_SVANGERSKAPSPENGER),
+        Map.entry("bekreftelse på avtalt ferie", DOK_FERIE),
+        Map.entry("mor er innlagt i helseinstitusjon", DOK_INNLEGGELSE),
+        Map.entry("mor er i arbeid tar utdanning eller er for syk til å ta seg av barnet", DOK_MORS_UTDANNING_ARBEID_SYKDOM),
+        Map.entry("dokumentasjon av termindato fødsel eller dato for omsorgsovertakelse", DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL),
+        Map.entry("tjenestebevis", DOK_MILITÆR_SIVIL_TJENESTE),
+        Map.entry("dokumentasjon av overtakelse av omsorg", DOKUMENTASJON_AV_OMSORGSOVERTAKELSE),
+        Map.entry("dokumentasjon av etterlønn eller sluttvederlag", DOK_ETTERLØNN),
+        Map.entry("beskrivelse/dokumentasjon funksjonsnedsettelse", BESKRIVELSE_FUNKSJONSNEDSETTELSE),
+        Map.entry("mor deltar i kvalifiseringsprogrammet", BEKREFTELSE_DELTAR_KVALIFISERINGSPROGRAM),
+        Map.entry("mor tar utdanning på heltid", BEKREFTELSE_FRA_STUDIESTED),
+        Map.entry("kopi av skattemelding", KOPI_SKATTEMELDING),
+        Map.entry("svar på varsel om tilbakebetaling", TILBAKEKREV_UTTALELSE),
+        Map.entry("klage", DokumentTypeId.KLAGE_DOKUMENT),
+        Map.entry("anke", DokumentTypeId.KLAGE_DOKUMENT),
+        Map.entry("rettskjennelse fra trygderetten", DokumentTypeId.KLAGE_DOKUMENT),
+        Map.entry("ettersending til nav 14-04.10 søknad om svangerskapspenger til selvstendig næringsdrivende og frilanser", ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG),
+        Map.entry("ettersending til nav 14-05.07 søknad om engangsstønad ved fødsel", ETTERSENDT_SØKNAD_ENGANGSSTØNAD_FØDSEL),
+        Map.entry("ettersending til nav 14-05.09 søknad om foreldrepenger ved fødsel", ETTERSENDT_SØKNAD_FORELDREPENGER_FØDSEL));
 
     static {
         for (var v : values()) {
@@ -155,7 +160,7 @@ public enum DokumentTypeId implements Kodeverdi {
                 OFFISIELLE_KODER.putIfAbsent(v.offisiellKode, v);
             }
             if (v.termnavn != null) {
-                TERMNAVN_KODER.putIfAbsent(v.termnavn, v);
+                TERMNAVN_KODER.putIfAbsent(v.termnavn.toLowerCase(), v);
             }
         }
     }
@@ -201,6 +206,8 @@ public enum DokumentTypeId implements Kodeverdi {
 
     public static DokumentTypeId fraTermNavn(String navn) {
         return Optional.ofNullable(navn)
+            .map(String::toLowerCase)
+            .map(s -> s.replace(",", "").replaceAll(" {2}", " "))
             .map(n -> Optional.ofNullable(TERMNAVN_KODER.get(n)).orElseGet(() -> ALT_TITLER.getOrDefault(n, UDEFINERT)))
             .orElse(UDEFINERT);
     }

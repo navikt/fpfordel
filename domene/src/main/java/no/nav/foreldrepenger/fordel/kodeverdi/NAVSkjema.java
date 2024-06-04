@@ -34,7 +34,7 @@ public enum NAVSkjema implements Kodeverdi {
     SKJEMAE_INNTEKTSOPPLYSNING_SELVSTENDIG("SEIS", "NAVe 14-35.01",
         "Ettersendelse til inntektsopplysninger for selvstendig næringsdrivende og frilansere som skal ha foreldrepenger eller svangerskapspenger"),
     SKJEMAE_INNTEKTSOPPLYSNINGER("SEIP", "NAVe 08-30.01",
-        "Ettersendelse til inntektsopplysninger for arbeidstaker som skal ha sykepenger, foreldrepenger, svangerskapspenger, pleie-/opplæringspenger og omsorgspenger"),
+        "Ettersendelse til inntektsopplysninger for arbeidstaker som skal ha sykepenger foreldrepenger svangerskapspenger pleie-/opplæringspenger og omsorgspenger"),
     SKJEMAE_KLAGE("SEKLAG", "NAVe 90-00.08", "Ettersendelse klage/anke"),
     SKJEMAE_KLAGE_NY("SEKLGE", "NAVe 90-00.08 K", "Ettersendelse til Klage"),
     SKJEMAE_ANKE("SEANKE", "NAVe 90-00.08 A", "Ettersendelse til Anke"),
@@ -66,7 +66,7 @@ public enum NAVSkjema implements Kodeverdi {
                 OFFISIELLE_KODER.putIfAbsent(v.offisiellKode, v);
             }
             if (v.termnavn != null) {
-                TERMNAVN_KODER.putIfAbsent(v.termnavn, v);
+                TERMNAVN_KODER.putIfAbsent(v.termnavn.toLowerCase(), v);
             }
         }
     }
@@ -95,7 +95,8 @@ public enum NAVSkjema implements Kodeverdi {
         if (navn == null) {
             return UDEFINERT;
         }
-        return TERMNAVN_KODER.getOrDefault(navn, UDEFINERT);
+        var key = navn.toLowerCase().replace(",", "").replaceAll(" {2}", " ");
+        return TERMNAVN_KODER.getOrDefault(key, UDEFINERT);
     }
 
     @Override
