@@ -12,7 +12,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @Dependent
-@ProsessTask(value = "integrasjon.gsak.ferdigstillOppgave", maxFailedRuns = 2)
+@ProsessTask(value = "integrasjon.gsak.ferdigstillOppgave", prioritet = 2, maxFailedRuns = 2)
 public class FerdigstillOppgaveTask implements ProsessTaskHandler {
     public static final String JOURNALPOSTID_KEY = "journalpostId";
 

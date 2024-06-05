@@ -22,7 +22,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
  * </p>
  */
 @ApplicationScoped
-@ProsessTask(SlettForsendelseTask.TASKNAME)
+@ProsessTask(value = SlettForsendelseTask.TASKNAME, prioritet = 3)
 public class SlettForsendelseTask extends WrappedProsessTaskHandler {
 
     public static final String FORCE_SLETT_KEY = "force.slett";

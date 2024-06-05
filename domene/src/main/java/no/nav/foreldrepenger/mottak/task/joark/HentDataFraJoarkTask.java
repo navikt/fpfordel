@@ -55,7 +55,7 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
  * </p>
  */
 @ApplicationScoped
-@ProsessTask(HentDataFraJoarkTask.TASKNAME)
+@ProsessTask(value = HentDataFraJoarkTask.TASKNAME, prioritet = 2)
 public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     static final String TASKNAME = "fordeling.hentFraJoark";
