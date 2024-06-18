@@ -16,6 +16,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,8 +27,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
@@ -336,7 +337,7 @@ class JournalføringRestTjenesteTest {
         when(oppgaveTjeneste.hentOppgaveFor(any(JournalpostId.class))).thenReturn(
             opprettOppgave("12334", LocalDate.now(), "test", "7070", "John", YtelseType.FP));
 
-        var request = new JournalføringRestTjeneste.ReserverOppgaveDto(expectedJournalpostId,null);
+        var request = new JournalføringRestTjeneste.ReserverOppgaveDto(expectedJournalpostId, null);
 
         Exception ex;
         try (var utilities = Mockito.mockStatic(KontekstHolder.class)) {
@@ -401,7 +402,7 @@ class JournalføringRestTjenesteTest {
             null,
             null,
             null,
-            brukerAktørId != null ? new Bruker(brukerAktørId, Bruker.BrukerIdType.AKTOERID): null,
+            brukerAktørId != null ? new Bruker(brukerAktørId, Bruker.BrukerIdType.AKTOERID) : null,
             null,
             null,
             List.of(),

@@ -121,13 +121,18 @@ class ArkivTjenesteTest {
     @Test
     void titler_og_typer() {
         assertThat(DokumentTypeId.fraTermNavn(SØKNAD_FORELDREPENGER_FØDSEL.getTermNavn())).isEqualTo(SØKNAD_FORELDREPENGER_FØDSEL);
-        assertThat(DokumentTypeId.fraTermNavn("Ettersending til NAV 14-05.09 Søknad om foreldrepenger ved fødsel")).isEqualTo(ETTERSENDT_SØKNAD_FORELDREPENGER_FØDSEL);
-        assertThat(DokumentTypeId.fraTermNavn("Inntektsopplysninger for arbeidstaker som skal ha sykepenger, foreldrepenger, svangerskapspenger, pleie-/opplæringspenger og omsorgspenger")).isEqualTo(DokumentTypeId.INNTEKTSOPPLYSNINGERNY);
+        assertThat(DokumentTypeId.fraTermNavn("Ettersending til NAV 14-05.09 Søknad om foreldrepenger ved fødsel")).isEqualTo(
+            ETTERSENDT_SØKNAD_FORELDREPENGER_FØDSEL);
+        assertThat(DokumentTypeId.fraTermNavn(
+            "Inntektsopplysninger for arbeidstaker som skal ha sykepenger, foreldrepenger, svangerskapspenger, pleie-/opplæringspenger og omsorgspenger")).isEqualTo(
+            DokumentTypeId.INNTEKTSOPPLYSNINGERNY);
         assertThat(DokumentTypeId.fraTermNavn("klage")).isEqualTo(DokumentTypeId.KLAGE_DOKUMENT);
 
         assertThat(NAVSkjema.fraTermNavn(NAVSkjema.SKJEMA_SVANGERSKAPSPENGER_SN.getTermNavn())).isEqualTo(NAVSkjema.SKJEMA_SVANGERSKAPSPENGER_SN);
-        assertThat(NAVSkjema.fraTermNavn(NAVSkjema.SKJEMA_SVANGERSKAPSPENGER_SN.getTermNavn().toLowerCase())).isEqualTo(NAVSkjema.SKJEMA_SVANGERSKAPSPENGER_SN);
-        assertThat(NAVSkjema.fraTermNavn(NAVSkjema.SKJEMA_SVANGERSKAPSPENGER_SN.getTermNavn().toUpperCase())).isEqualTo(NAVSkjema.SKJEMA_SVANGERSKAPSPENGER_SN);
+        assertThat(NAVSkjema.fraTermNavn(NAVSkjema.SKJEMA_SVANGERSKAPSPENGER_SN.getTermNavn()
+            .toLowerCase())).isEqualTo(NAVSkjema.SKJEMA_SVANGERSKAPSPENGER_SN);
+        assertThat(NAVSkjema.fraTermNavn(NAVSkjema.SKJEMA_SVANGERSKAPSPENGER_SN.getTermNavn()
+            .toUpperCase())).isEqualTo(NAVSkjema.SKJEMA_SVANGERSKAPSPENGER_SN);
     }
 
     private void setupHentPersonOgNavn() {

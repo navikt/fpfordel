@@ -2,10 +2,10 @@ package no.nav.foreldrepenger.fordel.web.app.healthcheck;
 
 import java.sql.SQLException;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import javax.sql.DataSource;
-
 import jakarta.annotation.Resource;
+import jakarta.enterprise.context.ApplicationScoped;
+
+import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

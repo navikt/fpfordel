@@ -5,11 +5,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record JournalpostDetaljerDto(@NotNull String journalpostId,
                                      @NotNull String tittel,
@@ -38,8 +38,9 @@ public record JournalpostDetaljerDto(@NotNull String journalpostId,
                                       @NotNull LocalDate opprettetDato,
                                       @NotNull @Valid StatusDto status,
                                       FamilieHendelseJournalføringDto familieHendelseJf,
-                                      LocalDate førsteUttaksdato ) {
-        record FamilieHendelseJournalføringDto(LocalDate familiehHendelseDato, @Valid FamilihendelseTypeJFDto familihendelseType) {}
+                                      LocalDate førsteUttaksdato) {
+        record FamilieHendelseJournalføringDto(LocalDate familiehHendelseDato, @Valid FamilihendelseTypeJFDto familihendelseType) {
+        }
 
         public enum StatusDto {
             @JsonProperty("OPPR")

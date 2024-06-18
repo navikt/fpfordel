@@ -4,7 +4,8 @@ import java.time.LocalDate;
 
 import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
 
-public record Oppgave(String oppgaveId, // trenges kun for oppgaver fra gosys, for lokale oppgaver er den lik til journalpostId og ikke brukes noe særlig.
+public record Oppgave(String oppgaveId,
+                      // trenges kun for oppgaver fra gosys, for lokale oppgaver er den lik til journalpostId og ikke brukes noe særlig.
                       String journalpostId,
                       String aktørId,
                       YtelseType ytelseType,

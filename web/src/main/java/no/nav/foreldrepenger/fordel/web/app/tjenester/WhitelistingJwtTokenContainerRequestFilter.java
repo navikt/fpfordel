@@ -7,6 +7,7 @@ import jakarta.ws.rs.container.ResourceInfo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 // TODO: Denne er et eksmepel på et auth-filter som implements ContainerRequestFilter - token fra getHeaders + getCookies //NOSONAR
 public class WhitelistingJwtTokenContainerRequestFilter {
 

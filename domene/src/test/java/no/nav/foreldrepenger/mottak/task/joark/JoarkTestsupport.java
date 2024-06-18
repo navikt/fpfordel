@@ -1,11 +1,5 @@
 package no.nav.foreldrepenger.mottak.task.joark;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
-import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -15,6 +9,12 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 class JoarkTestsupport {
 

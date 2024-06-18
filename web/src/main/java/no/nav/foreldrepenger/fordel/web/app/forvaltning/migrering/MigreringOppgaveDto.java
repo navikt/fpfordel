@@ -6,6 +6,7 @@ import java.util.List;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+
 import no.nav.foreldrepenger.journalføring.oppgave.lager.AktørId;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
 
@@ -17,5 +18,6 @@ public record MigreringOppgaveDto(@Valid @Size List<OppgaveDto> oppgaver) {
                              @Valid AktørId brukerId,
                              @Valid YtelseType ytelseType,
                              @Size @Pattern(regexp = "^[\\p{P}\\p{L}\\p{N}\\p{Alnum}\\p{Punct}\\p{Space}\\\\_.\\-]*$") String beskrivelse,
-                             @Size @Pattern(regexp = "^[\\p{Alnum}_.\\-]*$") String reservertAv) {}
+                             @Size @Pattern(regexp = "^[\\p{Alnum}_.\\-]*$") String reservertAv) {
+    }
 }

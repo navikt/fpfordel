@@ -78,7 +78,17 @@ public class OppgaveBuilder {
 
     public Oppgave build() {
         validate();
-        return new Oppgave(oppgaveId, journalpostId, aktørId, ytelseType, tildeltEnhetsnr, fristFerdigstillelse, aktivDato, status, beskrivelse, tilordnetRessurs, kilde);
+        return new Oppgave(oppgaveId,
+            journalpostId,
+            aktørId,
+            ytelseType,
+            tildeltEnhetsnr,
+            fristFerdigstillelse,
+            aktivDato,
+            status,
+            beskrivelse,
+            tilordnetRessurs,
+            kilde);
     }
 
     private void validate() {

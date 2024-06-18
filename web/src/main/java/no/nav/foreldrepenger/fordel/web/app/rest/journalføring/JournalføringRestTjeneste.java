@@ -14,14 +14,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -35,6 +27,15 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilType;
@@ -110,10 +111,10 @@ public class JournalføringRestTjeneste {
     @POST
     @Path("/bruker/hent")
     @Produces(APPLICATION_JSON)
-    @Operation(description = "Hent bruker navn og etternavn", tags = "Manuell journalføring", responses = { @ApiResponse(responseCode = "200", description = "Bruker hentet"), @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
+    @Operation(description = "Hent bruker navn og etternavn", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "200", description = "Bruker hentet"), @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public HentBrukerResponseDto hentBruker(@Parameter(description = "Trenger FNR/DNR til å kunne innhente en bruker.")
-                                                 @NotNull @Valid @TilpassetAbacAttributt(supplierClass = HentBrukerDataSupplier.class) HentBrukerDto request) {
+                                            @NotNull @Valid @TilpassetAbacAttributt(supplierClass = HentBrukerDataSupplier.class) HentBrukerDto request) {
         Objects.requireNonNull(request.fødselsnummer(), "FNR/DNR må være satt.");
         try {
             var aktørId = pdl.hentAktørIdForPersonIdent(request.fødselsnummer()).orElseThrow();
@@ -171,7 +172,7 @@ public class JournalføringRestTjeneste {
                     journalpostDetaljer.behandlingTema(), journalpostDetaljer.tittel(), journalpostDetaljer.dokumenter().size());
             }
             return Response.ok().entity(journalpostDetaljer).build();
-        } catch (TekniskException|NoSuchElementException ex) {
+        } catch (TekniskException | NoSuchElementException ex) {
             if (ex instanceof NoSuchElementException
                 || ex.getMessage().contains("Fant ikke journalpost i fagarkivet")
                 || ex.getMessage().contains("Saksbehandler har ikke tilgang til ressurs på grunn av journalposten sin status")) {
@@ -221,8 +222,7 @@ public class JournalføringRestTjeneste {
             if (isBlank(oppgave.tilordnetRessurs())) {
                 oppgaveTjeneste.reserverOppgaveFor(oppgave, reserverOppgaveDto.reserverFor());
                 LOG.info("Oppgave {} reservert av {}.", oppgave.journalpostId(), innloggetBruker);
-            }
-            else {
+            } else {
                 throw new TekniskException("RESERVER",
                     "Det er ikke mulig å reservere en oppgave som allerede tilhører til en annen saksbehandler.");
             }
@@ -333,14 +333,19 @@ public class JournalføringRestTjeneste {
         return Optional.empty();
     }
 
-    public enum OppgaveKilde { LOKAL, GOSYS }
+    public enum OppgaveKilde {
+        LOKAL,
+        GOSYS
+    }
 
     public record OppdaterBrukerDto(@NotNull String journalpostId, @NotNull String fødselsnummer) {
     }
 
-    public record HentBrukerDto(@NotNull String fødselsnummer) {}
+    public record HentBrukerDto(@NotNull String fødselsnummer) {
+    }
 
-    public record HentBrukerResponseDto(@NotNull String navn, @NotNull String fødselsnummer) {}
+    public record HentBrukerResponseDto(@NotNull String navn, @NotNull String fødselsnummer) {
+    }
 
     public record OppgaveDto(@NotNull String journalpostId,
                              String aktørId,

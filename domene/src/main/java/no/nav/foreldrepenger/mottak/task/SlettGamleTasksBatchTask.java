@@ -2,11 +2,12 @@ package no.nav.foreldrepenger.mottak.task;
 
 import java.time.LocalDate;
 
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.enterprise.context.Dependent;
-import jakarta.inject.Inject;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;

@@ -1,16 +1,25 @@
 package no.nav.foreldrepenger.mottak.domene.dokument;
 
-import no.nav.foreldrepenger.fordel.BaseEntitet;
-import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-
-import jakarta.persistence.*;
-
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Objects;
 import java.util.UUID;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
+
+import no.nav.foreldrepenger.fordel.BaseEntitet;
+import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 
 @Entity(name = "Dokument")
 @Table(name = "DOKUMENT")

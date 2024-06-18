@@ -1,15 +1,15 @@
 package no.nav.foreldrepenger.fordel.web.app.exceptions;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
-
-import no.nav.vedtak.exception.TekniskException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.ext.ExceptionMapper;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
+import no.nav.vedtak.exception.TekniskException;
 
 public class JsonMappingExceptionMapper implements ExceptionMapper<JsonMappingException> {
 

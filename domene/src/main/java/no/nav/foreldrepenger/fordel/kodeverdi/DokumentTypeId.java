@@ -5,10 +5,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
+
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum DokumentTypeId implements Kodeverdi {
 
@@ -147,7 +147,8 @@ public enum DokumentTypeId implements Kodeverdi {
         Map.entry("klage", DokumentTypeId.KLAGE_DOKUMENT),
         Map.entry("anke", DokumentTypeId.KLAGE_DOKUMENT),
         Map.entry("rettskjennelse fra trygderetten", DokumentTypeId.KLAGE_DOKUMENT),
-        Map.entry("ettersending til nav 14-04.10 søknad om svangerskapspenger til selvstendig næringsdrivende og frilanser", ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG),
+        Map.entry("ettersending til nav 14-04.10 søknad om svangerskapspenger til selvstendig næringsdrivende og frilanser",
+            ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG),
         Map.entry("ettersending til nav 14-05.07 søknad om engangsstønad ved fødsel", ETTERSENDT_SØKNAD_ENGANGSSTØNAD_FØDSEL),
         Map.entry("ettersending til nav 14-05.09 søknad om foreldrepenger ved fødsel", ETTERSENDT_SØKNAD_FORELDREPENGER_FØDSEL));
 
@@ -173,6 +174,7 @@ public enum DokumentTypeId implements Kodeverdi {
     DokumentTypeId(String offisiellKode, String termnavn) {
         this(offisiellKode, offisiellKode, termnavn);
     }
+
     DokumentTypeId(String kode, String offisiellKode, String termnavn) {
         this.kode = kode;
         this.offisiellKode = offisiellKode;

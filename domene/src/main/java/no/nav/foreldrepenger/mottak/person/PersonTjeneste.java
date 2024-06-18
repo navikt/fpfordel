@@ -4,11 +4,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.StringUtil;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.pdl.Adressebeskyttelse;
@@ -57,6 +58,7 @@ public class PersonTjeneste implements PersonInformasjon {
         q.setIdent(aktørId);
         return q;
     }
+
     private static String mapNavn(Navn navn) {
         return navn.getFornavn() + leftPad(navn.getMellomnavn()) + leftPad(navn.getEtternavn());
     }
@@ -113,7 +115,11 @@ public class PersonTjeneste implements PersonInformasjon {
     public boolean harStrengDiskresjonskode(BehandlingTema behandlingTema, String id) {
         var ytelse = utledYtelse(behandlingTema);
         var pp = new PersonResponseProjection().adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
-        return pdl.hentPerson(ytelse, personQuery(id), pp).getAdressebeskyttelse().stream().map(Adressebeskyttelse::getGradering).anyMatch(STRENG::contains);
+        return pdl.hentPerson(ytelse, personQuery(id), pp)
+            .getAdressebeskyttelse()
+            .stream()
+            .map(Adressebeskyttelse::getGradering)
+            .anyMatch(STRENG::contains);
     }
 
     private Optional<String> tilAktørId(String fnr) {
