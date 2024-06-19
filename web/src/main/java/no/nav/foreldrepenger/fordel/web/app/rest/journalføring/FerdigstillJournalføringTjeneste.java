@@ -60,6 +60,7 @@ public class FerdigstillJournalføringTjeneste {
     static final String BRUKER_MANGLER = "Journalpost mangler knyting til bruker - prøv igjen om et halv minutt";
     static final String JOURNALPOST_IKKE_INNGÅENDE = "Journalpost ikke Inngående";
     private static final Logger LOG = LoggerFactory.getLogger(FerdigstillJournalføringTjeneste.class);
+    protected static final String ENDELIG = "ENDELIG";
     private VLKlargjører klargjører;
     private Fagsak fagsak;
     private PersonInformasjon pdl;
@@ -89,8 +90,11 @@ public class FerdigstillJournalføringTjeneste {
         this.dokumentRepository = dokumentRepository;
     }
 
-    public void oppdaterJournalpostOgFerdigstill(String enhetId, String saksnummer, ArkivJournalpost journalpost,
-                                                 String nyJournalpostTittel, List<DokumenterMedNyTittel> dokumenterMedNyTittel,
+    public void oppdaterJournalpostOgFerdigstill(String enhetId,
+                                                 String saksnummer,
+                                                 ArkivJournalpost journalpost,
+                                                 String nyJournalpostTittel,
+                                                 List<DokumenterMedNyTittel> dokumenterMedNyTittel,
                                                  DokumentTypeId nyDokumentTypeId) {
 
         validerJournalposttype(journalpost.getJournalposttype());
@@ -137,25 +141,29 @@ public class FerdigstillJournalføringTjeneste {
         String eksternReferanseId = null;
         if (DokumentTypeId.INNTEKTSMELDING.equals(brukDokumentTypeId)) {
             eksternReferanseId =
-                    journalpost.getEksternReferanseId() != null ? journalpost.getEksternReferanseId() : arkivTjeneste.hentEksternReferanseId(
-                            journalpost.getOriginalJournalpost()).orElse(null);
+                journalpost.getEksternReferanseId() != null ? journalpost.getEksternReferanseId() : arkivTjeneste.hentEksternReferanseId(
+                    journalpost.getOriginalJournalpost()).orElse(null);
         }
 
         var mottattTidspunkt = Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now);
 
         final var xml = hentDokumentSettMetadata(saksnummer, behandlingTema, aktørIdFagsak, journalpost);
-        klargjører.klargjør(xml, saksnummer, journalpost.getJournalpostId(), brukDokumentTypeId, mottattTidspunkt, behandlingTema, forsendelseId.orElse(null),
-                dokumentKategori, enhetId, eksternReferanseId);
+        klargjører.klargjør(xml, saksnummer, journalpost.getJournalpostId(), brukDokumentTypeId, mottattTidspunkt, behandlingTema,
+            forsendelseId.orElse(null), dokumentKategori, enhetId, eksternReferanseId);
 
         // For å unngå klonede journalposter fra GOSYS - de kan komme via Kafka.
-        dokumentRepository.lagreJournalpostLokal(journalpost.getJournalpostId(), journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
+        dokumentRepository.lagreJournalpostLokal(journalpost.getJournalpostId(), journalpost.getKanal(), ENDELIG,
+            journalpost.getEksternReferanseId());
 
         opprettFerdigstillOppgaveTask(JournalpostId.fra(journalpost.getJournalpostId()));
     }
 
-    public void oppdaterJournalpostOgFerdigstillGenerellSak(String enhetId, ArkivJournalpost journalpost, String aktørId,
-                                                 String nyJournalpostTittel, List<DokumenterMedNyTittel> dokumenterMedNyTittel,
-                                                 DokumentTypeId nyDokumentTypeId) {
+    public void oppdaterJournalpostOgFerdigstillGenerellSak(String enhetId,
+                                                            ArkivJournalpost journalpost,
+                                                            String aktørId,
+                                                            String nyJournalpostTittel,
+                                                            List<DokumenterMedNyTittel> dokumenterMedNyTittel,
+                                                            DokumentTypeId nyDokumentTypeId) {
 
         validerJournalposttype(journalpost.getJournalposttype());
 
@@ -171,7 +179,8 @@ public class FerdigstillJournalføringTjeneste {
 
         // For å unngå klonede journalposter fra GOSYS - de kan komme via Kafka - må skje før vi ferdigstiller.
         // Ellers kan kan kafka hendelsen komme tidligere en vi klarer å lagre og oppretter en ny oppgave.
-        dokumentRepository.lagreJournalpostLokal(journalpost.getJournalpostId(), journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
+        dokumentRepository.lagreJournalpostLokal(journalpost.getJournalpostId(), journalpost.getKanal(), ENDELIG,
+            journalpost.getEksternReferanseId());
 
         if (Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
             oppdaterJournalpostMedTittelOgMangler(journalpost, nyJournalpostTittel, dokumenterMedNyTittel, aktørId, behandlingTema);
@@ -189,13 +198,26 @@ public class FerdigstillJournalføringTjeneste {
     }
 
 
-    public void oppdaterJournalpostMedTittelOgMangler(ArkivJournalpost journalpost, String nyJournalpostTittel, List<DokumenterMedNyTittel> dokumenterMedNyTittel, String aktørId, BehandlingTema behandlingTema) {
+    public void oppdaterJournalpostMedTittelOgMangler(ArkivJournalpost journalpost,
+                                                      String nyJournalpostTittel,
+                                                      List<DokumenterMedNyTittel> dokumenterMedNyTittel,
+                                                      String aktørId,
+                                                      BehandlingTema behandlingTema) {
         var journalpostId = journalpost.getJournalpostId();
         var kanal = journalpost.getKanal();
 
-        if ((nyJournalpostTittel != null || !dokumenterMedNyTittel.isEmpty()) && (MottakKanal.SELVBETJENING.getKode().equals(kanal) || MottakKanal.ALTINN.getKode().equals(kanal))) {
-            throw new FunksjonellException("FP-963071", String.format("Kan ikke endre tittel på journalpost med id %s som kommer fra Selvbetjening eller Altinn.", journalpostId),
+        if ((nyJournalpostTittel != null || !dokumenterMedNyTittel.isEmpty()) && List.of(MottakKanal.SELVBETJENING.getKode(),
+            MottakKanal.ALTINN.getKode()).contains(kanal)) {
+            // TFP-5791: Det er spesialhåndtering av tilfeller hvor klage/anke journalpost tittel ble endret i gosys uten at man har endret dokument tittel samtidig.
+            if (nyJournalpostTittel == null && dokumenterMedNyTittel.size() == 1) {
+                LOG.info(
+                    "FPFORDEL RESTJOURNALFØRING: Det endres dokument tittel på et dokument som kommer fra {}. Gjelder journalpost: {}:{}. Ny dokument tittel: {}.",
+                    kanal, journalpostId, journalpost.getTittel(), dokumenterMedNyTittel.getFirst().dokumentTittel());
+            } else {
+                throw new FunksjonellException("FP-963071",
+                    String.format("Kan ikke endre tittel på journalpost med id %s som kommer fra Selvbetjening eller Altinn.", journalpostId),
                     "Tittel kan ikke endres når journalposten kommer fra selvbetjening eller altinn");
+            }
         }
 
         LOG.info("FPFORDEL RESTJOURNALFØRING: Oppdaterer generelle mangler og titler for journalpostId: {}", journalpostId);
@@ -210,7 +232,7 @@ public class FerdigstillJournalføringTjeneste {
 
             if (!utledetDokType.getTermNavn().equals(nyJournalpostTittel)) {
                 LOG.info("FPFORDEL RESTJOURNALFØRING: Ny journalpost-tittel: {} avviker fra utledet journalpost-tittel: {} for journalpostId: {}",
-                        nyJournalpostTittel, utledetDokType.getTermNavn(), journalpostId);
+                    nyJournalpostTittel, utledetDokType.getTermNavn(), journalpostId);
             }
         }
         List<OppdaterJournalpostRequest.DokumentInfoOppdater> dokumenterÅOppdatere = new ArrayList<>();
@@ -218,7 +240,8 @@ public class FerdigstillJournalføringTjeneste {
         if (!dokumenterMedNyTittel.isEmpty()) {
             dokumenterÅOppdatere = mapDokumenterTilOppdatering(dokumenterMedNyTittel);
         }
-        arkivTjeneste.oppdaterJournalpostVedManuellJournalføring(journalpostId, nyJournalpostTittel, dokumenterÅOppdatere, journalpost, aktørId, behandlingTema);
+        arkivTjeneste.oppdaterJournalpostVedManuellJournalføring(journalpostId, nyJournalpostTittel, dokumenterÅOppdatere, journalpost, aktørId,
+            behandlingTema);
 
     }
 
@@ -227,13 +250,13 @@ public class FerdigstillJournalføringTjeneste {
 
     private List<no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OppdaterJournalpostRequest.DokumentInfoOppdater> mapDokumenterTilOppdatering(List<DokumenterMedNyTittel> dokumenter) {
         return dokumenter.stream()
-                .filter(dt -> dt.dokumentId() != null && dt.dokumentTittel() != null)
-                .map(dt -> new no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OppdaterJournalpostRequest.DokumentInfoOppdater(dt.dokumentId(), dt.dokumentTittel(), null))
-                .toList();
+            .filter(dt -> dt.dokumentId() != null && dt.dokumentTittel() != null)
+            .map(dt -> new no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OppdaterJournalpostRequest.DokumentInfoOppdater(dt.dokumentId(),
+                dt.dokumentTittel(), null))
+            .toList();
     }
 
-    private static Set<DokumentTypeId> utledDokumentTyper(List<DokumenterMedNyTittel> dokumenterMedNyTittel,
-                                                          List<DokumentInfo> dokumenterFraArkiv) {
+    private static Set<DokumentTypeId> utledDokumentTyper(List<DokumenterMedNyTittel> dokumenterMedNyTittel, List<DokumentInfo> dokumenterFraArkiv) {
         Set<DokumentTypeId> dokumentTyper = new HashSet<>();
         Set<String> oppdatereDokIder = dokumenterMedNyTittel.stream().map(DokumenterMedNyTittel::dokumentId).collect(Collectors.toSet());
 
@@ -267,13 +290,15 @@ public class FerdigstillJournalføringTjeneste {
 
     String opprettSak(ArkivJournalpost journalpost, FerdigstillJournalføringRestTjeneste.OpprettSak opprettSakInfo, DokumentTypeId nyDokumentTypeId) {
         new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensMedSakJP(journalpost, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
-                nyDokumentTypeId);
+            nyDokumentTypeId);
 
         return fagsak.opprettSak(opprettSakRequest(journalpost.getJournalpostId(), opprettSakInfo)).getSaksnummer();
     }
 
     // Validerer mot eksisterende men sikrer at det opprettes ny sak
-    String opprettNySak(ArkivJournalpost journalpost, FerdigstillJournalføringRestTjeneste.OpprettSak opprettSakInfo, DokumentTypeId nyDokumentTypeId) {
+    String opprettNySak(ArkivJournalpost journalpost,
+                        FerdigstillJournalføringRestTjeneste.OpprettSak opprettSakInfo,
+                        DokumentTypeId nyDokumentTypeId) {
         new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensMedSakJP(journalpost, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
             nyDokumentTypeId);
 
@@ -319,15 +344,16 @@ public class FerdigstillJournalføringTjeneste {
         var mottattTidspunkt = Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now);
         String eksternReferanseId = null;
         if (DokumentTypeId.INNTEKTSMELDING.equals(brukDokumentTypeId)) {
-            eksternReferanseId = journalpost.getEksternReferanseId() != null ? journalpost.getEksternReferanseId() :
-                    arkivTjeneste.hentEksternReferanseId(journalpost.getOriginalJournalpost()).orElse(null);
+            eksternReferanseId =
+                journalpost.getEksternReferanseId() != null ? journalpost.getEksternReferanseId() : arkivTjeneste.hentEksternReferanseId(
+                    journalpost.getOriginalJournalpost()).orElse(null);
         }
 
         klargjører.klargjør(xml, saksnummer, nyJournalpostId, brukDokumentTypeId, mottattTidspunkt, behandlingTema, forsendelseId.orElse(null),
             dokumentKategori, enhetId, eksternReferanseId);
 
         // For å unngå klonede journalposter fra GOSYS - de kan komme via Kafka.
-        dokumentRepository.lagreJournalpostLokal(nyJournalpostId, journalpost.getKanal(), "ENDELIG", journalpost.getEksternReferanseId());
+        dokumentRepository.lagreJournalpostLokal(nyJournalpostId, journalpost.getKanal(), ENDELIG, journalpost.getEksternReferanseId());
 
         return Optional.ofNullable(nyJournalpostId).map(JournalpostId::fra).orElse(null);
     }
@@ -351,12 +377,13 @@ public class FerdigstillJournalføringTjeneste {
         var mottattTidspunkt = Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now);
         String eksternReferanseId = null;
         if (DokumentTypeId.INNTEKTSMELDING.equals(brukDokumentTypeId)) {
-            eksternReferanseId = journalpost.getEksternReferanseId() != null ? journalpost.getEksternReferanseId() :
-                arkivTjeneste.hentEksternReferanseId(journalpost.getOriginalJournalpost()).orElse(null);
+            eksternReferanseId =
+                journalpost.getEksternReferanseId() != null ? journalpost.getEksternReferanseId() : arkivTjeneste.hentEksternReferanseId(
+                    journalpost.getOriginalJournalpost()).orElse(null);
         }
 
-        klargjører.klargjør(xml, saksnummer, journalpost.getJournalpostId(), brukDokumentTypeId, mottattTidspunkt, behandlingTema, forsendelseId.orElse(null),
-            dokumentKategori, null, eksternReferanseId);
+        klargjører.klargjør(xml, saksnummer, journalpost.getJournalpostId(), brukDokumentTypeId, mottattTidspunkt, behandlingTema,
+            forsendelseId.orElse(null), dokumentKategori, null, eksternReferanseId);
     }
 
 
@@ -373,10 +400,10 @@ public class FerdigstillJournalføringTjeneste {
             return behandlingTemaFagsak;
         }
         if ((gjelderForeldrepenger(behandlingTemaFagsak) && !gjelderForeldrepenger(behandlingTemaDok)) || (
-                BehandlingTema.gjelderEngangsstønad(behandlingTemaFagsak) && !BehandlingTema.gjelderEngangsstønad(behandlingTemaDok)) || (
-                BehandlingTema.gjelderSvangerskapspenger(behandlingTemaFagsak) && !BehandlingTema.gjelderSvangerskapspenger(behandlingTemaDok))) {
+            BehandlingTema.gjelderEngangsstønad(behandlingTemaFagsak) && !BehandlingTema.gjelderEngangsstønad(behandlingTemaDok)) || (
+            BehandlingTema.gjelderSvangerskapspenger(behandlingTemaFagsak) && !BehandlingTema.gjelderSvangerskapspenger(behandlingTemaDok))) {
             throw new FunksjonellException("FP-963079", "Dokumentet samsvarer ikke med sakens type - kan ikke journalføre",
-                    "Journalfør på annen sak eller opprett ny sak");
+                "Journalfør på annen sak eller opprett ny sak");
         }
         return BehandlingTema.ikkeSpesifikkHendelse(behandlingTemaDok) ? behandlingTemaFagsak : behandlingTemaDok;
     }
@@ -385,9 +412,9 @@ public class FerdigstillJournalføringTjeneste {
                                                            DokumentTypeId dokumentTypeId,
                                                            DokumentKategori dokumentKategori) {
         if (BehandlingTema.UDEFINERT.equals(behandlingTema) && (DokumentTypeId.KLAGE_DOKUMENT.equals(dokumentTypeId)
-                || DokumentKategori.KLAGE_ELLER_ANKE.equals(dokumentKategori))) {
+            || DokumentKategori.KLAGE_ELLER_ANKE.equals(dokumentKategori))) {
             throw new FunksjonellException("FP-963074", "Klager må journalføres på sak med tidligere behandling",
-                    "Journalføre klagen på sak med avsluttet behandling");
+                "Journalføre klagen på sak med avsluttet behandling");
         }
     }
 
@@ -401,21 +428,21 @@ public class FerdigstillJournalføringTjeneste {
             if (gjelderForeldrepenger(behandlingTemaFraIM)) {
                 if (dataWrapper.getInntektsmeldingStartDato().isEmpty()) { // Kommer ingen vei uten startdato
                     throw new FunksjonellException("FP-963076", "Inntektsmelding mangler startdato - kan ikke journalføre",
-                            "Be om ny Inntektsmelding med startdato");
+                        "Be om ny Inntektsmelding med startdato");
 
                 } else if (!gjelderForeldrepenger(behandlingTema)) { // Prøver journalføre på annen
                     // fagsak - ytelsetype
                     throw new FunksjonellException("FP-963075", "Inntektsmelding årsak samsvarer ikke med sakens type - kan ikke journalføre",
-                            "Be om ny Inntektsmelding for Foreldrepenger");
+                        "Be om ny Inntektsmelding for Foreldrepenger");
                 }
             } else if (!behandlingTemaFraIM.equals(behandlingTema)) {
                 throw new FunksjonellException("FP-963075", "Inntektsmelding årsak samsvarer ikke med sakens type - kan ikke journalføre",
-                        "Be om ny Inntektsmelding for Foreldrepenger");
+                    "Be om ny Inntektsmelding for Foreldrepenger");
             }
         }
         if (gjelderForeldrepenger(behandlingTema) && startDato.isBefore(KonfigVerdier.ENDRING_BEREGNING_DATO)) {
             throw new FunksjonellException("FP-963077", "For tidlig uttak",
-                    "Søknad om uttak med oppstart i 2018 skal journalføres mot sak i Infotrygd");
+                "Søknad om uttak med oppstart i 2018 skal journalføres mot sak i Infotrygd");
         }
     }
 
@@ -428,11 +455,11 @@ public class FerdigstillJournalføringTjeneste {
         final var brukerAktørId = journalpost.getBrukerAktørId();
 
         final var fagsakFraRequestSomTrefferRettAktør = hentFagsakInfo(saksnummer).filter(
-                f -> brukerAktørId.isEmpty() || Objects.equals(f.getAktørId(), brukerAktørId.get()));
+            f -> brukerAktørId.isEmpty() || Objects.equals(f.getAktørId(), brukerAktørId.get()));
 
         if (fagsakFraRequestSomTrefferRettAktør.isEmpty()) {
             throw new FunksjonellException("FP-963070", "Kan ikke journalføre på saksnummer: " + saksnummer,
-                    "Journalføre dokument på annen sak i VL");
+                "Journalføre dokument på annen sak i VL");
         }
 
         LOG.info("FPFORDEL RESTJOURNALFØRING: Fant en FP-sak med saksnummer {} som har rett aktør", saksnummer);

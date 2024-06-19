@@ -92,9 +92,9 @@ public class FerdigstillJournalføringRestTjeneste {
         List<FerdigstillJournalføringTjeneste.DokumenterMedNyTittel> dokumenter = new ArrayList<>();
         String nyJournalpostTittel = null;
         DokumentTypeId nyDokumentTypeId = null;
-        if (request.oppdaterTitlerDto != null) {
-            if (!request.oppdaterTitlerDto.dokumenter().isEmpty()) {
-                dokumenter = mapTilDokumenter(request.oppdaterTitlerDto.dokumenter());
+        if (request.oppdaterTitlerDto() != null) {
+            if (!request.oppdaterTitlerDto().dokumenter().isEmpty()) {
+                dokumenter = mapTilDokumenter(request.oppdaterTitlerDto().dokumenter());
             }
             nyJournalpostTittel = request.oppdaterTitlerDto().journalpostTittel() != null ? request.oppdaterTitlerDto().journalpostTittel() : null;
             if (nyJournalpostTittel != null) {
