@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.fordel.kodeverdi;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum Journalstatus implements Kodeverdi {
 

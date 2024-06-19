@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.fordel.web.app.rest;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static jakarta.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
 import static jakarta.ws.rs.core.HttpHeaders.LOCATION;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_XML_TYPE;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;

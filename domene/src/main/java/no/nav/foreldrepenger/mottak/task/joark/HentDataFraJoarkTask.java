@@ -22,11 +22,12 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.NAVSkjema;
@@ -180,7 +181,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         }
 
         // Egen rute for rene ankedokument - journalføringsoppgave Klageinstans
-        if (journalpost.getAlleTyper().contains(DokumentTypeId.KLAGE_DOKUMENT) && journalpost.getSaksnummer().isEmpty() && erAnkeRelatert(journalpost)) {
+        if (journalpost.getAlleTyper().contains(DokumentTypeId.KLAGE_DOKUMENT) && journalpost.getSaksnummer().isEmpty()
+            && erAnkeRelatert(journalpost)) {
             LOG.info("FPFORDEL HentFraArkiv ankedokument til KA journalpost {} kanal {} dokumenttype {}", journalpost.getJournalpostId(),
                 journalpost.getKanal(), journalpost.getHovedtype());
             w.setJournalførendeEnhet(EnhetsTjeneste.NK_ENHET_ID);
@@ -224,7 +226,10 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
                 LOG.info("FPFORDEL HentFraArkiv inntektsmelding til manuell vurdering journalpost {}", journalpost.getJournalpostId());
                 return w.nesteSteg(TASK_GOSYS);
             }
-        } else if (!arkiv.oppdaterRettMangler(journalpost, w.getAktørId().orElse(null), w.getBehandlingTema(), w.getDokumentTypeId().orElse(UDEFINERT))) {
+        } else if (!arkiv.oppdaterRettMangler(journalpost,
+            w.getAktørId().orElse(null),
+            w.getBehandlingTema(),
+            w.getDokumentTypeId().orElse(UDEFINERT))) {
             LOG.info("FPFORDEL HentFraArkiv kunne ikke rette opp mangler journalpost {} kanal {} hovedtype {} alle typer {}", w.getArkivId(),
                 journalpost.getKanal(), journalpost.getHovedtype(), journalpost.getAlleTyper());
             return w.nesteSteg(TASK_GOSYS);
@@ -286,8 +291,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             return journalpost.getBrukerAktørId();
         }
         if (journalpost.getAvsenderIdent() != null && getIdHvisFNR(journalpost.getOriginalJournalpost().avsenderMottaker()).isPresent()) {
-                LOG.info("FPFORDEL HentFraArkiv journalpost uten bruker med FNR-avsender journalpost {} kanal {} tittel {}",
-                    journalpost.getJournalpostId(), journalpost.getKanal(), journalpost.getTittel());
+            LOG.info("FPFORDEL HentFraArkiv journalpost uten bruker med FNR-avsender journalpost {} kanal {} tittel {}",
+                journalpost.getJournalpostId(), journalpost.getKanal(), journalpost.getTittel());
         }
         return Optional.empty();
     }

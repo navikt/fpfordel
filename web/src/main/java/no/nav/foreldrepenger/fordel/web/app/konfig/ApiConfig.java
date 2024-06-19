@@ -6,6 +6,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
+
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ServerProperties;
 
@@ -16,8 +19,6 @@ import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
-import jakarta.ws.rs.ApplicationPath;
-import jakarta.ws.rs.core.Application;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.ConstraintViolationMapper;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.GeneralRestExceptionMapper;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.JsonMappingExceptionMapper;

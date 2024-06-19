@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
 
-import org.hibernate.annotations.NaturalId;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -14,6 +12,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+
+import org.hibernate.annotations.NaturalId;
+
 import no.nav.foreldrepenger.fordel.BaseEntitet;
 
 @Entity(name = "Oppgave")

@@ -1,10 +1,11 @@
 package no.nav.foreldrepenger.mottak.klient;
 
-import no.nav.foreldrepenger.kontrakter.fordel.BehandlendeFagsystemDto;
-
 import java.util.Optional;
 
-public record VurderFagsystemResultat(SendTil destinasjon, String saksnummer) {
+import no.nav.foreldrepenger.kontrakter.fordel.BehandlendeFagsystemDto;
+
+public record VurderFagsystemResultat(SendTil destinasjon,
+                                      String saksnummer) {
 
     static VurderFagsystemResultat fra(BehandlendeFagsystemDto data) {
         if (data == null) {

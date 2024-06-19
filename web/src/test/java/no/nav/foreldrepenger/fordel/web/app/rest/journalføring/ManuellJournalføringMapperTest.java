@@ -34,7 +34,8 @@ class ManuellJournalføringMapperTest {
     void mapTilYtelseType() {
         assertThat(ManuellJournalføringMapper.mapTilYtelseType("ab0326")).isEqualTo(YtelseTypeDto.FORELDREPENGER);
     }
-@Test
+
+    @Test
     void serialiseringFamilieHendelseTypeDtoTest() {
         var familiehendelseType = "FODSL";
         var dto = FamilihendelseTypeJFDto.FØDSEL;

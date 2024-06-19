@@ -8,10 +8,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import jakarta.ws.rs.Path;
+
 import org.glassfish.jersey.media.multipart.MultiPart;
 
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
-import jakarta.ws.rs.Path;
 
 class RestApiTester {
 

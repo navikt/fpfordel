@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.journalføring.oppgave.lager;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.regex.Pattern;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 /**
  * Id som genereres fra NAV Aktør Register. Denne iden benyttes til interne forhold i Nav og vil ikke endres f.eks. dersom bruker går fra

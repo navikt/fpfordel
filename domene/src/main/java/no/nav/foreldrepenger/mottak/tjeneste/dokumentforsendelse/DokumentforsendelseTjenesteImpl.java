@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse;
 
-import static java.util.stream.Collectors.toSet;
 import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_XML;
+import static java.util.stream.Collectors.toSet;
 
 import java.util.List;
 import java.util.Optional;

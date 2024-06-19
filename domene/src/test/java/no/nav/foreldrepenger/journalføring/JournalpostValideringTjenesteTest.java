@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.journalføring;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
-import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
-import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
-import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
-import no.nav.foreldrepenger.typer.AktørId;
-import no.nav.vedtak.exception.FunksjonellException;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,12 +14,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
+import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
+import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
+import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
+import no.nav.foreldrepenger.typer.AktørId;
+import no.nav.vedtak.exception.FunksjonellException;
 
 @ExtendWith(MockitoExtension.class)
 class JournalpostValideringTjenesteTest {

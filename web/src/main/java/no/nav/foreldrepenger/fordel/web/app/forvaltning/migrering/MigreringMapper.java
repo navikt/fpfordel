@@ -25,7 +25,10 @@ public class MigreringMapper {
     }
 
     public static MigreringJournalpostDto.JournalpostDto tilJournalpostDto(Journalpost journalpost) {
-        return new MigreringJournalpostDto.JournalpostDto(journalpost.getJournalpostId(), journalpost.getTilstand(), journalpost.getKanal(), journalpost.getReferanse());
+        return new MigreringJournalpostDto.JournalpostDto(journalpost.getJournalpostId(),
+            journalpost.getTilstand(),
+            journalpost.getKanal(),
+            journalpost.getReferanse());
     }
 
     public static Journalpost fraJournalpostDto(MigreringJournalpostDto.JournalpostDto journalpost) {

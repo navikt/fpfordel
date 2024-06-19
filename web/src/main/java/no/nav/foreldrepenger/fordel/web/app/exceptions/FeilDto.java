@@ -3,7 +3,10 @@ package no.nav.foreldrepenger.fordel.web.app.exceptions;
 import java.util.Collection;
 import java.util.List;
 
-public record FeilDto(String feilmelding, FeilType type, Collection<FeltFeilDto> feltFeil) {
+public record FeilDto(String feilmelding,
+                      FeilType type,
+                      Collection<FeltFeilDto> feltFeil) {
+
     public FeilDto(String feilmelding, FeilType type) {
         this(feilmelding, type, List.of());
     }

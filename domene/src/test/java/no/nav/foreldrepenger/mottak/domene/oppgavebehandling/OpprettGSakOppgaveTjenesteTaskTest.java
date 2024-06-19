@@ -69,7 +69,11 @@ class OpprettGSakOppgaveTjenesteTaskTest {
 
         task.doTask(taskData);
 
-        verify(oppgaverTjeneste).opprettJournalføringsoppgaveFor(buildNyOppgave(arkivId, FORDELINGSOPPGAVE_ENHET_ID, aktørId, BehandlingTema.ENGANGSSTØNAD, beskrivelse));
+        verify(oppgaverTjeneste).opprettJournalføringsoppgaveFor(buildNyOppgave(arkivId,
+            FORDELINGSOPPGAVE_ENHET_ID,
+            aktørId,
+            BehandlingTema.ENGANGSSTØNAD,
+            beskrivelse));
         verify(oppgaverTjeneste, never()).opprettGosysJournalføringsoppgaveFor(any(NyOppgave.class));
     }
 
@@ -89,7 +93,11 @@ class OpprettGSakOppgaveTjenesteTaskTest {
 
         task.doTask(taskData);
 
-        verify(oppgaverTjeneste).opprettGosysJournalføringsoppgaveFor(buildNyOppgave(arkivId, klageEnhet, null, BehandlingTema.ENGANGSSTØNAD, beskrivelse));
+        verify(oppgaverTjeneste).opprettGosysJournalføringsoppgaveFor(buildNyOppgave(arkivId,
+            klageEnhet,
+            null,
+            BehandlingTema.ENGANGSSTØNAD,
+            beskrivelse));
         verify(oppgaverTjeneste, never()).opprettJournalføringsoppgaveFor(any(NyOppgave.class));
     }
 
@@ -109,7 +117,11 @@ class OpprettGSakOppgaveTjenesteTaskTest {
 
         task.doTask(taskData);
 
-        verify(oppgaverTjeneste).opprettJournalføringsoppgaveFor(buildNyOppgave(arkivId, FORDELINGSOPPGAVE_ENHET_ID, null, BehandlingTema.FORELDREPENGER, beskrivelse));
+        verify(oppgaverTjeneste).opprettJournalføringsoppgaveFor(buildNyOppgave(arkivId,
+            FORDELINGSOPPGAVE_ENHET_ID,
+            null,
+            BehandlingTema.FORELDREPENGER,
+            beskrivelse));
         verify(oppgaverTjeneste, never()).opprettGosysJournalføringsoppgaveFor(any(NyOppgave.class));
     }
 
@@ -129,7 +141,11 @@ class OpprettGSakOppgaveTjenesteTaskTest {
 
         task.doTask(taskData);
 
-        verify(oppgaverTjeneste).opprettJournalføringsoppgaveFor(buildNyOppgave(arkivId, FORDELINGSOPPGAVE_ENHET_ID, null, BehandlingTema.FORELDREPENGER, beskrivelse));
+        verify(oppgaverTjeneste).opprettJournalføringsoppgaveFor(buildNyOppgave(arkivId,
+            FORDELINGSOPPGAVE_ENHET_ID,
+            null,
+            BehandlingTema.FORELDREPENGER,
+            beskrivelse));
         verify(oppgaverTjeneste, never()).opprettGosysJournalføringsoppgaveFor(any(NyOppgave.class));
     }
 

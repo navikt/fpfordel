@@ -4,11 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.journalføring.oppgave.lager.AktørId;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
 
 class OppgaveTest {

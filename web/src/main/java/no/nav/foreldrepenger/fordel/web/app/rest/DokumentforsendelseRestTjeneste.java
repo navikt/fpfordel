@@ -169,7 +169,9 @@ public class DokumentforsendelseRestTjeneste {
     @Consumes("multipart/mixed")
     @Operation(description = "Innsending av en dokumentforsendelse", tags = "Mottak", summary = "Denne kan ikke kalles fra Swagger", responses = {@ApiResponse(responseCode = "200", headers = {@Header(name = HttpHeaders.LOCATION, description = "Link til hvor man kan følge statusen på dokumentforsendelsen")}),})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public Response uploadFile(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) MultiPart input) {
+    public Response uploadFile(
+        @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class)
+        MultiPart input) {
         LOG.info("Innsending av dokumentforsendelse");
         var inputParts = input.getBodyParts();
         if (inputParts.size() < 2) {
@@ -214,7 +216,13 @@ public class DokumentforsendelseRestTjeneste {
     @Path("/status")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     @Operation(description = "Finner status på prosessering av mottatt dokumentforsendelse", tags = "Mottak", summary = "Format: \"8-4-4-4-12\" eksempel \"48F6E1CF-C5D8-4355-8E8C-B75494703959\"", responses = {@ApiResponse(responseCode = "200", description = "Status og Periode"), @ApiResponse(responseCode = "303", description = "See Other")})
-    public Response finnStatusinformasjon(@TilpassetAbacAttributt(supplierClass = ForsendelseAbacDataSupplier.class) @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
+    public Response finnStatusinformasjon(
+        @TilpassetAbacAttributt(supplierClass = ForsendelseAbacDataSupplier.class)
+        @NotNull
+        @QueryParam("forsendelseId")
+        @Parameter(name = "forsendelseId")
+        @Valid
+        ForsendelseIdDto forsendelseIdDto) {
 
         var forsendelseId = forsendelseIdDto.forsendelseId();
         var forsendelseStatusDto = service.finnStatusinformasjon(forsendelseId);

@@ -9,12 +9,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.LocalDate;
 import java.util.Random;
 
+import jakarta.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.TransactionScoped;
 import no.nav.foreldrepenger.mottak.extensions.JpaExtension;
 
 @ExtendWith(JpaExtension.class)
@@ -79,7 +79,7 @@ class OppgaveRepositoryTest {
         var oppgaver = repo.hentAlleÅpneOppgaver();
         assertThat(oppgaver).isNotEmpty().hasSize(antall);
     }
-    
+
     @Test
     void ferdigstillOppgave() {
         lagTestOppgave(Status.AAPNET);
@@ -102,13 +102,13 @@ class OppgaveRepositoryTest {
 
     private OppgaveEntitet lagTestOppgave(String journalpostId, String enhet, Status status, YtelseType ytelseType) {
         var oppgaveEntitet = OppgaveEntitet.builder()
-                .medJournalpostId(journalpostId)
-                .medStatus(status)
-                .medYtelseType(ytelseType)
-                .medFrist(LocalDate.now())
-                .medEnhet(enhet)
-                .medBrukerId(new AktørId("1234567890123"))
-                .build();
+            .medJournalpostId(journalpostId)
+            .medStatus(status)
+            .medYtelseType(ytelseType)
+            .medFrist(LocalDate.now())
+            .medEnhet(enhet)
+            .medBrukerId(new AktørId("1234567890123"))
+            .build();
 
         repo.lagre(oppgaveEntitet);
         return oppgaveEntitet;

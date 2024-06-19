@@ -7,13 +7,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.vedtak.log.metrics.Controllable;
 
 @ApplicationScoped
@@ -27,7 +28,9 @@ public class ApplicationServiceStarter {
     }
 
     @Inject
-    public ApplicationServiceStarter(@Any Instance<Controllable> services) {
+    public ApplicationServiceStarter(
+        @Any
+        Instance<Controllable> services) {
         this(services.stream().collect(Collectors.toSet()));
     }
 

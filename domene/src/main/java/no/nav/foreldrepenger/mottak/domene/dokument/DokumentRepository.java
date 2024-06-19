@@ -13,6 +13,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
+
 import no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.TekniskException;
@@ -77,7 +78,9 @@ public class DokumentRepository {
 
     public void slettForsendelse(UUID forsendelseId) {
         em.createQuery("delete from Dokument where forsendelseId = :forsendelseId").setParameter(FORSENDELSE_ID, forsendelseId).executeUpdate();
-        em.createQuery("delete from DokumentMetadata where forsendelseId = :forsendelseId").setParameter(FORSENDELSE_ID, forsendelseId).executeUpdate();
+        em.createQuery("delete from DokumentMetadata where forsendelseId = :forsendelseId")
+            .setParameter(FORSENDELSE_ID, forsendelseId)
+            .executeUpdate();
         em.flush();
     }
 
@@ -119,6 +122,8 @@ public class DokumentRepository {
     }
 
     public int slettJournalpostLokalEldreEnn(LocalDate dato) {
-        return em.createQuery("delete from Journalpost where opprettetTidspunkt < :opprettet").setParameter("opprettet", dato.atStartOfDay()).executeUpdate();
+        return em.createQuery("delete from Journalpost where opprettetTidspunkt < :opprettet")
+            .setParameter("opprettet", dato.atStartOfDay())
+            .executeUpdate();
     }
 }

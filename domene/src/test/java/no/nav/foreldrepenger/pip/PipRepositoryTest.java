@@ -1,24 +1,25 @@
 package no.nav.foreldrepenger.pip;
 
-import jakarta.persistence.EntityManager;
-import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
-import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
-import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
-import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
-import no.nav.foreldrepenger.mottak.extensions.JpaExtension;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import jakarta.persistence.EntityManager;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
+import no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata;
+import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
+import no.nav.foreldrepenger.mottak.extensions.JpaExtension;
 
 @ExtendWith(JpaExtension.class)
 class PipRepositoryTest {

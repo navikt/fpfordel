@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.AktørId;
 

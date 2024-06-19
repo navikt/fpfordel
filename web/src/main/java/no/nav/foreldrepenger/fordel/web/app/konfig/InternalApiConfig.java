@@ -5,6 +5,7 @@ import java.util.Set;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
+
 import no.nav.foreldrepenger.fordel.web.app.healthcheck.HealthCheckRestService;
 import no.nav.foreldrepenger.fordel.web.app.metrics.PrometheusRestService;
 

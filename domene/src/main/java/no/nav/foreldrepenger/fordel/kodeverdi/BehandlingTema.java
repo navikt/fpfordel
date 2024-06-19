@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.fordel.kodeverdi;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
 
 public enum BehandlingTema implements Kodeverdi {
 

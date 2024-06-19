@@ -11,11 +11,12 @@ import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.SAKSN
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.enterprise.context.Dependent;
-import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;

@@ -11,6 +11,7 @@ public record MigreringJournalpostDto(@Valid @Size List<JournalpostDto> journalp
     public record JournalpostDto(@Size @Pattern(regexp = "^[\\p{Alnum}_.\\-]*$") String journalpostId,
                                  @Size @Pattern(regexp = "^[\\p{Alnum}_.\\-]*$") String tilstand,
                                  @Size @Pattern(regexp = "^[\\p{Alnum}_.\\-]*$") String kanal,
-                                 @Size @Pattern(regexp = "^[\\p{P}\\p{L}\\p{N}\\p{Alnum}\\p{Punct}\\p{Space}\\\\_.\\-]*$") String referanse) {}
+                                 @Size @Pattern(regexp = "^[\\p{P}\\p{L}\\p{N}\\p{Alnum}\\p{Punct}\\p{Space}\\\\_.\\-]*$") String referanse) {
+    }
 }
 

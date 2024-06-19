@@ -3,12 +3,12 @@ package no.nav.foreldrepenger.journalføring.oppgave.lager;
 import java.util.List;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class OppgaveRepository {
@@ -46,8 +46,8 @@ public class OppgaveRepository {
 
     public List<OppgaveEntitet> hentAlleÅpneOppgaver() {
         return em.createQuery("from Oppgave where status = :status", OppgaveEntitet.class)
-                .setParameter("status", Status.AAPNET)
-                .getResultList();
+            .setParameter("status", Status.AAPNET)
+            .getResultList();
     }
 
     public void ferdigstillOppgave(String journalpostId) {

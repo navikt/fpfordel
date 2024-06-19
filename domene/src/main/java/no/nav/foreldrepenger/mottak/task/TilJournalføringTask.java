@@ -6,12 +6,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
-import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;

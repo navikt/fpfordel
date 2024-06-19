@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.typer;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import java.io.Serializable;
+import java.util.Objects;
+import java.util.regex.Pattern;
 
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotNull;
 
-import java.io.Serializable;
-import java.util.Objects;
-import java.util.regex.Pattern;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
  * Id som genereres fra NAV Aktør Register. Denne iden benyttes til interne forhold i Nav og vil ikke endres f.eks. dersom bruker går fra

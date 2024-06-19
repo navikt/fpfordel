@@ -6,10 +6,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.function.Function;
 
-import org.junit.jupiter.api.Test;
-
 import jakarta.validation.Valid;
 import jakarta.ws.rs.core.Context;
+
+import org.junit.jupiter.api.Test;
 
 class RestApiInputValideringAnnoteringTest extends RestApiTester {
 
