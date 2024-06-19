@@ -138,8 +138,8 @@ public class FagsakKlient implements Fagsak {
         LOG.info("Vurderer resultat");
 
         var brukPath = w.getJournalførendeEnhet()
-            .filter(NK_ENHET_ID::equals)
-            .isPresent() ? klageinstansEndpoint : fagsystemEndpoint;
+                           .filter(NK_ENHET_ID::equals)
+                           .isPresent() ? klageinstansEndpoint : fagsystemEndpoint;
 
         var request = RestRequest.newPOSTJson(dto, brukPath, restConfig);
         var respons = klient.send(request, BehandlendeFagsystemDto.class);

@@ -1,28 +1,14 @@
 package no.nav.foreldrepenger.journalføring.oppgave;
 
-import static no.nav.foreldrepenger.journalføring.oppgave.OppgaverTjeneste.LIMIT;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.isNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
+import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.*;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.LosEnheterCachedTjeneste;
+import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
+import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,24 +17,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
-import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.AktørId;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
-import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
-import no.nav.foreldrepenger.mottak.behandlendeenhet.LosEnheterCachedTjeneste;
-import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
-import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
+import static no.nav.foreldrepenger.journalføring.oppgave.OppgaverTjeneste.LIMIT;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OppgaverTjenesteTest {

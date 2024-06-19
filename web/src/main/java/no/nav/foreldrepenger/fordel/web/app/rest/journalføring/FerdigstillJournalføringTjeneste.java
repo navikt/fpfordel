@@ -351,7 +351,7 @@ public class FerdigstillJournalføringTjeneste {
         String eksternReferanseId = null;
         if (DokumentTypeId.INNTEKTSMELDING.equals(brukDokumentTypeId)) {
             eksternReferanseId = journalpost.getEksternReferanseId() != null ? journalpost.getEksternReferanseId() :
-                arkivTjeneste.hentEksternReferanseId(journalpost.getOriginalJournalpost()).orElse(null);
+                                 arkivTjeneste.hentEksternReferanseId(journalpost.getOriginalJournalpost()).orElse(null);
         }
 
         klargjører.klargjør(xml, saksnummer, nyJournalpostId, brukDokumentTypeId, mottattTidspunkt, behandlingTema, forsendelseId.orElse(null),
@@ -383,7 +383,7 @@ public class FerdigstillJournalføringTjeneste {
         String eksternReferanseId = null;
         if (DokumentTypeId.INNTEKTSMELDING.equals(brukDokumentTypeId)) {
             eksternReferanseId = journalpost.getEksternReferanseId() != null ? journalpost.getEksternReferanseId() :
-                arkivTjeneste.hentEksternReferanseId(journalpost.getOriginalJournalpost()).orElse(null);
+                                 arkivTjeneste.hentEksternReferanseId(journalpost.getOriginalJournalpost()).orElse(null);
         }
 
         klargjører.klargjør(xml,

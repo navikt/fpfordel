@@ -112,7 +112,7 @@ public class JournalføringHendelseHåndterer implements KafkaMessageHandler<Str
         // Normalt blir de journalført, men det feiler av og til pga tilgang.
         // Håndterer disse journalpostene senere i tilfelle SBH skal ha klart å ordne ting selv
         var delay = eksternReferanseId == null
-            && !mottaksKanal.equals(MottakKanal.SELVBETJENING.getKode()) ? Duration.ofHours(journalføringDelay) : Duration.ZERO;
+                        && !mottaksKanal.equals(MottakKanal.SELVBETJENING.getKode()) ? Duration.ofHours(journalføringDelay) : Duration.ZERO;
 
         if (HENDELSE_ENDRET.equalsIgnoreCase(payload.getHendelsesType())) {
             // Hendelsen kan komme før arkivet er oppdatert .....
