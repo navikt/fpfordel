@@ -4,7 +4,8 @@ import java.util.Optional;
 
 import no.nav.foreldrepenger.kontrakter.fordel.BehandlendeFagsystemDto;
 
-public record VurderFagsystemResultat(SendTil destinasjon, String saksnummer) {
+public record VurderFagsystemResultat(SendTil destinasjon,
+                                      String saksnummer) {
 
     static VurderFagsystemResultat fra(BehandlendeFagsystemDto data) {
         if (data == null) {

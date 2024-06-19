@@ -76,7 +76,11 @@ public class ForvaltningRestTjeneste {
 
     @Path("/retry-suffix")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response setRetrySuffix(@Parameter(description = "Sett kanalreferanse-suffix før restart prosesstask") @NotNull @Valid RetryTaskKanalrefDto dto) {
+    public Response setRetrySuffix(
+        @Parameter(description = "Sett kanalreferanse-suffix før restart prosesstask")
+        @NotNull
+        @Valid
+        RetryTaskKanalrefDto dto) {
         var data = taskTjeneste.finn(dto.getProsessTaskIdDto().getProsessTaskId());
         if (data == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -93,7 +97,11 @@ public class ForvaltningRestTjeneste {
 
     @Path("/submit-journalfort-im")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response submitJournalførtInntektsmelding(@Parameter(description = "Send im til angitt sak") @NotNull @Valid SubmitJfortIMDto dto) {
+    public Response submitJournalførtInntektsmelding(
+        @Parameter(description = "Send im til angitt sak")
+        @NotNull
+        @Valid
+        SubmitJfortIMDto dto) {
         var data = taskTjeneste.finn(dto.getProsessTaskIdDto().getProsessTaskId());
         if (data == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -113,7 +121,11 @@ public class ForvaltningRestTjeneste {
     @Operation(description = "Send journalpost til angitt sak (ikke journalført)", tags = "Forvaltning", summary = ("Bruker eksisterende task til å sende dokument til VL"), responses = {@ApiResponse(responseCode = "200", description = "Inntektsmelding sendt til VL")})
     @Path("/submit-journalforing-endelig")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response submitJournalpostEndeligKlargjor(@Parameter(description = "Send im til angitt sak") @NotNull @Valid SubmitJfortIMDto dto) {
+    public Response submitJournalpostEndeligKlargjor(
+        @Parameter(description = "Send im til angitt sak")
+        @NotNull
+        @Valid
+        SubmitJfortIMDto dto) {
         var data = taskTjeneste.finn(dto.getProsessTaskIdDto().getProsessTaskId());
         if (data == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -144,7 +156,11 @@ public class ForvaltningRestTjeneste {
     @Path("/searchTasks")
     @Operation(description = "Søker etter journalpostId mv i taskparametre innen angitt tidsrom", tags = "Forvaltning", responses = {@ApiResponse(responseCode = "200", description = "Angitt prosesstask-id satt til status FERDIG"), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response searchTasks(@Parameter(description = "Søkefilter") @NotNull @Valid FordelSokeFilterDto dto) {
+    public Response searchTasks(
+        @Parameter(description = "Søkefilter")
+        @NotNull
+        @Valid
+        FordelSokeFilterDto dto) {
         var tasks = taskTjeneste.finnAlleMedParameterTekst(dto.getTekst(), dto.getOpprettetFraOgMed(), dto.getOpprettetTilOgMed());
         return Response.ok(tasks).build();
     }
@@ -153,7 +169,13 @@ public class ForvaltningRestTjeneste {
     @Path("/taskForBehandleForsendelse")
     @Operation(description = "Behandler forsendelse som ikke er plukket opp", tags = "Forvaltning", responses = {@ApiResponse(responseCode = "200", description = "Opprettet prosesstask"), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response taskForBehandleForsendelse(@TilpassetAbacAttributt(supplierClass = DokumentforsendelseRestTjeneste.ForsendelseAbacDataSupplier.class) @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
+    public Response taskForBehandleForsendelse(
+        @TilpassetAbacAttributt(supplierClass = DokumentforsendelseRestTjeneste.ForsendelseAbacDataSupplier.class)
+        @NotNull
+        @QueryParam("forsendelseId")
+        @Parameter(name = "forsendelseId")
+        @Valid
+        ForsendelseIdDto forsendelseIdDto) {
         var builder = ProsessTaskDataBuilder.forProsessTask(BehandleDokumentforsendelseTask.class)
             .medCallId(forsendelseIdDto.forsendelseId().toString())
             .medProperty(FORSENDELSE_ID_KEY, forsendelseIdDto.forsendelseId().toString());
@@ -167,7 +189,13 @@ public class ForvaltningRestTjeneste {
     @Path("/taskForSlettForsendelse")
     @Operation(description = "Sletter forsendelse som ikke skal behandles videre", tags = "Forvaltning", responses = {@ApiResponse(responseCode = "200", description = "Opprettet prosesstask"), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response taskForSlettForsendelse(@TilpassetAbacAttributt(supplierClass = DokumentforsendelseRestTjeneste.ForsendelseAbacDataSupplier.class) @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
+    public Response taskForSlettForsendelse(
+        @TilpassetAbacAttributt(supplierClass = DokumentforsendelseRestTjeneste.ForsendelseAbacDataSupplier.class)
+        @NotNull
+        @QueryParam("forsendelseId")
+        @Parameter(name = "forsendelseId")
+        @Valid
+        ForsendelseIdDto forsendelseIdDto) {
 
         var builder = ProsessTaskDataBuilder.forProsessTask(SlettForsendelseTask.class)
             .medCallId(forsendelseIdDto.forsendelseId().toString())
@@ -186,7 +214,11 @@ public class ForvaltningRestTjeneste {
 
     @Path("/fiks-arkiv-feil")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response fiksarkivFeil(@Parameter(description = "Arkivfeil") @NotNull @Valid SubmitJfortIMDto dto) {
+    public Response fiksarkivFeil(
+        @Parameter(description = "Arkivfeil")
+        @NotNull
+        @Valid
+        SubmitJfortIMDto dto) {
         var data = taskTjeneste.finn(dto.getProsessTaskIdDto().getProsessTaskId());
         if (data == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -204,7 +236,11 @@ public class ForvaltningRestTjeneste {
         summary = "Bruker eksisterende task til å opprette Oppgave", responses = {@ApiResponse(responseCode = "200", description = "oppgave opprettet")})
     @Path("/rerun-opprett-oppgave")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response rerunOpprettOppgave(@Parameter(description = "TaskMedRef") @NotNull @Valid RetryTaskKanalrefDto dto) {
+    public Response rerunOpprettOppgave(
+        @Parameter(description = "TaskMedRef")
+        @NotNull
+        @Valid
+        RetryTaskKanalrefDto dto) {
         var eksisterendeTask = taskTjeneste.finn(dto.getProsessTaskIdDto().getProsessTaskId());
         if (eksisterendeTask == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -221,7 +257,11 @@ public class ForvaltningRestTjeneste {
         summary = "Knytter en journalpost til en ny sak ved å opprette ny journalpost", responses = {@ApiResponse(responseCode = "200", description = "journalpost opprettet")})
     @Path("/knytt-til-annen-sak")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response knyttTilAnnenSak(@Parameter(description = "Sak og Journalpost") @NotNull @Valid JournalpostSakDto dto) {
+    public Response knyttTilAnnenSak(
+        @Parameter(description = "Sak og Journalpost")
+        @NotNull
+        @Valid
+        JournalpostSakDto dto) {
         var journalpost = journalføringTjeneste.hentJournalpost(dto.journalpostIdDto().getJournalpostId());
         var response = journalføringTjeneste.knyttTilAnnenSak(journalpost, "9999", dto.saksnummerDto().getSaksnummer());
         return Response.ok(response.getVerdi()).build();
@@ -232,7 +272,11 @@ public class ForvaltningRestTjeneste {
         summary = "Sender inn en journalpost til fpsak med angitt sak", responses = {@ApiResponse(responseCode = "200", description = "sendt inn")})
     @Path("/send-inn-til-sak")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response sendInnTilSak(@Parameter(description = "Sak og Journalpost") @NotNull @Valid JournalpostSakDto dto) {
+    public Response sendInnTilSak(
+        @Parameter(description = "Sak og Journalpost")
+        @NotNull
+        @Valid
+        JournalpostSakDto dto) {
         var journalpost = journalføringTjeneste.hentJournalpost(dto.journalpostIdDto().getJournalpostId());
         journalføringTjeneste.sendInnPåSak(journalpost, dto.saksnummerDto().getSaksnummer());
         return Response.ok().build();
@@ -243,7 +287,12 @@ public class ForvaltningRestTjeneste {
         summary = "Fjerner lokal oppgave fra oversikten.", responses = {@ApiResponse(responseCode = "200", description = "oppgave feilregistrert")})
     @Path("/avslutt-oppgave")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response feilregistrerOppgave(@TilpassetAbacAttributt(supplierClass = JournalføringRestTjeneste.JournalpostDataSupplier.class) @Parameter(description = "journalpostId") @NotNull @Valid JournalpostIdDto journalpostIdDto) {
+    public Response feilregistrerOppgave(
+        @TilpassetAbacAttributt(supplierClass = JournalføringRestTjeneste.JournalpostDataSupplier.class)
+        @Parameter(description = "journalpostId")
+        @NotNull
+        @Valid
+        JournalpostIdDto journalpostIdDto) {
         oppgaveRepository.feilregistrerOppgave(journalpostIdDto.getJournalpostId());
         return Response.ok().build();
     }

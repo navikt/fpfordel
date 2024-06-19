@@ -248,7 +248,8 @@ public class FerdigstillJournalføringTjeneste {
 
     }
 
-    public record DokumenterMedNyTittel(String dokumentId, String dokumentTittel) {
+    public record DokumenterMedNyTittel(String dokumentId,
+                                        String dokumentTittel) {
     }
 
     private List<no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OppdaterJournalpostRequest.DokumentInfoOppdater> mapDokumenterTilOppdatering(List<DokumenterMedNyTittel> dokumenter) {

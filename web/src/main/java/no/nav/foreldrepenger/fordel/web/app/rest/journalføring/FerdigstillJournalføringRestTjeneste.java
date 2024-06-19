@@ -73,10 +73,14 @@ public class FerdigstillJournalføringRestTjeneste {
     @Path("/ferdigstill")
     @Operation(description = "For å ferdigstille journalføring. Det opprettes en ny fagsak om saksnummer ikke sendes.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "200", description = "Journalføring ferdigstillt"), @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public SaksnummerDto oppdaterOgFerdigstillJournalfoering(@Parameter(description =
-        "Trenger journalpostId, saksnummer og enhet til ferdigstille en journalføring. "
-            + "Om saksnummer ikke foreligger må ytelse type og aktørId oppgis for å opprette en ny sak.") @NotNull @Valid
-                                                             @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FerdigstillJournalføringRestTjeneste.FerdigstillRequest request) {
+    public SaksnummerDto oppdaterOgFerdigstillJournalfoering(
+        @Parameter(description =
+            "Trenger journalpostId, saksnummer og enhet til ferdigstille en journalføring. "
+                + "Om saksnummer ikke foreligger må ytelse type og aktørId oppgis for å opprette en ny sak.")
+        @NotNull
+        @Valid
+        @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class)
+        FerdigstillJournalføringRestTjeneste.FerdigstillRequest request) {
 
         validerJournalpostId(request.journalpostId());
         var brukEnhet = validerEnhetId(request.enhetId());
@@ -130,9 +134,13 @@ public class FerdigstillJournalføringRestTjeneste {
     @Path("/knyttTilAnnenSak")
     @Operation(description = "For å knytte journalpost til annen sak. Det opprettes en ny fagsak om saksnummer ikke sendes.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "200", description = "Journalføring ferdigstillt"), @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public SaksnummerDto knyttTilAnnenSak(@Parameter(description = "Trenger journalpostId, saksnummer og enhet for å knytte til annen sak. "
-        + "Om saksnummer ikke foreligger må ytelse type og aktørId oppgis for å opprette en ny sak.") @NotNull @Valid
-                                          @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FerdigstillJournalføringRestTjeneste.FerdigstillRequest request) {
+    public SaksnummerDto knyttTilAnnenSak(
+        @Parameter(description = "Trenger journalpostId, saksnummer og enhet for å knytte til annen sak. "
+            + "Om saksnummer ikke foreligger må ytelse type og aktørId oppgis for å opprette en ny sak.")
+        @NotNull
+        @Valid
+        @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class)
+        FerdigstillJournalføringRestTjeneste.FerdigstillRequest request) {
 
         validerJournalpostId(request.journalpostId());
         var brukEnhet = validerEnhetId(request.enhetId());
@@ -178,7 +186,8 @@ public class FerdigstillJournalføringRestTjeneste {
         return new OpprettSak(new AktørId(opprettSakDto.aktørId), mapYtelseTypeFraDto(opprettSakDto.ytelseType));
     }
 
-    public record OpprettSak(AktørId aktørId, FagsakYtelseTypeDto ytelseType) {
+    public record OpprettSak(AktørId aktørId,
+                             FagsakYtelseTypeDto ytelseType) {
     }
 
     private List<FerdigstillJournalføringTjeneste.DokumenterMedNyTittel> mapTilDokumenter(List<OppdaterJournalpostMedTittelDto.DokummenterMedTitler> dokumenter) {
@@ -230,7 +239,8 @@ public class FerdigstillJournalføringRestTjeneste {
         GENERELL
     }
 
-    record OpprettSakDto(@Valid YtelseTypeDto ytelseType, @Valid FerdigstillJournalføringRestTjeneste.SakstypeDto sakstype,
+    record OpprettSakDto(@Valid YtelseTypeDto ytelseType,
+                         @Valid FerdigstillJournalføringRestTjeneste.SakstypeDto sakstype,
                          @NotNull @Pattern(regexp = "^\\d{13}$", message = "aktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String aktørId) {
         @Override
         public String toString() {

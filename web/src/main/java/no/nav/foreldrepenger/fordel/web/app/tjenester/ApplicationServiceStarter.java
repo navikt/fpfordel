@@ -28,7 +28,9 @@ public class ApplicationServiceStarter {
     }
 
     @Inject
-    public ApplicationServiceStarter(@Any Instance<Controllable> services) {
+    public ApplicationServiceStarter(
+        @Any
+        Instance<Controllable> services) {
         this(services.stream().collect(Collectors.toSet()));
     }
 

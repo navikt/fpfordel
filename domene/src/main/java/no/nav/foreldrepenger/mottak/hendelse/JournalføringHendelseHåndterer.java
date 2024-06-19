@@ -66,8 +66,10 @@ public class JournalføringHendelseHåndterer implements KafkaMessageHandler<Str
     @Inject
     public JournalføringHendelseHåndterer(ProsessTaskTjeneste taskTjeneste,
                                           DokumentRepository dokumentRepository,
-                                          @KonfigVerdi("kafka.topic.journal.hendelse") String topicName,
-                                          @KonfigVerdi(value = "journalføring.timer.delay", defaultVerdi = "2") int journalføringDelay) {
+                                          @KonfigVerdi("kafka.topic.journal.hendelse")
+                                          String topicName,
+                                          @KonfigVerdi(value = "journalføring.timer.delay", defaultVerdi = "2")
+                                          int journalføringDelay) {
         this.taskTjeneste = taskTjeneste;
         this.dokumentRepository = dokumentRepository;
         this.journalføringDelay = journalføringDelay;

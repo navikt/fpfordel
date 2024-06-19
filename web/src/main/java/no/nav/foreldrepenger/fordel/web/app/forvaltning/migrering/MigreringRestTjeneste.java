@@ -81,8 +81,12 @@ public class MigreringRestTjeneste {
         responses = {@ApiResponse(responseCode = "200", description = "Oppgaver")})
     @Path("/sammenlignOppgaver")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
-    public Response sammenlignOppgaver(@TilpassetAbacAttributt(supplierClass = MigreringAbacSupplier.class)
-                                       @NotNull @Parameter(name = "oppgaver") @Valid MigreringOppgaveDto oppgaver) {
+    public Response sammenlignOppgaver(
+        @TilpassetAbacAttributt(supplierClass = MigreringAbacSupplier.class)
+        @NotNull
+        @Parameter(name = "oppgaver")
+        @Valid
+        MigreringOppgaveDto oppgaver) {
         var rmap = oppgaver.oppgaver().stream()
             .map(MigreringMapper::fraOppgaveDto)
             .collect(Collectors.toList());
@@ -100,8 +104,12 @@ public class MigreringRestTjeneste {
         responses = {@ApiResponse(responseCode = "200", description = "Oppgaver")})
     @Path("/lagreOppgaver")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
-    public Response lagreOppgaver(@TilpassetAbacAttributt(supplierClass = MigreringAbacSupplier.class)
-                                  @NotNull @Parameter(name = "oppgaver") @Valid MigreringOppgaveDto oppgaver) {
+    public Response lagreOppgaver(
+        @TilpassetAbacAttributt(supplierClass = MigreringAbacSupplier.class)
+        @NotNull
+        @Parameter(name = "oppgaver")
+        @Valid
+        MigreringOppgaveDto oppgaver) {
         oppgaver.oppgaver().stream()
             .map(MigreringMapper::fraOppgaveDto)
             .forEach(oppgaveRepository::lagre);
@@ -114,8 +122,12 @@ public class MigreringRestTjeneste {
         responses = {@ApiResponse(responseCode = "200", description = "Journalposter")})
     @Path("/lagreJournal")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
-    public Response lagreJournal(@TilpassetAbacAttributt(supplierClass = MigreringAbacSupplier.class)
-                                 @NotNull @Parameter(name = "journalposter") @Valid MigreringJournalpostDto journalposter) {
+    public Response lagreJournal(
+        @TilpassetAbacAttributt(supplierClass = MigreringAbacSupplier.class)
+        @NotNull
+        @Parameter(name = "journalposter")
+        @Valid
+        MigreringJournalpostDto journalposter) {
         journalposter.journalposter().stream()
             .map(MigreringMapper::fraJournalpostDto)
             .forEach(dokumentRepository::lagre);
@@ -128,8 +140,12 @@ public class MigreringRestTjeneste {
         responses = {@ApiResponse(responseCode = "200", description = "Journalposter")})
     @Path("/sammenlignJournal")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
-    public Response sammenlignJournal(@TilpassetAbacAttributt(supplierClass = MigreringAbacSupplier.class)
-                                      @NotNull @Parameter(name = "journalposter") @Valid MigreringJournalpostDto journalposter) {
+    public Response sammenlignJournal(
+        @TilpassetAbacAttributt(supplierClass = MigreringAbacSupplier.class)
+        @NotNull
+        @Parameter(name = "journalposter")
+        @Valid
+        MigreringJournalpostDto journalposter) {
         var rmap = journalposter.journalposter().stream()
             .map(MigreringMapper::fraJournalpostDto)
             .collect(Collectors.toList());

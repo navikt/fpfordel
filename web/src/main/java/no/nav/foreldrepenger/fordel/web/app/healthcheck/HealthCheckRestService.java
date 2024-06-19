@@ -39,8 +39,10 @@ public class HealthCheckRestService {
 
     @Inject
     public HealthCheckRestService(ApplicationServiceStarter starter,
-                                  @Any Instance<LivenessAware> livenessAware,
-                                  @Any Instance<ReadinessAware> readinessAware) {
+                                  @Any
+                                  Instance<LivenessAware> livenessAware,
+                                  @Any
+                                  Instance<ReadinessAware> readinessAware) {
         this(starter, livenessAware.stream().toList(), readinessAware.stream().toList());
     }
 
