@@ -134,8 +134,8 @@ public class JournalføringRestTjeneste {
 
         var journalpost = arkiv.hentArkivJournalpost(request.journalpostId()).getOriginalJournalpost();
         var journalpostId = journalpost.journalpostId();
-
-        if ((journalpost.bruker() == null) || (journalpost.bruker().id() == null)) {
+        LOG.info("FPFORDEL: Oppdaterer bruker for {}", journalpostId);
+        if (journalpost.bruker() == null || journalpost.bruker().id() == null) {
             if (LOG.isInfoEnabled()) {
                 LOG.info("FPFORDEL oppdaterer manglende bruker for {}", journalpostId);
             }
@@ -143,6 +143,9 @@ public class JournalføringRestTjeneste {
 
             oppgaveTjeneste.hentLokalOppgaveFor(JournalpostId.fra(journalpostId))
                 .ifPresent(oppgave -> oppgaveTjeneste.oppdaterBruker(oppgave, request.fødselsnummer()));
+        } else {
+            var bid = journalpost.bruker().id();
+            LOG.info("FPFORDEL: Bruker er ikke null: {}, type {}", bid.substring(0, Math.min(5, bid.length())), journalpost.bruker().idType());
         }
 
         return Optional.ofNullable(arkiv.hentArkivJournalpost(journalpostId)).map(this::mapTilJournalpostDetaljerDto).orElseThrow();
@@ -264,7 +267,8 @@ public class JournalføringRestTjeneste {
             Sak.Sakstype.FAGSAK.equals(journalpost.getOriginalJournalpost().sak().sakstype()) &&
             "FS36".equals(journalpost.getOriginalJournalpost().sak().fagsaksystem()) ? journalpost.getSaksnummer().orElse(null) : null;
         return new JournalpostDetaljerDto(
-            journalpost.getJournalpostId(), journalpost.getTittel().orElse(""), journalpost.getBehandlingstema().getOffisiellKode(),
+            journalpost.getJournalpostId(), journalpost.getTittel().orElse(""),
+            journalpost.getBehandlingstema().getOffisiellKode(),
             journalpost.getKanal(), mapBruker(journalpost), journalpost.getTilstand().name(),
             new JournalpostDetaljerDto.AvsenderDto(journalpost.getAvsenderNavn(), journalpost.getAvsenderIdent()),
             journalpost.getJournalfoerendeEnhet().orElse(null),
