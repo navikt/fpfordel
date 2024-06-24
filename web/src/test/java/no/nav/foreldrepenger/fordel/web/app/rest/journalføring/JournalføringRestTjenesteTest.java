@@ -311,13 +311,45 @@ class JournalføringRestTjenesteTest {
     }
 
     @Test
+    @DisplayName("/bruker/oppdater - oppdater med ny Bruker om brukeren er av type UKJENT")
+    void skal_oppdatere_bruker_om_satt_til_UKJENT() {
+        var expectedJournalpostId = "12334";
+        var expectedFnr = "11111122222";
+
+        when(arkiv.hentArkivJournalpost(expectedJournalpostId)).thenReturn(getStandardBuilder(expectedJournalpostId, "test", Bruker.BrukerIdType.UKJENT).build());
+
+        var request = new JournalføringRestTjeneste.OppdaterBrukerDto(expectedJournalpostId, expectedFnr);
+        var journalpostDetaljerDto = restTjeneste.oppdaterBruker(request);
+
+        assertThat(journalpostDetaljerDto).isNotNull();
+        verify(arkiv).oppdaterJournalpostBruker(expectedJournalpostId, expectedFnr);
+        verify(arkiv, times(2)).hentArkivJournalpost(expectedJournalpostId);
+    }
+
+    @Test
+    @DisplayName("/bruker/oppdater - oppdater med ny Bruker om brukeren er av type ORGNR")
+    void skal_oppdatere_bruker_om_satt_til_ORGNR() {
+        var expectedJournalpostId = "12334";
+        var expectedFnr = "11111122222";
+
+        when(arkiv.hentArkivJournalpost(expectedJournalpostId)).thenReturn(getStandardBuilder(expectedJournalpostId, "123456789", Bruker.BrukerIdType.ORGNR).build());
+
+        var request = new JournalføringRestTjeneste.OppdaterBrukerDto(expectedJournalpostId, expectedFnr);
+        var journalpostDetaljerDto = restTjeneste.oppdaterBruker(request);
+
+        assertThat(journalpostDetaljerDto).isNotNull();
+        verify(arkiv).oppdaterJournalpostBruker(expectedJournalpostId, expectedFnr);
+        verify(arkiv, times(2)).hentArkivJournalpost(expectedJournalpostId);
+    }
+
+    @Test
     @DisplayName("/bruker/oppdater - ikke oppdater om bruker finnes på journalposten allerede.")
     void skal_ikke_oppdatere_bruker_om_den_er_satt_allerede() {
         var expectedJournalpostId = "12334";
         var brukerAktørId = "1234567890123";
         var expectedFnr = "11111122222";
 
-        when(arkiv.hentArkivJournalpost(expectedJournalpostId)).thenReturn(getStandardBuilder(expectedJournalpostId, brukerAktørId).build());
+        when(arkiv.hentArkivJournalpost(expectedJournalpostId)).thenReturn(getStandardBuilder(expectedJournalpostId, brukerAktørId, Bruker.BrukerIdType.AKTOERID).build());
         when(pdl.hentPersonIdentForAktørId(brukerAktørId)).thenReturn(Optional.of(expectedFnr));
 
         var request = new JournalføringRestTjeneste.OppdaterBrukerDto(expectedJournalpostId, expectedFnr);
@@ -377,20 +409,20 @@ class JournalføringRestTjenesteTest {
     }
 
     private ArkivJournalpost opprettJournalpost(String journalpostId) {
-        return getStandardBuilder(journalpostId, null).build();
+        return getStandardBuilder(journalpostId, null, null).build();
     }
 
-    private static ArkivJournalpost.Builder getStandardBuilder(String journalpostId, String brukerAktørId) {
+    private static ArkivJournalpost.Builder getStandardBuilder(String journalpostId, String brukerAktørId, Bruker.BrukerIdType brukerIdType) {
         return ArkivJournalpost.getBuilder()
             .medJournalpostId(journalpostId)
-            .medBrukerAktørId(brukerAktørId)
+            .medBrukerAktørId(Bruker.BrukerIdType.AKTOERID.equals(brukerIdType) ? brukerAktørId : null)
             .medHovedtype(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL)
             .medTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER)
             .medTilstand(Journalstatus.MOTTATT)
-            .medJournalpost(opprettOriginalJournalpost(journalpostId, brukerAktørId));
+            .medJournalpost(opprettOriginalJournalpost(journalpostId, brukerAktørId, brukerIdType));
     }
 
-    private static Journalpost opprettOriginalJournalpost(String journalpostId, String brukerAktørId) {
+    private static Journalpost opprettOriginalJournalpost(String journalpostId, String brukerAktørId, Bruker.BrukerIdType brukerIdType) {
         return new Journalpost(journalpostId,
             null,
             null,
@@ -401,12 +433,13 @@ class JournalføringRestTjenesteTest {
             null,
             null,
             null,
-            brukerAktørId != null ? new Bruker(brukerAktørId, Bruker.BrukerIdType.AKTOERID): null,
+            brukerAktørId != null ? new Bruker(brukerAktørId, Optional.ofNullable(brukerIdType).orElse(Bruker.BrukerIdType.AKTOERID)): null,
             null,
             null,
             List.of(),
             List.of(new DokumentInfo("555", "tittel", "brevkode", null, null)));
     }
+
 
     private static Oppgave opprettOppgave(String expectedId, LocalDate now, String beskrivelse, String enhetsNr, String reservertAv,
                                           YtelseType ytelseType) {
