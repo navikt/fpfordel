@@ -52,6 +52,7 @@ import no.nav.foreldrepenger.mottak.klient.AktørIdDto;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Bruker;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Sak;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -134,18 +135,17 @@ public class JournalføringRestTjeneste {
 
         var journalpost = arkiv.hentArkivJournalpost(request.journalpostId()).getOriginalJournalpost();
         var journalpostId = journalpost.journalpostId();
-        LOG.info("FPFORDEL: Oppdaterer bruker for {}", journalpostId);
-        if (journalpost.bruker() == null || journalpost.bruker().id() == null) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("FPFORDEL oppdaterer manglende bruker for {}", journalpostId);
-            }
-            arkiv.oppdaterJournalpostBruker(journalpostId, request.fødselsnummer());
+        LOG.info("Oppdaterer bruker for {}", journalpostId);
+        if (journalpost.bruker() == null
+            || journalpost.bruker().id() == null
+            || List.of(Bruker.BrukerIdType.ORGNR, Bruker.BrukerIdType.UKJENT).contains(journalpost.bruker().idType())) {
+            LOG.info("Oppdaterer bruker for {}", journalpostId);
 
+            arkiv.oppdaterJournalpostBruker(journalpostId, request.fødselsnummer());
             oppgaveTjeneste.hentLokalOppgaveFor(JournalpostId.fra(journalpostId))
                 .ifPresent(oppgave -> oppgaveTjeneste.oppdaterBruker(oppgave, request.fødselsnummer()));
         } else {
-            var bid = journalpost.bruker().id();
-            LOG.info("FPFORDEL: Bruker er ikke null: {}, type {}", bid.substring(0, Math.min(5, bid.length())), journalpost.bruker().idType());
+            LOG.info("Bruker av type {} kan ikke oppdateres.", journalpost.bruker().idType());
         }
 
         return Optional.ofNullable(arkiv.hentArkivJournalpost(journalpostId)).map(this::mapTilJournalpostDetaljerDto).orElseThrow();
