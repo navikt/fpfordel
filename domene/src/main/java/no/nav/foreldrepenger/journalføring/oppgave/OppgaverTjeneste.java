@@ -83,6 +83,10 @@ class OppgaverTjeneste implements Journalføringsoppgave {
 
     @Override
     public String opprettJournalføringsoppgaveFor(NyOppgave nyOppgave) {
+        var eksisterende = oppgaveRepository.hentOppgave(nyOppgave.journalpostId().getVerdi());
+        if (eksisterende != null) {
+            return oppdaterJournalføringsoppgave(eksisterende, nyOppgave);
+        }
         var oppgave = OppgaveEntitet.builder()
             .medJournalpostId(nyOppgave.journalpostId().getVerdi())
             .medEnhet(nyOppgave.enhetId())
@@ -95,6 +99,19 @@ class OppgaverTjeneste implements Journalføringsoppgave {
 
         var id = oppgaveRepository.lagre(oppgave);
         LOG.info("FPFORDEL opprettet lokalt oppgave med journalpostId:{}", id);
+        return id;
+    }
+
+    public String oppdaterJournalføringsoppgave(OppgaveEntitet eksisterende, NyOppgave nyOppgave) {
+        eksisterende.setStatus(Status.AAPNET);
+        eksisterende.setEnhet(nyOppgave.enhetId());
+        eksisterende.setBrukerId(nyOppgave.aktørId());
+        eksisterende.setFrist(helgeJustertFrist(LocalDate.now().plusDays(FRIST_DAGER)));
+        eksisterende.setBeskrivelse(nyOppgave.beskrivelse());
+        eksisterende.setYtelseType(mapTilYtelseType(nyOppgave.behandlingTema()));
+
+        var id = oppgaveRepository.lagre(eksisterende);
+        LOG.info("FPFORDEL oppdatert/reåpnet lokal oppgave med journalpostId:{}", id);
         return id;
     }
 
