@@ -33,3 +33,7 @@ updates:
       interne-deps:
         patterns:
           - "no.nav.*"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
