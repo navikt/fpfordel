@@ -26,7 +26,7 @@ class SjekkDbStrukturTest extends EntityManagerAwareTest {
               FROM ALL_TAB_COMMENTS
              WHERE (comments IS NULL OR comments in ('', 'MISSING COLUMN COMMENT'))
                AND owner = sys_context('userenv', 'current_schema')
-               AND upper(table_name) NOT LIKE 'SCHEMA_%'""";
+               AND upper(table_name) NOT LIKE '%SCHEMA_%'""";
         var query = getEntityManager().createNativeQuery(sql, String.class);
         var avvik = query.getResultStream().toList();
         assertThat(avvik).isEmpty();
@@ -39,7 +39,7 @@ class SjekkDbStrukturTest extends EntityManagerAwareTest {
               FROM ALL_COL_COMMENTS t
              WHERE (t.comments IS NULL OR t.comments = '')
                AND t.owner = sys_context('userenv', 'current_schema')
-               AND (upper(t.table_name) NOT LIKE 'SCHEMA_%')
+               AND (upper(t.table_name) NOT LIKE '%SCHEMA_%')
                AND NOT EXISTS (SELECT 1 FROM ALL_CONSTRAINTS a, ALL_CONS_COLUMNS b
                                 WHERE a.table_name = b.table_name
                                   AND b.table_name = t.table_name
@@ -111,7 +111,7 @@ class SjekkDbStrukturTest extends EntityManagerAwareTest {
                           AND at.owner = ac.owner
                           AND ac.constraint_name LIKE 'PK_%')
               AND upper(at.owner) = upper(:owner)
-              AND upper(at.table_name) NOT LIKE 'SCHEMA_%'""";
+              AND upper(at.table_name) NOT LIKE '%SCHEMA_%'""";
 
         var query = getEntityManager().createNativeQuery(sql, String.class);
         query.setParameter("owner", JpaExtension.DEFAULT_TEST_DB_SCHEMA_NAME);
@@ -149,7 +149,7 @@ class SjekkDbStrukturTest extends EntityManagerAwareTest {
                    AND index_name NOT LIKE 'PK_%'
                    AND index_name NOT LIKE 'IDX_%'
                    AND index_name NOT LIKE 'UIDX_%'
-                   AND upper(table_name) NOT LIKE 'SCHEMA_%'""";
+                   AND upper(table_name) NOT LIKE '%SCHEMA_%'""";
 
         var query = getEntityManager().createNativeQuery(sql, Object[].class);
         query.setParameter("owner", JpaExtension.DEFAULT_TEST_DB_SCHEMA_NAME);
