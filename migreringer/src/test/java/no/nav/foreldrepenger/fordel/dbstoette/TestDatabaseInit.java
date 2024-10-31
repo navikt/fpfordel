@@ -33,7 +33,6 @@ public final class TestDatabaseInit {
             var flyway = Flyway.configure()
                 .dataSource(ds)
                 .locations(getScriptLocation())
-                .table("schema_version")
                 .baselineOnMigrate(true)
                 .cleanDisabled(false)
                 .load();
