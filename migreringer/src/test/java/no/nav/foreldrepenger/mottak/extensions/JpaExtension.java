@@ -1,26 +1,22 @@
 package no.nav.foreldrepenger.mottak.extensions;
 
-import java.util.TimeZone;
+import org.testcontainers.oracle.OracleContainer;
+import org.testcontainers.utility.DockerImageName;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.foreldrepenger.fordel.dbstoette.Databaseskjemainitialisering;
+import no.nav.foreldrepenger.fordel.dbstoette.TestDatabaseInit;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareExtension;
 
 public class JpaExtension extends EntityManagerAwareExtension {
-    private static final Logger LOG = LoggerFactory.getLogger(JpaExtension.class);
-    private static final boolean isNotRunningUnderMaven = Environment.current().getProperty("maven.cmd.line.args") == null;
+
+    public static final String DEFAULT_TEST_DB_SCHEMA_NAME;
+    private static final String TEST_DB_CONTAINER = Environment.current().getProperty("testcontainer.test.db", String.class, "gvenzl/oracle-free:23-slim-faststart");
+    private static final OracleContainer TEST_DATABASE;
 
     static {
-        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
-        if (isNotRunningUnderMaven) {
-            LOG.info("Kjører IKKE under maven");
-            // prøver alltid migrering hvis endring, ellers funker det dårlig i IDE.
-            Databaseskjemainitialisering.migrerUnittestSkjemaer();
-        }
-        Databaseskjemainitialisering.initUnitTestDataSource();
+        TEST_DATABASE = new OracleContainer(DockerImageName.parse(TEST_DB_CONTAINER)).withReuse(true);
+        TEST_DATABASE.start();
+        DEFAULT_TEST_DB_SCHEMA_NAME = TEST_DATABASE.getUsername();
+        TestDatabaseInit.settOppDatasourceOgMigrer(TEST_DATABASE.getJdbcUrl(), DEFAULT_TEST_DB_SCHEMA_NAME, TEST_DATABASE.getPassword());
     }
-
 }

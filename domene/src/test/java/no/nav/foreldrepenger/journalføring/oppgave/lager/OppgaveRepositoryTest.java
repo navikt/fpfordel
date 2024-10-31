@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import jakarta.persistence.EntityManager;
-import jakarta.transaction.TransactionScoped;
 import no.nav.foreldrepenger.mottak.extensions.JpaExtension;
 
 @ExtendWith(JpaExtension.class)
@@ -79,7 +78,7 @@ class OppgaveRepositoryTest {
         var oppgaver = repo.hentAlleÅpneOppgaver();
         assertThat(oppgaver).isNotEmpty().hasSize(antall);
     }
-    
+
     @Test
     void ferdigstillOppgave() {
         lagTestOppgave(Status.AAPNET);

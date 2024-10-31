@@ -9,4 +9,4 @@ services:
       - "1521:1521"
     volumes:
       - ./oracle-init:/docker-entrypoint-initdb.d/
-    container_name: oraclefpfordel
+    container_name: fpfordel_oracle
