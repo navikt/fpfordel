@@ -35,7 +35,7 @@
         <sonar.projectKey>navikt_fpfordel</sonar.projectKey>
 
         <felles.version>7.3.1</felles.version>
-        <prosesstask.version>5.0.16</prosesstask.version>
+        <prosesstask.version>5.0.17</prosesstask.version>
         <fp-kontrakter.version>9.1.21</fp-kontrakter.version>
 
         <!-- Eksterne -->
@@ -154,7 +154,7 @@
             <dependency>
                 <groupId>no.nav.teamdokumenthandtering</groupId>
                 <artifactId>teamdokumenthandtering-avro-schemas</artifactId>
-                <version>1.1.6</version>
+                <version>873c5cdd</version>
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
