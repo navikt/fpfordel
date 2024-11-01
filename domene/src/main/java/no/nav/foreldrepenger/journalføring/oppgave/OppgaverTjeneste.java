@@ -66,12 +66,13 @@ class OppgaverTjeneste implements Journalføringsoppgave {
 
     @Override
     public String opprettGosysJournalføringsoppgaveFor(NyOppgave nyOppgave) {
+        var erSystem = !KontekstHolder.harKontekst() || KontekstHolder.getKontekst().getIdentType().erSystem();
         var request = OpprettOppgave.getBuilderTemaFOR(Oppgavetype.JOURNALFØRING, no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet.NORM,
                 FRIST_DAGER)
             .medAktoerId(Optional.ofNullable(nyOppgave.aktørId()).map(AktørId::getId).orElse(null))
             .medSaksreferanse(nyOppgave.saksref())
             .medTildeltEnhetsnr(nyOppgave.enhetId())
-            .medOpprettetAvEnhetsnr(nyOppgave.enhetId())
+            .medOpprettetAvEnhetsnr(erSystem ? null : nyOppgave.enhetId())
             .medJournalpostId(nyOppgave.journalpostId().getVerdi())
             .medBeskrivelse(nyOppgave.beskrivelse())
             .medBehandlingstema(Optional.ofNullable(nyOppgave.behandlingTema()).map(BehandlingTema::getOffisiellKode).orElse(null));
