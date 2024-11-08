@@ -20,6 +20,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -544,7 +545,7 @@ class OppgaverTjenesteTest {
     }
 
     private OppgaveEntitet lokalOppgave(String journalpostId, String aktørId, String enhet) {
-        return OppgaveEntitet.builder()
+        var entitet = OppgaveEntitet.builder()
             .medJournalpostId(journalpostId)
             .medStatus(Status.AAPNET)
             .medBeskrivelse("test")
@@ -554,6 +555,8 @@ class OppgaverTjenesteTest {
             .medYtelseType(YtelseType.FP)
             .medReservertAv("saksbehandler")
             .build();
+        entitet.setOpprettetTidspunkt(LocalDateTime.now());
+        return entitet;
     }
 
     private OppgaveEntitet lokalOppgave(String journalpostId, String enhet) {
