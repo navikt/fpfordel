@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -140,6 +141,10 @@ class OpprettSakTaskTest {
     @Test
     void test_doTask_svangerskapspenger_inntektsmelding() throws Exception {
 
+        var aktørId = "1000104134079";
+
+        when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(aktørId));
+
         var prosessTaskData = ProsessTaskData.forProsessTask(HentDataFraJoarkTask.class);
 
         String filename = "testsoknader/inntektsmelding-svp.xml";
@@ -148,7 +153,7 @@ class OpprettSakTaskTest {
 
         var ptData = new MottakMeldingDataWrapper(prosessTaskData);
         ptData.setArkivId("123");
-        ptData.setAktørId("1000104134079");
+        ptData.setAktørId(aktørId);
         ptData.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
         ptData.setDokumentKategori(DokumentKategori.UDEFINERT);
 
