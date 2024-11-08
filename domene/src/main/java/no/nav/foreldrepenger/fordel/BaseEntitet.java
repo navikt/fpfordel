@@ -55,6 +55,10 @@ public class BaseEntitet implements Serializable {
         this.opprettetAv = opprettetAv;
     }
 
+    public void setOpprettetTidspunkt(LocalDateTime tidspunkt) {
+        this.opprettetTidspunkt = tidspunkt;
+    }
+
     public LocalDateTime getOpprettetTidspunkt() {
         return opprettetTidspunkt;
     }

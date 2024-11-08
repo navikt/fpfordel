@@ -303,7 +303,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
             .medYtelseType(entitet.getYtelseType())
             .medBeskrivelse(entitet.getBeskrivelse())
             .medTilordnetRessurs(entitet.getReservertAv())
-            .medAktivDato(LocalDate.now())
+            .medAktivDato(entitet.getOpprettetTidspunkt().toLocalDate())
             .medKilde(Oppgave.Kilde.LOKAL)
             .build();
     }
