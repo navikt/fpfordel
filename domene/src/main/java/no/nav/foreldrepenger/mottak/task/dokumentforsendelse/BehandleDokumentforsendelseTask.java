@@ -1,5 +1,43 @@
 package no.nav.foreldrepenger.mottak.task.dokumentforsendelse;
 
+import static java.lang.String.format;
+import static no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType.XML;
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.UDEFINERT;
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.fraOffisiellKode;
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.gjelderForeldrepenger;
+import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG;
+import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD;
+import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER;
+import static no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal.SELVBETJENING;
+import static no.nav.foreldrepenger.fordel.kodeverdi.Tema.FORELDRE_OG_SVANGERSKAPSPENGER;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.AKTØR_ID_KEY;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.ARKIV_ID_KEY;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.BEHANDLINGSTEMA_KEY;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.DOKUMENTKATEGORI_ID_KEY;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.FORSENDELSE_ID_KEY;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.FORSENDELSE_MOTTATT_TIDSPUNKT_KEY;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.SAKSNUMMER_KEY;
+import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.TEMA_KEY;
+import static no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser.unmarshallXml;
+import static no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil.behandlingTemaFraDokumentType;
+import static no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil.utledHovedDokumentType;
+import static no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil.utledKategoriFraDokumentType;
+import static no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus.FPSAK;
+import static no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus.GOSYS;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.StringUtil;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
@@ -24,33 +62,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static java.lang.String.format;
-import static no.nav.foreldrepenger.fordel.kodeverdi.ArkivFilType.XML;
-import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.UDEFINERT;
-import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.fraOffisiellKode;
-import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.*;
-import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.*;
-import static no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal.SELVBETJENING;
-import static no.nav.foreldrepenger.fordel.kodeverdi.Tema.FORELDRE_OG_SVANGERSKAPSPENGER;
-import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.*;
-import static no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser.unmarshallXml;
-import static no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil.*;
-import static no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus.FPSAK;
-import static no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus.GOSYS;
-
 /*
  * Hovedgangen i tasken
  * - hent data fra forsendelse metadata + dokument og populer wrapper
@@ -70,7 +81,6 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(BehandleDokumentforsendelseTask.class);
 
-    private static final TaskType TASK_GOSYS = TaskType.forProsessTask(OpprettGSakOppgaveTask.class);
     private static final TaskType TASK_FPSAK = TaskType.forProsessTask(VLKlargjørerTask.class);
 
     private static final String POSTCOND_CODE = "FP-638068";
@@ -260,7 +270,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
         if (GOSYS.equals(destinasjon.system()) || ((destinasjon.saksnummer() != null) && !ferdigstilt)) {
             dokumentRepository.oppdaterForsendelseMedArkivId(forsendelseId, w.getArkivId(), GOSYS);
             w.setSaksnummer(null);
-            return w.nesteSteg(TASK_GOSYS);
+            return w.nesteSteg(TaskType.forProsessTask(OpprettGSakOppgaveTask.class));
         }
         if (FPSAK.equals(destinasjon.system()) && (destinasjon.saksnummer() != null)) {
             w.setSaksnummer(destinasjon.saksnummer());

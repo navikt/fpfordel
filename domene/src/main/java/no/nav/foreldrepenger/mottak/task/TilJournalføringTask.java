@@ -2,16 +2,14 @@ package no.nav.foreldrepenger.mottak.task;
 
 import java.util.Optional;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
-
-import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -99,7 +97,7 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             }
             arkivTjeneste.ferdigstillJournalføring(w.getArkivId(), w.getJournalførendeEnhet().orElse(AUTOMATISK_ENHET));
         } catch (Exception e) {
-            LOG.info("Feil journaltilstand. Forventet tilstand: endelig, fikk Midlertidig");
+            LOG.warn("Feil journaltilstand. Forventet tilstand: endelig, fikk Midlertidig");
             return w.nesteSteg(TaskType.forProsessTask(OpprettGSakOppgaveTask.class));
         }
         try {

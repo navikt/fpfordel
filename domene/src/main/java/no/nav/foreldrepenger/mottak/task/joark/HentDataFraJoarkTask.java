@@ -225,7 +225,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
                 return w.nesteSteg(TASK_GOSYS);
             }
         } else if (!arkiv.oppdaterRettMangler(journalpost, w.getAktørId().orElse(null), w.getBehandlingTema(), w.getDokumentTypeId().orElse(UDEFINERT))) {
-            LOG.info("FPFORDEL HentFraArkiv kunne ikke rette opp mangler journalpost {} kanal {} hovedtype {} alle typer {}", w.getArkivId(),
+            LOG.warn("FPFORDEL HentFraArkiv kunne ikke rette opp mangler journalpost {} kanal {} hovedtype {} alle typer {}", w.getArkivId(),
                 journalpost.getKanal(), journalpost.getHovedtype(), journalpost.getAlleTyper());
             return w.nesteSteg(TASK_GOSYS);
         }
