@@ -241,6 +241,14 @@ public class ArkivTjeneste {
         }
     }
 
+    public void oppdaterTilleggsopplysning(String journalpostId, DokumentTypeId dokumentTypeId) {
+        var builder = OppdaterJournalpostRequest.ny()
+            .leggTilTilleggsopplysning(new Tilleggsopplysning(FP_DOK_TYPE, dokumentTypeId.getOffisiellKode()));
+        if (!dokArkivTjeneste.oppdaterJournalpost(journalpostId, builder.build())) {
+            throw new IllegalStateException(KUNNE_IKKE_OPPDATERE_JP + journalpostId);
+        }
+    }
+
     public void oppdaterJournalpostBruker(String journalpostId, String fødselsnummer) {
         var aktørId = personTjeneste.hentAktørIdForPersonIdent(fødselsnummer).orElseThrow();
         if (!dokArkivTjeneste.oppdaterJournalpost(journalpostId, OppdaterJournalpostRequest.ny().medBruker(aktørId).build())) {

@@ -10,7 +10,6 @@ import java.util.UUID;
 import java.util.function.Function;
 
 import jakarta.xml.bind.JAXBElement;
-
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -79,7 +78,7 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
     }
 
     @Override
-    protected void validerSkjemaSemantisk(MottakMeldingDataWrapper dataWrapper) {
+    protected void validerSkjemaSemantisk(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {
         sjekkNødvendigeFeltEksisterer(dataWrapper.getForsendelseId().orElse(null));
         final BehandlingTema behandlingTema = hentBehandlingTema();
         final String aktørId = getSkjema().getSoeker().getAktoerId();

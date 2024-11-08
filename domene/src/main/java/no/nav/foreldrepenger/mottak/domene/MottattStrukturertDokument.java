@@ -31,7 +31,7 @@ public abstract class MottattStrukturertDokument<S> {
     }
 
     public final void kopierTilMottakWrapper(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {
-        validerSkjemaSemantisk(dataWrapper);
+        validerSkjemaSemantisk(dataWrapper, aktørIdFinder);
         kopierVerdier(dataWrapper, aktørIdFinder);
     }
 
@@ -54,9 +54,10 @@ public abstract class MottattStrukturertDokument<S> {
      * <p>
      * Hvis ingen slik validering er nødvendig, kan du bare returne.
      *
-     * @param dataWrapper data holder som skal populeres med verdier fra skjema
+     * @param dataWrapper   data holder som skal populeres med verdier fra skjema
+     * @param aktørIdFinder
      */
-    protected abstract void validerSkjemaSemantisk(MottakMeldingDataWrapper dataWrapper);
+    protected abstract void validerSkjemaSemantisk(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder);
 
     public S getSkjema() {
         return skjema;
