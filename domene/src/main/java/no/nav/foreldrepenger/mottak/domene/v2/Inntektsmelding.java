@@ -64,7 +64,7 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
         Optional<String> aktørIdFraJournalpost = dataWrapper.getAktørId();
         if (aktørIdFraJournalpost.isPresent()) {
             if (aktørIdFraSkjema.filter(aktørIdFraJournalpost.get()::equals).isEmpty()) {
-                throw new FunksjonellException("FP-401245", "Ulike personer i journalpost og inntektsmelding.", null);
+                throw new FunksjonellException("FP-401246", "Ulike personer i journalpost og inntektsmelding.", null);
             }
         }
     }

@@ -172,10 +172,16 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
                     // Skyldes feil i IM eller spesiell bruk av Gosys. Lag oppgave i dette tilfelle, godta i BehandleDokumentService
                     if ("FP-401245".equals(vle.getKode())) {
                         w.setSaksnummer(null);
-                        LOG.warn("FPFORDEL HentFraArkiv avvik for journalpost vs XML journalpostId {} avvik {}",
+                        LOG.warn("FPFORDEL HentFraArkiv avvik saksnummer for journalpost vs XML journalpostId {} avvik {}",
                             journalpost.getJournalpostId(), vle.getFeilmelding());
                         return w.nesteSteg(TASK_GOSYS);
                     }
+                    if ("FP-401246".equals(vle.getKode())) {
+                        LOG.warn("FPFORDEL HentFraArkiv avvik person for journalpost vs XML journalpostId {} avvik {}",
+                            journalpost.getJournalpostId(), vle.getFeilmelding());
+                        throw vle;
+                    }
+                    throw vle;
                 }
             }
         }
@@ -267,13 +273,13 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     private void sjekkOgOppdaterInntektsmeldingSelvbetjent(MottakMeldingDataWrapper w, ArkivJournalpost j, String aktørIdJournalpost) {
         if (aktørIdJournalpost == null) {
-            throw new TekniskException("FP-429672", "Mangler Bruker på Innteksmelding fra NavNo");
+            throw new TekniskException("FP-429672", "Mangler Bruker på IM-journalpost fra NavNo");
         }
         if (!FORELDRE_OG_SVANGERSKAPSPENGER.equals(j.getTema())) {
-            throw new TekniskException("FP-429675", "Mangler Tema på Innteksmelding fra NavNo");
+            throw new TekniskException("FP-429675", "Mangler Tema på IM-journalpost fra NavNo");
         }
         if (!Set.of(BehandlingTema.FORELDREPENGER, BehandlingTema.SVANGERSKAPSPENGER).contains(j.getBehandlingstema())) {
-            throw new TekniskException("FP-429674", "Mangler BehandlingTema på Innteksmelding fra NavNo");
+            throw new TekniskException("FP-429674", "Mangler BehandlingTema på IM-journalpost fra NavNo");
         }
         var behandlingTemaFraIM = w.getInntektsmeldingYtelse().map(BehandlingTema::fraTermNavn)
             .orElseThrow(() -> new TekniskException("FP-429673", "Mangler Ytelse på Innteksmelding"));
