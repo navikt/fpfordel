@@ -74,7 +74,6 @@ class FerdigstillJournalføringTjenesteTest {
     private static final String JOURNALPOST_ID = "123";
     private static final String ENHETID = "4567";
     private static final String SAKSNUMMER = "789";
-    private static final String OPPGAVE_ID = "123456L";
     private static final String AKTØR_ID = "9000000000009";
     @Mock
     private VLKlargjører klargjører;
@@ -171,6 +170,7 @@ class FerdigstillJournalføringTjenesteTest {
         when(arkivJournalpost.getHovedtype()).thenReturn(DokumentTypeId.INNTEKTSMELDING);
         when(fagsak.finnFagsakInfomasjon(ArgumentMatchers.any())).thenReturn(
             Optional.of(new FagsakInfomasjonDto(AKTØR_ID, FORELDREPENGER_FØDSEL.getOffisiellKode())));
+        when(pdl.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_ID));
 
         when(arkivJournalpost.getInnholderStrukturertInformasjon()).thenReturn(true);
         when(arkivJournalpost.getStrukturertPayload()).thenReturn(readFile("testdata/inntektsmelding-foreldrepenger.xml"));
