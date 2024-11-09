@@ -155,14 +155,6 @@ public class MottakMeldingDataWrapper {
         prosessTaskData.setProperty(SAKSNUMMER_KEY, saksnummer);
     }
 
-    public Optional<String> getInnkommendeSaksnummer() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(INN_SAKSNR_KEY));
-    }
-
-    public void setInnkommendeSaksnummer(String saksnummer) {
-        prosessTaskData.setProperty(INN_SAKSNR_KEY, saksnummer);
-    }
-
     public Optional<DokumentTypeId> getDokumentTypeId() {
         return Optional.ofNullable(prosessTaskData.getPropertyValue(DOKUMENTTYPE_ID_KEY)).map(DokumentTypeId::fraKodeDefaultUdefinert);
     }

@@ -147,7 +147,6 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             LOG.info("FPFORDEL HentFraArkiv presatt saksnummer {} for journalpost {} kanal {} dokumenttype {}", s, w.getArkivId(),
                 journalpost.getKanal(), journalpost.getHovedtype());
             w.setSaksnummer(s);
-            w.setInnkommendeSaksnummer(s);
         });
 
         if (journalpost.getInnholderStrukturertInformasjon()) {
@@ -197,8 +196,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         // Journalposter uten kanalreferanse er vanligvis slike som er "klonet" av SBH
         // og forsøkt journalført fra Gosys.
         // Håndteres manuelt hvis de kommer helt hit - mulig de skal slippes videre
-        if (w.getEksternReferanseId().isEmpty() && w.getInnkommendeSaksnummer().isEmpty() && !MottakKanal.SELVBETJENING.getKode()
-            .equals(journalpost.getKanal())) {
+        if (w.getEksternReferanseId().isEmpty() && w.getSaksnummer().isEmpty() && !MottakKanal.SELVBETJENING.getKode().equals(journalpost.getKanal())) {
             LOG.info("FPFORDEL HentFraArkiv journalpost uten kanalreferanse journalpost {} kanal {} dokumenttype {}", journalpost.getJournalpostId(),
                 journalpost.getKanal(), journalpost.getHovedtype());
             return w.nesteSteg(TASK_GOSYS);
@@ -227,7 +225,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
         if (erInntektsmelding(journalpost.getHovedtype())) {
             if (MottakKanal.SELVBETJENING.getKode().equals(journalpost.getKanal())) {
-                sjekkOgOppdaterInntektsmeldingSelvbetjent(w, journalpost, aktørIdFraJournalpost.orElse(null));
+                sjekkInntektsmeldingSelvbetjent(w, journalpost, aktørIdFraJournalpost.orElse(null));
             } else {
                 oppdaterInntektsmeldingAltinn(w);
             }
@@ -271,12 +269,9 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         w.setBehandlingTema(behandlingTemaFraIM);
     }
 
-    private void sjekkOgOppdaterInntektsmeldingSelvbetjent(MottakMeldingDataWrapper w, ArkivJournalpost j, String aktørIdJournalpost) {
+    private void sjekkInntektsmeldingSelvbetjent(MottakMeldingDataWrapper w, ArkivJournalpost j, String aktørIdJournalpost) {
         if (aktørIdJournalpost == null) {
             throw new TekniskException("FP-429672", "Mangler Bruker på IM-journalpost fra NavNo");
-        }
-        if (!FORELDRE_OG_SVANGERSKAPSPENGER.equals(j.getTema())) {
-            throw new TekniskException("FP-429675", "Mangler Tema på IM-journalpost fra NavNo");
         }
         if (!Set.of(BehandlingTema.FORELDREPENGER, BehandlingTema.SVANGERSKAPSPENGER).contains(j.getBehandlingstema())) {
             throw new TekniskException("FP-429674", "Mangler BehandlingTema på IM-journalpost fra NavNo");
@@ -285,11 +280,6 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             .orElseThrow(() -> new TekniskException("FP-429673", "Mangler Ytelse på Innteksmelding"));
         if (!Objects.equals(behandlingTemaFraIM, j.getBehandlingstema())) {
             throw new TekniskException("FP-429676", "Avvik BehandlingTema på mellom Journalpost og Innteksmelding fra NavNo");
-        }
-
-        if (j.getTilleggsopplysninger().isEmpty() ||
-            j.getTilleggsopplysninger().stream().noneMatch(t -> Objects.equals(t.verdi(), INNTEKTSMELDING.getOffisiellKode()))) {
-            arkiv.oppdaterTilleggsopplysning(w.getArkivId(), INNTEKTSMELDING);
         }
     }
 
