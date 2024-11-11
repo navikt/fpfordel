@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -25,6 +26,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
+import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.journal.OpprettetJournalpost;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
@@ -49,6 +51,8 @@ class TilJournalføringTaskTest {
     private PersonInformasjon aktørConsumerMock;
     @Mock
     private Journalføringsoppgave journalføringsOppgave;
+    @Mock
+    ArkivJournalpost arkivJournalpost;
 
     private TilJournalføringTask task;
     private ProsessTaskData ptd;
@@ -96,6 +100,9 @@ class TilJournalføringTaskTest {
 
     @Test
     void test_mangler_arkivsak() {
+        when(arkivTjeneste.hentArkivJournalpost(any())).thenReturn(arkivJournalpost);
+        when(arkivJournalpost.getSaksnummer()).thenReturn(Optional.empty());
+
         var data = new MottakMeldingDataWrapper(ptd);
         data.setArkivId(ARKIV_ID);
         data.setSaksnummer(SAKSNUMMER);
@@ -117,6 +124,24 @@ class TilJournalføringTaskTest {
         assertThat(wrapper).isNotNull();
         assertThat(wrapper.getProsessTaskData().taskType()).as("Forventer at sak uten mangler går videre til neste steg")
             .isNotEqualTo(TaskType.forProsessTask(TilJournalføringTask.class));
+    }
+
+    @Test
+    void test_presatt_arkivsak() {
+        when(arkivTjeneste.hentArkivJournalpost(any())).thenReturn(arkivJournalpost);
+        when(arkivJournalpost.getSaksnummer()).thenReturn(Optional.of(SAKSNUMMER));
+
+        var data = new MottakMeldingDataWrapper(ptd);
+        data.setArkivId(ARKIV_ID);
+        data.setSaksnummer(SAKSNUMMER);
+        data.setAktørId(AKTØR_ID);
+        data.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
+        data.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
+        data.setForsendelseId(forsendelseId);
+
+        var wrapper = doTaskWithPrecondition(data);
+
+        verify(arkivTjeneste, times(0)).oppdaterMedSak(any(), any(), any());
     }
 
     @Test
@@ -177,6 +202,8 @@ class TilJournalføringTaskTest {
         var data = new MottakMeldingDataWrapper(ptd);
 
         when(arkivTjeneste.opprettJournalpost(forsendelseId, AKTØR_ID, SAKSNUMMER)).thenReturn(new OpprettetJournalpost(ARKIV_ID, true));
+        when(arkivTjeneste.hentArkivJournalpost(any())).thenReturn(arkivJournalpost);
+        when(arkivJournalpost.getSaksnummer()).thenReturn(Optional.empty());
 
         data.setForsendelseId(forsendelseId);
         data.setAktørId(AKTØR_ID);

@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
@@ -246,7 +245,6 @@ class HentDataFraJoarkTaskTest {
         BehandlingTema actualBehandlingTema = BehandlingTema.UDEFINERT;
         dataWrapper.setBehandlingTema(actualBehandlingTema);
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
-        dataWrapper.setInnkommendeSaksnummer("VL");
         dataWrapper.setSaksnummer("VL");
 
 
@@ -263,7 +261,6 @@ class HentDataFraJoarkTaskTest {
         when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.FPSAK, "VL"));
 
         BehandlingTema actualBehandlingTema = BehandlingTema.UDEFINERT;
-        dataWrapper.setInnkommendeSaksnummer("VL");
         dataWrapper.setSaksnummer("VL");
         dataWrapper.setBehandlingTema(actualBehandlingTema);
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);

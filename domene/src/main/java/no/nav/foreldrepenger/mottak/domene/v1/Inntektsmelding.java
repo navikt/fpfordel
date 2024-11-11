@@ -4,13 +4,13 @@ import java.time.LocalDate;
 import java.util.Optional;
 import java.util.function.Function;
 
-import jakarta.xml.bind.JAXBElement;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.xml.bind.JAXBElement;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
+import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.seres.xsd.nav.inntektsmelding_m._20180924.InntektsmeldingM;
 import no.seres.xsd.nav.inntektsmelding_m._20180924.Skjemainnhold;
@@ -44,8 +44,14 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
     }
 
     @Override
-    protected void validerSkjemaSemantisk(MottakMeldingDataWrapper dataWrapper) {
-        // Ikke gjør noe
+    protected void validerSkjemaSemantisk(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {
+        Optional<String> aktørIdFraSkjema = aktørIdFinder.apply(getArbeidstakerFnr());
+        Optional<String> aktørIdFraJournalpost = dataWrapper.getAktørId();
+        if (aktørIdFraJournalpost.isPresent()) {
+            if (aktørIdFraSkjema.filter(aktørIdFraJournalpost.get()::equals).isEmpty()) {
+                throw new FunksjonellException("FP-401246", "Ulike personer i journalpost og inntektsmelding.", null);
+            }
+        }
     }
 
     private LocalDate getStartdatoForeldrepengeperiode() {

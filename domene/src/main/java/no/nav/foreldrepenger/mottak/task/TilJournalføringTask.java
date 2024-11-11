@@ -84,26 +84,26 @@ public class TilJournalføringTask extends WrappedProsessTaskHandler {
             var journalpost = arkivTjeneste.hentArkivJournalpost(w.getArkivId());
             arkivTjeneste.settTilleggsOpplysninger(journalpost, w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT), false);
         } catch (Exception e) {
-            LOG.info("Feil ved setting av tilleggsopplysninger for journalpostId {}", w.getArkivId());
+            LOG.info("FORDEL OPPRETT/FERDIG Feil ved setting av tilleggsopplysninger for journalpostId {}", w.getArkivId());
         }
         // Annet dokument fra dokumentmottak (scanning, altinn). Kan skippe
         // unntakshåndtering. Bør feile.
         try {
-            var innkommendeSaksnummer = w.getInnkommendeSaksnummer();
-            if (innkommendeSaksnummer.isPresent()) {
-                LOG.info("FORDEL OPPRETT/FERDIG presatt saksnummer {} for journalpost {}", innkommendeSaksnummer.get(), w.getArkivId());
+            var journalpost = arkivTjeneste.hentArkivJournalpost(w.getArkivId());
+            if (journalpost.getSaksnummer().filter(s -> s.equals(saksnummer)).isPresent()) {
+                LOG.info("FORDEL OPPRETT/FERDIG presatt saksnummer {} for journalpost {}", saksnummer, w.getArkivId());
             } else {
                 arkivTjeneste.oppdaterMedSak(w.getArkivId(), saksnummer, w.getAktørId().orElseThrow());
             }
             arkivTjeneste.ferdigstillJournalføring(w.getArkivId(), w.getJournalførendeEnhet().orElse(AUTOMATISK_ENHET));
         } catch (Exception e) {
-            LOG.warn("Feil journaltilstand. Forventet tilstand: endelig, fikk Midlertidig");
+            LOG.warn("FORDEL OPPRETT/FERDIG Feil journaltilstand. Forventet tilstand: endelig, fikk Midlertidig");
             return w.nesteSteg(TaskType.forProsessTask(OpprettGSakOppgaveTask.class));
         }
         try {
             oppgave.ferdigstillAlleÅpneJournalføringsoppgaverFor(JournalpostId.fra(w.getArkivId()));
         } catch (Exception e) {
-            LOG.info("FPFORDEL JFR-OPPGAVE: feil ved ferdigstilling av åpne oppgaver for journalpostId: {}", w.getArkivId());
+            LOG.warn("FPFORDEL JFR-OPPGAVE: feil ved ferdigstilling av åpne oppgaver for journalpostId: {}", w.getArkivId());
         }
         return w.nesteSteg(TaskType.forProsessTask(VLKlargjørerTask.class));
     }

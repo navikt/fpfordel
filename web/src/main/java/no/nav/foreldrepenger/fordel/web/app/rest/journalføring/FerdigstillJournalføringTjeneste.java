@@ -500,7 +500,7 @@ public class FerdigstillJournalføringTjeneste {
             mottattDokument.kopierTilMottakWrapper(dataWrapper, pdl::hentAktørIdForPersonIdent);
         } catch (FunksjonellException e) {
             // Her er det "greit" - da har man bestemt seg, men kan lage rot i saken.
-            if ("FP-401245".equals(e.getKode())) {
+            if ("FP-401245".equals(e.getKode()) || "FP-401246".equals(e.getKode())) {
                 var logMessage = e.getMessage();
                 LOG.info("FPFORDEL RESTJOURNALFØRING: {}", logMessage);
             } else {

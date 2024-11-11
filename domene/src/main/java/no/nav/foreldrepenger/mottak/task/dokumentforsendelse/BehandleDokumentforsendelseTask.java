@@ -202,8 +202,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
             var journalpost = opprettJournalpostFerdigstillHvisSaksnummer(forsendelseId, w, destinasjon.saksnummer());
             w.setArkivId(journalpost.journalpostId());
             if (!journalpost.ferdigstilt()) {
-                // Det vil komme en Kafka-hendelse om noen sekunder - denne sørger for at vi
-                // ikke trigger på den.
+                // Det vil komme en Kafka-hendelse om noen sekunder - denne sørger for at vi ikke trigger på den.
                 dokumentRepository.lagreJournalpostLokal(w.getArkivId(), SELVBETJENING.getKode(), "MIDLERTIDIG", forsendelseId.toString());
             }
             return utledNesteSteg(w, forsendelseId, destinasjon, journalpost.ferdigstilt());
@@ -267,7 +266,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
 
     private MottakMeldingDataWrapper utledNesteSteg(MottakMeldingDataWrapper w, UUID forsendelseId, Destinasjon destinasjon, boolean ferdigstilt) {
         LOG.info("FPFORDEL BdTask exit {}", destinasjon);
-        if (GOSYS.equals(destinasjon.system()) || ((destinasjon.saksnummer() != null) && !ferdigstilt)) {
+        if (GOSYS.equals(destinasjon.system()) || (destinasjon.saksnummer() != null && !ferdigstilt)) {
             dokumentRepository.oppdaterForsendelseMedArkivId(forsendelseId, w.getArkivId(), GOSYS);
             w.setSaksnummer(null);
             return w.nesteSteg(TaskType.forProsessTask(OpprettGSakOppgaveTask.class));

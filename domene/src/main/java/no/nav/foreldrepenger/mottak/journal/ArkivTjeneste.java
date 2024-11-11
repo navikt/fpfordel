@@ -250,28 +250,27 @@ public class ArkivTjeneste {
 
     public void settTilleggsOpplysninger(ArkivJournalpost arkivJournalpost, DokumentTypeId defaultDokumentTypeId, boolean manuellJournalføring) {
         var journalpost = arkivJournalpost.getOriginalJournalpost();
-        var tilleggDokumentType = arkivJournalpost.getTilleggsopplysninger().stream().filter(to -> FP_DOK_TYPE.equals(to.nokkel())).findFirst();
-        var hovedtype = DokumentTypeId.UDEFINERT.equals(arkivJournalpost.getHovedtype()) ? defaultDokumentTypeId : arkivJournalpost.getHovedtype();
+        var tilleggDoktype = arkivJournalpost.getTilleggsopplysninger().stream().filter(to -> FP_DOK_TYPE.equals(to.nokkel())).toList();
+        var tilleggAnnet = arkivJournalpost.getTilleggsopplysninger().stream().filter(to -> !FP_DOK_TYPE.equals(to.nokkel())).toList();
         //saksbehandler kan ha valgt ny tittel ifm manuellJournalføring
-        if (manuellJournalføring) {
-            hovedtype = defaultDokumentTypeId;
+        var hovedtype = manuellJournalføring || DokumentTypeId.UDEFINERT.equals(arkivJournalpost.getHovedtype()) ?
+            defaultDokumentTypeId : arkivJournalpost.getHovedtype();
+
+        if (DokumentTypeId.UDEFINERT.equals(hovedtype)) {
+            return;
         }
 
-        if (tilleggDokumentType.isEmpty() || !arkivJournalpost.getHovedtype().equals(defaultDokumentTypeId) ) {
+        if (tilleggDoktype.isEmpty() || tilleggDoktype.stream().noneMatch(to -> hovedtype.getOffisiellKode().equals(to.verdi()))) {
             var builder = OppdaterJournalpostRequest.ny();
             if (LOG.isInfoEnabled()) {
                 LOG.info("FPFORDEL oppdaterer/legger til tilleggsopplysninger for {} med {}", journalpost.journalpostId(), hovedtype.getOffisiellKode());
             }
-            if (!arkivJournalpost.getTilleggsopplysninger().isEmpty()) {
-                builder.medTilleggsopplysninger(arkivJournalpost.getTilleggsopplysninger());
+            if (!tilleggAnnet.isEmpty()) {
+                builder.medTilleggsopplysninger(tilleggAnnet);
             }
             builder.leggTilTilleggsopplysning(new Tilleggsopplysning(FP_DOK_TYPE, hovedtype.getOffisiellKode()));
             if (!dokArkivTjeneste.oppdaterJournalpost(journalpost.journalpostId(), builder.build())) {
                 throw new IllegalStateException(KUNNE_IKKE_OPPDATERE_JP + journalpost.journalpostId());
-            }
-        } else {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("FPFORDEL tilleggsopplysninger allerede satt for {} med {}", journalpost.journalpostId(), tilleggDokumentType);
             }
         }
     }
