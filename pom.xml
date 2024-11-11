@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>3.4.3</version>
+        <version>3.5.1</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger.fordel</groupId>
@@ -34,9 +34,9 @@
         <sonar.projectName>fp-fordel</sonar.projectName>
         <sonar.projectKey>navikt_fpfordel</sonar.projectKey>
 
-        <felles.version>7.3.1</felles.version>
+        <felles.version>7.3.2</felles.version>
         <prosesstask.version>5.0.17</prosesstask.version>
-        <fp-kontrakter.version>9.1.21</fp-kontrakter.version>
+        <fp-kontrakter.version>9.1.22</fp-kontrakter.version>
 
         <!-- Eksterne -->
         <confluent.version>7.7.1</confluent.version>
@@ -47,7 +47,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>3.4.3</version>
+                <version>3.5.1</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
