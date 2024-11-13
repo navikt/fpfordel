@@ -50,3 +50,12 @@ mvn -B -Dfile.encoding=UTF-8 -DskipTests clean install
 
 docker build -t fpfordel .  
 ```
+
+### Protip for å kjøre tester raskere
+Finn filen .testcontainers.properties, ligger ofte på hjemmeområdet ditt eks:
+
+```~/.testcontainers.properties```
+
+legg til denne verdien
+
+```testcontainers.reuse.enable=true```
