@@ -1,6 +1,16 @@
 package no.nav.foreldrepenger.journalføring;
 
 import static java.util.Objects.requireNonNull;
+import static no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType.ES;
+import static no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType.FP;
+import static no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType.SVP;
+
+import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
+
+import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
+
+import no.nav.foreldrepenger.journalføring.utils.YtelseTypeUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,9 +74,6 @@ public class ManuellOpprettSakValidator {
 
         if (DokumentTypeId.erSøknadType(hovedDokumentType)) {
             journalpostFagsakYtelseTypeDto = utledYtelseTypeFor(hovedDokumentType);
-            if (oppgittFagsakYtelseTypeDto.equals(journalpostFagsakYtelseTypeDto)) {
-                return;
-            }
         } else if (DokumentTypeId.INNTEKTSMELDING.equals(hovedDokumentType)) {
             var original = arkivJournalpost.getStrukturertPayload().toLowerCase();
             if (original.contains("ytelse>foreldrepenger<")) {
@@ -74,11 +81,16 @@ public class ManuellOpprettSakValidator {
             } else if (original.contains("ytelse>svangerskapspenger<")) {
                 journalpostFagsakYtelseTypeDto = FagsakYtelseTypeDto.SVANGERSKAPSPENGER;
             }
+        } else if (Journalstatus.JOURNALFOERT.equals(arkivJournalpost.getTilstand())) { // her prøver man å flytte en journalpost som allerede er journalført ferdig til en annen sak
+            journalpostFagsakYtelseTypeDto = arkivJournalpost.getBehandlingstema().utledYtelseType();
+            LOG.info("Prøver å journalføre en allerede journalført post {} knyttet til ytelsetype {}", arkivJournalpost.getJournalpostId(), journalpostFagsakYtelseTypeDto);
         }
+
         LOG.info("FPSAK vurdering ytelsedok {} vs ytelseoppgitt {}", journalpostFagsakYtelseTypeDto, oppgittFagsakYtelseTypeDto);
         if (!oppgittFagsakYtelseTypeDto.equals(journalpostFagsakYtelseTypeDto)) {
             throw new FunksjonellException("FP-785359", "Dokument og valgt ytelsetype i uoverenstemmelse",
                 "Velg ytelsetype som samstemmer med dokument");
         }
     }
+
 }

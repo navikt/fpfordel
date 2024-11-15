@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.journalføring.oppgave;
 
-import static no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType.ES;
-import static no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType.FP;
-import static no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType.SVP;
 import static no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste.NK_ENHET_ID;
 import static no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste.SKJERMINGENHETER;
 
@@ -32,6 +29,7 @@ import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
+import no.nav.foreldrepenger.journalføring.utils.YtelseTypeUtils;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.LosEnheterCachedTjeneste;
 import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
@@ -95,7 +93,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
             .medBrukerId(nyOppgave.aktørId())
             .medFrist(helgeJustertFrist(LocalDate.now().plusDays(FRIST_DAGER)))
             .medBeskrivelse(nyOppgave.beskrivelse())
-            .medYtelseType(mapTilYtelseType(nyOppgave.behandlingTema()))
+            .medYtelseType(YtelseTypeUtils.mapTilYtelseType(nyOppgave.behandlingTema()))
             .build();
 
         var id = oppgaveRepository.lagre(oppgave);
@@ -109,7 +107,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
         eksisterende.setBrukerId(nyOppgave.aktørId());
         eksisterende.setFrist(helgeJustertFrist(LocalDate.now().plusDays(FRIST_DAGER)));
         eksisterende.setBeskrivelse(nyOppgave.beskrivelse());
-        eksisterende.setYtelseType(mapTilYtelseType(nyOppgave.behandlingTema()));
+        eksisterende.setYtelseType(YtelseTypeUtils.mapTilYtelseType(nyOppgave.behandlingTema()));
 
         var id = oppgaveRepository.lagre(eksisterende);
         LOG.info("FPFORDEL oppdatert/reåpnet lokal oppgave med journalpostId:{}", id);
@@ -316,18 +314,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     static YtelseType mapTilYtelseType(String behandlingstema) {
         var behandlingTemaMappet = BehandlingTema.fraOffisiellKode(behandlingstema);
 
-        return mapTilYtelseType(behandlingTemaMappet);
+        return YtelseTypeUtils.mapTilYtelseType(behandlingTemaMappet);
     }
 
-    static YtelseType mapTilYtelseType(BehandlingTema behandlingstema) {
-        if (behandlingstema == null) {
-            return null;
-        }
-        return switch (behandlingstema) {
-            case FORELDREPENGER, FORELDREPENGER_ADOPSJON, FORELDREPENGER_FØDSEL -> FP;
-            case SVANGERSKAPSPENGER -> SVP;
-            case ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON, ENGANGSSTØNAD_FØDSEL -> ES;
-            default -> null;
-        };
-    }
 }
