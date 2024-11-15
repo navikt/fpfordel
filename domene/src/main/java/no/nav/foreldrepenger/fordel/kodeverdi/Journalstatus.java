@@ -4,12 +4,15 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 public enum Journalstatus implements Kodeverdi {
 
     MOTTATT("MOTTATT"),
     JOURNALFOERT("JOURNALFOERT"),
     FEILREGISTRERT("FEILREGISTRERT"),
+    EKSPEDERT("EKSPEDERT"),
+    FERDIGSTILT("FERDIGSTILT"),
     UTGAAR("UTGAAR"),
     UKJENT("UKJENT"),
 
@@ -19,6 +22,8 @@ public enum Journalstatus implements Kodeverdi {
      */
     UDEFINERT("-"),
     ;
+
+    private static final Set<Journalstatus> ENDELIGE_TISTANDER = Set.of(JOURNALFOERT, FEILREGISTRERT, EKSPEDERT, FERDIGSTILT);
 
     private static final Map<String, Journalstatus> KODER = new LinkedHashMap<>();
 
@@ -37,7 +42,6 @@ public enum Journalstatus implements Kodeverdi {
         // Hibernate trenger den
     }
 
-
     private Journalstatus(String kode) {
         this.kode = kode;
     }
@@ -47,6 +51,10 @@ public enum Journalstatus implements Kodeverdi {
             return UDEFINERT;
         }
         return KODER.getOrDefault(kode, UDEFINERT);
+    }
+
+    public boolean erEndelig() {
+        return ENDELIGE_TISTANDER.contains(this);
     }
 
     @Override

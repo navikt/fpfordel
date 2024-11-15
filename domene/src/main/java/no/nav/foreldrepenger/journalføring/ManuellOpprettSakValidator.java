@@ -81,7 +81,7 @@ public class ManuellOpprettSakValidator {
             } else if (original.contains("ytelse>svangerskapspenger<")) {
                 journalpostFagsakYtelseTypeDto = FagsakYtelseTypeDto.SVANGERSKAPSPENGER;
             }
-        } else if (Journalstatus.JOURNALFOERT.equals(arkivJournalpost.getTilstand())) { // her prøver man å flytte en journalpost som allerede er journalført ferdig til en annen sak
+        } else if (arkivJournalpost.getTilstand().erEndelig()) { // her prøver man å flytte en journalpost som allerede er journalført ferdig til en annen sak
             journalpostFagsakYtelseTypeDto = arkivJournalpost.getBehandlingstema().utledYtelseType();
             LOG.info("Prøver å journalføre en allerede journalført post {} knyttet til ytelsetype {}", arkivJournalpost.getJournalpostId(), journalpostFagsakYtelseTypeDto);
         }
