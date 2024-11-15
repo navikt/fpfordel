@@ -23,6 +23,8 @@ import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
 import no.nav.foreldrepenger.typer.AktørId;
 import no.nav.vedtak.exception.FunksjonellException;
 
+import java.util.Optional;
+
 /**
  * Denne validatoren sjekker om gitt journalpost er faglig konform med de valgene SBH har gjort i GUI, f.eks:
  * - At ytelseType fra dokument og valgt sak stemmer
@@ -82,7 +84,9 @@ public class ManuellOpprettSakValidator {
                 journalpostFagsakYtelseTypeDto = FagsakYtelseTypeDto.SVANGERSKAPSPENGER;
             }
         } else if (arkivJournalpost.getTilstand().erEndelig()) { // her prøver man å flytte en journalpost som allerede er journalført ferdig til en annen sak
-            journalpostFagsakYtelseTypeDto = arkivJournalpost.getBehandlingstema().utledYtelseType();
+            var behandlingstema = arkivJournalpost.getBehandlingstema();
+            LOG.info("Utleder behandlingTema: {}, behandlingTema: {}", arkivJournalpost.getUtledetBehandlingstema(), behandlingstema);
+            journalpostFagsakYtelseTypeDto = Optional.ofNullable(behandlingstema.utledYtelseType()).orElseGet(() -> arkivJournalpost.getUtledetBehandlingstema().utledYtelseType());
             LOG.info("Prøver å journalføre en allerede journalført post {} knyttet til ytelsetype {}", arkivJournalpost.getJournalpostId(), journalpostFagsakYtelseTypeDto);
         }
 
