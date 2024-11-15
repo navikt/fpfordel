@@ -8,6 +8,7 @@ import static no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType.SVP;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
 
 import no.nav.foreldrepenger.journalføring.utils.YtelseTypeUtils;
@@ -85,8 +86,13 @@ public class ManuellOpprettSakValidator {
             }
         } else if (arkivJournalpost.getTilstand().erEndelig()) { // her prøver man å flytte en journalpost som allerede er journalført ferdig til en annen sak
             var behandlingstema = arkivJournalpost.getBehandlingstema();
-            LOG.info("Utleder behandlingTema: {}, behandlingTema: {}", arkivJournalpost.getUtledetBehandlingstema(), behandlingstema);
-            journalpostFagsakYtelseTypeDto = Optional.ofNullable(behandlingstema.utledYtelseType()).orElseGet(() -> arkivJournalpost.getUtledetBehandlingstema().utledYtelseType());
+            var utledetBehandlingstema = arkivJournalpost.getUtledetBehandlingstema();
+            LOG.info("Utledet behandlingTema: {}, behandlingTema: {}", utledetBehandlingstema, behandlingstema);
+            journalpostFagsakYtelseTypeDto = Optional.ofNullable(behandlingstema.utledYtelseType()).orElseGet(utledetBehandlingstema::utledYtelseType);
+            if (journalpostFagsakYtelseTypeDto == null && Tema.FORELDRE_OG_SVANGERSKAPSPENGER.equals(arkivJournalpost.getTema())) {
+                LOG.info("Prøver å journalføre et dokument med tema {}", arkivJournalpost.getTema());
+                return;
+            }
             LOG.info("Prøver å journalføre en allerede journalført post {} knyttet til ytelsetype {}", arkivJournalpost.getJournalpostId(), journalpostFagsakYtelseTypeDto);
         }
 
