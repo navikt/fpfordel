@@ -1,4 +1,4 @@
-FROM europe-north1-docker.pkg.dev/nais-management-233d/teamforeldrepenger/fp-baseimages-java:21
+FROM ghcr.io/navikt/fp-baseimages/java:21
 
 LABEL org.opencontainers.image.source=https://github.com/navikt/fpfordel
 ENV TZ=Europe/Oslo
