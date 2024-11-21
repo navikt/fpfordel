@@ -53,14 +53,7 @@ public final class TestDatabaseInit {
     }
 
     private static String getScriptLocation() {
-        if (ENV.getProperty("maven.cmd.line.args") != null) {
-            return classpathScriptLocation();
-        }
         return fileScriptLocation();
-    }
-
-    private static String classpathScriptLocation() {
-        return "classpath:" + DB_SCRIPT_LOCATION;
     }
 
     private static String fileScriptLocation() {
