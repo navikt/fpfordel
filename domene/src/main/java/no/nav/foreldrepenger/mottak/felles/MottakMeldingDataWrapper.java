@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.vedtak.felles.prosesstask.api.CommonTaskProperties;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
@@ -22,8 +23,7 @@ public class MottakMeldingDataWrapper {
 
     public static final String ARKIV_ID_KEY = "arkivId";
     public static final String AKTØR_ID_KEY = "aktoerId";
-    public static final String SAKSNUMMER_KEY = "saksnummer";
-    public static final String INN_SAKSNR_KEY = "journalpostsak";
+    public static final String SAKSNUMMER_KEY = CommonTaskProperties.SAKSNUMMER;
     public static final String KANAL_KEY = "kanal";
     public static final String TEMA_KEY = "tema";
     public static final String RETRY_KEY = "retry";
@@ -148,11 +148,11 @@ public class MottakMeldingDataWrapper {
     }
 
     public Optional<String> getSaksnummer() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(SAKSNUMMER_KEY));
+        return Optional.ofNullable(prosessTaskData.getSaksnummer());
     }
 
     public void setSaksnummer(String saksnummer) {
-        prosessTaskData.setProperty(SAKSNUMMER_KEY, saksnummer);
+        prosessTaskData.setSaksnummer(saksnummer);
     }
 
     public Optional<DokumentTypeId> getDokumentTypeId() {
