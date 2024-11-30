@@ -152,7 +152,7 @@ public class MottakMeldingDataWrapper {
     }
 
     public void setSaksnummer(String saksnummer) {
-        prosessTaskData.setSaksnummer(saksnummer);
+        Optional.ofNullable(saksnummer).ifPresent(prosessTaskData::setSaksnummer);
     }
 
     public Optional<DokumentTypeId> getDokumentTypeId() {
