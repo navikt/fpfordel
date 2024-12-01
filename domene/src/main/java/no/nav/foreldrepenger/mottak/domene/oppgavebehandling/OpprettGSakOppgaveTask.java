@@ -6,7 +6,6 @@ import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.BEHAN
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.FORSENDELSE_ID_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.JOURNAL_ENHET;
-import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.SAKSNUMMER_KEY;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -134,7 +133,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
             Optional.ofNullable(enhetInput), prosessTaskData.getAktørId());
 
         var beskrivelse = lagBeskrivelse(behandlingTema, dokumentTypeId, prosessTaskData);
-        var saksref = prosessTaskData.getPropertyValue(SAKSNUMMER_KEY);
+        var saksref = prosessTaskData.getSaksnummer();
 
         var journalpost = JournalpostId.fra(journalpostId);
 
