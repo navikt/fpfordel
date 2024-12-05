@@ -527,7 +527,6 @@ public class FerdigstillJournalføringTjeneste {
                 LOG.warn("FPFORDEL RESTJOURNALFØRING: Ferdigstilt oppgave med dokumentId {} feiler ", journalpostId, e);
                 var ferdigstillOppgaveTask = ProsessTaskData.forProsessTask(FerdigstillOppgaveTask.class);
                 ferdigstillOppgaveTask.setProperty(FerdigstillOppgaveTask.JOURNALPOSTID_KEY, journalpostId.getVerdi());
-                ferdigstillOppgaveTask.setCallIdFraEksisterende();
                 taskTjeneste.lagre(ferdigstillOppgaveTask);
             }
         }
