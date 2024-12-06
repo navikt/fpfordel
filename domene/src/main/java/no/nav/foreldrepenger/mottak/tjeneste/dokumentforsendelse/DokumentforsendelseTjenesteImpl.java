@@ -97,7 +97,6 @@ public class DokumentforsendelseTjenesteImpl implements DokumentforsendelseTjene
 
     private void opprettProsessTask(DokumentMetadata metadata) {
         var prosessTaskData = ProsessTaskData.forProsessTask(BehandleDokumentforsendelseTask.class);
-        prosessTaskData.setCallIdFraEksisterende();
         var dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
         dataWrapper.setForsendelseId(metadata.getForsendelseId());
         dataWrapper.setForsendelseMottattTidspunkt(metadata.getForsendelseMottatt());

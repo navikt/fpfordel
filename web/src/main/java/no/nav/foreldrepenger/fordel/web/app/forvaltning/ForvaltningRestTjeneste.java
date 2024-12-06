@@ -97,7 +97,6 @@ public class ForvaltningRestTjeneste {
         if (data == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        data.setCallIdFraEksisterende();
         var fra = new MottakMeldingDataWrapper(data);
         var til = fra.nesteSteg(TaskType.forProsessTask(VLKlargjørerTask.class));
         til.setSaksnummer(dto.getSaksnummerDto().getSaksnummer());
@@ -190,7 +189,6 @@ public class ForvaltningRestTjeneste {
         if (data == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        data.setCallIdFraEksisterende();
         var fra = new MottakMeldingDataWrapper(data);
         fra.setSaksnummer(dto.getSaksnummerDto().getSaksnummer());
         fra.setArkivId(dto.getJournalpostIdDto().getJournalpostId());

@@ -145,7 +145,6 @@ public class JournalføringHendelseHåndterer implements KafkaMessageHandler<Str
 
     private void lagreJoarkTask(JournalfoeringHendelseRecord payload, String arkivId, String eksternReferanse, Duration delay) {
         var taskdata = ProsessTaskData.forProsessTask(HentDataFraJoarkTask.class);
-        taskdata.setCallIdFraEksisterende();
         MottakMeldingDataWrapper melding = new MottakMeldingDataWrapper(taskdata);
         melding.setArkivId(arkivId);
         melding.setTema(Tema.fraOffisiellKode(payload.getTemaNytt()));

@@ -28,7 +28,6 @@ public abstract class WrappedProsessTaskHandler implements ProsessTaskHandler, C
         if (neste != null) {
             postcondition(neste);
             var taskdata = neste.getProsessTaskData();
-            taskdata.setCallIdFraEksisterende();
             prosessTaskTjeneste.lagre(taskdata);
         }
     }

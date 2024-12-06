@@ -116,7 +116,6 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         nesteStegProsessTaskData.setProperties(prosessTaskData.getProperties());
         nesteStegProsessTaskData.setPayload(prosessTaskData.getPayloadAsString());
         nesteStegProsessTaskData.setGruppe(prosessTaskData.getGruppe());
-        nesteStegProsessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(nesteStegProsessTaskData);
     }
 
