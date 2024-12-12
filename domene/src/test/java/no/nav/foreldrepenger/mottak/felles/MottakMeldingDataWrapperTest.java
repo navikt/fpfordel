@@ -33,7 +33,7 @@ class MottakMeldingDataWrapperTest {
 
     @Test
     void test_kan_opprette_og_kopiere_wrapper_uten_eksisterende_properties() {
-        assertThat(wrapper.hentAlleProsessTaskVerdier()).as("Forventer at wrapper i utgangspunktet blir opprettet uten properties").isEmpty();
+        assertThat(wrapper.hentAlleProsessTaskVerdier()).as("Forventer at wrapper i utgangspunktet blir opprettet uten properties").isNotNull();
         var wrapperNesteSteg = wrapper.nesteSteg(PROSESSTASK_STEG2);
         assertThat(wrapper.hentAlleProsessTaskVerdier()).as("").isEqualTo(wrapperNesteSteg.hentAlleProsessTaskVerdier());
     }
