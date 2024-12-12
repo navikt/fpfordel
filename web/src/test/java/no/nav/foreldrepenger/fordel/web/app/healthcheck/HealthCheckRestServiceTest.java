@@ -1,8 +1,10 @@
 package no.nav.foreldrepenger.fordel.web.app.healthcheck;
 
 import no.nav.foreldrepenger.fordel.web.app.tjenester.ApplicationServiceStarter;
-import no.nav.vedtak.log.metrics.LivenessAware;
-import no.nav.vedtak.log.metrics.ReadinessAware;
+
+import no.nav.vedtak.server.LivenessAware;
+
+import no.nav.vedtak.server.ReadinessAware;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
