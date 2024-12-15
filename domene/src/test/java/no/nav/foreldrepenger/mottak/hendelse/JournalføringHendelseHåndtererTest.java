@@ -6,7 +6,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,7 +59,7 @@ class JournalføringHendelseHåndtererTest {
         assertThat(result).as("Forventer at en prosesstask er lagt til").hasSize(1);
 
         ProsessTaskInfo prosessTaskData = result.get(0);
-        assertThat(prosessTaskData.getTaskType()).as("Forventer at prosesstask av korrekt type blir opprettet. ")
+        assertThat(prosessTaskData.taskType().value()).as("Forventer at prosesstask av korrekt type blir opprettet. ")
             .isEqualToIgnoringCase("fordeling.hentFraJoark");
 
     }
@@ -85,7 +84,7 @@ class JournalføringHendelseHåndtererTest {
         var result = captor.getAllValues();
         assertThat(result).as("Forventer at en prosesstask er lagt til").hasSize(1);
         ProsessTaskInfo prosessTaskData = result.get(0);
-        assertThat(prosessTaskData.getTaskType()).as("Forventer at prosesstask av korrekt type blir opprettet. ")
+        assertThat(prosessTaskData.taskType().value()).as("Forventer at prosesstask av korrekt type blir opprettet. ")
             .isEqualToIgnoringCase("fordeling.hentFraJoark");
 
     }
