@@ -118,7 +118,7 @@ class FerdigstillJournalføringTjenesteTest {
         var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste).lagre(taskCaptor.capture());
         var taskdata = taskCaptor.getValue();
-        assertThat(taskdata.getTaskType()).isEqualTo(TaskType.forProsessTask(FerdigstillOppgaveTask.class).value());
+        assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(FerdigstillOppgaveTask.class));
         assertThat(taskdata.getPropertyValue(FerdigstillOppgaveTask.JOURNALPOSTID_KEY)).isEqualTo(journalpostId.getVerdi());
     }
 
