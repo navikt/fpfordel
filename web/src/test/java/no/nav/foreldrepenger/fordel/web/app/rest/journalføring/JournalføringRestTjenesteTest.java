@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
+import static no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext.REQUEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -16,12 +17,12 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import jakarta.ws.rs.core.MediaType;
@@ -69,6 +70,11 @@ class JournalføringRestTjenesteTest {
     @BeforeEach
     void setUp() {
         restTjeneste = new JournalføringRestTjeneste(oppgaveTjeneste, pdl, arkiv, fagsak);
+    }
+
+    @AfterEach
+    void tearDown() {
+        KontekstHolder.fjernKontekst();
     }
 
     @Test
@@ -370,12 +376,8 @@ class JournalføringRestTjenesteTest {
 
         var request = new JournalføringRestTjeneste.ReserverOppgaveDto(expectedJournalpostId,null);
 
-        Exception ex;
-        try (var utilities = Mockito.mockStatic(KontekstHolder.class)) {
-            utilities.when(KontekstHolder::getKontekst).thenReturn(new TestKontekst("Mike"));
-            assertThat(KontekstHolder.getKontekst().getUid()).isEqualTo("Mike");
-            ex = assertThrows(TekniskException.class, () -> restTjeneste.oppgaveReserver(request));
-        }
+        KontekstHolder.setKontekst(new TestKontekst("Mike"));
+        var ex = assertThrows(TekniskException.class, () -> restTjeneste.oppgaveReserver(request));
 
         assertThat(ex).isNotNull();
         assertThat(ex.getMessage()).contains("Kan ikke avreservere en oppgave som allerede tilhører til en annen saksbehandler.");
@@ -395,11 +397,8 @@ class JournalføringRestTjenesteTest {
         var request = new JournalføringRestTjeneste.ReserverOppgaveDto(expectedJournalpostId, "");
         Response response;
 
-        try (var utilities = Mockito.mockStatic(KontekstHolder.class)) {
-            utilities.when(KontekstHolder::getKontekst).thenReturn(new TestKontekst("John"));
-            assertThat(KontekstHolder.getKontekst().getUid()).isEqualTo("John");
-            response = restTjeneste.oppgaveReserver(request);
-        }
+        KontekstHolder.setKontekst(new TestKontekst("John"));
+        response = restTjeneste.oppgaveReserver(request);
 
         assertThat(response).isNotNull();
         assertThat(response.getStatusInfo()).isEqualTo(Response.Status.OK);
@@ -468,7 +467,7 @@ class JournalføringRestTjenesteTest {
 
         @Override
         public SikkerhetContext getContext() {
-            return null;
+            return REQUEST;
         }
 
         @Override
