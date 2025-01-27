@@ -36,7 +36,7 @@ class OppgaveRepositoryTest {
 
     @Test
     void lagreOgHenteUtenYtelseType() {
-        var oppgaveEntitet = lagTestOppgave(JOURNALPOST_ID, ENHET, Status.AAPNET, null);
+        var oppgaveEntitet = lagTestOppgave(JOURNALPOST_ID, Status.AAPNET, null);
         var actual = repo.hentOppgave(JOURNALPOST_ID);
         assertThat(actual).isNotNull().isEqualTo(oppgaveEntitet);
         assertNull(actual.getYtelseType());
@@ -74,9 +74,23 @@ class OppgaveRepositoryTest {
     @Test
     void hentAlleÅpneOppgaver() {
         var antall = 12;
-        lagreOppgaver(antall, ENHET);
+        lagreOppgaver(antall, Status.AAPNET);
         var oppgaver = repo.hentAlleÅpneOppgaver();
         assertThat(oppgaver).isNotEmpty().hasSize(antall);
+    }
+
+    @Test
+    void hentAlleLukkedeOppgaver() {
+        var antallFerdigstilt = 12;
+        var antallFeilregistrert = 5;
+        lagreOppgaver(antallFerdigstilt, Status.FERDIGSTILT);
+        lagreOppgaver(antallFeilregistrert, Status.FEILREGISTRERT);
+
+        var oppgaver = repo.hentAlleLukkedeOppgaver();
+
+        assertThat(oppgaver)
+            .isNotEmpty()
+            .hasSize(antallFerdigstilt + antallFeilregistrert);
     }
 
     @Test
@@ -92,20 +106,20 @@ class OppgaveRepositoryTest {
         assertThat(resultat.getStatus()).isEqualTo(Status.FERDIGSTILT);
     }
 
-    private void lagreOppgaver(int antall, String enhet) {
+    private void lagreOppgaver(int antall, Status status) {
         var randomId = new Random().nextInt(10000);
         for (int i = 0; i < antall; i++) {
-            repo.lagre(lagTestOppgave(String.valueOf(randomId + i), enhet, Status.AAPNET, YtelseType.FP));
+            repo.lagre(lagTestOppgave(String.valueOf(randomId + i), status, YtelseType.FP));
         }
     }
 
-    private OppgaveEntitet lagTestOppgave(String journalpostId, String enhet, Status status, YtelseType ytelseType) {
+    private OppgaveEntitet lagTestOppgave(String journalpostId, Status status, YtelseType ytelseType) {
         var oppgaveEntitet = OppgaveEntitet.builder()
                 .medJournalpostId(journalpostId)
                 .medStatus(status)
                 .medYtelseType(ytelseType)
                 .medFrist(LocalDate.now())
-                .medEnhet(enhet)
+                .medEnhet(ENHET)
                 .medBrukerId(new AktørId("1234567890123"))
                 .build();
 
@@ -114,10 +128,10 @@ class OppgaveRepositoryTest {
     }
 
     private void lagTestOppgave(Status status) {
-        lagTestOppgave(JOURNALPOST_ID, ENHET, status, YtelseType.FP);
+        lagTestOppgave(JOURNALPOST_ID, status, YtelseType.FP);
     }
 
     private OppgaveEntitet lagTestOppgave() {
-        return lagTestOppgave(JOURNALPOST_ID, ENHET, Status.AAPNET, YtelseType.FP);
+        return lagTestOppgave(JOURNALPOST_ID, Status.AAPNET, YtelseType.FP);
     }
 }

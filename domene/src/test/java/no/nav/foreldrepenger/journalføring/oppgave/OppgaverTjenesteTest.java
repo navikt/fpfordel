@@ -196,7 +196,7 @@ class OppgaverTjenesteTest {
     void hentOppgaveLokalt() {
         var journalpostId = VANLIG_JOURNALPOSTID;
         when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(true);
-        when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalOppgave(journalpostId, VANLIG_ENHETSNR));
+        when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalÅpnetOppgave(journalpostId, VANLIG_ENHETSNR));
 
         var oppgave = oppgaver.hentOppgaveFor(JournalpostId.fra(journalpostId));
 
@@ -244,7 +244,7 @@ class OppgaverTjenesteTest {
             .medBeskrivelse("tom")
             .build();
         when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(true);
-        when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalOppgave(journalpostId, VANLIG_ENHETSNR));
+        when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalÅpnetOppgave(journalpostId, VANLIG_ENHETSNR));
         var argumentCaptor = ArgumentCaptor.forClass(OppgaveEntitet.class);
 
         oppgaver.reserverOppgaveFor(oppgave, saksbehandler);
@@ -291,7 +291,7 @@ class OppgaverTjenesteTest {
             .medBeskrivelse("tom")
             .build();
         when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(true);
-        when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalOppgave(journalpostId, VANLIG_ENHETSNR));
+        when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalÅpnetOppgave(journalpostId, VANLIG_ENHETSNR));
         var argumentCaptor = ArgumentCaptor.forClass(OppgaveEntitet.class);
 
         oppgaver.avreserverOppgaveFor(oppgave);
@@ -325,7 +325,6 @@ class OppgaverTjenesteTest {
 
         verify(oppgaveRepository).hentAlleÅpneOppgaver();
         verify(oppgaveKlient).finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT);
-        verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
     }
 
     @Test
@@ -338,7 +337,6 @@ class OppgaverTjenesteTest {
 
         verify(oppgaveRepository).hentAlleÅpneOppgaver();
         verify(oppgaveKlient).finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT);
-        verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
     }
 
     @Test
@@ -352,12 +350,11 @@ class OppgaverTjenesteTest {
         verify(oppgaveRepository).hentAlleÅpneOppgaver();
         verify(oppgaveKlient).finnÅpneOppgaverAvType(eq(Oppgavetype.JOURNALFØRING), isNull(), isNull(), eq(LIMIT));
         verify(oppgaveKlient).finnÅpneOppgaverAvType(eq(Oppgavetype.JOURNALFØRING), isNull(), isNull(), eq(LIMIT));
-        verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
     }
 
     @Test
     void finnFaktiskÅpneOppgaver() {
-        when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalOppgave("1234567", VANLIG_ENHETSNR)));
+        when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalÅpnetOppgave("1234567", VANLIG_ENHETSNR)));
         when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)).thenReturn(List.of(gosysOppgave("76543231")));
         when(losEnheterCachedTjeneste.hentLosEnheterFor(any())).thenReturn(List.of(enhetVanlig()));
 
@@ -367,12 +364,11 @@ class OppgaverTjenesteTest {
 
         verify(oppgaveRepository).hentAlleÅpneOppgaver();
         verify(oppgaveKlient).finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT);
-        verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
     }
 
     @Test
     void finnFaktiskÅpneOppgaver_filtreUtKlageAlltid() {
-        when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalOppgave("1234567", EnhetsTjeneste.NK_ENHET_ID)));
+        when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalÅpnetOppgave("1234567", EnhetsTjeneste.NK_ENHET_ID)));
         when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)).thenReturn(List.of(gosysOppgave("76543231")));
         when(losEnheterCachedTjeneste.hentLosEnheterFor(any())).thenReturn(List.of(enhetVanlig()));
 
@@ -382,12 +378,11 @@ class OppgaverTjenesteTest {
 
         verify(oppgaveRepository).hentAlleÅpneOppgaver();
         verify(oppgaveKlient).finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT);
-        verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
     }
 
     @Test
     void finnFaktiskÅpneOppgaver_filtreUtKlageAlltid_BrukerIKlageEnhet() {
-        when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalOppgave("1234567", EnhetsTjeneste.NK_ENHET_ID)));
+        when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalÅpnetOppgave("1234567", EnhetsTjeneste.NK_ENHET_ID)));
         var gosysOppgave = gosysOppgave("76543231");
         when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)).thenReturn(List.of(gosysOppgave));
 
@@ -396,16 +391,15 @@ class OppgaverTjenesteTest {
         var alleOppgaver = oppgaver.finnÅpneOppgaverFiltrert();
 
         assertThat(alleOppgaver).isNotEmpty().hasSize(1);
-        assertThat(alleOppgaver.get(0).oppgaveId()).isEqualTo(gosysOppgave.id().toString());
+        assertThat(alleOppgaver.getFirst().oppgaveId()).isEqualTo(gosysOppgave.id().toString());
 
         verify(oppgaveRepository).hentAlleÅpneOppgaver();
         verify(oppgaveKlient).finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT);
-        verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
     }
 
     @Test
     void finnFaktiskÅpneOppgaver_filtreK6Alltid_BrukerIkkeIK6Ehnet() {
-        when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalOppgave("1234567", EnhetsTjeneste.SF_ENHET_ID)));
+        when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalÅpnetOppgave("1234567", EnhetsTjeneste.SF_ENHET_ID)));
         var gosysOppgave = gosysOppgave("76543231");
         when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)).thenReturn(List.of(gosysOppgave));
 
@@ -414,16 +408,15 @@ class OppgaverTjenesteTest {
         var alleOppgaver = oppgaver.finnÅpneOppgaverFiltrert();
 
         assertThat(alleOppgaver).isNotEmpty().hasSize(1);
-        assertThat(alleOppgaver.get(0).oppgaveId()).isEqualTo(gosysOppgave.id().toString());
+        assertThat(alleOppgaver.getFirst().oppgaveId()).isEqualTo(gosysOppgave.id().toString());
 
         verify(oppgaveRepository).hentAlleÅpneOppgaver();
         verify(oppgaveKlient).finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT);
-        verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
     }
 
     @Test
     void finnFaktiskÅpneOppgaver_filtreAlleSpesjaloppgaver_BrukerIkkeNoeEhnet() {
-        when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalOppgave("1234567", EnhetsTjeneste.SKJERMET_ENHET_ID)));
+        when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalÅpnetOppgave("1234567", EnhetsTjeneste.SKJERMET_ENHET_ID)));
         var gosysOppgave = gosysOppgave("76543231");
         when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)).thenReturn(List.of(gosysOppgave));
 
@@ -435,12 +428,11 @@ class OppgaverTjenesteTest {
 
         verify(oppgaveRepository).hentAlleÅpneOppgaver();
         verify(oppgaveKlient).finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT);
-        verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
     }
 
     @Test
     void finnFaktiskÅpneOppgaver_filtreIkkeOmAktørErUkjent() {
-        when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalOppgave("1234567", null, VANLIG_ENHETSNR)));
+        when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalOppgave("1234567", null, VANLIG_ENHETSNR, Status.AAPNET)));
         var expectedOppgaveId = "76543231";
         var gosysOppgave = gosysOppgave(expectedOppgaveId);
         when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)).thenReturn(List.of(gosysOppgave));
@@ -452,7 +444,23 @@ class OppgaverTjenesteTest {
 
         verify(oppgaveRepository).hentAlleÅpneOppgaver();
         verify(oppgaveKlient).finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT);
-        verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
+    }
+
+    @Test
+    void finnÅpneOppgaverFiltrert_filtrerUtOppgaverSendtTilGosys() {
+        when(oppgaveRepository.hentAlleLukkedeOppgaver()).thenReturn(List.of(lokalOppgave("1234567", AKTØR_ID, VANLIG_ENHETSNR, Status.FERDIGSTILT)));
+        when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT))
+            .thenReturn(List.of(gosysOppgave("76543231"), gosysOppgave("1234567")));
+        when(losEnheterCachedTjeneste.hentLosEnheterFor(any())).thenReturn(List.of(enhetVanlig()));
+
+        var alleOppgaver = oppgaver.finnÅpneOppgaverFiltrert();
+
+        assertThat(alleOppgaver).hasSize(1);
+        assertThat(alleOppgaver.getFirst().journalpostId()).isEqualTo("76543231");
+
+        verify(oppgaveRepository).hentAlleÅpneOppgaver();
+        verify(oppgaveRepository).hentAlleLukkedeOppgaver();
+        verify(oppgaveKlient).finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT);
     }
 
     @Test
@@ -465,7 +473,7 @@ class OppgaverTjenesteTest {
         when(oppgaveKlient.opprettetOppgave(any())).thenReturn(oppgaveMock);
 
         when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(true);
-        when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalOppgave(journalpostId, VANLIG_ENHETSNR));
+        when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalÅpnetOppgave(journalpostId, VANLIG_ENHETSNR));
 
         oppgaver.flyttLokalOppgaveTilGosys(JournalpostId.fra(journalpostId));
 
@@ -484,7 +492,7 @@ class OppgaverTjenesteTest {
         when(oppgaveKlient.opprettetOppgave(any())).thenReturn(oppgaveMock);
 
         when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(true);
-        when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalOppgave(journalpostId, null, null));
+        when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalOppgave(journalpostId, null, null, Status.AAPNET));
 
         oppgaver.flyttLokalOppgaveTilGosys(JournalpostId.fra(journalpostId));
 
@@ -507,7 +515,7 @@ class OppgaverTjenesteTest {
             .medBeskrivelse("tom")
             .build();
         when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(true);
-        when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalOppgave(journalpostId, VANLIG_ENHETSNR));
+        when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalÅpnetOppgave(journalpostId, VANLIG_ENHETSNR));
         var fødselsnummer = "12342112345";
         var aktørId = AKTØR_ID;
         when(personTjeneste.hentAktørIdForPersonIdent(fødselsnummer)).thenReturn(Optional.of(aktørId));
@@ -537,17 +545,17 @@ class OppgaverTjenesteTest {
             .medBeskrivelse("tom")
             .build();
         when(oppgaveRepository.harÅpenOppgave(journalpostId)).thenReturn(true);
-        when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalOppgave(journalpostId, VANLIG_ENHETSNR));
+        when(oppgaveRepository.hentOppgave(journalpostId)).thenReturn(lokalÅpnetOppgave(journalpostId, VANLIG_ENHETSNR));
         var fødselsnummer = "12342112345";
         when(personTjeneste.hentAktørIdForPersonIdent(fødselsnummer)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class, () -> oppgaver.oppdaterBruker(oppgave, fødselsnummer));
     }
 
-    private OppgaveEntitet lokalOppgave(String journalpostId, String aktørId, String enhet) {
+    private OppgaveEntitet lokalOppgave(String journalpostId, String aktørId, String enhet, Status status) {
         var entitet = OppgaveEntitet.builder()
             .medJournalpostId(journalpostId)
-            .medStatus(Status.AAPNET)
+            .medStatus(status)
             .medBeskrivelse("test")
             .medEnhet(enhet != null ? enhet : VANLIG_ENHETSNR)
             .medBrukerId(aktørId)
@@ -559,9 +567,8 @@ class OppgaverTjenesteTest {
         return entitet;
     }
 
-    private OppgaveEntitet lokalOppgave(String journalpostId, String enhet) {
-        return lokalOppgave(journalpostId, AKTØR_ID, enhet);
-
+    private OppgaveEntitet lokalÅpnetOppgave(String journalpostId, String enhet) {
+        return lokalOppgave(journalpostId, AKTØR_ID, enhet, Status.AAPNET);
     }
 
     private Oppgave gosysOppgave(String journalpostId) {

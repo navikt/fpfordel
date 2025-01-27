@@ -50,6 +50,12 @@ public class OppgaveRepository {
                 .getResultList();
     }
 
+    public List<OppgaveEntitet> hentAlleLukkedeOppgaver() {
+        return em.createQuery("from Oppgave where status in (:status)", OppgaveEntitet.class)
+            .setParameter("status", List.of(Status.FERDIGSTILT, Status.FEILREGISTRERT))
+            .getResultList();
+    }
+
     public void ferdigstillOppgave(String journalpostId) {
         var oppgave = hentOppgave(journalpostId);
         if (oppgave != null) {
