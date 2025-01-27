@@ -34,7 +34,7 @@
         <sonar.projectName>fp-fordel</sonar.projectName>
         <sonar.projectKey>navikt_fpfordel</sonar.projectKey>
 
-        <felles.version>7.4.4</felles.version>
+        <felles.version>7.4.5</felles.version>
         <prosesstask.version>5.1.1</prosesstask.version>
         <fp-kontrakter.version>9.2.1</fp-kontrakter.version>
 
