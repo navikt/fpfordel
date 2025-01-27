@@ -267,10 +267,18 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     }
 
     private List<Oppgave> finnGlobaleOppgaver() {
+        List<String> lukkedeLokaleJournalpostIder = finnLukkedeLokaleJournalpostIder();
         return oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)
             .stream()
-            .filter(o -> o.journalpostId() != null)
+            .filter(o -> o.journalpostId() != null && !lukkedeLokaleJournalpostIder.contains(o.journalpostId()))
             .map(OppgaverTjeneste::mapTilOppgave)
+            .toList();
+    }
+
+    private List<String> finnLukkedeLokaleJournalpostIder() {
+        return oppgaveRepository.hentAlleLukkedeOppgaver().stream()
+            .map(OppgaverTjeneste::mapTilOppgave)
+            .map(Oppgave::journalpostId)
             .toList();
     }
 
