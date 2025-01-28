@@ -98,19 +98,19 @@ public class EnhetsTjeneste {
             LOG.info("RUTING feil", e);
         }
         if (pdl.harStrengDiskresjonskode(behandlingTema, aktørId)) {
-            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.STRENGTFORTROLIG) ? "ok" : "diff sf");
+            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.STRENGTFORTROLIG) ? "ok1" : "diff sf");
             return SF_ENHET_ID;
         }
 
         var personIdent = pdl.hentPersonIdentForAktørId(aktørId);
         if (personIdent.filter(skjermetPersonKlient::erSkjermet).isPresent()) {
-            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.SKJERMING) ? "ok" : "diff skjerm");
+            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.SKJERMING) ? "ok skjerm" : "diff skjerm");
             return SKJERMET_ENHET_ID;
         }
 
         var gt = pdl.hentGeografiskTilknytning(behandlingTema, aktørId);
         if (gt == null) { // Udefinert og utland likebehandles
-            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.UTLAND) ? "ok" : "diff utland");
+            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.UTLAND) ? "ok utland" : "diff utland");
             return UTLAND_ENHET_ID;
         }
 
