@@ -36,6 +36,8 @@ class EnhetsTjenesteTest {
     private PersonInformasjon personTjeneste;
     @Mock
     private Skjerming skjermetPersonKlient;
+    @Mock
+    private RutingKlient rutingKlient;
 
     @BeforeEach
     void setup() {
@@ -43,7 +45,7 @@ class EnhetsTjenesteTest {
         when(arbeidsfordeling.hentAlleAktiveEnheter(any())).thenReturn(List.of(FORDELING_ENHET));
         when(arbeidsfordeling.finnEnhet(any())).thenReturn(List.of(ENHET));
         when(personTjeneste.hentGeografiskTilknytning(any(), any())).thenReturn(GEOGRAFISK_TILKNYTNING);
-        enhetsTjeneste = new EnhetsTjeneste(personTjeneste, arbeidsfordeling, skjermetPersonKlient);
+        enhetsTjeneste = new EnhetsTjeneste(personTjeneste, arbeidsfordeling, skjermetPersonKlient, rutingKlient);
     }
 
     @Test

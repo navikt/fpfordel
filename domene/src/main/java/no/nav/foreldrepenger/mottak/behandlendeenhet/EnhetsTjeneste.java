@@ -42,6 +42,7 @@ public class EnhetsTjeneste {
     private PersonInformasjon pdl;
     private Arbeidsfordeling norgKlient;
     private Skjerming skjermetPersonKlient;
+    private RutingKlient rutingKlient;
 
     private final Set<String> alleJournalførendeEnheter = new HashSet<>(); // Med klageinstans og kode6 og skjermet
     private final Set<String> nfpJournalførendeEnheter = new HashSet<>(); // Kun NFP
@@ -53,13 +54,15 @@ public class EnhetsTjeneste {
     @Inject
     public EnhetsTjeneste(PersonInformasjon personTjeneste,
                           Arbeidsfordeling norgKlient,
-                          Skjerming skjermetPersonKlient) {
+                          Skjerming skjermetPersonKlient,
+                          RutingKlient rutingKlient) {
         this.pdl = personTjeneste;
         this.norgKlient = norgKlient;
         this.skjermetPersonKlient = skjermetPersonKlient;
+        this.rutingKlient = rutingKlient;
     }
 
-    // Behold ut 2023
+    // Behold ut 2025
     private static String validerOgVelgBehandlendeEnhet(List<ArbeidsfordelingResponse> response, String gt) { //NOSONAR
         // Vi forventer å få én behandlende enhet.
         if (response == null || response.size() != 1) {
@@ -88,22 +91,35 @@ public class EnhetsTjeneste {
     }
 
     private String hentEnhetId(String aktørId, BehandlingTema behandlingTema, Tema tema) { //NOSONAR
+        Set<RutingResultat> rutingResultater = new HashSet<>();
+        try {
+            rutingResultater.addAll(rutingKlient.finnRutingEgenskaper(Set.of(aktørId)));
+        } catch (Exception e) {
+            LOG.info("RUTING feil", e);
+        }
         if (pdl.harStrengDiskresjonskode(behandlingTema, aktørId)) {
+            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.STRENGTFORTROLIG) ? "ok" : "diff sf");
             return SF_ENHET_ID;
         }
 
         var personIdent = pdl.hentPersonIdentForAktørId(aktørId);
         if (personIdent.filter(skjermetPersonKlient::erSkjermet).isPresent()) {
+            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.SKJERMING) ? "ok" : "diff skjerm");
             return SKJERMET_ENHET_ID;
         }
 
         var gt = pdl.hentGeografiskTilknytning(behandlingTema, aktørId);
         if (gt == null) { // Udefinert og utland likebehandles
+            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.UTLAND) ? "ok" : "diff utland");
             return UTLAND_ENHET_ID;
         }
 
+        if (!rutingResultater.isEmpty()) {
+            LOG.info("RUTING diff nasjonal vs resultat {}", rutingResultater);
+        }
+
         return NASJONAL_ENHET_ID;
-        /* LA STÅ UT 2023
+        /* LA STÅ UT 2025
         var request = ArbeidsfordelingRequest.ny()
             .medTemagruppe(TEMAGRUPPE)
             .medTema(tema.getOffisiellKode())
