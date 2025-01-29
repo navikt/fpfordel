@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -80,17 +82,31 @@ class OppgaveRepositoryTest {
     }
 
     @Test
-    void hentAlleLukkedeOppgaver() {
-        var antallFerdigstilt = 12;
-        var antallFeilregistrert = 5;
-        lagreOppgaver(antallFerdigstilt, Status.FERDIGSTILT);
-        lagreOppgaver(antallFeilregistrert, Status.FEILREGISTRERT);
+    void hentOppgaverFlyttetTilGosys() {
+        var antall = 12;
+        var forventedeOppgaver = lagreOppgaver(antall, Status.GOSYS);
+        var forventedeJournalpostIder = forventedeOppgaver.stream()
+                .map(OppgaveEntitet::getJournalpostId)
+                .toList();
 
-        var oppgaver = repo.hentAlleLukkedeOppgaver();
+        var oppgaver = repo.hentOppgaverFlyttetTilGosys(forventedeJournalpostIder);
 
         assertThat(oppgaver)
             .isNotEmpty()
-            .hasSize(antallFerdigstilt + antallFeilregistrert);
+            .hasSize(antall);
+    }
+
+    @Test
+    void flyttOppgaveTilGosys() {
+        lagTestOppgave(Status.AAPNET);
+        var lagret = repo.hentOppgave(JOURNALPOST_ID);
+        assertThat(lagret.getStatus()).isEqualTo(Status.AAPNET);
+
+        repo.flyttOppgaveTilGosys(JOURNALPOST_ID);
+
+        var resultat = repo.hentOppgave(JOURNALPOST_ID);
+        assertThat(resultat).isNotNull();
+        assertThat(resultat.getStatus()).isEqualTo(Status.GOSYS);
     }
 
     @Test
@@ -106,11 +122,15 @@ class OppgaveRepositoryTest {
         assertThat(resultat.getStatus()).isEqualTo(Status.FERDIGSTILT);
     }
 
-    private void lagreOppgaver(int antall, Status status) {
+    private List<OppgaveEntitet> lagreOppgaver(int antall, Status status) {
+        List<OppgaveEntitet> oppgaver = new ArrayList<>();
         var randomId = new Random().nextInt(10000);
         for (int i = 0; i < antall; i++) {
-            repo.lagre(lagTestOppgave(String.valueOf(randomId + i), status, YtelseType.FP));
+            var oppgave = lagTestOppgave(String.valueOf(randomId + i), status, YtelseType.FP);
+            repo.lagre(oppgave);
+            oppgaver.add(oppgave);
         }
+        return oppgaver;
     }
 
     private OppgaveEntitet lagTestOppgave(String journalpostId, Status status, YtelseType ytelseType) {

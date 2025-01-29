@@ -4,6 +4,7 @@ public enum Oppgavestatus {
     OPPRETTET,
     AAPNET,
     UNDER_BEHANDLING,
+    GOSYS,
     FERDIGSTILT,
     FEILREGISTRERT
 }

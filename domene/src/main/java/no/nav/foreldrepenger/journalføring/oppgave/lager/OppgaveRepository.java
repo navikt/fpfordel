@@ -1,14 +1,13 @@
 package no.nav.foreldrepenger.journalføring.oppgave.lager;
 
-import java.util.List;
-import java.util.Objects;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Objects;
 
 @ApplicationScoped
 public class OppgaveRepository {
@@ -50,10 +49,21 @@ public class OppgaveRepository {
                 .getResultList();
     }
 
-    public List<OppgaveEntitet> hentAlleLukkedeOppgaver() {
-        return em.createQuery("from Oppgave where status in (:status)", OppgaveEntitet.class)
-            .setParameter("status", List.of(Status.FERDIGSTILT, Status.FEILREGISTRERT))
-            .getResultList();
+    public List<OppgaveEntitet> hentOppgaverFlyttetTilGosys(List<String> globaleJournalpostIder) {
+        return em.createQuery("from Oppgave where status = :status and journalpostId in (:journalpostId)",
+                              OppgaveEntitet.class)
+                .setParameter("status", Status.GOSYS)
+                .setParameter("journalpostId", globaleJournalpostIder)
+                .getResultList();
+    }
+
+    public void flyttOppgaveTilGosys(String journalpostId) {
+        var oppgave = hentOppgave(journalpostId);
+        if (oppgave != null) {
+            oppgave.setStatus(Status.GOSYS);
+            lagre(oppgave);
+            LOG.info("Oppgave med Id: {} flyttet til gosys.", oppgave.getJournalpostId());
+        }
     }
 
     public void ferdigstillOppgave(String journalpostId) {
