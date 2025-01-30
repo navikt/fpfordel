@@ -98,6 +98,7 @@ public class EnhetsTjeneste {
 
         return NASJONAL_ENHET_ID;
         /* LA STÅ UT 2025
+        kall hentGeografiskTilknytning for å hente gt - evt lagendepunkt i fptilgang
         var request = ArbeidsfordelingRequest.ny()
             .medTemagruppe(TEMAGRUPPE)
             .medTema(tema.getOffisiellKode())
