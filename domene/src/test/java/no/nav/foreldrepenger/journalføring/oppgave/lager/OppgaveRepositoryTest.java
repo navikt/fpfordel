@@ -80,17 +80,28 @@ class OppgaveRepositoryTest {
     }
 
     @Test
-    void hentAlleLukkedeOppgaver() {
-        var antallFerdigstilt = 12;
-        var antallFeilregistrert = 5;
-        lagreOppgaver(antallFerdigstilt, Status.FERDIGSTILT);
-        lagreOppgaver(antallFeilregistrert, Status.FEILREGISTRERT);
+    void hentOppgaverFlyttetTilGosys() {
+        var antall = 12;
+        lagreOppgaver(antall, Status.GOSYS);
 
-        var oppgaver = repo.hentAlleLukkedeOppgaver();
+        var oppgaver = repo.hentOppgaverFlyttetTilGosys();
 
         assertThat(oppgaver)
             .isNotEmpty()
-            .hasSize(antallFerdigstilt + antallFeilregistrert);
+            .hasSize(antall);
+    }
+
+    @Test
+    void flyttOppgaveTilGosys() {
+        lagTestOppgave(Status.AAPNET);
+        var lagret = repo.hentOppgave(JOURNALPOST_ID);
+        assertThat(lagret.getStatus()).isEqualTo(Status.AAPNET);
+
+        repo.flyttOppgaveTilGosys(JOURNALPOST_ID);
+
+        var resultat = repo.hentOppgave(JOURNALPOST_ID);
+        assertThat(resultat).isNotNull();
+        assertThat(resultat.getStatus()).isEqualTo(Status.GOSYS);
     }
 
     @Test
