@@ -23,9 +23,8 @@ import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingRespons
 
 @ExtendWith(MockitoExtension.class)
 class EnhetsTjenesteTest {
-    public static final String GEOGRAFISK_TILKNYTNING = "test";
+
     private static final String AKTØR_ID = "9999999999999";
-    private static final String FNR = "99999999999";
     private static final ArbeidsfordelingResponse ENHET = new ArbeidsfordelingResponse("4801", "Enhet", "Aktiv", "FPY");
     private static final ArbeidsfordelingResponse FORDELING_ENHET = new ArbeidsfordelingResponse("4867", "Oslo", "Aktiv", "FPY");
     private EnhetsTjeneste enhetsTjeneste;
@@ -52,6 +51,20 @@ class EnhetsTjenesteTest {
     void skal_returnere_enhetid_skjermet() {
         when(rutingKlient.finnRutingEgenskaper(any())).thenReturn(Set.of(RutingResultat.SKJERMING));
         assertThat(enhetId()).isNotNull().isEqualTo(EnhetsTjeneste.SKJERMET_ENHET_ID);
+    }
+
+    @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    void skal_returnere_enhetid_strengt_fortrolig() {
+        when(rutingKlient.finnRutingEgenskaper(any())).thenReturn(Set.of(RutingResultat.STRENGTFORTROLIG));
+        assertThat(enhetId()).isNotNull().isEqualTo(EnhetsTjeneste.SF_ENHET_ID);
+    }
+
+    @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    void skal_returnere_enhetid_utland() {
+        when(rutingKlient.finnRutingEgenskaper(any())).thenReturn(Set.of(RutingResultat.UTLAND));
+        assertThat(enhetId()).isNotNull().isEqualTo(EnhetsTjeneste.UTLAND_ENHET_ID);
     }
 
     @Test

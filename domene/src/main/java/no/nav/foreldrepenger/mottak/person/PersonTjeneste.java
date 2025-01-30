@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.person;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -11,12 +10,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.StringUtil;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.pdl.Adressebeskyttelse;
-import no.nav.pdl.AdressebeskyttelseGradering;
-import no.nav.pdl.AdressebeskyttelseResponseProjection;
-import no.nav.pdl.GeografiskTilknytning;
-import no.nav.pdl.GeografiskTilknytningResponseProjection;
-import no.nav.pdl.HentGeografiskTilknytningQueryRequest;
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.Navn;
 import no.nav.pdl.NavnResponseProjection;
@@ -29,9 +22,6 @@ import no.nav.vedtak.util.LRUCache;
 public class PersonTjeneste implements PersonInformasjon {
 
     private static final Logger LOG = LoggerFactory.getLogger(PersonTjeneste.class);
-
-    private static final Set<AdressebeskyttelseGradering> STRENG = Set.of(AdressebeskyttelseGradering.STRENGT_FORTROLIG,
-        AdressebeskyttelseGradering.STRENGT_FORTROLIG_UTLAND);
 
     private static final int DEFAULT_CACHE_SIZE = 1000;
     private static final long DEFAULT_CACHE_TIMEOUT = TimeUnit.MILLISECONDS.convert(10, TimeUnit.MINUTES);
@@ -100,21 +90,6 @@ public class PersonTjeneste implements PersonInformasjon {
             .orElseThrow();
     }
 
-    @Override
-    public String hentGeografiskTilknytning(BehandlingTema behandlingTema, String id) {
-        var ytelse = utledYtelse(behandlingTema);
-        var query = new HentGeografiskTilknytningQueryRequest();
-        query.setIdent(id);
-        var pgt = new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand();
-        return tilknytning(pdl.hentGT(ytelse, query, pgt));
-    }
-
-    @Override
-    public boolean harStrengDiskresjonskode(BehandlingTema behandlingTema, String id) {
-        var ytelse = utledYtelse(behandlingTema);
-        var pp = new PersonResponseProjection().adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
-        return pdl.hentPerson(ytelse, personQuery(id), pp).getAdressebeskyttelse().stream().map(Adressebeskyttelse::getGradering).anyMatch(STRENG::contains);
-    }
 
     private Optional<String> tilAktørId(String fnr) {
         var aktørId = pdl.hentAktørIdForPersonIdent(fnr);
@@ -130,18 +105,6 @@ public class PersonTjeneste implements PersonInformasjon {
         });
         return personIdent;
 
-    }
-
-    private String tilknytning(GeografiskTilknytning res) {
-        // Udefinert og utland likebehandles
-        if (res == null || res.getGtType() == null) {
-            return null;
-        }
-        return switch (res.getGtType()) {
-            case BYDEL -> res.getGtBydel();
-            case KOMMUNE -> res.getGtKommune();
-            default -> null;
-        };
     }
 
     @Override
