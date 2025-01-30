@@ -49,11 +49,10 @@ public class OppgaveRepository {
                 .getResultList();
     }
 
-    public List<OppgaveEntitet> hentOppgaverFlyttetTilGosys(List<String> globaleJournalpostIder) {
-        return em.createQuery("from Oppgave where status = :status and journalpostId in (:journalpostId)",
+    public List<OppgaveEntitet> hentOppgaverFlyttetTilGosys() {
+        return em.createQuery("from Oppgave where status = :status",
                               OppgaveEntitet.class)
                 .setParameter("status", Status.GOSYS)
-                .setParameter("journalpostId", globaleJournalpostIder)
                 .getResultList();
     }
 

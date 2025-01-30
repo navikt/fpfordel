@@ -448,7 +448,7 @@ class OppgaverTjenesteTest {
 
     @Test
     void finnÅpneOppgaverFiltrert_filtrerUtOppgaverSendtTilGosys() {
-        when(oppgaveRepository.hentOppgaverFlyttetTilGosys(any())).thenReturn(List.of(lokalOppgave("1234567", AKTØR_ID, VANLIG_ENHETSNR, Status.GOSYS)));
+        when(oppgaveRepository.hentOppgaverFlyttetTilGosys()).thenReturn(List.of(lokalOppgave("1234567", AKTØR_ID, VANLIG_ENHETSNR, Status.GOSYS)));
         when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT))
             .thenReturn(List.of(gosysOppgave("76543231"), gosysOppgave("1234567")));
         when(losEnheterCachedTjeneste.hentLosEnheterFor(any())).thenReturn(List.of(enhetVanlig()));
@@ -459,7 +459,7 @@ class OppgaverTjenesteTest {
         assertThat(alleOppgaver.getFirst().journalpostId()).isEqualTo("76543231");
 
         verify(oppgaveRepository).hentAlleÅpneOppgaver();
-        verify(oppgaveRepository).hentOppgaverFlyttetTilGosys(any());
+        verify(oppgaveRepository).hentOppgaverFlyttetTilGosys();
         verify(oppgaveKlient).finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT);
     }
 

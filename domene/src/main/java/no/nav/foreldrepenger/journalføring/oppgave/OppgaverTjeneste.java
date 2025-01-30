@@ -266,20 +266,15 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     }
 
     private List<Oppgave> finnGlobaleOppgaver() {
-        List<Oppgave> globaleOppgaver = oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT).stream()
-                                                .map(OppgaverTjeneste::mapTilOppgave)
-                                                .toList();
-        List<String> globaleJournalpostIder = globaleOppgaver.stream()
-                .map(Oppgave::journalpostId)
-                .toList();
-        List<String> lukkedeLokaleJournalpostIder = finnOppgaverFlyttetTilGosys(globaleJournalpostIder);
-        return globaleOppgaver.stream()
+        List<String> lukkedeLokaleJournalpostIder = finnOppgaverFlyttetTilGosys();
+        return oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT).stream()
+                .map(OppgaverTjeneste::mapTilOppgave)
                 .filter(o -> o.journalpostId() != null && !lukkedeLokaleJournalpostIder.contains(o.journalpostId()))
                 .toList();
     }
 
-    private List<String> finnOppgaverFlyttetTilGosys(List<String> globaleJournalpostIder) {
-        return oppgaveRepository.hentOppgaverFlyttetTilGosys(globaleJournalpostIder).stream()
+    private List<String> finnOppgaverFlyttetTilGosys() {
+        return oppgaveRepository.hentOppgaverFlyttetTilGosys().stream()
             .map(OppgaverTjeneste::mapTilOppgave)
             .map(Oppgave::journalpostId)
             .toList();

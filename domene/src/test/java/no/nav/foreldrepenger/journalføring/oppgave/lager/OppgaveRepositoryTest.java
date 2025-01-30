@@ -7,8 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -84,12 +82,9 @@ class OppgaveRepositoryTest {
     @Test
     void hentOppgaverFlyttetTilGosys() {
         var antall = 12;
-        var forventedeOppgaver = lagreOppgaver(antall, Status.GOSYS);
-        var forventedeJournalpostIder = forventedeOppgaver.stream()
-                .map(OppgaveEntitet::getJournalpostId)
-                .toList();
+        lagreOppgaver(antall, Status.GOSYS);
 
-        var oppgaver = repo.hentOppgaverFlyttetTilGosys(forventedeJournalpostIder);
+        var oppgaver = repo.hentOppgaverFlyttetTilGosys();
 
         assertThat(oppgaver)
             .isNotEmpty()
@@ -122,15 +117,11 @@ class OppgaveRepositoryTest {
         assertThat(resultat.getStatus()).isEqualTo(Status.FERDIGSTILT);
     }
 
-    private List<OppgaveEntitet> lagreOppgaver(int antall, Status status) {
-        List<OppgaveEntitet> oppgaver = new ArrayList<>();
+    private void lagreOppgaver(int antall, Status status) {
         var randomId = new Random().nextInt(10000);
         for (int i = 0; i < antall; i++) {
-            var oppgave = lagTestOppgave(String.valueOf(randomId + i), status, YtelseType.FP);
-            repo.lagre(oppgave);
-            oppgaver.add(oppgave);
+            repo.lagre(lagTestOppgave(String.valueOf(randomId + i), status, YtelseType.FP));
         }
-        return oppgaver;
     }
 
     private OppgaveEntitet lagTestOppgave(String journalpostId, Status status, YtelseType ytelseType) {
