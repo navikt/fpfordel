@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,10 +18,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.Arbeidsfordeling;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingResponse;
-import no.nav.vedtak.felles.integrasjon.skjerming.Skjerming;
 
 @ExtendWith(MockitoExtension.class)
 class EnhetsTjenesteTest {
@@ -33,19 +32,13 @@ class EnhetsTjenesteTest {
     @Mock
     private Arbeidsfordeling arbeidsfordeling;
     @Mock
-    private PersonInformasjon personTjeneste;
-    @Mock
-    private Skjerming skjermetPersonKlient;
-    @Mock
     private RutingKlient rutingKlient;
 
     @BeforeEach
     void setup() {
-        when(personTjeneste.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(FNR));
         when(arbeidsfordeling.hentAlleAktiveEnheter(any())).thenReturn(List.of(FORDELING_ENHET));
         when(arbeidsfordeling.finnEnhet(any())).thenReturn(List.of(ENHET));
-        when(personTjeneste.hentGeografiskTilknytning(any(), any())).thenReturn(GEOGRAFISK_TILKNYTNING);
-        enhetsTjeneste = new EnhetsTjeneste(personTjeneste, arbeidsfordeling, skjermetPersonKlient, rutingKlient);
+        enhetsTjeneste = new EnhetsTjeneste(arbeidsfordeling, rutingKlient);
     }
 
     @Test
@@ -57,7 +50,7 @@ class EnhetsTjenesteTest {
     @Test
     @MockitoSettings(strictness = Strictness.LENIENT)
     void skal_returnere_enhetid_skjermet() {
-        when(skjermetPersonKlient.erSkjermet(any())).thenReturn(true);
+        when(rutingKlient.finnRutingEgenskaper(any())).thenReturn(Set.of(RutingResultat.SKJERMING));
         assertThat(enhetId()).isNotNull().isEqualTo(EnhetsTjeneste.SKJERMET_ENHET_ID);
     }
 
