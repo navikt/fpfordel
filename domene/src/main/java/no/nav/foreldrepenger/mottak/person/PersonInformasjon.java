@@ -14,6 +14,4 @@ public interface PersonInformasjon {
 
     String hentGeografiskTilknytning(BehandlingTema behandlingTema, String aktørId);
 
-    boolean harStrengDiskresjonskode(BehandlingTema behandlingTema, String aktørId);
-
 }
