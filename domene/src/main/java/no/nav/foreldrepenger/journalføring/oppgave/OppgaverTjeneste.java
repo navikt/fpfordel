@@ -158,10 +158,9 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     }
 
     @Override
-    public void ferdigstillLokalOppgaveFor(JournalpostId journalpostId) {
-        oppgaveRepository.ferdigstillOppgave(journalpostId.getVerdi());
+    public void flyttLokalOppgaveTilGosysFor(JournalpostId journalpostId) {
+        oppgaveRepository.flyttOppgaveTilGosys(journalpostId.getVerdi());
     }
-
 
     @Override
     public void reserverOppgaveFor(Oppgave oppgave, String saksbehandlerId) {
@@ -238,7 +237,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
 
             LOG.info("Oppretter en gosys oppgave for journalpost {} ", journalpostId);
             opprettGosysJournalføringsoppgaveFor(nyOppgave);
-            ferdigstillLokalOppgaveFor(journalpostId);
+            flyttLokalOppgaveTilGosysFor(journalpostId);
         } else {
             LOG.warn("Skulle flytte en oppgave til GOSYS, men fant ikke oppgaven lokalt: {}.", journalpostId);
         }
@@ -267,16 +266,15 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     }
 
     private List<Oppgave> finnGlobaleOppgaver() {
-        List<String> lukkedeLokaleJournalpostIder = finnLukkedeLokaleJournalpostIder();
-        return oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)
-            .stream()
-            .filter(o -> o.journalpostId() != null && !lukkedeLokaleJournalpostIder.contains(o.journalpostId()))
-            .map(OppgaverTjeneste::mapTilOppgave)
-            .toList();
+        List<String> lukkedeLokaleJournalpostIder = finnOppgaverFlyttetTilGosys();
+        return oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT).stream()
+                .map(OppgaverTjeneste::mapTilOppgave)
+                .filter(o -> o.journalpostId() != null && !lukkedeLokaleJournalpostIder.contains(o.journalpostId()))
+                .toList();
     }
 
-    private List<String> finnLukkedeLokaleJournalpostIder() {
-        return oppgaveRepository.hentAlleLukkedeOppgaver().stream()
+    private List<String> finnOppgaverFlyttetTilGosys() {
+        return oppgaveRepository.hentOppgaverFlyttetTilGosys().stream()
             .map(OppgaverTjeneste::mapTilOppgave)
             .map(Oppgave::journalpostId)
             .toList();
