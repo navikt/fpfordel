@@ -129,7 +129,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
         });
 
         if (oppgaveRepository.harÅpenOppgave(verdi)) {
-            oppgaveRepository.ferdigstillOppgave(verdi);
+            oppgaveRepository.avsluttOppgaveMedStatus(verdi, Status.FERDIGSTILT);
             LOG.info("FPFORDEL JFR-OPPGAVE: ferdigstiller lokal oppgave for journalpostId: {}", journalpostId);
         }
     }
@@ -156,12 +156,6 @@ class OppgaverTjeneste implements Journalføringsoppgave {
             return Optional.empty();
         }
     }
-
-    @Override
-    public void ferdigstillLokalOppgaveFor(JournalpostId journalpostId) {
-        oppgaveRepository.ferdigstillOppgave(journalpostId.getVerdi());
-    }
-
 
     @Override
     public void reserverOppgaveFor(Oppgave oppgave, String saksbehandlerId) {
@@ -238,7 +232,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
 
             LOG.info("Oppretter en gosys oppgave for journalpost {} ", journalpostId);
             opprettGosysJournalføringsoppgaveFor(nyOppgave);
-            ferdigstillLokalOppgaveFor(journalpostId);
+            oppgaveRepository.avsluttOppgaveMedStatus(journalpostId.getVerdi(), Status.FLYTTET_TIL_GOSYS);
         } else {
             LOG.warn("Skulle flytte en oppgave til GOSYS, men fant ikke oppgaven lokalt: {}.", journalpostId);
         }
@@ -267,18 +261,16 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     }
 
     private List<Oppgave> finnGlobaleOppgaver() {
-        List<String> lukkedeLokaleJournalpostIder = finnLukkedeLokaleJournalpostIder();
-        return oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)
-            .stream()
-            .filter(o -> o.journalpostId() != null && !lukkedeLokaleJournalpostIder.contains(o.journalpostId()))
-            .map(OppgaverTjeneste::mapTilOppgave)
-            .toList();
+        List<String> lukkedeLokaleJournalpostIder = finnOppgaverFlyttetTilGosys();
+        return oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT).stream()
+                .map(OppgaverTjeneste::mapTilOppgave)
+                .filter(o -> o.journalpostId() != null && !lukkedeLokaleJournalpostIder.contains(o.journalpostId()))
+                .toList();
     }
 
-    private List<String> finnLukkedeLokaleJournalpostIder() {
-        return oppgaveRepository.hentAlleLukkedeOppgaver().stream()
-            .map(OppgaverTjeneste::mapTilOppgave)
-            .map(Oppgave::journalpostId)
+    private List<String> finnOppgaverFlyttetTilGosys() {
+        return oppgaveRepository.hentOppgaverFlyttetTilGosys().stream()
+            .map(OppgaveEntitet::getJournalpostId)
             .toList();
     }
 

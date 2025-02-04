@@ -50,27 +50,18 @@ public class OppgaveRepository {
                 .getResultList();
     }
 
-    public List<OppgaveEntitet> hentAlleLukkedeOppgaver() {
-        return em.createQuery("from Oppgave where status in (:status)", OppgaveEntitet.class)
-            .setParameter("status", List.of(Status.FERDIGSTILT, Status.FEILREGISTRERT))
-            .getResultList();
+    public List<OppgaveEntitet> hentOppgaverFlyttetTilGosys() {
+        return em.createQuery("from Oppgave where status = :status", OppgaveEntitet.class)
+                .setParameter("status", Status.FLYTTET_TIL_GOSYS)
+                .getResultList();
     }
 
-    public void ferdigstillOppgave(String journalpostId) {
+    public void avsluttOppgaveMedStatus(String journalpostId, Status status) {
         var oppgave = hentOppgave(journalpostId);
         if (oppgave != null) {
-            oppgave.setStatus(Status.FERDIGSTILT);
+            oppgave.setStatus(status);
             lagre(oppgave);
-            LOG.info("Oppgave med Id: {} ferdigstillt.", oppgave.getJournalpostId());
-        }
-    }
-
-    public void feilregistrerOppgave(String journalpostId) {
-        var oppgave = hentOppgave(journalpostId);
-        if (oppgave != null) {
-            oppgave.setStatus(Status.FEILREGISTRERT);
-            lagre(oppgave);
-            LOG.info("Oppgave med Id: {} feilregistrert.", oppgave.getJournalpostId());
+            LOG.info("Oppgave med Id: {} avsluttet med status: {}.", oppgave.getJournalpostId(), status);
         }
     }
 

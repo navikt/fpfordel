@@ -6,7 +6,6 @@ import java.util.Optional;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.AktørId;
 
 public interface Journalføringsoppgave {
 
@@ -21,8 +20,6 @@ public interface Journalføringsoppgave {
     Oppgave hentOppgaveFor(JournalpostId journalpostId);
 
     Optional<Oppgave> hentLokalOppgaveFor(JournalpostId journalpostId);
-
-    void ferdigstillLokalOppgaveFor(JournalpostId journalpostId);
 
     void reserverOppgaveFor(Oppgave oppgave, String saksbehandlerId);
 
