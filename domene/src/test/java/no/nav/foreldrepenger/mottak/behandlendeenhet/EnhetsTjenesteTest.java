@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,35 +18,26 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.Arbeidsfordeling;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingResponse;
-import no.nav.vedtak.felles.integrasjon.skjerming.Skjerming;
 
 @ExtendWith(MockitoExtension.class)
 class EnhetsTjenesteTest {
-    public static final String GEOGRAFISK_TILKNYTNING = "test";
+
     private static final String AKTØR_ID = "9999999999999";
-    private static final String FNR = "99999999999";
     private static final ArbeidsfordelingResponse ENHET = new ArbeidsfordelingResponse("4801", "Enhet", "Aktiv", "FPY");
     private static final ArbeidsfordelingResponse FORDELING_ENHET = new ArbeidsfordelingResponse("4867", "Oslo", "Aktiv", "FPY");
     private EnhetsTjeneste enhetsTjeneste;
     @Mock
     private Arbeidsfordeling arbeidsfordeling;
     @Mock
-    private PersonInformasjon personTjeneste;
-    @Mock
-    private Skjerming skjermetPersonKlient;
-    @Mock
     private RutingKlient rutingKlient;
 
     @BeforeEach
     void setup() {
-        when(personTjeneste.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(FNR));
         when(arbeidsfordeling.hentAlleAktiveEnheter(any())).thenReturn(List.of(FORDELING_ENHET));
         when(arbeidsfordeling.finnEnhet(any())).thenReturn(List.of(ENHET));
-        when(personTjeneste.hentGeografiskTilknytning(any(), any())).thenReturn(GEOGRAFISK_TILKNYTNING);
-        enhetsTjeneste = new EnhetsTjeneste(personTjeneste, arbeidsfordeling, skjermetPersonKlient, rutingKlient);
+        enhetsTjeneste = new EnhetsTjeneste(arbeidsfordeling, rutingKlient);
     }
 
     @Test
@@ -57,8 +49,22 @@ class EnhetsTjenesteTest {
     @Test
     @MockitoSettings(strictness = Strictness.LENIENT)
     void skal_returnere_enhetid_skjermet() {
-        when(skjermetPersonKlient.erSkjermet(any())).thenReturn(true);
+        when(rutingKlient.finnRutingEgenskaper(any())).thenReturn(Set.of(RutingResultat.SKJERMING));
         assertThat(enhetId()).isNotNull().isEqualTo(EnhetsTjeneste.SKJERMET_ENHET_ID);
+    }
+
+    @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    void skal_returnere_enhetid_strengt_fortrolig() {
+        when(rutingKlient.finnRutingEgenskaper(any())).thenReturn(Set.of(RutingResultat.STRENGTFORTROLIG));
+        assertThat(enhetId()).isNotNull().isEqualTo(EnhetsTjeneste.SF_ENHET_ID);
+    }
+
+    @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    void skal_returnere_enhetid_utland() {
+        when(rutingKlient.finnRutingEgenskaper(any())).thenReturn(Set.of(RutingResultat.UTLAND));
+        assertThat(enhetId()).isNotNull().isEqualTo(EnhetsTjeneste.UTLAND_ENHET_ID);
     }
 
     @Test
