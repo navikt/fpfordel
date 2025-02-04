@@ -45,13 +45,15 @@ public class OppgaveRepository {
     }
 
     public List<OppgaveEntitet> hentAlleÅpneOppgaver() {
-        return em.createQuery("from Oppgave where status = " + Status.AAPNET, OppgaveEntitet.class)
-                .getResultList();
+        return em.createQuery("from Oppgave where status = :status", OppgaveEntitet.class)
+            .setParameter("status", Status.AAPNET)
+            .getResultList();
     }
 
     public List<OppgaveEntitet> hentOppgaverFlyttetTilGosys() {
-        return em.createQuery("from Oppgave where status = " + Status.FLYTTET_TIL_GOSYS, OppgaveEntitet.class)
-                .getResultList();
+        return em.createQuery("from Oppgave where status = :status", OppgaveEntitet.class)
+            .setParameter("status", Status.FLYTTET_TIL_GOSYS)
+            .getResultList();
     }
 
     public void avsluttOppgaveMedStatus(String journalpostId, Status status) {
