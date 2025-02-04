@@ -129,7 +129,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
         });
 
         if (oppgaveRepository.harÅpenOppgave(verdi)) {
-            oppgaveRepository.ferdigstillOppgave(verdi);
+            oppgaveRepository.avsluttOppgaveMedStatus(verdi, Status.FERDIGSTILT);
             LOG.info("FPFORDEL JFR-OPPGAVE: ferdigstiller lokal oppgave for journalpostId: {}", journalpostId);
         }
     }
@@ -155,11 +155,6 @@ class OppgaverTjeneste implements Journalføringsoppgave {
         } else {
             return Optional.empty();
         }
-    }
-
-    @Override
-    public void flyttLokalOppgaveTilGosysFor(JournalpostId journalpostId) {
-        oppgaveRepository.flyttOppgaveTilGosys(journalpostId.getVerdi());
     }
 
     @Override
@@ -237,7 +232,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
 
             LOG.info("Oppretter en gosys oppgave for journalpost {} ", journalpostId);
             opprettGosysJournalføringsoppgaveFor(nyOppgave);
-            flyttLokalOppgaveTilGosysFor(journalpostId);
+            oppgaveRepository.avsluttOppgaveMedStatus(journalpostId.getVerdi(), Status.FLYTTET_TIL_GOSYS);
         } else {
             LOG.warn("Skulle flytte en oppgave til GOSYS, men fant ikke oppgaven lokalt: {}.", journalpostId);
         }
@@ -275,8 +270,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
 
     private List<String> finnOppgaverFlyttetTilGosys() {
         return oppgaveRepository.hentOppgaverFlyttetTilGosys().stream()
-            .map(OppgaverTjeneste::mapTilOppgave)
-            .map(Oppgave::journalpostId)
+            .map(OppgaveEntitet::getJournalpostId)
             .toList();
     }
 

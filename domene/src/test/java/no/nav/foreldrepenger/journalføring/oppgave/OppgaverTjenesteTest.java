@@ -172,7 +172,7 @@ class OppgaverTjenesteTest {
         oppgaver.ferdigstillAlleÅpneJournalføringsoppgaverFor(JournalpostId.fra(journalpostId));
 
         verify(oppgaveRepository).harÅpenOppgave(journalpostId);
-        verify(oppgaveRepository).ferdigstillOppgave(journalpostId);
+        verify(oppgaveRepository).avsluttOppgaveMedStatus(journalpostId, Status.FERDIGSTILT);
         verify(oppgaveKlient).finnÅpneJournalføringsoppgaverForJournalpost(journalpostId);
         verify(oppgaveKlient, never()).ferdigstillOppgave(anyString());
         verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
@@ -448,7 +448,7 @@ class OppgaverTjenesteTest {
 
     @Test
     void finnÅpneOppgaverFiltrert_filtrerUtOppgaverSendtTilGosys() {
-        when(oppgaveRepository.hentOppgaverFlyttetTilGosys()).thenReturn(List.of(lokalOppgave("1234567", AKTØR_ID, VANLIG_ENHETSNR, Status.GOSYS)));
+        when(oppgaveRepository.hentOppgaverFlyttetTilGosys()).thenReturn(List.of(lokalOppgave("1234567", AKTØR_ID, VANLIG_ENHETSNR, Status.FLYTTET_TIL_GOSYS)));
         when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT))
             .thenReturn(List.of(gosysOppgave("76543231"), gosysOppgave("1234567")));
         when(losEnheterCachedTjeneste.hentLosEnheterFor(any())).thenReturn(List.of(enhetVanlig()));
@@ -477,7 +477,7 @@ class OppgaverTjenesteTest {
 
         oppgaver.flyttLokalOppgaveTilGosys(JournalpostId.fra(journalpostId));
 
-        verify(oppgaveRepository).flyttOppgaveTilGosys(journalpostId);
+        verify(oppgaveRepository).avsluttOppgaveMedStatus(journalpostId, Status.FLYTTET_TIL_GOSYS);
         verify(oppgaveKlient).opprettetOppgave(any(OpprettOppgave.class));
         verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
     }
@@ -496,7 +496,7 @@ class OppgaverTjenesteTest {
 
         oppgaver.flyttLokalOppgaveTilGosys(JournalpostId.fra(journalpostId));
 
-        verify(oppgaveRepository).flyttOppgaveTilGosys(journalpostId);
+        verify(oppgaveRepository).avsluttOppgaveMedStatus(journalpostId, Status.FLYTTET_TIL_GOSYS);
         verify(oppgaveKlient).opprettetOppgave(any(OpprettOppgave.class));
         verifyNoMoreInteractions(oppgaveRepository, oppgaveKlient);
     }

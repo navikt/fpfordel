@@ -45,42 +45,21 @@ public class OppgaveRepository {
     }
 
     public List<OppgaveEntitet> hentAlleÅpneOppgaver() {
-        return em.createQuery("from Oppgave where status = :status", OppgaveEntitet.class)
-                .setParameter("status", Status.AAPNET)
+        return em.createQuery("from Oppgave where status = " + Status.AAPNET, OppgaveEntitet.class)
                 .getResultList();
     }
 
     public List<OppgaveEntitet> hentOppgaverFlyttetTilGosys() {
-        return em.createQuery("from Oppgave where status = :status",
-                              OppgaveEntitet.class)
-                .setParameter("status", Status.GOSYS)
+        return em.createQuery("from Oppgave where status = " + Status.FLYTTET_TIL_GOSYS, OppgaveEntitet.class)
                 .getResultList();
     }
 
-    public void flyttOppgaveTilGosys(String journalpostId) {
+    public void avsluttOppgaveMedStatus(String journalpostId, Status status) {
         var oppgave = hentOppgave(journalpostId);
         if (oppgave != null) {
-            oppgave.setStatus(Status.GOSYS);
+            oppgave.setStatus(status);
             lagre(oppgave);
-            LOG.info("Oppgave med Id: {} flyttet til gosys.", oppgave.getJournalpostId());
-        }
-    }
-
-    public void ferdigstillOppgave(String journalpostId) {
-        var oppgave = hentOppgave(journalpostId);
-        if (oppgave != null) {
-            oppgave.setStatus(Status.FERDIGSTILT);
-            lagre(oppgave);
-            LOG.info("Oppgave med Id: {} ferdigstillt.", oppgave.getJournalpostId());
-        }
-    }
-
-    public void feilregistrerOppgave(String journalpostId) {
-        var oppgave = hentOppgave(journalpostId);
-        if (oppgave != null) {
-            oppgave.setStatus(Status.FEILREGISTRERT);
-            lagre(oppgave);
-            LOG.info("Oppgave med Id: {} feilregistrert.", oppgave.getJournalpostId());
+            LOG.info("Oppgave med Id: {} avsluttet med status: {}.", oppgave.getJournalpostId(), status);
         }
     }
 

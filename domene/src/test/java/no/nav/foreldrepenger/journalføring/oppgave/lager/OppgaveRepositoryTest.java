@@ -82,7 +82,7 @@ class OppgaveRepositoryTest {
     @Test
     void hentOppgaverFlyttetTilGosys() {
         var antall = 12;
-        lagreOppgaver(antall, Status.GOSYS);
+        lagreOppgaver(antall, Status.FLYTTET_TIL_GOSYS);
 
         var oppgaver = repo.hentOppgaverFlyttetTilGosys();
 
@@ -97,11 +97,11 @@ class OppgaveRepositoryTest {
         var lagret = repo.hentOppgave(JOURNALPOST_ID);
         assertThat(lagret.getStatus()).isEqualTo(Status.AAPNET);
 
-        repo.flyttOppgaveTilGosys(JOURNALPOST_ID);
+        repo.avsluttOppgaveMedStatus(JOURNALPOST_ID, Status.FLYTTET_TIL_GOSYS);
 
         var resultat = repo.hentOppgave(JOURNALPOST_ID);
         assertThat(resultat).isNotNull();
-        assertThat(resultat.getStatus()).isEqualTo(Status.GOSYS);
+        assertThat(resultat.getStatus()).isEqualTo(Status.FLYTTET_TIL_GOSYS);
     }
 
     @Test
@@ -110,7 +110,7 @@ class OppgaveRepositoryTest {
         var lagret = repo.hentOppgave(JOURNALPOST_ID);
         assertThat(lagret.getStatus()).isEqualTo(Status.AAPNET);
 
-        repo.ferdigstillOppgave(JOURNALPOST_ID);
+        repo.avsluttOppgaveMedStatus(JOURNALPOST_ID, Status.FERDIGSTILT);
 
         var resultat = repo.hentOppgave(JOURNALPOST_ID);
         assertThat(resultat).isNotNull();

@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste
 import no.nav.foreldrepenger.fordel.web.app.rest.journalføring.FerdigstillJournalføringTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.rest.journalføring.JournalføringRestTjeneste;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
@@ -241,7 +242,7 @@ public class ForvaltningRestTjeneste {
     @Path("/avslutt-oppgave")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response feilregistrerOppgave(@TilpassetAbacAttributt(supplierClass = JournalføringRestTjeneste.JournalpostDataSupplier.class) @Parameter(description = "journalpostId") @NotNull @Valid JournalpostIdDto journalpostIdDto) {
-        oppgaveRepository.feilregistrerOppgave(journalpostIdDto.getJournalpostId());
+        oppgaveRepository.avsluttOppgaveMedStatus(journalpostIdDto.getJournalpostId(), Status.FEILREGISTRERT);
         return Response.ok().build();
     }
 

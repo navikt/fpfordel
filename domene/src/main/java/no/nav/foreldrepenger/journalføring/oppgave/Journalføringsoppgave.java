@@ -21,8 +21,6 @@ public interface Journalføringsoppgave {
 
     Optional<Oppgave> hentLokalOppgaveFor(JournalpostId journalpostId);
 
-    void flyttLokalOppgaveTilGosysFor(JournalpostId journalpostId);
-
     void reserverOppgaveFor(Oppgave oppgave, String saksbehandlerId);
 
     void avreserverOppgaveFor(Oppgave oppgave);
