@@ -14,12 +14,10 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.fordel.kodeverdi.Temagrupper;
-import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.Arbeidsfordeling;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingRequest;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingResponse;
-import no.nav.vedtak.felles.integrasjon.skjerming.Skjerming;
 
 @ApplicationScoped
 public class EnhetsTjeneste {
@@ -27,7 +25,7 @@ public class EnhetsTjeneste {
     public static final String SKJERMET_ENHET_ID = "4883"; // Enhetsnummer NAV Familie og Pensjon Skjermet
     public static final String SF_ENHET_ID = "2103"; // Enhetsnummer NAV K6 enhet
     public static final Set<String> SKJERMINGENHETER = Set.of(SKJERMET_ENHET_ID, SF_ENHET_ID);
-    private static final String UTLAND_ENHET_ID = "4806"; // Enhetsnummer NAV Utland enhet
+    public static final String UTLAND_ENHET_ID = "4806"; // Enhetsnummer NAV Utland enhet
     private static final Set<String> SPESIALENHETER = Set.of(NK_ENHET_ID, SKJERMET_ENHET_ID, SF_ENHET_ID, UTLAND_ENHET_ID);
     private static final String TEMAGRUPPE = Temagrupper.FAMILIEYTELSER.getKode(); // Kodeverk Temagrupper - dekker FOR + OMS
     private static final String TEMA = Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode();
@@ -39,9 +37,7 @@ public class EnhetsTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(EnhetsTjeneste.class);
     private static final Set<String> FLYTTET = Set.of("4806", "4833", "4849", "4812", "4817", "4842");
 
-    private PersonInformasjon pdl;
     private Arbeidsfordeling norgKlient;
-    private Skjerming skjermetPersonKlient;
     private RutingKlient rutingKlient;
 
     private final Set<String> alleJournalførendeEnheter = new HashSet<>(); // Med klageinstans og kode6 og skjermet
@@ -52,17 +48,12 @@ public class EnhetsTjeneste {
     }
 
     @Inject
-    public EnhetsTjeneste(PersonInformasjon personTjeneste,
-                          Arbeidsfordeling norgKlient,
-                          Skjerming skjermetPersonKlient,
-                          RutingKlient rutingKlient) {
-        this.pdl = personTjeneste;
+    public EnhetsTjeneste(Arbeidsfordeling norgKlient, RutingKlient rutingKlient) {
         this.norgKlient = norgKlient;
-        this.skjermetPersonKlient = skjermetPersonKlient;
         this.rutingKlient = rutingKlient;
     }
 
-    // Behold ut 2025
+    // Behold ut 2025 i påvente av avklaring av nasjonal kø
     private static String validerOgVelgBehandlendeEnhet(List<ArbeidsfordelingResponse> response, String gt) { //NOSONAR
         // Vi forventer å få én behandlende enhet.
         if (response == null || response.size() != 1) {
@@ -91,35 +82,23 @@ public class EnhetsTjeneste {
     }
 
     private String hentEnhetId(String aktørId, BehandlingTema behandlingTema, Tema tema) { //NOSONAR
-        Set<RutingResultat> rutingResultater = new HashSet<>();
-        try {
-            rutingResultater.addAll(rutingKlient.finnRutingEgenskaper(Set.of(aktørId)));
-        } catch (Exception e) {
-            LOG.info("RUTING feil", e);
-        }
-        if (pdl.harStrengDiskresjonskode(behandlingTema, aktørId)) {
-            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.STRENGTFORTROLIG) ? "ok1" : "diff sf");
+        var rutingResultater = rutingKlient.finnRutingEgenskaper(Set.of(aktørId));
+
+        if (rutingResultater.contains(RutingResultat.STRENGTFORTROLIG)) {
             return SF_ENHET_ID;
         }
 
-        var personIdent = pdl.hentPersonIdentForAktørId(aktørId);
-        if (personIdent.filter(skjermetPersonKlient::erSkjermet).isPresent()) {
-            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.SKJERMING) ? "ok skjerm" : "diff skjerm");
+        if (rutingResultater.contains(RutingResultat.SKJERMING)) {
             return SKJERMET_ENHET_ID;
         }
 
-        var gt = pdl.hentGeografiskTilknytning(behandlingTema, aktørId);
-        if (gt == null) { // Udefinert og utland likebehandles
-            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.UTLAND) ? "ok utland" : "diff utland");
+        if (rutingResultater.contains(RutingResultat.UTLAND)) {
             return UTLAND_ENHET_ID;
-        }
-
-        if (!rutingResultater.isEmpty()) {
-            LOG.info("RUTING diff nasjonal vs resultat {}", rutingResultater);
         }
 
         return NASJONAL_ENHET_ID;
         /* LA STÅ UT 2025
+        kall hentGeografiskTilknytning for å hente gt - evt lagendepunkt i fptilgang
         var request = ArbeidsfordelingRequest.ny()
             .medTemagruppe(TEMAGRUPPE)
             .medTema(tema.getOffisiellKode())
