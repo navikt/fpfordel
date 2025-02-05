@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -464,6 +465,24 @@ class OppgaverTjenesteTest {
     }
 
     @Test
+    void finnÅpneOppgaverFiltrert_filtrerUtGlobaleOppgaverUtenJournalpostId() {
+        when(oppgaveRepository.hentOppgaverFlyttetTilGosys()).thenReturn(Collections.emptyList());
+        when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT))
+                .thenReturn(List.of(gosysOppgave(null), gosysOppgave(null)));
+        when(losEnheterCachedTjeneste.hentLosEnheterFor(any())).thenReturn(List.of(enhetVanlig()));
+
+        var alleOppgaver = oppgaver.finnÅpneOppgaverFiltrert();
+
+        assertThat(alleOppgaver).isEmpty();
+
+        verify(oppgaveRepository).hentAlleÅpneOppgaver();
+        verify(oppgaveRepository).hentOppgaverFlyttetTilGosys();
+        verify(oppgaveKlient).finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT);
+    }
+
+
+
+    @Test
     void flyttOppgaveTilGosys() {
         var journalpostId = VANLIG_JOURNALPOSTID;
 
@@ -572,7 +591,7 @@ class OppgaverTjenesteTest {
     }
 
     private Oppgave gosysOppgave(String journalpostId) {
-        return new Oppgave(Long.parseLong(journalpostId), journalpostId, null, "testRef", AKTØR_ID, null, null,
+        return new Oppgave(1L, journalpostId, null, "testRef", AKTØR_ID, null, null,
             Oppgavetype.JOURNALFØRING.getKode(), null, 0, VANLIG_ENHETSNR, LocalDate.now(), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET,
             "test beskrivelse", null);
     }
