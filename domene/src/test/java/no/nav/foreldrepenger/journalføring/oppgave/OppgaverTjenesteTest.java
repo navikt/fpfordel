@@ -480,8 +480,6 @@ class OppgaverTjenesteTest {
         verify(oppgaveKlient).finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT);
     }
 
-
-
     @Test
     void flyttOppgaveTilGosys() {
         var journalpostId = VANLIG_JOURNALPOSTID;
