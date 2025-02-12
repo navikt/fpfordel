@@ -76,6 +76,10 @@ public enum DokumentTypeId implements Kodeverdi {
     SKATTEMELDING("I000140", "Skattemelding"),
     TERMINBEKREFTELSE("I000141", "Terminbekreftelse"),
     MEDISINSK_DOK("I000142", "Medisinsk dokumentasjon"),
+    OPPHOLD("I000143", "Dokumentasjon på oppholdstillatelse"),
+    REISE("I000144", "Dokumentasjon på reiser til og fra Norge"),
+    OPPFØLGING("I000145", "Dokumentasjon på oppfølging i svangerskapet"),
+    DOKUMENTASJON_INNTEKT("I000146", "Dokumentasjon på inntekt"),
 
     // Tidligere selvbetjening - kan antagelig fjernes snart
     DOK_FERIE("DOK_FERIE", "I000036", "Dokumentasjon av ferie"),
