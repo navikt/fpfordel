@@ -92,7 +92,7 @@ public class ForvaltningRestTjeneste {
         {@ApiResponse(responseCode = "200", description = "Inntektsmelding sendt til VL")})
 
     @Path("/submit-journalfort-im")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response submitJournalførtInntektsmelding(@Parameter(description = "Send im til angitt sak") @NotNull @Valid SubmitJfortIMDto dto) {
         var data = taskTjeneste.finn(dto.getProsessTaskIdDto().getProsessTaskId());
         if (data == null) {
@@ -111,7 +111,7 @@ public class ForvaltningRestTjeneste {
     @POST
     @Operation(description = "Send journalpost til angitt sak (ikke journalført)", tags = "Forvaltning", summary = ("Bruker eksisterende task til å sende dokument til VL"), responses = {@ApiResponse(responseCode = "200", description = "Inntektsmelding sendt til VL")})
     @Path("/submit-journalforing-endelig")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response submitJournalpostEndeligKlargjor(@Parameter(description = "Send im til angitt sak") @NotNull @Valid SubmitJfortIMDto dto) {
         var data = taskTjeneste.finn(dto.getProsessTaskIdDto().getProsessTaskId());
         if (data == null) {
@@ -184,7 +184,7 @@ public class ForvaltningRestTjeneste {
         {@ApiResponse(responseCode = "200", description = "Inntektsmelding sendt til VL")})
 
     @Path("/fiks-arkiv-feil")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response fiksarkivFeil(@Parameter(description = "Arkivfeil") @NotNull @Valid SubmitJfortIMDto dto) {
         var data = taskTjeneste.finn(dto.getProsessTaskIdDto().getProsessTaskId());
         if (data == null) {
@@ -218,7 +218,7 @@ public class ForvaltningRestTjeneste {
     @Operation(description = "Knytter en journalpost til en ny sak ved å opprette ny journalpost", tags = "Forvaltning",
         summary = "Knytter en journalpost til en ny sak ved å opprette ny journalpost", responses = {@ApiResponse(responseCode = "200", description = "journalpost opprettet")})
     @Path("/knytt-til-annen-sak")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response knyttTilAnnenSak(@Parameter(description = "Sak og Journalpost") @NotNull @Valid JournalpostSakDto dto) {
         var journalpost = journalføringTjeneste.hentJournalpost(dto.journalpostIdDto().getJournalpostId());
         var response = journalføringTjeneste.knyttTilAnnenSak(journalpost, "9999", dto.saksnummerDto().getSaksnummer());
@@ -229,7 +229,7 @@ public class ForvaltningRestTjeneste {
     @Operation(description = "Sender inn en journalpost til fpsak med angitt sak", tags = "Forvaltning",
         summary = "Sender inn en journalpost til fpsak med angitt sak", responses = {@ApiResponse(responseCode = "200", description = "sendt inn")})
     @Path("/send-inn-til-sak")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response sendInnTilSak(@Parameter(description = "Sak og Journalpost") @NotNull @Valid JournalpostSakDto dto) {
         var journalpost = journalføringTjeneste.hentJournalpost(dto.journalpostIdDto().getJournalpostId());
         journalføringTjeneste.sendInnPåSak(journalpost, dto.saksnummerDto().getSaksnummer());

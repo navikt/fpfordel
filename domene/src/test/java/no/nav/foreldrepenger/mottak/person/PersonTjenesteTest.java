@@ -18,8 +18,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.pdl.GeografiskTilknytning;
-import no.nav.pdl.GtType;
 import no.nav.pdl.Navn;
 import no.nav.pdl.Person;
 import no.nav.vedtak.felles.integrasjon.person.Persondata;
@@ -75,38 +73,5 @@ class PersonTjenesteTest {
         when(pdl.hentPerson(any(), argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
         String navn = personTjeneste.hentNavn(BehandlingTema.FORELDREPENGER, AKTØR_ID);
         assertThat(navn).isEqualTo("Kari Mari Nordmann");
-    }
-
-    @Test
-    void skal_returnere_tom_gt_hvisikkesatt() {
-        var responsegt = new GeografiskTilknytning(null, null, null, null, null);
-        when(pdl.hentGT(any(), argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(responsegt);
-        var gt = personTjeneste.hentGeografiskTilknytning(BehandlingTema.FORELDREPENGER, AKTØR_ID);
-        assertThat(gt).isNull();
-    }
-
-    @Test
-    void skal_returnere_gt_bydel() {
-        var responsegt = new GeografiskTilknytning(GtType.BYDEL, "Oslo", "030110", "NOR", null);
-        when(pdl.hentGT(any(), argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(responsegt);
-        var gt = personTjeneste.hentGeografiskTilknytning(BehandlingTema.FORELDREPENGER, AKTØR_ID);
-        assertThat(gt).isEqualTo("030110");
-    }
-
-    @Test
-    void skal_returnere_gt_kommune() {
-        var responsegt = new GeografiskTilknytning(GtType.KOMMUNE, "Stord", null, "NOR", null);
-        when(pdl.hentGT(any(), argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(responsegt);
-        var gt = personTjeneste.hentGeografiskTilknytning(BehandlingTema.FORELDREPENGER, AKTØR_ID);
-        assertThat(gt).isEqualTo("Stord");
-    }
-
-    @Test
-    void skal_returnere_gt_land() {
-        var responsegt = new GeografiskTilknytning(GtType.UTLAND, null, null, "POL", null);
-        when(pdl.hentGT(any(), argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(responsegt);
-
-        var gt = personTjeneste.hentGeografiskTilknytning(BehandlingTema.FORELDREPENGER, AKTØR_ID);
-        assertThat(gt).isNull();
     }
 }
