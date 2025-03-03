@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.fordel.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.fordel.web.server.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
-import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
@@ -72,7 +71,7 @@ public class FerdigstillJournalføringRestTjeneste {
     @POST
     @Path("/ferdigstill")
     @Operation(description = "For å ferdigstille journalføring. Det opprettes en ny fagsak om saksnummer ikke sendes.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "200", description = "Journalføring ferdigstillt"), @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public SaksnummerDto oppdaterOgFerdigstillJournalfoering(@Parameter(description = "Trenger journalpostId, saksnummer og enhet til ferdigstille en journalføring. "
             + "Om saksnummer ikke foreligger må ytelse type og aktørId oppgis for å opprette en ny sak.") @NotNull @Valid
             @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FerdigstillJournalføringRestTjeneste.FerdigstillRequest request) {
@@ -127,7 +126,7 @@ public class FerdigstillJournalføringRestTjeneste {
     @POST
     @Path("/knyttTilAnnenSak")
     @Operation(description = "For å knytte journalpost til annen sak. Det opprettes en ny fagsak om saksnummer ikke sendes.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "200", description = "Journalføring ferdigstillt"), @ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public SaksnummerDto knyttTilAnnenSak(@Parameter(description = "Trenger journalpostId, saksnummer og enhet for å knytte til annen sak. "
         + "Om saksnummer ikke foreligger må ytelse type og aktørId oppgis for å opprette en ny sak.") @NotNull @Valid
                                                              @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FerdigstillJournalføringRestTjeneste.FerdigstillRequest request) {

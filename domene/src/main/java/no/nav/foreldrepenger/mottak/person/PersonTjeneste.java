@@ -10,9 +10,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.StringUtil;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.pdl.GeografiskTilknytning;
-import no.nav.pdl.GeografiskTilknytningResponseProjection;
-import no.nav.pdl.HentGeografiskTilknytningQueryRequest;
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.Navn;
 import no.nav.pdl.NavnResponseProjection;
@@ -31,8 +28,8 @@ public class PersonTjeneste implements PersonInformasjon {
 
     protected final Persondata pdl;
 
-    private LRUCache<String, String> cacheAktørIdTilIdent;
-    private LRUCache<String, String> cacheIdentTilAktørId;
+    private final LRUCache<String, String> cacheAktørIdTilIdent;
+    private final LRUCache<String, String> cacheIdentTilAktørId;
 
     @Inject
     public PersonTjeneste(Persondata pdl) {
@@ -108,27 +105,6 @@ public class PersonTjeneste implements PersonInformasjon {
         });
         return personIdent;
 
-    }
-
-    @Override
-    public String hentGeografiskTilknytning(BehandlingTema behandlingTema, String id) {
-        var ytelse = utledYtelse(behandlingTema);
-        var query = new HentGeografiskTilknytningQueryRequest();
-        query.setIdent(id);
-        var pgt = new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand();
-        return tilknytning(pdl.hentGT(ytelse, query, pgt));
-    }
-
-    private String tilknytning(GeografiskTilknytning res) {
-        // Udefinert og utland likebehandles
-        if (res == null || res.getGtType() == null) {
-            return null;
-        }
-        return switch (res.getGtType()) {
-            case BYDEL -> res.getGtBydel();
-            case KOMMUNE -> res.getGtKommune();
-            default -> null;
-        };
     }
 
     @Override

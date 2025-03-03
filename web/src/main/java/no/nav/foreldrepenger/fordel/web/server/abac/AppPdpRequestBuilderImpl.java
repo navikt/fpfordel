@@ -33,6 +33,7 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
 
     @Override
     public AppRessursData lagAppRessursData(AbacDataAttributter dataAttributter) {
+        // Kall til fpfordel skal i utgangspunktet kun gjelde 1 person (innsending, oppgave). Setter derfor ikke auditIdent her.
         return AppRessursData.builder()
             .leggTilAktørIdSet(dataAttributter.getVerdier(AppAbacAttributtType.AKTØR_ID))
             .leggTilFødselsnumre(dataAttributter.getVerdier(AppAbacAttributtType.FNR))

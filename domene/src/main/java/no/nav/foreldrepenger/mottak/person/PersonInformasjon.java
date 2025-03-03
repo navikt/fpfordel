@@ -12,6 +12,4 @@ public interface PersonInformasjon {
 
     String hentNavn(BehandlingTema behandlingTema, String id);
 
-    String hentGeografiskTilknytning(BehandlingTema behandlingTema, String aktørId);
-
 }
