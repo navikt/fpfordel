@@ -75,7 +75,7 @@ public class ForvaltningRestTjeneste {
         {@ApiResponse(responseCode = "200", description = "Nytt suffix satt")})
 
     @Path("/retry-suffix")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response setRetrySuffix(@Parameter(description = "Sett kanalreferanse-suffix før restart prosesstask") @NotNull @Valid RetryTaskKanalrefDto dto) {
         var data = taskTjeneste.finn(dto.getProsessTaskIdDto().getProsessTaskId());
         if (data == null) {
@@ -132,7 +132,7 @@ public class ForvaltningRestTjeneste {
     @POST
     @Path("/autorun")
     @Operation(description = "Start task for å kjøre batchjobs", tags = "Forvaltning", responses = {@ApiResponse(responseCode = "200", description = "Starter batch-scheduler."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response autoRunBatch() {
         taskTjeneste.lagre(ProsessTaskData.forProsessTask(RekjørFeiledeTasksBatchTask.class));
         taskTjeneste.lagre(ProsessTaskData.forProsessTask(SlettGamleTasksBatchTask.class));
@@ -142,7 +142,7 @@ public class ForvaltningRestTjeneste {
     @POST
     @Path("/searchTasks")
     @Operation(description = "Søker etter journalpostId mv i taskparametre innen angitt tidsrom", tags = "Forvaltning", responses = {@ApiResponse(responseCode = "200", description = "Angitt prosesstask-id satt til status FERDIG"), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")})
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response searchTasks(@Parameter(description = "Søkefilter") @NotNull @Valid FordelSokeFilterDto dto) {
         var tasks = taskTjeneste.finnAlleMedParameterTekst(dto.getTekst(), dto.getOpprettetFraOgMed(), dto.getOpprettetTilOgMed());
         return Response.ok(tasks).build();
@@ -151,7 +151,7 @@ public class ForvaltningRestTjeneste {
     @POST
     @Path("/taskForBehandleForsendelse")
     @Operation(description = "Behandler forsendelse som ikke er plukket opp", tags = "Forvaltning", responses = {@ApiResponse(responseCode = "200", description = "Opprettet prosesstask"), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")})
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response taskForBehandleForsendelse(@TilpassetAbacAttributt(supplierClass = DokumentforsendelseRestTjeneste.ForsendelseAbacDataSupplier.class) @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
         var builder = ProsessTaskDataBuilder.forProsessTask(BehandleDokumentforsendelseTask.class)
             .medCallId(forsendelseIdDto.forsendelseId().toString())
@@ -165,7 +165,7 @@ public class ForvaltningRestTjeneste {
     @POST
     @Path("/taskForSlettForsendelse")
     @Operation(description = "Sletter forsendelse som ikke skal behandles videre", tags = "Forvaltning", responses = {@ApiResponse(responseCode = "200", description = "Opprettet prosesstask"), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")})
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response taskForSlettForsendelse(@TilpassetAbacAttributt(supplierClass = DokumentforsendelseRestTjeneste.ForsendelseAbacDataSupplier.class) @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
 
         var builder = ProsessTaskDataBuilder.forProsessTask(SlettForsendelseTask.class)
@@ -201,7 +201,7 @@ public class ForvaltningRestTjeneste {
     @Operation(description = "Lager en ny OpprettOppgaveTask basert på tidligere + slett evt lokaloppgave", tags = "Forvaltning",
         summary = "Bruker eksisterende task til å opprette Oppgave", responses = {@ApiResponse(responseCode = "200", description = "oppgave opprettet")})
     @Path("/rerun-opprett-oppgave")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response rerunOpprettOppgave(@Parameter(description = "TaskMedRef") @NotNull @Valid RetryTaskKanalrefDto dto) {
         var eksisterendeTask = taskTjeneste.finn(dto.getProsessTaskIdDto().getProsessTaskId());
         if (eksisterendeTask == null) {
@@ -240,7 +240,7 @@ public class ForvaltningRestTjeneste {
     @Operation(description = "Setter den lokale oppgaven til status Feilregistrert slik at den fjernes fra oversikten.", tags = "Forvaltning",
         summary = "Fjerner lokal oppgave fra oversikten.", responses = {@ApiResponse(responseCode = "200", description = "oppgave feilregistrert")})
     @Path("/avslutt-oppgave")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response feilregistrerOppgave(@TilpassetAbacAttributt(supplierClass = JournalføringRestTjeneste.JournalpostDataSupplier.class) @Parameter(description = "journalpostId") @NotNull @Valid JournalpostIdDto journalpostIdDto) {
         oppgaveRepository.avsluttOppgaveMedStatus(journalpostIdDto.getJournalpostId(), Status.FEILREGISTRERT);
         return Response.ok().build();
