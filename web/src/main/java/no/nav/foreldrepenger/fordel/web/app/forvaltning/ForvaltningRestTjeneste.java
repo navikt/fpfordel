@@ -18,9 +18,11 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
+import no.nav.foreldrepenger.fordel.web.app.forvaltning.migrering.MigreringRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.rest.journalføring.FerdigstillJournalføringTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.rest.journalføring.JournalføringRestTjeneste;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
@@ -43,6 +45,9 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 
 @Path("/forvaltning")
 @RequestScoped
@@ -246,4 +251,34 @@ public class ForvaltningRestTjeneste {
         return Response.ok().build();
     }
 
+    @POST
+    @Operation(description = "Oppretter en lokal oppgave for journalpostId eller gjennåpner en eksisterende", tags = "Forvaltning",
+        summary = ("Oppretter en lokal oppgave for journalpostId eller gjenåpner en eksisterende"),
+        responses = {@ApiResponse(responseCode = "200", description = "oppgave opprettet eller oppdatert")})
+    @Path("/opprett-oppgave")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response opprettOppgave(@TilpassetAbacAttributt(supplierClass = JournalføringRestTjeneste.JournalpostDataSupplier.class) @Parameter(description = "journalpostId") @NotNull @Valid JournalpostIdDto journalpostIdDto) {
+        var journalpostId = journalpostIdDto.getJournalpostId();
+
+        var eksisterende = oppgaveRepository.hentOppgave(journalpostId);
+        if (eksisterende != null) {
+            eksisterende.setStatus(Status.AAPNET);
+            oppgaveRepository.lagre(eksisterende);
+        } else {
+            var oppgave = OppgaveEntitet.builder()
+                .medJournalpostId(journalpostId)
+                .medStatus(Status.AAPNET)
+                .medEnhet("4867")
+                .medFrist(helgeJustertFrist(LocalDate.now().plusDays(1)))
+                .medBeskrivelse("Journalføring")
+                .build();
+            oppgaveRepository.lagre(oppgave);
+        }
+        return Response.ok().build();
+    }
+
+    private static LocalDate helgeJustertFrist(LocalDate dato) {
+        return dato.getDayOfWeek().getValue() > DayOfWeek.FRIDAY.getValue() ? dato.plusDays(
+            1L + DayOfWeek.SUNDAY.getValue() - dato.getDayOfWeek().getValue()) : dato;
+    }
 }
