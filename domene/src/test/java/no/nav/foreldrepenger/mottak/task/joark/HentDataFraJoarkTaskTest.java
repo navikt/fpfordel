@@ -227,8 +227,7 @@ class HentDataFraJoarkTaskTest {
         dataWrapper.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         dataWrapper.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
         var dokument = joarkTestsupport.lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING, "testsoknader/inntektsmelding-far-svp.xml");
-        String fnrPåInntektsmelding = "99999999999";
-        doReturn(Optional.of(fnrPåInntektsmelding)).when(aktørConsumer).hentPersonIdentForAktørId(JoarkTestsupport.AKTØR_ID);
+        doReturn(Boolean.TRUE).when(aktørConsumer).erMann(BehandlingTema.SVANGERSKAPSPENGER, JoarkTestsupport.AKTØR_ID);
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
