@@ -10,6 +10,8 @@ public interface PersonInformasjon {
 
     Optional<String> hentPersonIdentForAktørId(String id);
 
+    boolean erMann(BehandlingTema behandlingTema, String id);
+
     String hentNavn(BehandlingTema behandlingTema, String id);
 
 }

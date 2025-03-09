@@ -1,41 +1,37 @@
 package no.nav.foreldrepenger.mottak.hendelse;
 
+import static io.confluent.kafka.serializers.KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.function.Supplier;
-
-import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.context.control.ActivateRequestContext;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
-
-import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
-
-import no.nav.foreldrepenger.mottak.hendelse.test.VtpKafkaAvroDeserializer;
-import no.nav.vedtak.felles.integrasjon.kafka.KafkaMessageHandler;
-
-import no.nav.vedtak.felles.integrasjon.kafka.KafkaProperties;
 
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.control.ActivateRequestContext;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
+import no.nav.foreldrepenger.mottak.hendelse.test.VtpKafkaAvroDeserializer;
 import no.nav.foreldrepenger.mottak.task.joark.HentDataFraJoarkTask;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
+import no.nav.vedtak.felles.integrasjon.kafka.KafkaMessageHandler;
+import no.nav.vedtak.felles.integrasjon.kafka.KafkaProperties;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
-
-import static io.confluent.kafka.serializers.KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG;
 
 /*
  * Dokumentasjon https://confluence.adeo.no/pages/viewpage.action?pageId=315215917
@@ -116,7 +112,7 @@ public class JournalføringHendelseHåndterer implements KafkaMessageHandler<Str
 
         if (HENDELSE_ENDRET.equalsIgnoreCase(payload.getHendelsesType())) {
             // Hendelsen kan komme før arkivet er oppdatert .....
-            delay = Duration.ofSeconds(30);
+            delay = Duration.ofSeconds(40);
             var gammeltTema = payload.getTemaGammelt() != null ? payload.getTemaGammelt() : null;
             LOG.info("FPFORDEL Tema Endret fra {} journalpost {} kanal {} referanse {}", gammeltTema, arkivId, mottaksKanal, eksternReferanseId);
         }
