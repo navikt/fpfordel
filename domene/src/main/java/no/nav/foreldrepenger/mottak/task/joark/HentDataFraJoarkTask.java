@@ -127,6 +127,13 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             return null;
         }
 
+        // Journalfør på annen sak + endre tema på ny journalpost (ikke FOR) gir to hendelser. Håndteres av aktuelt tema.
+        if (!FORELDRE_OG_SVANGERSKAPSPENGER.equals(journalpost.getTema())) {
+            LOG.info("FPFORDEL HentFraArkiv feil tema for journalpost {} kanal {} tema {}", w.getArkivId(), journalpost.getKanal(),
+                journalpost.getTema().getKode());
+            return null;
+        }
+
         // Disse 2 + behandlingstema er normalt satt fra før
         w.setTema(journalpost.getTema());
 
@@ -201,12 +208,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
                 journalpost.getKanal(), journalpost.getHovedtype());
             return w.nesteSteg(TASK_GOSYS);
         }
-        // Vesentlige mangler
-        if (!FORELDRE_OG_SVANGERSKAPSPENGER.equals(w.getTema())) {
-            LOG.info("FPFORDEL HentFraArkiv feil tema for journalpost {} kanal {} tema {}", w.getArkivId(), journalpost.getKanal(),
-                journalpost.getTema().getKode());
-            return w.nesteSteg(TASK_GOSYS);
-        }
+
         if (w.getAktørId().isEmpty()) {
             var avsender = journalpost.getAvsenderIdent() == null ? "ikke satt" : pdl.hentAktørIdForPersonIdent(journalpost.getAvsenderIdent())
                 .orElse("finnes ikke");
@@ -295,10 +297,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
     private boolean sjekkOmInntektsmeldingGjelderMann(MottakMeldingDataWrapper w) {
         String aktørId = w.getAktørId().orElseThrow(() -> new IllegalStateException("Utviklerfeil"));
-        String fnrBruker = pdl.hentPersonIdentForAktørId(aktørId)
-            .orElseThrow(
-                () -> new TekniskException("FP-254631", format("Fant ikke personident for aktørId i task %s.  TaskId: %s", TASKNAME, w.getId())));
-        return (Character.getNumericValue(fnrBruker.charAt(8)) % 2) != 0;
+        return pdl.erMann(w.getBehandlingTema(), aktørId);
     }
 
     private Optional<String> finnAktørId(ArkivJournalpost journalpost) {
