@@ -139,7 +139,7 @@ public class JettyServer {
 
     protected void bootStrap() throws Exception {
         konfigurerSikkerhet();
-        var dataSource = DatasourceUtil.createDatasource(30);
+        var dataSource = DatasourceUtil.createDatasource(30, 2);
         konfigurerDatasource(dataSource);
         migrerDatabase(dataSource);
         start();
