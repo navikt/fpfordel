@@ -179,8 +179,8 @@ public class ArkivTjeneste {
 
         if (infoList.size() > 1) {
             throw new IllegalStateException("Journalposten har flere dokumenter med VariantFormat = ORIGINAL");
-        } else if (!infoList.isEmpty()) {
-            var dokumentInfo = infoList.get(0);
+        } else if (!infoList.isEmpty() && Tema.FORELDRE_OG_SVANGERSKAPSPENGER.equals(Tema.fraOffisiellKode(journalpost.tema()))) {
+            var dokumentInfo = infoList.getFirst();
             var payload = saf.hentDokument(journalpostId, dokumentInfo, Dokumentvariant.Variantformat.ORIGINAL);
             builder.medStrukturertPayload(payload).medDokumentInfoId(dokumentInfo);
         }
@@ -209,7 +209,7 @@ public class ArkivTjeneste {
     }
 
     public Optional<String> hentEksternReferanseId(Journalpost journalpost) {
-        var dokumentInfoId = journalpost.dokumenter().get(0).dokumentInfoId();
+        var dokumentInfoId = journalpost.dokumenter().getFirst().dokumentInfoId();
         var referanse = saf.hentEksternReferanseId(dokumentInfoId).stream().map(Journalpost::eksternReferanseId).filter(Objects::nonNull).findFirst();
         var loggtekst = referanse.orElse("ingen");
         if (LOG.isInfoEnabled()) {

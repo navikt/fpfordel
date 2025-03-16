@@ -11,6 +11,8 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.StringUtil;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.pdl.HentPersonQueryRequest;
+import no.nav.pdl.KjoennResponseProjection;
+import no.nav.pdl.KjoennType;
 import no.nav.pdl.Navn;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.PersonResponseProjection;
@@ -76,6 +78,16 @@ public class PersonTjeneste implements PersonInformasjon {
             LOG.warn("Kunne ikke hente fnr fra aktørid {}", aktørId, e);
             return Optional.empty();
         }
+    }
+
+    @Override
+    public boolean erMann(BehandlingTema behandlingTema, String id) {
+        var ytelse = utledYtelse(behandlingTema);
+        return pdl.hentPerson(ytelse, personQuery(id),
+                new PersonResponseProjection().kjoenn(new KjoennResponseProjection().kjoenn()))
+            .getKjoenn()
+            .stream()
+            .anyMatch(k -> KjoennType.MANN.equals(k.getKjoenn()));
     }
 
     @Override

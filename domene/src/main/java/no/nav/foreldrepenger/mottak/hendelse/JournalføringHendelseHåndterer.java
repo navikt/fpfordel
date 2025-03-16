@@ -116,7 +116,7 @@ public class JournalføringHendelseHåndterer implements KafkaMessageHandler<Str
 
         if (HENDELSE_ENDRET.equalsIgnoreCase(payload.getHendelsesType())) {
             // Hendelsen kan komme før arkivet er oppdatert .....
-            delay = Duration.ofSeconds(30);
+            delay = Duration.ofSeconds(39);
             var gammeltTema = payload.getTemaGammelt() != null ? payload.getTemaGammelt() : null;
             LOG.info("FPFORDEL Tema Endret fra {} journalpost {} kanal {} referanse {}", gammeltTema, arkivId, mottaksKanal, eksternReferanseId);
         }
