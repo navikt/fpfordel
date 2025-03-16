@@ -590,7 +590,7 @@ class OppgaverTjenesteTest {
 
     private Oppgave gosysOppgave(String journalpostId) {
         return new Oppgave(1L, journalpostId, null, "testRef", AKTØR_ID, null, null,
-            Oppgavetype.JOURNALFØRING.getKode(), null, 0, VANLIG_ENHETSNR, LocalDate.now(), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET,
+            Oppgavetype.JOURNALFØRING, null, 0, VANLIG_ENHETSNR, LocalDate.now(), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET,
             "test beskrivelse", null);
     }
 
