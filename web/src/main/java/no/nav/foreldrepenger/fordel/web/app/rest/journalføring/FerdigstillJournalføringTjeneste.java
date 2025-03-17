@@ -411,7 +411,7 @@ public class FerdigstillJournalføringTjeneste {
         if (!ikkeSpesifikkHendelse(behandlingTemaDok) && !ikkeSpesifikkHendelse(behandlingTemaFagsak)) {
             if ((gjelderFødsel(behandlingTemaDok) && !gjelderFødsel(behandlingTemaFagsak)) || (gjelderAdopsjon(behandlingTemaDok) && !gjelderAdopsjon(
                 behandlingTemaFagsak))) {
-                throw new FunksjonellException("FP-963080", "Dokumentet samsvarer ikke med sakens henselse type (fødsel/adopsjon) - kan ikke journalføre",
+                throw new FunksjonellException("FP-963080", "Dokumentet samsvarer ikke med sakens hendelse type (fødsel/adopsjon) - kan ikke journalføre",
                     "Journalfør på annen sak eller opprett ny sak");
             }
         }
