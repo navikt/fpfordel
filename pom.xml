@@ -77,11 +77,6 @@
 
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>arbeidsfordeling-klient</artifactId>
-                <version>${felles.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>saf-klient</artifactId>
                 <version>${felles.version}</version>
             </dependency>

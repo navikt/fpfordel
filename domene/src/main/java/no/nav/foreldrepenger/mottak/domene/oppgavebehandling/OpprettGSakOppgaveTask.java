@@ -17,7 +17,6 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
@@ -128,8 +127,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
 
         // Overstyr saker fra NFP+NK, deretter egen logikk hvis fødselsnummer ikke er
         // oppgitt
-        var enhetId = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, behandlingTema,
-            Optional.ofNullable(enhetInput), prosessTaskData.getAktørId());
+        var enhetId = enhetsTjeneste.hentFordelingEnhetId(Optional.ofNullable(enhetInput), prosessTaskData.getAktørId());
 
         var beskrivelse = lagBeskrivelse(behandlingTema, dokumentTypeId, prosessTaskData);
         var saksref = prosessTaskData.getSaksnummer();

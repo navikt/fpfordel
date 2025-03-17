@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.Oppgave;
@@ -219,8 +218,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
                 case SVP -> BehandlingTema.SVANGERSKAPSPENGER;
                 case null -> null;
             };
-            var enhet = enhetsTjeneste.hentFordelingEnhetId(Tema.FORELDRE_OG_SVANGERSKAPSPENGER, behandlingTema,
-                Optional.ofNullable(oppgave.tildeltEnhetsnr()), oppgave.aktørId());
+            var enhet = enhetsTjeneste.hentFordelingEnhetId(Optional.ofNullable(oppgave.tildeltEnhetsnr()), oppgave.aktørId());
 
             var nyOppgave = NyOppgave.builder()
                 .medJournalpostId(journalpostId)

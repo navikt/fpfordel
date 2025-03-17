@@ -47,7 +47,7 @@ class OpprettGSakOppgaveTjenesteTaskTest {
 
     @BeforeEach
     public void setup() {
-        when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), any(), any())).thenReturn(FORDELINGSOPPGAVE_ENHET_ID);
+        when(enhetsidTjeneste.hentFordelingEnhetId(any(), any())).thenReturn(FORDELINGSOPPGAVE_ENHET_ID);
         task = new OpprettGSakOppgaveTask(prosessTaskTjeneste, oppgaverTjeneste, enhetsidTjeneste);
     }
 
@@ -85,7 +85,7 @@ class OpprettGSakOppgaveTjenesteTaskTest {
         taskData.setProperty(ARKIV_ID_KEY, arkivId);
         String beskrivelse = "Journalføring " + BehandlingTema.ENGANGSSTØNAD_FØDSEL.getTermNavn();
 
-        when(enhetsidTjeneste.hentFordelingEnhetId(any(), any(), eq(Optional.of(klageEnhet)), any())).thenReturn(klageEnhet);
+        when(enhetsidTjeneste.hentFordelingEnhetId(eq(Optional.of(klageEnhet)), any())).thenReturn(klageEnhet);
 
         task.doTask(taskData);
 
