@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.gjelderAdopsjon;
 import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.gjelderForeldrepenger;
 import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.gjelderFødsel;
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.ikkeSpesifikkHendelse;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -407,14 +408,14 @@ public class FerdigstillJournalføringTjeneste {
             throw new FunksjonellException("FP-963079", "Dokumentet samsvarer ikke med sakens type - kan ikke journalføre",
                 "Journalfør på annen sak eller opprett ny sak");
         }
-        if (!BehandlingTema.ikkeSpesifikkHendelse(behandlingTemaDok) && !BehandlingTema.ikkeSpesifikkHendelse(behandlingTemaFagsak)) {
+        if (!ikkeSpesifikkHendelse(behandlingTemaDok) && !ikkeSpesifikkHendelse(behandlingTemaFagsak)) {
             if ((gjelderFødsel(behandlingTemaDok) && !gjelderFødsel(behandlingTemaFagsak)) || (gjelderAdopsjon(behandlingTemaDok) && !gjelderAdopsjon(
                 behandlingTemaFagsak))) {
                 throw new FunksjonellException("FP-963080", "Dokumentet samsvarer ikke med sakens henselse type (fødsel/adopsjon) - kan ikke journalføre",
                     "Journalfør på annen sak eller opprett ny sak");
             }
         }
-        return BehandlingTema.ikkeSpesifikkHendelse(behandlingTemaDok) ? behandlingTemaFagsak : behandlingTemaDok;
+        return ikkeSpesifikkHendelse(behandlingTemaDok) ? behandlingTemaFagsak : behandlingTemaDok;
     }
 
     private static void validerKanJournalføreKlageDokument(BehandlingTema behandlingTema,
@@ -502,7 +503,7 @@ public class FerdigstillJournalføringTjeneste {
             LOG.info("FPFORDEL RESTJOURNALFØRING: Journalpost med type {} er strukturert men er ikke gyldig XML", dokumentTypeId);
             return null;
         }
-        if (DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD.equals(dokumentTypeId) && !BehandlingTema.ikkeSpesifikkHendelse(behandlingTema)) {
+        if (DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD.equals(dokumentTypeId) && !ikkeSpesifikkHendelse(behandlingTema)) {
             dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);
         }
         try {
