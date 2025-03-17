@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.gjelderAdopsjon;
 import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.gjelderForeldrepenger;
+import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.gjelderFødsel;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -404,6 +406,13 @@ public class FerdigstillJournalføringTjeneste {
             BehandlingTema.gjelderSvangerskapspenger(behandlingTemaFagsak) && !BehandlingTema.gjelderSvangerskapspenger(behandlingTemaDok))) {
             throw new FunksjonellException("FP-963079", "Dokumentet samsvarer ikke med sakens type - kan ikke journalføre",
                 "Journalfør på annen sak eller opprett ny sak");
+        }
+        if (!BehandlingTema.ikkeSpesifikkHendelse(behandlingTemaDok) && !BehandlingTema.ikkeSpesifikkHendelse(behandlingTemaFagsak)) {
+            if ((gjelderFødsel(behandlingTemaDok) && !gjelderFødsel(behandlingTemaFagsak)) || (gjelderAdopsjon(behandlingTemaDok) && !gjelderAdopsjon(
+                behandlingTemaFagsak))) {
+                throw new FunksjonellException("FP-963080", "Dokumentet samsvarer ikke med sakens henselse type (fødsel/adopsjon) - kan ikke journalføre",
+                    "Journalfør på annen sak eller opprett ny sak");
+            }
         }
         return BehandlingTema.ikkeSpesifikkHendelse(behandlingTemaDok) ? behandlingTemaFagsak : behandlingTemaDok;
     }
