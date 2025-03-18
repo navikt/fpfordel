@@ -35,6 +35,8 @@ public enum BehandlingTema implements Kodeverdi {
     private static final Map<String, BehandlingTema> OFFISIELLE_KODER = new LinkedHashMap<>();
     private static final Map<String, BehandlingTema> ALLE_TERMNAVN = new LinkedHashMap<>();
     private static final Set<BehandlingTema> ES_BT = Set.of(ENGANGSSTØNAD, ENGANGSSTØNAD_ADOPSJON, ENGANGSSTØNAD_FØDSEL);
+    private static final Set<BehandlingTema> FØDSEL_BT = Set.of(FORELDREPENGER_FØDSEL, ENGANGSSTØNAD_FØDSEL);
+    private static final Set<BehandlingTema> ADOPSJON_BT = Set.of(FORELDREPENGER_ADOPSJON, ENGANGSSTØNAD_ADOPSJON);
     private static final Set<BehandlingTema> FP_BT = Set.of(FORELDREPENGER, FORELDREPENGER_ADOPSJON, FORELDREPENGER_FØDSEL);
     private static final Set<BehandlingTema> UDEF_BT = Set.of(ENGANGSSTØNAD, FORELDREPENGER, UDEFINERT);
 
@@ -97,6 +99,14 @@ public enum BehandlingTema implements Kodeverdi {
 
     public static boolean gjelderForeldrepenger(BehandlingTema bt) {
         return FP_BT.contains(bt);
+    }
+
+    public static boolean gjelderFødsel(BehandlingTema behandlingTema) {
+        return FØDSEL_BT.contains(behandlingTema);
+    }
+
+    public static boolean gjelderAdopsjon(BehandlingTema behandlingTema) {
+        return ADOPSJON_BT.contains(behandlingTema);
     }
 
     public static boolean ikkeSpesifikkHendelse(BehandlingTema bt) {
