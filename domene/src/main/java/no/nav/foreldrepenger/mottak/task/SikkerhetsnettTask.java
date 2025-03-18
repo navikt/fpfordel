@@ -43,11 +43,15 @@ public class SikkerhetsnettTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        var åpneJournalposterUtenOppgave = sikkerhetsnettKlient.hentÅpneJournalposterEldreEnn(1).stream()
+        var åpneJournalposter = sikkerhetsnettKlient.hentÅpneJournalposterEldreEnn(1).stream()
             .filter(jp -> jp.mottaksKanal() == null || !"EESSI".equals(jp.mottaksKanal()))
+            .toList();
+        LOG.info("FPFORDEL SIKKERHETSNETT fant {} journalposter: {}", åpneJournalposter.size(),
+            åpneJournalposter.stream().map(SikkerhetsnettResponse::journalpostId).collect(Collectors.joining(",")));
+        var åpneJournalposterUtenOppgave = åpneJournalposter.stream()
             .filter(jp -> !journalføringsoppgave.finnesÅpeneJournalføringsoppgaverFor(JournalpostId.fra(jp.journalpostId())))
             .toList();
-        LOG.info("FPFORDEL SIKKERHETSNETT fant {} journalposter uten oppgave. {}", åpneJournalposterUtenOppgave.size(),
+        LOG.info("FPFORDEL SIKKERHETSNETT fant {} journalposter uten oppgave: {}", åpneJournalposterUtenOppgave.size(),
             åpneJournalposterUtenOppgave.stream().map(SikkerhetsnettResponse::journalpostId).collect(Collectors.joining(",")));
         åpneJournalposterUtenOppgave.forEach(this::opprettOppgave);
     }
