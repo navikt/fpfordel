@@ -13,8 +13,8 @@ import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.AktørId;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
+import no.nav.foreldrepenger.mottak.task.sikkerhetsnett.SikkerhetsnettJournalpost;
 import no.nav.foreldrepenger.mottak.task.sikkerhetsnett.SikkerhetsnettKlient;
-import no.nav.foreldrepenger.mottak.task.sikkerhetsnett.SikkerhetsnettResponse;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -47,16 +47,16 @@ public class SikkerhetsnettTask implements ProsessTaskHandler {
             .filter(jp -> jp.mottaksKanal() == null || !"EESSI".equals(jp.mottaksKanal()))
             .toList();
         LOG.info("FPFORDEL SIKKERHETSNETT fant {} journalposter: {}", åpneJournalposter.size(),
-            åpneJournalposter.stream().map(SikkerhetsnettResponse::journalpostId).collect(Collectors.joining(",")));
+            åpneJournalposter.stream().map(SikkerhetsnettJournalpost::journalpostId).collect(Collectors.joining(",")));
         var åpneJournalposterUtenOppgave = åpneJournalposter.stream()
             .filter(jp -> !journalføringsoppgave.finnesÅpeneJournalføringsoppgaverFor(JournalpostId.fra(jp.journalpostId())))
             .toList();
         LOG.info("FPFORDEL SIKKERHETSNETT fant {} journalposter uten oppgave: {}", åpneJournalposterUtenOppgave.size(),
-            åpneJournalposterUtenOppgave.stream().map(SikkerhetsnettResponse::journalpostId).collect(Collectors.joining(",")));
+            åpneJournalposterUtenOppgave.stream().map(SikkerhetsnettJournalpost::journalpostId).collect(Collectors.joining(",")));
         åpneJournalposterUtenOppgave.forEach(this::opprettOppgave);
     }
 
-    private void opprettOppgave(SikkerhetsnettResponse jp) {
+    private void opprettOppgave(SikkerhetsnettJournalpost jp) {
         var journalpostId = JournalpostId.fra(jp.journalpostId());
         var journalpost = arkivTjeneste.hentArkivJournalpost(journalpostId.getVerdi());
         var aktørId = journalpost.getBrukerAktørId().map(AktørId::new).orElse(null);

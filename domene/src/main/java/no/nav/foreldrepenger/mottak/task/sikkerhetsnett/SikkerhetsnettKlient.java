@@ -2,9 +2,6 @@ package no.nav.foreldrepenger.mottak.task.sikkerhetsnett;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import jakarta.enterprise.context.Dependent;
 import jakarta.ws.rs.core.UriBuilder;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
@@ -33,12 +30,18 @@ public class SikkerhetsnettKlient {
     }
 
 
-    public List<SikkerhetsnettResponse> hentÅpneJournalposterEldreEnn(int antallDagerGamle) {
+    public List<SikkerhetsnettJournalpost> hentÅpneJournalposterEldreEnn(int antallDagerGamle) {
         var opprett = UriBuilder.fromUri(restConfig.endpoint())
             .queryParam("tema", Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getOffisiellKode())
             .queryParam("antallDagerGamle", String.valueOf(antallDagerGamle))
             .build();
         var restRequest = RestRequest.newGET(opprett, restConfig);
-        return restKlient.sendReturnList(restRequest, SikkerhetsnettResponse.class);
+        var respons = restKlient.send(restRequest, SikkerhetsnettResponse.class);
+        return respons.journalposter();
     }
+
+    public record SikkerhetsnettResponse(List<SikkerhetsnettJournalpost> journalposter) {
+
+    }
+
 }
