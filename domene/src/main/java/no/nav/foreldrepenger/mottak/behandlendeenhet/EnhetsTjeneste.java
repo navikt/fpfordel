@@ -33,7 +33,7 @@ public class EnhetsTjeneste {
     }
 
     public static String enhetEllerNasjonalEnhet(String enhet) {
-        return SPESIALENHETER.contains(enhet) ? enhet : NASJONAL_ENHET_ID;
+        return enhet != null && SPESIALENHETER.contains(enhet) ? enhet : NASJONAL_ENHET_ID;
     }
 
     private String hentEnhetId(String aktørId) {
