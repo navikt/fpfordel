@@ -51,8 +51,8 @@ public class SikkerhetsnettTask implements ProsessTaskHandler {
         var åpneJournalposterUtenOppgave = åpneJournalposter.stream()
             .filter(jp -> !journalføringsoppgave.finnesÅpeneJournalføringsoppgaverFor(JournalpostId.fra(jp.journalpostId())))
             .toList();
-        LOG.info("FPFORDEL SIKKERHETSNETT fant {} journalposter uten oppgave: {}", åpneJournalposterUtenOppgave.size(),
-            åpneJournalposterUtenOppgave.stream().map(SikkerhetsnettJournalpost::journalpostId).collect(Collectors.joining(",")));
+        var åpneJournalposterTekst = åpneJournalposterUtenOppgave.stream().map(SikkerhetsnettJournalpost::journalpostId).collect(Collectors.joining(","));
+        LOG.info("FPFORDEL SIKKERHETSNETT fant {} journalposter uten oppgave: {}", åpneJournalposterUtenOppgave.size(), åpneJournalposterTekst);
         åpneJournalposterUtenOppgave.forEach(this::opprettOppgave);
     }
 
