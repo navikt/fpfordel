@@ -57,16 +57,20 @@ public class SikkerhetsnettTask implements ProsessTaskHandler {
     }
 
     private void opprettOppgave(SikkerhetsnettJournalpost jp) {
-        var journalpostId = JournalpostId.fra(jp.journalpostId());
-        var journalpost = arkivTjeneste.hentArkivJournalpost(journalpostId.getVerdi());
-        var aktørId = journalpost.getBrukerAktørId().map(AktørId::new).orElse(null);
-        var aktørIdString = journalpost.getBrukerAktørId().orElse(null);
-        var enhet = enhetsTjeneste.hentFordelingEnhetId(journalpost.getJournalfoerendeEnhet(), aktørIdString);
-        var nyoppgave = new NyOppgave(journalpostId, enhet, aktørId, null, journalpost.getBehandlingstema(), "Journalføring");
-        if (EnhetsTjeneste.NK_ENHET_ID.equals(enhet)) {
-            journalføringsoppgave.opprettGosysJournalføringsoppgaveFor(nyoppgave);
-        } else {
-            journalføringsoppgave.opprettJournalføringsoppgaveFor(nyoppgave);
+        try {
+            var journalpostId = JournalpostId.fra(jp.journalpostId());
+            var journalpost = arkivTjeneste.hentArkivJournalpost(journalpostId.getVerdi());
+            var aktørId = journalpost.getBrukerAktørId().map(AktørId::new).orElse(null);
+            var aktørIdString = journalpost.getBrukerAktørId().orElse(null);
+            var enhet = enhetsTjeneste.hentFordelingEnhetId(journalpost.getJournalfoerendeEnhet(), aktørIdString);
+            var nyoppgave = new NyOppgave(journalpostId, enhet, aktørId, null, journalpost.getBehandlingstema(), "Journalføring");
+            if (EnhetsTjeneste.NK_ENHET_ID.equals(enhet)) {
+                journalføringsoppgave.opprettGosysJournalføringsoppgaveFor(nyoppgave);
+            } else {
+                journalføringsoppgave.opprettJournalføringsoppgaveFor(nyoppgave);
+            }
+        } catch (Exception e) {
+            LOG.warn("FPFORDEL SIKKERHETSNETT klarte ikke å opprette oppgave for journalpost {}", jp.journalpostId(), e);
         }
     }
 }
