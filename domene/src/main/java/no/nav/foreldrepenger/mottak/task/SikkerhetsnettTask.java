@@ -20,7 +20,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @Dependent
-@ProsessTask(value = "vedlikehold.tasks.sikkerhetsnett", cronExpression = "0 29 6 * * *", maxFailedRuns = 1) // Endre siste asterisk til WED
+@ProsessTask(value = "vedlikehold.tasks.sikkerhetsnett", cronExpression = "0 29 6 * * WED", maxFailedRuns = 1)
 public class SikkerhetsnettTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(SikkerhetsnettTask.class);
@@ -43,15 +43,13 @@ public class SikkerhetsnettTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        var åpneJournalposter = sikkerhetsnettKlient.hentÅpneJournalposterEldreEnn(1).stream()
+        var åpneJournalposterUtenOppgave = sikkerhetsnettKlient.hentÅpneJournalposterEldreEnn(2).stream()
             .filter(jp -> jp.mottaksKanal() == null || !"EESSI".equals(jp.mottaksKanal()))
-            .toList();
-        LOG.info("FPFORDEL SIKKERHETSNETT fant {} journalposter: {}", åpneJournalposter.size(),
-            åpneJournalposter.stream().map(SikkerhetsnettJournalpost::journalpostId).collect(Collectors.joining(",")));
-        var åpneJournalposterUtenOppgave = åpneJournalposter.stream()
             .filter(jp -> !journalføringsoppgave.finnesÅpeneJournalføringsoppgaverFor(JournalpostId.fra(jp.journalpostId())))
             .toList();
-        var åpneJournalposterTekst = åpneJournalposterUtenOppgave.stream().map(SikkerhetsnettJournalpost::journalpostId).collect(Collectors.joining(","));
+        var åpneJournalposterTekst = åpneJournalposterUtenOppgave.stream()
+            .map(SikkerhetsnettJournalpost::journalpostId)
+            .collect(Collectors.joining(","));
         LOG.info("FPFORDEL SIKKERHETSNETT fant {} journalposter uten oppgave: {}", åpneJournalposterUtenOppgave.size(), åpneJournalposterTekst);
         åpneJournalposterUtenOppgave.forEach(this::opprettOppgave);
     }
