@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import no.nav.foreldrepenger.mottak.tjeneste.DestinasjonsRuter;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -274,6 +276,7 @@ public class JournalføringRestTjeneste {
             journalpost.getJournalfoerendeEnhet().orElse(null),
             mapYtelseTypeTilDto(journalpost.getBehandlingstema().utledYtelseType()), eksisterendeSaksnummer,
             mapDokumenter(journalpost.getJournalpostId(), journalpost.getOriginalJournalpost().dokumenter()),
+            DestinasjonsRuter.kanOppretteSakFraDokument(journalpost.getHovedtype()),
             mapBrukersFagsaker(journalpost.getBrukerAktørId().orElse(null)));
     }
 

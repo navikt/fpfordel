@@ -104,7 +104,6 @@ class HentDataFraJoarkTaskTest {
         when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
         when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(Destinasjon.FPSAK_UTEN_SAK);
         when(vurderVLSaker.opprettSak(any())).thenReturn("456");
-        when(vurderVLSaker.kanOppretteSak(any())).thenReturn(true);
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
@@ -120,7 +119,6 @@ class HentDataFraJoarkTaskTest {
         when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
         when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(Destinasjon.FPSAK_UTEN_SAK);
         when(vurderVLSaker.opprettSak(any())).thenReturn("789");
-        when(vurderVLSaker.kanOppretteSak(any())).thenReturn(true);
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
@@ -186,7 +184,6 @@ class HentDataFraJoarkTaskTest {
         var dokument = joarkTestsupport.lagJArkivJournalpostKlage();
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
         when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(Destinasjon.GOSYS);
-        when(vurderVLSaker.kanOppretteSak(any())).thenReturn(false);
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
@@ -215,7 +212,6 @@ class HentDataFraJoarkTaskTest {
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
         when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(Destinasjon.FPSAK_UTEN_SAK);
         when(vurderVLSaker.opprettSak(any())).thenReturn("123");
-        when(vurderVLSaker.kanOppretteSak(any())).thenReturn(true);
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 

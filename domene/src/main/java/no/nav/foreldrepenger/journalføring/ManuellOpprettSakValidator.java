@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
+import no.nav.foreldrepenger.mottak.tjeneste.DestinasjonsRuter;
 import no.nav.foreldrepenger.typer.AktørId;
 import no.nav.vedtak.exception.FunksjonellException;
 
@@ -71,7 +72,7 @@ public class ManuellOpprettSakValidator {
             hovedDokumentType = nyDokumentTypeId;
         }
 
-        if (nySak && !DokumentTypeId.erFørsteSøknadType(hovedDokumentType) && !DokumentTypeId.INNTEKTSMELDING.equals(hovedDokumentType)) {
+        if (nySak && !DestinasjonsRuter.kanOppretteSakFraDokument(hovedDokumentType)) {
             LOG.info("Prøver å opprette sak basert på journalpost {} type {}", arkivJournalpost.getJournalpostId(), hovedDokumentType.getTermNavn());
             throw new FunksjonellException("FP-785360", "Kan ikke opprette sak basert på valgt journalpost",
                 "Kan bare opprette sak fra førstegangssøknad eller inntektsmelding");
