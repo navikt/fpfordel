@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.journalføring;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
-import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
-import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
-import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
-import no.nav.foreldrepenger.typer.AktørId;
-import no.nav.vedtak.exception.FunksjonellException;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,12 +14,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
+import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
+import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
+import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
+import no.nav.foreldrepenger.typer.AktørId;
+import no.nav.vedtak.exception.FunksjonellException;
 
 @ExtendWith(MockitoExtension.class)
 class JournalpostValideringTjenesteTest {
@@ -165,10 +165,33 @@ class JournalpostValideringTjenesteTest {
         var exception = assertThrows(FunksjonellException.class,
             () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID, null));
 
-        var expectedMessage = "FP-785359:Dokument og valgt ytelsetype i uoverenstemmelse";
+        var expectedMessage = "FP-785360:Kan ikke opprette sak basert på valgt journalpost";
         var actualMessage = exception.getMessage();
 
-        var expectedLøsningsforslag = "Velg ytelsetype som samstemmer med dokument";
+        var expectedLøsningsforslag = "Kan bare opprette sak fra førstegangssøknad eller inntektsmelding";
+        var løsningsforslag = exception.getLøsningsforslag();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+        assertTrue(løsningsforslag.contains(expectedLøsningsforslag));
+    }
+
+    @Test
+    @DisplayName("Kan ikke opprette ny sak basert på klage")
+    void funksjonell_exception_hvis_klage() {
+
+        when(arkivTjeneste.hentArkivJournalpost(anyString())).thenReturn(journalpost);
+        // For å teste tilfellet med endelig journalført. returnere tilstand JOURNALFOERT, tema FOR_SAV, behandlingstema UDEFINERT (+utledet)
+        when(journalpost.getHovedtype()).thenReturn(DokumentTypeId.KLAGE_DOKUMENT);
+
+        var offisiellKode = FagsakYtelseTypeDto.FORELDREPENGER;
+
+        var exception = assertThrows(FunksjonellException.class,
+            () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID, null));
+
+        var expectedMessage = "FP-785360:Kan ikke opprette sak basert på valgt journalpost";
+        var actualMessage = exception.getMessage();
+
+        var expectedLøsningsforslag = "Kan bare opprette sak fra førstegangssøknad eller inntektsmelding";
         var løsningsforslag = exception.getLøsningsforslag();
 
         assertTrue(actualMessage.contains(expectedMessage));

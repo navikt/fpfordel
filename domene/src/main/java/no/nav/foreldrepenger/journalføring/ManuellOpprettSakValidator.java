@@ -71,6 +71,12 @@ public class ManuellOpprettSakValidator {
             hovedDokumentType = nyDokumentTypeId;
         }
 
+        if (nySak && !DokumentTypeId.erFørsteSøknadType(hovedDokumentType) && !DokumentTypeId.INNTEKTSMELDING.equals(hovedDokumentType)) {
+            LOG.info("Prøver å opprette sak basert på journalpost {} type {}", arkivJournalpost.getJournalpostId(), hovedDokumentType.getTermNavn());
+            throw new FunksjonellException("FP-785360", "Kan ikke opprette sak basert på valgt journalpost",
+                "Kan bare opprette sak fra førstegangssøknad eller inntektsmelding");
+        }
+
         FagsakYtelseTypeDto journalpostFagsakYtelseTypeDto = null;
 
         if (DokumentTypeId.erSøknadType(hovedDokumentType)) {
