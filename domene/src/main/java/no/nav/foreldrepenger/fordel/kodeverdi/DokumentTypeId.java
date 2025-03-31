@@ -228,6 +228,10 @@ public enum DokumentTypeId implements Kodeverdi {
         return SØKNAD_TYPER.contains(kode);
     }
 
+    public static boolean erEndringssøknadType(DokumentTypeId kode) {
+        return ENDRING_SØKNAD_TYPER.contains(kode);
+    }
+
     public static boolean erKlageType(DokumentTypeId kode) {
         return KLAGE_TYPER.contains(kode);
     }

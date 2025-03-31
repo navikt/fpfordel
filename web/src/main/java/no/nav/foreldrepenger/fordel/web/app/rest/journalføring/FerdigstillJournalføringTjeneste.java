@@ -292,7 +292,7 @@ public class FerdigstillJournalføringTjeneste {
     }
 
     String opprettSak(ArkivJournalpost journalpost, FerdigstillJournalføringRestTjeneste.OpprettSak opprettSakInfo, DokumentTypeId nyDokumentTypeId) {
-        new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensMedSakJP(journalpost, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
+        new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensForOpprettSak(journalpost, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
             nyDokumentTypeId);
 
         return fagsak.opprettSak(opprettSakRequest(journalpost.getJournalpostId(), opprettSakInfo)).getSaksnummer();
@@ -302,7 +302,7 @@ public class FerdigstillJournalføringTjeneste {
     String opprettNySak(ArkivJournalpost journalpost,
                         FerdigstillJournalføringRestTjeneste.OpprettSak opprettSakInfo,
                         DokumentTypeId nyDokumentTypeId) {
-        new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensMedSakJP(journalpost, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
+        new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensForOpprettSak(journalpost, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
             nyDokumentTypeId);
 
         return fagsak.opprettSak(opprettSakRequest(null, opprettSakInfo)).getSaksnummer();
@@ -334,7 +334,7 @@ public class FerdigstillJournalføringTjeneste {
 
         validerKanJournalføreKlageDokument(behandlingTemaFagsak, brukDokumentTypeId, dokumentKategori);
 
-        new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensMedSakJP(journalpost, behandlingTema.utledYtelseType(),
+        new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensForKnyttTilAnnenSak(journalpost, behandlingTema.utledYtelseType(),
             new AktørId(aktørIdFagsak), journalpost.getHovedtype());
 
         // Do the business
