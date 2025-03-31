@@ -1,30 +1,20 @@
 package no.nav.foreldrepenger.journalføring;
 
 import static java.util.Objects.requireNonNull;
-import static no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType.ES;
-import static no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType.FP;
-import static no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType.SVP;
 
-import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.fordel.kodeverdi.Journalstatus;
-
-import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
-
-import no.nav.foreldrepenger.journalføring.utils.YtelseTypeUtils;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.klient.FagsakYtelseTypeDto;
 import no.nav.foreldrepenger.typer.AktørId;
 import no.nav.vedtak.exception.FunksjonellException;
-
-import java.util.Optional;
 
 /**
  * Denne validatoren sjekker om gitt journalpost er faglig konform med de valgene SBH har gjort i GUI, f.eks:
@@ -46,7 +36,7 @@ public class ManuellOpprettSakValidator {
     private static FagsakYtelseTypeDto utledYtelseTypeFor(DokumentTypeId dokumentTypeId) {
         return switch (dokumentTypeId) {
             case SØKNAD_ENGANGSSTØNAD_ADOPSJON, SØKNAD_ENGANGSSTØNAD_FØDSEL -> FagsakYtelseTypeDto.ENGANGSTØNAD;
-            case SØKNAD_FORELDREPENGER_ADOPSJON, SØKNAD_FORELDREPENGER_FØDSEL, FLEKSIBELT_UTTAK_FORELDREPENGER, FORELDREPENGER_ENDRING_SØKNAD -> FagsakYtelseTypeDto.FORELDREPENGER;
+            case SØKNAD_FORELDREPENGER_ADOPSJON, SØKNAD_FORELDREPENGER_FØDSEL -> FagsakYtelseTypeDto.FORELDREPENGER;
             case SØKNAD_SVANGERSKAPSPENGER -> FagsakYtelseTypeDto.SVANGERSKAPSPENGER;
             default -> null;
         };
@@ -59,11 +49,19 @@ public class ManuellOpprettSakValidator {
         requireNonNull(aktørId, "Ugyldig input: AktørId kan ikke være null ved opprettelse av en sak.");
 
         var arkivJournalpost = arkivTjeneste.hentArkivJournalpost(journalpostId.getVerdi());
-        validerKonsistensMedSakJP(arkivJournalpost, oppgittFagsakYtelseTypeDto, aktørId, nyDokumentTypeId);
+        validerKonsistensForOpprettSak(arkivJournalpost, oppgittFagsakYtelseTypeDto, aktørId, nyDokumentTypeId);
     }
 
-    public void validerKonsistensMedSakJP(ArkivJournalpost arkivJournalpost, FagsakYtelseTypeDto oppgittFagsakYtelseTypeDto, AktørId aktørId,
-                                          DokumentTypeId nyDokumentTypeId) {
+    public void validerKonsistensForOpprettSak(ArkivJournalpost arkivJournalpost, FagsakYtelseTypeDto oppgittFagsakYtelseTypeDto, AktørId aktørId, DokumentTypeId nyDokumentTypeId) {
+        validerKonsistensMedSakJP(arkivJournalpost, oppgittFagsakYtelseTypeDto, aktørId, nyDokumentTypeId, true);
+    }
+
+    public void validerKonsistensForKnyttTilAnnenSak(ArkivJournalpost arkivJournalpost, FagsakYtelseTypeDto oppgittFagsakYtelseTypeDto, AktørId aktørId, DokumentTypeId nyDokumentTypeId) {
+        validerKonsistensMedSakJP(arkivJournalpost, oppgittFagsakYtelseTypeDto, aktørId, nyDokumentTypeId, false);
+    }
+
+    private void validerKonsistensMedSakJP(ArkivJournalpost arkivJournalpost, FagsakYtelseTypeDto oppgittFagsakYtelseTypeDto, AktørId aktørId,
+                                          DokumentTypeId nyDokumentTypeId, boolean nySak) {
         requireNonNull(arkivJournalpost, "Ugyldig input: Journalpost kan ikke være null ved opprettelse av en sak.");
         requireNonNull(oppgittFagsakYtelseTypeDto, "Ugyldig input: YtelseType kan ikke være null ved opprettelse av en sak.");
         requireNonNull(aktørId, "Ugyldig input: AktørId kan ikke være null ved opprettelse av en sak.");
@@ -77,6 +75,9 @@ public class ManuellOpprettSakValidator {
 
         if (DokumentTypeId.erSøknadType(hovedDokumentType)) {
             journalpostFagsakYtelseTypeDto = utledYtelseTypeFor(hovedDokumentType);
+            if (journalpostFagsakYtelseTypeDto == null && !nySak && DokumentTypeId.erEndringssøknadType(hovedDokumentType)) {
+                journalpostFagsakYtelseTypeDto = FagsakYtelseTypeDto.FORELDREPENGER;
+            }
         } else if (DokumentTypeId.INNTEKTSMELDING.equals(hovedDokumentType)) {
             var original = arkivJournalpost.getStrukturertPayload().toLowerCase();
             if (original.contains("ytelse>foreldrepenger<")) {
