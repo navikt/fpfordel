@@ -22,6 +22,7 @@ public record JournalpostDetaljerDto(@NotNull String journalpostId,
                                      @Valid YtelseTypeDto ytelseType,
                                      String eksisterendeSaksnummer,
                                      @NotNull @Valid @Size(min = 1) Set<DokumentDto> dokumenter,
+                                     boolean kanOppretteSak,
                                      @Valid List<SakJournalføringDto> fagsaker) {
 
     public record BrukerDto(@NotNull String navn, @NotNull String fnr, @NotNull String aktørId) {

@@ -1,10 +1,8 @@
 package no.nav.foreldrepenger.mottak.tjeneste;
 
 import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori.KLAGE_ELLER_ANKE;
-import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.INNTEKTSMELDING;
 import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.KLAGE_DOKUMENT;
 import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.UDEFINERT;
-import static no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId.erFørsteSøknadType;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -13,8 +11,8 @@ import java.util.stream.Stream;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
+import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -60,7 +58,7 @@ public class DestinasjonsRuter {
             .orElse(Tid.TIDENES_ENDE);
     }
 
-    private static boolean erKlageEllerAnke(MottakMeldingDataWrapper data) {
+    public static boolean erKlageEllerAnke(MottakMeldingDataWrapper data) {
         return (KLAGE_DOKUMENT.equals(data.getDokumentTypeId().orElse(UDEFINERT)) || KLAGE_ELLER_ANKE.equals(
             data.getDokumentKategori().orElse(DokumentKategori.UDEFINERT)));
     }
@@ -88,7 +86,7 @@ public class DestinasjonsRuter {
 
     public String opprettSak(MottakMeldingDataWrapper w) {
         var dokumenttype = w.getDokumentTypeId().orElseThrow();
-        if (!erFørsteSøknadType(dokumenttype) && !INNTEKTSMELDING.equals(dokumenttype)) {
+        if (!kanOppretteSakFraDokument(dokumenttype)) {
             throw new IllegalArgumentException("Kan ikke opprette sak for dokument");
         }
         var saksnummerDto = fagsakRestKlient.opprettSak(
@@ -97,7 +95,7 @@ public class DestinasjonsRuter {
         return saksnummerDto.getSaksnummer();
     }
 
-    public boolean kanOppretteSak(MottakMeldingDataWrapper w) {
-        return !erKlageEllerAnke(w);
+    public static boolean kanOppretteSakFraDokument(DokumentTypeId dokumenttype) {
+        return DokumentTypeId.erFørsteSøknadType(dokumenttype) || DokumentTypeId.INNTEKTSMELDING.equals(dokumenttype);
     }
 }

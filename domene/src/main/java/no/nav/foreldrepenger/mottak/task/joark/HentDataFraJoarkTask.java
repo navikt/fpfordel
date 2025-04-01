@@ -249,7 +249,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
                 journalpost.getKanal(), journalpost.getHovedtype());
             return w.nesteSteg(TASK_GOSYS);
         } else {
-            if (destinasjon.saksnummer() == null && !vurderVLSaker.kanOppretteSak(w)) {
+            if (destinasjon.saksnummer() == null && DestinasjonsRuter.erKlageEllerAnke(w)) {
                 LOG.info("FPFORDEL HentFraArkiv kan ikke opprette sak - til GOSYS journalpost {} kanal {} dokumenttype {}",
                     journalpost.getJournalpostId(), journalpost.getKanal(), journalpost.getHovedtype());
                 return w.nesteSteg(TASK_GOSYS);
