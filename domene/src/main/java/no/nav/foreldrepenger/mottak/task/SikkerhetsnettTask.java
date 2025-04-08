@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.mottak.task;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -47,6 +48,7 @@ public class SikkerhetsnettTask implements ProsessTaskHandler {
         var åpneJournalposterUtenOppgave = sikkerhetsnettKlient.hentÅpneJournalposterEldreEnn(2).stream()
             .filter(jp -> jp.mottaksKanal() == null || !"EESSI".equals(jp.mottaksKanal()))
             .filter(jp -> !journalføringsoppgave.finnesÅpeneJournalføringsoppgaverFor(JournalpostId.fra(jp.journalpostId())))
+            .sorted(Comparator.comparing(SikkerhetsnettJournalpost::journalpostId))
             .toList();
         var åpneJournalposterTekst = åpneJournalposterUtenOppgave.stream()
             .map(SikkerhetsnettJournalpost::journalpostId)
@@ -59,7 +61,7 @@ public class SikkerhetsnettTask implements ProsessTaskHandler {
         }
     }
 
-    static ProsessTaskData opprettTask(SikkerhetsnettJournalpost jp) {
+    private static ProsessTaskData opprettTask(SikkerhetsnettJournalpost jp) {
         var taskdata = ProsessTaskData.forProsessTask(HentDataFraJoarkTask.class);
         MottakMeldingDataWrapper melding = new MottakMeldingDataWrapper(taskdata);
         melding.setArkivId(jp.journalpostId());
