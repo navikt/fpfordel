@@ -8,32 +8,15 @@ import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
  */
 public enum AppAbacAttributtType implements AbacAttributtType {
 
-    FORSENDELSE_UUID("forsendelseUUID");
+    FORSENDELSE_UUID;
 
     public static final AbacAttributtType AKTØR_ID = StandardAbacAttributtType.AKTØR_ID;
     public static final AbacAttributtType FNR = StandardAbacAttributtType.FNR;
     public static final AbacAttributtType JOURNALPOST_ID = StandardAbacAttributtType.JOURNALPOST_ID;
 
-    private final boolean maskerOutput;
-    private final String sporingsloggEksternKode;
-    private final boolean valider;
-
-    AppAbacAttributtType(String sporingsloggEksternKode) {
-        this.sporingsloggEksternKode = sporingsloggEksternKode;
-        this.maskerOutput = false;
-        valider = false;
-    }
-
     @Override
     public boolean getMaskerOutput() {
-        return maskerOutput;
+        return false;
     }
 
-    public String getSporingsloggKode() {
-        return sporingsloggEksternKode;
-    }
-
-    public boolean getValider() {
-        return valider;
-    }
 }

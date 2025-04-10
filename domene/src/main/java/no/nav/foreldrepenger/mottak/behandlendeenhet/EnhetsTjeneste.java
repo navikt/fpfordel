@@ -5,6 +5,7 @@ import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import no.nav.vedtak.felles.integrasjon.ruting.RutingResultat;
 
 @ApplicationScoped
 public class EnhetsTjeneste {

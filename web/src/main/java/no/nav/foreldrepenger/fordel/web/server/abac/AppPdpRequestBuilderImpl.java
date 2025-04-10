@@ -43,4 +43,9 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
 
     }
 
+    @Override
+    public AppRessursData lagAppRessursDataForSystembruker(AbacDataAttributter dataAttributter) {
+        return AppRessursData.builder().build();
+    }
+
 }
