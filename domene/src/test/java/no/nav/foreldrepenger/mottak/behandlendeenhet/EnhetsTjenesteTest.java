@@ -1,13 +1,11 @@
 package no.nav.foreldrepenger.mottak.behandlendeenhet;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 import java.util.Set;
-
-import no.nav.vedtak.felles.integrasjon.ruting.RutingResultat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +14,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+
+import no.nav.vedtak.felles.integrasjon.ruting.RutingResultat;
 
 @ExtendWith(MockitoExtension.class)
 class EnhetsTjenesteTest {
@@ -40,21 +40,21 @@ class EnhetsTjenesteTest {
     @Test
     @MockitoSettings(strictness = Strictness.LENIENT)
     void skal_returnere_enhetid_skjermet() {
-        when(rutingKlient.finnRutingEgenskaper(any())).thenReturn(Set.of(RutingResultat.SKJERMING));
+        when(rutingKlient.finnRutingEgenskaper(anySet())).thenReturn(Set.of(RutingResultat.SKJERMING));
         assertThat(enhetId()).isNotNull().isEqualTo(EnhetsTjeneste.SKJERMET_ENHET_ID);
     }
 
     @Test
     @MockitoSettings(strictness = Strictness.LENIENT)
     void skal_returnere_enhetid_strengt_fortrolig() {
-        when(rutingKlient.finnRutingEgenskaper(any())).thenReturn(Set.of(RutingResultat.STRENGTFORTROLIG));
+        when(rutingKlient.finnRutingEgenskaper(anySet())).thenReturn(Set.of(RutingResultat.STRENGTFORTROLIG));
         assertThat(enhetId()).isNotNull().isEqualTo(EnhetsTjeneste.SF_ENHET_ID);
     }
 
     @Test
     @MockitoSettings(strictness = Strictness.LENIENT)
     void skal_returnere_enhetid_utland() {
-        when(rutingKlient.finnRutingEgenskaper(any())).thenReturn(Set.of(RutingResultat.UTLAND));
+        when(rutingKlient.finnRutingEgenskaper(anySet())).thenReturn(Set.of(RutingResultat.UTLAND));
         assertThat(enhetId()).isNotNull().isEqualTo(EnhetsTjeneste.UTLAND_ENHET_ID);
     }
 
