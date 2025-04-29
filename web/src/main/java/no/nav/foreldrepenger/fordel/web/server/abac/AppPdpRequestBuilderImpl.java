@@ -11,6 +11,8 @@ import no.nav.foreldrepenger.pip.PipRepository;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.PdpRequestBuilder;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
+import no.nav.vedtak.sikkerhet.abac.pipdata.PipBehandlingStatus;
+import no.nav.vedtak.sikkerhet.abac.pipdata.PipFagsakStatus;
 
 /**
  * Implementasjon av PDP request for denne applikasjonen.
@@ -34,18 +36,24 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
     @Override
     public AppRessursData lagAppRessursData(AbacDataAttributter dataAttributter) {
         // Kall til fpfordel skal i utgangspunktet kun gjelde 1 person (innsending, oppgave). Setter derfor ikke auditIdent her.
-        return AppRessursData.builder()
-            .leggTilAktørIdSet(dataAttributter.getVerdier(AppAbacAttributtType.AKTØR_ID))
-            .leggTilFødselsnumre(dataAttributter.getVerdier(AppAbacAttributtType.FNR))
-            .leggTilAktørIdSet(pipRepository.hentAktørIdForForsendelser(dataAttributter.getVerdier(AppAbacAttributtType.FORSENDELSE_UUID)))
-            .leggTilAktørIdSet(pipRepository.hentAktørIdForOppgave(dataAttributter.getVerdier(AppAbacAttributtType.JOURNALPOST_ID)))
+        return minimalbuilder()
+            .leggTilIdenter(dataAttributter.getVerdier(AppAbacAttributtType.AKTØR_ID))
+            .leggTilIdenter(dataAttributter.getVerdier(AppAbacAttributtType.FNR))
+            .leggTilIdenter(pipRepository.hentAktørIdForForsendelser(dataAttributter.getVerdier(AppAbacAttributtType.FORSENDELSE_UUID)))
+            .leggTilIdenter(pipRepository.hentAktørIdForOppgave(dataAttributter.getVerdier(AppAbacAttributtType.JOURNALPOST_ID)))
             .build();
 
     }
 
     @Override
     public AppRessursData lagAppRessursDataForSystembruker(AbacDataAttributter dataAttributter) {
-        return AppRessursData.builder().build();
+        return minimalbuilder().build();
+    }
+
+    private static AppRessursData.Builder minimalbuilder() {
+        return AppRessursData.builder()
+            .medFagsakStatus(PipFagsakStatus.UNDER_BEHANDLING)
+            .medBehandlingStatus(PipBehandlingStatus.UTREDES);
     }
 
 }

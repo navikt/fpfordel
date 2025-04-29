@@ -34,8 +34,7 @@ class AppPdpRequestBuilderImplTest {
         var attributter = AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, AKTØR);
 
         var request = requestBuilder.lagAppRessursData(attributter);
-        assertThat(request.getAktørIdSet()).containsOnly(AKTØR);
-        assertThat(request.getFødselsnumre()).isEmpty();
+        assertThat(request.getIdenter()).containsOnly(AKTØR);
     }
 
     @Test
@@ -45,7 +44,7 @@ class AppPdpRequestBuilderImplTest {
         when(pipRepository.hentAktørIdForForsendelser(Collections.singleton(DOKUMENTFORSENDELSE))).thenReturn(Collections.singleton(AKTØR));
 
         var request = requestBuilder.lagAppRessursData(attributter);
-        assertThat(request.getAktørIdSet()).containsOnly(AKTØR);
+        assertThat(request.getIdenter()).containsOnly(AKTØR);
     }
 
     @Test
@@ -56,8 +55,8 @@ class AppPdpRequestBuilderImplTest {
         when(pipRepository.hentAktørIdForForsendelser(Collections.singleton(DOKUMENTFORSENDELSE))).thenReturn(Collections.singleton(AKTØR));
 
         var request = requestBuilder.lagAppRessursData(attributter);
-        assertThat(request.getAktørIdSet()).contains(AKTØR);
-        assertThat(request.getAktørIdSet()).hasSize(2);
+        assertThat(request.getIdenter()).contains(AKTØR);
+        assertThat(request.getIdenter()).hasSize(2);
     }
 
 }
