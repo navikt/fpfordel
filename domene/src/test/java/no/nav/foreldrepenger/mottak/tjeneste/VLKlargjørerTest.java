@@ -36,7 +36,7 @@ class VLKlargjørerTest {
     private TilbakekrevingKlient mockTilbakeRestTjeneste;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         klargjørForVLTjeneste = new VLKlargjører(mockDokumentRestTjeneste, mockFagsakRestKlient, mockTilbakeRestTjeneste);
     }
 
@@ -48,7 +48,7 @@ class VLKlargjørerTest {
 
         var captorJ = ArgumentCaptor.forClass(JournalpostKnyttningDto.class);
         verify(mockFagsakRestKlient).knyttSakOgJournalpost(captorJ.capture());
-        assertThat(captorJ.getValue().getJournalpostId()).isEqualTo(ARKIV_ID);
+        assertThat(captorJ.getValue().journalpostIdDto().journalpostId()).isEqualTo(ARKIV_ID);
 
         var captorD = ArgumentCaptor.forClass(JournalpostMottakDto.class);
         verify(mockDokumentRestTjeneste).send(captorD.capture());

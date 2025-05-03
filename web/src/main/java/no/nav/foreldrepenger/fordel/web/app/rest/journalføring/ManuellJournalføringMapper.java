@@ -69,7 +69,7 @@ public class ManuellJournalføringMapper {
                 sakInfoDto.familiehendelseInfoDto().familiehendelseDato(),
                 ManuellJournalføringMapper.mapHendelseTypeJF(sakInfoDto.familiehendelseInfoDto().familihendelseType())) : null;
 
-        return new JournalpostDetaljerDto.SakJournalføringDto(sakInfoDto.saksnummer().getSaksnummer(),
+        return new JournalpostDetaljerDto.SakJournalføringDto(sakInfoDto.saksnummer().saksnummer(),
             mapYtelseTypeTilDto(sakInfoDto.ytelseType()),
             sakInfoDto.opprettetDato(),
             mapFagsakStatusTilStatusDto(sakInfoDto.status()), familihendelseJFDto, sakInfoDto.førsteUttaksdato());

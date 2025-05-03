@@ -14,8 +14,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.mottak.tjeneste.DestinasjonsRuter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +51,7 @@ import no.nav.foreldrepenger.mottak.journal.saf.DokumentInfo;
 import no.nav.foreldrepenger.mottak.klient.AktørIdDto;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
+import no.nav.foreldrepenger.mottak.tjeneste.DestinasjonsRuter;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Bruker;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Sak;
@@ -165,9 +164,9 @@ public class JournalføringRestTjeneste {
         })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Response hentJournalpostDetaljer(@TilpassetAbacAttributt(supplierClass = JournalpostDataSupplier.class) @QueryParam("journalpostId") @NotNull @Valid JournalpostIdDto journalpostId) {
-        LOG.info("FPFORDEL RESTJOURNALFØRING: Henter journalpostdetaljer for journalpostId {}", journalpostId.getJournalpostId());
+        LOG.info("FPFORDEL RESTJOURNALFØRING: Henter journalpostdetaljer for journalpostId {}", journalpostId.journalpostId());
         try {
-            var journalpostDetaljer = Optional.ofNullable(arkiv.hentArkivJournalpost(journalpostId.getJournalpostId()))
+            var journalpostDetaljer = Optional.ofNullable(arkiv.hentArkivJournalpost(journalpostId.journalpostId()))
                 .map(this::mapTilJournalpostDetaljerDto)
                 .orElseThrow();
 
@@ -182,7 +181,7 @@ public class JournalføringRestTjeneste {
                 || ex.getMessage().contains("Saksbehandler har ikke tilgang til ressurs på grunn av journalposten sin status")) {
                 return Response.noContent().build();
             }
-            throw new TekniskException("FORDEL-123", "Journapost " + journalpostId.getJournalpostId() + " finnes ikke i arkivet.", ex);
+            throw new TekniskException("FORDEL-123", "Journapost " + journalpostId.journalpostId() + " finnes ikke i arkivet.", ex);
         }
     }
 
@@ -192,12 +191,12 @@ public class JournalføringRestTjeneste {
     @Operation(description = "Flytter evt lokal oppgave til Gosys for å utføre avanserte funksjoner.", tags = "Manuell journalføring", responses = {@ApiResponse(responseCode = "500", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Response flyttOppgaveTilGosys(@TilpassetAbacAttributt(supplierClass = JournalpostDataSupplier.class) @NotNull @Valid JournalpostIdDto journalpostId) {
-        LOG.info("FPFORDEL TILGOSYS: Flytter journalpostId {} til Gosys", journalpostId.getJournalpostId());
+        LOG.info("FPFORDEL TILGOSYS: Flytter journalpostId {} til Gosys", journalpostId.journalpostId());
         try {
-            oppgaveTjeneste.flyttLokalOppgaveTilGosys(JournalpostId.fra(journalpostId.getJournalpostId()));
+            oppgaveTjeneste.flyttLokalOppgaveTilGosys(JournalpostId.fra(journalpostId.journalpostId()));
             return Response.ok().build();
         } catch (NoSuchElementException ex) {
-            throw new TekniskException("FORDEL-123", "Journalpost " + journalpostId.getJournalpostId() + " kunne ikke flyttes til Gosys.", ex);
+            throw new TekniskException("FORDEL-123", "Journalpost " + journalpostId.journalpostId() + " kunne ikke flyttes til Gosys.", ex);
         }
     }
 
@@ -241,7 +240,7 @@ public class JournalføringRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response hentDokument(@TilpassetAbacAttributt(supplierClass = JournalpostDataSupplier.class) @QueryParam("journalpostId") @Valid JournalpostIdDto journalpostId,
                                  @TilpassetAbacAttributt(supplierClass = EmptyAbacDataSupplier.class) @QueryParam("dokumentId") @Valid DokumentIdDto dokumentId) {
-        var journalpost = journalpostId.getJournalpostId();
+        var journalpost = journalpostId.journalpostId();
         var dokument = dokumentId.dokumentId();
         try {
             var responseBuilder = Response.ok(new ByteArrayInputStream(arkiv.hentDokumet(journalpost, dokument)));
@@ -384,7 +383,7 @@ public class JournalføringRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var dto = (JournalpostIdDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.JOURNALPOST_ID, JournalpostId.fra(dto.getJournalpostId()));
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.JOURNALPOST_ID, JournalpostId.fra(dto.journalpostId()));
         }
     }
 

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.fordel.web.app.rest.journalføring;
 import static no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema.ENGANGSSTØNAD;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -22,7 +21,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
-import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
@@ -51,7 +49,7 @@ class FerdigstillJournalføringRestTjenesteTest {
     private ArkivJournalpost arkivJournalpost;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         lenient().when(fagsak.finnFagsakInfomasjon(ArgumentMatchers.any()))
             .thenReturn(Optional.of(new FagsakInfomasjonDto(AKTØR_ID, ENGANGSSTØNAD.getOffisiellKode())));
         lenient().when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
@@ -84,7 +82,7 @@ class FerdigstillJournalføringRestTjenesteTest {
     @Test
     void sakSkalOpprettesNårSaksnummerErNull() {
         var req = req(ENHETID, JOURNALPOST_ID, null, YtelseTypeDto.FORELDREPENGER, AKTØR_ID, null);
-        var journalpostId = JournalpostId.fra(JOURNALPOST_ID);
+
         when(journalføringTjeneste.opprettSak(arkivJournalpost, new FerdigstillJournalføringRestTjeneste.OpprettSak(new AktørId(AKTØR_ID), FagsakYtelseTypeDto.FORELDREPENGER),null)).thenReturn(SAKSNUMMER);
 
         behandleJournalpost.oppdaterOgFerdigstillJournalfoering(req);
@@ -94,7 +92,6 @@ class FerdigstillJournalføringRestTjenesteTest {
     @Test
     void sakSkalOppretteGenerellNårAngitt() {
         var req = reqGenerell(ENHETID, JOURNALPOST_ID, null, AKTØR_ID, null);
-        var journalpostId = JournalpostId.fra(JOURNALPOST_ID);
 
         behandleJournalpost.oppdaterOgFerdigstillJournalfoering(req);
         verify(journalføringTjeneste).oppdaterJournalpostOgFerdigstillGenerellSak(ENHETID, arkivJournalpost, AKTØR_ID, null, Collections.emptyList(), null );
@@ -107,7 +104,6 @@ class FerdigstillJournalføringRestTjenesteTest {
         String journalpostTittel = "Journalpost-tittel";
 
         var req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER, YtelseTypeDto.FORELDREPENGER, AKTØR_ID, new OppdaterJournalpostMedTittelDto(journalpostTittel, List.of(new OppdaterJournalpostMedTittelDto.DokummenterMedTitler(("1"), tittel1), new OppdaterJournalpostMedTittelDto.DokummenterMedTitler("2", tittel2))));
-        var journalpostId = JournalpostId.fra(JOURNALPOST_ID);
 
         behandleJournalpost.oppdaterOgFerdigstillJournalfoering(req);
         verify(journalføringTjeneste).oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, arkivJournalpost, journalpostTittel, List.of(new FerdigstillJournalføringTjeneste.DokumenterMedNyTittel("1", tittel1), new FerdigstillJournalføringTjeneste.DokumenterMedNyTittel("2", tittel2)),
@@ -119,7 +115,7 @@ class FerdigstillJournalføringRestTjenesteTest {
         var req = req(ENHETID, JOURNALPOST_ID, SAKSNUMMER, YtelseTypeDto.FORELDREPENGER, AKTØR_ID, null);
 
         var saksnummerDto = behandleJournalpost.oppdaterOgFerdigstillJournalfoering(req);
-        assertThat(saksnummerDto.getSaksnummer()).isEqualTo(SAKSNUMMER);
+        assertThat(saksnummerDto.saksnummer()).isEqualTo(SAKSNUMMER);
     }
 
     @Test
