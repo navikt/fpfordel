@@ -4,6 +4,9 @@ import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.FORSENDELSE_ID_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.RETRY_KEY;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,7 +21,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
-import no.nav.foreldrepenger.fordel.web.app.forvaltning.migrering.MigreringRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.rest.journalføring.FerdigstillJournalføringTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.rest.journalføring.JournalføringRestTjeneste;
@@ -45,9 +47,6 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
-
-import java.time.DayOfWeek;
-import java.time.LocalDate;
 
 @Path("/forvaltning")
 @RequestScoped
@@ -105,8 +104,8 @@ public class ForvaltningRestTjeneste {
         }
         var fra = new MottakMeldingDataWrapper(data);
         var til = fra.nesteSteg(TaskType.forProsessTask(VLKlargjørerTask.class));
-        til.setSaksnummer(dto.getSaksnummerDto().getSaksnummer());
-        til.setArkivId(dto.getJournalpostIdDto().getJournalpostId());
+        til.setSaksnummer(dto.getSaksnummerDto().saksnummer());
+        til.setArkivId(dto.getJournalpostIdDto().journalpostId());
         til.setRetryingTask(VLKlargjørerTask.REINNSEND);
         fagsak.knyttSakOgJournalpost(new JournalpostKnyttningDto(dto.getSaksnummerDto(), dto.getJournalpostIdDto()));
         taskTjeneste.lagre(til.getProsessTaskData());
@@ -124,11 +123,11 @@ public class ForvaltningRestTjeneste {
         }
         data.setCallIdFraEksisterende();
         var fra = new MottakMeldingDataWrapper(data);
-        if (!fra.getArkivId().equals(dto.getJournalpostIdDto().getJournalpostId())) {
+        if (!fra.getArkivId().equals(dto.getJournalpostIdDto().journalpostId())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         var til = fra.nesteSteg(TaskType.forProsessTask(TilJournalføringTask.class));
-        til.setSaksnummer(dto.getSaksnummerDto().getSaksnummer());
+        til.setSaksnummer(dto.getSaksnummerDto().saksnummer());
         fagsak.knyttSakOgJournalpost(new JournalpostKnyttningDto(dto.getSaksnummerDto(), dto.getJournalpostIdDto()));
         taskTjeneste.lagre(til.getProsessTaskData());
         return Response.ok().build();
@@ -196,8 +195,8 @@ public class ForvaltningRestTjeneste {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         var fra = new MottakMeldingDataWrapper(data);
-        fra.setSaksnummer(dto.getSaksnummerDto().getSaksnummer());
-        fra.setArkivId(dto.getJournalpostIdDto().getJournalpostId());
+        fra.setSaksnummer(dto.getSaksnummerDto().saksnummer());
+        fra.setArkivId(dto.getJournalpostIdDto().journalpostId());
         taskTjeneste.lagre(fra.getProsessTaskData());
         return Response.ok().build();
     }
@@ -225,8 +224,8 @@ public class ForvaltningRestTjeneste {
     @Path("/knytt-til-annen-sak")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response knyttTilAnnenSak(@Parameter(description = "Sak og Journalpost") @NotNull @Valid JournalpostSakDto dto) {
-        var journalpost = journalføringTjeneste.hentJournalpost(dto.journalpostIdDto().getJournalpostId());
-        var response = journalføringTjeneste.knyttTilAnnenSak(journalpost, "9999", dto.saksnummerDto().getSaksnummer());
+        var journalpost = journalføringTjeneste.hentJournalpost(dto.journalpostIdDto().journalpostId());
+        var response = journalføringTjeneste.knyttTilAnnenSak(journalpost, "9999", dto.saksnummerDto().saksnummer());
         return Response.ok(response.getVerdi()).build();
     }
 
@@ -236,8 +235,8 @@ public class ForvaltningRestTjeneste {
     @Path("/send-inn-til-sak")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response sendInnTilSak(@Parameter(description = "Sak og Journalpost") @NotNull @Valid JournalpostSakDto dto) {
-        var journalpost = journalføringTjeneste.hentJournalpost(dto.journalpostIdDto().getJournalpostId());
-        journalføringTjeneste.sendInnPåSak(journalpost, dto.saksnummerDto().getSaksnummer());
+        var journalpost = journalføringTjeneste.hentJournalpost(dto.journalpostIdDto().journalpostId());
+        journalføringTjeneste.sendInnPåSak(journalpost, dto.saksnummerDto().saksnummer());
         return Response.ok().build();
     }
 
@@ -247,7 +246,7 @@ public class ForvaltningRestTjeneste {
     @Path("/avslutt-oppgave")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response feilregistrerOppgave(@TilpassetAbacAttributt(supplierClass = JournalføringRestTjeneste.JournalpostDataSupplier.class) @Parameter(description = "journalpostId") @NotNull @Valid JournalpostIdDto journalpostIdDto) {
-        oppgaveRepository.avsluttOppgaveMedStatus(journalpostIdDto.getJournalpostId(), Status.FEILREGISTRERT);
+        oppgaveRepository.avsluttOppgaveMedStatus(journalpostIdDto.journalpostId(), Status.FEILREGISTRERT);
         return Response.ok().build();
     }
 
@@ -258,7 +257,7 @@ public class ForvaltningRestTjeneste {
     @Path("/opprett-oppgave")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response opprettOppgave(@TilpassetAbacAttributt(supplierClass = JournalføringRestTjeneste.JournalpostDataSupplier.class) @Parameter(description = "journalpostId") @NotNull @Valid JournalpostIdDto journalpostIdDto) {
-        var journalpostId = journalpostIdDto.getJournalpostId();
+        var journalpostId = journalpostIdDto.journalpostId();
 
         var eksisterende = oppgaveRepository.hentOppgave(journalpostId);
         if (eksisterende != null) {

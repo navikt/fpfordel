@@ -91,8 +91,8 @@ public class DestinasjonsRuter {
         }
         var saksnummerDto = fagsakRestKlient.opprettSak(
             new OpprettSakDto(w.getArkivId(), w.getBehandlingTema().getOffisiellKode(), w.getAktørId().orElseThrow()));
-        w.setSaksnummer(saksnummerDto.getSaksnummer());
-        return saksnummerDto.getSaksnummer();
+        w.setSaksnummer(saksnummerDto.saksnummer());
+        return saksnummerDto.saksnummer();
     }
 
     public static boolean kanOppretteSakFraDokument(DokumentTypeId dokumenttype) {

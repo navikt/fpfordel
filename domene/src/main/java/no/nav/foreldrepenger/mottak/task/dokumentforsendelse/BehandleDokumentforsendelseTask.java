@@ -234,7 +234,7 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
                 w.setSaksnummer(null); // Sendt inn på ukjent sak
             }
             if (hovedDokument.isEmpty()) {
-                fagsakInfoOpt.ifPresent(f -> w.setBehandlingTema(fraOffisiellKode(f.getBehandlingstemaOffisiellKode())));
+                fagsakInfoOpt.ifPresent(f -> w.setBehandlingTema(fraOffisiellKode(f.behandlingstemaOffisiellKode())));
             }
             return fagsakInfoOpt.isPresent() ? new Destinasjon(FPSAK, saksnr) : Destinasjon.GOSYS;
         }
@@ -304,11 +304,11 @@ public class BehandleDokumentforsendelseTask extends WrappedProsessTaskHandler {
                                        String saksnummer,
                                        FagsakInfomasjonDto fagsakInfo,
                                        Optional<Dokument> hovedDokument) {
-        if (!Objects.equals(fagsakInfo.getAktørId(), w.getAktørId().orElse(null))) {
+        if (!Objects.equals(fagsakInfo.aktørId(), w.getAktørId().orElse(null))) {
             LOG.warn("Søkers ID samsvarer ikke med søkers ID i eksisterende sak {}", saksnummer);
             return false;
         }
-        var behandlingTemaFraSak = fraOffisiellKode(fagsakInfo.getBehandlingstemaOffisiellKode());
+        var behandlingTemaFraSak = fraOffisiellKode(fagsakInfo.behandlingstemaOffisiellKode());
         hovedDokument.ifPresent(h -> sjekkForMismatchMellomFagsakOgDokumentInn(w.getBehandlingTema(), behandlingTemaFraSak, h));
         return true;
     }

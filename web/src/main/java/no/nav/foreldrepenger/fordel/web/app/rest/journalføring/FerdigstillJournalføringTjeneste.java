@@ -106,8 +106,8 @@ public class FerdigstillJournalføringTjeneste {
 
         var fagsakInfomasjon = hentOgValiderFagsak(saksnummer, journalpost);
 
-        final var behandlingTemaFagsak = BehandlingTema.fraOffisiellKode(fagsakInfomasjon.getBehandlingstemaOffisiellKode());
-        final var aktørIdFagsak = fagsakInfomasjon.getAktørId();
+        final var behandlingTemaFagsak = BehandlingTema.fraOffisiellKode(fagsakInfomasjon.behandlingstemaOffisiellKode());
+        final var aktørIdFagsak = fagsakInfomasjon.aktørId();
 
         var dokumentTypeId = journalpost.getHovedtype();
         var oppdatereTitler = nyJournalpostTittel != null || !dokumenterMedNyTittel.isEmpty();
@@ -295,7 +295,7 @@ public class FerdigstillJournalføringTjeneste {
         new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensForOpprettSak(journalpost, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
             nyDokumentTypeId);
 
-        return fagsak.opprettSak(opprettSakRequest(journalpost.getJournalpostId(), opprettSakInfo)).getSaksnummer();
+        return fagsak.opprettSak(opprettSakRequest(journalpost.getJournalpostId(), opprettSakInfo)).saksnummer();
     }
 
     // Validerer mot eksisterende men sikrer at det opprettes ny sak
@@ -305,7 +305,7 @@ public class FerdigstillJournalføringTjeneste {
         new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensForOpprettSak(journalpost, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
             nyDokumentTypeId);
 
-        return fagsak.opprettSak(opprettSakRequest(null, opprettSakInfo)).getSaksnummer();
+        return fagsak.opprettSak(opprettSakRequest(null, opprettSakInfo)).saksnummer();
     }
 
     private static OpprettSakV2Dto opprettSakRequest(String journalpostId, FerdigstillJournalføringRestTjeneste.OpprettSak opprettSakInfo) {
@@ -323,8 +323,8 @@ public class FerdigstillJournalføringTjeneste {
 
     public JournalpostId knyttTilAnnenSak(ArkivJournalpost journalpost, String enhetId, String saksnummer) {
         var saksinfo = hentFagsakInfo(saksnummer).orElseThrow();
-        final var behandlingTemaFagsak = BehandlingTema.fraOffisiellKode(saksinfo.getBehandlingstemaOffisiellKode());
-        final var aktørIdFagsak = saksinfo.getAktørId();
+        final var behandlingTemaFagsak = BehandlingTema.fraOffisiellKode(saksinfo.behandlingstemaOffisiellKode());
+        final var aktørIdFagsak = saksinfo.aktørId();
 
         var dokumentTypeId = journalpost.getHovedtype();
         final var behandlingTemaDok = ArkivUtil.behandlingTemaFraDokumentType(BehandlingTema.UDEFINERT, dokumentTypeId);
@@ -364,8 +364,8 @@ public class FerdigstillJournalføringTjeneste {
     // Forvaltning only
     public void sendInnPåSak(ArkivJournalpost journalpost, String saksnummer) {
         var saksinfo = hentFagsakInfo(saksnummer).orElseThrow();
-        final var behandlingTemaFagsak = BehandlingTema.fraOffisiellKode(saksinfo.getBehandlingstemaOffisiellKode());
-        final var aktørIdFagsak = saksinfo.getAktørId();
+        final var behandlingTemaFagsak = BehandlingTema.fraOffisiellKode(saksinfo.behandlingstemaOffisiellKode());
+        final var aktørIdFagsak = saksinfo.aktørId();
 
         var dokumentTypeId = journalpost.getHovedtype();
         final var behandlingTemaDok = ArkivUtil.behandlingTemaFraDokumentType(BehandlingTema.UDEFINERT, dokumentTypeId);
@@ -465,7 +465,7 @@ public class FerdigstillJournalføringTjeneste {
         final var brukerAktørId = journalpost.getBrukerAktørId();
 
         final var fagsakFraRequestSomTrefferRettAktør = hentFagsakInfo(saksnummer).filter(
-            f -> brukerAktørId.isEmpty() || Objects.equals(f.getAktørId(), brukerAktørId.get()));
+            f -> brukerAktørId.isEmpty() || Objects.equals(f.aktørId(), brukerAktørId.get()));
 
         if (fagsakFraRequestSomTrefferRettAktør.isEmpty()) {
             throw new FunksjonellException("FP-963070", "Kan ikke journalføre på saksnummer: " + saksnummer,
