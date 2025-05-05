@@ -1,16 +1,14 @@
 package no.nav.foreldrepenger.journalføring.oppgave;
 
 import static no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste.NK_ENHET_ID;
-import static no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste.SKJERMINGENHETER;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -30,8 +28,7 @@ import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
 import no.nav.foreldrepenger.journalføring.utils.YtelseTypeUtils;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
-import no.nav.foreldrepenger.mottak.behandlendeenhet.LosEnheterCachedTjeneste;
-import no.nav.foreldrepenger.mottak.klient.TilhørendeEnhetDto;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.FilterKlient;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
@@ -45,20 +42,20 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     protected static final String LIMIT = "50";
     protected static final int FRIST_DAGER = 1;
 
-    private OppgaveRepository oppgaveRepository;
-    private Oppgaver oppgaveKlient;
-    private EnhetsTjeneste enhetsTjeneste;
-    private LosEnheterCachedTjeneste losEnheterCachedTjeneste;
-    private PersonInformasjon personTjeneste;
+    private final OppgaveRepository oppgaveRepository;
+    private final Oppgaver oppgaveKlient;
+    private final EnhetsTjeneste enhetsTjeneste;
+    private final PersonInformasjon personTjeneste;
+    private final FilterKlient filterKlient;
 
     @Inject
     public OppgaverTjeneste(OppgaveRepository oppgaveRepository, Oppgaver oppgaveKlient, EnhetsTjeneste enhetsTjeneste,
-                            LosEnheterCachedTjeneste losEnheterCachedTjeneste, PersonInformasjon personTjeneste) {
+                            PersonInformasjon personTjeneste, FilterKlient filterKlient) {
         this.oppgaveRepository = oppgaveRepository;
         this.oppgaveKlient = oppgaveKlient;
         this.enhetsTjeneste = enhetsTjeneste;
-        this.losEnheterCachedTjeneste = losEnheterCachedTjeneste;
         this.personTjeneste = personTjeneste;
+        this.filterKlient = filterKlient;
     }
 
     @Override
@@ -182,28 +179,14 @@ class OppgaverTjeneste implements Journalføringsoppgave {
 
     @Override
     public List<Oppgave> finnÅpneOppgaverFiltrert() {
-        var saksbehandlersEnheter = losEnheterCachedTjeneste.hentLosEnheterFor(KontekstHolder.getKontekst().getUid())
-            .stream()
-            .map(TilhørendeEnhetDto::enhetsnummer)
-            .collect(Collectors.toUnmodifiableSet());
-
-        if (saksbehandlersEnheter.isEmpty()) {
-            return List.of();
-        }
-
-        return finnAlleOppgaver().stream()
-            .filter(oppgave -> !NK_ENHET_ID.equals(oppgave.tildeltEnhetsnr())) // Klager går gjennom gosys
-            .filter(ikkeEnOppgaveMedBeskyttelsesbehov().or(saksbehandlerHarTilgangTilSpesjalenheten(saksbehandlersEnheter))) // må ha tilgang til Spesialenheten
+        var alleOppgaver = finnAlleOppgaver();
+        var alleIdenter = alleOppgaver.stream().map(Oppgave::aktørId).filter(Objects::nonNull).collect(Collectors.toSet());
+        var filtrertIdenter = filterKlient.filterIdenter(alleIdenter);
+        return alleOppgaver.stream()
+            .filter(o -> !NK_ENHET_ID.equals(o.tildeltEnhetsnr())) // Klager går gjennom gosys
+            .filter(o -> o.aktørId() == null || filtrertIdenter.contains(o.aktørId()))
             .sorted(Comparator.nullsLast(Comparator.comparing(Oppgave::fristFerdigstillelse).thenComparing(Oppgave::tildeltEnhetsnr)))
             .toList();
-    }
-
-    private Predicate<Oppgave> ikkeEnOppgaveMedBeskyttelsesbehov() {
-        return oppgave -> !SKJERMINGENHETER.contains(oppgave.tildeltEnhetsnr());
-    }
-
-    private Predicate<Oppgave> saksbehandlerHarTilgangTilSpesjalenheten(Set<String> enheter) {
-        return oppgave -> enheter.contains(oppgave.tildeltEnhetsnr());
     }
 
     @Override
