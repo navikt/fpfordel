@@ -48,6 +48,7 @@ public class MottakMeldingDataWrapper {
     public static final String ARBEIDSFORHOLDSID = "arbeidsforholdsId";
     public static final String INNTEKTSMELDING_YTELSE = "im.ytelse";
     public static final String EKSTERN_REFERANSE = "eksternreferanse";
+    public static final String BRUKER_ROLLE = "brukerRolle";
 
     // Inntektsmelding
     public static final String INNTEKSTMELDING_STARTDATO_KEY = "inntektsmelding.startdato";
@@ -206,6 +207,14 @@ public class MottakMeldingDataWrapper {
 
     public void setEksternReferanseId(String enhet) {
         prosessTaskData.setProperty(EKSTERN_REFERANSE, enhet);
+    }
+
+    public Optional<String> getBrukerRolle() {
+        return Optional.ofNullable(prosessTaskData.getPropertyValue(BRUKER_ROLLE));
+    }
+
+    public void setBrukerRolle(String rolle) {
+        prosessTaskData.setProperty(BRUKER_ROLLE, rolle);
     }
 
     public void setPayload(String payload) {

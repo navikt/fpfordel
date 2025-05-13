@@ -144,6 +144,7 @@ class BehandleDokumentforsendelseTaskTest {
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
         assertThat(utdata.getProsessTaskData().taskType()).isEqualTo(KLARGJOR_TASK);
         assertThat(utdata.getDokumentTypeId()).hasValue(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
+        assertThat(utdata.getBrukerRolle()).hasValue("MOR");
         verify(arkivTjeneste).opprettJournalpost(any(), any(String.class), eq("123"));
     }
 
@@ -162,6 +163,7 @@ class BehandleDokumentforsendelseTaskTest {
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
         assertThat(utdata.getProsessTaskData().taskType()).isEqualTo(KLARGJOR_TASK);
         assertThat(utdata.getDokumentTypeId()).hasValue(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
+        assertThat(utdata.getBrukerRolle()).hasValue("MOR");
     }
 
     @Test
@@ -214,6 +216,7 @@ class BehandleDokumentforsendelseTaskTest {
         MottakMeldingDataWrapper utdata = kjørMedPreOgPostcondition(inndata);
         assertThat(utdata.getProsessTaskData().taskType()).isEqualTo(KLARGJOR_TASK);
         assertThat(utdata.getDokumentTypeId()).hasValue(DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD);
+        assertThat(utdata.getBrukerRolle()).hasValue("FAR");
     }
 
     @Test
