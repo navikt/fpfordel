@@ -6,8 +6,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.kontrakter.fordel.SakInfoV2Dto;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,10 +15,12 @@ import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.kontrakter.fordel.BehandlendeFagsystemDto;
+import no.nav.foreldrepenger.kontrakter.fordel.BrukerRolleDto;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakV2Dto;
+import no.nav.foreldrepenger.kontrakter.fordel.SakInfoV2Dto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -123,6 +123,7 @@ public class FagsakKlient implements Fagsak {
         w.getArbeidsforholdsid().ifPresent(dto::setArbeidsforholdsid);
         w.getInntektsmeldingStartDato().ifPresent(dto::setStartDatoForeldrepengerInntektsmelding);
         w.getForsendelseMottattTidspunkt().ifPresent(dto::setForsendelseMottattTidspunkt);
+        w.getBrukerRolle().map(FagsakKlient::mapBrukerRolle).ifPresent(dto::setBrukerRolle);
         dto.setForsendelseMottatt(w.getForsendelseMottatt());
         dto.setDokumentTypeIdOffisiellKode(dokumentTypeId.getOffisiellKode());
         dto.setDokumentKategoriOffisiellKode(dokumentKategori.getOffisiellKode());
@@ -148,6 +149,15 @@ public class FagsakKlient implements Fagsak {
 
         LOG.info("Vurderert resultat OK");
         return vurdering;
+    }
+
+    private static BrukerRolleDto mapBrukerRolle(String rolle) {
+        return switch (rolle) {
+            case "MOR" -> BrukerRolleDto.MOR;
+            case "FAR" -> BrukerRolleDto.FAR;
+            case "MEDMOR" -> BrukerRolleDto.MEDMOR;
+            case null, default -> null;
+        };
     }
 
     @Override

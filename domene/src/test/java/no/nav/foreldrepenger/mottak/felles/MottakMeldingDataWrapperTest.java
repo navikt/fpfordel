@@ -150,6 +150,13 @@ class MottakMeldingDataWrapperTest {
     }
 
     @Test
+    void skal_kunne_sette_rolle_og_hente_ut_igjen() {
+        wrapper.setBrukerRolle("MOR");
+        assertThat(wrapper.getBrukerRolle()).hasValue("MOR");
+    }
+
+
+    @Test
     void skal_returnere_tom_optional_når_inntektsmelding_startdato_ikke_er_satt() {
         assertThat(wrapper.getInntektsmeldingStartDato()).isEmpty();
     }

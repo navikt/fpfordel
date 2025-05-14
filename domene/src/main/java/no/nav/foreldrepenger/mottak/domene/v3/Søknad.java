@@ -19,12 +19,14 @@ import no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.Endringssoeknad;
 import no.nav.vedtak.felles.xml.soeknad.engangsstoenad.v3.Engangsstønad;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Adopsjon;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.AnnenForelderMedNorskIdent;
+import no.nav.vedtak.felles.xml.soeknad.felles.v3.Bruker;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Foedsel;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Omsorgsovertakelse;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.SoekersRelasjonTilBarnet;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Termin;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Ytelse;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.Foreldrepenger;
+import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Brukerroller;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Svangerskapspenger;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Fordeling;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.LukketPeriodeMedVedlegg;
@@ -60,6 +62,7 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
     protected void kopierVerdier(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {
         dataWrapper.setStrukturertDokument(true);
         dataWrapper.setAktørId(getSkjema().getSoeker().getAktoerId());
+        hentBrukerroller().ifPresent(dataWrapper::setBrukerRolle);
         hentMottattDato(dataWrapper);
 
         hentFødselsdato().ifPresent(dataWrapper::setBarnFodselsdato);
@@ -99,6 +102,10 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
                     null);
             }
         }
+    }
+
+    private Optional<String> hentBrukerroller() {
+        return Optional.ofNullable(getSkjema().getSoeker()).map(Bruker::getSoeknadsrolle).map(Brukerroller::getKode);
     }
 
     public Ytelse getYtelse() {
