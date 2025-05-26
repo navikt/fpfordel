@@ -1,5 +1,5 @@
 <included>
-    <logger name="no.nav.foreldrepenger" level="trace"/>
-    <logger name="no.nav.vedtak.sikkerhet" level="trace"/>
-    <logger name="no.nav.vedtak.felles.integrasjon.rest.jersey" level="trace"/>
+    <logger name="no.nav.foreldrepenger" level="TRACE"/>
+    <logger name="no.nav.vedtak.sikkerhet" level="INFO"/>
+    <logger name="no.nav.vedtak.felles.integrasjon.rest" level="INFO"/>
 </included>

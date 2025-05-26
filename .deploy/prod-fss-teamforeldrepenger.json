@@ -1,6 +1,5 @@
 {
-  "environment": "prod",
-  "serviceuserkv": "/serviceuser/data/prod/srvfpfordel",
+  "kafkaPool": "nav-prod",
   "oracleconfigkv": "/oracle/data/prod/config/fpfordel_p",
   "oraclecredskv": "/oracle/data/prod/creds/fpfordel_p-fpfordel_p",
   "minReplicas": "2",
@@ -13,7 +12,6 @@
     "cpu": "200m",
     "mem": "1024Mi"
   },
-  "kafkaPool": "nav-prod",
   "ingresses": [
     "https://fpfordel.prod-fss-pub.nais.io"
   ],
