@@ -1,6 +1,5 @@
 {
-  "environment": "dev",
-  "serviceuserkv": "/serviceuser/data/dev/srvfpfordel",
+  "kafkaPool": "nav-dev",
   "oracleconfigkv": "/oracle/data/dev/config/fpfordel_q1",
   "oraclecredskv": "/oracle/data/dev/creds/fpfordel_q1-fpfordel_q1",
   "minReplicas": "1",
@@ -10,10 +9,9 @@
     "mem": "2048Mi"
   },
   "requests": {
-    "cpu": "200m",
+    "cpu": "100m",
     "mem": "512Mi"
   },
-  "kafkaPool": "nav-dev",
   "ingresses": [
     "https://fpfordel.dev-fss-pub.nais.io"
   ],

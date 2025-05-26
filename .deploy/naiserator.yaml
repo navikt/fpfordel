@@ -61,8 +61,6 @@ spec:
       mountPath: /var/run/secrets/nais.io/defaultDS
     - kvPath: {{oracleconfigkv}}
       mountPath: /var/run/secrets/nais.io/defaultDSconfig
-    - kvPath: {{serviceuserkv}}
-      mountPath: /var/run/secrets/nais.io/serviceuser
   tokenx:
     enabled: true
   kafka:
