@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,18 +28,25 @@ import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
 import no.nav.foreldrepenger.journalføring.utils.YtelseTypeUtils;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.AnsattInfoKlient;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.FilterKlient;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
+import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @Dependent
 class OppgaverTjeneste implements Journalføringsoppgave {
 
     private static final Logger LOG = LoggerFactory.getLogger(OppgaverTjeneste.class);
+    private static final Map<String, AnsattGruppe> ENHET_TILGANGSKRAV = Map.of(
+        EnhetsTjeneste.SF_ENHET_ID, AnsattGruppe.STRENGTFORTROLIG,
+        EnhetsTjeneste.SKJERMET_ENHET_ID, AnsattGruppe.SKJERMET
+    );
+
     protected static final String LIMIT = "50";
     protected static final int FRIST_DAGER = 1;
 
@@ -47,15 +55,17 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     private final EnhetsTjeneste enhetsTjeneste;
     private final PersonInformasjon personTjeneste;
     private final FilterKlient filterKlient;
+    private final AnsattInfoKlient ansattInfoKlient;
 
     @Inject
     public OppgaverTjeneste(OppgaveRepository oppgaveRepository, Oppgaver oppgaveKlient, EnhetsTjeneste enhetsTjeneste,
-                            PersonInformasjon personTjeneste, FilterKlient filterKlient) {
+                            PersonInformasjon personTjeneste, FilterKlient filterKlient, AnsattInfoKlient ansattInfoKlient) {
         this.oppgaveRepository = oppgaveRepository;
         this.oppgaveKlient = oppgaveKlient;
         this.enhetsTjeneste = enhetsTjeneste;
         this.personTjeneste = personTjeneste;
         this.filterKlient = filterKlient;
+        this.ansattInfoKlient = ansattInfoKlient;
     }
 
     @Override
@@ -185,6 +195,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
         return alleOppgaver.stream()
             .filter(o -> !NK_ENHET_ID.equals(o.tildeltEnhetsnr())) // Klager går gjennom gosys
             .filter(o -> o.aktørId() == null || filtrertIdenter.contains(o.aktørId()))
+            .filter(o -> harTilgangTilEnhet(o.tildeltEnhetsnr()))
             .sorted(Comparator.nullsLast(Comparator.comparing(Oppgave::fristFerdigstillelse).thenComparing(Oppgave::tildeltEnhetsnr)))
             .toList();
     }
@@ -253,6 +264,13 @@ class OppgaverTjeneste implements Journalføringsoppgave {
         return oppgaveRepository.hentOppgaverFlyttetTilGosys().stream()
             .map(OppgaveEntitet::getJournalpostId)
             .toList();
+    }
+
+    private boolean harTilgangTilEnhet(String enhet) {
+        if (enhet == null || !ENHET_TILGANGSKRAV.containsKey(enhet)) {
+            return true;
+        }
+        return ansattInfoKlient.medlemAvAnsattGruppe(ENHET_TILGANGSKRAV.get(enhet));
     }
 
     private static Oppgave mapTilOppgave(no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave oppgave) {

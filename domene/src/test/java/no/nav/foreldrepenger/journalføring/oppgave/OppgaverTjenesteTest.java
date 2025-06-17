@@ -42,6 +42,7 @@ import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
+import no.nav.foreldrepenger.mottak.behandlendeenhet.AnsattInfoKlient;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.FilterKlient;
 import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
@@ -51,6 +52,7 @@ import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
+import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 
 @ExtendWith(MockitoExtension.class)
 class OppgaverTjenesteTest {
@@ -67,13 +69,15 @@ class OppgaverTjenesteTest {
     @Mock
     private EnhetsTjeneste enhetsTjeneste;
     @Mock
-    FilterKlient filterKlient;
+    private FilterKlient filterKlient;
     @Mock
-    PersonTjeneste personTjeneste;
+    private AnsattInfoKlient ansattInfoKlient;
+    @Mock
+    private PersonTjeneste personTjeneste;
 
     @BeforeEach
     void setUp() {
-        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient, enhetsTjeneste, personTjeneste, filterKlient);
+        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient, enhetsTjeneste, personTjeneste, filterKlient, ansattInfoKlient);
     }
 
     @Test
@@ -99,7 +103,7 @@ class OppgaverTjenesteTest {
 
     @Test
     void opprettJournalføringsOppgaveLokalt() {
-        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient, enhetsTjeneste, personTjeneste, filterKlient);
+        oppgaver = new OppgaverTjeneste(oppgaveRepository, oppgaveKlient, enhetsTjeneste, personTjeneste, filterKlient, ansattInfoKlient);
         var expectedId = "11";
         when(oppgaveRepository.lagre(any(OppgaveEntitet.class))).thenReturn(expectedId);
 
@@ -395,16 +399,34 @@ class OppgaverTjenesteTest {
     }
 
     @Test
-    void finnFaktiskÅpneOppgaver_filtreAlleSpesjaloppgaver_BrukerIkkeNoeEhnet() {
+    void finnFaktiskÅpneOppgaver_filtreAlleSpesjaloppgaver_BrukerIkkeNoeEnhet() {
         when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalÅpnetOppgave("1234567", EnhetsTjeneste.SKJERMET_ENHET_ID)));
         var gosysOppgave = gosysOppgave("76543231");
         when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)).thenReturn(List.of(gosysOppgave));
 
         when(filterKlient.filterIdenter(any())).thenReturn(Set.of(AKTØR_ID));
+        when(ansattInfoKlient.medlemAvAnsattGruppe(AnsattGruppe.SKJERMET)).thenReturn(true);
 
         var alleOppgaver = oppgaver.finnÅpneOppgaverFiltrert();
 
         assertThat(alleOppgaver).isNotEmpty().hasSize(2);
+
+        verify(oppgaveRepository).hentAlleÅpneOppgaver();
+        verify(oppgaveKlient).finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT);
+    }
+
+    @Test
+    void finnFaktiskÅpneOppgaver_filtreAlleSpesjaloppgaver_BrukerIkketilgangTilEnhet() {
+        when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(lokalÅpnetOppgave("1234567", EnhetsTjeneste.SF_ENHET_ID)));
+        var gosysOppgave = gosysOppgave("76543231");
+        when(oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT)).thenReturn(List.of(gosysOppgave));
+
+        when(filterKlient.filterIdenter(any())).thenReturn(Set.of(AKTØR_ID));
+        when(ansattInfoKlient.medlemAvAnsattGruppe(AnsattGruppe.STRENGTFORTROLIG)).thenReturn(false);
+
+        var alleOppgaver = oppgaver.finnÅpneOppgaverFiltrert();
+
+        assertThat(alleOppgaver).isNotEmpty().hasSize(1);
 
         verify(oppgaveRepository).hentAlleÅpneOppgaver();
         verify(oppgaveKlient).finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, LIMIT);
