@@ -39,7 +39,7 @@
         <fp-kontrakter.version>9.3.8</fp-kontrakter.version>
 
         <!-- Eksterne -->
-        <confluent.version>7.9.1</confluent.version>
+        <confluent.version>8.0.0</confluent.version>
     </properties>
 
     <dependencyManagement>
