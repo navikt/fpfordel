@@ -17,7 +17,9 @@ public enum MottakKanal implements Kodeverdi {
     EPOST("E_POST"),
     HELSENETTET("HELSENETTET"),
     SKAN_NETS("SKAN_NETS"), // Ubrukt siden 2020
+    SKAN_PEN("SKAN_PEN"), // Scanning pensjon, skal ikke være relevant
     SKAN_IM("SKAN_IM"), // Iron Mountain, ikke inntektsmelding
+    HR_SYSTEM_API("HR_SYSTEM_API"), // Inntektsmelding sendt fra HR-system direkte til Nav-API
 
     /**
      * Alle kodeverk må ha en verdi, det kan ikke være null i databasen. Denne koden
