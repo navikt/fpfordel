@@ -12,8 +12,6 @@ import static no.nav.foreldrepenger.fordel.konfig.KonfigVerdier.ENDRING_BEREGNIN
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.AKTØR_ID_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.ARKIV_ID_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.SAKSNUMMER_KEY;
-import static no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser.erXmlMedKjentNamespace;
-import static no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser.unmarshallXml;
 import static no.nav.vedtak.konfig.Tid.TIDENES_BEGYNNELSE;
 
 import java.time.LocalDateTime;
@@ -38,6 +36,7 @@ import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
+import no.nav.foreldrepenger.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.foreldrepenger.mottak.tjeneste.DestinasjonsRuter;
 import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
@@ -157,22 +156,24 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         });
 
         if (journalpost.getInnholderStrukturertInformasjon()) {
-            if (!erXmlMedKjentNamespace(journalpost.getStrukturertPayload())) {
+            var råPayload = journalpost.getStrukturertPayload();
+            if (!MeldingXmlParser.erXmlMedKjentNamespace(råPayload)) {
                 var jptittel = journalpost.getOriginalJournalpost().tittel();
                 // kast feil for ukjent innhold som antagelig er XML (og vi kanskje bør
                 // håndtere). ignorer andre
-                if (!journalpost.getStrukturertPayload().isBlank() && Objects.equals('<', journalpost.getStrukturertPayload().trim().charAt(0))) {
+                if (!råPayload.isBlank() && Objects.equals('<', råPayload.trim().charAt(0))) {
                     var doktittel = journalpost.getOriginalJournalpost().dokumenter().get(0).tittel();
-                    var prefix = journalpost.getStrukturertPayload().substring(0, Math.min(40, journalpost.getStrukturertPayload().length()));
+                    var prefix = råPayload.substring(0, Math.min(40, råPayload.length()));
                     LOG.warn("FPFORDEL journalpost med ukjent xml innhold {} {} {}", jptittel, doktittel, prefix);
                 } else {
                     LOG.info("FPFORDEL journalpost med non-xml strukturert innhold {}", jptittel);
                 }
             } else {
                 try {
-                    var mottattDokument = unmarshallXml(journalpost.getStrukturertPayload());
+                    var payload = INNTEKTSMELDING.equals(journalpost.getHovedtype()) ? MeldingXmlParser.normaliserInntektsmelding(råPayload) : råPayload;
+                    var mottattDokument = MeldingXmlParser.unmarshallXml(payload);
                     mottattDokument.kopierTilMottakWrapper(w, pdl::hentAktørIdForPersonIdent);
-                    w.setPayload(journalpost.getStrukturertPayload());
+                    w.setPayload(payload);
                 } catch (VLException vle) {
                     // Mottatt journalpost har annet saksnummer enn den i endringssøknaden.... eller IM har ident-mismatch
                     // Skyldes feil i IM eller spesiell bruk av Gosys. Lag oppgave i dette tilfelle, godta i BehandleDokumentService

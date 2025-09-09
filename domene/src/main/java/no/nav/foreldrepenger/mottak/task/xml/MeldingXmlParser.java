@@ -6,6 +6,7 @@ import static no.nav.foreldrepenger.xmlutils.XmlUtils.retrieveNameSpaceOfXML;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -14,6 +15,8 @@ import no.nav.vedtak.exception.TekniskException;
 import no.seres.xsd.nav.inntektsmelding_m._201809.InntektsmeldingConstants;
 
 public final class MeldingXmlParser {
+
+    public static final Pattern INNSENDING_MINUTT = Pattern.compile(".*T\\d{2}:\\d{2}</innsendingstidspunkt.*");
 
     private static final Map<String, UnmarshallFunction> UNMARSHALL_FUNCTIONS = Map.of(
 
@@ -64,5 +67,13 @@ public final class MeldingXmlParser {
 
     private interface UnmarshallFunction {
         Object parse(String xml) throws Exception;
+    }
+
+    public static String normaliserInntektsmelding(String xml) {
+        if (INNSENDING_MINUTT.matcher(xml).find()) {
+            return xml.replace("</innsendingstidspunkt>", ":00</innsendingstidspunkt>");
+        } else {
+            return xml;
+        }
     }
 }
