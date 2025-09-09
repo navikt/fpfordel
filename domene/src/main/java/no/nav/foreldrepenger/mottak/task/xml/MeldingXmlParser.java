@@ -6,20 +6,14 @@ import static no.nav.foreldrepenger.xmlutils.XmlUtils.retrieveNameSpaceOfXML;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLStreamException;
 
-import org.xml.sax.SAXException;
-
-import jakarta.xml.bind.JAXBException;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
 import no.nav.vedtak.exception.TekniskException;
 import no.seres.xsd.nav.inntektsmelding_m._201809.InntektsmeldingConstants;
 
 public final class MeldingXmlParser {
-
-    public static final Pattern INNSENDING_MINUTT = Pattern.compile(".*T\\d{2}:\\d{2}</innsendingstidspunkt.*");
 
     private static final Map<String, UnmarshallFunction> UNMARSHALL_FUNCTIONS = Map.of(
 
@@ -30,10 +24,10 @@ public final class MeldingXmlParser {
             no.nav.foreldrepenger.søknad.v3.SøknadConstants.ADDITIONAL_CLASSES),
 
         InntektsmeldingConstants.NAMESPACE,
-        xml -> unmarshalAndValidateInntektsmelding(InntektsmeldingConstants.JAXB_CLASS, xml, InntektsmeldingConstants.XSD_LOCATION),
+        xml -> unmarshalAndValidateXMLWithStAX(InntektsmeldingConstants.JAXB_CLASS, xml, InntektsmeldingConstants.XSD_LOCATION),
 
         no.seres.xsd.nav.inntektsmelding_m._201812.InntektsmeldingConstants.NAMESPACE,
-        xml -> unmarshalAndValidateInntektsmelding(no.seres.xsd.nav.inntektsmelding_m._201812.InntektsmeldingConstants.JAXB_CLASS, xml,
+        xml -> unmarshalAndValidateXMLWithStAX(no.seres.xsd.nav.inntektsmelding_m._201812.InntektsmeldingConstants.JAXB_CLASS, xml,
             no.seres.xsd.nav.inntektsmelding_m._201812.InntektsmeldingConstants.XSD_LOCATION));
 
     private MeldingXmlParser() {
@@ -70,17 +64,5 @@ public final class MeldingXmlParser {
 
     private interface UnmarshallFunction {
         Object parse(String xml) throws Exception;
-    }
-
-    private static <T> T unmarshalAndValidateInntektsmelding(Class<T> clazz, String xml, String xsdLocation) throws JAXBException, XMLStreamException, SAXException {
-        return unmarshalAndValidateXMLWithStAX(clazz, normaliserInntektsmelding(xml), xsdLocation);
-    }
-
-    private static String normaliserInntektsmelding(String xml) {
-        if (INNSENDING_MINUTT.matcher(xml).find()) {
-            return xml.replace("</innsendingstidspunkt>", ":00</innsendingstidspunkt>");
-        } else {
-            return xml;
-        }
     }
 }
