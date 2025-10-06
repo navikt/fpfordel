@@ -1,4 +1,4 @@
-FROM ghcr.io/navikt/fp-baseimages/java:21
+FROM ghcr.io/navikt/fp-baseimages/java:25
 LABEL org.opencontainers.image.source=https://github.com/navikt/fpfordel
 
 # Config
