@@ -10,13 +10,15 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.StringUtil;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.pdl.FolkeregisteridentifikatorResponseProjection;
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.KjoennResponseProjection;
 import no.nav.pdl.KjoennType;
-import no.nav.pdl.Navn;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.PersonResponseProjection;
+import no.nav.vedtak.felles.integrasjon.person.FalskIdentitet;
 import no.nav.vedtak.felles.integrasjon.person.PdlException;
+import no.nav.vedtak.felles.integrasjon.person.PersonMappers;
 import no.nav.vedtak.felles.integrasjon.person.Persondata;
 import no.nav.vedtak.util.LRUCache;
 
@@ -48,16 +50,6 @@ public class PersonTjeneste implements PersonInformasjon {
         var q = new HentPersonQueryRequest();
         q.setIdent(aktørId);
         return q;
-    }
-    private static String mapNavn(Navn navn) {
-        return navn.getFornavn() + leftPad(navn.getMellomnavn()) + leftPad(navn.getEtternavn());
-    }
-
-    private static String leftPad(String navn) {
-        if (navn == null) {
-            return "";
-        }
-        return " " + navn;
     }
 
     @Override
@@ -93,13 +85,16 @@ public class PersonTjeneste implements PersonInformasjon {
     @Override
     public String hentNavn(BehandlingTema behandlingTema, String id) {
         var ytelse = utledYtelse(behandlingTema);
-        return pdl.hentPerson(ytelse, personQuery(id),
-                new PersonResponseProjection().navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn()))
-            .getNavn()
-            .stream()
-            .map(PersonTjeneste::mapNavn)
-            .findFirst()
-            .orElseThrow();
+        var person = pdl.hentPerson(ytelse, personQuery(id),
+                new PersonResponseProjection().navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
+                    .folkeregisteridentifikator(new FolkeregisteridentifikatorResponseProjection().identifikasjonsnummer().status()));
+        if (PersonMappers.manglerIdentifikator(person)) {
+            var falskId = FalskIdentitet.finnFalskIdentitet(id, pdl).orElse(null);
+            if (falskId != null) {
+                return falskId.navn();
+            }
+        }
+        return PersonMappers.mapNavn(person).orElse("Ukjent Navn");
     }
 
 

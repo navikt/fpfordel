@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
+import no.nav.pdl.Folkeregisteridentifikator;
 import no.nav.pdl.Navn;
 import no.nav.pdl.Person;
 import no.nav.vedtak.felles.integrasjon.person.Persondata;
@@ -70,6 +71,7 @@ class PersonTjenesteTest {
         var responsenavn = new Navn("Kari", "Mari", "Nordmann", null, null, null, null, null);
         var response = new Person();
         response.setNavn(List.of(responsenavn));
+        response.setFolkeregisteridentifikator(List.of(new Folkeregisteridentifikator("12345678901", "I_BRUK", "FNR", null, null)));
         when(pdl.hentPerson(any(), argThat(a -> a.getInput().get("ident").equals(AKTØR_ID)), any())).thenReturn(response);
         String navn = personTjeneste.hentNavn(BehandlingTema.FORELDREPENGER, AKTØR_ID);
         assertThat(navn).isEqualTo("Kari Mari Nordmann");
