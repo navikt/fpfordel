@@ -36,6 +36,11 @@
       "cluster": "dev-gcp"
     },
     {
+      "app": "fp-journalforing",
+      "namespace": "teamforeldrepenger",
+      "cluster": "dev-gcp"
+    },
+    {
       "app": "fp-swagger",
       "namespace": "teamforeldrepenger",
       "cluster": "dev-gcp",
