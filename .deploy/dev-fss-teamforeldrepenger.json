@@ -18,15 +18,15 @@
   "groups": [
     {
       "uuid": "27e77109-fef2-48ce-a174-269074490353",
-      "navn": "0000-GA-fpsak-saksbehandler"
+      "kommentar": "0000-GA-fpsak-saksbehandler"
     },
     {
       "uuid": "8cddda87-0a22-4d35-9186-a2c32a6ab450",
-      "navn": "0000-GA-fpsak-veileder"
+      "kommentar": "0000-GA-fpsak-veileder"
     },
     {
       "uuid": "f1b82579-c5b5-4617-9673-8ace5ff67f63",
-      "navn": "0000-GA-fpsak-drift"
+      "kommentar": "0000-GA-fpsak-drift"
     }
   ],
   "AZURE_IAC_RULES": [
