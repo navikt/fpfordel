@@ -16,13 +16,27 @@
     "https://fpfordel.prod-fss-pub.nais.io"
   ],
   "groups": [
-    "73107205-17ec-4a07-a56e-e0a8542f90c9",
-    "77f05833-ebfd-45fb-8be7-88eca8e7418f",
-    "0d226374-4748-4367-a38a-062dcad70034"
+    {
+      "uuid": "73107205-17ec-4a07-a56e-e0a8542f90c9",
+      "kommentar": "0000-GA-fpsak-saksbehandler"
+    },
+    {
+      "uuid": "77f05833-ebfd-45fb-8be7-88eca8e7418f",
+      "kommentar": "0000-GA-fpsak-veileder"
+    },
+    {
+      "uuid": "0d226374-4748-4367-a38a-062dcad70034",
+      "kommentar": "0000-GA-fpsak-drift"
+    }
   ],
   "AZURE_IAC_RULES": [
     {
       "app": "fp-frontend",
+      "namespace": "teamforeldrepenger",
+      "cluster": "prod-gcp"
+    },
+    {
+      "app": "fp-journalforing",
       "namespace": "teamforeldrepenger",
       "cluster": "prod-gcp"
     },
