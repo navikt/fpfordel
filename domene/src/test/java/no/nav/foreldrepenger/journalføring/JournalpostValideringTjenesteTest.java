@@ -98,7 +98,7 @@ class JournalpostValideringTjenesteTest {
         var exception = assertThrows(FunksjonellException.class,
             () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID, null));
 
-        var expectedMessage = "FP-785359:Dokument og valgt ytelsetype i uoverenstemmelse";
+        var expectedMessage = "FP-785359: Dokument og valgt ytelsetype i uoverenstemmelse";
         var actualMessage = exception.getMessage();
 
         var expectedLøsningsforslag = "Velg ytelsetype som samstemmer med dokument";
@@ -120,7 +120,7 @@ class JournalpostValideringTjenesteTest {
         var exception = assertThrows(FunksjonellException.class,
             () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID, null));
 
-        var expectedMessage = "FP-785359:Dokument og valgt ytelsetype i uoverenstemmelse";
+        var expectedMessage = "FP-785359: Dokument og valgt ytelsetype i uoverenstemmelse";
         var actualMessage = exception.getMessage();
 
         var expectedLøsningsforslag = "Velg ytelsetype som samstemmer med dokument";
@@ -143,7 +143,7 @@ class JournalpostValideringTjenesteTest {
         var exception = assertThrows(FunksjonellException.class,
             () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID, null));
 
-        var expectedMessage = "FP-785359:Dokument og valgt ytelsetype i uoverenstemmelse";
+        var expectedMessage = "FP-785359: Dokument og valgt ytelsetype i uoverenstemmelse";
         var actualMessage = exception.getMessage();
 
         var expectedLøsningsforslag = "Velg ytelsetype som samstemmer med dokument";
@@ -165,7 +165,7 @@ class JournalpostValideringTjenesteTest {
         var exception = assertThrows(FunksjonellException.class,
             () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID, null));
 
-        var expectedMessage = "FP-785360:Kan ikke opprette sak basert på valgt journalpost";
+        var expectedMessage = "FP-785360: Kan ikke opprette sak basert på valgt journalpost";
         var actualMessage = exception.getMessage();
 
         var expectedLøsningsforslag = "Kan bare opprette sak fra førstegangssøknad eller inntektsmelding";
@@ -188,7 +188,7 @@ class JournalpostValideringTjenesteTest {
         var exception = assertThrows(FunksjonellException.class,
             () -> tjeneste.validerKonsistensMedSak(JOURNALPOST_ID, offisiellKode, AKTØR_ID, null));
 
-        var expectedMessage = "FP-785360:Kan ikke opprette sak basert på valgt journalpost";
+        var expectedMessage = "FP-785360: Kan ikke opprette sak basert på valgt journalpost";
         var actualMessage = exception.getMessage();
 
         var expectedLøsningsforslag = "Kan bare opprette sak fra førstegangssøknad eller inntektsmelding";

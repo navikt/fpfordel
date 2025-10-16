@@ -113,28 +113,28 @@ class DokumentforsendelseRestTjenesteTest {
         map.put(CONTENT_DISPOSITION, List.of("ikke_metadata"));
         when(metadataPart.getHeaders()).thenReturn(map);
         assertThatThrownBy(() -> tjeneste.uploadFile(input)).isInstanceOf(TekniskException.class)
-            .hasMessage("FP-892453:The first part must be the metadata part");
+            .hasMessage("FP-892453: The first part must be the metadata part");
     }
 
     @Test
     void skal_kaste_teknisk_exception_hvis_metadata_ikke_er_json() {
         when(metadataPart.getMediaType()).thenReturn(APPLICATION_XML_TYPE);
         assertThatThrownBy(() -> tjeneste.uploadFile(input)).isInstanceOf(TekniskException.class)
-            .hasMessage("FP-892454:The metadata part should be application/json");
+            .hasMessage("FP-892454: The metadata part should be application/json");
     }
 
     @Test
     void skal_kaste_teknisk_exception_hvis_man_ikke_kan_hente_body_for_metadata() throws Exception {
         when(metadataPart.getEntityAs(String.class)).thenThrow(ProcessingException.class);
         assertThatThrownBy(() -> tjeneste.uploadFile(input)).isInstanceOf(TekniskException.class)
-            .hasMessageContaining("FP-892466:Klarte ikke å lese inn dokumentet");
+            .hasMessageContaining("FP-892466: Klarte ikke å lese inn dokumentet");
     }
 
     @Test
     void skal_kaste_teknisk_exception_hvis_metadata_har_flere_filer_enn_lastet_opp() {
         when(input.getBodyParts()).thenReturn(List.of(metadataPart, hoveddokumentPart, hoveddokumentPartPdf));
         assertThatThrownBy(() -> tjeneste.uploadFile(input)).isInstanceOf(TekniskException.class)
-            .hasMessageContaining("FP-892456:Metadata inneholder flere filer enn det som er lastet opp");
+            .hasMessageContaining("FP-892456: Metadata inneholder flere filer enn det som er lastet opp");
     }
 
     @Test
@@ -154,14 +154,14 @@ class DokumentforsendelseRestTjenesteTest {
         map.put("Content-Disposition", List.of("mangler ; foo=name"));
         when(hoveddokumentPart.getHeaders()).thenReturn(map);
 
-        assertThatThrownBy(() -> tjeneste.uploadFile(input)).isInstanceOf(TekniskException.class).hasMessageContaining("FP-892457:Unknown part name");
+        assertThatThrownBy(() -> tjeneste.uploadFile(input)).isInstanceOf(TekniskException.class).hasMessageContaining("FP-892457: Unknown part name");
     }
 
     @Test
     void skal_kaste_teknisk_exception_hvis_vedlegg_ikke_er_mediatype_pdf() {
         when(vedleggPart.getMediaType()).thenReturn(APPLICATION_XML_TYPE);
         assertThatThrownBy(() -> tjeneste.uploadFile(input)).isInstanceOf(TekniskException.class)
-            .hasMessageContaining("FP-882558:Vedlegg er ikke pdf, Content-ID=<some ID 3>");
+            .hasMessageContaining("FP-882558: Vedlegg er ikke pdf, Content-ID=<some ID 3>");
     }
 
     @Test
