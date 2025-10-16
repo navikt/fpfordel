@@ -57,10 +57,13 @@ spec:
   vault:
     enabled: true
     paths:
-    - kvPath: {{oraclecredskv}}
-      mountPath: /var/run/secrets/nais.io/defaultDS
-    - kvPath: {{oracleconfigkv}}
-      mountPath: /var/run/secrets/nais.io/defaultDSconfig
+      - mountPath: {{vault.mountPath}}/defaultDSconfig
+        kvPath: {{vault.db.configPath}}
+      - mountPath: {{vault.mountPath}}/defaultDS
+        kvPath: {{vault.db.secretsPath}}
+  env:
+    - name: VAULT_MOUNT_PATH
+      value: "{{vault.mountPath}}"
   tokenx:
     enabled: true
   kafka:
