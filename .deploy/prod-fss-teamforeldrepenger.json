@@ -1,7 +1,12 @@
 {
   "kafkaPool": "nav-prod",
-  "oracleconfigkv": "/oracle/data/prod/config/fpfordel_p",
-  "oraclecredskv": "/oracle/data/prod/creds/fpfordel_p-fpfordel_p",
+  "vault": {
+    "mountPath": "/var/run/secrets/nais.io",
+    "db": {
+      "secretsPath": "oracle/data/prod/creds/fpfordel_p-fpfordel_p",
+      "configPath": "oracle/data/prod/config/fpfordel_p"
+    }
+  },
   "minReplicas": "2",
   "maxReplicas": "3",
   "limits": {
@@ -18,15 +23,15 @@
   "groups": [
     {
       "uuid": "73107205-17ec-4a07-a56e-e0a8542f90c9",
-      "kommentar": "0000-GA-fpsak-saksbehandler"
+      "kommentar": "saksbehandler"
     },
     {
       "uuid": "77f05833-ebfd-45fb-8be7-88eca8e7418f",
-      "kommentar": "0000-GA-fpsak-veileder"
+      "kommentar": "veileder"
     },
     {
       "uuid": "0d226374-4748-4367-a38a-062dcad70034",
-      "kommentar": "0000-GA-fpsak-drift"
+      "kommentar": "drift"
     }
   ],
   "AZURE_IAC_RULES": [
