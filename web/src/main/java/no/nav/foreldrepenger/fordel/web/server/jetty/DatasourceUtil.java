@@ -22,9 +22,9 @@ class DatasourceUtil {
 
     static DataSource createDatasource(int maxPoolSize, int minIdle) {
         var config = new HikariConfig();
-        config.setJdbcUrl(ENV.getProperty("defaultDS.url", lesFilVerdi("defaultDSconfig", "jdbc_url")));
-        config.setUsername(ENV.getProperty("defaultDS.username", lesFilVerdi("defaultDS", "username")));
-        config.setPassword(ENV.getProperty("defaultDS.password", lesFilVerdi("defaultDS", "password")));
+        config.setJdbcUrl(hentEllerBeregnVerdiHvisMangler("defaultDS.url", "defaultDSconfig", "jdbc_url"));
+        config.setUsername(hentEllerBeregnVerdiHvisMangler("defaultDS.username", "defaultDS", "username"));
+        config.setPassword(hentEllerBeregnVerdiHvisMangler("defaultDS.password", "defaultDS", "password"));
         config.setConnectionTimeout(TimeUnit.SECONDS.toMillis(2));
         config.setMinimumIdle(minIdle);
         config.setMaximumPoolSize(maxPoolSize);
@@ -36,5 +36,13 @@ class DatasourceUtil {
         config.setDataSourceProperties(dsProperties);
 
         return new HikariDataSource(config);
+    }
+
+    /* Denne gir lazy loading og feiler ikke ved lokalt kjøring uten vault mount */
+    private static String hentEllerBeregnVerdiHvisMangler(String key, String mappeNavn, String filNavn) {
+        if (ENV.getProperty(key) == null) {
+            System.getProperties().computeIfAbsent(key, _ -> VaultUtil.lesFilVerdi(mappeNavn, filNavn));
+        }
+        return ENV.getRequiredProperty(key);
     }
 }
