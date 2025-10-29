@@ -136,6 +136,7 @@ public enum DokumentTypeId implements Kodeverdi {
     private static final Map<String, DokumentTypeId> ALT_TITLER = Map.ofEntries(
         Map.entry("søknad om svangerskapspenger til selvstendig næringsdrivende og frilanser", SØKNAD_SVANGERSKAPSPENGER),
         Map.entry("søknad om svangerskapspenger for selvstendig", SØKNAD_SVANGERSKAPSPENGER),
+        Map.entry("form for accommodation and reassignment in case of pregnancy", SØKNAD_SVANGERSKAPSPENGER),
         Map.entry("bekreftelse på avtalt ferie", DOK_FERIE),
         Map.entry("mor er innlagt i helseinstitusjon", DOK_INNLEGGELSE),
         Map.entry("mor er i arbeid tar utdanning eller er for syk til å ta seg av barnet", DOK_MORS_UTDANNING_ARBEID_SYKDOM),
