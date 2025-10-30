@@ -1,41 +1,37 @@
 package no.nav.foreldrepenger.mottak.hendelse;
 
+import static io.confluent.kafka.serializers.KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.function.Supplier;
-
-import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.context.control.ActivateRequestContext;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
-
-import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
-
-import no.nav.foreldrepenger.mottak.hendelse.test.VtpKafkaAvroDeserializer;
-import no.nav.vedtak.felles.integrasjon.kafka.KafkaMessageHandler;
-
-import no.nav.vedtak.felles.integrasjon.kafka.KafkaProperties;
 
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.control.ActivateRequestContext;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
+import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
+import no.nav.foreldrepenger.mottak.hendelse.test.VtpKafkaAvroDeserializer;
 import no.nav.foreldrepenger.mottak.task.joark.HentDataFraJoarkTask;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
+import no.nav.vedtak.felles.integrasjon.kafka.KafkaMessageHandler;
+import no.nav.vedtak.felles.integrasjon.kafka.KafkaProperties;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
-
-import static io.confluent.kafka.serializers.KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG;
 
 /*
  * Dokumentasjon https://confluence.adeo.no/pages/viewpage.action?pageId=315215917
@@ -112,7 +108,7 @@ public class JournalføringHendelseHåndterer implements KafkaMessageHandler<Str
         // De uten kanalreferanse er "klonet" av SBH og journalført fra Gosys.
         // Normalt blir de journalført, men det feiler av og til pga tilgang.
         // Håndterer disse journalpostene senere i tilfelle SBH skal ha klart å ordne ting selv
-        var delay = eksternReferanseId == null && !mottaksKanal.equals(MottakKanal.SELVBETJENING.getKode()) ? Duration.ofHours(journalføringDelay) : Duration.ZERO;
+        var delay = eksternReferanseId == null && !mottaksKanal.equals(MottakKanal.SELVBETJENING.getKode()) ? Duration.ofHours(journalføringDelay) : minsteDelay();
 
         if (HENDELSE_ENDRET.equalsIgnoreCase(payload.getHendelsesType())) {
             // Hendelsen kan komme før arkivet er oppdatert .....
@@ -129,12 +125,6 @@ public class JournalføringHendelseHåndterer implements KafkaMessageHandler<Str
 
         LOG.info("FPFORDEL Mottatt Journalføringhendelse type {} journalpost {} referanse {}", hendelseType, arkivId, eksternReferanseId);
 
-        // All journalføring av innsendinger fra SB gir en Midlertidig-hendelse. De skal
-        // vi ikke reagere på før evt full refaktorering
-        if (eksternReferanseId != null && dokumentRepository.erLokalForsendelse(eksternReferanseId)) {
-            LOG.info("FPFORDEL Mottatt Hendelse egen journalføring callid {}", arkivId);
-            return;
-        }
         if (!dokumentRepository.hentJournalposter(arkivId).isEmpty()) {
             LOG.info("FPFORDEL Mottatt Hendelse egen journalføring journalpost {}", arkivId);
             return;
@@ -198,6 +188,17 @@ public class JournalføringHendelseHåndterer implements KafkaMessageHandler<Str
                 SPECIFIC_AVRO_READER_CONFIG, true);
         } else {
             return Map.of();
+        }
+    }
+
+    private static Duration minsteDelay() {
+        // Ved direkte endelig journalføring av søknad/IM vil det komme 2 tette hendelser - midlertidig og endelig
+        if (ENV.isProd()) {
+            return Duration.ofSeconds(10);
+        } else if (ENV.isDev()) {
+            return Duration.ofSeconds(5);
+        } else {
+            return Duration.ofSeconds(1);
         }
     }
 }

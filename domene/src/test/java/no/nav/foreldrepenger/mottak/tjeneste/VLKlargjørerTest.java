@@ -44,7 +44,7 @@ class VLKlargjørerTest {
     void skal_knytte_og_sende() {
 
         klargjørForVLTjeneste.klargjør(null, SAK_ID, ARKIV_ID, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, LocalDate.now().atStartOfDay(),
-            BehandlingTema.FORELDREPENGER, null, DokumentKategori.SØKNAD, ENHET_ID, null);
+            BehandlingTema.FORELDREPENGER, DokumentKategori.SØKNAD, ENHET_ID, null);
 
         var captorJ = ArgumentCaptor.forClass(JournalpostKnyttningDto.class);
         verify(mockFagsakRestKlient).knyttSakOgJournalpost(captorJ.capture());

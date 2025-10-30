@@ -12,9 +12,9 @@ public class EnhetsTjeneste {
     public static final String NK_ENHET_ID = "4292"; // Enhetsnummer NAV Klageinstans Midt-Norge
     public static final String SKJERMET_ENHET_ID = "4883"; // Enhetsnummer NAV Familie og Pensjon Skjermet
     public static final String SF_ENHET_ID = "2103"; // Enhetsnummer NAV K6 enhet
-    public static final Set<String> SKJERMINGENHETER = Set.of(SKJERMET_ENHET_ID, SF_ENHET_ID);
     public static final String UTLAND_ENHET_ID = "4806"; // Enhetsnummer NAV Utland enhet
-    private static final Set<String> SPESIALENHETER = Set.of(NK_ENHET_ID, SKJERMET_ENHET_ID, SF_ENHET_ID, UTLAND_ENHET_ID);
+    public static final String SAMMENSATT_ENHET_ID = "4817"; // Enhetsnummer NAV Utland enhet
+    private static final Set<String> SPESIALENHETER = Set.of(NK_ENHET_ID, SKJERMET_ENHET_ID, SF_ENHET_ID, UTLAND_ENHET_ID, SAMMENSATT_ENHET_ID);
     private static final String NASJONAL_ENHET_ID = "4867";
 
     private RutingKlient rutingKlient;

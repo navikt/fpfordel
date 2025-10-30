@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.fordel.web.app.exceptions.JsonParseExceptionMapper;
 import no.nav.foreldrepenger.fordel.web.app.forvaltning.ForvaltningRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.forvaltning.migrering.MigreringRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.jackson.JacksonJsonConfig;
-import no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.rest.journalføring.FerdigstillJournalføringRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.rest.journalføring.JournalføringRestTjeneste;
 import no.nav.foreldrepenger.konfig.Environment;
@@ -59,7 +58,6 @@ public class ApiConfig extends Application {
     public Set<Class<?>> getClasses() {
         return Set.of(ProsessTaskRestTjeneste.class,
             FerdigstillJournalføringRestTjeneste.class,
-            DokumentforsendelseRestTjeneste.class,
             JournalføringRestTjeneste.class,
             ForvaltningRestTjeneste.class,
             MigreringRestTjeneste.class,

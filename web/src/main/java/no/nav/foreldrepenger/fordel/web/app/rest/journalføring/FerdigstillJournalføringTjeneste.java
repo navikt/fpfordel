@@ -152,7 +152,7 @@ public class FerdigstillJournalføringTjeneste {
 
         final var xml = hentDokumentSettMetadata(saksnummer, behandlingTema, aktørIdFagsak, journalpost);
         klargjører.klargjør(xml, saksnummer, journalpost.getJournalpostId(), brukDokumentTypeId, mottattTidspunkt, behandlingTema,
-            forsendelseId.orElse(null), dokumentKategori, enhetId, eksternReferanseId);
+                dokumentKategori, enhetId, eksternReferanseId);
 
         // For å unngå klonede journalposter fra GOSYS - de kan komme via Kafka.
         dokumentRepository.lagreJournalpostLokal(journalpost.getJournalpostId(), journalpost.getKanal(), ENDELIG,
@@ -352,8 +352,8 @@ public class FerdigstillJournalføringTjeneste {
                     journalpost.getOriginalJournalpost()).orElse(null);
         }
 
-        klargjører.klargjør(xml, saksnummer, nyJournalpostId, brukDokumentTypeId, mottattTidspunkt, behandlingTema, forsendelseId.orElse(null),
-            dokumentKategori, enhetId, eksternReferanseId);
+        klargjører.klargjør(xml, saksnummer, nyJournalpostId, brukDokumentTypeId, mottattTidspunkt, behandlingTema,
+                dokumentKategori, enhetId, eksternReferanseId);
 
         // For å unngå klonede journalposter fra GOSYS - de kan komme via Kafka.
         dokumentRepository.lagreJournalpostLokal(nyJournalpostId, journalpost.getKanal(), ENDELIG, journalpost.getEksternReferanseId());
@@ -386,7 +386,7 @@ public class FerdigstillJournalføringTjeneste {
         }
 
         klargjører.klargjør(xml, saksnummer, journalpost.getJournalpostId(), brukDokumentTypeId, mottattTidspunkt, behandlingTema,
-            forsendelseId.orElse(null), dokumentKategori, null, eksternReferanseId);
+                dokumentKategori, null, eksternReferanseId);
     }
 
 

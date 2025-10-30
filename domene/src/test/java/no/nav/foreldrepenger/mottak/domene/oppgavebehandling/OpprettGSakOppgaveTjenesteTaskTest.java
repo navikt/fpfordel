@@ -13,7 +13,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,10 +27,8 @@ import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
-import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.DokumentArkivTestUtil;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 class OpprettGSakOppgaveTjenesteTaskTest {
@@ -39,16 +36,14 @@ class OpprettGSakOppgaveTjenesteTaskTest {
     private OpprettGSakOppgaveTask task;
 
     @Mock
-    private ProsessTaskTjeneste prosessTaskTjeneste;
-    @Mock
     private EnhetsTjeneste enhetsidTjeneste;
     @Mock
     private Journalføringsoppgave oppgaverTjeneste;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         when(enhetsidTjeneste.hentFordelingEnhetId(any(), any())).thenReturn(FORDELINGSOPPGAVE_ENHET_ID);
-        task = new OpprettGSakOppgaveTask(prosessTaskTjeneste, oppgaverTjeneste, enhetsidTjeneste);
+        task = new OpprettGSakOppgaveTask(oppgaverTjeneste, enhetsidTjeneste);
     }
 
     @Test
@@ -95,14 +90,12 @@ class OpprettGSakOppgaveTjenesteTaskTest {
 
     @Test
     void testSkalJournalføreDokumentForsendelse() {
-        var forsendelseId = UUID.randomUUID();
         var taskData = ProsessTaskData.forProsessTask(OpprettGSakOppgaveTask.class);
         taskData.setProperty(TEMA_KEY, Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getKode());
         taskData.setProperty(BEHANDLINGSTEMA_KEY, BehandlingTema.FORELDREPENGER.getKode());
-        taskData.setProperty(MottakMeldingDataWrapper.FORSENDELSE_ID_KEY, forsendelseId.toString());
         taskData.setProperty(DOKUMENTTYPE_ID_KEY, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.getKode());
         taskData.setProperty(RETRY_KEY, "J");
-        var arkivId = DokumentArkivTestUtil.lagOpprettRespons(false).journalpostId();
+        var arkivId = DokumentArkivTestUtil.JOURNALPOST_ID;
         taskData.setProperty(ARKIV_ID_KEY, arkivId);
 
         String beskrivelse = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.getTermNavn();
@@ -115,14 +108,12 @@ class OpprettGSakOppgaveTjenesteTaskTest {
 
     @Test
     void testAnnetDokumentType_annet_gosys() {
-        var forsendelseId = UUID.randomUUID();
         var taskData = ProsessTaskData.forProsessTask(OpprettGSakOppgaveTask.class);
         taskData.setProperty(TEMA_KEY, Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getKode());
         taskData.setProperty(BEHANDLINGSTEMA_KEY, BehandlingTema.FORELDREPENGER.getKode());
-        taskData.setProperty(MottakMeldingDataWrapper.FORSENDELSE_ID_KEY, forsendelseId.toString());
         taskData.setProperty(DOKUMENTTYPE_ID_KEY, DokumentTypeId.ANNET.getKode());
         taskData.setProperty(RETRY_KEY, "J");
-        var arkivId = DokumentArkivTestUtil.lagOpprettRespons(false).journalpostId();
+        var arkivId = DokumentArkivTestUtil.JOURNALPOST_ID;
         taskData.setProperty(ARKIV_ID_KEY, arkivId);
 
         String beskrivelse = DokumentTypeId.ANNET.getTermNavn();

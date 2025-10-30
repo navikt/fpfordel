@@ -162,7 +162,7 @@ class FerdigstillJournalføringTjenesteTest {
 
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
-        verify(klargjører).klargjør(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(), eq(ENGANGSSTØNAD_FØDSEL), any(), any(), any(), any());
+        verify(klargjører).klargjør(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(), eq(ENGANGSSTØNAD_FØDSEL), any(), any(), any());
     }
 
     @Test
@@ -181,7 +181,7 @@ class FerdigstillJournalføringTjenesteTest {
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
         verify(klargjører).klargjør(eq(readFile("testdata/inntektsmelding-foreldrepenger.xml")), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
-            eq(FORELDREPENGER_FØDSEL), any(), any(), any(), any());
+            eq(FORELDREPENGER_FØDSEL), any(), any(), any());
     }
 
     @Test
@@ -240,7 +240,7 @@ class FerdigstillJournalføringTjenesteTest {
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
         verify(klargjører).klargjør(eq(readFile("testdata/selvb-soeknad-forp.xml")), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
-            eq(FORELDREPENGER_FØDSEL), any(), any(), any(), any());
+            eq(FORELDREPENGER_FØDSEL), any(), any(), any());
     }
 
     @Test
@@ -257,7 +257,7 @@ class FerdigstillJournalføringTjenesteTest {
 
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
-        verify(klargjører).klargjør(eq(null), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(), eq(FORELDREPENGER), any(), any(), any(), any());
+        verify(klargjører).klargjør(eq(null), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(), eq(FORELDREPENGER), any(), any(), any());
     }
 
     @Test
@@ -275,7 +275,7 @@ class FerdigstillJournalføringTjenesteTest {
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
         verify(klargjører).klargjør(eq(readFile("testdata/fp-adopsjon-mor.xml")), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
-            eq(FORELDREPENGER_ADOPSJON), any(), any(), any(), any());
+            eq(FORELDREPENGER_ADOPSJON), any(), any(), any());
     }
 
     @Test
@@ -293,7 +293,7 @@ class FerdigstillJournalføringTjenesteTest {
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
         verify(klargjører).klargjør(eq(readFile("testdata/selvb-soeknad-endring.xml")), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(),
-            eq(FORELDREPENGER), any(), any(), any(), any());
+            eq(FORELDREPENGER), any(), any(), any());
     }
 
     @Test
@@ -303,7 +303,7 @@ class FerdigstillJournalføringTjenesteTest {
 
         journalføringTjeneste.oppdaterJournalpostOgFerdigstill(ENHETID, SAKSNUMMER, arkivJournalpost, null, Collections.emptyList(),  null);
 
-        verify(klargjører).klargjør(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(), eq(ENGANGSSTØNAD_FØDSEL), any(), any(), any(), any());
+        verify(klargjører).klargjør(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(), eq(ENGANGSSTØNAD_FØDSEL), any(), any(), any());
     }
 
     @Test
@@ -326,7 +326,7 @@ class FerdigstillJournalføringTjenesteTest {
         verify(arkiv, times(1)).oppdaterJournalpostVedManuellJournalføring(JOURNALPOST_ID, nyTittel, List.of(new OppdaterJournalpostRequest.DokumentInfoOppdater("1", nyTittel, null)), arkivJournalpost, AKTØR_ID, FORELDREPENGER_FØDSEL);
         verify(arkiv).oppdaterMedSak(JOURNALPOST_ID, SAKSNUMMER, AKTØR_ID);
         verify(arkiv).ferdigstillJournalføring(JOURNALPOST_ID, ENHETID);
-        verify(klargjører).klargjør(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(), eq(FORELDREPENGER_FØDSEL), any(), any(), any(), any());
+        verify(klargjører).klargjør(any(), eq(SAKSNUMMER), eq(JOURNALPOST_ID), any(), any(), eq(FORELDREPENGER_FØDSEL), any(), any(), any());
     }
 
     @Test

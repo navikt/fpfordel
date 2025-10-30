@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.mottak.tjeneste.VLKlargjører;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 class VLKlargjørerTaskTest {
@@ -64,11 +63,9 @@ class VLKlargjørerTaskTest {
         data.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON);
         data.setForsendelseMottattTidspunkt(LocalDateTime.now());
         data.setPayload("pay the load");
-        data.setForsendelseId(UUID.randomUUID());
         var neste = toTaskWithPrecondition(data);
-        verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
-        assertThat(neste).isNotNull();
-        assertThat(neste.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTask(SlettForsendelseTask.class));
+        verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any(), any());
+        assertThat(neste).isNull();
     }
 
     @Test
@@ -80,27 +77,9 @@ class VLKlargjørerTaskTest {
         data.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON);
         data.setForsendelseMottattTidspunkt(LocalDateTime.now());
         data.setPayload("<xml>test<xml>");
-        data.setForsendelseId(UUID.randomUUID());
         var neste = toTaskWithPrecondition(data);
-        verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
-        assertThat(neste).isNotNull();
-        assertThat(neste.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTask(SlettForsendelseTask.class));
-    }
-
-    @Test
-    void test_oppdater_metadata_hvis_forsendelseId_er_satt() {
-        var data = new MottakMeldingDataWrapper(ptd);
-        data.setArkivId(ARKIV_ID);
-        data.setSaksnummer(SAKSNUMMER);
-        data.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_ADOPSJON);
-        data.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON);
-        data.setForsendelseMottattTidspunkt(LocalDateTime.now());
-        data.setPayload("<xml>test<xml>");
-        data.setForsendelseId(forsendelseId);
-        var neste = toTaskWithPrecondition(data);
-        verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
-        assertThat(neste).isNotNull();
-        assertThat(neste.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTask(SlettForsendelseTask.class));
+        verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any(), any());
+        assertThat(neste).isNull();
     }
 
     @Test
@@ -113,7 +92,7 @@ class VLKlargjørerTaskTest {
         data.setForsendelseMottattTidspunkt(LocalDateTime.now());
         data.setPayload("<xml>test<xml>");
         var neste = toTaskWithPrecondition(data);
-        verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+        verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any(), any());
         assertThat(neste).isNull();
     }
 

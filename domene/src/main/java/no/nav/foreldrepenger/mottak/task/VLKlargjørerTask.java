@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
@@ -13,7 +12,6 @@ import no.nav.foreldrepenger.mottak.tjeneste.VLKlargjører;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 /*
  * Sender dokument til fpsak og evt til fptilbake
@@ -60,17 +58,10 @@ public class VLKlargjørerTask extends WrappedProsessTaskHandler {
         String journalEnhet = w.getJournalførendeEnhet().orElse(null);
         String eksternReferanseId = w.getEksternReferanseId().orElse(null);
         var behandlingsTema = w.getBehandlingTema();
-        var forsendelseId = w.getForsendelseId();
-        boolean erReinnsend = w.getRetryingTask().map(REINNSEND::equals).orElse(Boolean.FALSE);
 
         klargjører.klargjør(xml, saksnummer, arkivId, dokumenttypeId, w.getForsendelseMottattTidspunkt().orElseGet(LocalDateTime::now),
-            behandlingsTema, w.getForsendelseId().orElse(null), dokumentKategori, journalEnhet, eksternReferanseId);
+            behandlingsTema, dokumentKategori, journalEnhet, eksternReferanseId);
 
-        if (forsendelseId.isPresent() && !erReinnsend) {
-            // Gi selvbetjening tid til å polle ferdig + Kafka-hendelse tid til å nå fram
-            // (og bli ignorert)
-            return w.nesteSteg(TaskType.forProsessTask(SlettForsendelseTask.class), LocalDateTime.now().plusHours(2));
-        }
         return null; // Siste steg, fpsak overtar nå
     }
 

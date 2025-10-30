@@ -4,10 +4,8 @@ import static no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste.NK_EN
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.ARKIV_ID_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.BEHANDLINGSTEMA_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY;
-import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.FORSENDELSE_ID_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.JOURNAL_ENHET;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -22,12 +20,10 @@ import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
 import no.nav.foreldrepenger.journalføring.oppgave.domene.NyOppgave;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
-import no.nav.foreldrepenger.mottak.task.SlettForsendelseTask;
 import no.nav.foreldrepenger.mottak.tjeneste.ArkivUtil;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 /**
  * <p>
@@ -43,12 +39,10 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(OpprettGSakOppgaveTask.class);
 
     private final Journalføringsoppgave oppgaverTjeneste;
-    private final ProsessTaskTjeneste taskTjeneste;
     private final EnhetsTjeneste enhetsTjeneste;
 
     @Inject
-    public OpprettGSakOppgaveTask(ProsessTaskTjeneste taskTjeneste, Journalføringsoppgave oppgaverTjeneste, EnhetsTjeneste enhetsTjeneste) {
-        this.taskTjeneste = taskTjeneste;
+    public OpprettGSakOppgaveTask(Journalføringsoppgave oppgaverTjeneste, EnhetsTjeneste enhetsTjeneste) {
         this.oppgaverTjeneste = oppgaverTjeneste;
         this.enhetsTjeneste = enhetsTjeneste;
     }
@@ -98,24 +92,6 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         String oppgaveId = opprettOppgave(prosessTaskData, behandlingTema, dokumentTypeId);
 
         LOG.info("FPFORDEL JFR-OPPGAVE: opprettet oppgave med id {} for journalpostId: {}", oppgaveId, journalpostId.getVerdi());
-
-        String forsendelseIdString = prosessTaskData.getPropertyValue(FORSENDELSE_ID_KEY);
-        if ((forsendelseIdString != null) && !forsendelseIdString.isEmpty()) {
-            opprettSletteTask(prosessTaskData);
-        }
-    }
-
-    private void opprettSletteTask(ProsessTaskData prosessTaskData) {
-        var nesteStegProsessTaskData = ProsessTaskData.forProsessTask(SlettForsendelseTask.class);
-        // Gi selvbetjening tid til å polle ferdig + Kafka-hendelse tid til å nå fram
-        // (og bli ignorert)
-        nesteStegProsessTaskData.setNesteKjøringEtter(LocalDateTime.now().plusHours(2));
-        long nesteSekvens = prosessTaskData.getSekvens() == null ? 1L : Long.parseLong(prosessTaskData.getSekvens()) + 1;
-        nesteStegProsessTaskData.setSekvens(Long.toString(nesteSekvens));
-        nesteStegProsessTaskData.setProperties(prosessTaskData.getProperties());
-        nesteStegProsessTaskData.setPayload(prosessTaskData.getPayloadAsString());
-        nesteStegProsessTaskData.setGruppe(prosessTaskData.getGruppe());
-        taskTjeneste.lagre(nesteStegProsessTaskData);
     }
 
     private String opprettOppgave(ProsessTaskData prosessTaskData, BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId) {
