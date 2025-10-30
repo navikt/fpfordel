@@ -139,11 +139,9 @@ public class FerdigstillJournalføringTjeneste {
             }
         }
 
-        String eksternReferanseId = null;
-        if (DokumentTypeId.INNTEKTSMELDING.equals(brukDokumentTypeId)) {
-            eksternReferanseId =
-                journalpost.getEksternReferanseId() != null ? journalpost.getEksternReferanseId() : arkivTjeneste.hentEksternReferanseId(
-                    journalpost.getOriginalJournalpost()).orElse(null);
+        String eksternReferanseId = journalpost.getEksternReferanseId();
+        if (DokumentTypeId.INNTEKTSMELDING.equals(brukDokumentTypeId) && eksternReferanseId == null) {
+            eksternReferanseId = arkivTjeneste.hentEksternReferanseId(journalpost.getOriginalJournalpost()).orElse(null);
         }
 
         var mottattTidspunkt = Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now);
@@ -333,11 +331,9 @@ public class FerdigstillJournalføringTjeneste {
         // Bruk fra opprinnelig
         final var xml = hentDokumentSettMetadata(saksnummer, behandlingTema, aktørIdFagsak, journalpost);
         var mottattTidspunkt = Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now);
-        String eksternReferanseId = null;
-        if (DokumentTypeId.INNTEKTSMELDING.equals(brukDokumentTypeId)) {
-            eksternReferanseId =
-                journalpost.getEksternReferanseId() != null ? journalpost.getEksternReferanseId() : arkivTjeneste.hentEksternReferanseId(
-                    journalpost.getOriginalJournalpost()).orElse(null);
+        String eksternReferanseId = journalpost.getEksternReferanseId();
+        if (DokumentTypeId.INNTEKTSMELDING.equals(brukDokumentTypeId) && eksternReferanseId == null) {
+            eksternReferanseId = arkivTjeneste.hentEksternReferanseId(journalpost.getOriginalJournalpost()).orElse(null);
         }
 
         klargjører.klargjør(xml, saksnummer, nyJournalpostId, brukDokumentTypeId, mottattTidspunkt, behandlingTema,
@@ -364,11 +360,9 @@ public class FerdigstillJournalføringTjeneste {
         // Bruk fra opprinnelig
         final var xml = hentDokumentSettMetadata(saksnummer, behandlingTema, aktørIdFagsak, journalpost);
         var mottattTidspunkt = Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now);
-        String eksternReferanseId = null;
-        if (DokumentTypeId.INNTEKTSMELDING.equals(brukDokumentTypeId)) {
-            eksternReferanseId =
-                journalpost.getEksternReferanseId() != null ? journalpost.getEksternReferanseId() : arkivTjeneste.hentEksternReferanseId(
-                    journalpost.getOriginalJournalpost()).orElse(null);
+        String eksternReferanseId = journalpost.getEksternReferanseId();
+        if (DokumentTypeId.INNTEKTSMELDING.equals(brukDokumentTypeId) && eksternReferanseId == null) {
+            eksternReferanseId = arkivTjeneste.hentEksternReferanseId(journalpost.getOriginalJournalpost()).orElse(null);
         }
 
         klargjører.klargjør(xml, saksnummer, journalpost.getJournalpostId(), brukDokumentTypeId, mottattTidspunkt, behandlingTema,

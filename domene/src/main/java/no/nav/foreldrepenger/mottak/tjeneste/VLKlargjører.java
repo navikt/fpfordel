@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.mottak.tjeneste;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +62,7 @@ public class VLKlargjører {
         journalpost.setDokumentKategoriOffisiellKode(dokumentKategoriOffisiellKode);
         journalpost.setJournalForendeEnhet(journalFørendeEnhet);
         journalpost.setEksternReferanseId(eksternReferanseId);
+        Optional.ofNullable(eksternReferanseId).flatMap(VLKlargjører::asUUID).ifPresent(journalpost::setForsendelseId);
         dokumentJournalpostSender.send(journalpost);
 
         try {
@@ -67,6 +70,8 @@ public class VLKlargjører {
                 forsendelseMottatt, null);
             tilbakeMottakDto.setDokumentKategoriOffisiellKode(dokumentKategoriOffisiellKode);
             tilbakeMottakDto.setJournalForendeEnhet(journalFørendeEnhet);
+            journalpost.setEksternReferanseId(eksternReferanseId);
+            Optional.ofNullable(eksternReferanseId).flatMap(VLKlargjører::asUUID).ifPresent(journalpost::setForsendelseId);
             tilbakeJournalpostSender.send(tilbakeMottakDto);
         } catch (Exception e) {
             LOG.warn("Feil ved sending av forsendelse til fptilbake, ukjent feil", e);
@@ -77,5 +82,13 @@ public class VLKlargjører {
     public String toString() {
         return getClass().getSimpleName() + " [dokumentJournalpostSender=" + dokumentJournalpostSender + ", fagsak=" + fagsak
             + ", tilbakeJournalpostSender=" + tilbakeJournalpostSender + "]";
+    }
+
+    private static Optional<UUID> asUUID(String eksternReferanseId) {
+        try {
+            return Optional.of(UUID.fromString(eksternReferanseId));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 }
