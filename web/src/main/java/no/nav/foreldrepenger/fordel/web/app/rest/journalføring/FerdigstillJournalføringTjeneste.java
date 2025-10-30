@@ -139,8 +139,6 @@ public class FerdigstillJournalføringTjeneste {
             }
         }
 
-        final var forsendelseId = asUUID(journalpost.getEksternReferanseId());
-
         String eksternReferanseId = null;
         if (DokumentTypeId.INNTEKTSMELDING.equals(brukDokumentTypeId)) {
             eksternReferanseId =
@@ -283,14 +281,6 @@ public class FerdigstillJournalføringTjeneste {
         }
     }
 
-    private static Optional<UUID> asUUID(String eksternReferanseId) {
-        try {
-            return Optional.of(UUID.fromString(eksternReferanseId));
-        } catch (Exception e) {
-            return Optional.empty();
-        }
-    }
-
     String opprettSak(ArkivJournalpost journalpost, FerdigstillJournalføringRestTjeneste.OpprettSak opprettSakInfo, DokumentTypeId nyDokumentTypeId) {
         new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensForOpprettSak(journalpost, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
             nyDokumentTypeId);
@@ -340,8 +330,6 @@ public class FerdigstillJournalføringTjeneste {
         // Do the business
         var nyJournalpostId = arkivTjeneste.knyttTilAnnenSak(journalpost, enhetId, saksnummer, aktørIdFagsak);
 
-        final var forsendelseId = asUUID(journalpost.getEksternReferanseId());
-
         // Bruk fra opprinnelig
         final var xml = hentDokumentSettMetadata(saksnummer, behandlingTema, aktørIdFagsak, journalpost);
         var mottattTidspunkt = Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now);
@@ -372,8 +360,6 @@ public class FerdigstillJournalføringTjeneste {
         final var behandlingTema = validerOgVelgBehandlingTema(behandlingTemaFagsak, behandlingTemaDok, dokumentTypeId);
         final var dokumentKategori = ArkivUtil.utledKategoriFraDokumentType(dokumentTypeId);
         var brukDokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokumentTypeId) ? DokumentTypeId.ANNET : dokumentTypeId;
-
-        final var forsendelseId = asUUID(journalpost.getEksternReferanseId());
 
         // Bruk fra opprinnelig
         final var xml = hentDokumentSettMetadata(saksnummer, behandlingTema, aktørIdFagsak, journalpost);
