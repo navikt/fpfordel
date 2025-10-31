@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
-import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.hendelse.test.VtpKafkaAvroDeserializer;
 import no.nav.foreldrepenger.mottak.task.joark.HentDataFraJoarkTask;
@@ -54,9 +53,8 @@ public class JournalføringHendelseHåndterer implements KafkaMessageHandler<Str
     private static final String EESSI = MottakKanal.EESSI.getKode();
 
     private ProsessTaskTjeneste taskTjeneste;
-    private DokumentRepository dokumentRepository;
     private String topicName;
-    private int journalføringDelay;
+    private Duration langJournalføringDelay;
 
     JournalføringHendelseHåndterer() {
         // CDI
@@ -64,12 +62,10 @@ public class JournalføringHendelseHåndterer implements KafkaMessageHandler<Str
 
     @Inject
     public JournalføringHendelseHåndterer(ProsessTaskTjeneste taskTjeneste,
-                                          DokumentRepository dokumentRepository,
                                           @KonfigVerdi("kafka.topic.journal.hendelse") String topicName,
-                                          @KonfigVerdi(value="journalføring.timer.delay", defaultVerdi = "2") int journalføringDelay) {
+                                          @KonfigVerdi(value="journalføring.timer.delay", defaultVerdi = "2") int langJournalføringDelay) {
         this.taskTjeneste = taskTjeneste;
-        this.dokumentRepository = dokumentRepository;
-        this.journalføringDelay = journalføringDelay;
+        this.langJournalføringDelay = Duration.ofHours(langJournalføringDelay);
         this.topicName = topicName;
     }
 
@@ -108,11 +104,11 @@ public class JournalføringHendelseHåndterer implements KafkaMessageHandler<Str
         // De uten kanalreferanse er "klonet" av SBH og journalført fra Gosys.
         // Normalt blir de journalført, men det feiler av og til pga tilgang.
         // Håndterer disse journalpostene senere i tilfelle SBH skal ha klart å ordne ting selv
-        var delay = eksternReferanseId == null && !mottaksKanal.equals(MottakKanal.SELVBETJENING.getKode()) ? Duration.ofHours(journalføringDelay) : minsteDelay();
+        var delay = eksternReferanseId == null && !mottaksKanal.equals(MottakKanal.SELVBETJENING.getKode()) ? langJournalføringDelay : minsteDelay();
 
         if (HENDELSE_ENDRET.equalsIgnoreCase(payload.getHendelsesType())) {
             // Hendelsen kan komme før arkivet er oppdatert .....
-            delay = Duration.ofSeconds(39);
+            delay = delay.compareTo(langJournalføringDelay) < 0 ? Duration.ofSeconds(39) : delay;
             var gammeltTema = payload.getTemaGammelt() != null ? payload.getTemaGammelt() : null;
             LOG.info("FPFORDEL Tema Endret fra {} journalpost {} kanal {} referanse {}", gammeltTema, arkivId, mottaksKanal, eksternReferanseId);
         }
@@ -124,11 +120,6 @@ public class JournalføringHendelseHåndterer implements KafkaMessageHandler<Str
         }
 
         LOG.info("FPFORDEL Mottatt Journalføringhendelse type {} journalpost {} referanse {}", hendelseType, arkivId, eksternReferanseId);
-
-        if (!dokumentRepository.hentJournalposter(arkivId).isEmpty()) {
-            LOG.info("FPFORDEL Mottatt Hendelse egen journalføring journalpost {}", arkivId);
-            return;
-        }
 
         lagreJoarkTask(payload, arkivId, eksternReferanseId, delay);
     }

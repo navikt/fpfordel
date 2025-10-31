@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -36,7 +35,6 @@ import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakV2Dto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.kontrakter.fordel.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.domene.MottattStrukturertDokument;
-import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.FerdigstillOppgaveTask;
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
@@ -70,7 +68,6 @@ public class FerdigstillJournalføringTjeneste {
     private Journalføringsoppgave oppgaver;
     private ProsessTaskTjeneste taskTjeneste;
     private ArkivTjeneste arkivTjeneste;
-    private DokumentRepository dokumentRepository;
 
     FerdigstillJournalføringTjeneste() {
         //CDI
@@ -82,15 +79,13 @@ public class FerdigstillJournalføringTjeneste {
                                             PersonInformasjon pdl,
                                             Journalføringsoppgave oppgaver,
                                             ProsessTaskTjeneste taskTjeneste,
-                                            ArkivTjeneste arkivTjeneste,
-                                            DokumentRepository dokumentRepository) {
+                                            ArkivTjeneste arkivTjeneste) {
         this.klargjører = klargjører;
         this.fagsak = fagsak;
         this.pdl = pdl;
         this.oppgaver = oppgaver;
         this.taskTjeneste = taskTjeneste;
         this.arkivTjeneste = arkivTjeneste;
-        this.dokumentRepository = dokumentRepository;
     }
 
     public void oppdaterJournalpostOgFerdigstill(String enhetId,
@@ -150,10 +145,6 @@ public class FerdigstillJournalføringTjeneste {
         klargjører.klargjør(xml, saksnummer, journalpost.getJournalpostId(), brukDokumentTypeId, mottattTidspunkt, behandlingTema,
                 dokumentKategori, enhetId, eksternReferanseId);
 
-        // For å unngå klonede journalposter fra GOSYS - de kan komme via Kafka.
-        dokumentRepository.lagreJournalpostLokal(journalpost.getJournalpostId(), journalpost.getKanal(), ENDELIG,
-            journalpost.getEksternReferanseId());
-
         opprettFerdigstillOppgaveTask(JournalpostId.fra(journalpost.getJournalpostId()));
     }
 
@@ -175,11 +166,6 @@ public class FerdigstillJournalføringTjeneste {
 
         final var behandlingTemaDok = ArkivUtil.behandlingTemaFraDokumentType(BehandlingTema.UDEFINERT, dokumentTypeId);
         final var behandlingTema = validerOgVelgBehandlingTema(BehandlingTema.UDEFINERT, behandlingTemaDok, dokumentTypeId);
-
-        // For å unngå klonede journalposter fra GOSYS - de kan komme via Kafka - må skje før vi ferdigstiller.
-        // Ellers kan kan kafka hendelsen komme tidligere en vi klarer å lagre og oppretter en ny oppgave.
-        dokumentRepository.lagreJournalpostLokal(journalpost.getJournalpostId(), journalpost.getKanal(), ENDELIG,
-            journalpost.getEksternReferanseId());
 
         if (Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
             oppdaterJournalpostMedTittelOgMangler(journalpost, nyJournalpostTittel, dokumenterMedNyTittel, aktørId, behandlingTema);
@@ -338,9 +324,6 @@ public class FerdigstillJournalføringTjeneste {
 
         klargjører.klargjør(xml, saksnummer, nyJournalpostId, brukDokumentTypeId, mottattTidspunkt, behandlingTema,
                 dokumentKategori, enhetId, eksternReferanseId);
-
-        // For å unngå klonede journalposter fra GOSYS - de kan komme via Kafka.
-        dokumentRepository.lagreJournalpostLokal(nyJournalpostId, journalpost.getKanal(), ENDELIG, journalpost.getEksternReferanseId());
 
         return Optional.ofNullable(nyJournalpostId).map(JournalpostId::fra).orElse(null);
     }

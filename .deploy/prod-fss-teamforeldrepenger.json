@@ -52,11 +52,6 @@
       "scopes": [
         "swagger"
       ]
-    },
-    {
-      "app": "fpsoknad-mottak",
-      "namespace": "teamforeldrepenger",
-      "cluster": "prod-fss"
     }
   ]
 }

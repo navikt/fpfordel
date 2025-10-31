@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -53,7 +52,6 @@ import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.journalføring.oppgave.Journalføringsoppgave;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
-import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.FerdigstillOppgaveTask;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
@@ -103,7 +101,7 @@ class FerdigstillJournalføringTjenesteTest {
         lenient().when(arkiv.hentArkivJournalpost(JOURNALPOST_ID)).thenReturn(arkivJournalpost);
         lenient().when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
 
-        journalføringTjeneste = new FerdigstillJournalføringTjeneste(klargjører, fagsak, pdl, oppgaver, taskTjeneste, arkiv, mock(DokumentRepository.class));
+        journalføringTjeneste = new FerdigstillJournalføringTjeneste(klargjører, fagsak, pdl, oppgaver, taskTjeneste, arkiv);
     }
 
     @Test

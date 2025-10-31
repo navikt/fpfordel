@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.fordel.web.app.forvaltning.migrering;
 
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
-import no.nav.foreldrepenger.mottak.domene.dokument.Journalpost;
 
 public class MigreringMapper {
 
@@ -23,14 +22,4 @@ public class MigreringMapper {
             .medStatus(Status.AAPNET)
             .build();
     }
-
-    public static MigreringJournalpostDto.JournalpostDto tilJournalpostDto(Journalpost journalpost) {
-        return new MigreringJournalpostDto.JournalpostDto(journalpost.getJournalpostId(), journalpost.getTilstand(), journalpost.getKanal(), journalpost.getReferanse());
-    }
-
-    public static Journalpost fraJournalpostDto(MigreringJournalpostDto.JournalpostDto journalpost) {
-        return new Journalpost(journalpost.journalpostId(), journalpost.tilstand(), journalpost.kanal(), journalpost.referanse(), "FORDEL");
-    }
-
-
 }
