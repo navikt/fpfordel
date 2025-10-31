@@ -193,12 +193,15 @@ public class JournalføringHendelseHåndterer implements KafkaMessageHandler<Str
 
     private static Duration minsteDelay() {
         // Ved direkte endelig journalføring av søknad/IM vil det komme 2 tette hendelser - midlertidig og endelig
+        // Imidlertid har det allerede gått opptil er par sekunder fra journalføring til Kafka-hendelse kommer
+        // Dermed er journalpost mest sannsynlig endelig journalført når HentDataFraJoarkTask kjøres og det skjer ingenting.
+        // Men vi har sett noen tregheter i oppdatering av arkiv i andre sammenhenger - hendelse før synlig oppdatert. Derfor denne
         if (ENV.isProd()) {
-            return Duration.ofSeconds(10);
-        } else if (ENV.isDev()) {
             return Duration.ofSeconds(5);
+        } else if (ENV.isDev()) {
+            return Duration.ofSeconds(2);
         } else {
-            return Duration.ofSeconds(1);
+            return Duration.ofMillis(100);
         }
     }
 }
