@@ -113,19 +113,15 @@ public class MigreringRestTjeneste {
         var åpneGosys = finnÅpneGosys();
         var resultat = new ArrayList<>(oppgaveRepository.hentAlleÅpneOppgaver());
         oppgaveRepository.hentOppgaverFlyttetTilGosys().stream()
-            .filter(o -> åpneGosys.isEmpty() || åpneGosys.contains(o.getJournalpostId()))
+            .filter(o -> åpneGosys.contains(o.getJournalpostId()))
             .forEach(resultat::add);
         return resultat;
     }
 
     private Set<String> finnÅpneGosys() {
-        try {
-            return oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, "250").stream()
-                .map(Oppgave::journalpostId)
-                .collect(Collectors.toSet());
-        } catch (Exception _) {
-            return Set.of();
-        }
+        return oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, "250").stream()
+            .map(Oppgave::journalpostId)
+            .collect(Collectors.toSet());
     }
 
     public static class MigreringAbacSupplier implements Function<Object, AbacDataAttributter> {

@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.fordel.web.app.forvaltning.migrering;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.validation.Valid;
@@ -13,6 +14,7 @@ import no.nav.foreldrepenger.journalføring.oppgave.lager.YtelseType;
 public record MigreringOppgaveDto(@Valid @Size List<OppgaveDto> oppgaver) {
 
     public record OppgaveDto(@Size @Pattern(regexp = "^[\\p{Alnum}_.\\-]*$") String journalpostId,
+                             LocalDateTime opprettetTidspunkt,
                              @Size @Pattern(regexp = "^[\\p{Alnum}_.\\-]*$") String enhet,
                              LocalDate frist,
                              @Valid AktørId brukerId,
