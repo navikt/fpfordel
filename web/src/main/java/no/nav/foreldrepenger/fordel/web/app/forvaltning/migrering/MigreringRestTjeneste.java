@@ -3,9 +3,10 @@ package no.nav.foreldrepenger.fordel.web.app.forvaltning.migrering;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -25,6 +26,8 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -39,6 +42,7 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 public class MigreringRestTjeneste {
 
     private OppgaveRepository oppgaveRepository;
+    private OppgaveSystemKlient oppgaveKlient;
 
     private Validator validator;
 
@@ -47,8 +51,9 @@ public class MigreringRestTjeneste {
     }
 
     @Inject
-    public MigreringRestTjeneste(OppgaveRepository oppgaveRepository) {
+    public MigreringRestTjeneste(OppgaveRepository oppgaveRepository, OppgaveSystemKlient oppgaveKlient) {
         this.oppgaveRepository = oppgaveRepository;
+        this.oppgaveKlient = oppgaveKlient;
         @SuppressWarnings("resource") var factory = Validation.buildDefaultValidatorFactory();
         // hibernate validator implementations er thread-safe, trenger ikke close
         validator = factory.getValidator();
@@ -82,12 +87,11 @@ public class MigreringRestTjeneste {
     public Response sammenlignOppgaver(@TilpassetAbacAttributt(supplierClass = MigreringAbacSupplier.class)
                                   @NotNull @Parameter(name = "oppgaver") @Valid MigreringOppgaveDto oppgaver) {
         var remote = oppgaver.oppgaver().stream()
-            .sorted(Comparator.comparing(MigreringOppgaveDto.OppgaveDto::journalpostId))
-            .map(MigreringMapper::fraOppgaveDto)
-            .toList();
+            .map(MigreringOppgaveDto.OppgaveDto::journalpostId)
+            .collect(Collectors.toSet());
         var lokale = finnAktuelleOppgaver().stream()
-            .sorted(Comparator.comparing(OppgaveEntitet::getJournalpostId))
-            .toList();
+            .map(OppgaveEntitet::getJournalpostId)
+            .collect(Collectors.toSet());
         return lokale.size() == remote.size() && lokale.containsAll(remote) ? Response.ok().build() : Response.status(Response.Status.NOT_FOUND).build();
     }
 
@@ -105,10 +109,23 @@ public class MigreringRestTjeneste {
         return Response.ok().build();
     }
 
-    private Collection<OppgaveEntitet> finnAktuelleOppgaver() {
+    private List<OppgaveEntitet> finnAktuelleOppgaver() {
+        var åpneGosys = finnÅpneGosys();
         var resultat = new ArrayList<>(oppgaveRepository.hentAlleÅpneOppgaver());
-        resultat.addAll(oppgaveRepository.hentOppgaverFlyttetTilGosys());
+        oppgaveRepository.hentOppgaverFlyttetTilGosys().stream()
+            .filter(o -> åpneGosys.isEmpty() || åpneGosys.contains(o.getJournalpostId()))
+            .forEach(resultat::add);
         return resultat;
+    }
+
+    private Set<String> finnÅpneGosys() {
+        try {
+            return oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, "250").stream()
+                .map(Oppgave::journalpostId)
+                .collect(Collectors.toSet());
+        } catch (Exception _) {
+            return Set.of();
+        }
     }
 
     public static class MigreringAbacSupplier implements Function<Object, AbacDataAttributter> {

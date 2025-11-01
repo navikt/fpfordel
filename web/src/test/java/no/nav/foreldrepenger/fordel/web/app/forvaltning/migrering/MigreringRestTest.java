@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.fordel.web.app.forvaltning.migrering;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -44,11 +45,11 @@ class MigreringRestTest {
             .build();
         when(oppgaveRepository.hentAlleÅpneOppgaver()).thenReturn(List.of(oppgave));
 
-        var forvaltning = new MigreringRestTjeneste(oppgaveRepository);
+        var forvaltning = new MigreringRestTjeneste(oppgaveRepository, mock(OppgaveSystemKlient.class));
         var dtos = (MigreringOppgaveDto) (forvaltning.lesOppgaver().getEntity());
         var serializedDtos = DefaultJsonMapper.toJson(dtos);
         var deserDtos = DefaultJsonMapper.fromJson(serializedDtos, MigreringOppgaveDto.class);
-        var deserInngående = forvaltning.lagreOppgaver(deserDtos);
+        forvaltning.lagreOppgaver(deserDtos);
 
         var hendelseCaptor = ArgumentCaptor.forClass(OppgaveEntitet.class);
         verify(oppgaveRepository, times(1)).lagre(hendelseCaptor.capture());

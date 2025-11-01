@@ -47,7 +47,6 @@ import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.FilterKlient;
 import no.nav.foreldrepenger.mottak.person.PersonTjeneste;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
@@ -65,7 +64,7 @@ class OppgaverTjenesteTest {
     @Mock
     private OppgaveRepository oppgaveRepository;
     @Mock
-    private Oppgaver oppgaveKlient;
+    private OppgaveKlient oppgaveKlient;
     @Mock
     private EnhetsTjeneste enhetsTjeneste;
     @Mock
