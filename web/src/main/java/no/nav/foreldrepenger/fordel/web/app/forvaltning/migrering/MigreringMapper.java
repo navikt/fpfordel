@@ -7,7 +7,7 @@ public class MigreringMapper {
 
     public static MigreringOppgaveDto.OppgaveDto tilOppgaveDto(OppgaveEntitet oppgave) {
         return new MigreringOppgaveDto.OppgaveDto(oppgave.getJournalpostId(), oppgave.getEnhet(), oppgave.getFrist(), oppgave.getBrukerId(),
-            oppgave.getYtelseType(), oppgave.getBeskrivelse(), oppgave.getReservertAv());
+            oppgave.getYtelseType(), oppgave.getBeskrivelse(), oppgave.getStatus(), oppgave.getReservertAv());
     }
 
     public static OppgaveEntitet fraOppgaveDto(MigreringOppgaveDto.OppgaveDto oppgaveDto) {
@@ -19,7 +19,7 @@ public class MigreringMapper {
             .medYtelseType(oppgaveDto.ytelseType())
             .medBeskrivelse(oppgaveDto.beskrivelse())
             .medReservertAv(oppgaveDto.reservertAv())
-            .medStatus(Status.AAPNET)
+            .medStatus(oppgaveDto.status())
             .build();
     }
 }

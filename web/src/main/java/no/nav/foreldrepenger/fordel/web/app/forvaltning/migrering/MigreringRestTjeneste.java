@@ -2,9 +2,10 @@ package no.nav.foreldrepenger.fordel.web.app.forvaltning.migrering;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,6 +23,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
+import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -59,7 +61,7 @@ public class MigreringRestTjeneste {
     @Path("/lesOppgaver")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response lesOppgaver() {
-        var oppgaver = oppgaveRepository.hentAlleÅpneOppgaver().stream()
+        var oppgaver = finnAktuelleOppgaver().stream()
             .map(MigreringMapper::tilOppgaveDto)
             .toList();
         var respons = new MigreringOppgaveDto(oppgaver);
@@ -79,13 +81,13 @@ public class MigreringRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response sammenlignOppgaver(@TilpassetAbacAttributt(supplierClass = MigreringAbacSupplier.class)
                                   @NotNull @Parameter(name = "oppgaver") @Valid MigreringOppgaveDto oppgaver) {
-        var rmap = oppgaver.oppgaver().stream()
+        var remote = oppgaver.oppgaver().stream()
+            .sorted(Comparator.comparing(MigreringOppgaveDto.OppgaveDto::journalpostId))
             .map(MigreringMapper::fraOppgaveDto)
-            .collect(Collectors.toList());
-        var lokale = oppgaveRepository.hentAlleÅpneOppgaver().stream()
-            .map(MigreringMapper::tilOppgaveDto)
-            .collect(Collectors.toSet());
-        var remote = new HashSet<>(oppgaver.oppgaver());
+            .toList();
+        var lokale = finnAktuelleOppgaver().stream()
+            .sorted(Comparator.comparing(OppgaveEntitet::getJournalpostId))
+            .toList();
         return lokale.size() == remote.size() && lokale.containsAll(remote) ? Response.ok().build() : Response.status(Response.Status.NOT_FOUND).build();
     }
 
@@ -103,7 +105,11 @@ public class MigreringRestTjeneste {
         return Response.ok().build();
     }
 
-
+    private Collection<OppgaveEntitet> finnAktuelleOppgaver() {
+        var resultat = new ArrayList<>(oppgaveRepository.hentAlleÅpneOppgaver());
+        resultat.addAll(oppgaveRepository.hentOppgaverFlyttetTilGosys());
+        return resultat;
+    }
 
     public static class MigreringAbacSupplier implements Function<Object, AbacDataAttributter> {
 
