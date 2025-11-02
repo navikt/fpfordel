@@ -2,9 +2,9 @@ package no.nav.foreldrepenger.fordel.web.app.forvaltning.migrering;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -24,11 +24,10 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
-import no.nav.foreldrepenger.fordel.web.app.forvaltning.JournalpostSakDto;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveRepository;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
-import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -42,8 +41,8 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Produces(APPLICATION_JSON)
 public class MigreringRestTjeneste {
 
-    private DokumentRepository dokumentRepository;
     private OppgaveRepository oppgaveRepository;
+    private OppgaveSystemKlient oppgaveKlient;
 
     private Validator validator;
 
@@ -52,9 +51,9 @@ public class MigreringRestTjeneste {
     }
 
     @Inject
-    public MigreringRestTjeneste(DokumentRepository dokumentRepository, OppgaveRepository oppgaveRepository) {
-        this.dokumentRepository = dokumentRepository;
+    public MigreringRestTjeneste(OppgaveRepository oppgaveRepository, OppgaveSystemKlient oppgaveKlient) {
         this.oppgaveRepository = oppgaveRepository;
+        this.oppgaveKlient = oppgaveKlient;
         @SuppressWarnings("resource") var factory = Validation.buildDefaultValidatorFactory();
         // hibernate validator implementations er thread-safe, trenger ikke close
         validator = factory.getValidator();
@@ -67,7 +66,7 @@ public class MigreringRestTjeneste {
     @Path("/lesOppgaver")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response lesOppgaver() {
-        var oppgaver = oppgaveRepository.hentAlleÅpneOppgaver().stream()
+        var oppgaver = finnAktuelleOppgaver().stream()
             .map(MigreringMapper::tilOppgaveDto)
             .toList();
         var respons = new MigreringOppgaveDto(oppgaver);
@@ -87,13 +86,12 @@ public class MigreringRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response sammenlignOppgaver(@TilpassetAbacAttributt(supplierClass = MigreringAbacSupplier.class)
                                   @NotNull @Parameter(name = "oppgaver") @Valid MigreringOppgaveDto oppgaver) {
-        var rmap = oppgaver.oppgaver().stream()
-            .map(MigreringMapper::fraOppgaveDto)
-            .collect(Collectors.toList());
-        var lokale = oppgaveRepository.hentAlleÅpneOppgaver().stream()
-            .map(MigreringMapper::tilOppgaveDto)
+        var remote = oppgaver.oppgaver().stream()
+            .map(MigreringOppgaveDto.OppgaveDto::journalpostId)
             .collect(Collectors.toSet());
-        var remote = new HashSet<>(oppgaver.oppgaver());
+        var lokale = finnAktuelleOppgaver().stream()
+            .map(OppgaveEntitet::getJournalpostId)
+            .collect(Collectors.toSet());
         return lokale.size() == remote.size() && lokale.containsAll(remote) ? Response.ok().build() : Response.status(Response.Status.NOT_FOUND).build();
     }
 
@@ -111,57 +109,20 @@ public class MigreringRestTjeneste {
         return Response.ok().build();
     }
 
-    @POST
-    @Operation(description = "Lagre lokale journalposter som skal migreres", tags = "Forvaltning",
-        summary = ("Lagre lokale journalposter som skal migreres"),
-        responses = {@ApiResponse(responseCode = "200", description = "Journalposter")})
-    @Path("/lagreJournal")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response lagreJournal(@TilpassetAbacAttributt(supplierClass = MigreringAbacSupplier.class)
-                                   @NotNull @Parameter(name = "journalposter") @Valid MigreringJournalpostDto journalposter) {
-        journalposter.journalposter().stream()
-            .map(MigreringMapper::fraJournalpostDto)
-            .forEach(dokumentRepository::lagre);
-        return Response.ok().build();
+    private List<OppgaveEntitet> finnAktuelleOppgaver() {
+        var åpneGosys = finnÅpneGosys();
+        var resultat = new ArrayList<>(oppgaveRepository.hentAlleÅpneOppgaver());
+        oppgaveRepository.hentOppgaverFlyttetTilGosys().stream()
+            .filter(o -> åpneGosys.contains(o.getJournalpostId()))
+            .forEach(resultat::add);
+        return resultat;
     }
 
-    @POST
-    @Operation(description = "Sammenligne lokale journalposter som skal migreres", tags = "Forvaltning",
-        summary = ("Sammenligne lokale journalposter som skal migreres"),
-        responses = {@ApiResponse(responseCode = "200", description = "Journalposter")})
-    @Path("/sammenlignJournal")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response sammenlignJournal(@TilpassetAbacAttributt(supplierClass = MigreringAbacSupplier.class)
-                                 @NotNull @Parameter(name = "journalposter") @Valid MigreringJournalpostDto journalposter) {
-        var rmap = journalposter.journalposter().stream()
-            .map(MigreringMapper::fraJournalpostDto)
-            .collect(Collectors.toList());
-        var lokale = dokumentRepository.hentAlleJournalposter().stream()
-            .map(MigreringMapper::tilJournalpostDto)
+    private Set<String> finnÅpneGosys() {
+        return oppgaveKlient.finnÅpneOppgaverAvType(Oppgavetype.JOURNALFØRING, null, null, "250").stream()
+            .map(Oppgave::journalpostId)
             .collect(Collectors.toSet());
-        var remote = new HashSet<>(journalposter.journalposter());
-        return lokale.size() == remote.size() && lokale.containsAll(remote) ? Response.ok().build() : Response.status(Response.Status.NOT_FOUND).build();
     }
-
-    @GET
-    @Operation(description = "Leser ut lokale journalposter som skal migreres", tags = "Forvaltning",
-        summary = ("Leser ut lokale journalposter som skal migreres"),
-        responses = {@ApiResponse(responseCode = "200", description = "Journalposter")})
-    @Path("/lesJournal")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response lesJournal() {
-        var journalposter = dokumentRepository.hentAlleJournalposter().stream()
-            .map(MigreringMapper::tilJournalpostDto)
-            .toList();
-        var respons = new MigreringJournalpostDto(journalposter);
-        var violations = validator.validate(respons);
-        if (!violations.isEmpty()) {
-            var allErrors = violations.stream().map(it -> it.getPropertyPath().toString() + " :: " + it.getMessage()).toList();
-            throw new IllegalArgumentException("Valideringsfeil; " + allErrors);
-        }
-        return Response.ok(respons).build();
-    }
-
 
     public static class MigreringAbacSupplier implements Function<Object, AbacDataAttributter> {
 

@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveT
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.journal.ArkivTjeneste;
-import no.nav.foreldrepenger.mottak.journal.OpprettetJournalpost;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -89,7 +88,6 @@ class TilJournalføringTaskTest {
         data.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         data.setSaksnummer("123");
         data.setAktørId(AKTØR_ID);
-        data.setForsendelseId(forsendelseId);
 
         var wrapper = doTaskWithPrecondition(data);
 
@@ -109,7 +107,6 @@ class TilJournalføringTaskTest {
         data.setAktørId(AKTØR_ID);
         data.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         data.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
-        data.setForsendelseId(forsendelseId);
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
@@ -137,7 +134,6 @@ class TilJournalføringTaskTest {
         data.setAktørId(AKTØR_ID);
         data.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         data.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
-        data.setForsendelseId(forsendelseId);
 
         var wrapper = doTaskWithPrecondition(data);
 
@@ -152,7 +148,6 @@ class TilJournalføringTaskTest {
         data.setAktørId(AKTØR_ID);
         data.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
         data.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
-        data.setForsendelseId(forsendelseId);
 
         Exception funkExc = new IllegalStateException("bla bla");
         doThrow(funkExc).when(arkivTjeneste).ferdigstillJournalføring(any(), any());
@@ -198,33 +193,11 @@ class TilJournalføringTaskTest {
     }
 
     @Test
-    void test_skalVedJournalføringAvDokumentForsendelseFåJournalTilstandEndeligJournalført() {
-        var data = new MottakMeldingDataWrapper(ptd);
-
-        when(arkivTjeneste.opprettJournalpost(forsendelseId, AKTØR_ID, SAKSNUMMER)).thenReturn(new OpprettetJournalpost(ARKIV_ID, true));
-        when(arkivTjeneste.hentArkivJournalpost(any())).thenReturn(arkivJournalpost);
-        when(arkivJournalpost.getSaksnummer()).thenReturn(Optional.empty());
-
-        data.setForsendelseId(forsendelseId);
-        data.setAktørId(AKTØR_ID);
-        data.setArkivId(ARKIV_ID);
-        data.setBehandlingTema(BehandlingTema.FORELDREPENGER_FØDSEL);
-        data.setTema(Tema.FORELDRE_OG_SVANGERSKAPSPENGER);
-        data.setSaksnummer(SAKSNUMMER);
-        data.setRetryingTask("ABC");
-
-        var next = doTaskWithPrecondition(data);
-
-        assertThat(next.getProsessTaskData().taskType()).isEqualTo(TaskType.forProsessTask(VLKlargjørerTask.class));
-    }
-
-    @Test
     void test_skalTilManuellNårJournalTilstandIkkeErEndelig() {
         var data = new MottakMeldingDataWrapper(ptd);
 
         doThrow(IllegalArgumentException.class).when(arkivTjeneste).ferdigstillJournalføring(ARKIV_ID, "9999");
 
-        data.setForsendelseId(forsendelseId);
         data.setAktørId(AKTØR_ID);
         data.setArkivId(ARKIV_ID);
         data.setBehandlingTema(BehandlingTema.FORELDREPENGER_FØDSEL);

@@ -1,15 +1,14 @@
 package no.nav.foreldrepenger.fordel.kodeverdi;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum Tema implements Kodeverdi {
 
     FORELDRE_OG_SVANGERSKAPSPENGER("FOR_SVA", "FOR"),
-    OMS("OMS", "OMS"), // Omsorgspenger, Pleiepenger og opplæringspenger
     UDEFINERT("-", null),
     ;
 

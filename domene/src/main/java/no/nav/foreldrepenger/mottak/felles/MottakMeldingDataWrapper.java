@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.UUID;
 
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
@@ -39,7 +38,6 @@ public class MottakMeldingDataWrapper {
     public static final String STRUKTURERT_DOKUMENT = "strukturert.dokument";
     public static final String FORSENDELSE_MOTTATT_TIDSPUNKT_KEY = "forsendelse.mottatt.tidspunkt";
     public static final String JOURNAL_ENHET = "journalforende.enhet";
-    public static final String FORSENDELSE_ID_KEY = "forsendelse.id";
     public static final String ANNEN_PART_ID_KEY = "annen.part.id";
     public static final String ANNEN_PART_HAR_RETT_KEY = "annen.part.har.rett";
     public static final String FØRSTE_UTTAKSDAG_KEY = "forste.uttaksdag";
@@ -325,14 +323,6 @@ public class MottakMeldingDataWrapper {
             return Optional.of(LocalDate.parse(property));
         }
         return Optional.empty();
-    }
-
-    public Optional<UUID> getForsendelseId() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(FORSENDELSE_ID_KEY)).map(UUID::fromString);
-    }
-
-    public void setForsendelseId(UUID forsendelseId) {
-        prosessTaskData.setProperty(FORSENDELSE_ID_KEY, forsendelseId.toString());
     }
 
     public Optional<String> getAnnenPartId() {

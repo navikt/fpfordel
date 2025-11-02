@@ -10,9 +10,6 @@
     <sequence-generator name="SEQ_DOKUMENT_METADATA" allocation-size="50" sequence-name="SEQ_DOKUMENT_METADATA"/>
     <sequence-generator name="SEQ_JOURNALPOST" allocation-size="50" sequence-name="SEQ_JOURNALPOST"/>
 
-    <entity class="no.nav.foreldrepenger.mottak.domene.dokument.DokumentMetadata"/>
-    <entity class="no.nav.foreldrepenger.mottak.domene.dokument.Dokument"/>
-    <entity class="no.nav.foreldrepenger.mottak.domene.dokument.Journalpost"/>
     <entity class="no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet"/>
 
 </entity-mappings>

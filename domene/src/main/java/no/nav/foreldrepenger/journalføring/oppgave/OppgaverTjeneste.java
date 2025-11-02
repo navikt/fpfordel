@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.mottak.behandlendeenhet.AnsattInfoKlient;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.behandlendeenhet.FilterKlient;
 import no.nav.foreldrepenger.mottak.person.PersonInformasjon;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
@@ -51,14 +50,14 @@ class OppgaverTjeneste implements Journalføringsoppgave {
     protected static final int FRIST_DAGER = 1;
 
     private final OppgaveRepository oppgaveRepository;
-    private final Oppgaver oppgaveKlient;
+    private final OppgaveKlient oppgaveKlient;
     private final EnhetsTjeneste enhetsTjeneste;
     private final PersonInformasjon personTjeneste;
     private final FilterKlient filterKlient;
     private final AnsattInfoKlient ansattInfoKlient;
 
     @Inject
-    public OppgaverTjeneste(OppgaveRepository oppgaveRepository, Oppgaver oppgaveKlient, EnhetsTjeneste enhetsTjeneste,
+    public OppgaverTjeneste(OppgaveRepository oppgaveRepository, OppgaveKlient oppgaveKlient, EnhetsTjeneste enhetsTjeneste,
                             PersonInformasjon personTjeneste, FilterKlient filterKlient, AnsattInfoKlient ansattInfoKlient) {
         this.oppgaveRepository = oppgaveRepository;
         this.oppgaveKlient = oppgaveKlient;

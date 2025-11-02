@@ -39,7 +39,6 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         return minimalbuilder()
             .leggTilIdenter(dataAttributter.getVerdier(AppAbacAttributtType.AKTØR_ID))
             .leggTilIdenter(dataAttributter.getVerdier(AppAbacAttributtType.FNR))
-            .leggTilIdenter(pipRepository.hentAktørIdForForsendelser(dataAttributter.getVerdier(AppAbacAttributtType.FORSENDELSE_UUID)))
             .leggTilIdenter(pipRepository.hentAktørIdForOppgave(dataAttributter.getVerdier(AppAbacAttributtType.JOURNALPOST_ID)))
             .build();
 

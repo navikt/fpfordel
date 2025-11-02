@@ -1,14 +1,14 @@
 package no.nav.foreldrepenger.mottak.tjeneste;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.fordel.kodeverdi.DokumentTypeId;
@@ -43,9 +43,7 @@ public class VLKlargjører {
                          String arkivId,
                          DokumentTypeId dokumenttypeId,
                          LocalDateTime forsendelseMottatt,
-                         BehandlingTema behandlingsTema,
-                         UUID forsendelseId,
-                         DokumentKategori dokumentKategori,
+                         BehandlingTema behandlingsTema, DokumentKategori dokumentKategori,
                          String journalFørendeEnhet,
                          String eksternReferanseId) {
         String behandlingTemaString = (behandlingsTema == null) || BehandlingTema.UDEFINERT.equals(
@@ -61,18 +59,19 @@ public class VLKlargjører {
         fagsak.knyttSakOgJournalpost(new JournalpostKnyttningDto(saksnummer, arkivId));
 
         var journalpost = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString, dokumentTypeIdOffisiellKode, forsendelseMottatt, xml);
-        journalpost.setForsendelseId(forsendelseId);
         journalpost.setDokumentKategoriOffisiellKode(dokumentKategoriOffisiellKode);
         journalpost.setJournalForendeEnhet(journalFørendeEnhet);
         journalpost.setEksternReferanseId(eksternReferanseId);
+        Optional.ofNullable(eksternReferanseId).flatMap(VLKlargjører::asUUID).ifPresent(journalpost::setForsendelseId);
         dokumentJournalpostSender.send(journalpost);
 
         try {
             var tilbakeMottakDto = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString, dokumentTypeIdOffisiellKode,
                 forsendelseMottatt, null);
-            tilbakeMottakDto.setForsendelseId(forsendelseId);
             tilbakeMottakDto.setDokumentKategoriOffisiellKode(dokumentKategoriOffisiellKode);
             tilbakeMottakDto.setJournalForendeEnhet(journalFørendeEnhet);
+            journalpost.setEksternReferanseId(eksternReferanseId);
+            Optional.ofNullable(eksternReferanseId).flatMap(VLKlargjører::asUUID).ifPresent(journalpost::setForsendelseId);
             tilbakeJournalpostSender.send(tilbakeMottakDto);
         } catch (Exception e) {
             LOG.warn("Feil ved sending av forsendelse til fptilbake, ukjent feil", e);
@@ -83,5 +82,13 @@ public class VLKlargjører {
     public String toString() {
         return getClass().getSimpleName() + " [dokumentJournalpostSender=" + dokumentJournalpostSender + ", fagsak=" + fagsak
             + ", tilbakeJournalpostSender=" + tilbakeJournalpostSender + "]";
+    }
+
+    private static Optional<UUID> asUUID(String eksternReferanseId) {
+        try {
+            return Optional.of(UUID.fromString(eksternReferanseId));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 }

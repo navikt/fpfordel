@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.fordel.web.app.forvaltning;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
-import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.FORSENDELSE_ID_KEY;
 import static no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper.RETRY_KEY;
 
 import java.time.DayOfWeek;
@@ -19,9 +18,7 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
-import no.nav.foreldrepenger.fordel.web.app.rest.DokumentforsendelseRestTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.rest.journalføring.FerdigstillJournalføringTjeneste;
 import no.nav.foreldrepenger.fordel.web.app.rest.journalføring.JournalføringRestTjeneste;
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
@@ -33,14 +30,10 @@ import no.nav.foreldrepenger.mottak.domene.oppgavebehandling.OpprettGSakOppgaveT
 import no.nav.foreldrepenger.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.task.RekjørFeiledeTasksBatchTask;
-import no.nav.foreldrepenger.mottak.task.SlettForsendelseTask;
 import no.nav.foreldrepenger.mottak.task.SlettGamleTasksBatchTask;
 import no.nav.foreldrepenger.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.task.VLKlargjørerTask;
-import no.nav.foreldrepenger.mottak.task.dokumentforsendelse.BehandleDokumentforsendelseTask;
-import no.nav.foreldrepenger.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseIdDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -150,36 +143,6 @@ public class ForvaltningRestTjeneste {
     public Response searchTasks(@Parameter(description = "Søkefilter") @NotNull @Valid FordelSokeFilterDto dto) {
         var tasks = taskTjeneste.finnAlleMedParameterTekst(dto.getTekst(), dto.getOpprettetFraOgMed(), dto.getOpprettetTilOgMed());
         return Response.ok(tasks).build();
-    }
-
-    @POST
-    @Path("/taskForBehandleForsendelse")
-    @Operation(description = "Behandler forsendelse som ikke er plukket opp", tags = "Forvaltning", responses = {@ApiResponse(responseCode = "200", description = "Opprettet prosesstask"), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")})
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response taskForBehandleForsendelse(@TilpassetAbacAttributt(supplierClass = DokumentforsendelseRestTjeneste.ForsendelseAbacDataSupplier.class) @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
-        var builder = ProsessTaskDataBuilder.forProsessTask(BehandleDokumentforsendelseTask.class)
-            .medCallId(forsendelseIdDto.forsendelseId().toString())
-            .medProperty(FORSENDELSE_ID_KEY, forsendelseIdDto.forsendelseId().toString());
-
-        taskTjeneste.lagre(builder.build());
-
-        return Response.ok().build();
-    }
-
-    @POST
-    @Path("/taskForSlettForsendelse")
-    @Operation(description = "Sletter forsendelse som ikke skal behandles videre", tags = "Forvaltning", responses = {@ApiResponse(responseCode = "200", description = "Opprettet prosesstask"), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")})
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
-    public Response taskForSlettForsendelse(@TilpassetAbacAttributt(supplierClass = DokumentforsendelseRestTjeneste.ForsendelseAbacDataSupplier.class) @NotNull @QueryParam("forsendelseId") @Parameter(name = "forsendelseId") @Valid ForsendelseIdDto forsendelseIdDto) {
-
-        var builder = ProsessTaskDataBuilder.forProsessTask(SlettForsendelseTask.class)
-            .medCallId(forsendelseIdDto.forsendelseId().toString())
-            .medProperty(FORSENDELSE_ID_KEY, forsendelseIdDto.forsendelseId().toString())
-            .medProperty(SlettForsendelseTask.FORCE_SLETT_KEY, "forvaltning");
-
-        taskTjeneste.lagre(builder.build());
-
-        return Response.ok().build();
     }
 
     @POST

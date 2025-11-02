@@ -17,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.mottak.domene.dokument.DokumentRepository;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskInfo;
@@ -28,13 +27,11 @@ class JournalføringHendelseHåndtererTest {
 
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
-    @Mock
-    private DokumentRepository dokumentRepository;
     private JournalføringHendelseHåndterer hendelseHåndterer;
 
     @BeforeEach
     void setup() {
-        hendelseHåndterer = new JournalføringHendelseHåndterer(taskTjeneste, dokumentRepository, "topic", 2);
+        hendelseHåndterer = new JournalføringHendelseHåndterer(taskTjeneste, "topic", 2);
     }
 
     @Test
@@ -58,7 +55,7 @@ class JournalføringHendelseHåndtererTest {
         var result = captor.getAllValues();
         assertThat(result).as("Forventer at en prosesstask er lagt til").hasSize(1);
 
-        ProsessTaskInfo prosessTaskData = result.get(0);
+        ProsessTaskInfo prosessTaskData = result.getFirst();
         assertThat(prosessTaskData.taskType().value()).as("Forventer at prosesstask av korrekt type blir opprettet. ")
             .isEqualToIgnoringCase("fordeling.hentFraJoark");
 
@@ -83,7 +80,7 @@ class JournalføringHendelseHåndtererTest {
         verify(taskTjeneste, times(1)).lagre(captor.capture());
         var result = captor.getAllValues();
         assertThat(result).as("Forventer at en prosesstask er lagt til").hasSize(1);
-        ProsessTaskInfo prosessTaskData = result.get(0);
+        ProsessTaskInfo prosessTaskData = result.getFirst();
         assertThat(prosessTaskData.taskType().value()).as("Forventer at prosesstask av korrekt type blir opprettet. ")
             .isEqualToIgnoringCase("fordeling.hentFraJoark");
 
@@ -108,7 +105,7 @@ class JournalføringHendelseHåndtererTest {
         verify(taskTjeneste, times(1)).lagre(captor.capture());
         var result = captor.getAllValues();
         assertThat(result).as("Forventer at en prosesstask er lagt til").hasSize(1);
-        ProsessTaskInfo prosessTaskData = result.get(0);
+        ProsessTaskInfo prosessTaskData = result.getFirst();
         assertThat(prosessTaskData.getNesteKjøringEtter()).isAfter(LocalDateTime.now().plusHours(1));
     }
 

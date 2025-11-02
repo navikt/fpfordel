@@ -1,18 +1,17 @@
 package no.nav.foreldrepenger.fordel.web.app.forvaltning.migrering;
 
 import no.nav.foreldrepenger.journalføring.oppgave.lager.OppgaveEntitet;
-import no.nav.foreldrepenger.journalføring.oppgave.lager.Status;
-import no.nav.foreldrepenger.mottak.domene.dokument.Journalpost;
 
 public class MigreringMapper {
 
     public static MigreringOppgaveDto.OppgaveDto tilOppgaveDto(OppgaveEntitet oppgave) {
-        return new MigreringOppgaveDto.OppgaveDto(oppgave.getJournalpostId(), oppgave.getEnhet(), oppgave.getFrist(), oppgave.getBrukerId(),
-            oppgave.getYtelseType(), oppgave.getBeskrivelse(), oppgave.getReservertAv());
+        return new MigreringOppgaveDto.OppgaveDto(oppgave.getJournalpostId(), oppgave.getOpprettetTidspunkt(),
+            oppgave.getEnhet(), oppgave.getFrist(), oppgave.getBrukerId(), oppgave.getYtelseType(),
+            oppgave.getBeskrivelse(), oppgave.getStatus(), oppgave.getReservertAv());
     }
 
     public static OppgaveEntitet fraOppgaveDto(MigreringOppgaveDto.OppgaveDto oppgaveDto) {
-        return OppgaveEntitet.builder()
+        var oppgave = OppgaveEntitet.builder()
             .medJournalpostId(oppgaveDto.journalpostId())
             .medEnhet(oppgaveDto.enhet())
             .medFrist(oppgaveDto.frist())
@@ -20,17 +19,9 @@ public class MigreringMapper {
             .medYtelseType(oppgaveDto.ytelseType())
             .medBeskrivelse(oppgaveDto.beskrivelse())
             .medReservertAv(oppgaveDto.reservertAv())
-            .medStatus(Status.AAPNET)
+            .medStatus(oppgaveDto.status())
             .build();
+        oppgave.setOpprettetTidspunkt(oppgaveDto.opprettetTidspunkt());
+        return oppgave;
     }
-
-    public static MigreringJournalpostDto.JournalpostDto tilJournalpostDto(Journalpost journalpost) {
-        return new MigreringJournalpostDto.JournalpostDto(journalpost.getJournalpostId(), journalpost.getTilstand(), journalpost.getKanal(), journalpost.getReferanse());
-    }
-
-    public static Journalpost fraJournalpostDto(MigreringJournalpostDto.JournalpostDto journalpost) {
-        return new Journalpost(journalpost.journalpostId(), journalpost.tilstand(), journalpost.kanal(), journalpost.referanse(), "FORDEL");
-    }
-
-
 }

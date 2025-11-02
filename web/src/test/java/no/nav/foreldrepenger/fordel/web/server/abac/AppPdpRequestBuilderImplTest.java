@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
-import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,13 +11,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.pip.PipRepository;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 
 @ExtendWith(MockitoExtension.class)
 class AppPdpRequestBuilderImplTest {
     private static final String AKTØR = "AktørID_1";
-    private static final UUID DOKUMENTFORSENDELSE = UUID.randomUUID();
+    private static final JournalpostId JOURNALPOST_ID = JournalpostId.fra("123");
 
     @Mock
     private PipRepository pipRepository;
@@ -37,22 +37,14 @@ class AppPdpRequestBuilderImplTest {
         assertThat(request.getIdenter()).containsOnly(AKTØR);
     }
 
-    @Test
-    void skal_hente_aktør_id_gitt_forsendelse_id_som_input() {
-        var attributter = AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FORSENDELSE_UUID, DOKUMENTFORSENDELSE);
 
-        when(pipRepository.hentAktørIdForForsendelser(Collections.singleton(DOKUMENTFORSENDELSE))).thenReturn(Collections.singleton(AKTØR));
-
-        var request = requestBuilder.lagAppRessursData(attributter);
-        assertThat(request.getIdenter()).containsOnly(AKTØR);
-    }
 
     @Test
-    void skal_hente_to_aktør_id_gitt_forsendelse_id_som_input() {
+    void skal_hente_to_aktør_id_gitt_journalpostid_som_input() {
         var attributter = AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, AKTØR + "_A");
-        attributter.leggTil(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FORSENDELSE_UUID, DOKUMENTFORSENDELSE));
+        attributter.leggTil(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.JOURNALPOST_ID, JOURNALPOST_ID));
 
-        when(pipRepository.hentAktørIdForForsendelser(Collections.singleton(DOKUMENTFORSENDELSE))).thenReturn(Collections.singleton(AKTØR));
+        when(pipRepository.hentAktørIdForOppgave(Collections.singleton(JOURNALPOST_ID))).thenReturn(Collections.singleton(AKTØR));
 
         var request = requestBuilder.lagAppRessursData(attributter);
         assertThat(request.getIdenter()).contains(AKTØR);

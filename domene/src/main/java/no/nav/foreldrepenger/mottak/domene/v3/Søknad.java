@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Function;
 
 import jakarta.xml.bind.JAXBElement;
@@ -82,7 +81,7 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
 
     @Override
     protected void validerSkjemaSemantisk(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {
-        sjekkNødvendigeFeltEksisterer(dataWrapper.getForsendelseId().orElse(null));
+        sjekkNødvendigeFeltEksisterer();
         final BehandlingTema behandlingTema = hentBehandlingTema();
         final String aktørId = getSkjema().getSoeker().getAktoerId();
         if (!Objects.equals(dataWrapper.getBehandlingTema().getKode(), behandlingTema.getKode())) {
@@ -124,10 +123,9 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
         return getSkjema().getOmYtelse().getAny().stream().filter(Ytelse.class::isInstance).map(o -> (Ytelse) o).findFirst().orElse(null);
     }
 
-    public void sjekkNødvendigeFeltEksisterer(UUID forsendelseId) {
+    public void sjekkNødvendigeFeltEksisterer() {
         if ((getSkjema().getMottattDato() == null) || (getSkjema().getOmYtelse() == null) || (getSkjema().getSoeker() == null)) {
-            throw new TekniskException("FP-874812",
-                String.format("Ukjent format på søknad eller mangler nødvendig element (Forsendelse med ID: %s)", forsendelseId));
+            throw new TekniskException("FP-874812", "Ukjent format på søknad eller mangler nødvendig element");
         }
     }
 
