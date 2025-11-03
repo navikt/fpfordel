@@ -5,8 +5,8 @@
 
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
-        <artifactId>fp-bom</artifactId>
-        <version>4.1.0</version>
+        <artifactId>fp-parent-app</artifactId>
+        <version>5.0.2</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger.fordel</groupId>
@@ -42,13 +42,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles</groupId>
-                <artifactId>fp-bom</artifactId>
-                <version>4.1.0</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
 
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
