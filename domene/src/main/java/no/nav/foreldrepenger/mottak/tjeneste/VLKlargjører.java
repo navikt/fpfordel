@@ -48,34 +48,28 @@ public class VLKlargjører {
                          String eksternReferanseId) {
         String behandlingTemaString = (behandlingsTema == null) || BehandlingTema.UDEFINERT.equals(
             behandlingsTema) ? BehandlingTema.UDEFINERT.getKode() : behandlingsTema.getOffisiellKode();
-        String dokumentTypeIdOffisiellKode = null;
-        String dokumentKategoriOffisiellKode = null;
-        if (dokumenttypeId != null) {
-            dokumentTypeIdOffisiellKode = dokumenttypeId.getOffisiellKode();
-        }
-        if (dokumentKategori != null) {
-            dokumentKategoriOffisiellKode = dokumentKategori.getOffisiellKode();
-        }
+        String dokumentTypeIdOffisiellKode = dokumenttypeId.getOffisiellKode();
+        String dokumentKategoriOffisiellKode = dokumentKategori.getOffisiellKode();
+
         fagsak.knyttSakOgJournalpost(new JournalpostKnyttningDto(saksnummer, arkivId));
 
-        var journalpost = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString, dokumentTypeIdOffisiellKode, forsendelseMottatt, xml);
-        journalpost.setDokumentKategoriOffisiellKode(dokumentKategoriOffisiellKode);
-        journalpost.setJournalForendeEnhet(journalFørendeEnhet);
-        journalpost.setEksternReferanseId(eksternReferanseId);
-        Optional.ofNullable(eksternReferanseId).flatMap(VLKlargjører::asUUID).ifPresent(journalpost::setForsendelseId);
-        dokumentJournalpostSender.send(journalpost);
-
-        try {
+        // Uttalelse rundt tilbakekreving til fptilbake. Alt annet til fpsak.
+        if (DokumentTypeId.TILBAKEKREV_UTTALELSE.equals(dokumenttypeId) || DokumentTypeId.TILBAKEBETALING_UTTALSELSE.equals(dokumenttypeId)) {
             var tilbakeMottakDto = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString, dokumentTypeIdOffisiellKode,
                 forsendelseMottatt, null);
             tilbakeMottakDto.setDokumentKategoriOffisiellKode(dokumentKategoriOffisiellKode);
             tilbakeMottakDto.setJournalForendeEnhet(journalFørendeEnhet);
+            Optional.ofNullable(eksternReferanseId).flatMap(VLKlargjører::asUUID).ifPresent(tilbakeMottakDto::setForsendelseId);
+            tilbakeJournalpostSender.send(tilbakeMottakDto);
+        } else {
+            var journalpost = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString, dokumentTypeIdOffisiellKode, forsendelseMottatt, xml);
+            journalpost.setDokumentKategoriOffisiellKode(dokumentKategoriOffisiellKode);
+            journalpost.setJournalForendeEnhet(journalFørendeEnhet);
             journalpost.setEksternReferanseId(eksternReferanseId);
             Optional.ofNullable(eksternReferanseId).flatMap(VLKlargjører::asUUID).ifPresent(journalpost::setForsendelseId);
-            tilbakeJournalpostSender.send(tilbakeMottakDto);
-        } catch (Exception e) {
-            LOG.warn("Feil ved sending av forsendelse til fptilbake, ukjent feil", e);
+            dokumentJournalpostSender.send(journalpost);
         }
+
     }
 
     @Override

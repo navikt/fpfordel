@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-parent-app</artifactId>
-        <version>5.0.2</version>
+        <version>5.0.3</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger.fordel</groupId>
@@ -34,7 +34,7 @@
 
         <felles.version>7.6.9</felles.version>
         <prosesstask.version>5.2.1</prosesstask.version>
-        <fp-kontrakter.version>9.4.8</fp-kontrakter.version>
+        <fp-kontrakter.version>9.4.12</fp-kontrakter.version>
 
         <!-- Eksterne -->
         <confluent.version>8.1.0</confluent.version>
