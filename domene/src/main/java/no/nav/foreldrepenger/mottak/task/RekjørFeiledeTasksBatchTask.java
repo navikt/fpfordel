@@ -12,7 +12,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @Dependent
-@ProsessTask(value = "vedlikehold.tasks.retryfeilet", cronExpression = "0 1 7 * * *", maxFailedRuns = 1)
+@ProsessTask(value = "vedlikehold.tasks.retryfeilet", maxFailedRuns = 1)
 public class RekjørFeiledeTasksBatchTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(RekjørFeiledeTasksBatchTask.class);

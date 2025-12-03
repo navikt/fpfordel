@@ -25,7 +25,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @Dependent
-@ProsessTask(value = "vedlikehold.tasks.sikkerhetsnett", cronExpression = "0 29 6 * * WED", maxFailedRuns = 1)
+@ProsessTask(value = "vedlikehold.tasks.sikkerhetsnett", maxFailedRuns = 1)
 public class SikkerhetsnettTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(SikkerhetsnettTask.class);
